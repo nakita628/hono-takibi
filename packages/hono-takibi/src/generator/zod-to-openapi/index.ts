@@ -12,6 +12,7 @@ import {
   WIRE_JSON,
   hasSeveralReadings,
   isDecoratedRef,
+  nullReading,
   needsWireConversion,
   resolveSchemaRef,
   wireConverter,
@@ -57,6 +58,8 @@ export function zodToOpenAPI(
     readers?: readonly string[]
     /** An empty value is read as an absent one (`allowEmptyValue: true`). @internal */
     emptyAbsent?: boolean
+    /** What the request object inherits is read as an absent value. @internal */
+    inheritedAbsent?: boolean
     /** The references inlined on the way here, to stop at a cycle. @internal */
     wireRefs?: readonly string[]
     readonly?: boolean
@@ -71,9 +74,14 @@ export function zodToOpenAPI(
   // emitted as for a typed value. Converting per branch instead leaves the branches of an
   // `allOf` with different outputs ("10" and 10), which Zod cannot merge, and lets a
   // `oneOf` of integer and string match the same text twice.
+  const nullRead =
+    options?.coerce === true && options.json !== true
+      ? nullReading(schema, options.schemas)
+      : undefined
   const wire = (() => {
     if (options?.json === true) {
-      return (zod: string, _component = false) => `z.preprocess(${WIRE_JSON},${zod})`
+      return (zod: string, _component = false, _nullLast = false) =>
+        `z.preprocess(${WIRE_JSON},${zod})`
     }
     if (options?.coerce !== true) return undefined
     const kinds = wireKinds(schema, options.schemas)
@@ -88,7 +96,9 @@ export function zodToOpenAPI(
     if (!form && isBooleanLeaf && kinds.length === 1 && kinds[0] === 'boolean') return undefined
     return wrapWire('', kinds) === ''
       ? undefined
-      : (zod: string, component = false) => wrapWire(zod, kinds, component || form)
+      : // `z.stringbool()` takes text alone: a `null` read before it is handed to a converter.
+        (zod: string, component = false, nullLast = false) =>
+          wrapWire(zod, kinds, component || form || nullRead !== undefined, nullLast)
   })()
   // Tried as several readings, the component is handed to each of them: what describes the
   // parameter then belongs around them, not on the component.
@@ -107,10 +117,17 @@ export function zodToOpenAPI(
   const childOptions: typeof options =
     effective?.isOptional === undefined &&
     effective?.readers === undefined &&
-    effective?.emptyAbsent === undefined
+    effective?.emptyAbsent === undefined &&
+    effective?.inheritedAbsent === undefined
       ? effective
       : (() => {
-          const { isOptional: _, readers: _readers, emptyAbsent: _emptyAbsent, ...rest } = effective
+          const {
+            isOptional: _,
+            readers: _readers,
+            emptyAbsent: _emptyAbsent,
+            inheritedAbsent: _inheritedAbsent,
+            ...rest
+          } = effective
           return rest
         })()
   // Whether what is emitted here takes its value from a JSON document: a body, a response,
@@ -123,9 +140,16 @@ export function zodToOpenAPI(
   const done = (zod: string, emitted: Schema, named = false) => {
     const component = named && !isTriedSeveralWays
     const isFormArray = effective?.form === true && normalizeTypes(emitted.type).includes('array')
+    // Text tried as several readings is tried as `null` among them, the last of all. That is
+    // inside `.nullable()`, so a schema that declares `null` is handed it from outside.
+    const nullInside =
+      nullRead === 'last' &&
+      wire !== undefined &&
+      emitted.nullable !== true &&
+      !normalizeTypes(emitted.type).includes('null')
     const around =
       wire !== undefined
-        ? (core: string) => wire(core, component)
+        ? (core: string) => wire(core, component, nullInside)
         : isFormArray
           ? (core: string) => `z.preprocess(${FORM_ARITY},${core})`
           : undefined
@@ -135,6 +159,8 @@ export function zodToOpenAPI(
       ...(component ? { component } : {}),
       ...(options?.readers === undefined ? {} : { readers: options.readers }),
       ...(options?.emptyAbsent === true ? { emptyAbsent: true } : {}),
+      ...(options?.inheritedAbsent === true ? { inheritedAbsent: true } : {}),
+      ...(nullRead === undefined || nullInside ? {} : { nullRead }),
     })
   }
   // A bare reference is emitted as its identifier — except on the wire, where the

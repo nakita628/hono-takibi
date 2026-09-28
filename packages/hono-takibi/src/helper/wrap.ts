@@ -2,7 +2,7 @@ import { isRecord } from '../guard/index.js'
 import type { Header, Parameter, Schema } from '../openapi/index.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { makeExamples } from './openapi.js'
-import { WIRE_EMPTY, wireStyle } from './wire.js'
+import { WIRE_EMPTY, WIRE_INHERITED, WIRE_NULL, wireStyle } from './wire.js'
 
 function hasNotProperty(v: unknown): v is { not: unknown } {
   return typeof v === 'object' && v !== null && 'not' in v
@@ -226,6 +226,10 @@ export function wrap(
     readers?: readonly string[]
     /** An empty value is read as an absent one (`allowEmptyValue: true`). @internal */
     emptyAbsent?: boolean
+    /** What the request object inherits is read as an absent value. @internal */
+    inheritedAbsent?: boolean
+    /** The text `null` is read as the value, before or after it is read as text. @internal */
+    nullRead?: 'first' | 'last'
   },
 ) {
   // JSON Schema 2020-12: pre-2019-09 legacy keys + non-standard underscore variants.
@@ -320,7 +324,15 @@ export function wrap(
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
   // `.nullable()` must precede `.default()` so `.default(null)` validates.
   const build = (core: string) => {
-    const n = isNullable ? `${acceptBothArities(core)}.nullable()` : acceptBothArities(core)
+    const typed = isNullable ? `${acceptBothArities(core)}.nullable()` : acceptBothArities(core)
+    // `null` is read outside whatever takes it: `.nullable()`, or a branch of the schema.
+    // A schema that takes strings is asked about the text first.
+    const n =
+      options?.nullRead === 'first'
+        ? `z.preprocess(${WIRE_NULL},${typed})`
+        : options?.nullRead === 'last'
+          ? `((schema)=>z.union([schema,z.preprocess(${WIRE_NULL},schema)]))(${typed})`
+          : typed
     // `!== undefined` (not truthy): `default: 0` is valid.
     const d = schema.default !== undefined ? `${n}.default(${formatLiteral(schema.default)})` : n
     const pf =
@@ -348,12 +360,20 @@ export function wrap(
   // else sees it — outside `.default()`, which only applies to a value that is missing, and
   // around `.optional()`, without which a missing value is rejected. The default is stated
   // again outside: a parameter that is not sent at all never reaches the one inside.
+  // A parameter named like something every object inherits is read the same way: what the
+  // request object answers with when the parameter was not sent stands for an absent value.
   const absent = (chain: string) => {
-    if (options?.emptyAbsent !== true) return chain
+    const absentReaders = [
+      ...(options?.inheritedAbsent === true ? [WIRE_INHERITED] : []),
+      ...(options?.emptyAbsent === true ? [WIRE_EMPTY] : []),
+    ]
+    if (absentReaders.length === 0) return chain
+    const read = (inner: string) =>
+      absentReaders.reduceRight((inside, reader) => `z.preprocess(${reader},${inside})`, inner)
     if (schema.default !== undefined) {
-      return `z.preprocess(${WIRE_EMPTY},${chain}).default(${formatLiteral(schema.default)})`
+      return `${read(chain)}.default(${formatLiteral(schema.default)})`
     }
-    return `z.preprocess(${WIRE_EMPTY},${chain}${parameter?.required === true ? '' : '.optional()'})`
+    return read(`${chain}${parameter?.required === true ? '' : '.optional()'}`)
   }
   const z = absent(build(around(zod)))
   // Drop schema-level keys that header meta already emits (avoids duplicates
@@ -452,6 +472,18 @@ export function wrap(
   const fileMetaProps = isBinaryFile
     ? [isNullable ? 'type:["string","null"]' : 'type:"string"', 'format:"binary"']
     : []
+  // A `time` that may carry an offset is emitted as a string matched against a pattern,
+  // which the document would describe as a pattern alone. What the source declares is a
+  // `time`, so the format is stated beside it.
+  const isOffsetTime =
+    schema.format === 'time' &&
+    schema['x-isoOffset'] !== false &&
+    typeList.includes('string') &&
+    schema.contentEncoding === undefined &&
+    schema.contentMediaType === undefined &&
+    schema.contentSchema === undefined &&
+    hasNoUserChain(schema)
+  const timeMetaProps = isOffsetTime ? ['format:"time"'] : []
   // A bigint has no place in a document: the schema derived from `z.int64()` is a string
   // of digits, which drops the bounds, and a bigint default cannot be serialised at all —
   // serving the document throws. What the source declares is a JSON integer, so its own
@@ -513,6 +545,7 @@ export function wrap(
     ...headerMetaProps,
     meta?.headers && meta.headers.required !== true ? 'param:{required:false}' : undefined,
     ...fileMetaProps,
+    ...timeMetaProps,
     ...bigintMetaProps,
     openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
   ].filter((v) => v !== undefined)

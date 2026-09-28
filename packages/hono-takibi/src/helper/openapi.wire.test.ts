@@ -317,7 +317,7 @@ describe('makeParameterSchema: the text is read once', () => {
         schemas,
       ),
     ).toBe(
-      String.raw`((schema)=>z.union([z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),schema),z.preprocess((val)=>(val==='true'?true:val==='false'?false:val),schema),schema]))(z.unknown().superRefine((val,ctx)=>{if(typeof val==='number'){if(val<1){ctx.addIssue({code:'custom'})}}})).openapi({param:{"name":"p","in":"query","required":true,"schema":{"minimum":1}}})`,
+      String.raw`((schema)=>z.union([z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),schema),z.preprocess((val)=>(val==='true'?true:val==='false'?false:val),schema),schema,z.preprocess((val)=>(val==='null'?null:val),schema)]))(z.unknown().superRefine((val,ctx)=>{if(typeof val==='number'){if(val<1){ctx.addIssue({code:'custom'})}}})).openapi({param:{"name":"p","in":"query","required":true,"schema":{"minimum":1}}})`,
     )
   })
 
@@ -456,7 +456,7 @@ describe('makeParameterSchema: what goes around the converter', () => {
         schema: { type: ['integer', 'null'], default: 20 },
       }),
     ).toContain(
-      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).nullable().default(20).exactOptional().openapi({param:{"name":"p","in":"query","schema":{"type":["integer","null"],"default":20},"required":false}})`,
+      String.raw`z.preprocess((val)=>(val==='null'?null:val),z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).nullable()).default(20).exactOptional().openapi({param:{"name":"p","in":"query","schema":{"type":["integer","null"],"default":20},"required":false}})`,
     )
   })
 
@@ -498,7 +498,7 @@ describe('makeParameterSchema: what goes around the converter', () => {
         schema: { type: 'integer' },
       }),
     ).toContain(
-      String.raw`z.preprocess((val)=>(typeof val==='string'?val.replace(/^\./,''):val),z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int())).openapi({param:{"name":"id","in":"path","required":true,"style":"label","schema":{"type":"integer"}}})`,
+      String.raw`z.preprocess((val)=>(typeof val!=='string'?val:val.startsWith(".")?val.slice(1):undefined),z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int())).openapi({param:{"name":"id","in":"path","required":true,"style":"label","schema":{"type":"integer"}}})`,
     )
   })
 })
@@ -693,7 +693,7 @@ describe('makeRequestParams: a query that gathers its objects', () => {
         },
       ]),
     ).toBe(
-      String.raw`query:z.looseObject({}).transform((val)=>{const rest:[string,unknown][]=[];const groups=new Map<string,[string,unknown][]>();const put=(name:string,key:string,item:unknown)=>{groups.set(name,[...(groups.get(name)??[]),[key,item]])};const deep=["filter"];for(const [key,item] of Object.entries(val)){const match=/^([^\[\]]+)\[([^\[\]]*)\]$/.exec(key);const name=match?.[1];const property=match?.[2];if(name!==undefined&&property!==undefined&&deep.includes(name)){put(name,property,item);continue};rest.push([key,item])};return Object.fromEntries([...rest,...[...groups].map(([name,group])=>[name,Object.fromEntries(group)])])}).pipe(z.object({filter:z.object({name:z.string().exactOptional()}).openapi({param:{"name":"filter","in":"query","required":true,"style":"deepObject","schema":{"type":"object","properties":{"name":{"type":"string"}}}},"required":[]})}))`,
+      String.raw`query:z.looseObject({}).transform((val)=>{const rest:[string,unknown][]=[];const groups=new Map<string,Record<string,unknown>>();const group=(name:string)=>{const found=groups.get(name);if(found!==undefined)return found;const made:Record<string,unknown>=Object.create(null);groups.set(name,made);return made};const isGroup=(item:unknown):item is Record<string,unknown>=>typeof item==='object'&&item!==null&&!Array.isArray(item);const set=(target:Record<string,unknown>,path:readonly string[],item:unknown):void=>{const [head,...tail]=path;if(head===undefined)return;if(tail.length===0){target[head]=item;return}const held=target[head];if(tail.length===1&&tail[0]===''){target[head]=[...(Array.isArray(held)?held:[]),...(Array.isArray(item)?item:[item])];return}const next:Record<string,unknown>=isGroup(held)?held:Object.create(null);target[head]=next;set(next,tail,item)};const deep:string[]=["filter"];for(const [key,item] of Object.entries(val)){const match=/^([^\[\]]+)((?:\[[^\[\]]*\])+)$/.exec(key);const name=match?.[1];const path=match?.[2];if(name!==undefined&&path!==undefined&&deep.includes(name)){set(group(name),path.slice(1,-1).split(']['),item);continue};rest.push([key,item])};return Object.fromEntries([...rest,...groups])}).pipe(z.object({filter:z.object({name:z.string().exactOptional()}).openapi({param:{"name":"filter","in":"query","required":true,"style":"deepObject","schema":{"type":"object","properties":{"name":{"type":"string"}}}},"required":[]})}))`,
     )
   })
 
@@ -714,7 +714,7 @@ describe('makeRequestParams: a query that gathers its objects', () => {
         },
         { name: 'page', in: 'query', schema: { type: 'string' } },
       ]),
-    ).toContain('const spread=new Map<string,string>([["size","opts"]]);')
+    ).toContain('const spread=new Map<string,string[]>([["size",["opts"]]]);')
   })
 
   // `explode: false` is one key, so there is nothing to gather.

@@ -36,12 +36,14 @@ import {
   getInt64rangeValueRoute,
   getInt64ValueRoute,
   getIntegerValueRoute,
+  getInullValueRoute,
   getIpv4ValueRoute,
   getIpv6ValueRoute,
   getKsuidValueRoute,
   getLabelarrValueRoute,
   getLabelexplodeValueRoute,
   getLabelobjxValueRoute,
+  getLabelstrValueRoute,
   getLabelValueRoute,
   getLengthValueRoute,
   getMacValueRoute,
@@ -49,6 +51,7 @@ import {
   getMatrixexplodeValueRoute,
   getMatrixobjValueRoute,
   getMatrixobjxValueRoute,
+  getMatrixstrValueRoute,
   getMatrixValueRoute,
   getMultipleValueRoute,
   getNamedUserIdPostIdRoute,
@@ -184,6 +187,7 @@ export const pathParamsApp = new OpenAPIHono({
   .openapi(getTxupperValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
   .openapi(getTxnormalizeValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
   .openapi(getTxemailValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getInullValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
   .openapi(getIenumValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
   .openapi(getNenumValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
   .openapi(getBenumValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
@@ -221,6 +225,8 @@ export const pathParamsApp = new OpenAPIHono({
   .openapi(getSimplearrValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
   .openapi(getSimplestrarrValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
   .openapi(getLabelValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getLabelstrValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getMatrixstrValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
   .openapi(getLabelarrValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
   .openapi(getLabelexplodeValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
   .openapi(getMatrixValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))

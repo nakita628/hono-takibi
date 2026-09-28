@@ -2743,6 +2743,26 @@ describe('formats: what each string format accepts', () => {
     })
   })
 
+  // A zone designator: `time` names an RFC 3339 full-time, which ends in one.
+  // タイムゾーン指定子が付いている。`time` が指す RFC 3339 の full-time は、これで終わる。
+  it('time accepts "12:34:56Z"', async () => {
+    const res = await queryParamsApp.request(`/params?time=${encodeURIComponent('12:34:56Z')}`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time: { valueType: 'string', valueText: '12:34:56Z' },
+    })
+  })
+
+  // An offset in place of the zone designator.
+  // タイムゾーン指定子の代わりにオフセットが付いている。
+  it('time accepts "12:34:56+09:00"', async () => {
+    const res = await queryParamsApp.request(`/params?time=${encodeURIComponent('12:34:56+09:00')}`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time: { valueType: 'string', valueText: '12:34:56+09:00' },
+    })
+  })
+
   // Fractional seconds.
   // 小数秒。
   it('datetime accepts "2020-01-02T03:04:05.123Z"', async () => {
@@ -2752,6 +2772,18 @@ describe('formats: what each string format accepts', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       datetime: { valueType: 'string', valueText: '2020-01-02T03:04:05.123Z' },
+    })
+  })
+
+  // An offset instead of Z: RFC 3339, which `date-time` names, takes either.
+  // Z ではなくオフセット。`date-time` が指す RFC 3339 はどちらも認める。
+  it('datetime accepts "2020-01-02T03:04:05+09:00"', async () => {
+    const res = await queryParamsApp.request(
+      `/params?datetime=${encodeURIComponent('2020-01-02T03:04:05+09:00')}`,
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      datetime: { valueType: 'string', valueText: '2020-01-02T03:04:05+09:00' },
     })
   })
 
@@ -3898,6 +3930,106 @@ describe('literals: enum, const and oneOf', () => {
     })
   })
 
+  // The text "null" is the value null: the schema takes null and no string, so the text can
+  // mean nothing else.
+  // テキスト "null" は値 null である。スキーマは null を受理し文字列を受理しないため、
+  // このテキストに他の意味はない。
+  it('inull accepts "null"', async () => {
+    const res = await queryParamsApp.request('/literals?inull=null')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      inull: { valueType: 'null', valueText: 'null' },
+    })
+  })
+
+  // type: [boolean, null] accepts a boolean.
+  // type: [boolean, null] は boolean を受理する。
+  it('bnull accepts "true"', async () => {
+    const res = await queryParamsApp.request('/literals?bnull=true')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      bnull: { valueType: 'boolean', valueText: 'true' },
+    })
+  })
+
+  // The text "null" is the value null for a boolean as well.
+  // boolean の場合も、テキスト "null" は値 null である。
+  it('bnull accepts "null"', async () => {
+    const res = await queryParamsApp.request('/literals?bnull=null')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      bnull: { valueType: 'null', valueText: 'null' },
+    })
+  })
+
+  // oneOf an integer or null: the integer branch coerces.
+  // integer または null の oneOf。integer 側の分岐は coerce される。
+  it('nullof accepts "4"', async () => {
+    const res = await queryParamsApp.request('/literals?nullof=4')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      nullof: { valueType: 'number', valueText: '4' },
+    })
+  })
+
+  // null declared as a branch of its own is read the same way.
+  // null が独立した分岐として宣言されていても、同じように読まれる。
+  it('nullof accepts "null"', async () => {
+    const res = await queryParamsApp.request('/literals?nullof=null')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      nullof: { valueType: 'null', valueText: 'null' },
+    })
+  })
+
+  // An element of an array is read like a scalar.
+  // 配列の要素は、スカラーと同じように読まれる。
+  it('inull_arr accepts "1" and "null"', async () => {
+    const res = await queryParamsApp.request('/literals?inull_arr=1&inull_arr=null')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      inull_arr: [
+        { valueType: 'number', valueText: '1' },
+        { valueType: 'null', valueText: 'null' },
+      ],
+    })
+  })
+
+  // The elements of inull_list are integers, which the text "null" is not: it is the array
+  // that is null.
+  // inull_list の要素は integer であり、テキスト "null" は要素になりえない。null なのは
+  // 配列そのものである。
+  it('inull_list accepts "null" as the array', async () => {
+    const res = await queryParamsApp.request('/literals?inull_list=null')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      inull_list: { valueType: 'null', valueText: 'null' },
+    })
+  })
+
+  // The same array with elements.
+  // 同じ配列に要素がある場合。
+  it('inull_list accepts "1" and "2"', async () => {
+    const res = await queryParamsApp.request('/literals?inull_list=1&inull_list=2')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      inull_list: [
+        { valueType: 'number', valueText: '1' },
+        { valueType: 'number', valueText: '2' },
+      ],
+    })
+  })
+
+  // A string takes every text, "null" included: it stays the string it is.
+  // 文字列はあらゆるテキストを受理する。"null" も例外ではなく、文字列のまま届く。
+  it('snull accepts "null" as a string', async () => {
+    const res = await queryParamsApp.request('/literals?snull=null')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      snull: { valueType: 'string', valueText: 'null' },
+    })
+  })
+
   // oneOf an integer or "all": the integer branch coerces.
   // integer または "all" の oneOf。integer 側の分岐は coerce される。
   it('ioneof accepts "4"', async () => {
@@ -4405,6 +4537,28 @@ describe('required', () => {
 // The name has to survive from the spec to the validated object, character for character.
 // 名前は、仕様から検証済みオブジェクトに至るまで、1文字も変わらず保たれなければならない。
 describe('names: parameter names that are not identifiers', () => {
+  // A name every object inherits, sent: it is read like any other parameter.
+  // すべてのオブジェクトが継承する名前を送信する。他のパラメータと同じように読まれる。
+  it('constructor accepts "5"', async () => {
+    const res = await queryParamsApp.request('/optional?constructor=5')
+    expect(res.status).toBe(200)
+    // The body is compared as text: `toStrictEqual` compares the `constructor` of two
+    // objects to tell their types apart, and here that is the key under test.
+    // ボディは文字列として比較する。`toStrictEqual` は型を見分けるために2つのオブジェクトの
+    // `constructor` を比較するが、ここではそれがテスト対象のキーそのものである。
+    expect(await res.text()).toBe('{"constructor":{"valueType":"number","valueText":"5"}}')
+  })
+
+  // The same name, not sent: what the request object inherits under it is not a value, so
+  // the optional parameter is absent.
+  // 同じ名前を送信しない。リクエストオブジェクトがその名前で継承しているものは値ではない
+  // ため、任意パラメータは存在しない扱いになる。
+  it('constructor is absent when it is not sent', async () => {
+    const res = await queryParamsApp.request('/optional')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({})
+  })
+
   // A hyphen: not a JavaScript identifier, so the generated key has to be quoted.
   // ハイフンを含む名前。JavaScript の識別子ではないため、
   // 生成されるキーは引用符で囲む必要がある。
@@ -5305,14 +5459,73 @@ describe('objects: a parameter spread over the query', () => {
     expect(await res.json()).toStrictEqual({})
   })
 
-  // OpenAPI defines deepObject for one level. A key with two pairs of brackets is not a property
-  // of deep, so deep is not sent at all.
-  // OpenAPI は、deepObject を1階層分しか定義していない。角括弧が2組あるキーは deep の
-  // プロパティではないため、deep は送信されていないことになる。
-  it('ignores a key nested deeper than a property', async () => {
-    const res = await queryParamsApp.request('/objects?deep[name][x]=1')
+  // A key with two pairs of brackets names a path into the object: range is an object, and
+  // min and max are its properties.
+  // 角括弧が2組あるキーは、オブジェクト内のパスを表す。range はオブジェクトであり、
+  // min と max はそのプロパティである。
+  it('deep reads a key nested under a property that is an object', async () => {
+    const res = await queryParamsApp.request('/objects?deep[range][min]=1&deep[range][max]=5')
     expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({})
+    expect(await res.json()).toStrictEqual({
+      deep: { range: { valueType: 'object', valueText: '{"min":1,"max":5}' } },
+    })
+  })
+
+  // An empty pair of brackets names an element of an array, as many times as there are
+  // elements.
+  // 空の角括弧は配列の要素を表し、要素の数だけ繰り返される。
+  it('deep reads the elements of an array written with empty brackets', async () => {
+    const res = await queryParamsApp.request('/objects?deep[ids][]=1&deep[ids][]=2')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      deep: { ids: { valueType: 'object', valueText: '[1,2]' } },
+    })
+  })
+
+  // One element written that way is an array of one.
+  // この形式で要素を1つだけ書いた場合は、1要素の配列になる。
+  it('deep reads one element written with empty brackets as an array of one', async () => {
+    const res = await queryParamsApp.request('/objects?deep[tags][]=a')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      deep: { tags: { valueType: 'object', valueText: '["a"]' } },
+    })
+  })
+
+  // /shared declares filter and sort, and both declare name: the key is a property of each.
+  // /shared は filter と sort を宣言しており、どちらも name を宣言している。このキーは、
+  // 両方のプロパティになる。
+  it('gives a key two exploded objects declare to both', async () => {
+    const res = await queryParamsApp.request('/shared?name=bob&age=5&dir=asc')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      filter: {
+        name: { valueType: 'string', valueText: 'bob' },
+        age: { valueType: 'number', valueText: '5' },
+      },
+      sort: {
+        name: { valueType: 'string', valueText: 'bob' },
+        dir: { valueType: 'string', valueText: 'asc' },
+      },
+    })
+  })
+
+  // /open declares extra with additionalProperties: { type: integer }. other is declared
+  // nowhere, so it is a property of extra; known is one extra declares; page is a parameter
+  // of its own.
+  // /open は、extra を additionalProperties: { type: integer } 付きで宣言している。other は
+  // どこにも宣言されていないため extra のプロパティになる。known は extra が宣言する
+  // プロパティであり、page は独立したパラメータである。
+  it('gives a key nothing declares to an object that takes additional properties', async () => {
+    const res = await queryParamsApp.request('/open?page=2&known=k&other=7')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      page: { valueType: 'number', valueText: '2' },
+      extra: {
+        known: { valueType: 'string', valueText: 'k' },
+        other: { valueType: 'number', valueText: '7' },
+      },
+    })
   })
 
   // /styles declares filter as a deepObject beside csv, an array with explode: false.
@@ -6084,6 +6297,26 @@ describe('content: a JSON document', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       list: [],
+    })
+  })
+
+  // form is declared with content: application/x-www-form-urlencoded. Its value is one
+  // form-encoded document, whose fields are text: a is read as a number, b as a boolean, and
+  // tags, sent twice, as an array.
+  // form は content: application/x-www-form-urlencoded で宣言されている。値は1つの
+  // フォームエンコードされた文書であり、そのフィールドは文字列である。a は number、
+  // b は boolean として読まれ、2回送信された tags は配列になる。
+  it('form reads a form-encoded document', async () => {
+    const res = await queryParamsApp.request(
+      `/content?form=${encodeURIComponent('a=1&b=true&tags=x&tags=y')}`,
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      form: {
+        a: { valueType: 'number', valueText: '1' },
+        b: { valueType: 'boolean', valueText: 'true' },
+        tags: { valueType: 'object', valueText: '["x","y"]' },
+      },
     })
   })
 })

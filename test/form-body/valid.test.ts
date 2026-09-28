@@ -282,6 +282,22 @@ describe('fields: every kind of field is read from text', () => {
       limit: { valueType: 'number', valueText: '20' },
     })
   })
+
+  // moment is format: date-time; the offset is sent percent-encoded, as a form sends "+".
+  // moment は format: date-time である。フォームが "+" を送るときと同じく、オフセットは
+  // パーセントエンコードして送信する。
+  it('moment accepts a date-time with an offset', async () => {
+    const res = await formBodyApp.request('/urlencoded', {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: `moment=${encodeURIComponent('2020-01-02T03:04:05+09:00')}`,
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      limit: { valueType: 'number', valueText: '20' },
+      moment: { valueType: 'string', valueText: '2020-01-02T03:04:05+09:00' },
+    })
+  })
 })
 
 // An array field is sent by repeating its name. Sent once, it arrives as a bare string, which the

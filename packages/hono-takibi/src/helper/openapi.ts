@@ -29,7 +29,15 @@ import {
   requestParamsArray,
   toIdentifierPascalCase,
 } from '../utils/index.js'
-import { inlineWireRefs, isEmptyAbsent, isObjectParameter, wireGather, wireObject } from './wire.js'
+import {
+  inlineWireRefs,
+  isEmptyAbsent,
+  isInheritedName,
+  isObjectParameter,
+  WIRE_FORM,
+  wireGather,
+  wireObject,
+} from './wire.js'
 
 export function makeRef($ref: string) {
   const COMPONENT_SUFFIX_MAP: readonly {
@@ -478,6 +486,22 @@ export function makeRequest(
 }
 
 /**
+ * Says so when a path cannot be routed. A path template may hold several parameters in one
+ * segment (`/files/{name}.{ext}`) or a parameter beside text (`/v{version}`), and Hono reads
+ * a parameter as a whole segment: the route is registered and never matches.
+ */
+export function warnUnroutablePath(path: string): void {
+  const segments = path
+    .split('/')
+    .filter((segment) => segment.includes('{') && !/^\{[^{}]+\}$/u.test(segment))
+  if (segments.length === 0) return
+  // oxlint-disable-next-line no-console -- warns the user that the route never matches
+  console.warn(
+    `path "${path}" never matches a request: ${segments.map((segment) => `"${segment}"`).join(', ')} holds a parameter that is not a whole segment, which Hono does not route. Give each parameter a segment of its own.`,
+  )
+}
+
+/**
  * The Zod schema for one parameter's value. A path, query, header or cookie value reaches
  * the handler as text, so whatever is not a string is read from text before it validates
  * (the emitter's `coerce` option); only a request body arrives already typed.
@@ -497,11 +521,15 @@ export function makeParameterSchema(
     const [mediaType, media] = Object.entries(param.content ?? {})[0] ?? []
     if (mediaType === undefined || media?.schema === undefined) return 'z.any()'
     const isJson = mediaType.toLowerCase().includes('json')
+    // A form-encoded document comes apart into fields of text, read like those of a form
+    // body.
+    const isForm = mediaType.toLowerCase().includes('x-www-form-urlencoded')
     return zodToOpenAPI(
       media.schema,
       { parameters: param },
       {
         ...(isJson ? { json: true } : { coerce: true }),
+        ...(isForm ? { form: true, readers: [WIRE_FORM] } : {}),
         ...(readonly === true ? { readonly: true } : {}),
         ...(schemas === undefined ? {} : { schemas }),
       },
@@ -528,6 +556,7 @@ export function makeParameterSchema(
       ...(object === undefined ? {} : { form: true }),
       ...(readers.length === 0 ? {} : { readers }),
       ...(isEmptyAbsent(param, schemas) ? { emptyAbsent: true } : {}),
+      ...(isInheritedName(param) ? { inheritedAbsent: true } : {}),
       ...(readonly === true ? { readonly: true } : {}),
       ...(schemas === undefined ? {} : { schemas }),
     },
@@ -545,6 +574,12 @@ export function makeParameters(
   return parameters.reduce((acc: { [section: string]: { [k: string]: string } }, param) => {
     if (!('in' in param)) return acc
     if (!acc[param.in]) acc[param.in] = {}
+    if (param.name === '__proto__') {
+      // oxlint-disable-next-line no-console -- warns the user that the parameter is never read
+      console.warn(
+        `parameter "__proto__" (in: ${param.in}) is never read: Zod leaves a key of that name out of every object it parses, so that a request cannot reach the prototype. Give the parameter another name.`,
+      )
+    }
     acc[param.in][makeSafeKey(param.name)] = param.$ref
       ? makeRef(param.$ref)
       : makeParameterSchema(param, readonly, schemas)

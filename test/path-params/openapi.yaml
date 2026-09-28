@@ -414,6 +414,17 @@ paths:
   # ---- リテラル ----
   # A numeric or boolean `enum` / `const` names a typed value; the segment is text.
   # 数値・真偽値の `enum` / `const` は型付きの値を指すが、セグメントは文字列である。
+  # `null` has no spelling of its own in a parameter; the text `null` is read as the value by
+  # a schema that takes `null` and no string.
+  # パラメータには `null` 専用の表記がない。`null` を受理し、文字列を受理しないスキーマは、
+  # テキスト `null` を値として読む。
+  /inull/{value}:
+    get:
+      operationId: inullParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: [integer, 'null'] } }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
   /ienum/{value}:
     get:
       operationId: ienumParam
@@ -598,6 +609,22 @@ paths:
       operationId: labelParam
       parameters:
         - { name: value, in: path, required: true, style: label, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  # A string takes any text, so what tells a value from text that is not one is the prefix.
+  # string はあらゆる文字列を受理するため、値とそうでない文字列を見分けるのは接頭辞である。
+  /labelstr/{value}:
+    get:
+      operationId: labelstrParam
+      parameters:
+        - { name: value, in: path, required: true, style: label, schema: { type: string } }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /matrixstr/{value}:
+    get:
+      operationId: matrixstrParam
+      parameters:
+        - { name: value, in: path, required: true, style: matrix, schema: { type: string } }
       responses:
         '200': { $ref: '#/components/responses/Echo' }
   /labelarr/{value}:

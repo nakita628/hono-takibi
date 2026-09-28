@@ -43,6 +43,12 @@ const READ_BOOLEAN =
 
 const ALL_SCALARS: readonly WireKind[] = ['number', 'truth', 'string']
 
+/**
+ * Reads the text `null` as the value. OpenAPI gives `null` no spelling of its own in a
+ * parameter, and JSON's is the one a client reaches for.
+ */
+export const WIRE_NULL = "(val)=>(val==='null'?null:val)"
+
 /** Looks a `#/components/schemas/<name>` reference up; anything else is not resolved. */
 export function resolveSchemaRef(ref: string, schemas: Schemas | undefined): Schema | undefined {
   if (!ref.startsWith(SCHEMA_REF_PREFIX)) return undefined
@@ -153,8 +159,10 @@ export function wireKinds(
   }
   if (types.length > 0) {
     // `type: [integer, array]` has a scalar reading; a type that is only an array, an
-    // object or a date has none.
-    return typed.length > 0 ? [...new Set(typed)] : undefined
+    // object or a date has none. `null` alone is a scalar no text is read as, which leaves
+    // a union it is a branch of with the readings of the others.
+    if (typed.length > 0) return [...new Set(typed)]
+    return types.every((type) => type === 'null') ? [] : undefined
   }
   const hasComposite =
     schema.items !== undefined ||
@@ -364,7 +372,13 @@ export function wireConverter(
  * tried as each in turn, and the first reading the schema accepts is the value. The schema
  * is returned as it is when its kinds need no conversion.
  */
-export function wrapWire(zod: string, kinds: readonly WireKind[], component = false): string {
+export function wrapWire(
+  zod: string,
+  kinds: readonly WireKind[],
+  component = false,
+  // The text `null` is tried as the value after every other reading.
+  nullLast = false,
+): string {
   const readers = wireReaders(kinds)
   const [only] = readers
   if (only === undefined) return zod
@@ -380,6 +394,7 @@ export function wrapWire(zod: string, kinds: readonly WireKind[], component = fa
   const readings = [
     ...readers.map((reader) => `z.preprocess(${reader},schema)`),
     ...(kinds.includes('string') ? ['schema'] : []),
+    ...(nullLast ? [`z.preprocess(${WIRE_NULL},schema)`] : []),
   ]
   return `((schema)=>z.union([${readings.join(',')}]))(${zod})`
 }
@@ -403,12 +418,30 @@ export const JSON_BIGINT = String.raw`(val)=>(typeof val==='number'&&Number.isSa
  */
 export const FORM_ARITY = '(val)=>(val===undefined||Array.isArray(val)?val:[val])'
 
+/**
+ * Reads a form-encoded parameter (`content: application/x-www-form-urlencoded`) before it
+ * is validated: one value that holds `a=1&b=x`. A name sent several times is an array. The
+ * object is built without a prototype, so a name such as `__proto__` stays a name.
+ */
+export const WIRE_FORM =
+  "(val)=>{if(typeof val!=='string')return val;const fields:Record<string,unknown>=Object.create(null);for(const [name,item] of new URLSearchParams(val)){const held=fields[name];fields[name]=held===undefined?item:[...(Array.isArray(held)?held:[held]),item]}return fields}"
+
 /** Reads a JSON-encoded parameter (`content: application/json`) before it is validated. */
 export const WIRE_JSON =
   "(val)=>{if(typeof val!=='string')return val;try{return JSON.parse(val)}catch{return val}}"
 
-function escapeRegExp(text: string) {
-  return text.replaceAll(/[.*+?^${}()|[\]\\]/gu, String.raw`\$&`)
+/**
+ * The expression that takes the prefix of a style off `val`, as source. A `label` or
+ * `matrix` value is the prefix and what follows, so text that does not start with it is not
+ * a value of the parameter: it is read as `undefined`, which the schema rejects. `empty` is
+ * how the style spells a value that holds nothing, `;id` beside `;id=5`.
+ */
+function unprefixed(prefix: string, empty?: string, separator?: string) {
+  const held = `val.startsWith(${JSON.stringify(prefix)})?val.slice(${prefix.length}):undefined`
+  const rest = empty === undefined ? held : `val===${JSON.stringify(empty)}?'':${held}`
+  // An array is what is left, split on what stands between its elements.
+  const read = separator === undefined ? rest : `(${rest})?.split(${JSON.stringify(separator)})`
+  return `(val)=>(typeof val!=='string'?val:${read})`
 }
 
 /** Splits one piece of text, or each piece of a repeated parameter, on a separator. */
@@ -454,17 +487,15 @@ export function wireStyle(parameter: Parameter, isArray: boolean): string | unde
   const style = parameter.style ?? 'simple'
   const explode = parameter.explode ?? false
   if (style === 'label') {
-    const strip = String.raw`val.replace(/^\./,'')`
-    return isArray
-      ? `(val)=>(typeof val==='string'?${strip}.split(${explode ? "'.'" : "','"}):val)`
-      : `(val)=>(typeof val==='string'?${strip}:val)`
+    return unprefixed('.', undefined, isArray ? (explode ? '.' : ',') : undefined)
   }
   if (style === 'matrix') {
-    const name = escapeRegExp(parameter.name).replaceAll('/', String.raw`\/`)
-    const strip = `val.replace(/^;${name}=/,'')`
-    return isArray
-      ? `(val)=>(typeof val==='string'?${strip}.split(${explode ? JSON.stringify(`;${parameter.name}=`) : "','"}):val)`
-      : `(val)=>(typeof val==='string'?${strip}:val)`
+    const assigned = `;${parameter.name}=`
+    return unprefixed(
+      assigned,
+      `;${parameter.name}`,
+      isArray ? (explode ? assigned : ',') : undefined,
+    )
   }
   return isArray ? `(val)=>(typeof val==='string'?val.split(','):val)` : undefined
 }
@@ -477,12 +508,16 @@ export function wireStyle(parameter: Parameter, isArray: boolean): string | unde
  *   `form` query parameter that explodes (the default), and a cookie that does.
  * - `value`: the parameter is one value that holds the object, read by `reader`:
  *   `filter=name,bob,age,5`, a path segment `name=bob,age=5`, a header `name,bob,age,5`.
+ *
+ * An object is `open` when it declares `additionalProperties`: it takes keys it does not
+ * name.
  */
 export type WireObject = {
   readonly name: string
   readonly how: 'deep' | 'spread' | 'value'
   readonly properties: readonly string[]
   readonly reader?: string
+  readonly open?: true
 }
 
 function resolveObject(
@@ -506,18 +541,26 @@ export function isObjectParameter(parameter: Parameter, schemas: Schemas | undef
 }
 
 /**
- * The function that reads one value holding an object, as source. `strip` is the source of
- * what takes the prefix of the style off the text; `separator` is what stands between the
- * parts. With `assignments` each part is `name=value`; without, names and values alternate.
+ * The function that reads one value holding an object, as source. `separator` is what
+ * stands between the parts. With `assignments` each part is `name=value`; without, names and values alternate.
  * A value that does not come apart that way — a name left without its value, a part with no
  * `=` — is handed on as the text it is, for the schema to reject. `Object.fromEntries`
  * defines each key as a property of its own, so a name such as `__proto__` stays a name.
  */
-function objectReader(strip: string, separator: string, assignments: boolean, trim = false) {
-  const parts = `${strip}.split(${JSON.stringify(separator)})${trim ? '.map((part)=>part.trim())' : ''}`
+function objectReader(
+  separator: string,
+  assignments: boolean,
+  trim = false,
+  // What the style puts before the object; text that does not start with it is not one.
+  prefix = '',
+) {
+  const guard =
+    prefix === '' ? '' : `if(!val.startsWith(${JSON.stringify(prefix)}))return undefined;`
+  const text = prefix === '' ? 'val' : `val.slice(${prefix.length})`
+  const parts = `${text}.split(${JSON.stringify(separator)})${trim ? '.map((part)=>part.trim())' : ''}`
   return assignments
-    ? `(val)=>{if(typeof val!=='string')return val;const parts=${parts};const entries=parts.flatMap((part)=>{const at=part.indexOf('=');return at<0?[]:[[part.slice(0,at),part.slice(at+1)]]});if(entries.length!==parts.length)return val;return Object.fromEntries(entries)}`
-    : `(val)=>{if(typeof val!=='string')return val;const parts=${parts};if(parts.length%2!==0)return val;return Object.fromEntries(parts.flatMap((part,i)=>(i%2===0?[[part,parts[i+1]]]:[])))}`
+    ? `(val)=>{if(typeof val!=='string')return val;${guard}const parts=${parts};const entries=parts.flatMap((part)=>{const at=part.indexOf('=');return at<0?[]:[[part.slice(0,at),part.slice(at+1)]]});if(entries.length!==parts.length)return val;return Object.fromEntries(entries)}`
+    : `(val)=>{if(typeof val!=='string')return val;${guard}const parts=${parts};if(parts.length%2!==0)return val;return Object.fromEntries(parts.flatMap((part,i)=>(i%2===0?[[part,parts[i+1]]]:[])))}`
 }
 
 /**
@@ -535,31 +578,33 @@ export function wireObject(
   const properties = Object.keys(object.properties ?? {})
   const name = parameter.name
   const value = (reader: string): WireObject => ({ name, how: 'value', properties, reader })
+  const open = object.additionalProperties !== undefined && object.additionalProperties !== false
   const spread = (): WireObject | undefined =>
-    properties.length > 0 ? { name, how: 'spread', properties } : undefined
+    properties.length > 0 || open
+      ? { name, how: 'spread', properties, ...(open ? { open: true as const } : {}) }
+      : undefined
   if (parameter.in === 'query') {
     const style = parameter.style ?? 'form'
     if (style === 'deepObject') return { name, how: 'deep', properties }
     if (parameter.explode ?? style === 'form') return spread()
     const separator = style === 'pipeDelimited' ? '|' : style === 'spaceDelimited' ? ' ' : ','
-    return value(objectReader('val', separator, false))
+    return value(objectReader(separator, false))
   }
   if (parameter.in === 'cookie') {
-    return (parameter.explode ?? true) ? spread() : value(objectReader('val', ',', false))
+    return (parameter.explode ?? true) ? spread() : value(objectReader(',', false))
   }
   const explode = parameter.explode ?? false
-  if (parameter.in === 'header') return value(objectReader('val', ',', explode, true))
+  if (parameter.in === 'header') return value(objectReader(',', explode, true))
   const style = parameter.style ?? 'simple'
   if (style === 'label') {
-    return value(objectReader(String.raw`val.replace(/^\./,'')`, explode ? '.' : ',', explode))
+    return value(objectReader(explode ? '.' : ',', explode, false, '.'))
   }
   if (style === 'matrix') {
-    const prefix = escapeRegExp(name).replaceAll('/', String.raw`\/`)
     return explode
-      ? value(objectReader(`val.replace(/^;/,'')`, ';', true))
-      : value(objectReader(`val.replace(/^;${prefix}=/,'')`, ',', false))
+      ? value(objectReader(';', true, false, ';'))
+      : value(objectReader(',', false, false, `;${name}=`))
   }
-  return value(objectReader('val', ',', explode))
+  return value(objectReader(',', explode))
 }
 
 /**
@@ -567,42 +612,168 @@ export function wireObject(
  * parameters among them, as source, or `undefined` when none is spread over several keys.
  * `taken` are the names of the other parameters there: a key that is a parameter of its
  * own is never read as the property of an exploded object.
+ *
+ * - A `deepObject` key names a path into the object: `filter[name]`, a nested
+ *   `filter[range][min]`, and `filter[tags][]` for an element of an array.
+ * - A key that several exploded objects declare is a property of each of them.
+ * - A key that nothing declares is a property of every exploded object that is open.
+ *
+ * The objects are built without a prototype, so a key such as `__proto__` stays a key.
  */
 export function wireGather(
   objects: readonly WireObject[],
   taken: readonly string[],
 ): string | undefined {
   const deep = objects.filter((object) => object.how === 'deep').map((object) => object.name)
-  const spread = objects
-    .filter((object) => object.how === 'spread')
-    .flatMap((object) =>
-      object.properties
-        .filter((property) => !taken.includes(property))
-        .map((property) => [property, object.name] as const),
-    )
-  if (deep.length === 0 && spread.length === 0) return undefined
+  const exploded = objects.filter((object) => object.how === 'spread')
+  const declared = [
+    ...new Set(
+      exploded.flatMap((object) =>
+        object.properties.filter((property) => !taken.includes(property)),
+      ),
+    ),
+  ]
+  const spread = declared.map(
+    (property) =>
+      [
+        property,
+        exploded
+          .filter((object) => object.properties.includes(property))
+          .map((object) => object.name),
+      ] as const,
+  )
+  const open = exploded.filter((object) => object.open === true).map((object) => object.name)
+  if (deep.length === 0 && spread.length === 0 && open.length === 0) return undefined
   const steps = [
     'const rest:[string,unknown][]=[]',
-    'const groups=new Map<string,[string,unknown][]>()',
-    'const put=(name:string,key:string,item:unknown)=>{groups.set(name,[...(groups.get(name)??[]),[key,item]])}',
-    ...(deep.length > 0 ? [`const deep=${JSON.stringify(deep)}`] : []),
+    'const groups=new Map<string,Record<string,unknown>>()',
+    'const group=(name:string)=>{const found=groups.get(name);if(found!==undefined)return found;const made:Record<string,unknown>=Object.create(null);groups.set(name,made);return made}',
+    ...(deep.length > 0
+      ? [
+          "const isGroup=(item:unknown):item is Record<string,unknown>=>typeof item==='object'&&item!==null&&!Array.isArray(item)",
+          "const set=(target:Record<string,unknown>,path:readonly string[],item:unknown):void=>{const [head,...tail]=path;if(head===undefined)return;if(tail.length===0){target[head]=item;return}const held=target[head];if(tail.length===1&&tail[0]===''){target[head]=[...(Array.isArray(held)?held:[]),...(Array.isArray(item)?item:[item])];return}const next:Record<string,unknown>=isGroup(held)?held:Object.create(null);target[head]=next;set(next,tail,item)}",
+          `const deep:string[]=${JSON.stringify(deep)}`,
+        ]
+      : []),
     ...(spread.length > 0
-      ? [`const spread=new Map<string,string>(${JSON.stringify(spread)})`]
+      ? [`const spread=new Map<string,string[]>(${JSON.stringify(spread)})`]
+      : []),
+    ...(open.length > 0
+      ? [
+          `const open:string[]=${JSON.stringify(open)}`,
+          `const taken:string[]=${JSON.stringify(taken)}`,
+        ]
       : []),
     `for(const [key,item] of Object.entries(val)){${[
       ...(deep.length > 0
         ? [
-            String.raw`const match=/^([^\[\]]+)\[([^\[\]]*)\]$/.exec(key);const name=match?.[1];const property=match?.[2];if(name!==undefined&&property!==undefined&&deep.includes(name)){put(name,property,item);continue}`,
+            String.raw`const match=/^([^\[\]]+)((?:\[[^\[\]]*\])+)$/.exec(key);const name=match?.[1];const path=match?.[2];if(name!==undefined&&path!==undefined&&deep.includes(name)){set(group(name),path.slice(1,-1).split(']['),item);continue}`,
           ]
         : []),
       ...(spread.length > 0
-        ? ['const owner=spread.get(key);if(owner!==undefined){put(owner,key,item);continue}']
+        ? [
+            'const owners=spread.get(key);if(owners!==undefined){for(const owner of owners){group(owner)[key]=item}continue}',
+          ]
+        : []),
+      ...(open.length > 0
+        ? ['if(!taken.includes(key)){for(const owner of open){group(owner)[key]=item}}']
         : []),
       'rest.push([key,item])',
     ].join(';')}}`,
-    'return Object.fromEntries([...rest,...[...groups].map(([name,group])=>[name,Object.fromEntries(group)])])',
+    'return Object.fromEntries([...rest,...groups])',
   ]
   return `(val)=>{${steps.join(';')}}`
+}
+
+// Whether a schema may take `null`. A schema that names no type takes a value of any, so
+// this errs towards yes: the text is then tried as `null`, and the schema says whether it is.
+function mayTakeNull(
+  schema: Schema | boolean,
+  schemas: Schemas | undefined,
+  seen: readonly string[] = [],
+): boolean {
+  if (typeof schema === 'boolean') return schema
+  if (schema.nullable === true) return true
+  const types = normalizeTypes(schema.type)
+  if (types.length > 0) return types.includes('null')
+  if (schema.$ref !== undefined) {
+    if (seen.includes(schema.$ref)) return false
+    const target = resolveSchemaRef(schema.$ref, schemas)
+    return target !== undefined && mayTakeNull(target, schemas, [...seen, schema.$ref])
+  }
+  if (schema.const !== undefined) return schema.const === null
+  if (schema.enum !== undefined) return schema.enum.includes(null)
+  const union = [...(schema.anyOf ?? []), ...(schema.oneOf ?? [])]
+  return (
+    (union.length === 0 || union.some((branch) => mayTakeNull(branch, schemas, seen))) &&
+    (schema.allOf ?? []).every((branch) => mayTakeNull(branch, schemas, seen))
+  )
+}
+
+// Whether a schema takes any text as the string it is, which leaves nothing for a second
+// reading of the text to be tried for.
+function takesEveryText(schema: Schema | boolean): boolean {
+  if (typeof schema === 'boolean') return schema
+  return (
+    normalizeTypes(schema.type).includes('string') &&
+    Object.keys(schema).every((key) =>
+      [
+        'type',
+        'nullable',
+        'default',
+        'description',
+        'title',
+        'example',
+        'examples',
+        'deprecated',
+      ].includes(key),
+    )
+  )
+}
+
+/**
+ * Where the text `null` is read as the value, or `undefined` when it is not: by a schema
+ * that does not take `null`, and by one that takes every text, for which `null` is text
+ * like any other.
+ *
+ * - `first`: the schema takes no string, so the text can mean nothing else.
+ * - `last`: the schema takes strings, so the text is the value only when it is not valid as
+ *   the string: `not: { type: string }`, a string `enum` beside `null`.
+ */
+export function nullReading(
+  schema: Schema | boolean,
+  schemas: Schemas | undefined,
+): 'first' | 'last' | undefined {
+  const kinds = wireKinds(schema, schemas)
+  if (kinds === undefined) {
+    // An array whose elements are no strings has no element the text `null` could be.
+    if (typeof schema === 'boolean' || !normalizeTypes(schema.type).includes('array')) {
+      return undefined
+    }
+    const items = schema.items
+    if (items === undefined || typeof items === 'boolean' || isSchemaArray(items)) return undefined
+    const elements = wireKinds(items, schemas)
+    return elements !== undefined && !elements.includes('string') && mayTakeNull(schema, schemas)
+      ? 'first'
+      : undefined
+  }
+  if (!mayTakeNull(schema, schemas)) return undefined
+  if (!kinds.includes('string')) return 'first'
+  return takesEveryText(schema) ? undefined : 'last'
+}
+
+/**
+ * A query, the headers and the cookies reach the schema as a plain object, and a plain
+ * object answers to `constructor` and `toString` whether they were sent or not. A parameter
+ * of such a name that was not sent is read as what the object inherits: a function, or for
+ * `__proto__` the prototype itself. Nothing on the wire is either, so both are read as absent.
+ */
+export const WIRE_INHERITED =
+  "(val)=>(typeof val==='function'||val===Object.prototype?undefined:val)"
+
+/** Whether a parameter is named like something every object inherits. */
+export function isInheritedName(parameter: Parameter): boolean {
+  return parameter.in !== 'path' && parameter.name in Object.prototype
 }
 
 /**

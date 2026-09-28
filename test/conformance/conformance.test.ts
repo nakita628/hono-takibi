@@ -34,13 +34,14 @@
 //   A JSON body carries typed values, so a value is sent as it is and has to come back as
 //   it is. A query string carries text. What text stands for is the one thing OpenAPI
 //   leaves open, and `readings` below is where this project settles it: a decimal literal
-//   is a number, a word `z.stringbool()` reads is a boolean, and any text is itself. The
+//   is a number, a word `z.stringbool()` reads is a boolean, `null` is null, and any text
+//   is itself. The
 //   document accepts a text when it accepts one of its readings.
 //   JSON ボディは型付きの値を運ぶため、値はそのまま送信され、そのまま返ってこなければ
 //   ならない。クエリ文字列が運ぶのは文字列である。文字列が何を表すかは、OpenAPI が唯一
 //   定めていない点であり、このプロジェクトでは下記の `readings` でそれを定めている。
-//   10進リテラルは number、`z.stringbool()` が読み取る単語は boolean、そしてすべての文字列は
-//   文字列そのものを表す。ドキュメントがその読み取り結果のいずれかを受理する場合、
+//   10進リテラルは number、`z.stringbool()` が読み取る単語は boolean、`null` は null、
+//   そしてすべての文字列は文字列そのものを表す。ドキュメントがその読み取り結果のいずれかを受理する場合、
 //   その文字列は受理されるものとする。
 import { describe, expect, it } from 'vite-plus/test'
 
@@ -159,12 +160,13 @@ function asksForBoolean(schema: unknown, seen: readonly unknown[] = []): boolean
 /**
  * What a text stands for. A decimal literal is a number, unless the number would not hold
  * it; `true` and `false` are booleans, and so are the other words `z.stringbool()` reads
- * where the schema asks for a boolean; any text is itself.
+ * where the schema asks for a boolean; `null` is the value JSON spells that way; any text
+ * is itself.
  *
  * 文字列が表すもの。10進リテラルは number を表す(number で保持できない場合を除く)。
  * `true` と `false` は boolean を表す。スキーマが boolean を要求している場合は、
- * `z.stringbool()` が読み取るその他の単語も boolean を表す。すべての文字列は、
- * 文字列そのものを表す。
+ * `z.stringbool()` が読み取るその他の単語も boolean を表す。`null` は、JSON がそう表記する
+ * 値を表す。すべての文字列は、文字列そのものを表す。
  */
 function readings(text: string, schema: unknown): readonly Json[] {
   const isDecimal = /^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/u.test(text)
@@ -179,6 +181,7 @@ function readings(text: string, schema: unknown): readonly Json[] {
       : []),
     ...(truthy.includes(word) ? [true] : []),
     ...(falsy.includes(word) ? [false] : []),
+    ...(text === 'null' ? [null] : []),
     text,
   ]
 }

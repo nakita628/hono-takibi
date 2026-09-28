@@ -307,4 +307,40 @@ describe('types: rejected values', () => {
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['bounded'] })
   })
+
+  // A date is not a date-time.
+  // 日付は日時ではない。
+  it('moment rejects a date', async () => {
+    const res = await jsonBodyApp.request('/types', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{"moment":"2020-01-02"}',
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['moment'] })
+  })
+
+  // name is declared a string, whatever additionalProperties says of the other keys.
+  // name は string として宣言されている。additionalProperties が他のキーについて何を定めていても、変わらない。
+  it('labelled rejects a number for its declared string', async () => {
+    const res = await jsonBodyApp.request('/types', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{"labelled":{"name":1}}',
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['labelled.name'] })
+  })
+
+  // A key nothing declares is held to an integer.
+  // どこにも宣言されていないキーは、integer であることを求められる。
+  it('labelled rejects a word for an additional property', async () => {
+    const res = await jsonBodyApp.request('/types', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{"labelled":{"count":"x"}}',
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['labelled.count'] })
+  })
 })

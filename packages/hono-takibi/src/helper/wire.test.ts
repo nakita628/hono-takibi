@@ -656,7 +656,7 @@ describe('wireStyle', () => {
   // `style: label` は、スカラーであっても値の先頭にドットを付ける。
   it.concurrent('strips the dot of a label scalar', () => {
     expect(wireStyle({ name: 'id', in: 'path', style: 'label' }, false)).toBe(
-      String.raw`(val)=>(typeof val==='string'?val.replace(/^\./,''):val)`,
+      `(val)=>(typeof val!=='string'?val:val.startsWith(".")?val.slice(1):undefined)`,
     )
   })
 
@@ -664,7 +664,7 @@ describe('wireStyle', () => {
   // `explode` なしの場合、ドットに続く要素はカンマで区切られる。
   it.concurrent('splits a label array on commas', () => {
     expect(wireStyle({ name: 'ids', in: 'path', style: 'label' }, true)).toBe(
-      String.raw`(val)=>(typeof val==='string'?val.replace(/^\./,'').split(','):val)`,
+      `(val)=>(typeof val!=='string'?val:(val.startsWith(".")?val.slice(1):undefined)?.split(","))`,
     )
   })
 
@@ -672,7 +672,7 @@ describe('wireStyle', () => {
   // `explode: true` では、ドットが要素の区切りになる。
   it.concurrent('splits an exploded label array on dots', () => {
     expect(wireStyle({ name: 'ids', in: 'path', style: 'label', explode: true }, true)).toBe(
-      String.raw`(val)=>(typeof val==='string'?val.replace(/^\./,'').split('.'):val)`,
+      `(val)=>(typeof val!=='string'?val:(val.startsWith(".")?val.slice(1):undefined)?.split("."))`,
     )
   })
 
@@ -680,7 +680,7 @@ describe('wireStyle', () => {
   // `style: matrix` は、値の先頭に `;name=` を付ける。
   it.concurrent('strips the name prefix of a matrix scalar', () => {
     expect(wireStyle({ name: 'id', in: 'path', style: 'matrix' }, false)).toBe(
-      `(val)=>(typeof val==='string'?val.replace(/^;id=/,''):val)`,
+      `(val)=>(typeof val!=='string'?val:val===";id"?'':val.startsWith(";id=")?val.slice(4):undefined)`,
     )
   })
 
@@ -688,7 +688,7 @@ describe('wireStyle', () => {
   // `explode` なしの場合、名前は1度だけ現れ、要素はカンマで区切られる。
   it.concurrent('splits a matrix array on commas', () => {
     expect(wireStyle({ name: 'ids', in: 'path', style: 'matrix' }, true)).toBe(
-      `(val)=>(typeof val==='string'?val.replace(/^;ids=/,'').split(','):val)`,
+      `(val)=>(typeof val!=='string'?val:(val===";ids"?'':val.startsWith(";ids=")?val.slice(5):undefined)?.split(","))`,
     )
   })
 
@@ -696,15 +696,15 @@ describe('wireStyle', () => {
   // `explode: true` では、すべての要素に名前が付く。
   it.concurrent('splits an exploded matrix array on the repeated name', () => {
     expect(wireStyle({ name: 'ids', in: 'path', style: 'matrix', explode: true }, true)).toBe(
-      `(val)=>(typeof val==='string'?val.replace(/^;ids=/,'').split(";ids="):val)`,
+      `(val)=>(typeof val!=='string'?val:(val===";ids"?'':val.startsWith(";ids=")?val.slice(5):undefined)?.split(";ids="))`,
     )
   })
 
-  // The name is written into a regular expression, so what is special there is escaped.
-  // 名前は正規表現の中に書き込まれるため、正規表現で特別な意味を持つ文字はエスケープされる。
-  it.concurrent('escapes a matrix name that is not plain text', () => {
+  // The name is compared as text, so nothing in it has a meaning of its own.
+  // 名前は文字列として比較されるため、名前の中の文字が特別な意味を持つことはない。
+  it.concurrent('takes a matrix name that is not plain text as it is', () => {
     expect(wireStyle({ name: 'user.id', in: 'path', style: 'matrix' }, false)).toBe(
-      String.raw`(val)=>(typeof val==='string'?val.replace(/^;user\.id=/,''):val)`,
+      `(val)=>(typeof val!=='string'?val:val===";user.id"?'':val.startsWith(";user.id=")?val.slice(9):undefined)`,
     )
   })
 
@@ -998,7 +998,7 @@ describe('wireObject', () => {
         schemas,
       )?.reader,
     ).toBe(
-      String.raw`(val)=>{if(typeof val!=='string')return val;const parts=val.replace(/^\./,'').split(".");const entries=parts.flatMap((part)=>{const at=part.indexOf('=');return at<0?[]:[[part.slice(0,at),part.slice(at+1)]]});if(entries.length!==parts.length)return val;return Object.fromEntries(entries)}`,
+      `(val)=>{if(typeof val!=='string')return val;if(!val.startsWith("."))return undefined;const parts=val.slice(1).split(".");const entries=parts.flatMap((part)=>{const at=part.indexOf('=');return at<0?[]:[[part.slice(0,at),part.slice(at+1)]]});if(entries.length!==parts.length)return val;return Object.fromEntries(entries)}`,
     )
   })
 
@@ -1016,7 +1016,7 @@ describe('wireObject', () => {
         schemas,
       )?.reader,
     ).toBe(
-      `(val)=>{if(typeof val!=='string')return val;const parts=val.replace(/^;opts=/,'').split(",");if(parts.length%2!==0)return val;return Object.fromEntries(parts.flatMap((part,i)=>(i%2===0?[[part,parts[i+1]]]:[])))}`,
+      `(val)=>{if(typeof val!=='string')return val;if(!val.startsWith(";opts="))return undefined;const parts=val.slice(6).split(",");if(parts.length%2!==0)return val;return Object.fromEntries(parts.flatMap((part,i)=>(i%2===0?[[part,parts[i+1]]]:[])))}`,
     )
   })
 
@@ -1036,7 +1036,7 @@ describe('wireObject', () => {
         schemas,
       )?.reader,
     ).toBe(
-      `(val)=>{if(typeof val!=='string')return val;const parts=val.replace(/^;/,'').split(";");const entries=parts.flatMap((part)=>{const at=part.indexOf('=');return at<0?[]:[[part.slice(0,at),part.slice(at+1)]]});if(entries.length!==parts.length)return val;return Object.fromEntries(entries)}`,
+      `(val)=>{if(typeof val!=='string')return val;if(!val.startsWith(";"))return undefined;const parts=val.slice(1).split(";");const entries=parts.flatMap((part)=>{const at=part.indexOf('=');return at<0?[]:[[part.slice(0,at),part.slice(at+1)]]});if(entries.length!==parts.length)return val;return Object.fromEntries(entries)}`,
     )
   })
 
@@ -1141,7 +1141,7 @@ describe('wireGather', () => {
   // キーは `name[property]` の形で照合され、name は deepObject パラメータのいずれかである。
   it.concurrent('gathers the keys of a deepObject parameter', () => {
     expect(wireGather([{ name: 'filter', how: 'deep', properties: ['size'] }], [])).toBe(
-      String.raw`(val)=>{const rest:[string,unknown][]=[];const groups=new Map<string,[string,unknown][]>();const put=(name:string,key:string,item:unknown)=>{groups.set(name,[...(groups.get(name)??[]),[key,item]])};const deep=["filter"];for(const [key,item] of Object.entries(val)){const match=/^([^\[\]]+)\[([^\[\]]*)\]$/.exec(key);const name=match?.[1];const property=match?.[2];if(name!==undefined&&property!==undefined&&deep.includes(name)){put(name,property,item);continue};rest.push([key,item])};return Object.fromEntries([...rest,...[...groups].map(([name,group])=>[name,Object.fromEntries(group)])])}`,
+      String.raw`(val)=>{const rest:[string,unknown][]=[];const groups=new Map<string,Record<string,unknown>>();const group=(name:string)=>{const found=groups.get(name);if(found!==undefined)return found;const made:Record<string,unknown>=Object.create(null);groups.set(name,made);return made};const isGroup=(item:unknown):item is Record<string,unknown>=>typeof item==='object'&&item!==null&&!Array.isArray(item);const set=(target:Record<string,unknown>,path:readonly string[],item:unknown):void=>{const [head,...tail]=path;if(head===undefined)return;if(tail.length===0){target[head]=item;return}const held=target[head];if(tail.length===1&&tail[0]===''){target[head]=[...(Array.isArray(held)?held:[]),...(Array.isArray(item)?item:[item])];return}const next:Record<string,unknown>=isGroup(held)?held:Object.create(null);target[head]=next;set(next,tail,item)};const deep:string[]=["filter"];for(const [key,item] of Object.entries(val)){const match=/^([^\[\]]+)((?:\[[^\[\]]*\])+)$/.exec(key);const name=match?.[1];const path=match?.[2];if(name!==undefined&&path!==undefined&&deep.includes(name)){set(group(name),path.slice(1,-1).split(']['),item);continue};rest.push([key,item])};return Object.fromEntries([...rest,...groups])}`,
     )
   })
 
@@ -1149,7 +1149,7 @@ describe('wireGather', () => {
   // キーは宣言済みのプロパティから検索され、各プロパティはその所有者を示す。
   it.concurrent('gathers the properties of an exploded form object', () => {
     expect(wireGather([{ name: 'opts', how: 'spread', properties: ['sort', 'size'] }], [])).toBe(
-      `(val)=>{const rest:[string,unknown][]=[];const groups=new Map<string,[string,unknown][]>();const put=(name:string,key:string,item:unknown)=>{groups.set(name,[...(groups.get(name)??[]),[key,item]])};const spread=new Map<string,string>([["sort","opts"],["size","opts"]]);for(const [key,item] of Object.entries(val)){const owner=spread.get(key);if(owner!==undefined){put(owner,key,item);continue};rest.push([key,item])};return Object.fromEntries([...rest,...[...groups].map(([name,group])=>[name,Object.fromEntries(group)])])}`,
+      `(val)=>{const rest:[string,unknown][]=[];const groups=new Map<string,Record<string,unknown>>();const group=(name:string)=>{const found=groups.get(name);if(found!==undefined)return found;const made:Record<string,unknown>=Object.create(null);groups.set(name,made);return made};const spread=new Map<string,string[]>([["sort",["opts"]],["size",["opts"]]]);for(const [key,item] of Object.entries(val)){const owners=spread.get(key);if(owners!==undefined){for(const owner of owners){group(owner)[key]=item}continue};rest.push([key,item])};return Object.fromEntries([...rest,...groups])}`,
     )
   })
 
@@ -1158,7 +1158,7 @@ describe('wireGather', () => {
   it.concurrent('leaves out a property that another parameter takes', () => {
     expect(
       wireGather([{ name: 'opts', how: 'spread', properties: ['sort', 'page'] }], ['page']),
-    ).toContain('const spread=new Map<string,string>([["sort","opts"]]);')
+    ).toContain('const spread=new Map<string,string[]>([["sort",["opts"]]]);')
   })
 
   // Every property is taken by another parameter, so nothing is left to gather.

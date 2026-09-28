@@ -1072,37 +1072,11 @@ describe('formats: what each string format rejects', () => {
     expect(await res.json()).toStrictEqual({ issues: ['time'] })
   })
 
-  // A zone designator.
-  // タイムゾーン指定子が付いている。
-  it('time rejects "12:34:56Z"', async () => {
-    const res = await queryParamsApp.request(`/params?time=${encodeURIComponent('12:34:56Z')}`)
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['time'] })
-  })
-
-  // An offset.
-  // オフセットが付いている。
-  it('time rejects "12:34:56+09:00"', async () => {
-    const res = await queryParamsApp.request(`/params?time=${encodeURIComponent('12:34:56+09:00')}`)
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['time'] })
-  })
-
   // No zone designator.
   // タイムゾーン指定子がない。
   it('datetime rejects "2020-01-02T03:04:05"', async () => {
     const res = await queryParamsApp.request(
       `/params?datetime=${encodeURIComponent('2020-01-02T03:04:05')}`,
-    )
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['datetime'] })
-  })
-
-  // An offset instead of Z: the generated z.iso.datetime() takes Z only.
-  // Z ではなくオフセット。生成される z.iso.datetime() は Z のみを受理する。
-  it('datetime rejects "2020-01-02T03:04:05+09:00"', async () => {
-    const res = await queryParamsApp.request(
-      `/params?datetime=${encodeURIComponent('2020-01-02T03:04:05+09:00')}`,
     )
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['datetime'] })
@@ -3038,6 +3012,30 @@ describe('objects: a parameter spread over the query', () => {
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['filter.age'] })
   })
+
+  // name is a string, so a key nested under it names a property name does not have.
+  // name は string であるため、その下にネストしたキーは、name が持たないプロパティを指す。
+  it('deep rejects a key nested under a property that is a string', async () => {
+    const res = await queryParamsApp.request('/objects?deep[name][x]=1')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['deep.name'] })
+  })
+
+  // A key nested under range is read like a property of its own.
+  // range の下にネストしたキーは、独立したプロパティと同じように読まれる。
+  it('deep rejects a word nested under a property that is an integer', async () => {
+    const res = await queryParamsApp.request('/objects?deep[range][min]=abc')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['deep.range.min'] })
+  })
+
+  // A key nothing declares is a property of extra, which holds it to an integer.
+  // どこにも宣言されていないキーは extra のプロパティになり、integer であることを求められる。
+  it('extra rejects a word for an additional property', async () => {
+    const res = await queryParamsApp.request('/open?other=abc')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['extra.other'] })
+  })
 })
 
 // An element of a split value is validated like an element of a repeated one, and reported at its
@@ -3393,6 +3391,22 @@ describe('content: a JSON document', () => {
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['list'] })
   })
+
+  // A field of the form-encoded document is validated like a parameter.
+  // フォームエンコードされた文書のフィールドは、パラメータと同じように検証される。
+  it('form rejects a word where a field is an integer', async () => {
+    const res = await queryParamsApp.request(`/content?form=${encodeURIComponent('a=abc')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['form.a'] })
+  })
+
+  // a is required by the schema of the document.
+  // a は、文書のスキーマで必須とされている。
+  it('form rejects a document without its required field', async () => {
+    const res = await queryParamsApp.request(`/content?form=${encodeURIComponent('b=true')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['form.a'] })
+  })
 })
 
 // Numbers are read from text by a decimal grammar before they are validated: an optional
@@ -3627,12 +3641,20 @@ describe('strictness: what the wire grammar does not read', () => {
     expect(await res.json()).toStrictEqual({ issues: ['int_def'] })
   })
 
-  // type: [integer, null] has no spelling for null on the wire, and the empty value is not an
-  // integer.
-  // type: [integer, null] には、ワイヤ上で null を表す表記が存在しない。
-  // 空の値は整数でもない。
+  // type: [integer, null] reads null from the text "null"; the empty value is neither that
+  // nor an integer.
+  // type: [integer, null] は、テキスト "null" から null を読む。
+  // 空の値は、そのテキストでも整数でもない。
   it('rejects an empty nullable integer', async () => {
     const res = await queryParamsApp.request('/literals?inull=')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['inull'] })
+  })
+
+  // The text that stands for null is the one JSON spells, in lower case.
+  // null を表すテキストは、JSON の表記どおり小文字である。
+  it('rejects "NULL" for a nullable integer', async () => {
+    const res = await queryParamsApp.request('/literals?inull=NULL')
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['inull'] })
   })
@@ -3651,14 +3673,6 @@ describe('strictness: what the wire grammar does not read', () => {
     const res = await queryParamsApp.request('/optional?uuid_opt=')
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['uuid_opt'] })
-  })
-
-  // The word "null" is text, and text is not a number.
-  // "null" という単語は文字列であり、文字列は数値ではない。
-  it('rejects the word null for a nullable integer', async () => {
-    const res = await queryParamsApp.request('/literals?inull=null')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['inull'] })
   })
 
   // A required array that is absent is reported as tags, the array itself, and not as its

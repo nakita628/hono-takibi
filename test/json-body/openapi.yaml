@@ -52,6 +52,19 @@ paths:
                 either: { type: [integer, string] }
                 flagged: { type: [number, boolean, 'null'] }
                 bounded: { type: [integer, string], minimum: 1, minLength: 2 }
+                # `date-time` and `time` are RFC 3339 values: an offset is valid beside `Z`.
+                # `date-time` と `time` は RFC 3339 の値である。`Z` と同様に、オフセットも有効である。
+                moment: { type: string, format: date-time }
+                clock: { type: string, format: time }
+                # Declared properties beside `additionalProperties`: `name` is a string, and
+                # every other key an integer.
+                # `additionalProperties` と並ぶ宣言済みプロパティ。`name` は string であり、
+                # それ以外のキーはすべて integer である。
+                labelled:
+                  type: object
+                  properties:
+                    name: { type: string }
+                  additionalProperties: { type: integer }
       responses:
         '200': { $ref: '#/components/responses/Fields' }
 components:

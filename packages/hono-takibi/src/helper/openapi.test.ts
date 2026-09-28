@@ -782,7 +782,7 @@ describe('openapi helper', () => {
         { name: 'limit', in: 'query', schema: { type: ['integer', 'null'] } },
       ])
       expect(result.query.limit).toBe(
-        String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).nullable().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":["integer","null"]},"required":false}})`,
+        String.raw`z.preprocess((val)=>(val==='null'?null:val),z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).nullable()).exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":["integer","null"]},"required":false}})`,
       )
     })
     // Regression: coercion stopped at the top-level type, so a numeric branch inside a

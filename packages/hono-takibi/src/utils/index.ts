@@ -90,6 +90,9 @@ export function requestParamsArray(
  * ```
  */
 export function makeSafeKey(key: string) {
+  // `{ __proto__: x }` and `{ '__proto__': x }` set the prototype of the object instead of
+  // defining a key; only a computed key defines one.
+  if (key === '__proto__') return "['__proto__']"
   if (/^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(key)) return key
   return makeStringLiteral(key)
 }

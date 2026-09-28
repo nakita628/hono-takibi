@@ -1,11 +1,17 @@
 import { isParameterRef, isPathItemEntry, isPathItemRef } from '../../../../guard/index.js'
-import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/index.js'
+import {
+  makeCallbacks,
+  makeOperationResponses,
+  makeRequest,
+  warnUnroutablePath,
+} from '../../../../helper/index.js'
 import type { OpenAPI, Operation, Parameter, PathItem } from '../../../../openapi/index.js'
 import { methodPath } from '../../../../utils/index.js'
 
 export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
   const routeEntries = (): readonly { readonly name: string; readonly code: string }[] => {
     const makeEntry = (path: string, method: string, operation: Operation) => {
+      warnUnroutablePath(path)
       const request = makeRequest(
         operation.parameters,
         operation.requestBody,

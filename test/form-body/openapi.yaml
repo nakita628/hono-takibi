@@ -46,6 +46,9 @@ paths:
                 flag: { $ref: '#/components/schemas/Flag' }
                 tags: { type: array, items: { type: string } }
                 ids: { type: array, items: { type: integer } }
+                # An RFC 3339 date-time: an offset is valid beside `Z`.
+                # RFC 3339 の日時。`Z` と同様に、オフセットも有効である。
+                moment: { type: string, format: date-time }
       responses:
         '200': { $ref: '#/components/responses/Fields' }
   /multipart:

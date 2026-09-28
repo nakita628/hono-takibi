@@ -379,12 +379,14 @@ preciseDatetime:
 | `x-urlHostname`  | `z.url({ hostname: /.../ })`    | regex string                                          |
 | `x-urlNormalize` | `z.url({ normalize })`          | `true` / `false`                                      |
 | `x-isoPrecision` | `z.iso.datetime({ precision })` | fractional second digits                              |
-| `x-isoOffset`    | `z.iso.datetime({ offset })`    | `true` / `false`                                      |
+| `x-isoOffset`    | `z.iso.datetime({ offset })`    | `true` (default) / `false`                            |
 | `x-isoLocal`     | `z.iso.datetime({ local })`     | `true` / `false`                                      |
 | `x-macDelimiter` | `z.mac({ delimiter })`          | `:` / `-` / `.`                                       |
 | `x-jwtAlg`       | `z.jwt({ alg })`                | `HS256` etc.                                          |
 | `x-hashAlg`      | `z.hash(alg, ...)`              | `sha256` etc.                                         |
 | `x-hashEnc`      | `z.hash(alg, { enc })`          | `hex` / `base64` / `base64url`                        |
+
+`date-time` and `time` are RFC 3339 values, so both take an offset by default: `2024-01-01T00:00:00+09:00` and `12:34:56+09:00` are valid beside `2024-01-01T00:00:00Z`. Set `x-isoOffset: false` to take `Z` only for a `date-time` (`z.iso.datetime()`), and no zone at all for a `time` (`z.iso.time()`).
 
 ## Branded types (x-brand)
 

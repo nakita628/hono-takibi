@@ -10,6 +10,7 @@ import {
   makeImports,
   makeOperationResponses,
   makeRequest,
+  warnUnroutablePath,
 } from '../../helper/index.js'
 import type { OpenAPI, Operation, Parameter, PathItem } from '../../openapi/index.js'
 import { makeBarrel, methodPath } from '../../utils/index.js'
@@ -34,6 +35,7 @@ export function route(
     const { output, split = false } = routes
     const routeEntries = (): readonly { readonly name: string; readonly code: string }[] => {
       const makeEntry = (path: string, method: string, operation: Operation) => {
+        warnUnroutablePath(path)
         const properties = [
           `method:${JSON.stringify(method)}`,
           `path:${JSON.stringify(path)}`,

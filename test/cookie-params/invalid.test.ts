@@ -1205,41 +1205,11 @@ describe('formats: what each string format rejects', () => {
     expect(await res.json()).toStrictEqual({ issues: ['time'] })
   })
 
-  // A zone designator.
-  // タイムゾーン指定子が付いている。
-  it('time rejects "12:34:56Z"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
-      headers: { Cookie: `time=${encodeURIComponent('12:34:56Z')}` },
-    })
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['time'] })
-  })
-
-  // An offset.
-  // オフセットが付いている。
-  it('time rejects "12:34:56+09:00"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
-      headers: { Cookie: `time=${encodeURIComponent('12:34:56+09:00')}` },
-    })
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['time'] })
-  })
-
   // No zone designator.
   // タイムゾーン指定子がない。
   it('datetime rejects "2020-01-02T03:04:05"', async () => {
     const res = await cookieParamsApp.request('/cookies', {
       headers: { Cookie: `datetime=${encodeURIComponent('2020-01-02T03:04:05')}` },
-    })
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['datetime'] })
-  })
-
-  // An offset instead of Z: the generated z.iso.datetime() takes Z only.
-  // Z ではなくオフセット。生成される z.iso.datetime() は Z のみを受理する。
-  it('datetime rejects "2020-01-02T03:04:05+09:00"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
-      headers: { Cookie: `datetime=${encodeURIComponent('2020-01-02T03:04:05+09:00')}` },
     })
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['datetime'] })

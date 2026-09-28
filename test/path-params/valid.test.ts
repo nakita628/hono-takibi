@@ -1329,6 +1329,22 @@ describe('formats: what each string format accepts', () => {
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '12:34:56.789' })
   })
 
+  // A zone designator: `time` names an RFC 3339 full-time, which ends in one.
+  // タイムゾーン指定子が付いている。`time` が指す RFC 3339 の full-time は、これで終わる。
+  it('time accepts "12:34:56Z"', async () => {
+    const res = await pathParamsApp.request(`/time/${encodeURIComponent('12:34:56Z')}`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '12:34:56Z' })
+  })
+
+  // An offset in place of the zone designator.
+  // タイムゾーン指定子の代わりにオフセットが付いている。
+  it('time accepts "12:34:56+09:00"', async () => {
+    const res = await pathParamsApp.request(`/time/${encodeURIComponent('12:34:56+09:00')}`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '12:34:56+09:00' })
+  })
+
   // Fractional seconds.
   // 小数秒。
   it('datetime accepts "2020-01-02T03:04:05.123Z"', async () => {
@@ -1339,6 +1355,19 @@ describe('formats: what each string format accepts', () => {
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
       valueText: '2020-01-02T03:04:05.123Z',
+    })
+  })
+
+  // An offset instead of Z: RFC 3339, which `date-time` names, takes either.
+  // Z ではなくオフセット。`date-time` が指す RFC 3339 はどちらも認める。
+  it('datetime accepts "2020-01-02T03:04:05+09:00"', async () => {
+    const res = await pathParamsApp.request(
+      `/datetime/${encodeURIComponent('2020-01-02T03:04:05+09:00')}`,
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      valueType: 'string',
+      valueText: '2020-01-02T03:04:05+09:00',
     })
   })
 
@@ -1593,6 +1622,24 @@ describe('transforms: x-* extensions and format: trim', () => {
 // 数値・真偽値の enum / const は型付きの値を指すが、セグメントは文字列である。
 // かつてはリテラルを生の文字列と比較していたため、該当リクエストはすべて拒否されていた。
 describe('literals: enum and const', () => {
+  // type: [integer, null] accepts an integer.
+  // type: [integer, null] は integer を受理する。
+  it('inull accepts "3"', async () => {
+    const res = await pathParamsApp.request('/inull/3')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '3' })
+  })
+
+  // The text "null" is the value null: the schema takes null and no string, so the segment
+  // can mean nothing else.
+  // テキスト "null" は値 null である。スキーマは null を受理し文字列を受理しないため、
+  // このセグメントに他の意味はない。
+  it('inull accepts "null"', async () => {
+    const res = await pathParamsApp.request('/inull/null')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'null', valueText: 'null' })
+  })
+
   // The first member of enum: [1, 2].
   // enum: [1, 2] の最初のメンバー。
   it('ienum accepts "1"', async () => {
@@ -2303,6 +2350,30 @@ describe('styles: simple, label and matrix', () => {
     const res = await pathParamsApp.request('/label/.5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '5' })
+  })
+
+  // A string behind its dot.
+  // ドットに続く string。
+  it('labelstr strips the leading dot of a string', async () => {
+    const res = await pathParamsApp.request('/labelstr/.abc')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'abc' })
+  })
+
+  // A string behind the name of the parameter.
+  // パラメータ名に続く string。
+  it('matrixstr strips the name of the parameter from a string', async () => {
+    const res = await pathParamsApp.request('/matrixstr/;value=abc')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'abc' })
+  })
+
+  // style: matrix writes a value that holds nothing as the name alone, without the "=".
+  // style: matrix は、空の値を "=" なしの名前だけで表記する。
+  it('matrixstr reads the name alone as the empty string', async () => {
+    const res = await pathParamsApp.request('/matrixstr/;value')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '' })
   })
 
   // With explode: false the elements after the dot are separated by commas.

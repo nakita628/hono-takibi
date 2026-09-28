@@ -1028,37 +1028,11 @@ describe('formats: what each string format rejects', () => {
     expect(await res.json()).toStrictEqual({ issues: ['value'] })
   })
 
-  // A zone designator.
-  // タイムゾーン指定子が付いている。
-  it('time rejects "12:34:56Z"', async () => {
-    const res = await pathParamsApp.request(`/time/${encodeURIComponent('12:34:56Z')}`)
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['value'] })
-  })
-
-  // An offset.
-  // オフセットが付いている。
-  it('time rejects "12:34:56+09:00"', async () => {
-    const res = await pathParamsApp.request(`/time/${encodeURIComponent('12:34:56+09:00')}`)
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['value'] })
-  })
-
   // No zone designator.
   // タイムゾーン指定子がない。
   it('datetime rejects "2020-01-02T03:04:05"', async () => {
     const res = await pathParamsApp.request(
       `/datetime/${encodeURIComponent('2020-01-02T03:04:05')}`,
-    )
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['value'] })
-  })
-
-  // An offset instead of Z: the generated z.iso.datetime() takes Z only.
-  // Z ではなくオフセット。生成される z.iso.datetime() は Z のみを受理する。
-  it('datetime rejects "2020-01-02T03:04:05+09:00"', async () => {
-    const res = await pathParamsApp.request(
-      `/datetime/${encodeURIComponent('2020-01-02T03:04:05+09:00')}`,
     )
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['value'] })
@@ -2000,6 +1974,55 @@ describe('styles: simple, label and matrix', () => {
     const res = await pathParamsApp.request('/simplearr/1,,2')
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['value.1'] })
+  })
+
+  // A label value starts with its dot: text without one is not a value of the parameter.
+  // label の値はドットで始まる。ドットのない文字列は、このパラメータの値ではない。
+  it('label rejects a number without its dot', async () => {
+    const res = await pathParamsApp.request('/label/5')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // A string takes any text, and is rejected all the same: the dot is what makes it a value.
+  // string はあらゆる文字列を受理するが、それでも拒否される。値であることを示すのは
+  // ドットである。
+  it('labelstr rejects a string without its dot', async () => {
+    const res = await pathParamsApp.request('/labelstr/abc')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // The elements of a label array follow the dot as well.
+  // label の配列の要素も、ドットに続く。
+  it('labelarr rejects elements without the dot', async () => {
+    const res = await pathParamsApp.request('/labelarr/1,2,3')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // A matrix value starts with ";" and the name of the parameter.
+  // matrix の値は、";" とパラメータ名で始まる。
+  it('matrix rejects a number without the name of the parameter', async () => {
+    const res = await pathParamsApp.request('/matrix/5')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // A string takes any text, and is rejected all the same.
+  // string はあらゆる文字列を受理するが、それでも拒否される。
+  it('matrixstr rejects a string without the name of the parameter', async () => {
+    const res = await pathParamsApp.request('/matrixstr/abc')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // An exploded matrix object starts with ";" as well.
+  // explode された matrix のオブジェクトも、";" で始まる。
+  it('matrixobjx rejects assignments without the leading semicolon', async () => {
+    const res = await pathParamsApp.request('/matrixobjx/a=1;b=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
   })
 
   // The prefix is stripped and what is left is not an integer.

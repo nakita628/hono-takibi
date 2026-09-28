@@ -399,4 +399,60 @@ describe('types: a list of types', () => {
       bounded: { valueType: 'string', valueText: 'ab' },
     })
   })
+
+  // moment is format: date-time.
+  // moment は format: date-time である。
+  it('moment accepts a date-time in UTC', async () => {
+    const res = await jsonBodyApp.request('/types', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{"moment":"2020-01-02T03:04:05Z"}',
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      moment: { valueType: 'string', valueText: '2020-01-02T03:04:05Z' },
+    })
+  })
+
+  // An offset instead of Z: RFC 3339 takes either.
+  // Z ではなくオフセット。RFC 3339 はどちらも認める。
+  it('moment accepts a date-time with an offset', async () => {
+    const res = await jsonBodyApp.request('/types', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{"moment":"2020-01-02T03:04:05+09:00"}',
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      moment: { valueType: 'string', valueText: '2020-01-02T03:04:05+09:00' },
+    })
+  })
+
+  // clock is format: time, which ends in an offset as well.
+  // clock は format: time であり、これもオフセットで終わる。
+  it('clock accepts a time with an offset', async () => {
+    const res = await jsonBodyApp.request('/types', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{"clock":"12:34:56+09:00"}',
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      clock: { valueType: 'string', valueText: '12:34:56+09:00' },
+    })
+  })
+
+  // name is declared a string, and count, which nothing declares, is held to an integer.
+  // name は string として宣言されている。どこにも宣言されていない count は、integer であることを求められる。
+  it('labelled keeps a declared property beside an additional one', async () => {
+    const res = await jsonBodyApp.request('/types', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{"labelled":{"name":"a","count":2}}',
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      labelled: { valueType: 'object', valueText: '{"name":"a","count":2}' },
+    })
+  })
 })

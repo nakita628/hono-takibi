@@ -360,7 +360,30 @@ paths:
         - { name: senum, in: query, schema: { type: string, enum: [asc, desc] } }
         - { name: sconst, in: query, schema: { type: string, const: fixed } }
         - { name: numericsenum, in: query, schema: { type: string, enum: ['1', '02', 'true'] } }
+        # `null` has no spelling of its own in a parameter; the text `null` is read as the value
+        # by a schema that takes `null` and no string.
+        # パラメータには `null` 専用の表記がない。`null` を受理し、文字列を受理しないスキーマは、
+        # テキスト `null` を値として読む。
         - { name: inull, in: query, schema: { type: [integer, 'null'] } }
+        - { name: bnull, in: query, schema: { type: [boolean, 'null'] } }
+        - { name: nullof, in: query, schema: { oneOf: [{ type: integer }, { type: 'null' }] } }
+        - {
+            name: inull_arr,
+            in: query,
+            schema: { type: array, items: { type: [integer, 'null'] } },
+          }
+        # An array that may be null, of elements that are no strings: the text `null` is no
+        # element, so it is the array that is null.
+        # null を取りうる配列で、要素が文字列でないもの。テキスト `null` は要素になりえない
+        # ため、null なのは配列そのものである。
+        - {
+            name: inull_list,
+            in: query,
+            schema: { type: [array, 'null'], items: { type: integer } },
+          }
+        # A string takes the text `null` as the text it is.
+        # 文字列は、テキスト `null` をそのままの文字列として受理する。
+        - { name: snull, in: query, schema: { type: [string, 'null'] } }
         - {
             name: ioneof,
             in: query,
@@ -399,6 +422,11 @@ paths:
         # Differs from `int_opt` by case alone: names are case-sensitive.
         # `int_opt` とは大文字小文字だけが異なる。名前は大文字小文字を区別する。
         - { name: Int_Opt, in: query, schema: { type: string } }
+        # A name every JavaScript object inherits: the request object answers to it whether
+        # the parameter was sent or not.
+        # すべての JavaScript オブジェクトが継承する名前。パラメータが送信されたかどうかに
+        # かかわらず、リクエストオブジェクトはこの名前に応答する。
+        - { name: constructor, in: query, schema: { type: integer } }
       responses:
         '200': { $ref: '#/components/responses/Fields' }
   /defaults:
@@ -530,6 +558,16 @@ paths:
               age: { type: integer, minimum: 0 }
               active: { type: boolean }
               ids: { type: array, items: { type: integer } }
+              # A key names a path into the object, deep[range][min]=1, and an element of
+              # an array by an empty pair of brackets, deep[tags][]=a.
+              # キーはオブジェクト内のパスを表す(deep[range][min]=1)。配列の要素は、
+              # 空の角括弧で表す(deep[tags][]=a)。
+              tags: { type: array, items: { type: string } }
+              range:
+                type: object
+                properties:
+                  min: { type: integer }
+                  max: { type: integer }
         # The object is a component.
         # オブジェクトがコンポーネントである。
         - name: deep_ref
@@ -565,6 +603,48 @@ paths:
         # 読み取られることはない。
         - { name: page, in: query, schema: { type: string } }
         - { name: limit, in: query, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+  # Two exploded objects that declare the same property: a key of that name is a property of
+  # each of them.
+  # 同じプロパティを宣言する、explode された2つのオブジェクト。その名前のキーは、両方の
+  # プロパティになる。
+  /shared:
+    get:
+      operationId: queryShared
+      parameters:
+        - name: filter
+          in: query
+          schema:
+            type: object
+            properties:
+              name: { type: string }
+              age: { type: integer }
+        - name: sort
+          in: query
+          schema:
+            type: object
+            properties:
+              name: { type: string }
+              dir: { type: string, enum: [asc, desc] }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+  # An exploded object that declares `additionalProperties` takes the keys nothing else
+  # declares. `page` is a parameter of its own and stays one.
+  # `additionalProperties` を宣言する explode されたオブジェクトは、他のどこにも宣言されて
+  # いないキーを受け取る。`page` は独立したパラメータであり、そのまま扱われる。
+  /open:
+    get:
+      operationId: queryOpen
+      parameters:
+        - { name: page, in: query, schema: { type: integer } }
+        - name: extra
+          in: query
+          schema:
+            type: object
+            properties:
+              known: { type: string }
+            additionalProperties: { type: integer }
       responses:
         '200': { $ref: '#/components/responses/Fields' }
   /absent:
@@ -671,6 +751,21 @@ paths:
           content:
             application/json:
               schema: { type: array, items: { type: integer } }
+        # One value that holds a form-encoded document, form=a%3D1%26b%3Dtrue. Its fields
+        # are text, read like those of a form body.
+        # フォームエンコードされた文書を保持する1つの値(form=a%3D1%26b%3Dtrue)。
+        # フィールドは文字列であり、フォームボディのフィールドと同じように読まれる。
+        - name: form
+          in: query
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                required: [a]
+                properties:
+                  a: { type: integer }
+                  b: { type: boolean }
+                  tags: { type: array, items: { type: string } }
       responses:
         '200': { $ref: '#/components/responses/Fields' }
 components:

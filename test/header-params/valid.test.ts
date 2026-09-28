@@ -1574,6 +1574,30 @@ describe('formats: what each string format accepts', () => {
     })
   })
 
+  // A zone designator: `time` names an RFC 3339 full-time, which ends in one.
+  // タイムゾーン指定子が付いている。`time` が指す RFC 3339 の full-time は、これで終わる。
+  it('x-time accepts "12:34:56Z"', async () => {
+    const res = await headerParamsApp.request('/headers', {
+      headers: { 'x-time': '12:34:56Z' },
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-time': { valueType: 'string', valueText: '12:34:56Z' },
+    })
+  })
+
+  // An offset in place of the zone designator.
+  // タイムゾーン指定子の代わりにオフセットが付いている。
+  it('x-time accepts "12:34:56+09:00"', async () => {
+    const res = await headerParamsApp.request('/headers', {
+      headers: { 'x-time': '12:34:56+09:00' },
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-time': { valueType: 'string', valueText: '12:34:56+09:00' },
+    })
+  })
+
   // Fractional seconds.
   // 小数秒。
   it('x-datetime accepts "2020-01-02T03:04:05.123Z"', async () => {
@@ -1583,6 +1607,18 @@ describe('formats: what each string format accepts', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-datetime': { valueType: 'string', valueText: '2020-01-02T03:04:05.123Z' },
+    })
+  })
+
+  // An offset instead of Z: RFC 3339, which `date-time` names, takes either.
+  // Z ではなくオフセット。`date-time` が指す RFC 3339 はどちらも認める。
+  it('x-datetime accepts "2020-01-02T03:04:05+09:00"', async () => {
+    const res = await headerParamsApp.request('/headers', {
+      headers: { 'x-datetime': '2020-01-02T03:04:05+09:00' },
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-datetime': { valueType: 'string', valueText: '2020-01-02T03:04:05+09:00' },
     })
   })
 
@@ -2108,9 +2144,45 @@ describe('required', () => {
   })
 })
 
+// `null` has no spelling of its own in a parameter, so the text `null` stands for it.
+// パラメータには `null` 専用の表記がないため、テキスト `null` がその値を表す。
+describe('null', () => {
+  // The text "null" is the value null: the schema takes null and no string.
+  // テキスト "null" は値 null である。スキーマは null を受理し、文字列を受理しない。
+  it('x-inull accepts "null"', async () => {
+    const res = await headerParamsApp.request('/optional', { headers: { 'x-inull': 'null' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-inull': { valueType: 'null', valueText: 'null' },
+    })
+  })
+})
+
 // How a header is named on the wire, and how it is named in the handler.
 // ワイヤ上でのヘッダー名と、ハンドラ内でのヘッダー名。
 describe('names', () => {
+  // A name every object inherits, sent: it is read like any other parameter.
+  // すべてのオブジェクトが継承する名前を送信する。他のパラメータと同じように読まれる。
+  it('constructor accepts "5"', async () => {
+    const res = await headerParamsApp.request('/optional', { headers: { constructor: '5' } })
+    expect(res.status).toBe(200)
+    // The body is compared as text: `toStrictEqual` compares the `constructor` of two
+    // objects to tell their types apart, and here that is the key under test.
+    // ボディは文字列として比較する。`toStrictEqual` は型を見分けるために2つのオブジェクトの
+    // `constructor` を比較するが、ここではそれがテスト対象のキーそのものである。
+    expect(await res.text()).toBe('{"constructor":{"valueType":"number","valueText":"5"}}')
+  })
+
+  // The same name, not sent: what the request object inherits under it is not a value, so
+  // the optional parameter is absent.
+  // 同じ名前を送信しない。リクエストオブジェクトがその名前で継承しているものは値ではない
+  // ため、任意パラメータは存在しない扱いになる。
+  it('constructor is absent when it is not sent', async () => {
+    const res = await headerParamsApp.request('/optional')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({})
+  })
+
   // A header name is case-insensitive on the wire, so however the client spells it, it is the
   // declared header.
   // ヘッダー名はワイヤ上で大文字小文字を区別しない。クライアントがどう綴っても、

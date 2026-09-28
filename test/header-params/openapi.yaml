@@ -135,6 +135,16 @@ paths:
         # `x-` 接頭辞のない名前と、アンダースコアを含む名前。
         - { name: accept-version, in: header, schema: { type: integer } }
         - { name: x_underscore, in: header, schema: { type: integer } }
+        # `null` has no spelling of its own in a parameter; the text `null` is read as the value
+        # by a schema that takes `null` and no string.
+        # パラメータには `null` 専用の表記がない。`null` を受理し、文字列を受理しないスキーマは、
+        # テキスト `null` を値として読む。
+        - { name: x-inull, in: header, schema: { type: [integer, 'null'] } }
+        # A name every JavaScript object inherits: the request object answers to it whether
+        # the parameter was sent or not.
+        # すべての JavaScript オブジェクトが継承する名前。パラメータが送信されたかどうかに
+        # かかわらず、リクエストオブジェクトはこの名前に応答する。
+        - { name: constructor, in: header, schema: { type: integer } }
       responses:
         '200': { $ref: '#/components/responses/Fields' }
   /defaults:
