@@ -350,14 +350,6 @@ describe('integers: rejected values', () => {
     expect(await res.json()).toStrictEqual({ issues: ['int64'] })
   })
 
-  // Exponent notation cannot become a bigint.
-  // 指数表記は bigint に変換できない。
-  it('int64 rejects "1e3"', async () => {
-    const res = await queryParamsApp.request('/params?int64=1e3')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['int64'] })
-  })
-
   // The JavaScript bigint suffix is source syntax, not a value.
   // JavaScript の bigint 接尾辞はソース上の記法であり、値ではない。
   it('int64 rejects "1n"', async () => {
@@ -388,22 +380,6 @@ describe('integers: rejected values', () => {
     const res = await queryParamsApp.request('/params?uint64=1.5')
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['uint64'] })
-  })
-
-  // A fraction cannot become a bigint, even a zero one.
-  // 小数部が 0 でも、小数は bigint に変換できない。
-  it('bigint rejects "1.0"', async () => {
-    const res = await queryParamsApp.request('/params?bigint=1.0')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['bigint'] })
-  })
-
-  // Exponent notation cannot become a bigint.
-  // 指数表記は bigint に変換できない。
-  it('bigint rejects "1e3"', async () => {
-    const res = await queryParamsApp.request('/params?bigint=1e3')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['bigint'] })
   })
 })
 
@@ -1718,14 +1694,6 @@ describe('array elements: rejected values', () => {
     expect(await res.json()).toStrictEqual({ issues: ['int64_arr.1'] })
   })
 
-  // Exponent notation cannot become a bigint.
-  // 指数表記は bigint に変換できない。
-  it('int64_arr rejects "1e3" as its second element', async () => {
-    const res = await queryParamsApp.request('/params?int64_arr=9007199254740993&int64_arr=1e3')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['int64_arr.1'] })
-  })
-
   // The JavaScript bigint suffix is source syntax, not a value.
   // JavaScript の bigint 接尾辞はソース上の記法であり、値ではない。
   it('int64_arr rejects "1n" as its second element', async () => {
@@ -1762,22 +1730,6 @@ describe('array elements: rejected values', () => {
     )
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['uint64_arr.1'] })
-  })
-
-  // A fraction cannot become a bigint, even a zero one.
-  // 小数部が 0 でも、小数は bigint に変換できない。
-  it('bigint_arr rejects "1.0" as its second element', async () => {
-    const res = await queryParamsApp.request('/params?bigint_arr=9007199254740993&bigint_arr=1.0')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['bigint_arr.1'] })
-  })
-
-  // Exponent notation cannot become a bigint.
-  // 指数表記は bigint に変換できない。
-  it('bigint_arr rejects "1e3" as its second element', async () => {
-    const res = await queryParamsApp.request('/params?bigint_arr=9007199254740993&bigint_arr=1e3')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['bigint_arr.1'] })
   })
 
   // Infinity is not finite.
@@ -3336,36 +3288,12 @@ describe('combinators: the text is read once', () => {
     expect(await res.json()).toStrictEqual({ issues: ['not_zero'] })
   })
 
-  // 1 is read as a number, which is excluded.
-  // 1 は number として読み取られ、その値は除外されている。
-  it('not_enum rejects an excluded number', async () => {
-    const res = await queryParamsApp.request('/combinators?not_enum=1')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['not_enum'] })
-  })
-
   // A word is a string.
   // 単語は string である。
   it('not_string rejects a word', async () => {
     const res = await queryParamsApp.request('/combinators?not_string=abc')
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['not_string'] })
-  })
-
-  // 0 is read as a number, which is below the minimum.
-  // 0 は number として読み取られ、最小値を下回る。
-  it('typeless_min rejects a number below the minimum', async () => {
-    const res = await queryParamsApp.request('/combinators?typeless_min=0')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['typeless_min'] })
-  })
-
-  // 12 has two characters.
-  // 12 は2文字である。
-  it('typeless_len rejects digits shorter than minLength', async () => {
-    const res = await queryParamsApp.request('/combinators?typeless_len=12')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['typeless_len'] })
   })
 
   // 3 is a number, and not the constant.
@@ -3557,22 +3485,6 @@ describe('strictness: what the wire grammar does not read', () => {
   // 明示的なプラス記号は、10進リテラルには含まれない。
   it('integer rejects "+1"', async () => {
     const res = await queryParamsApp.request(`/params?integer=${encodeURIComponent('+1')}`)
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['integer'] })
-  })
-
-  // A fraction, even a zero one, is not the text of an integer.
-  // 小数部は、たとえ 0 であっても、整数の表記ではない。
-  it('integer rejects "1.0"', async () => {
-    const res = await queryParamsApp.request('/params?integer=1.0')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['integer'] })
-  })
-
-  // Exponent notation is not the text of an integer, even when the value comes out whole.
-  // 指数表記は、結果が整数になる場合でも、整数の表記ではない。
-  it('integer rejects "1e3"', async () => {
-    const res = await queryParamsApp.request('/params?integer=1e3')
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['integer'] })
   })

@@ -457,9 +457,9 @@ export function wrap(
   // serving the document throws. What the source declares is a JSON integer, so its own
   // keywords are what the document states. A parameter states its schema already.
   const isBigintInteger =
+    meta?.parameters === undefined &&
     typeList.includes('integer') &&
     (schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint') &&
-    meta?.parameters === undefined &&
     hasNoUserChain(schema)
   const bigintMetaProps = isBigintInteger
     ? [
@@ -474,11 +474,15 @@ export function wrap(
             'multipleOf',
             'default',
             'enum',
-            'const',
           ] as const
         ).flatMap((key) =>
           schema[key] === undefined ? [] : [`${key}:${JSON.stringify(schema[key])}`],
         ),
+        // `const` is typed by what the schema hands out, a bigint, which no document can
+        // hold. An enum of one member says the same.
+        ...(schema.const === undefined || schema.enum !== undefined
+          ? []
+          : [`enum:${JSON.stringify([schema.const])}`]),
       ]
     : []
   // `.openapi()` on a wrapper — `.exactOptional()`, the `z.preprocess` that reads the wire —

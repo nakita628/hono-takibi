@@ -67,7 +67,7 @@ describe('zodToOpenAPI: how the value arrives', () => {
   // 付いたままである。
   it.concurrent('reads text with the coerce option', () => {
     expect(zodToOpenAPI({ type: 'integer', minimum: 1 }, undefined, { coerce: true })).toBe(
-      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int().min(1))`,
+      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int().min(1))`,
     )
   })
 
@@ -139,7 +139,7 @@ describe('zodToOpenAPI: a list of types', () => {
   // ワイヤ上では、文字列は union の外側で1度だけ、列挙された型のいずれかとして読み取られる。
   it.concurrent('reads the text once around the union', () => {
     expect(zodToOpenAPI({ type: ['integer', 'string'] }, undefined, { coerce: true })).toBe(
-      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.union([z.int(),z.string()]))`,
+      String.raw`((schema)=>z.union([z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),schema),schema]))(z.union([z.int(),z.string()]))`,
     )
   })
 })

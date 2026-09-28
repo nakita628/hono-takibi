@@ -364,14 +364,6 @@ describe('integers: rejected values', () => {
     expect(await res.json()).toStrictEqual({ issues: ['x-int64'] })
   })
 
-  // Exponent notation cannot become a bigint.
-  // 指数表記は bigint に変換できない。
-  it('x-int64 rejects "1e3"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-int64': '1e3' } })
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['x-int64'] })
-  })
-
   // The JavaScript bigint suffix is source syntax, not a value.
   // JavaScript の bigint 接尾辞はソース上の記法であり、値ではない。
   it('x-int64 rejects "1n"', async () => {
@@ -404,22 +396,6 @@ describe('integers: rejected values', () => {
     const res = await headerParamsApp.request('/headers', { headers: { 'x-uint64': '1.5' } })
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['x-uint64'] })
-  })
-
-  // A fraction cannot become a bigint, even a zero one.
-  // 小数部が 0 でも、小数は bigint に変換できない。
-  it('x-bigint rejects "1.0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-bigint': '1.0' } })
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['x-bigint'] })
-  })
-
-  // Exponent notation cannot become a bigint.
-  // 指数表記は bigint に変換できない。
-  it('x-bigint rejects "1e3"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-bigint': '1e3' } })
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['x-bigint'] })
   })
 })
 
@@ -1872,22 +1848,6 @@ describe('strictness: what the wire grammar does not read', () => {
   // 明示的なプラス記号は、10進リテラルには含まれない。
   it('x-integer rejects "+1"', async () => {
     const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '+1' } })
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['x-integer'] })
-  })
-
-  // A fraction, even a zero one, is not the text of an integer.
-  // 小数部は、たとえ 0 であっても、整数の表記ではない。
-  it('x-integer rejects "1.0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '1.0' } })
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['x-integer'] })
-  })
-
-  // Exponent notation is not the text of an integer, even when the value comes out whole.
-  // 指数表記は、結果が整数になる場合でも、整数の表記ではない。
-  it('x-integer rejects "1e3"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '1e3' } })
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['x-integer'] })
   })

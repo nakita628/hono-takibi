@@ -40,7 +40,7 @@ describe('parametersCode', () => {
     }
     const result = parametersCode(components, false, false)
     expect(result).toBe(
-      String.raw`const PageParamsSchema=z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}})`,
+      String.raw`const PageParamsSchema=z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}})`,
     )
   })
 
@@ -56,7 +56,7 @@ describe('parametersCode', () => {
     }
     const result = parametersCode(components, true, true)
     expect(result).toBe(
-      String.raw`export const LimitParamsSchema=z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"},"required":false}})
+      String.raw`export const LimitParamsSchema=z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"},"required":false}})
 
 export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     )
@@ -95,7 +95,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      String.raw`export const IdParamsSchema=z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).openapi({param:{"name":"id","in":"path","required":true,"schema":{"type":"integer"}}})`,
+      String.raw`export const IdParamsSchema=z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).openapi({param:{"name":"id","in":"path","required":true,"schema":{"type":"integer"}}})`,
     )
   })
 

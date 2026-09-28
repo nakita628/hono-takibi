@@ -1057,7 +1057,9 @@ export const getXRoute = createRoute({
       id: z
         .preprocess(
           (val) =>
-            typeof val === 'string' && /^-?\\d+$/.test(val) && Number.isSafeInteger(Number(val))
+            typeof val === 'string' &&
+            /^-?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$/.test(val) &&
+            (!/^-?\\d+$/.test(val) || Number.isSafeInteger(Number(val)))
               ? Number(val)
               : val,
           z.int(),
@@ -2147,7 +2149,9 @@ export const getPostsRoute = createRoute({
       page: z
         .preprocess(
           (val) =>
-            typeof val === 'string' && /^-?\\d+$/.test(val) && Number.isSafeInteger(Number(val))
+            typeof val === 'string' &&
+            /^-?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$/.test(val) &&
+            (!/^-?\\d+$/.test(val) || Number.isSafeInteger(Number(val)))
               ? Number(val)
               : val,
           z.int(),
@@ -2165,7 +2169,9 @@ export const getPostsRoute = createRoute({
       rows: z
         .preprocess(
           (val) =>
-            typeof val === 'string' && /^-?\\d+$/.test(val) && Number.isSafeInteger(Number(val))
+            typeof val === 'string' &&
+            /^-?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$/.test(val) &&
+            (!/^-?\\d+$/.test(val) || Number.isSafeInteger(Number(val)))
               ? Number(val)
               : val,
           z.int(),
@@ -2261,7 +2267,9 @@ export const getPostsRoute = createRoute({
       page: z
         .preprocess(
           (val) =>
-            typeof val === 'string' && /^-?\\d+$/.test(val) && Number.isSafeInteger(Number(val))
+            typeof val === 'string' &&
+            /^-?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$/.test(val) &&
+            (!/^-?\\d+$/.test(val) || Number.isSafeInteger(Number(val)))
               ? Number(val)
               : val,
           z.int(),
@@ -2279,7 +2287,9 @@ export const getPostsRoute = createRoute({
       rows: z
         .preprocess(
           (val) =>
-            typeof val === 'string' && /^-?\\d+$/.test(val) && Number.isSafeInteger(Number(val))
+            typeof val === 'string' &&
+            /^-?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$/.test(val) &&
+            (!/^-?\\d+$/.test(val) || Number.isSafeInteger(Number(val)))
               ? Number(val)
               : val,
           z.int(),

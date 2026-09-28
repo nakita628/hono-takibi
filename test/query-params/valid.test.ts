@@ -1944,6 +1944,66 @@ describe('integers: accepted boundaries', () => {
       bigint: { valueType: 'bigint', valueText: '-99999999999999999999999999999' },
     })
   })
+
+  // Exponent notation that comes out whole is an integer: JSON Schema looks at the value, not at
+  // how it is written.
+  // 結果が整数になる指数表記は、整数である。
+  // JSON Schema が見るのは値であり、表記ではない。
+  it('int64 accepts "1e3"', async () => {
+    const res = await queryParamsApp.request('/params?int64=1e3')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      int64: { valueType: 'bigint', valueText: '1000' },
+    })
+  })
+
+  // A number with no fraction is an integer, however it is written: JSON Schema counts 1.0 as
+  // one.
+  // 小数部を持たない数値は、表記にかかわらず整数である。
+  // JSON Schema は 1.0 を整数として扱う。
+  it('bigint accepts "1.0"', async () => {
+    const res = await queryParamsApp.request('/params?bigint=1.0')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      bigint: { valueType: 'bigint', valueText: '1' },
+    })
+  })
+
+  // Exponent notation that comes out whole is an integer: JSON Schema looks at the value, not at
+  // how it is written.
+  // 結果が整数になる指数表記は、整数である。
+  // JSON Schema が見るのは値であり、表記ではない。
+  it('bigint accepts "1e3"', async () => {
+    const res = await queryParamsApp.request('/params?bigint=1e3')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      bigint: { valueType: 'bigint', valueText: '1000' },
+    })
+  })
+
+  // A number with no fraction is an integer, however it is written: JSON Schema counts 1.0 as
+  // one.
+  // 小数部を持たない数値は、表記にかかわらず整数である。
+  // JSON Schema は 1.0 を整数として扱う。
+  it('integer accepts "1.0"', async () => {
+    const res = await queryParamsApp.request('/params?integer=1.0')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      integer: { valueType: 'number', valueText: '1' },
+    })
+  })
+
+  // Exponent notation that comes out whole is an integer: JSON Schema looks at the value, not at
+  // how it is written.
+  // 結果が整数になる指数表記は、整数である。
+  // JSON Schema が見るのは値であり、表記ではない。
+  it('integer accepts "1e3"', async () => {
+    const res = await queryParamsApp.request('/params?integer=1e3')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      integer: { valueType: 'number', valueText: '1000' },
+    })
+  })
 })
 
 // Notations of a number, and the edges of float32 and float64.
@@ -3384,6 +3444,51 @@ describe('array elements: accepted boundaries', () => {
       boolean_arr: [
         { valueType: 'boolean', valueText: 'true' },
         { valueType: 'boolean', valueText: 'false' },
+      ],
+    })
+  })
+
+  // Exponent notation that comes out whole is an integer: JSON Schema looks at the value, not at
+  // how it is written.
+  // 結果が整数になる指数表記は、整数である。
+  // JSON Schema が見るのは値であり、表記ではない。
+  it('int64_arr accepts "1e3" as its second element', async () => {
+    const res = await queryParamsApp.request('/params?int64_arr=9007199254740993&int64_arr=1e3')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      int64_arr: [
+        { valueType: 'bigint', valueText: '9007199254740993' },
+        { valueType: 'bigint', valueText: '1000' },
+      ],
+    })
+  })
+
+  // A number with no fraction is an integer, however it is written: JSON Schema counts 1.0 as
+  // one.
+  // 小数部を持たない数値は、表記にかかわらず整数である。
+  // JSON Schema は 1.0 を整数として扱う。
+  it('bigint_arr accepts "1.0" as its second element', async () => {
+    const res = await queryParamsApp.request('/params?bigint_arr=9007199254740993&bigint_arr=1.0')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      bigint_arr: [
+        { valueType: 'bigint', valueText: '9007199254740993' },
+        { valueType: 'bigint', valueText: '1' },
+      ],
+    })
+  })
+
+  // Exponent notation that comes out whole is an integer: JSON Schema looks at the value, not at
+  // how it is written.
+  // 結果が整数になる指数表記は、整数である。
+  // JSON Schema が見るのは値であり、表記ではない。
+  it('bigint_arr accepts "1e3" as its second element', async () => {
+    const res = await queryParamsApp.request('/params?bigint_arr=9007199254740993&bigint_arr=1e3')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      bigint_arr: [
+        { valueType: 'bigint', valueText: '9007199254740993' },
+        { valueType: 'bigint', valueText: '1000' },
       ],
     })
   })
@@ -5768,15 +5873,53 @@ describe('combinators: the text is read once', () => {
     })
   })
 
-  // typeless_len is minLength: 3 with no type. The keyword measures text, so digits stay text:
-  // 123 has three characters.
-  // typeless_len は型を持たない minLength: 3 である。このキーワードは文字列の長さを測るため、
-  // 数字も文字列のままとなる。123 は3文字である。
-  it('typeless_len measures digits as text', async () => {
-    const res = await queryParamsApp.request('/combinators?typeless_len=123')
+  // typeless_len is minLength: 3 with no type. JSON Schema applies minLength to a string and
+  // says nothing about a number, so digits, which are a number, are valid whatever their
+  // count.
+  // typeless_len は型を持たない minLength: 3 である。JSON Schema は minLength を文字列に適用し、
+  // 数値については何も規定しない。そのため、数値である数字の並びは、桁数にかかわらず有効である。
+  it('typeless_len accepts digits as a number, which minLength does not measure', async () => {
+    const res = await queryParamsApp.request('/combinators?typeless_len=12')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
-      typeless_len: { valueType: 'string', valueText: '123' },
+      typeless_len: { valueType: 'number', valueText: '12' },
+    })
+  })
+
+  // A word is text, and long enough.
+  // 単語は文字列であり、長さも足りている。
+  it('typeless_len accepts a word that meets minLength', async () => {
+    const res = await queryParamsApp.request('/combinators?typeless_len=abc')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      typeless_len: { valueType: 'string', valueText: 'abc' },
+    })
+  })
+
+  // 0 as a number is below the minimum. As text it is a string, which minimum says nothing
+  // about: a client that holds the string "0" sends exactly this, so it is accepted, as the
+  // string. A schema that means a number has to say `type: number`.
+  // number としての 0 は、最小値を下回る。一方、文字列としての "0" は string であり、minimum は
+  // string について何も規定しない。文字列 "0" を持つクライアントが送信するのはまさにこの値
+  // なので、string として受理される。数値を意図するスキーマは、`type: number` を明記する
+  // 必要がある。
+  it('typeless_min accepts "0" as the string it also is', async () => {
+    const res = await queryParamsApp.request('/combinators?typeless_min=0')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      typeless_min: { valueType: 'string', valueText: '0' },
+    })
+  })
+
+  // The number 1 is excluded and the string "1" is not. The text stands for both, so it is
+  // accepted as the one that is valid.
+  // number の 1 は除外されているが、文字列の "1" は除外されていない。この文字列はその両方を
+  // 表しうるため、有効なほうとして受理される。
+  it('not_enum accepts "1" as the string, which is not excluded', async () => {
+    const res = await queryParamsApp.request('/combinators?not_enum=1')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      not_enum: { valueType: 'string', valueText: '1' },
     })
   })
 

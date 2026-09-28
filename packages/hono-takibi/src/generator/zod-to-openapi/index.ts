@@ -9,6 +9,7 @@ import { makeRef } from '../../helper/openapi.js'
 import {
   needsWireConversion,
   FORM_ARITY,
+  hasSeveralReadings,
   JSON_BIGINT,
   isDecoratedRef,
   resolveSchemaRef,
@@ -85,12 +86,16 @@ export function zodToOpenAPI(
     const form = options.form === true
     // `z.stringbool()` is the boolean schema itself; it takes the text as it is.
     if (!form && isBooleanLeaf && kinds.length === 1 && kinds[0] === 'boolean') return undefined
-    const keep = wireKeep(schema, options.schemas)
-    const wrapped = wrapWire('', kinds, keep)
-    return wrapped === ''
+    return wrapWire('', kinds) === ''
       ? undefined
-      : (zod: string, component = false) => wrapWire(zod, kinds, keep, component || form)
+      : (zod: string, component = false) => wrapWire(zod, kinds, component || form)
   })()
+  // Tried as several readings, the component is handed to each of them: what describes the
+  // parameter then belongs around them, not on the component.
+  const isTriedSeveralWays =
+    options?.coerce === true &&
+    options.json !== true &&
+    hasSeveralReadings(wireKinds(schema, options.schemas) ?? [])
   const effective: typeof options =
     wire === undefined || options === undefined
       ? options
@@ -115,7 +120,8 @@ export function zodToOpenAPI(
     normalizeTypes(schema.type).includes('integer') &&
     (schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint') &&
     schema['x-coerce'] !== true
-  const done = (zod: string, emitted: Schema, component = false) => {
+  const done = (zod: string, emitted: Schema, named = false) => {
+    const component = named && !isTriedSeveralWays
     const isFormArray = effective?.form === true && normalizeTypes(emitted.type).includes('array')
     const around =
       wire !== undefined

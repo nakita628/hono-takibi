@@ -38,7 +38,7 @@ describe('makeParameterSchema: a schema behind $ref', () => {
         schemas,
       ),
     ).toBe(
-      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),CountSchema.openapi({param:{"name":"p","in":"query","required":true,"schema":{"$ref":"#/components/schemas/Count"}}}))`,
+      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),CountSchema.openapi({param:{"name":"p","in":"query","required":true,"schema":{"$ref":"#/components/schemas/Count"}}}))`,
     )
   })
 
@@ -54,7 +54,7 @@ describe('makeParameterSchema: a schema behind $ref', () => {
         schemas,
       ),
     ).toBe(
-      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),CountSchema.openapi({param:{"name":"p","in":"query","schema":{"$ref":"#/components/schemas/Count"},"required":false}})).exactOptional()`,
+      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),CountSchema.openapi({param:{"name":"p","in":"query","schema":{"$ref":"#/components/schemas/Count"},"required":false}})).exactOptional()`,
     )
   })
 
@@ -73,7 +73,7 @@ describe('makeParameterSchema: a schema behind $ref', () => {
         schemas,
       ),
     ).toBe(
-      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),CountSchema.openapi({param:{"name":"p","in":"query","required":true,"schema":{"allOf":[{"$ref":"#/components/schemas/Count"}],"description":"A count."}}}))`,
+      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),CountSchema.openapi({param:{"name":"p","in":"query","required":true,"schema":{"allOf":[{"$ref":"#/components/schemas/Count"}],"description":"A count."}}}))`,
     )
   })
 
@@ -96,7 +96,7 @@ describe('makeParameterSchema: a schema behind $ref', () => {
         schemas,
       ),
     ).toBe(
-      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int().min(0)).default(1).exactOptional().openapi({param:{"name":"p","in":"query","schema":{"type":"integer","minimum":0,"default":1},"required":false}})`,
+      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int().min(0)).default(1).exactOptional().openapi({param:{"name":"p","in":"query","schema":{"type":"integer","minimum":0,"default":1},"required":false}})`,
     )
   })
 
@@ -150,7 +150,7 @@ describe('makeParameterSchema: a schema behind $ref', () => {
         schemas,
       ),
     ).toBe(
-      String.raw`z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()))).openapi({param:{"name":"p","in":"query","required":true,"schema":{"type":"array","items":{"type":"integer"}}}})`,
+      String.raw`z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()))).openapi({param:{"name":"p","in":"query","required":true,"schema":{"type":"array","items":{"type":"integer"}}}})`,
     )
   })
 
@@ -183,7 +183,7 @@ describe('makeParameterSchema: a schema behind $ref', () => {
         schemas,
       ),
     ).toBe(
-      String.raw`z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),CountSchema))).openapi({param:{"name":"p","in":"query","required":true,"schema":{"type":"array","items":{"$ref":"#/components/schemas/Count"}}}})`,
+      String.raw`z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),CountSchema))).openapi({param:{"name":"p","in":"query","required":true,"schema":{"type":"array","items":{"$ref":"#/components/schemas/Count"}}}})`,
     )
   })
 
@@ -204,7 +204,7 @@ describe('makeParameterSchema: a schema behind $ref', () => {
         schemas,
       ),
     ).toContain(
-      String.raw`z.object({size:z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional(),next:NodeSchema.exactOptional()})`,
+      String.raw`z.object({size:z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).exactOptional(),next:NodeSchema.exactOptional()}).openapi({param:{"name":"p","in":"query","required":true,"content":{"text/plain":{"schema":{"$ref":"#/components/schemas/Node"}}}},"required":[]})`,
     )
   })
 
@@ -247,7 +247,7 @@ describe('makeParameterSchema: the text is read once', () => {
         schemas,
       ),
     ).toBe(
-      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int().and(z.unknown().superRefine((val,ctx)=>{if(typeof val==='number'){if(val<5){ctx.addIssue({code:'custom'})}}}))).openapi({param:{"name":"p","in":"query","required":true,"schema":{"allOf":[{"type":"integer"},{"minimum":5}]}}})`,
+      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int().and(z.unknown().superRefine((val,ctx)=>{if(typeof val==='number'){if(val<5){ctx.addIssue({code:'custom'})}}}))).openapi({param:{"name":"p","in":"query","required":true,"schema":{"allOf":[{"type":"integer"},{"minimum":5}]}}})`,
     )
   })
 
@@ -267,7 +267,7 @@ describe('makeParameterSchema: the text is read once', () => {
         schemas,
       ),
     ).toBe(
-      String.raw`z.preprocess(((read)=>(val:unknown)=>{if(typeof val!=='string')return val;if(/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val)))return Number(val);const result=read.safeParse(val);return result.success?result.data:val})(z.stringbool()),z.xor([z.int(),z.boolean()])).openapi({param:{"name":"p","in":"query","required":true,"schema":{"oneOf":[{"type":"integer"},{"type":"boolean"}]}}})`,
+      String.raw`((schema)=>z.union([z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),schema),z.preprocess(((read)=>(val:unknown)=>{const result=read.safeParse(val);return result.success?result.data:val})(z.stringbool()),schema)]))(z.xor([z.int(),z.boolean()])).openapi({param:{"name":"p","in":"query","required":true,"schema":{"oneOf":[{"type":"integer"},{"type":"boolean"}]}}})`,
     )
   })
 
@@ -286,7 +286,7 @@ describe('makeParameterSchema: the text is read once', () => {
         schemas,
       ),
     ).toBe(
-      String.raw`z.union([z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()))]).openapi({param:{"name":"p","in":"query","required":true,"schema":{"anyOf":[{"type":"integer"},{"type":"array","items":{"type":"integer"}}]}}})`,
+      String.raw`z.union([z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()))]).openapi({param:{"name":"p","in":"query","required":true,"schema":{"anyOf":[{"type":"integer"},{"type":"array","items":{"type":"integer"}}]}}})`,
     )
   })
 
@@ -302,7 +302,7 @@ describe('makeParameterSchema: the text is read once', () => {
         schemas,
       ),
     ).toBe(
-      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int().refine((val) => val !== 0)).openapi({param:{"name":"p","in":"query","required":true,"schema":{"type":"integer","not":{"const":0}}}})`,
+      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int().refine((val) => val !== 0)).openapi({param:{"name":"p","in":"query","required":true,"schema":{"type":"integer","not":{"const":0}}}})`,
     )
   })
 
@@ -317,7 +317,7 @@ describe('makeParameterSchema: the text is read once', () => {
         schemas,
       ),
     ).toBe(
-      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.unknown().superRefine((val,ctx)=>{if(typeof val==='number'){if(val<1){ctx.addIssue({code:'custom'})}}})).openapi({param:{"name":"p","in":"query","required":true,"schema":{"minimum":1}}})`,
+      String.raw`((schema)=>z.union([z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),schema),z.preprocess((val)=>(val==='true'?true:val==='false'?false:val),schema),schema]))(z.unknown().superRefine((val,ctx)=>{if(typeof val==='number'){if(val<1){ctx.addIssue({code:'custom'})}}})).openapi({param:{"name":"p","in":"query","required":true,"schema":{"minimum":1}}})`,
     )
   })
 
@@ -332,7 +332,7 @@ describe('makeParameterSchema: the text is read once', () => {
         schemas,
       ),
     ).toBe(
-      String.raw`z.preprocess((val)=>{if(typeof val!=='string'||["a","2"].includes(val))return val;if(/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val)))return Number(val);return val},z.union([z.literal(1),z.literal('a'),z.literal('2')])).openapi({param:{"name":"p","in":"query","required":true,"schema":{"enum":[1,"a","2"]}}})`,
+      String.raw`((schema)=>z.union([z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),schema),schema]))(z.union([z.literal(1),z.literal('a'),z.literal('2')])).openapi({param:{"name":"p","in":"query","required":true,"schema":{"enum":[1,"a","2"]}}})`,
     )
   })
 
@@ -359,7 +359,7 @@ describe('makeParameterSchema: the text is read once', () => {
         schemas,
       ),
     ).toContain(
-      String.raw`z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.preprocess((val)=>{if(!Array.isArray(val))return val;const prefix=[(val:unknown)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),(val:unknown)=>val];const rest=((read)=>(val:unknown)=>{const result=read.safeParse(val);return result.success?result.data:val})(z.stringbool());return val.map((item,i)=>(prefix[i]??rest)(item))},z.array(z.unknown())`,
+      String.raw`z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.preprocess((val)=>{if(!Array.isArray(val))return val;const prefix=[(val:unknown)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),(val:unknown)=>val];const rest=((read)=>(val:unknown)=>{const result=read.safeParse(val);return result.success?result.data:val})(z.stringbool());return val.map((item,i)=>(prefix[i]??rest)(item))},z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[z.int(),z.string()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]})}}};const Rest=z.boolean();for(const [i,val] of arr.slice(Prefix.length).entries()){const result=Rest.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]})}}}}))).openapi({param:{"name":"p","in":"query","required":true,"schema":{"type":"array","prefixItems":[{"type":"integer"},{"type":"string"}],"items":{"type":"boolean"}}}})`,
     )
   })
 })
@@ -421,7 +421,7 @@ describe('makeParameterSchema: content', () => {
         content: { 'text/plain': { schema: { type: 'integer' } } },
       }),
     ).toBe(
-      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).openapi({param:{"name":"p","in":"query","required":true,"content":{"text/plain":{"schema":{"type":"integer"}}}}})`,
+      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).openapi({param:{"name":"p","in":"query","required":true,"content":{"text/plain":{"schema":{"type":"integer"}}}}})`,
     )
   })
 })
@@ -442,7 +442,7 @@ describe('makeParameterSchema: what goes around the converter', () => {
         schema: { type: 'integer', 'x-error-message': 'bad', 'x-required-message': 'need' },
       }),
     ).toBe(
-      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int({error:(issue)=>issue.input===undefined?"need":"bad"})).openapi({param:{"name":"p","in":"query","required":true,"schema":{"type":"integer","x-error-message":"bad","x-required-message":"need"}}})`,
+      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int({error:(issue)=>issue.input===undefined?"need":"bad"})).openapi({param:{"name":"p","in":"query","required":true,"schema":{"type":"integer","x-error-message":"bad","x-required-message":"need"}}})`,
     )
   })
 
@@ -456,7 +456,7 @@ describe('makeParameterSchema: what goes around the converter', () => {
         schema: { type: ['integer', 'null'], default: 20 },
       }),
     ).toContain(
-      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).nullable().default(20).exactOptional()`,
+      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).nullable().default(20).exactOptional().openapi({param:{"name":"p","in":"query","schema":{"type":["integer","null"],"default":20},"required":false}})`,
     )
   })
 
@@ -498,7 +498,7 @@ describe('makeParameterSchema: what goes around the converter', () => {
         schema: { type: 'integer' },
       }),
     ).toContain(
-      String.raw`z.preprocess((val)=>(typeof val==='string'?val.replace(/^\./,''):val),z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()))`,
+      String.raw`z.preprocess((val)=>(typeof val==='string'?val.replace(/^\./,''):val),z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int())).openapi({param:{"name":"id","in":"path","required":true,"style":"label","schema":{"type":"integer"}}})`,
     )
   })
 })
@@ -532,7 +532,7 @@ describe('makeParameterSchema: an object parameter', () => {
         },
       }),
     ).toContain(
-      String.raw`z.object({age:z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional(),active:z.preprocess(((read)=>(val:unknown)=>{const result=read.safeParse(val);return result.success?result.data:val})(z.stringbool()),z.boolean()).exactOptional(),ids:z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()))).exactOptional()}).exactOptional()`,
+      String.raw`z.object({age:z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).exactOptional(),active:z.preprocess(((read)=>(val:unknown)=>{const result=read.safeParse(val);return result.success?result.data:val})(z.stringbool()),z.boolean()).exactOptional(),ids:z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()))).exactOptional()}).exactOptional().openapi({param:{"name":"filter","in":"query","style":"deepObject","schema":{"type":"object","properties":{"age":{"type":"integer"},"active":{"type":"boolean"},"ids":{"type":"array","items":{"type":"integer"}}}},"required":false},"required":[]})`,
     )
     expect(warn).not.toHaveBeenCalled()
     warn.mockRestore()
@@ -552,7 +552,7 @@ describe('makeParameterSchema: an object parameter', () => {
         schema: { type: 'object', properties: { age: { type: 'integer' } } },
       }),
     ).toContain(
-      String.raw`z.preprocess((val)=>{if(typeof val!=='string')return val;const parts=val.split(",");if(parts.length%2!==0)return val;return Object.fromEntries(parts.flatMap((part,i)=>(i%2===0?[[part,parts[i+1]]]:[])))},z.object({age:z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional()})).exactOptional()`,
+      String.raw`z.preprocess((val)=>{if(typeof val!=='string')return val;const parts=val.split(",");if(parts.length%2!==0)return val;return Object.fromEntries(parts.flatMap((part,i)=>(i%2===0?[[part,parts[i+1]]]:[])))},z.object({age:z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).exactOptional()})).exactOptional().openapi({param:{"name":"filter","in":"query","explode":false,"schema":{"type":"object","properties":{"age":{"type":"integer"}}},"required":false},"required":[]})`,
     )
     expect(warn).not.toHaveBeenCalled()
     warn.mockRestore()
@@ -582,7 +582,7 @@ describe('makeParameterSchema: an object parameter', () => {
         schema: { type: 'object', properties: { age: { type: 'integer' } } },
       }),
     ).toContain(
-      String.raw`z.preprocess((val)=>{if(typeof val!=='string')return val;const parts=val.split(",").map((part)=>part.trim());if(parts.length%2!==0)return val;return Object.fromEntries(parts.flatMap((part,i)=>(i%2===0?[[part,parts[i+1]]]:[])))},z.object({age:z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional()})).exactOptional()`,
+      String.raw`z.preprocess((val)=>{if(typeof val!=='string')return val;const parts=val.split(",").map((part)=>part.trim());if(parts.length%2!==0)return val;return Object.fromEntries(parts.flatMap((part,i)=>(i%2===0?[[part,parts[i+1]]]:[])))},z.object({age:z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).exactOptional()})).exactOptional().openapi({param:{"name":"x-filter","in":"header","schema":{"type":"object","properties":{"age":{"type":"integer"}}},"required":false},"required":[]})`,
     )
     expect(warn).not.toHaveBeenCalled()
     warn.mockRestore()
@@ -606,7 +606,7 @@ describe('makeParameterSchema: an object parameter', () => {
         schema: { type: 'integer', default: 1 },
       }),
     ).toContain(
-      String.raw`z.preprocess((val)=>(val===''?undefined:val),z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).default(1)).default(1).exactOptional()`,
+      String.raw`z.preprocess((val)=>(val===''?undefined:val),z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).default(1)).default(1).exactOptional().openapi({param:{"name":"page","in":"query","allowEmptyValue":true,"schema":{"type":"integer","default":1},"required":false}})`,
     )
   })
 
@@ -621,7 +621,7 @@ describe('makeParameterSchema: an object parameter', () => {
         schema: { type: 'integer' },
       }),
     ).toContain(
-      String.raw`z.preprocess((val)=>(val===''?undefined:val),z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).optional()).exactOptional()`,
+      String.raw`z.preprocess((val)=>(val===''?undefined:val),z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).optional()).exactOptional().openapi({param:{"name":"page","in":"query","allowEmptyValue":true,"schema":{"type":"integer"},"required":false}})`,
     )
   })
 
@@ -637,7 +637,7 @@ describe('makeParameterSchema: an object parameter', () => {
         schema: { type: 'integer' },
       }),
     ).toContain(
-      String.raw`z.preprocess((val)=>(val===''?undefined:val),z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int())).openapi(`,
+      String.raw`z.preprocess((val)=>(val===''?undefined:val),z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int())).openapi({param:{"name":"page","in":"query","required":true,"allowEmptyValue":true,"schema":{"type":"integer"}}})`,
     )
   })
 
@@ -752,7 +752,7 @@ describe('makeRequestBody: a form body', () => {
         },
       }),
     ).toBe(
-      String.raw`{content:{'application/x-www-form-urlencoded':{schema:z.object({age:z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional()}).openapi({"required":[]})}}}`,
+      String.raw`{content:{'application/x-www-form-urlencoded':{schema:z.object({age:z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).exactOptional()}).openapi({"required":[]})}}}`,
     )
   })
 
@@ -789,7 +789,7 @@ describe('makeRequestBody: a form body', () => {
         },
       }),
     ).toBe(
-      String.raw`{content:{'application/x-www-form-urlencoded':{schema:z.object({ids:z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()))).exactOptional()}).openapi({"required":[]})}}}`,
+      String.raw`{content:{'application/x-www-form-urlencoded':{schema:z.object({ids:z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()))).exactOptional()}).openapi({"required":[]})}}}`,
     )
   })
 
@@ -829,7 +829,7 @@ describe('makeRequestBody: a form body', () => {
         schemas,
       ),
     ).toBe(
-      String.raw`{content:{'application/x-www-form-urlencoded':{schema:z.object({size:z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional(),next:NodeSchema.exactOptional()}).openapi({"required":[]})}}}`,
+      String.raw`{content:{'application/x-www-form-urlencoded':{schema:z.object({size:z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).exactOptional(),next:NodeSchema.exactOptional()}).openapi({"required":[]})}}}`,
     )
   })
 
@@ -845,7 +845,7 @@ describe('makeRequestBody: a form body', () => {
         },
       }),
     ).toContain(
-      String.raw`age:z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional()`,
+      String.raw`{content:{'Multipart/Form-Data; boundary=x':{schema:z.object({age:z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).exactOptional()}).openapi({"required":[]})}}}`,
     )
   })
 

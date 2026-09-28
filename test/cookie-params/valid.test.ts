@@ -800,6 +800,66 @@ describe('integers: accepted boundaries', () => {
       bigint: { valueType: 'bigint', valueText: '-99999999999999999999999999999' },
     })
   })
+
+  // Exponent notation that comes out whole is an integer: JSON Schema looks at the value, not at
+  // how it is written.
+  // 結果が整数になる指数表記は、整数である。
+  // JSON Schema が見るのは値であり、表記ではない。
+  it('int64 accepts "1e3"', async () => {
+    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'int64=1e3' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      int64: { valueType: 'bigint', valueText: '1000' },
+    })
+  })
+
+  // A number with no fraction is an integer, however it is written: JSON Schema counts 1.0 as
+  // one.
+  // 小数部を持たない数値は、表記にかかわらず整数である。
+  // JSON Schema は 1.0 を整数として扱う。
+  it('bigint accepts "1.0"', async () => {
+    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'bigint=1.0' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      bigint: { valueType: 'bigint', valueText: '1' },
+    })
+  })
+
+  // Exponent notation that comes out whole is an integer: JSON Schema looks at the value, not at
+  // how it is written.
+  // 結果が整数になる指数表記は、整数である。
+  // JSON Schema が見るのは値であり、表記ではない。
+  it('bigint accepts "1e3"', async () => {
+    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'bigint=1e3' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      bigint: { valueType: 'bigint', valueText: '1000' },
+    })
+  })
+
+  // A number with no fraction is an integer, however it is written: JSON Schema counts 1.0 as
+  // one.
+  // 小数部を持たない数値は、表記にかかわらず整数である。
+  // JSON Schema は 1.0 を整数として扱う。
+  it('integer accepts "1.0"', async () => {
+    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=1.0' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      integer: { valueType: 'number', valueText: '1' },
+    })
+  })
+
+  // Exponent notation that comes out whole is an integer: JSON Schema looks at the value, not at
+  // how it is written.
+  // 結果が整数になる指数表記は、整数である。
+  // JSON Schema が見るのは値であり、表記ではない。
+  it('integer accepts "1e3"', async () => {
+    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=1e3' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      integer: { valueType: 'number', valueText: '1000' },
+    })
+  })
 })
 
 // Notations of a number, and the edges of float32 and float64.

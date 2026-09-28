@@ -1,0 +1,971 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Conformance",
+    "version": "0.0.0"
+  },
+  "paths": {
+    "/query": {
+      "get": {
+        "operationId": "query",
+        "parameters": [
+          {
+            "name": "integer",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "ranged",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10
+            }
+          },
+          {
+            "name": "exclusive",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "exclusiveMaximum": 1
+            }
+          },
+          {
+            "name": "multiple",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "multipleOf": 5
+            }
+          },
+          {
+            "name": "int32",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "number",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "boolean",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "string",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "length",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 3
+            }
+          },
+          {
+            "name": "pattern",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z]+-[0-9]{1,3}$"
+            }
+          },
+          {
+            "name": "digits",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            }
+          },
+          {
+            "name": "senum",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["asc", "desc"]
+            }
+          },
+          {
+            "name": "ienum",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [1, 2, 3]
+            }
+          },
+          {
+            "name": "nenum",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "enum": [0.5, 1.5]
+            }
+          },
+          {
+            "name": "benum",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "enum": [true]
+            }
+          },
+          {
+            "name": "mixed",
+            "in": "query",
+            "schema": {
+              "enum": [1, "a", "2", true]
+            }
+          },
+          {
+            "name": "sconst",
+            "in": "query",
+            "schema": {
+              "const": "on"
+            }
+          },
+          {
+            "name": "iconst",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "const": 7
+            }
+          },
+          {
+            "name": "nullable",
+            "in": "query",
+            "schema": {
+              "type": ["integer", "null"]
+            }
+          },
+          {
+            "name": "either",
+            "in": "query",
+            "schema": {
+              "type": ["integer", "string"]
+            }
+          },
+          {
+            "name": "either_bounded",
+            "in": "query",
+            "schema": {
+              "type": ["integer", "string"],
+              "minimum": 5,
+              "minLength": 2
+            }
+          },
+          {
+            "name": "number_boolean",
+            "in": "query",
+            "schema": {
+              "type": ["number", "boolean"]
+            }
+          },
+          {
+            "name": "typeless_min",
+            "in": "query",
+            "schema": {
+              "minimum": 1
+            }
+          },
+          {
+            "name": "typeless_len",
+            "in": "query",
+            "schema": {
+              "minLength": 3
+            }
+          },
+          {
+            "name": "allof",
+            "in": "query",
+            "schema": {
+              "allOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "minimum": 5
+                }
+              ]
+            }
+          },
+          {
+            "name": "allof_range",
+            "in": "query",
+            "schema": {
+              "allOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "integer",
+                  "maximum": 10
+                }
+              ]
+            }
+          },
+          {
+            "name": "allof_ref",
+            "in": "query",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Count"
+                },
+                {
+                  "maximum": 10
+                }
+              ]
+            }
+          },
+          {
+            "name": "anyof",
+            "in": "query",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 5
+                },
+                {
+                  "type": "string",
+                  "minLength": 2
+                }
+              ]
+            }
+          },
+          {
+            "name": "anyof_ref",
+            "in": "query",
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Count"
+                },
+                {
+                  "$ref": "#/components/schemas/Flag"
+                }
+              ]
+            }
+          },
+          {
+            "name": "oneof",
+            "in": "query",
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string",
+                  "enum": ["all"]
+                }
+              ]
+            }
+          },
+          {
+            "name": "oneof_overlap",
+            "in": "query",
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "integer",
+                  "maximum": 5
+                }
+              ]
+            }
+          },
+          {
+            "name": "oneof_bounded",
+            "in": "query",
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "minimum": 5
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          {
+            "name": "oneof_boolean",
+            "in": "query",
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            }
+          },
+          {
+            "name": "not_const",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "not": {
+                "const": 0
+              }
+            }
+          },
+          {
+            "name": "not_enum",
+            "in": "query",
+            "schema": {
+              "not": {
+                "enum": [1, 2]
+              }
+            }
+          },
+          {
+            "name": "not_string",
+            "in": "query",
+            "schema": {
+              "not": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "not_range",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "not": {
+                "minimum": 5
+              }
+            }
+          },
+          {
+            "name": "ref_integer",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Count"
+            }
+          },
+          {
+            "name": "ref_boolean",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Flag"
+            }
+          },
+          {
+            "name": "ref_string",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Name"
+            }
+          },
+          {
+            "name": "ref_enum",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Level"
+            }
+          },
+          {
+            "name": "ref_ref",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CountAlias"
+            }
+          },
+          {
+            "name": "ref_union",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Either"
+            }
+          },
+          {
+            "name": "array_integer",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          },
+          {
+            "name": "array_string",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 2
+              }
+            }
+          },
+          {
+            "name": "array_boolean",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            }
+          },
+          {
+            "name": "array_sized",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              },
+              "minItems": 2,
+              "maxItems": 3
+            }
+          },
+          {
+            "name": "array_unique",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              },
+              "uniqueItems": true
+            }
+          },
+          {
+            "name": "array_ranged",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              }
+            }
+          },
+          {
+            "name": "array_enum",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["a", "b"]
+              }
+            }
+          },
+          {
+            "name": "array_ref",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Count"
+              }
+            }
+          },
+          {
+            "name": "array_union",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "string",
+                    "enum": ["all"]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "name": "ref_array",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Counts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Fields"
+          }
+        }
+      }
+    },
+    "/json": {
+      "post": {
+        "operationId": "json",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "integer": {
+                    "type": "integer"
+                  },
+                  "ranged": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10
+                  },
+                  "exclusive": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "exclusiveMaximum": 1
+                  },
+                  "multiple": {
+                    "type": "integer",
+                    "multipleOf": 5
+                  },
+                  "int32": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "number": {
+                    "type": "number"
+                  },
+                  "boolean": {
+                    "type": "boolean"
+                  },
+                  "string": {
+                    "type": "string"
+                  },
+                  "length": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 3
+                  },
+                  "pattern": {
+                    "type": "string",
+                    "pattern": "^[a-z]+-[0-9]{1,3}$"
+                  },
+                  "digits": {
+                    "type": "string",
+                    "pattern": "^[0-9]+$"
+                  },
+                  "senum": {
+                    "type": "string",
+                    "enum": ["asc", "desc"]
+                  },
+                  "ienum": {
+                    "type": "integer",
+                    "enum": [1, 2, 3]
+                  },
+                  "nenum": {
+                    "type": "number",
+                    "enum": [0.5, 1.5]
+                  },
+                  "benum": {
+                    "type": "boolean",
+                    "enum": [true]
+                  },
+                  "mixed": {
+                    "enum": [1, "a", "2", true]
+                  },
+                  "sconst": {
+                    "const": "on"
+                  },
+                  "iconst": {
+                    "type": "integer",
+                    "const": 7
+                  },
+                  "nullable": {
+                    "type": ["integer", "null"]
+                  },
+                  "either": {
+                    "type": ["integer", "string"]
+                  },
+                  "either_bounded": {
+                    "type": ["integer", "string"],
+                    "minimum": 5,
+                    "minLength": 2
+                  },
+                  "number_boolean": {
+                    "type": ["number", "boolean"]
+                  },
+                  "typeless_min": {
+                    "minimum": 1
+                  },
+                  "typeless_len": {
+                    "minLength": 3
+                  },
+                  "allof": {
+                    "allOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "minimum": 5
+                      }
+                    ]
+                  },
+                  "allof_range": {
+                    "allOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      {
+                        "type": "integer",
+                        "maximum": 10
+                      }
+                    ]
+                  },
+                  "allof_ref": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Count"
+                      },
+                      {
+                        "maximum": 10
+                      }
+                    ]
+                  },
+                  "anyof": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 5
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 2
+                      }
+                    ]
+                  },
+                  "anyof_ref": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/components/schemas/Count"
+                      },
+                      {
+                        "$ref": "#/components/schemas/Flag"
+                      }
+                    ]
+                  },
+                  "oneof": {
+                    "oneOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "string",
+                        "enum": ["all"]
+                      }
+                    ]
+                  },
+                  "oneof_overlap": {
+                    "oneOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      {
+                        "type": "integer",
+                        "maximum": 5
+                      }
+                    ]
+                  },
+                  "oneof_bounded": {
+                    "oneOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 5
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "oneof_boolean": {
+                    "oneOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "boolean"
+                      }
+                    ]
+                  },
+                  "not_const": {
+                    "type": "integer",
+                    "not": {
+                      "const": 0
+                    }
+                  },
+                  "not_enum": {
+                    "not": {
+                      "enum": [1, 2]
+                    }
+                  },
+                  "not_string": {
+                    "not": {
+                      "type": "string"
+                    }
+                  },
+                  "not_range": {
+                    "type": "integer",
+                    "not": {
+                      "minimum": 5
+                    }
+                  },
+                  "ref_integer": {
+                    "$ref": "#/components/schemas/Count"
+                  },
+                  "ref_boolean": {
+                    "$ref": "#/components/schemas/Flag"
+                  },
+                  "ref_string": {
+                    "$ref": "#/components/schemas/Name"
+                  },
+                  "ref_enum": {
+                    "$ref": "#/components/schemas/Level"
+                  },
+                  "ref_ref": {
+                    "$ref": "#/components/schemas/CountAlias"
+                  },
+                  "ref_union": {
+                    "$ref": "#/components/schemas/Either"
+                  },
+                  "array_integer": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "array_string": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 2
+                    }
+                  },
+                  "array_boolean": {
+                    "type": "array",
+                    "items": {
+                      "type": "boolean"
+                    }
+                  },
+                  "array_sized": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "minItems": 2,
+                    "maxItems": 3
+                  },
+                  "array_unique": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "uniqueItems": true
+                  },
+                  "array_ranged": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 5
+                    }
+                  },
+                  "array_enum": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": ["a", "b"]
+                    }
+                  },
+                  "array_ref": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Count"
+                    }
+                  },
+                  "array_union": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "string",
+                          "enum": ["all"]
+                        }
+                      ]
+                    }
+                  },
+                  "ref_array": {
+                    "$ref": "#/components/schemas/Counts"
+                  },
+                  "object": {
+                    "type": "object",
+                    "required": ["a"],
+                    "properties": {
+                      "a": {
+                        "type": "integer"
+                      },
+                      "b": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "object_closed": {
+                    "type": "object",
+                    "properties": {
+                      "a": {
+                        "type": "integer"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "object_map": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "integer"
+                    }
+                  },
+                  "object_ref": {
+                    "$ref": "#/components/schemas/Point"
+                  },
+                  "array_object": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Point"
+                    }
+                  },
+                  "tuple": {
+                    "type": "array",
+                    "prefixItems": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "items": {
+                      "type": "boolean"
+                    }
+                  },
+                  "null": {
+                    "type": "null"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Fields"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Count": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "CountAlias": {
+        "$ref": "#/components/schemas/Count"
+      },
+      "Flag": {
+        "type": "boolean"
+      },
+      "Name": {
+        "type": "string",
+        "minLength": 2
+      },
+      "Level": {
+        "type": "integer",
+        "enum": [1, 2, 3]
+      },
+      "Either": {
+        "oneOf": [
+          {
+            "type": "integer",
+            "minimum": 5
+          },
+          {
+            "type": "boolean"
+          }
+        ]
+      },
+      "Counts": {
+        "type": "array",
+        "items": {
+          "type": "integer"
+        },
+        "minItems": 1
+      },
+      "Point": {
+        "type": "object",
+        "required": ["x"],
+        "properties": {
+          "x": {
+            "type": "integer"
+          },
+          "y": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "responses": {
+      "Fields": {
+        "description": "Every validated value, by name, as what the handler received.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

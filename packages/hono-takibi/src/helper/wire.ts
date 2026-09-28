@@ -6,7 +6,10 @@ import { normalizeTypes } from '../utils/index.js'
  * What a parameter value can turn into once it leaves the wire. A path, query, header or
  * cookie value always arrives as text, so the kind says which text is read as which type.
  */
-type WireKind = 'integer' | 'number' | 'bigint' | 'boolean' | 'string'
+// `truth` is a boolean a schema does not declare: a schema that names no type takes a
+// boolean like any other value, and for it only `true` and `false` spell one. The words
+// `z.stringbool()` adds (`1`, `yes`, `on`) are for a schema that asks for a boolean.
+type WireKind = 'integer' | 'number' | 'bigint' | 'boolean' | 'truth' | 'string'
 
 type Schemas = { readonly [k: string]: Schema }
 
@@ -17,6 +20,8 @@ const SCHEMA_REF_PREFIX = '#/components/schemas/'
 // before it is converted, and text that does not match stays a string for the schema to
 // reject. A number may leave out the digits on one side of its point (`.5`, `5.`) and carry
 // an exponent; a sign other than `-`, whitespace and the other radixes are not part of it.
+// An integer is read with the same grammar: JSON Schema calls a number with no fraction an
+// integer, so `1.0` and `1e3` are integers, and it is the schema that says `1.5` is not.
 // Both patterns are read by an attacker's input, so neither may backtrack: after `\d+` the
 // fraction has to start with its point, which leaves one way to match a run of digits.
 // `\d+\.?\d*` has as many ways as the run has digits, and takes seconds on a long one.
@@ -25,11 +30,18 @@ const NUMBER_TEXT = String.raw`/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/`
 // An integer beyond 2^53 cannot be held by a number: `Number("9007199254740993")` is
 // 9007199254740992. It is left as text, so the request is rejected instead of answered
 // with a neighbouring value.
-const IS_INTEGER = `${INTEGER_TEXT}.test(val)&&Number.isSafeInteger(Number(val))`
 const IS_NUMBER = `${NUMBER_TEXT}.test(val)&&(!${INTEGER_TEXT}.test(val)||Number.isSafeInteger(Number(val)))`
-const IS_BIGINT = `${INTEGER_TEXT}.test(val)`
+// A bigint holds every digit of a run of digits. Any other spelling of a whole number
+// (`1.0`, `1e3`) goes through a number, which holds it as long as it is a safe integer.
+const READ_NUMBER = `(val)=>(typeof val==='string'&&${IS_NUMBER}?Number(val):val)`
+const READ_BIGINT = `(val)=>{if(typeof val!=='string'||!${NUMBER_TEXT}.test(val))return val;if(${INTEGER_TEXT}.test(val))return BigInt(val);const num=Number(val);return Number.isSafeInteger(num)?BigInt(num):val}`
+// What spells a boolean is Zod's to say: `z.stringbool()` reads it, built once and asked on
+// every value. Text it does not read is handed on as it is.
+const READ_TRUTH = "(val)=>(val==='true'?true:val==='false'?false:val)"
+const READ_BOOLEAN =
+  '((read)=>(val:unknown)=>{const result=read.safeParse(val);return result.success?result.data:val})(z.stringbool())'
 
-const ALL_SCALARS: readonly WireKind[] = ['number', 'boolean', 'string']
+const ALL_SCALARS: readonly WireKind[] = ['number', 'truth', 'string']
 
 /** Looks a `#/components/schemas/<name>` reference up; anything else is not resolved. */
 export function resolveSchemaRef(ref: string, schemas: Schemas | undefined): Schema | undefined {
@@ -65,6 +77,8 @@ function intersectKinds(a: readonly WireKind[], b: readonly WireKind[]): readonl
     if (b.includes(kind)) return [kind]
     if (kind === 'integer' && b.includes('number')) return ['integer']
     if (kind === 'number' && b.includes('integer')) return ['integer']
+    if (kind === 'boolean' && b.includes('truth')) return ['boolean']
+    if (kind === 'truth' && b.includes('boolean')) return ['boolean']
     return []
   })
   return [...new Set(narrowed)]
@@ -142,14 +156,6 @@ export function wireKinds(
     // object or a date has none.
     return typed.length > 0 ? [...new Set(typed)] : undefined
   }
-  const hasNumeric =
-    schema.minimum !== undefined ||
-    schema.maximum !== undefined ||
-    schema.exclusiveMinimum !== undefined ||
-    schema.exclusiveMaximum !== undefined ||
-    schema.multipleOf !== undefined
-  const hasText =
-    schema.minLength !== undefined || schema.maxLength !== undefined || schema.pattern !== undefined
   const hasComposite =
     schema.items !== undefined ||
     schema.prefixItems !== undefined ||
@@ -162,9 +168,19 @@ export function wireKinds(
     schema.propertyNames !== undefined ||
     schema.required !== undefined
   if (hasComposite) return undefined
-  // A typeless `minLength` measures the text that was sent, so the value stays text; a
-  // typeless `minimum` only means something once numeric text is read as a number.
-  return hasNumeric && !hasText ? ['number', 'string'] : ['string']
+  const hasConstraint =
+    schema.minimum !== undefined ||
+    schema.maximum !== undefined ||
+    schema.exclusiveMinimum !== undefined ||
+    schema.exclusiveMaximum !== undefined ||
+    schema.multipleOf !== undefined ||
+    schema.minLength !== undefined ||
+    schema.maxLength !== undefined ||
+    schema.pattern !== undefined
+  // A schema that names no type takes a value of any: a typeless `minimum` bounds a number
+  // and says nothing about text, a typeless `minLength` the reverse. One that constrains
+  // nothing takes the text as it is.
+  return hasConstraint ? ALL_SCALARS : ['string']
 }
 
 /**
@@ -307,73 +323,70 @@ export function wireKeep(
 }
 
 /**
- * The function that reads wire text as the kinds given, as source. Text that is none of
- * them — and anything that is not text, `undefined` included — is handed on unchanged, so
+ * The functions that read wire text as the kinds given, as source, in the order they are
+ * tried: a number, a bigint, a boolean. Each hands on unchanged what it does not read —
+ * text that is not of its kind, and anything that is not text, `undefined` included — so
  * the schema behind it reports a missing value as missing and a malformed one as malformed.
+ */
+function wireReaders(kinds: readonly WireKind[]): readonly string[] {
+  return [
+    ...(kinds.includes('number') || kinds.includes('integer') ? [READ_NUMBER] : []),
+    ...(kinds.includes('bigint') ? [READ_BIGINT] : []),
+    ...(kinds.includes('boolean') ? [READ_BOOLEAN] : kinds.includes('truth') ? [READ_TRUTH] : []),
+  ]
+}
+
+/**
+ * One function that reads wire text as the first of the kinds given that it spells, as
+ * source, or `undefined` when there is nothing to convert. It is what reads an element of
+ * a tuple, where a value is converted in place and cannot be tried a second way.
  *
  * `keep` lists the text that is a valid value as it stands (the string members of a mixed
  * `enum`), which is therefore never converted.
- *
- * Returns `undefined` when there is nothing to convert.
  */
 export function wireConverter(
   kinds: readonly WireKind[],
   keep: readonly string[] = [],
 ): string | undefined {
-  const has = (kind: WireKind) => kinds.includes(kind)
-  const numeric = has('number')
-    ? `if(${IS_NUMBER})return Number(val)`
-    : has('integer')
-      ? `if(${IS_INTEGER})return Number(val)`
-      : has('bigint')
-        ? `if(${IS_BIGINT})return BigInt(val)`
-        : undefined
-  if (numeric === undefined && !has('boolean')) return undefined
-  if (keep.length === 0 && !has('boolean')) {
-    if (has('number')) return `(val)=>(typeof val==='string'&&${IS_NUMBER}?Number(val):val)`
-    if (has('integer')) return `(val)=>(typeof val==='string'&&${IS_INTEGER}?Number(val):val)`
-    return `(val)=>(typeof val==='string'&&${IS_BIGINT}?BigInt(val):val)`
-  }
-  const guard =
-    keep.length > 0
-      ? `if(typeof val!=='string'||${JSON.stringify(keep)}.includes(val))return val`
-      : numeric === undefined
-        ? undefined
-        : `if(typeof val!=='string')return val`
-  if (!has('boolean')) {
-    return `(val)=>{${[guard, numeric, 'return val'].filter((step) => step !== undefined).join(';')}}`
-  }
-  // What spells a boolean is Zod's to say: `z.stringbool()` reads it, built once and asked
-  // on every value. Text it does not read is handed on as it is.
-  const steps = [
-    guard,
-    numeric,
-    'const result=read.safeParse(val)',
-    'return result.success?result.data:val',
-  ].filter((step) => step !== undefined)
-  return `((read)=>(val:unknown)=>{${steps.join(';')}})(z.stringbool())`
+  const readers = wireReaders(kinds)
+  const [only] = readers
+  if (only === undefined) return undefined
+  if (readers.length === 1 && keep.length === 0) return only
+  const guard = keep.length > 0 ? `if(${JSON.stringify(keep)}.includes(val))return val;` : ''
+  return `((readers)=>(val:unknown)=>{${guard}for(const read of readers){const result=read(val);if(result!==val)return result}return val})([${readers.map((reader) => reader.replace('(val)=>', '(val:unknown)=>')).join(',')}])`
 }
 
 /**
- * Wraps a schema so that it reads wire text: `z.stringbool()` for an inline schema that only
- * takes booleans, a converting `z.preprocess` for everything else. The schema is returned
- * as it is when its kinds need no conversion.
+ * Wraps a schema so that it reads wire text. Text that spells one kind of value is read
+ * by a converter around the schema — by `z.stringbool()` itself for an inline schema that
+ * only takes booleans. Text that may spell several — `1` is a number and a string, and in
+ * `anyOf: [{ type: integer, minimum: 5 }, { type: string }]` only the string is valid — is
+ * tried as each in turn, and the first reading the schema accepts is the value. The schema
+ * is returned as it is when its kinds need no conversion.
  */
-export function wrapWire(
-  zod: string,
-  kinds: readonly WireKind[],
-  keep: readonly string[] = [],
-  component = false,
-): string {
-  // `z.stringbool()` is a pipe of its own, and the document reads a pipe by its input: a
-  // component behind it would be described as a string and left out of the definitions.
-  // A component is therefore read inside a `z.preprocess`, which the document looks
-  // through — by `z.stringbool()` still, asked from the converter.
-  if (kinds.length === 1 && kinds[0] === 'boolean' && !component) {
-    return `z.stringbool().pipe(${zod})`
+export function wrapWire(zod: string, kinds: readonly WireKind[], component = false): string {
+  const readers = wireReaders(kinds)
+  const [only] = readers
+  if (only === undefined) return zod
+  if (readers.length === 1 && !kinds.includes('string')) {
+    // `z.stringbool()` is a pipe of its own, and the document reads a pipe by its input: a
+    // component behind it would be described as a string and left out of the definitions.
+    // A component is therefore read inside a `z.preprocess`, which the document looks
+    // through — by `z.stringbool()` still, asked from the converter.
+    return only === READ_BOOLEAN && !component
+      ? `z.stringbool().pipe(${zod})`
+      : `z.preprocess(${only},${zod})`
   }
-  const converter = wireConverter(kinds, keep)
-  return converter === undefined ? zod : `z.preprocess(${converter},${zod})`
+  const readings = [
+    ...readers.map((reader) => `z.preprocess(${reader},schema)`),
+    ...(kinds.includes('string') ? ['schema'] : []),
+  ]
+  return `((schema)=>z.union([${readings.join(',')}]))(${zod})`
+}
+
+/** Whether text of these kinds is tried as several readings, one after the other. */
+export function hasSeveralReadings(kinds: readonly WireKind[]): boolean {
+  return wireReaders(kinds).length + (kinds.includes('string') ? 1 : 0) > 1
 }
 
 /**

@@ -327,34 +327,32 @@ describe('wireKinds', () => {
     expect(wireKinds({ type: 'integer', not: { const: 0 } }, schemas)).toStrictEqual(['integer'])
   })
 
-  // With no type the value can be any scalar.
-  // type がなければ、値は任意のスカラーになりうる。
+  // With no type the value can be any scalar. A boolean the schema does not ask for is
+  // `truth`: only `true` and `false` spell it.
+  // type がなければ、値は任意のスカラーになりうる。スキーマが要求していない boolean は
+  // `truth` として扱われ、`true` と `false` だけがその表記になる。
   it.concurrent('reads any scalar for not without a type', () => {
     expect(wireKinds({ not: { enum: [1, 2] } }, schemas)).toStrictEqual([
       'number',
-      'boolean',
+      'truth',
       'string',
     ])
   })
 
-  // A typeless `minimum` only means something for a number, so numeric text is read as one.
-  // 型のない `minimum` は数値に対してのみ意味を持つため、数値の文字列は number として
-  // 読み取られる。
-  it.concurrent('reads a typeless numeric keyword as number or string', () => {
-    expect(wireKinds({ minimum: 1 }, schemas)).toStrictEqual(['number', 'string'])
+  // A schema that names no type takes a value of any type. `minimum` bounds a number and
+  // says nothing about text, so the text is tried as each.
+  // 型を指定しないスキーマは、任意の型の値を受理する。`minimum` は数値を制約し、文字列に
+  // ついては何も規定しない。そのため、文字列はそれぞれの型として順に試される。
+  it.concurrent('reads a typeless numeric keyword as any scalar', () => {
+    expect(wireKinds({ minimum: 1 }, schemas)).toStrictEqual(['number', 'truth', 'string'])
   })
 
-  // A typeless `minLength` measures the text that was sent, so the value stays text.
-  // 型のない `minLength` は送信された文字列の長さを測るため、値は文字列のままである。
-  it.concurrent('reads a typeless text keyword as string', () => {
-    expect(wireKinds({ minLength: 3 }, schemas)).toStrictEqual(['string'])
-  })
-
-  // Both kinds of keyword: the text one decides, so digits are not taken out of its reach.
-  // 両方の種類のキーワードがある場合は、文字列側が優先される。
-  // 数字が、文字列のキーワードの対象から外れないようにするためである。
-  it.concurrent('reads text and numeric keywords together as string', () => {
-    expect(wireKinds({ minimum: 1, minLength: 3 }, schemas)).toStrictEqual(['string'])
+  // `minLength` measures a string and says nothing about a number, so digits are valid as
+  // the number they spell.
+  // `minLength` は文字列の長さを測り、数値については何も規定しない。そのため、数字の並びは
+  // それが表す数値として有効である。
+  it.concurrent('reads a typeless text keyword as any scalar', () => {
+    expect(wireKinds({ minLength: 3 }, schemas)).toStrictEqual(['number', 'truth', 'string'])
   })
 
   // A typeless array keyword describes an array.
@@ -467,7 +465,7 @@ describe('wireConverter', () => {
   // 受け付けない。2^53 を超える整数は number で保持できないため、文字列のまま残される。
   it.concurrent('reads an integer with a decimal grammar', () => {
     expect(wireConverter(['integer'])).toBe(
-      String.raw`(val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val)`,
+      String.raw`(val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val)`,
     )
   })
 
@@ -485,7 +483,7 @@ describe('wireConverter', () => {
   // bigint はすべての桁を保持できるため、範囲の確認は不要である。
   it.concurrent('reads a bigint with the integer grammar', () => {
     expect(wireConverter(['bigint'])).toBe(
-      String.raw`(val)=>(typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val)`,
+      String.raw`(val)=>{if(typeof val!=='string'||!/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val))return val;if(/^-?\d+$/.test(val))return BigInt(val);const num=Number(val);return Number.isSafeInteger(num)?BigInt(num):val}`,
     )
   })
 
@@ -515,7 +513,7 @@ describe('wireConverter', () => {
   // string と並ぶ場合も、number は同じ方法で読み取られる。数値でないものは文字列のままである。
   it.concurrent('reads an integer beside a string', () => {
     expect(wireConverter(['integer', 'string'])).toBe(
-      String.raw`(val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val)`,
+      String.raw`(val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val)`,
     )
   })
 
@@ -525,7 +523,7 @@ describe('wireConverter', () => {
   // これらは number になる。単語は boolean になる。
   it.concurrent('tries the number before the boolean', () => {
     expect(wireConverter(['integer', 'boolean'])).toBe(
-      String.raw`((read)=>(val:unknown)=>{if(typeof val!=='string')return val;if(/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val)))return Number(val);const result=read.safeParse(val);return result.success?result.data:val})(z.stringbool())`,
+      String.raw`((readers)=>(val:unknown)=>{for(const read of readers){const result=read(val);if(result!==val)return result}return val})([(val:unknown)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),((read)=>(val:unknown)=>{const result=read.safeParse(val);return result.success?result.data:val})(z.stringbool())])`,
     )
   })
 
@@ -533,7 +531,7 @@ describe('wireConverter', () => {
   // そのままでメンバーである文字列は、読み取りの前にそのまま渡される。
   it.concurrent('hands kept text on unchanged', () => {
     expect(wireConverter(['integer', 'string'], ['2'])).toBe(
-      String.raw`(val)=>{if(typeof val!=='string'||["2"].includes(val))return val;if(/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val)))return Number(val);return val}`,
+      String.raw`((readers)=>(val:unknown)=>{if(["2"].includes(val))return val;for(const read of readers){const result=read(val);if(result!==val)return result}return val})([(val:unknown)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val)])`,
     )
   })
 })
@@ -543,7 +541,7 @@ describe('wrapWire', () => {
   // 変換関数は、型付きの値を前提に書かれたスキーマの外側に置かれる。
   it.concurrent('wraps a schema in a converting preprocess', () => {
     expect(wrapWire('CountSchema', ['integer'])).toBe(
-      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),CountSchema)`,
+      String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),CountSchema)`,
     )
   })
 
@@ -558,7 +556,7 @@ describe('wrapWire', () => {
   // `z.stringbool()` はそれ自体が pipe であり、ドキュメントは pipe を入力側で読む。
   // コンポーネントは代わりに変換関数で読み取られ、ドキュメントはその先を参照できる。
   it.concurrent('reads a boolean component with a converter', () => {
-    expect(wrapWire('FlagSchema', ['boolean'], [], true)).toBe(
+    expect(wrapWire('FlagSchema', ['boolean'], true)).toBe(
       'z.preprocess(((read)=>(val:unknown)=>{const result=read.safeParse(val);return result.success?result.data:val})(z.stringbool()),FlagSchema)',
     )
   })

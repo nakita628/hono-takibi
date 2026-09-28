@@ -387,14 +387,6 @@ describe('integers: rejected values', () => {
     expect(await res.json()).toStrictEqual({ issues: ['int64'] })
   })
 
-  // Exponent notation cannot become a bigint.
-  // 指数表記は bigint に変換できない。
-  it('int64 rejects "1e3"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'int64=1e3' } })
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['int64'] })
-  })
-
   // The JavaScript bigint suffix is source syntax, not a value.
   // JavaScript の bigint 接尾辞はソース上の記法であり、値ではない。
   it('int64 rejects "1n"', async () => {
@@ -427,22 +419,6 @@ describe('integers: rejected values', () => {
     const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'uint64=1.5' } })
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['uint64'] })
-  })
-
-  // A fraction cannot become a bigint, even a zero one.
-  // 小数部が 0 でも、小数は bigint に変換できない。
-  it('bigint rejects "1.0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'bigint=1.0' } })
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['bigint'] })
-  })
-
-  // Exponent notation cannot become a bigint.
-  // 指数表記は bigint に変換できない。
-  it('bigint rejects "1e3"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'bigint=1e3' } })
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['bigint'] })
   })
 })
 
@@ -2058,22 +2034,6 @@ describe('strictness: what the wire grammar does not read', () => {
     const res = await cookieParamsApp.request('/cookies', {
       headers: { Cookie: `integer=${encodeURIComponent('+1')}` },
     })
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['integer'] })
-  })
-
-  // A fraction, even a zero one, is not the text of an integer.
-  // 小数部は、たとえ 0 であっても、整数の表記ではない。
-  it('integer rejects "1.0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=1.0' } })
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['integer'] })
-  })
-
-  // Exponent notation is not the text of an integer, even when the value comes out whole.
-  // 指数表記は、結果が整数になる場合でも、整数の表記ではない。
-  it('integer rejects "1e3"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=1e3' } })
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['integer'] })
   })

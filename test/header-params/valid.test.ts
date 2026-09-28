@@ -765,6 +765,66 @@ describe('integers: accepted boundaries', () => {
       'x-bigint': { valueType: 'bigint', valueText: '-99999999999999999999999999999' },
     })
   })
+
+  // Exponent notation that comes out whole is an integer: JSON Schema looks at the value, not at
+  // how it is written.
+  // 結果が整数になる指数表記は、整数である。
+  // JSON Schema が見るのは値であり、表記ではない。
+  it('x-int64 accepts "1e3"', async () => {
+    const res = await headerParamsApp.request('/headers', { headers: { 'x-int64': '1e3' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-int64': { valueType: 'bigint', valueText: '1000' },
+    })
+  })
+
+  // A number with no fraction is an integer, however it is written: JSON Schema counts 1.0 as
+  // one.
+  // 小数部を持たない数値は、表記にかかわらず整数である。
+  // JSON Schema は 1.0 を整数として扱う。
+  it('x-bigint accepts "1.0"', async () => {
+    const res = await headerParamsApp.request('/headers', { headers: { 'x-bigint': '1.0' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-bigint': { valueType: 'bigint', valueText: '1' },
+    })
+  })
+
+  // Exponent notation that comes out whole is an integer: JSON Schema looks at the value, not at
+  // how it is written.
+  // 結果が整数になる指数表記は、整数である。
+  // JSON Schema が見るのは値であり、表記ではない。
+  it('x-bigint accepts "1e3"', async () => {
+    const res = await headerParamsApp.request('/headers', { headers: { 'x-bigint': '1e3' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-bigint': { valueType: 'bigint', valueText: '1000' },
+    })
+  })
+
+  // A number with no fraction is an integer, however it is written: JSON Schema counts 1.0 as
+  // one.
+  // 小数部を持たない数値は、表記にかかわらず整数である。
+  // JSON Schema は 1.0 を整数として扱う。
+  it('x-integer accepts "1.0"', async () => {
+    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '1.0' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-integer': { valueType: 'number', valueText: '1' },
+    })
+  })
+
+  // Exponent notation that comes out whole is an integer: JSON Schema looks at the value, not at
+  // how it is written.
+  // 結果が整数になる指数表記は、整数である。
+  // JSON Schema が見るのは値であり、表記ではない。
+  it('x-integer accepts "1e3"', async () => {
+    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '1e3' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-integer': { valueType: 'number', valueText: '1000' },
+    })
+  })
 })
 
 // Notations of a number, and the edges of float32 and float64.
