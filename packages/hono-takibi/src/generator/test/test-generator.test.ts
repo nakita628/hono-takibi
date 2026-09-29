@@ -526,7 +526,7 @@ describe('makeHandlerTestCode', () => {
     const withoutContext = makeHandlerTestCode(circularSpec, 'handlers/nodes.ts', [], '../app')
     expect(withContext).toBe(withoutContext)
     expect(withContext).toBe(
-      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\nfunction mockTreeNode(): any {\n  return { id: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]), children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTreeNode())), undefined]) }\n}\n\ndescribe('Nodes',()=>{describe('POST /nodes',()=>{it('should return 201 - Create node',async()=>{const body=mockTreeNode()\nconst res=await app.request(`/nodes`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\nfunction mockTreeNode(depth = 0): any {\n  return { id: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]), children: depth < 2 ? faker.helpers.arrayElement([(depth < 2 ? Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTreeNode(depth + 1))) : []), undefined]) : undefined }\n}\n\ndescribe('Nodes',()=>{describe('POST /nodes',()=>{it('should return 201 - Create node',async()=>{const body=mockTreeNode()\nconst res=await app.request(`/nodes`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n",
     )
   })
 
@@ -1097,7 +1097,7 @@ describe('makeTestFile - circular schema references', () => {
     } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTreeNode(): any {\n  return { value: faker.string.alpha({ length: { min: 5, max: 20 } }), children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTreeNode())), undefined]) }\n}\n\ndescribe('Circular API',()=>{describe('nodes',()=>{describe('POST /nodes',()=>{it('should return 201 - Create node',async()=>{const body=mockTreeNode()\nconst res=await app.request(`/nodes`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTreeNode(depth = 0): any {\n  return { value: faker.string.alpha({ length: { min: 5, max: 20 } }), children: depth < 2 ? faker.helpers.arrayElement([(depth < 2 ? Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTreeNode(depth + 1))) : []), undefined]) : undefined }\n}\n\ndescribe('Circular API',()=>{describe('nodes',()=>{describe('POST /nodes',()=>{it('should return 201 - Create node',async()=>{const body=mockTreeNode()\nconst res=await app.request(`/nodes`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
     )
   })
 
@@ -1144,7 +1144,7 @@ describe('makeTestFile - circular schema references', () => {
     const result = makeTestFile(spec)
     // Both A and B are circular; no faker.* calls so no faker import
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\nfunction mockB(): any {\n  return { a: mockA() }\n}\n\nfunction mockA(): any {\n  return { b: mockB() }\n}\n\ndescribe('Mutual Circular API',()=>{describe('default',()=>{describe('POST /a',()=>{it('should return 201 - Create A',async()=>{const body=mockA()\nconst res=await app.request(`/a`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\nfunction mockB(depth = 0): any {\n  return { a: (depth < 16 ? mockA(depth + 1) : undefined) }\n}\n\nfunction mockA(depth = 0): any {\n  return { b: (depth < 16 ? mockB(depth + 1) : undefined) }\n}\n\ndescribe('Mutual Circular API',()=>{describe('default',()=>{describe('POST /a',()=>{it('should return 201 - Create A',async()=>{const body=mockA()\nconst res=await app.request(`/a`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
     )
   })
 })
@@ -2795,7 +2795,7 @@ describe('makeTestFile - self-referential circular schema', () => {
     } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTree(): any {\n  return { value: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]), children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTree())), undefined]) }\n}\n\ndescribe('Tree API',()=>{describe('default',()=>{describe('POST /trees',()=>{it('should return 200',async()=>{const body=mockTree()\nconst res=await app.request(`/trees`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTree(depth = 0): any {\n  return { value: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]), children: depth < 2 ? faker.helpers.arrayElement([(depth < 2 ? Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTree(depth + 1))) : []), undefined]) : undefined }\n}\n\ndescribe('Tree API',()=>{describe('default',()=>{describe('POST /trees',()=>{it('should return 200',async()=>{const body=mockTree()\nconst res=await app.request(`/trees`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
     )
   })
 })
@@ -2837,7 +2837,7 @@ describe('makeTestFile - mutually recursive circular schemas', () => {
     } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\nfunction mockB(): any {\n  return { a: mockA() }\n}\n\nfunction mockA(): any {\n  return { b: mockB() }\n}\n\ndescribe('Mutual API',()=>{describe('default',()=>{describe('POST /a',()=>{it('should return 200',async()=>{const body=mockA()\nconst res=await app.request(`/a`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\nfunction mockB(depth = 0): any {\n  return { a: (depth < 16 ? mockA(depth + 1) : undefined) }\n}\n\nfunction mockA(depth = 0): any {\n  return { b: (depth < 16 ? mockB(depth + 1) : undefined) }\n}\n\ndescribe('Mutual API',()=>{describe('default',()=>{describe('POST /a',()=>{it('should return 200',async()=>{const body=mockA()\nconst res=await app.request(`/a`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
     )
   })
 })

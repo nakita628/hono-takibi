@@ -346,7 +346,7 @@ describe('schemaToFaker', () => {
 
     it.concurrent('keeps an escaped trailing dollar (it is not an anchor)', () => {
       expect(schemaToFaker({ type: 'string', pattern: '^a\\$' })).toBe(
-        "faker.helpers.fromRegExp('a\\\\$')",
+        "faker.helpers.fromRegExp('a[$]')",
       )
     })
 
@@ -793,10 +793,406 @@ describe('schemaToFaker', () => {
       )
     })
 
-    it.concurrent('approximates float exclusiveMinimum with the inclusive bound', () => {
+    it.concurrent('moves a float exclusiveMinimum one fraction step inside the bound', () => {
       expect(schemaToFaker({ type: 'number', format: 'float', exclusiveMinimum: 0 })).toBe(
-        'faker.number.float({ min: 0, max: 1000, fractionDigits: 2 })',
+        'faker.number.float({ min: 0.01, max: 1000, fractionDigits: 2 })',
       )
+    })
+
+    it.concurrent('moves a float exclusiveMaximum one fraction step inside the bound', () => {
+      expect(schemaToFaker({ type: 'number', minimum: 0, exclusiveMaximum: 1 })).toBe(
+        'faker.number.float({ min: 0, max: 0.99, fractionDigits: 2 })',
+      )
+    })
+
+    it.concurrent('moves a float exclusive bound by multipleOf when one is declared', () => {
+      expect(
+        schemaToFaker({ type: 'number', exclusiveMinimum: 0, maximum: 10, multipleOf: 0.5 }),
+      ).toBe('faker.number.float({ min: 0.5, max: 10, multipleOf: 0.5 })')
+    })
+  })
+
+  describe('one-sided bounds', () => {
+    it.concurrent('keeps max above an integer minimum beyond the default max', () => {
+      expect(schemaToFaker({ type: 'integer', minimum: 5000 })).toBe(
+        'faker.number.int({ min: 5000, max: 6000 })',
+      )
+    })
+
+    it.concurrent('keeps min below an integer maximum beneath the default min', () => {
+      expect(schemaToFaker({ type: 'integer', maximum: 0 })).toBe(
+        'faker.number.int({ min: -1000, max: 0 })',
+      )
+    })
+
+    it.concurrent('starts a number with a small positive maximum at 0', () => {
+      expect(schemaToFaker({ type: 'number', maximum: 0.5 })).toBe(
+        'faker.number.float({ min: 0, max: 0.5, fractionDigits: 2 })',
+      )
+    })
+
+    it.concurrent('keeps min below a negative int64 maximum', () => {
+      expect(schemaToFaker({ type: 'integer', format: 'int64', maximum: -5 })).toBe(
+        'faker.number.bigInt({ min: -1005n, max: -5n })',
+      )
+    })
+
+    it.concurrent('keeps the default minimum length within maxLength', () => {
+      expect(schemaToFaker({ type: 'string', maxLength: 3 })).toBe(
+        'faker.string.alpha({ length: { min: 3, max: 3 } })',
+      )
+    })
+  })
+
+  describe('uniqueItems', () => {
+    it.concurrent('draws distinct items', () => {
+      expect(
+        schemaToFaker({
+          type: 'array',
+          uniqueItems: true,
+          minItems: 2,
+          items: { type: 'integer' },
+        }),
+      ).toBe(
+        'faker.helpers.uniqueArray(() => (faker.number.int({ min: 1, max: 1000 })), faker.number.int({ min: 2, max: 10 }))',
+      )
+    })
+  })
+
+  describe('prefixItems', () => {
+    it.concurrent('draws one value per tuple entry', () => {
+      expect(
+        schemaToFaker({ type: 'array', prefixItems: [{ type: 'boolean' }, { type: 'integer' }] }),
+      ).toBe('[faker.datatype.boolean(), faker.number.int({ min: 1, max: 1000 })]')
+    })
+  })
+
+  describe('property without a type', () => {
+    it.concurrent('answers null when the property is required', () => {
+      expect(schemaToFaker({ type: 'object', required: ['meta'], properties: { meta: {} } })).toBe(
+        '{ meta: null }',
+      )
+    })
+
+    it.concurrent('leaves the property out when it is optional', () => {
+      expect(schemaToFaker({ type: 'object', properties: { meta: {} } })).toBe(
+        '{ meta: undefined }',
+      )
+    })
+  })
+
+  describe('pattern with a length', () => {
+    it.concurrent('bounds a repeated character class by minLength and maxLength', () => {
+      expect(
+        schemaToFaker({ type: 'string', pattern: '^[a-z]+$', minLength: 3, maxLength: 5 }),
+      ).toBe("faker.helpers.fromRegExp('[a-z]{3,5}')")
+    })
+
+    it.concurrent('bounds a repeated character class by maxLength alone', () => {
+      expect(schemaToFaker({ type: 'string', pattern: '^\\d*$', maxLength: 4 })).toBe(
+        "faker.helpers.fromRegExp('\\\\d{0,4}')",
+      )
+    })
+
+    it.concurrent('keeps a pattern it cannot bound', () => {
+      expect(schemaToFaker({ type: 'string', pattern: '^[A-Z]{2}-\\d+$', maxLength: 8 })).toBe(
+        "faker.helpers.fromRegExp('[A-Z]{2}-\\\\d+')",
+      )
+    })
+  })
+
+  describe('format with a length', () => {
+    it.concurrent('fits an email into maxLength', () => {
+      expect(schemaToFaker({ type: 'string', format: 'email', maxLength: 12 })).toBe(
+        "`${faker.string.alpha({ length: { min: 1, max: 7 }, casing: 'lower' })}@a.io`",
+      )
+    })
+
+    it.concurrent('stretches an email to minLength', () => {
+      expect(schemaToFaker({ type: 'string', format: 'email', minLength: 40 })).toBe(
+        "`${faker.string.alpha({ length: { min: 28, max: 28 }, casing: 'lower' })}@example.com`",
+      )
+    })
+
+    it.concurrent('fits a uri into maxLength', () => {
+      expect(schemaToFaker({ type: 'string', format: 'uri', maxLength: 30 })).toBe(
+        "`https://example.com/${faker.string.alpha({ length: { min: 1, max: 10 }, casing: 'lower' })}`",
+      )
+    })
+
+    it.concurrent('draws a password between minLength and maxLength', () => {
+      expect(
+        schemaToFaker({ type: 'string', format: 'password', minLength: 4, maxLength: 6 }),
+      ).toBe('faker.internet.password({ length: faker.number.int({ min: 4, max: 6 }) })')
+    })
+
+    it.concurrent('keeps the format default when maxLength leaves no room', () => {
+      expect(schemaToFaker({ type: 'string', format: 'email', maxLength: 5 })).toBe(
+        'faker.internet.email()',
+      )
+    })
+
+    it.concurrent('keeps a fixed-length format as it is', () => {
+      expect(schemaToFaker({ type: 'string', format: 'uuid', maxLength: 36 })).toBe(
+        'faker.string.uuid()',
+      )
+    })
+  })
+
+  describe('minProperties', () => {
+    it.concurrent('always draws enough optional properties', () => {
+      expect(
+        schemaToFaker({
+          type: 'object',
+          minProperties: 1,
+          properties: { theme: { type: 'boolean' }, locale: { type: 'boolean' } },
+        }),
+      ).toBe(
+        '{ theme: faker.datatype.boolean(), locale: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]) }',
+      )
+    })
+  })
+
+  describe('pattern with escaped punctuation', () => {
+    it.concurrent('draws the escaped character itself', () => {
+      expect(schemaToFaker({ type: 'string', pattern: '^[a-z]{3}\\.com$' })).toBe(
+        "faker.helpers.fromRegExp('[a-z]{3}[.]com')",
+      )
+    })
+  })
+
+  describe('vendor extensions', () => {
+    it.concurrent('joins x-startsWith, x-includes and x-endsWith around the value', () => {
+      expect(
+        schemaToFaker({
+          type: 'string',
+          'x-startsWith': 'https://',
+          'x-includes': '/api/',
+          'x-endsWith': '.test',
+        }),
+      ).toBe(
+        "['https://', faker.string.alpha({ length: { min: 5, max: 20 } }), '/api/', '.test'].join('')",
+      )
+    })
+
+    it.concurrent('draws the uuid version x-uuidVersion names', () => {
+      expect(schemaToFaker({ type: 'string', format: 'uuid', 'x-uuidVersion': 'v8' })).toBe(
+        "faker.helpers.fromRegExp('[0-9a-f]{8}-[0-9a-f]{4}-8[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}')",
+      )
+    })
+
+    it.concurrent('draws a hex digest as long as x-hashAlg makes it', () => {
+      expect(schemaToFaker({ type: 'string', 'x-hashAlg': 'sha256', 'x-hashEnc': 'hex' })).toBe(
+        "faker.string.hexadecimal({ length: 64, casing: 'lower', prefix: '' })",
+      )
+    })
+
+    it.concurrent('separates a mac address by x-macDelimiter', () => {
+      expect(schemaToFaker({ type: 'string', format: 'mac', 'x-macDelimiter': '-' })).toBe(
+        "faker.internet.mac().replaceAll(':', '-')",
+      )
+    })
+
+    it.concurrent('upper-cases a value for x-uppercase', () => {
+      expect(schemaToFaker({ type: 'string', 'x-uppercase': true })).toBe(
+        'faker.string.alpha({ length: { min: 5, max: 20 } }).toUpperCase()',
+      )
+    })
+  })
+
+  describe('contains', () => {
+    it.concurrent('adds the value the array has to contain', () => {
+      expect(
+        schemaToFaker({
+          type: 'array',
+          items: { type: 'string' },
+          contains: { const: 'important' },
+        }),
+      ).toBe(
+        '[...Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (faker.string.alpha({ length: { min: 5, max: 20 } }))), "important" as const]',
+      )
+    })
+  })
+
+  describe('contentEncoding', () => {
+    it.concurrent('encodes a value of contentSchema as base64', () => {
+      expect(
+        schemaToFaker({
+          type: 'string',
+          contentEncoding: 'base64',
+          contentSchema: { type: 'boolean' },
+        }),
+      ).toBe('(btoa(JSON.stringify(faker.datatype.boolean())) as any)')
+    })
+  })
+
+  describe('if / then', () => {
+    it.concurrent('always draws what then requires', () => {
+      expect(
+        schemaToFaker({
+          type: 'object',
+          properties: { kind: { type: 'boolean' }, feature: { type: 'boolean' } },
+          if: { properties: { kind: { const: true } } },
+          // oxlint-disable-next-line unicorn/no-thenable -- `then` is the JSON Schema keyword
+          then: { required: ['feature'] },
+        }),
+      ).toBe(
+        '{ kind: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), feature: faker.datatype.boolean() }',
+      )
+    })
+  })
+
+  describe('oneOf with overlapping variants', () => {
+    it.concurrent('leaves out a variant whose every value also matches another', () => {
+      expect(
+        schemaToFaker(
+          {
+            oneOf: [
+              { $ref: '#/components/schemas/User' },
+              { $ref: '#/components/schemas/Company' },
+              { $ref: '#/components/schemas/Person' },
+            ],
+          },
+          undefined,
+          {
+            schemas: {
+              User: {
+                type: 'object',
+                required: ['name', 'email'],
+                properties: { name: { type: 'string' }, email: { type: 'string' } },
+              },
+              Company: {
+                type: 'object',
+                required: ['name'],
+                properties: { name: { type: 'string' } },
+              },
+              Person: {
+                type: 'object',
+                required: ['displayName'],
+                properties: { displayName: { type: 'string' } },
+              },
+            },
+          },
+        ),
+      ).toBe('faker.helpers.arrayElement([mockCompany(), mockPerson()])')
+    })
+
+    it.concurrent('keeps every variant of a discriminated oneOf', () => {
+      expect(
+        schemaToFaker({
+          oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+          discriminator: { propertyName: 'kind' },
+        }),
+      ).toBe('faker.helpers.arrayElement([mockCat(), mockDog()])')
+    })
+  })
+
+  describe('pattern with groups', () => {
+    it.concurrent('leaves out an optional group', () => {
+      expect(schemaToFaker({ type: 'string', pattern: '^[a-z]{2}(-[A-Z]{2})?$' })).toBe(
+        "faker.helpers.fromRegExp('[a-z]{2}')",
+      )
+    })
+
+    it.concurrent('keeps the first alternative of a group', () => {
+      expect(schemaToFaker({ type: 'string', pattern: '^(cat|dog)-[0-9]{3}$' })).toBe(
+        "faker.helpers.fromRegExp('cat-[0-9]{3}')",
+      )
+    })
+
+    it.concurrent('repeats a group as often as its quantifier says', () => {
+      expect(schemaToFaker({ type: 'string', pattern: '^(?:ab){2}c$' })).toBe(
+        "faker.helpers.fromRegExp('ababc')",
+      )
+    })
+
+    it.concurrent('keeps the first alternative of the whole pattern', () => {
+      expect(schemaToFaker({ type: 'string', pattern: '^[0-9]+$|^none$' })).toBe(
+        "faker.helpers.fromRegExp('[0-9]+')",
+      )
+    })
+  })
+
+  describe('optional recursive property', () => {
+    it.concurrent('is left out once the depth is reached', () => {
+      expect(
+        schemaToFaker(
+          { type: 'object', properties: { next: { $ref: '#/components/schemas/Node' } } },
+          undefined,
+          { recursive: new Set(['Node']) },
+        ),
+      ).toBe(
+        '{ next: depth < 2 ? faker.helpers.arrayElement([(depth < 16 ? mockNode(depth + 1) : undefined), undefined]) : undefined }',
+      )
+    })
+  })
+
+  describe('recursive schemas', () => {
+    it.concurrent('stops a recursive $ref at a fixed depth', () => {
+      expect(
+        schemaToFaker({ $ref: '#/components/schemas/Node' }, undefined, {
+          recursive: new Set(['Node']),
+        }),
+      ).toBe('(depth < 16 ? mockNode(depth + 1) : undefined)')
+    })
+
+    it.concurrent('ends an array of recursive items with an empty array', () => {
+      expect(
+        schemaToFaker({ type: 'array', items: { $ref: '#/components/schemas/Node' } }, undefined, {
+          recursive: new Set(['Node']),
+        }),
+      ).toBe(
+        '(depth < 2 ? Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockNode(depth + 1))) : [])',
+      )
+    })
+
+    it.concurrent('calls a non-recursive $ref without a depth', () => {
+      expect(
+        schemaToFaker({ $ref: '#/components/schemas/Leaf' }, undefined, {
+          recursive: new Set(['Node']),
+        }),
+      ).toBe('mockLeaf()')
+    })
+  })
+
+  describe('allOf that makes a referenced member required', () => {
+    it.concurrent('draws the member after the spread', () => {
+      expect(
+        schemaToFaker(
+          { allOf: [{ $ref: '#/components/schemas/Base' }, { required: ['x'] }] },
+          undefined,
+          {
+            schemas: {
+              Base: {
+                type: 'object',
+                properties: { x: { type: 'boolean' }, y: { type: 'boolean' } },
+              },
+            },
+          },
+        ),
+      ).toBe('{ ...mockBase(), x: faker.datatype.boolean() }')
+    })
+  })
+
+  describe('recursive schema inside a union', () => {
+    it.concurrent('draws from the other variants once the depth is reached', () => {
+      expect(
+        schemaToFaker(
+          { oneOf: [{ $ref: '#/components/schemas/Node' }, { type: 'boolean' }] },
+          undefined,
+          { recursive: new Set(['Node']) },
+        ),
+      ).toBe(
+        '(depth < 2 ? faker.helpers.arrayElement([mockNode(depth + 1), faker.datatype.boolean()]) : faker.helpers.arrayElement([faker.datatype.boolean()]))',
+      )
+    })
+  })
+
+  describe('allOf with a member that has no value', () => {
+    it.concurrent('leaves a required-only member out of the spread', () => {
+      expect(
+        schemaToFaker({ allOf: [{ $ref: '#/components/schemas/Base' }, { required: ['x'] }] }),
+      ).toBe('{ ...mockBase() }')
     })
   })
 

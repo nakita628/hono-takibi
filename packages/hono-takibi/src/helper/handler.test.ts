@@ -395,6 +395,67 @@ describe('zodOpenAPIHonoHandler', () => {
     expect(fs.existsSync(`${testDir}/src/handlers/users.ts`)).toBe(true)
   })
 
+  it('emits the mock functions a referenced schema depends on', async () => {
+    const openAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/teams': {
+          get: {
+            operationId: 'getTeams',
+            responses: {
+              200: {
+                description: 'OK',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/Team' } },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Team: {
+            type: 'object',
+            required: ['owner', 'parent'],
+            properties: {
+              owner: { $ref: '#/components/schemas/Owner' },
+              parent: { $ref: '#/components/schemas/Team' },
+            },
+          },
+          Owner: {
+            type: 'object',
+            required: ['active'],
+            properties: { active: { type: 'boolean' } },
+          },
+        },
+      },
+    } as OpenAPI
+
+    await runGenerator(
+      mockZodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, false, undefined, undefined, true),
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/teams.ts`, 'utf-8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+import type { getTeamsRoute } from '../routes'
+
+function mockTeam(depth = 0): any {
+  return { owner: mockOwner(), parent: depth < 16 ? mockTeam(depth + 1) : undefined }
+}
+
+function mockOwner() {
+  return { active: faker.datatype.boolean() }
+}
+
+export const getTeamsRouteHandler: RouteHandler<typeof getTeamsRoute> = async (c) => {
+  return c.json(mockTeam(), 200)
+}
+`,
+    )
+  })
+
   it('never deletes handler files when a route leaves the spec', async () => {
     const firstOpenAPI = {
       openapi: '3.1.0',
