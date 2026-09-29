@@ -832,7 +832,7 @@ const ConfigSchema = Schema.Struct({
         ).annotate({
           title: 'Client export name',
           description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with `template`: the client generated from the scaffolded app is exported as `client`.',
+            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
           examples: ['client', 'apiClient'],
         }),
       ),
@@ -892,7 +892,7 @@ const ConfigSchema = Schema.Struct({
         ).annotate({
           title: 'Client export name',
           description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with `template`: the client generated from the scaffolded app is exported as `client`.',
+            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
           examples: ['client', 'apiClient'],
         }),
       ),
@@ -936,7 +936,7 @@ const ConfigSchema = Schema.Struct({
         ).annotate({
           title: 'Client export name',
           description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with `template`: the client generated from the scaffolded app is exported as `client`.',
+            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
           examples: ['client', 'apiClient'],
         }),
       ),
@@ -980,7 +980,7 @@ const ConfigSchema = Schema.Struct({
         ).annotate({
           title: 'Client export name',
           description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with `template`: the client generated from the scaffolded app is exported as `client`.',
+            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
           examples: ['client', 'apiClient'],
         }),
       ),
@@ -1024,7 +1024,7 @@ const ConfigSchema = Schema.Struct({
         ).annotate({
           title: 'Client export name',
           description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with `template`: the client generated from the scaffolded app is exported as `client`.',
+            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
           examples: ['client', 'apiClient'],
         }),
       ),
@@ -1068,7 +1068,7 @@ const ConfigSchema = Schema.Struct({
         ).annotate({
           title: 'Client export name',
           description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with `template`: the client generated from the scaffolded app is exported as `client`.',
+            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
           examples: ['client', 'apiClient'],
         }),
       ),
@@ -1112,7 +1112,7 @@ const ConfigSchema = Schema.Struct({
         ).annotate({
           title: 'Client export name',
           description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with `template`: the client generated from the scaffolded app is exported as `client`.',
+            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
           examples: ['client', 'apiClient'],
         }),
       ),
@@ -1156,7 +1156,7 @@ const ConfigSchema = Schema.Struct({
         ).annotate({
           title: 'Client export name',
           description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with `template`: the client generated from the scaffolded app is exported as `client`.',
+            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
           examples: ['client', 'apiClient'],
         }),
       ),
@@ -1465,25 +1465,15 @@ const ConfigSchema = Schema.Struct({
     }),
     Schema.makeFilter(
       (v) => {
-        if (v.template === undefined || v.client !== undefined) return true
-        const missing = (['rpc', ...HOOK_KINDS] as const).find((kind) => v[kind] !== undefined)
-        return missing === undefined
-          ? true
-          : `${missing} needs client: with template the app is scaffolded here, and what ${missing} generates calls the Hono client of that app. Set client.output to generate the client.`
-      },
-      { message: 'with template, a generator that calls the client needs client' },
-    ),
-    Schema.makeFilter(
-      (v) => {
-        if (v.template === undefined) return true
+        if (v.client === undefined) return true
         const named = (['rpc', ...HOOK_KINDS] as const).find(
           (kind) => v[kind]?.client !== undefined,
         )
         return named === undefined
           ? true
-          : `${named}.client cannot be set with template: the client generated from the scaffolded app is exported as \`client\`, and a group of a split app as \`<group>Client\`. Remove ${named}.client.`
+          : `${named}.client cannot be set with the client block: the generated client is exported as \`client\`, and a group of a split app as \`<group>Client\`. Remove ${named}.client.`
       },
-      { message: 'with template, the name of the client is not chosen' },
+      { message: 'with the client block, the name of the client is not chosen' },
     ),
     Schema.makeFilter(
       (v) => {
@@ -1493,7 +1483,7 @@ const ConfigSchema = Schema.Struct({
         )
         return missing === undefined
           ? true
-          : `${missing}.import is required: name the module that exports the Hono client. Without template there is no app to generate the client from.`
+          : `${missing}.import is required: name the module that exports the Hono client, or set the client block, with template, to generate the client.`
       },
       { message: 'a generator that calls the client needs to know where it is' },
     ),
@@ -1713,18 +1703,16 @@ type Written<T, F, V, S> = V extends { readonly split: true; readonly output: `$
 
 type Named<T> = {
   readonly [P in keyof T]: P extends 'client'
-    ? 'cannot be set with template: the generated client is exported as `client`'
+    ? 'cannot be set with the client block: the generated client is exported as `client`'
     : T[P]
 }
 
-type Calling<T, K, V, S> = T extends { readonly template: object }
-  ? T extends { readonly client: object }
-    ? Named<Written<T, K, V, S>>
-    : 'needs client: with template, set client.output to generate the client'
+type Calling<T, K, V, S> = T extends { readonly client: object }
+  ? Named<Written<T, K, V, S>>
   : V extends { readonly import: unknown }
     ? Written<T, K, V, S>
     : Written<T, K, V, S> & {
-        readonly import: 'is required without template: name the module that exports the Hono client'
+        readonly import: 'is required without the client block: name the module that exports the Hono client'
       }
 
 type Single<T, O> = T extends { readonly routes: object }

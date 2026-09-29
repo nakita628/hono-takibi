@@ -155,7 +155,7 @@ The groups and `api` are written in the order their first route stands in the do
 
 ## Your own client
 
-Without `template`, name the module that exports the client in `import`. `client` is the name of the export, `client` by default.
+Without the `client` block, name the module that exports the client in `import`. `client` is the name of the export, `client` by default.
 
 ```ts
 export default defineConfig({
@@ -168,12 +168,12 @@ export default defineConfig({
 })
 ```
 
-With `template`, `rpc` and the hooks need the `client` block, and the name of the export cannot be set: it is `client`, and `<group>Client` for a group. `import` can still name a module, a package that re-exports the generated client for one, as long as the names are the same.
+The `client` block cannot be set on its own, it needs `template`. With it, the name of the export cannot be set in `rpc` or the hooks: it is `client`, and `<group>Client` for a group.
 
-| Config             | `client` block | `import` | `client` name           |
-| ------------------ | -------------- | -------- | ----------------------- |
-| Without `template` | not taken      | required | optional, `client`      |
-| With `template`    | required       | optional | not taken, a type error |
+| Config                 | `import` | `client` name           |
+| ---------------------- | -------- | ----------------------- |
+| Without `client` block | required | optional, `client`      |
+| With `client` block    | optional | not taken, a type error |
 
 ## RPC
 

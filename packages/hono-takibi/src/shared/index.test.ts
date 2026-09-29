@@ -1184,6 +1184,7 @@ describe('makeJob: the client and what imports it', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-none-'))
     const out = await generate(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
+      template: { routeHandler: true },
       rpc: { output: `${tmpDir}/src/rpc.ts`, import: '../lib' },
     })
     expect(out.has('src/client.ts')).toBe(false)
@@ -1192,6 +1193,19 @@ describe('makeJob: the client and what imports it', () => {
 
   // Without template, rpc calls the client by the name the config gives.
   // template がなければ、rpc は設定で指定した名前でクライアントを呼び出す。
+  // With template and without the client block, the same.
+  // template があり client ブロックがなくても、同様である。
+  it('imports the named client with template and without client', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-tname-'))
+    const out = await generate(tmpDir, {
+      output: `${tmpDir}/src/routes.ts`,
+      template: { routeHandler: true },
+      rpc: { output: `${tmpDir}/src/rpc.ts`, import: '../lib', client: 'api' },
+    })
+    expect(out.has('src/client.ts')).toBe(false)
+    expect(out.read('src/rpc.ts')).toContain("import { api } from '../lib'")
+  })
+
   it('imports the named client without template', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-name-'))
     const out = await generate(tmpDir, {

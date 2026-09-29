@@ -1270,7 +1270,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: rpc.import is required: name the module that exports the Hono client. Without template there is no app to generate the client from.',
+        'Invalid config: rpc.import is required: name the module that exports the Hono client, or set the client block, with template, to generate the client.',
       )
     })
 
@@ -1284,7 +1284,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: tanstack-query.import is required: name the module that exports the Hono client. Without template there is no app to generate the client from.',
+        'Invalid config: tanstack-query.import is required: name the module that exports the Hono client, or set the client block, with template, to generate the client.',
       )
     })
 
@@ -1313,57 +1313,70 @@ describe('parseConfig()', () => {
       expect(result.rpc?.client).toBe('apiClient')
     })
 
-    // With template the app is scaffolded, so rpc has to come with the client block.
-    // template があるとアプリが生成されるため、rpc には client ブロックが必須である。
-    it.concurrent('fails when rpc is set with template and without client', async () => {
-      const result = await runGeneratorError(
+    // With template and without the client block, rpc calls the client the import names.
+    // template があり client ブロックがなければ、rpc は import が指すクライアントを呼び出す。
+    it.concurrent('accepts rpc with template and without client', async () => {
+      const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
           output: 'src/routes.ts',
           template: { routeHandler: true },
-          rpc: { output: 'src/rpc.ts', import: '../client' },
+          rpc: { output: 'src/rpc.ts', import: '../client', client: 'apiClient' },
         }),
       )
-      expect(result.message).toBe(
-        'Invalid config: rpc needs client: with template the app is scaffolded here, and what rpc generates calls the Hono client of that app. Set client.output to generate the client.',
-      )
+      expect(result.rpc?.import).toBe('../client')
+      expect(result.rpc?.client).toBe('apiClient')
     })
 
     // The same for a hook library.
     // フックのライブラリも同様である。
-    it.concurrent('fails when swr is set with template and without client', async () => {
+    it.concurrent('accepts swr with template and without client', async () => {
+      const result = await runGenerator(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: 'src/routes.ts',
+          template: {},
+          swr: { output: 'src/swr.ts', import: '../client' },
+        }),
+      )
+      expect(result.swr?.import).toBe('../client')
+    })
+
+    // With template and without the client block, the import is still required.
+    // template があっても client ブロックがなければ、import は必須である。
+    it.concurrent('fails when rpc names no import with template and without client', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           output: 'src/routes.ts',
           template: { routeHandler: true },
-          swr: { output: 'src/swr.ts', import: '../client' },
+          rpc: { output: 'src/rpc.ts' },
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: swr needs client: with template the app is scaffolded here, and what swr generates calls the Hono client of that app. Set client.output to generate the client.',
+        'Invalid config: rpc.import is required: name the module that exports the Hono client, or set the client block, with template, to generate the client.',
       )
     })
 
-    // An empty template block is still template mode.
-    // 空の template ブロックでも、template モードである。
-    it.concurrent('fails when rpc is set with an empty template and without client', async () => {
+    // The client block cannot stand alone: it needs template.
+    // client ブロックは単体では指定できず、template が必要である。
+    it.concurrent('fails when client is set without template and with rpc', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           output: 'src/routes.ts',
-          template: {},
-          rpc: { output: 'src/rpc.ts', import: '../client' },
+          client: { output: 'src/client.ts' },
+          rpc: { output: 'src/rpc.ts' },
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: rpc needs client: with template the app is scaffolded here, and what rpc generates calls the Hono client of that app. Set client.output to generate the client.',
+        'Invalid config: client needs template: the client is typed by the app the template scaffolds.',
       )
     })
 
-    // With template the generated client has a fixed name, so rpc cannot choose one.
-    // template では生成されるクライアントの名前が決まっているため、rpc では指定できない。
-    it.concurrent('fails when rpc names the client with template', async () => {
+    // With the client block the client has a fixed name, so rpc cannot choose one.
+    // client ブロックがあるとクライアントの名前が決まっているため、rpc では指定できない。
+    it.concurrent('fails when rpc names the client with the client block', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
@@ -1374,13 +1387,13 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: rpc.client cannot be set with template: the client generated from the scaffolded app is exported as `client`, and a group of a split app as `<group>Client`. Remove rpc.client.',
+        'Invalid config: rpc.client cannot be set with the client block: the generated client is exported as `client`, and a group of a split app as `<group>Client`. Remove rpc.client.',
       )
     })
 
     // Naming it `client`, the name it already has, is refused as well.
     // すでにその名前である `client` を指定しても、同様に拒否される。
-    it.concurrent('fails when tanstack-query names the client `client` with template', async () => {
+    it.concurrent('fails when tanstack-query names the client `client` with the client block', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
@@ -1391,7 +1404,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: tanstack-query.client cannot be set with template: the client generated from the scaffolded app is exported as `client`, and a group of a split app as `<group>Client`. Remove tanstack-query.client.',
+        'Invalid config: tanstack-query.client cannot be set with the client block: the generated client is exported as `client`, and a group of a split app as `<group>Client`. Remove tanstack-query.client.',
       )
     })
 
@@ -2092,9 +2105,9 @@ describe('defineConfig', () => {
     expect(config.client?.output).toBe('src/client.ts')
   })
 
-  // With template, naming the client in rpc does not compile.
-  // template では、rpc でクライアント名を指定するとコンパイルできない。
-  it('is a type error to name the client in rpc with template', () => {
+  // With the client block, naming the client in rpc does not compile.
+  // client ブロックがあると、rpc でクライアント名を指定するとコンパイルできない。
+  it('is a type error to name the client in rpc with the client block', () => {
     const config = defineConfig({
       input: 'openapi.yaml',
       output: 'src/routes.ts',
@@ -2108,7 +2121,7 @@ describe('defineConfig', () => {
 
   // The same for a hook library.
   // フックのライブラリも同様である。
-  it('is a type error to name the client in swr with template', () => {
+  it('is a type error to name the client in swr with the client block', () => {
     const config = defineConfig({
       input: 'openapi.yaml',
       output: 'src/routes.ts',
@@ -2120,26 +2133,25 @@ describe('defineConfig', () => {
     expect(config.input).toBe('openapi.yaml')
   })
 
-  // With template, rpc without the client block does not compile.
-  // template では、client ブロックのない rpc はコンパイルできない。
-  it('is a type error to set rpc with template and without client', () => {
+  // With template and without the client block, rpc names the client itself.
+  // template があり client ブロックがなければ、rpc はクライアントを自分で指定する。
+  it('accepts rpc with template and without client', () => {
     const config = defineConfig({
       input: 'openapi.yaml',
       output: 'src/routes.ts',
       template: { routeHandler: true },
-      // @ts-expect-error -- with template, rpc needs the client block
-      rpc: { output: 'src/rpc.ts', import: '../client' },
+      rpc: { output: 'src/rpc.ts', import: '../client', client: 'apiClient' },
     })
-    expect(config.input).toBe('openapi.yaml')
+    expect(config.rpc.client).toBe('apiClient')
   })
 
-  // Without template, rpc without an import does not compile.
-  // template がなければ、import のない rpc はコンパイルできない。
-  it('is a type error to leave out the import of rpc without template', () => {
+  // Without the client block, rpc without an import does not compile.
+  // client ブロックがなければ、import のない rpc はコンパイルできない。
+  it('is a type error to leave out the import of rpc without the client block', () => {
     const config = defineConfig({
       input: 'openapi.yaml',
       output: 'src/routes.ts',
-      // @ts-expect-error -- without template, rpc names the module of the client
+      // @ts-expect-error -- without the client block, rpc names the module of the client
       rpc: { output: 'src/rpc.ts' },
     })
     expect(config.input).toBe('openapi.yaml')
