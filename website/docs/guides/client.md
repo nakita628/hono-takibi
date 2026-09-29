@@ -4,8 +4,8 @@ prev:
   text: 'Template'
   link: '/docs/guides/template'
 next:
-  text: 'Test & Mock'
-  link: '/docs/guides/test-mock'
+  text: 'Mock'
+  link: '/docs/guides/mock'
 ---
 
 # Client

@@ -793,7 +793,6 @@ describe('honoTakibiVite', () => {
       type: { output: path.join(testState.sandboxDirectory, 'out/types.ts') },
       mock: { output: path.join(testState.sandboxDirectory, 'out/mock.ts') },
       docs: { output: path.join(testState.sandboxDirectory, 'out/api.md') },
-      test: { output: path.join(testState.sandboxDirectory, 'out/api.test.ts'), import: './api' },
       rpc: { output: path.join(testState.sandboxDirectory, 'out/rpc/index.ts'), import: '@rpc' },
       swr: { output: path.join(testState.sandboxDirectory, 'out/swr/index.ts'), import: '@swr' },
       'tanstack-query': {
@@ -819,7 +818,6 @@ describe('honoTakibiVite', () => {
       expect(core.type).toHaveBeenCalled()
       expect(core.mock).toHaveBeenCalled()
       expect(core.docs).toHaveBeenCalled()
-      expect(core.test).toHaveBeenCalled()
       expect(core.rpc).toHaveBeenCalled()
     })
     const hookLibraries = vi.mocked(core.hooks).mock.calls.map((call) => call[3])

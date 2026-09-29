@@ -1023,34 +1023,18 @@ describe('parseConfig()', () => {
   })
 
   describe('testFramework option', () => {
-    it.concurrent('accepts test.testFramework: bun', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          test: { output: 'src/index.test.ts', import: './index', testFramework: 'bun' },
-        }),
-      )
-      expect(result.test?.testFramework).toBe('bun')
-    })
-
-    it.concurrent('accepts test.testFramework: vitest', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          test: { output: 'src/index.test.ts', import: './index', testFramework: 'vitest' },
-        }),
-      )
-      expect(result.test?.testFramework).toBe('vitest')
-    })
-
-    it.concurrent('test.testFramework defaults to vitest when omitted', async () => {
-      const result = await runGenerator(
+    // The test option is taken out of the config for now.
+    // test オプションは、当面のあいだ設定から外されている。
+    it.concurrent('fails when test is set', async () => {
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           test: { output: 'src/index.test.ts', import: './index' },
         }),
       )
-      expect(result.test?.testFramework).toBe('vitest')
+      expect(result.message).toBe(
+        'Invalid config: test: test is not an option for now: the tests of the routes are written by template.test.',
+      )
     })
 
     it.concurrent('accepts template.testFramework: bun', async () => {
@@ -2014,28 +1998,6 @@ describe('parseConfig()', () => {
       })
     })
   })
-
-  describe('test option normalization', () => {
-    it.concurrent('normalizes test output', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          test: { output: 'tests', import: './index' },
-        }),
-      )
-      expect(result.test?.output).toBe('tests/index.ts')
-    })
-
-    it.concurrent('keeps test output when already .ts', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          test: { output: 'tests/api.test.ts', import: './index' },
-        }),
-      )
-      expect(result.test?.output).toBe('tests/api.test.ts')
-    })
-  })
 })
 
 describe('defineConfig', () => {
@@ -2066,7 +2028,6 @@ describe('defineConfig', () => {
       client: { output: 'src/client.ts', baseUrl: { env: 'API_URL', import: '@/env' } },
       rpc: { output: 'src/rpc.ts' },
       swr: { output: 'src/swr.ts' },
-      test: { output: 'src/test.ts', import: '.' },
       mock: { output: 'src/mock.ts', delay: { min: 100, max: 800 } },
       docs: { output: 'docs/api.md', curl: true, baseUrl: 'http://localhost:3000' },
     })
@@ -2275,6 +2236,18 @@ describe('defineConfig', () => {
       output: 'src/routes.ts',
       // @ts-expect-error -- imprt is not an option
       rpc: { output: 'src/rpc.ts', import: '../client', imprt: '../client' },
+    })
+    expect(config.input).toBe('openapi.yaml')
+  })
+
+  // The test option does not compile for now.
+  // test オプションは、当面のあいだコンパイルできない。
+  it('is a type error to set test', () => {
+    const config = defineConfig({
+      input: 'openapi.yaml',
+      output: 'src/routes.ts',
+      // @ts-expect-error -- test is not an option for now
+      test: { output: 'src/test.ts', import: '.' },
     })
     expect(config.input).toBe('openapi.yaml')
   })

@@ -578,7 +578,6 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     const types = path.join(dir, 'types.ts')
     const mockOut = path.join(dir, 'mock.ts')
     const docsOut = path.join(dir, 'docs.md')
-    const testOut = path.join(dir, 'routes.test.ts')
     const queryOut = path.join(dir, 'query.ts')
     fs.writeFileSync(
       input,
@@ -617,7 +616,6 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
         type: { output: ${JSON.stringify(types)} },
         mock: { output: ${JSON.stringify(mockOut)} },
         docs: { output: ${JSON.stringify(docsOut)} },
-        test: { output: ${JSON.stringify(testOut)}, import: './routes' },
         client: { output: ${JSON.stringify(path.join(dir, 'client.ts'))} },
         'tanstack-query': { output: ${JSON.stringify(queryOut)} },
       }`,
@@ -630,7 +628,6 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     expect(fs.existsSync(types)).toBe(true)
     expect(fs.existsSync(mockOut)).toBe(true)
     expect(fs.existsSync(docsOut)).toBe(true)
-    expect(fs.existsSync(testOut)).toBe(true)
     expect(fs.existsSync(queryOut)).toBe(true)
     // The `template` block in zod-openapi triggers the app/handler scaffold.
     expect(fs.existsSync(path.join(dir, 'index.ts'))).toBe(true)

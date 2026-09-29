@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vite-plus/test'
 import { parseConfig } from '../config/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 import { runGenerator } from '../testing/index.js'
-import { cleanSplitOutputs, makeJob, outsideSources } from './index.js'
+import { cleanSplitOutputs, makeJob, outsideSources, testJob } from './index.js'
 
 const openAPI = {
   openapi: '3.0.0',
@@ -820,18 +820,15 @@ export default app
   },
 )
 
-describe('makeJob test request paths use the global basePath', () => {
+describe('testJob request paths use the global basePath', () => {
   it('prefixes generated test request paths with the global basePath', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-basepath-'))
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        basePath: '/api',
-        test: { output: `${tmpDir}/app.test.ts`, import: './app' },
-      }),
+    const job = testJob(
+      openAPI,
+      { output: `${tmpDir}/app.test.ts`, import: './app', testFramework: 'vitest' },
+      '/api',
     )
-    const jobs = makeJob(openAPI, cfg)
-    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
+    await runGenerator(job.run(job.output))
     const content = fs.readFileSync(`${tmpDir}/app.test.ts`, 'utf-8')
     expect(content.includes('app.request(`/api/health`')).toBe(true)
     expect(content.includes('app.request(`/health`')).toBe(false)
@@ -839,15 +836,12 @@ describe('makeJob test request paths use the global basePath', () => {
 
   it('does not prefix test request paths when the global basePath is "/"', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-basepath-root-'))
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        basePath: '/',
-        test: { output: `${tmpDir}/app.test.ts`, import: './app' },
-      }),
+    const job = testJob(
+      openAPI,
+      { output: `${tmpDir}/app.test.ts`, import: './app', testFramework: 'vitest' },
+      '/',
     )
-    const jobs = makeJob(openAPI, cfg)
-    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
+    await runGenerator(job.run(job.output))
     const content = fs.readFileSync(`${tmpDir}/app.test.ts`, 'utf-8')
     expect(content.includes('app.request(`/health`')).toBe(true)
   })

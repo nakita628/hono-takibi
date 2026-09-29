@@ -1,5 +1,5 @@
 ---
-title: Test & Mock
+title: Mock
 prev:
   text: 'Client'
   link: '/docs/guides/client'
@@ -8,24 +8,7 @@ next:
   link: '/docs/guides/api-docs'
 ---
 
-# Test & Mock
-
-## Tests
-
-Generates one request test per operation against your app.
-
-```ts
-export default defineConfig({
-  input: 'openapi.yaml',
-  test: {
-    output: './src/test.ts',
-    import: '.', // module that exports the app
-    testFramework: 'vitest', // "vitest" (default) | "vite-plus" | "bun"
-  },
-})
-```
-
-## Mock server
+# Mock
 
 Generates handlers that answer with [faker.js](https://fakerjs.dev/) data shaped by each response schema.
 

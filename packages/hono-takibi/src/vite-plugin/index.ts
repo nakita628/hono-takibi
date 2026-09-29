@@ -357,7 +357,6 @@ function extractOutputPaths(config: Config): readonly string[] {
     config['preact-query']?.output,
     config['solid-query']?.output,
     config['angular-query']?.output,
-    config.test?.output,
     config.mock?.output,
     config.docs?.output,
   ]

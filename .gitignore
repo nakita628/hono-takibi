@@ -7,3 +7,5 @@ test/__generated__
 test/*/__generated__
 cache
 .env
+.cloudflare
+.wrangler

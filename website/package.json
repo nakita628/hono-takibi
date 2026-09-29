@@ -9,7 +9,7 @@
     "build": "NODE_OPTIONS=--max-old-space-size=2560 vitepress build",
     "preview": "vitepress preview",
     "test:e2e": "playwright test",
-    "deploy": "pnpm build && wrangler deploy"
+    "deploy": "pnpm build && cf-wrangler build && cf deploy --prebuilt"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^13.0.0",
@@ -31,6 +31,7 @@
     "@typespec/streams": "catalog:",
     "@typespec/versioning": "catalog:",
     "@typespec/xml": "catalog:",
+    "cf": "catalog:",
     "hono-takibi": "workspace:*",
     "js-yaml": "^5.4.2",
     "monaco-editor": "0.56.0",

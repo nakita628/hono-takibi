@@ -4,7 +4,7 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import type { PlatformError } from 'effect'
 import { Effect, FileSystem, Schema } from 'effect'
 
-import type { Config } from '../config/index.js'
+import type { Config, TestConfig } from '../config/index.js'
 import {
   callbacks,
   client,
@@ -184,6 +184,15 @@ export function outsideSources(input: string) {
   })
 }
 
+export function testJob(openAPI: OpenAPI, config: TestConfig, basePath: string) {
+  return {
+    name: 'test',
+    output: config.output,
+    split: false,
+    run: (output: string) => test(openAPI, output, config.import, basePath, config.testFramework),
+  }
+}
+
 export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
   const defineOn = config.template?.define === true
   const appOutput = appEntryOutput(config)
@@ -222,7 +231,6 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
       config['vue-query']?.output,
       config['svelte-query']?.output,
       config['angular-query']?.output,
-      config.test?.output,
       config.mock?.output,
     ]
     return written.some((file) => file !== undefined && path.normalize(file) === barrel)
@@ -570,21 +578,6 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
           }
         : undefined
     }),
-    config.test
-      ? {
-          name: 'test',
-          output: config.test.output,
-          split: false,
-          run: (output: string) =>
-            test(
-              openAPI,
-              output,
-              config.test?.import ?? '',
-              config.basePath,
-              config.test?.testFramework,
-            ),
-        }
-      : undefined,
     config.mock
       ? {
           name: 'mock',

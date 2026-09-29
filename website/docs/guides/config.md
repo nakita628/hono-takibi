@@ -234,12 +234,6 @@ export default defineConfig({
     import: '../lib',
   },
 
-  test: {
-    output: './src/test.ts',
-    import: '.',
-    testFramework: 'vitest', // "vitest" | "vite-plus" | "bun"
-  },
-
   mock: {
     output: './src/mock.ts',
     useExamples: true, // true: response examples | 'all': also schema/property examples | false

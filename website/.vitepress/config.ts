@@ -53,7 +53,7 @@ export default defineConfig({
           { text: 'Configuration', link: '/docs/guides/config' },
           { text: 'Template', link: '/docs/guides/template' },
           { text: 'Client', link: '/docs/guides/client' },
-          { text: 'Test & Mock', link: '/docs/guides/test-mock' },
+          { text: 'Mock', link: '/docs/guides/mock' },
           { text: 'API Docs', link: '/docs/guides/api-docs' },
           { text: 'Vendor Extensions', link: '/docs/guides/vendor' },
           { text: 'Vite Plugin', link: '/docs/guides/vite-plugin' },

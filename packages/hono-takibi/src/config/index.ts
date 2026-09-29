@@ -28,6 +28,35 @@ const HOOK_KINDS = [
   'angular-query',
 ] as const
 
+export const TestSchema = Schema.Struct({
+  output: Schema.String.annotate({
+    title: 'Output file',
+    description:
+      'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
+    examples: ['./src/test.ts', './src/test'],
+  }),
+  import: Schema.String.check(
+    Schema.isPattern(/^[^\s'"`\\]+$/u, {
+      message: 'must be a module specifier, with no whitespace or quotes',
+    }),
+  ).annotate({
+    title: 'Import specifier',
+    description: 'Module specifier the generated files use to import from `output`.',
+    examples: ['@packages/routes', '../lib', '.'],
+  }),
+  testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
+    .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
+    .annotate({
+      title: 'Test framework',
+      description: 'Framework whose import specifier the generated test files use.',
+      examples: ['vitest', 'vite-plus', 'bun'],
+    }),
+}).annotate({
+  title: 'Route tests output',
+  description: 'Generates a request-level test per operation against the generated app.',
+  examples: [{ output: './src/test.ts', import: '.', testFramework: 'vitest' }],
+})
+
 const ConfigSchema = Schema.Struct({
   input: Schema.declare<`${string}.yaml` | `${string}.json` | `${string}.tsp`>(
     Schema.is(Schema.TemplateLiteral([Schema.String, Schema.Literals(['.yaml', '.json', '.tsp'])])),
@@ -1173,33 +1202,9 @@ const ConfigSchema = Schema.Struct({
     }),
   ),
   test: Schema.optionalKey(
-    Schema.Struct({
-      output: Schema.String.annotate({
-        title: 'Output file',
-        description:
-          'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
-        examples: ['./src/test.ts', './src/test'],
-      }),
-      import: Schema.String.check(
-        Schema.isPattern(/^[^\s'"`\\]+$/u, {
-          message: 'must be a module specifier, with no whitespace or quotes',
-        }),
-      ).annotate({
-        title: 'Import specifier',
-        description: 'Module specifier the generated files use to import from `output`.',
-        examples: ['@packages/routes', '../lib', '.'],
-      }),
-      testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
-        .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
-        .annotate({
-          title: 'Test framework',
-          description: 'Framework whose import specifier the generated test files use.',
-          examples: ['vitest', 'vite-plus', 'bun'],
-        }),
-    }).annotate({
-      title: 'Route tests output',
-      description: 'Generates a request-level test per operation against the generated app.',
-      examples: [{ output: './src/test.ts', import: '.', testFramework: 'vitest' }],
+    Schema.Never.annotate({
+      message:
+        'test is not an option for now: the tests of the routes are written by template.test.',
     }),
   ),
   mock: Schema.optionalKey(
@@ -1451,7 +1456,6 @@ const ConfigSchema = Schema.Struct({
                   'angular-query': target(config['angular-query']),
                 }
               : {}),
-            ...(config.test ? { test: target(config.test) } : {}),
             ...(config.mock ? { mock: target(config.mock) } : {}),
           }
         },
@@ -1554,7 +1558,6 @@ const ConfigSchema = Schema.Struct({
           ['client.output', v.client?.output],
           ['rpc.output', v.rpc?.output],
           ...HOOK_KINDS.map((kind) => [`${kind}.output`, v[kind]?.output] as const),
-          ['test.output', v.test?.output],
           ['mock.output', v.mock?.output],
           ['docs.output', v.docs?.output],
         ]
@@ -1580,6 +1583,8 @@ const ConfigSchema = Schema.Struct({
   })
 
 export type Config = typeof ConfigSchema.Type
+
+export type TestConfig = typeof TestSchema.Type
 
 // oxlint-disable-next-line unicorn/throw-new-error -- `Schema.TaggedError()` is the class factory, not a throw
 export class ConfigError extends Schema.TaggedError<ConfigError>()('ConfigError', {
@@ -1755,19 +1760,21 @@ type Checked<T> = {
   readonly [K in keyof T]: K extends keyof ConfigInput
     ? K extends ClientCaller
       ? Calling<T, K, T[K], ConfigInput[K]>
-      : K extends 'client'
-        ? T extends { readonly template: object }
-          ? Written<T, K, T[K], ConfigInput[K]>
-          : 'needs template: the client is typed by the app the template scaffolds'
-        : K extends 'output'
-          ? Single<T, T[K]>
-          : K extends 'basePath'
-            ? Mounted<T[K]>
-            : K extends 'routes'
-              ? Routed<T, T[K], ConfigInput[K]>
-              : K extends 'components'
-                ? Composed<T, T[K], ConfigInput[K]>
-                : Written<T, K, T[K], ConfigInput[K]>
+      : K extends 'test'
+        ? 'is not an option for now: the tests of the routes are written by template.test'
+        : K extends 'client'
+          ? T extends { readonly template: object }
+            ? Written<T, K, T[K], ConfigInput[K]>
+            : 'needs template: the client is typed by the app the template scaffolds'
+          : K extends 'output'
+            ? Single<T, T[K]>
+            : K extends 'basePath'
+              ? Mounted<T[K]>
+              : K extends 'routes'
+                ? Routed<T, T[K], ConfigInput[K]>
+                : K extends 'components'
+                  ? Composed<T, T[K], ConfigInput[K]>
+                  : Written<T, K, T[K], ConfigInput[K]>
     : 'is not an option'
 }
 
