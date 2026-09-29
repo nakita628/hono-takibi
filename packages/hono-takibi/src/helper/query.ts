@@ -407,7 +407,8 @@ function makeMutationOptionsGetterCode(
  * Generates SWR query hook code.
  *
  * SWR pattern: useSWR(key, fetcher, options)
- * - key: null to disable, otherwise the cache key
+ * - key: null to disable, otherwise the cache key. `enabled: false` and `swrKey: null` both
+ *   yield it; only an absent `swrKey` falls back to the generated key
  * - fetcher: async function returning data
  * - options: SWRConfiguration
  */
@@ -433,14 +434,15 @@ function makeSWRQueryHookCode(
     : `parseResponse(${runtimeAccess}(undefined,clientOptions))`
   // `useSWR` cannot infer Error from the config alone and falls back to `any` (unlike the
   // mutation/infinite variants). Pass the type arguments so TError reaches the returned `error`.
-  return `export function ${hookName}${tErrorGeneric}(${argsSig}${optionsSig}){const{swr:swrOptions,options:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const swrKey=enabled!==false?(customKey??${keyCall}):null;return{swrKey,...${queryFn}<${responseType},TError>(swrKey,async()=>${fetcherCall},restSwrOptions)}}`
+  return `export function ${hookName}${tErrorGeneric}(${argsSig}${optionsSig}){const{swr:swrOptions,options:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const swrKey=enabled!==false?(customKey===undefined?${keyCall}:customKey):null;return{swrKey,...${queryFn}<${responseType},TError>(swrKey,async()=>${fetcherCall},restSwrOptions)}}`
 }
 
 /**
  * Generates SWR Infinite query hook code.
  *
  * SWR Infinite pattern: useSWRInfinite(getKey, fetcher, options)
- * - getKey: (index: number, previousPageData: Data | null) => Key
+ * - getKey: (index: number, previousPageData: Data | null) => Key. `enabled: false` swaps in a
+ *   loader that returns null for every page
  * - fetcher: async function returning data
  * - options: SWRInfiniteConfiguration
  */
@@ -464,7 +466,7 @@ function makeSWRInfiniteHookCode(
   // `swrKey` is narrowed to the same index-loader shape so the fetcher's index stays typed.
   const keyType = `ReturnType<typeof ${infiniteKeyGetterName}>`
   const loaderKeyType = `readonly[...${keyType},number]`
-  const swrConfigType = `SWRInfiniteConfiguration<${responseType},TError>&{swrKey?:(index:number,previousPageData:${responseType}|null)=>${loaderKeyType}|null}`
+  const swrConfigType = `SWRInfiniteConfiguration<${responseType},TError>&{swrKey?:(index:number,previousPageData:${responseType}|null)=>${loaderKeyType}|null;enabled?:boolean}`
   const getRequestArgsField = hasArgs
     ? `getRequestArgs:(args:${argsType},index:number)=>${argsType}`
     : `getRequestArgs:(index:number)=>${argsType}`
@@ -475,7 +477,7 @@ function makeSWRInfiniteHookCode(
   const requestArgs = hasArgs
     ? `pagination.getRequestArgs(args,index)`
     : `pagination.getRequestArgs(index)`
-  return `export function ${hookName}${tErrorGeneric}(${argsSig}${optionsSig}){const{swr:swrOptions,options:clientOptions,pagination}=options;const{swrKey:customKeyLoader,...restSwrOptions}=swrOptions??{};const keyLoader=customKeyLoader??((index:number)=>[...${keyCall},index]as const);return useSWRInfinite(keyLoader,(${indexDestructure})=>parseResponse(${runtimeAccess}(${requestArgs},clientOptions)),restSwrOptions)}`
+  return `export function ${hookName}${tErrorGeneric}(${argsSig}${optionsSig}){const{swr:swrOptions,options:clientOptions,pagination}=options;const{swrKey:customKeyLoader,enabled,...restSwrOptions}=swrOptions??{};const keyLoader=enabled!==false?(customKeyLoader??((index:number)=>[...${keyCall},index]as const)):()=>null;return useSWRInfinite(keyLoader,(${indexDestructure})=>parseResponse(${runtimeAccess}(${requestArgs},clientOptions)),restSwrOptions)}`
 }
 
 /**

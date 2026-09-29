@@ -85,7 +85,7 @@ export function useGetHono<TError = unknown>(options?: {
 }) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetHonoKey()) : null
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetHonoKey() : customKey) : null
   return {
     swrKey,
     ...useSWR<
@@ -108,7 +108,7 @@ export function useImmutableGetHono<TError = unknown>(options?: {
 }) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetHonoKey()) : null
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetHonoKey() : customKey) : null
   return {
     swrKey,
     ...useSWRImmutable<
@@ -137,14 +137,17 @@ export function useInfiniteGetHono<TError = unknown>(options: {
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>
       > | null,
     ) => readonly [...ReturnType<typeof getGetHonoInfiniteKey>, number] | null
+    enabled?: boolean
   }
   options?: ClientRequestOptions
   pagination: { getRequestArgs: (index: number) => InferRequestType<typeof client.hono.$get> }
 }) {
   const { swr: swrOptions, options: clientOptions, pagination } = options
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const { swrKey: customKeyLoader, enabled, ...restSwrOptions } = swrOptions ?? {}
   const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetHonoInfiniteKey(), index] as const)
+    enabled !== false
+      ? (customKeyLoader ?? ((index: number) => [...getGetHonoInfiniteKey(), index] as const))
+      : () => null
   return useSWRInfinite(
     keyLoader,
     ([, , , index]: readonly [...ReturnType<typeof getGetHonoInfiniteKey>, number]) =>
@@ -169,7 +172,8 @@ export function useGetUsers<TError = unknown>(
 ) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetUsersKey(args)) : null
+  const swrKey =
+    enabled !== false ? (customKey === undefined ? getGetUsersKey(args) : customKey) : null
   return {
     swrKey,
     ...useSWR<
@@ -191,7 +195,8 @@ export function useImmutableGetUsers<TError = unknown>(
 ) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetUsersKey(args)) : null
+  const swrKey =
+    enabled !== false ? (customKey === undefined ? getGetUsersKey(args) : customKey) : null
   return {
     swrKey,
     ...useSWRImmutable<
@@ -218,6 +223,7 @@ export function useInfiniteGetUsers<TError = unknown>(
           ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>
         > | null,
       ) => readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number] | null
+      enabled?: boolean
     }
     options?: ClientRequestOptions
     pagination: {
@@ -229,9 +235,11 @@ export function useInfiniteGetUsers<TError = unknown>(
   },
 ) {
   const { swr: swrOptions, options: clientOptions, pagination } = options
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const { swrKey: customKeyLoader, enabled, ...restSwrOptions } = swrOptions ?? {}
   const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(args), index] as const)
+    enabled !== false
+      ? (customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(args), index] as const))
+      : () => null
   return useSWRInfinite(
     keyLoader,
     ([, , , , index]: readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number]) =>
@@ -328,7 +336,7 @@ export function useGetUsers<TError = unknown>(options?: {
 }) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetUsersKey()) : null
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetUsersKey() : customKey) : null
   return {
     swrKey,
     ...useSWR<
@@ -351,7 +359,7 @@ export function useImmutableGetUsers<TError = unknown>(options?: {
 }) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetUsersKey()) : null
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetUsersKey() : customKey) : null
   return {
     swrKey,
     ...useSWRImmutable<
@@ -380,14 +388,17 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
       > | null,
     ) => readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number] | null
+    enabled?: boolean
   }
   options?: ClientRequestOptions
   pagination: { getRequestArgs: (index: number) => InferRequestType<typeof authClient.users.$get> }
 }) {
   const { swr: swrOptions, options: clientOptions, pagination } = options
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const { swrKey: customKeyLoader, enabled, ...restSwrOptions } = swrOptions ?? {}
   const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(), index] as const)
+    enabled !== false
+      ? (customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(), index] as const))
+      : () => null
   return useSWRInfinite(
     keyLoader,
     ([, , , index]: readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number]) =>
@@ -458,7 +469,7 @@ export function useGetPing<TError = unknown>(options?: {
 }) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetPingKey()) : null
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetPingKey() : customKey) : null
   return {
     swrKey,
     ...useSWR<
@@ -481,7 +492,7 @@ export function useImmutableGetPing<TError = unknown>(options?: {
 }) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetPingKey()) : null
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetPingKey() : customKey) : null
   return {
     swrKey,
     ...useSWRImmutable<
@@ -510,14 +521,17 @@ export function useInfiniteGetPing<TError = unknown>(options: {
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>
       > | null,
     ) => readonly [...ReturnType<typeof getGetPingInfiniteKey>, number] | null
+    enabled?: boolean
   }
   options?: ClientRequestOptions
   pagination: { getRequestArgs: (index: number) => InferRequestType<typeof client.ping.$get> }
 }) {
   const { swr: swrOptions, options: clientOptions, pagination } = options
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const { swrKey: customKeyLoader, enabled, ...restSwrOptions } = swrOptions ?? {}
   const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetPingInfiniteKey(), index] as const)
+    enabled !== false
+      ? (customKeyLoader ?? ((index: number) => [...getGetPingInfiniteKey(), index] as const))
+      : () => null
   return useSWRInfinite(
     keyLoader,
     ([, , , index]: readonly [...ReturnType<typeof getGetPingInfiniteKey>, number]) =>
@@ -609,7 +623,7 @@ export function useGetHonoX<TError = unknown>(options?: {
 }) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetHonoXKey()) : null
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetHonoXKey() : customKey) : null
   return {
     swrKey,
     ...useSWR<
@@ -636,7 +650,7 @@ export function useImmutableGetHonoX<TError = unknown>(options?: {
 }) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetHonoXKey()) : null
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetHonoXKey() : customKey) : null
   return {
     swrKey,
     ...useSWRImmutable<
@@ -669,6 +683,7 @@ export function useInfiniteGetHonoX<TError = unknown>(options: {
         ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
       > | null,
     ) => readonly [...ReturnType<typeof getGetHonoXInfiniteKey>, number] | null
+    enabled?: boolean
   }
   options?: ClientRequestOptions
   pagination: {
@@ -676,9 +691,11 @@ export function useInfiniteGetHonoX<TError = unknown>(options: {
   }
 }) {
   const { swr: swrOptions, options: clientOptions, pagination } = options
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const { swrKey: customKeyLoader, enabled, ...restSwrOptions } = swrOptions ?? {}
   const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetHonoXInfiniteKey(), index] as const)
+    enabled !== false
+      ? (customKeyLoader ?? ((index: number) => [...getGetHonoXInfiniteKey(), index] as const))
+      : () => null
   return useSWRInfinite(
     keyLoader,
     ([, , , index]: readonly [...ReturnType<typeof getGetHonoXInfiniteKey>, number]) =>
@@ -759,7 +776,8 @@ export function useGetUsersId<TError = unknown>(
 ) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetUsersIdKey(args)) : null
+  const swrKey =
+    enabled !== false ? (customKey === undefined ? getGetUsersIdKey(args) : customKey) : null
   return {
     swrKey,
     ...useSWR<
@@ -789,7 +807,8 @@ export function useImmutableGetUsersId<TError = unknown>(
 ) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetUsersIdKey(args)) : null
+  const swrKey =
+    enabled !== false ? (customKey === undefined ? getGetUsersIdKey(args) : customKey) : null
   return {
     swrKey,
     ...useSWRImmutable<
@@ -828,6 +847,7 @@ export function useInfiniteGetUsersId<TError = unknown>(
           >
         > | null,
       ) => readonly [...ReturnType<typeof getGetUsersIdInfiniteKey>, number] | null
+      enabled?: boolean
     }
     options?: ClientRequestOptions
     pagination: {
@@ -839,9 +859,12 @@ export function useInfiniteGetUsersId<TError = unknown>(
   },
 ) {
   const { swr: swrOptions, options: clientOptions, pagination } = options
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const { swrKey: customKeyLoader, enabled, ...restSwrOptions } = swrOptions ?? {}
   const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetUsersIdInfiniteKey(args), index] as const)
+    enabled !== false
+      ? (customKeyLoader ??
+        ((index: number) => [...getGetUsersIdInfiniteKey(args), index] as const))
+      : () => null
   return useSWRInfinite(
     keyLoader,
     ([, , , , index]: readonly [...ReturnType<typeof getGetUsersIdInfiniteKey>, number]) =>
@@ -961,7 +984,7 @@ export function useGetHono<TError = unknown>(options?: {
 }) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetHonoKey()) : null
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetHonoKey() : customKey) : null
   return {
     swrKey,
     ...useSWR<
@@ -984,7 +1007,7 @@ export function useImmutableGetHono<TError = unknown>(options?: {
 }) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetHonoKey()) : null
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetHonoKey() : customKey) : null
   return {
     swrKey,
     ...useSWRImmutable<
@@ -1013,14 +1036,17 @@ export function useInfiniteGetHono<TError = unknown>(options: {
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>
       > | null,
     ) => readonly [...ReturnType<typeof getGetHonoInfiniteKey>, number] | null
+    enabled?: boolean
   }
   options?: ClientRequestOptions
   pagination: { getRequestArgs: (index: number) => InferRequestType<typeof client.hono.$get> }
 }) {
   const { swr: swrOptions, options: clientOptions, pagination } = options
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const { swrKey: customKeyLoader, enabled, ...restSwrOptions } = swrOptions ?? {}
   const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetHonoInfiniteKey(), index] as const)
+    enabled !== false
+      ? (customKeyLoader ?? ((index: number) => [...getGetHonoInfiniteKey(), index] as const))
+      : () => null
   return useSWRInfinite(
     keyLoader,
     ([, , , index]: readonly [...ReturnType<typeof getGetHonoInfiniteKey>, number]) =>
@@ -1085,7 +1111,7 @@ export function useGetUsers<TError = unknown>(options?: {
 }) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetUsersKey()) : null
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetUsersKey() : customKey) : null
   return {
     swrKey,
     ...useSWR<
@@ -1108,7 +1134,7 @@ export function useImmutableGetUsers<TError = unknown>(options?: {
 }) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetUsersKey()) : null
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetUsersKey() : customKey) : null
   return {
     swrKey,
     ...useSWRImmutable<
@@ -1137,14 +1163,17 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>
       > | null,
     ) => readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number] | null
+    enabled?: boolean
   }
   options?: ClientRequestOptions
   pagination: { getRequestArgs: (index: number) => InferRequestType<typeof client.users.$get> }
 }) {
   const { swr: swrOptions, options: clientOptions, pagination } = options
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const { swrKey: customKeyLoader, enabled, ...restSwrOptions } = swrOptions ?? {}
   const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(), index] as const)
+    enabled !== false
+      ? (customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(), index] as const))
+      : () => null
   return useSWRInfinite(
     keyLoader,
     ([, , , index]: readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number]) =>
@@ -1246,7 +1275,7 @@ export function useGetUsers<TError = unknown>(options?: {
 }) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetUsersKey()) : null
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetUsersKey() : customKey) : null
   return {
     swrKey,
     ...useSWR<
@@ -1269,7 +1298,7 @@ export function useImmutableGetUsers<TError = unknown>(options?: {
 }) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetUsersKey()) : null
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetUsersKey() : customKey) : null
   return {
     swrKey,
     ...useSWRImmutable<
@@ -1299,7 +1328,8 @@ export function useQueryUsers<TError = unknown>(
 ) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getQueryUsersKey(args)) : null
+  const swrKey =
+    enabled !== false ? (customKey === undefined ? getQueryUsersKey(args) : customKey) : null
   return {
     swrKey,
     ...useSWR<
@@ -1321,7 +1351,8 @@ export function useImmutableQueryUsers<TError = unknown>(
 ) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getQueryUsersKey(args)) : null
+  const swrKey =
+    enabled !== false ? (customKey === undefined ? getQueryUsersKey(args) : customKey) : null
   return {
     swrKey,
     ...useSWRImmutable<
@@ -1348,6 +1379,7 @@ export function useInfiniteQueryUsers<TError = unknown>(
           ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$query>>>>
         > | null,
       ) => readonly [...ReturnType<typeof getQueryUsersInfiniteKey>, number] | null
+      enabled?: boolean
     }
     options?: ClientRequestOptions
     pagination: {
@@ -1359,9 +1391,12 @@ export function useInfiniteQueryUsers<TError = unknown>(
   },
 ) {
   const { swr: swrOptions, options: clientOptions, pagination } = options
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const { swrKey: customKeyLoader, enabled, ...restSwrOptions } = swrOptions ?? {}
   const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getQueryUsersInfiniteKey(args), index] as const)
+    enabled !== false
+      ? (customKeyLoader ??
+        ((index: number) => [...getQueryUsersInfiniteKey(args), index] as const))
+      : () => null
   return useSWRInfinite(
     keyLoader,
     ([, , , , , index]: readonly [...ReturnType<typeof getQueryUsersInfiniteKey>, number]) =>

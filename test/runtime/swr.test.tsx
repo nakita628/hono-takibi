@@ -147,6 +147,21 @@ describe('SWR key behavior', () => {
     expect(requestLog.length).toBe(before)
   })
 
+  // swrKey: null is the way SWR itself disables a hook, and it is kept as null rather than
+  // replaced by the generated key. No request reaches the host.
+  // swrKey: null は、SWR 本来のフック無効化の方法である。生成されたキーに置き換えられず、
+  // null のまま渡される。ホストにリクエストは届かない。
+  it('swrKey:null yields a null key and never fetches', async () => {
+    const before = requestLog.length
+    const { result } = renderHook(() => useGetUsers({ swr: { swrKey: null } }), {
+      wrapper: makeWrapper(),
+    })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    expect(result.current.swrKey).toBeNull()
+    expect(result.current.data).toBeUndefined()
+    expect(requestLog.length).toBe(before)
+  })
+
   // A swrKey passed by the caller replaces the generated key. The fetch still happens.
   // 呼び出し側が渡した swrKey は、生成されたキーを置き換える。フェッチは引き続き行われる。
   it('a custom swrKey overrides the generated key', async () => {
@@ -278,6 +293,30 @@ describe('generated useSWRInfinite hooks', () => {
       { items: ['a', 'b'], nextPage: 1 },
       { items: ['c', 'd'], nextPage: 2 },
     ])
+  })
+
+  // enabled: false replaces the key loader with one that returns null for every page, so not
+  // even the first page is fetched. No request reaches the host.
+  // enabled: false を指定すると、キーローダーは全ページに対して null を返すものに置き換わる。
+  // 最初のページもフェッチされない。ホストにリクエストは届かない。
+  it('enabled:false never fetches any page', async () => {
+    const before = requestLog.length
+    const { result } = renderHook(
+      () =>
+        useInfiniteGetItems(
+          { query: { page: '0' } },
+          {
+            swr: { enabled: false },
+            pagination: {
+              getRequestArgs: (_args, index) => ({ query: { page: String(index) } }),
+            },
+          },
+        ),
+      { wrapper: makeWrapper() },
+    )
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    expect(result.current.data).toBeUndefined()
+    expect(requestLog.length).toBe(before)
   })
 })
 
