@@ -280,9 +280,6 @@ importers:
       '@typespec/xml':
         specifier: 'catalog:'
         version: 0.86.0(@typespec/compiler@1.16.0(@types/node@26.6.2))
-      cf:
-        specifier: 'catalog:'
-        version: 1.0.0-beta.2(@types/node@26.6.2)
       hono-takibi:
         specifier: workspace:*
         version: link:../packages/hono-takibi
