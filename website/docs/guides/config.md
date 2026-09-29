@@ -68,10 +68,8 @@ Prefer a Vite dev server? Use the [Vite plugin](/docs/guides/vite-plugin) instea
 - `output` (single file) and `routes` (split) are mutually exclusive. Same for `components.output` and the per-type `components.*` sections.
 - A `split` directory belongs to the generator: its `.ts` files are removed before each run. Keep hand-written code elsewhere.
 - `basePath` must start with `/`. `client` must be an identifier and `import` a module specifier.
-- The top-level `client` block needs `template`: it cannot be set on its own.
-- `rpc` and the hooks call the Hono client, and are generated with or without `template` and with or without the `client` block.
-  - Without the `client` block, each needs an `import`, the module that exports the client, and may name the export in `client` (`client` by default).
-  - With the `client` block, `import` is optional and `client` cannot be set in `rpc` or the hooks: the generated client is exported as `client`, a group of a split app as `<group>Client`.
+- The `client` block needs `template`.
+- `rpc` and the hooks need an `import`, unless the `client` block is set. With the `client` block, they cannot set `client`.
 
 ## Full reference
 
@@ -194,8 +192,7 @@ export default defineConfig({
     readonly: true,
   },
 
-  // Generates the Hono client from the scaffolded app (needs `template`).
-  // With it, `import` can be left out of `rpc` and the hooks.
+  // Hono client of the scaffolded app (needs `template`).
   client: {
     output: './src/lib/client.ts',
     baseUrl: '/', // a URL, { env, source } or { env, import, name }
@@ -203,7 +200,7 @@ export default defineConfig({
 
   rpc: {
     output: './src/rpc.ts',
-    import: '../lib', // optional with the `client` block; without it, required, and `client: 'apiClient'` names the export
+    import: '../lib', // optional with the `client` block
     parseResponse: true,
     docs: false, // operation summary/description as JSDoc
   },

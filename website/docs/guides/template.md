@@ -134,7 +134,7 @@ In this mode `output` is the app entry (default `./src/index.ts`, must be an `in
 
 ## Splitting the app
 
-`split: true` divides the routes into groups, each exported under its name. A [client](/docs/guides/client#larger-applications) of one group resolves the routes of that group alone.
+`split: true` exports one group per first path segment. See [Client](/docs/guides/client#larger-applications).
 
 ```ts
 export default defineConfig({
@@ -143,12 +143,6 @@ export default defineConfig({
   template: { routeHandler: true, split: true },
 })
 ```
-
-| Mode                  | A group is                      | Written as                                    |
-| --------------------- | ------------------------------- | --------------------------------------------- |
-| `routeHandler: true`  | the first segment of the path   | `app.openapi(getBooksRoute, ...)`             |
-| `define: true`        | the first segment of the path   | `app.openapiRoutes([getBooksRoute] as const)` |
-| `routeHandler: false` | the handler file the app mounts | `app.route('/', booksHandler)`                |
 
 ```ts
 // src/index.ts
@@ -163,6 +157,4 @@ export const books = app
 export default app
 ```
 
-`api` holds the routes that belong to no group, the root for one. Every group is the one `app`: only the types differ.
-
-Re-running replaces each group where it stands, adds a new one in the order of the document, and removes one whose paths left it. An export of your own is kept, unless it is written like a group: `export const x = app.openapi(...)`, `app.openapiRoutes([...])` or `app.route('/', xHandler)`.
+Works with `routeHandler: true`, `routeHandler: false` and `define: true`. Re-running keeps your own exports.
