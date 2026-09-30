@@ -1,6 +1,6 @@
 {
   "name": "hono-takibi",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi",
   "keywords": [
     "hono",
@@ -62,10 +62,10 @@
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^13.0.0",
-    "@effect/platform-node": "4.0.0-rc.116",
+    "@effect/platform-node": "4.0.0-rc.117",
     "@typespec/compiler": "catalog:",
     "@typespec/openapi3": "catalog:",
-    "effect": "4.0.0-rc.116",
+    "effect": "4.0.0-rc.117",
     "oxfmt": "^0.68.0",
     "ts-morph": "^28.0.0"
   },
