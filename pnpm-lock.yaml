@@ -94,7 +94,7 @@ importers:
         specifier: ^4.1.11
         version: 4.1.11(@types/node@26.6.2)(@vitest/browser-preview@4.1.11)(happy-dom@20.14.5)(vite@8.3.1(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       wrangler:
-        specifier: ^4.135.0
+        specifier: 'catalog:'
         version: 4.140.0(@types/node@26.6.2)
 
   packages/hono-takibi:
@@ -103,8 +103,8 @@ importers:
         specifier: ^13.0.0
         version: 13.1.0(openapi-types@12.1.3)
       '@effect/platform-node':
-        specifier: 4.0.0-rc.116
-        version: 4.0.0-rc.116(effect@4.0.0-rc.116)(redis@6.2.1)
+        specifier: 4.0.0-rc.117
+        version: 4.0.0-rc.117(effect@4.0.0-rc.117)(redis@6.2.1)
       '@typespec/compiler':
         specifier: 'catalog:'
         version: 1.16.0(@types/node@26.6.2)
@@ -112,8 +112,8 @@ importers:
         specifier: 'catalog:'
         version: 1.16.0(2f0f7d411ddb43b3b2a6aa13f3928b58)
       effect:
-        specifier: 4.0.0-rc.116
-        version: 4.0.0-rc.116
+        specifier: 4.0.0-rc.117
+        version: 4.0.0-rc.117
       oxfmt:
         specifier: ^0.68.0
         version: 0.68.0(svelte@5.57.1)(vite-plus@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.1)(typescript@7.0.2)(yaml@2.9.1))
@@ -197,7 +197,7 @@ importers:
         specifier: ^4.13.8
         version: 4.13.9
       hono-takibi:
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../packages/hono-takibi
       react:
         specifier: ^19.3.0
@@ -235,9 +235,6 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.3.3
         version: 4.3.3(vite@8.3.1(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
       '@types/node':
         specifier: ^26.6.2
         version: 26.6.2
@@ -501,11 +498,11 @@ packages:
     peerDependencies:
       effect: ^4.0.0-rc.117
 
-  '@effect/platform-node@4.0.0-rc.116':
-    resolution: {integrity: sha512-uA66Nh998OcChBVX83tQDkBDvQQcVaMXodP9gNGWVeIwWWquy7bzIkAq/fMZGKs/BVFhFQ0XCp3VIqYjnXu5ng==}
+  '@effect/platform-node@4.0.0-rc.117':
+    resolution: {integrity: sha512-WbPcvQDkqXFnCeG6LohJ9eVNapCDhZbCpezhYKxm0IsZEk7swakRh7RkC1t2CXzd3hGmszTv2k9e/pXyZuL+wQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      effect: ^4.0.0-rc.116
+      effect: ^4.0.0-rc.117
       redis: '>=5.0.0 <7.0.0'
 
   '@emnapi/runtime@1.11.3':
@@ -2599,9 +2596,6 @@ packages:
   '@types/hast@3.0.5':
     resolution: {integrity: sha512-rp/ezSWaD1m44dPKICGhiskI13nVr7qTloFwDa/IYkhhf5nzwP+zIQcIJh3WIFSBOy/H1PzB40jPjMDksN4F+g==}
 
-  '@types/js-yaml@4.0.9':
-    resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
-
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
@@ -3454,8 +3448,8 @@ packages:
   dompurify@3.4.8:
     resolution: {integrity: sha512-yb1cEmaOum7wFvOCSQxyfgVlv5D47Rc30iZWoMpbDIWTnJ6grDDQyu2KFJzB2k7u0pMuJcQ1zphH//fFnw2tjQ==}
 
-  effect@4.0.0-rc.116:
-    resolution: {integrity: sha512-nawqJHSjHV8XIBRZNZ+D7cLZpN3kkSjzy6aiT9ofKENsl7xAMFKEoDa0itN5JFl3GUQ1PIN1T1HNlva5+xyO/A==}
+  effect@4.0.0-rc.117:
+    resolution: {integrity: sha512-UUyi9QiOW4nySFIBM3KnYbNMd9EZliOdKfBcyLD0mPMPheO2fkuXS5y0opjWc9oqzlJxPQICEGm8gGw3kh9j/w==}
 
   embla-carousel-autoplay@8.6.0:
     resolution: {integrity: sha512-OBu5G3nwaSXkZCo1A6LTaFMZ8EpkYbwIaH+bPqdBnDGQ2fh4+NbzjXjs2SktoPNKCtflfVMc75njaDHOYXcrsA==}
@@ -4718,19 +4712,19 @@ snapshots:
 
   '@docsearch/sidepanel-js@4.7.0': {}
 
-  '@effect/platform-node-shared@4.0.0-rc.117(effect@4.0.0-rc.116)':
+  '@effect/platform-node-shared@4.0.0-rc.117(effect@4.0.0-rc.117)':
     dependencies:
       '@types/ws': 8.18.1
-      effect: 4.0.0-rc.116
+      effect: 4.0.0-rc.117
       ws: 8.21.3
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@effect/platform-node@4.0.0-rc.116(effect@4.0.0-rc.116)(redis@6.2.1)':
+  '@effect/platform-node@4.0.0-rc.117(effect@4.0.0-rc.117)(redis@6.2.1)':
     dependencies:
-      '@effect/platform-node-shared': 4.0.0-rc.117(effect@4.0.0-rc.116)
-      effect: 4.0.0-rc.116
+      '@effect/platform-node-shared': 4.0.0-rc.117(effect@4.0.0-rc.117)
+      effect: 4.0.0-rc.117
       redis: 6.2.1
       undici: 8.11.2
     transitivePeerDependencies:
@@ -6979,8 +6973,6 @@ snapshots:
     dependencies:
       '@types/unist': 3.0.3
 
-  '@types/js-yaml@4.0.9': {}
-
   '@types/json-schema@7.0.15': {}
 
   '@types/linkify-it@5.0.0': {}
@@ -7701,7 +7693,7 @@ snapshots:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
 
-  effect@4.0.0-rc.116: {}
+  effect@4.0.0-rc.117: {}
 
   embla-carousel-autoplay@8.6.0(embla-carousel@8.6.0):
     dependencies:
