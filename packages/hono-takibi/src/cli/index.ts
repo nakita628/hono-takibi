@@ -1,7 +1,4 @@
-import path from 'node:path'
-
-import type { PlatformError } from 'effect'
-import { Console, Effect, FileSystem, Option, Ref, Result, Schema, Stream } from 'effect'
+import { Console, Effect, FileSystem, Option, Path, Ref, Schema, Stream } from 'effect'
 import { Argument, CliError, Command, Flag } from 'effect/unstable/cli'
 
 import manifest from '../../package.json' with { type: 'json' }
@@ -79,10 +76,9 @@ function runJobs(config: Effect.Success<ReturnType<typeof loadConfig>>) {
       )
     const jobs = makeJob(yield* parseOpenAPI(config.input), config)
     yield* cleanSplitOutputs(jobs.filter((job) => job.split).map((job) => job.output))
-    const messages = yield* Effect.all(
-      jobs.map((job) => job.run(job.output)),
-      { concurrency: 'unbounded' },
-    ).pipe(Effect.provideService(FormatOptions, config.format ?? {}))
+    const messages = yield* Effect.forEach(jobs, (job) => job.run(job.output), {
+      concurrency: 'unbounded',
+    }).pipe(Effect.provideService(FormatOptions, config.format ?? {}))
     return messages.filter((message) => message !== '').join('\n')
   })
 }
@@ -113,38 +109,31 @@ function isSameTarget(left: WatchTarget | undefined, right: WatchTarget | undefi
 }
 
 /**
- * Runs one pass and answers what to watch for the documents.
+ * Generates from a config that was read, and answers what to watch for its documents.
  *
- * Two separate things happen to the document here. `runJobs` generates from it, reading
- * it the way every other mode does. `outsideSources` then only asks which files it was
- * read from, so that an edit to any of them brings the session back to this function;
- * what it answers never reaches a generator.
- *
- * The directory comes from the config alone, so a pass that fails after the config was
- * read — a document that does not parse, say — still names it. Otherwise the very edit
- * that fixes the document would never be seen. The answer is `undefined` only when the
- * config itself could not be read.
+ * The directory comes from the config alone, so a pass that fails here — a document
+ * that does not parse, say — still names it. Otherwise the very edit that fixes the
+ * document would never be seen.
  *
  * The files outside the directory come from the document, and a broken document cannot
  * list them. `previous` is what stands in then: the fix may well belong in one of the
  * files the last readable version pointed at.
  */
-function reportConfigPass(configPath: string, reload: boolean, previous: WatchTarget | undefined) {
+function reportJobs(
+  config: Effect.Success<ReturnType<typeof loadConfig>>,
+  previous: WatchTarget | undefined,
+) {
   return Effect.gen(function* () {
-    const config = yield* Effect.result(loadConfig(configPath, reload))
-    if (Result.isFailure(config)) {
-      yield* Console.error(`❌ ${config.failure.message}`)
-      return undefined
-    }
-    const report = yield* Effect.result(runJobs(config.success))
-    if (Result.isSuccess(report)) {
-      yield* Console.log(report.success)
-    } else {
-      yield* Console.error(`❌ ${report.failure.message}`)
-    }
+    const path = yield* Path.Path
+    yield* runJobs(config).pipe(
+      Effect.matchEffect({
+        onFailure: (error) => Console.error(`❌ ${error.message}`),
+        onSuccess: (report) => Console.log(report),
+      }),
+    )
     const { outsideSources } = yield* Effect.promise(() => import('../shared/index.js'))
-    const inputDirectory = path.dirname(path.resolve(process.cwd(), config.success.input))
-    const outside = yield* outsideSources(config.success.input).pipe(
+    const inputDirectory = path.dirname(path.resolve(config.input))
+    const outside = yield* outsideSources(config.input).pipe(
       Effect.orElseSucceed(() =>
         previous?.inputDirectory === inputDirectory ? previous.outside : [],
       ),
@@ -155,13 +144,35 @@ function reportConfigPass(configPath: string, reload: boolean, previous: WatchTa
 }
 
 /**
+ * Runs one pass and answers what to watch for the documents.
+ *
+ * Two separate things happen to the document here. `runJobs` generates from it, reading
+ * it the way every other mode does. `outsideSources` then only asks which files it was
+ * read from, so that an edit to any of them brings the session back to this function;
+ * what it answers never reaches a generator.
+ *
+ * The answer is `undefined` only when the config itself could not be read.
+ */
+function reportConfigPass(configPath: string, reload: boolean, previous: WatchTarget | undefined) {
+  return loadConfig(configPath, reload).pipe(
+    Effect.matchEffect({
+      onFailure: (error) => Console.error(`❌ ${error.message}`).pipe(Effect.as(undefined)),
+      onSuccess: (config) => reportJobs(config, previous),
+    }),
+  )
+}
+
+/**
  * `directory`, or the closest directory above it that exists.
  *
  * A directory that is not there cannot be watched, but the one it will appear in can.
  */
-function nearestExisting(directory: string): Effect.Effect<string, never, FileSystem.FileSystem> {
+function nearestExisting(
+  directory: string,
+): Effect.Effect<string, never, FileSystem.FileSystem | Path.Path> {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
+    const path = yield* Path.Path
     const exists = yield* fs.exists(directory).pipe(Effect.orElseSucceed(() => false))
     const parent = path.dirname(directory)
     return exists || parent === directory ? directory : yield* nearestExisting(parent)
@@ -195,9 +206,11 @@ function watchPass(
 function outsideEvents(outside: readonly string[]) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
+    const path = yield* Path.Path
     const directories = [...new Set(outside.map((file) => path.dirname(file)))]
-    const present = yield* Effect.all(
-      directories.map((directory) => fs.exists(directory).pipe(Effect.orElseSucceed(() => false))),
+    const present = yield* Effect.forEach(
+      directories,
+      (directory) => fs.exists(directory).pipe(Effect.orElseSucceed(() => false)),
       { concurrency: 'unbounded' },
     )
     return directories
@@ -226,6 +239,7 @@ function watchRound(
 ) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
+    const path = yield* Path.Path
     const configFile = path.basename(configPath)
     const nextTarget = yield* Ref.make(target)
     const configEvents = fs
@@ -264,11 +278,12 @@ function watchRound(
   })
 }
 
-function watchConfig(
-  configPath: string,
-  target: WatchTarget | undefined,
-): Effect.Effect<void, PlatformError.PlatformError, FileSystem.FileSystem> {
+/**
+ * Announces what a round watches, runs it, and leaves the next target in `current`.
+ */
+function watchCycle(configPath: string, current: Ref.Ref<WatchTarget | undefined>) {
   return Effect.gen(function* () {
+    const target = yield* Ref.get(current)
     const watched = target === undefined ? undefined : yield* nearestExisting(target.inputDirectory)
     const documents = [target?.inputDirectory, ...(target?.outside ?? [])]
       .filter((entry) => entry !== undefined)
@@ -280,7 +295,14 @@ function watchConfig(
           ? `\n👀 Watching ${documents} and ${configPath} — Ctrl-C to stop`
           : `\n👀 Watching ${configPath}, waiting for ${target.inputDirectory} — Ctrl-C to stop`,
     )
-    return yield* watchConfig(configPath, yield* watchRound(configPath, target, watched))
+    yield* Ref.set(current, yield* watchRound(configPath, target, watched))
+  })
+}
+
+function watchConfig(configPath: string, target: WatchTarget | undefined) {
+  return Effect.gen(function* () {
+    const current = yield* Ref.make(target)
+    return yield* Effect.forever(watchCycle(configPath, current))
   })
 }
 
@@ -322,13 +344,15 @@ function generate(args: Command.Command.Config.Infer<typeof commandLine>) {
       )
     }
     const first = yield* runConfigPass(resolvedConfig, false).pipe(
-      Effect.mapError((error) =>
-        configPath === undefined && error._tag === 'ConfigError' && error.notFound === true
-          ? new CliError.ShowHelp({
-              commandPath: [COMMAND_NAME],
-              errors: [new CliError.UserError({ cause: error, userMessage: error.message })],
-            })
-          : error,
+      Effect.catchTag('ConfigError', (error) =>
+        Effect.fail(
+          configPath === undefined && error.notFound === true
+            ? new CliError.ShowHelp({
+                commandPath: [COMMAND_NAME],
+                errors: [new CliError.UserError({ cause: error, userMessage: error.message })],
+              })
+            : error,
+        ),
       ),
     )
     yield* Console.log(first.report)
