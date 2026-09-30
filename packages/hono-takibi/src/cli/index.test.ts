@@ -2,8 +2,8 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-import * as NodeServices from '@effect/platform-node/NodeServices'
-import { Console, Effect, Exit, Fiber } from 'effect'
+import { NodeServices } from '@effect/platform-node'
+import { Console, Effect, Exit, Fiber, Stdio } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { honoTakibi } from './index.js'
@@ -154,8 +154,9 @@ async function runCli(argv: readonly string[]) {
     error: (...args: readonly unknown[]) => stderr.push(args.map(String).join(' ')),
   })
   const exit = await Effect.runPromiseExit(
-    honoTakibi(argv).pipe(
+    honoTakibi().pipe(
       Effect.provideService(Console.Console, recorder),
+      Effect.provide(Stdio.layerTest({ args: Effect.succeed(argv) })),
       Effect.provide(NodeServices.layer),
     ),
   )
@@ -983,8 +984,9 @@ function startCli(argv: readonly string[]) {
     error: (...args: readonly unknown[]) => lines.push(args.map(String).join(' ')),
   })
   const fiber = Effect.runFork(
-    honoTakibi(argv).pipe(
+    honoTakibi().pipe(
       Effect.provideService(Console.Console, recorder),
+      Effect.provide(Stdio.layerTest({ args: Effect.succeed(argv) })),
       Effect.provide(NodeServices.layer),
     ),
   )

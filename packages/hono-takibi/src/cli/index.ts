@@ -366,6 +366,6 @@ function makeCli() {
   )
 }
 
-export function honoTakibi(argv: readonly string[]) {
-  return Command.runWith(makeCli(), { version: manifest.version })(argv)
+export function honoTakibi() {
+  return Command.run(makeCli(), { version: manifest.version })
 }

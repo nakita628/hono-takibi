@@ -1,8 +1,7 @@
 #!/usr/bin/env node
-import * as NodeRuntime from '@effect/platform-node/NodeRuntime'
-import * as NodeServices from '@effect/platform-node/NodeServices'
+import { NodeRuntime, NodeServices } from '@effect/platform-node'
 import { Effect } from 'effect'
 
 import { honoTakibi } from './cli/index.js'
 
-NodeRuntime.runMain(honoTakibi(process.argv.slice(2)).pipe(Effect.provide(NodeServices.layer)))
+NodeRuntime.runMain(honoTakibi().pipe(Effect.provide(NodeServices.layer)))
