@@ -1,0 +1,90 @@
+# A JSON body has types of its own, so nothing in it is read from text — with one
+# exception. JSON has no bigint: an int64 travels as a number, or as a string of digits when
+# a number would not hold it, and the generated schema hands the handler a bigint either way.
+#
+# `/numbers`  int64 in each of its forms, beside an int32 that stays a number.
+# `/types`    `type` as a list of types.
+#
+# JSON ボディは自身で型を持つため、その中の値が文字列から読み取られることはない。ただし、
+# 例外が1つある。JSON には bigint がない。int64 は number として、あるいは number では
+# 保持できない場合は数字の文字列として運ばれる。生成されるスキーマは、どちらの場合も
+# ハンドラに bigint を渡す。
+#
+# `/numbers`  各形式の int64。number のままである int32 と並べている。
+# `/types`    型のリストとしての `type`。
+openapi: 3.1.0
+info:
+  title: JSON Body Matrix
+  version: 0.0.0
+paths:
+  /numbers:
+    post:
+      operationId: numbers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id: { type: integer, format: int64 }
+                unsigned: { type: integer, format: uint64 }
+                ranged: { type: integer, format: int64, minimum: 1, maximum: 100 }
+                level: { type: integer, format: int64, enum: [1, 2] }
+                version: { type: integer, format: int64, const: 5 }
+                cursor: { type: integer, format: int64, default: 0 }
+                maybe: { type: [integer, 'null'], format: int64 }
+                ids: { type: array, items: { type: integer, format: int64 } }
+                small: { type: integer, format: int32 }
+                ref: { $ref: '#/components/schemas/Id' }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+  /types:
+    post:
+      operationId: types
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                either: { type: [integer, string] }
+                flagged: { type: [number, boolean, 'null'] }
+                bounded: { type: [integer, string], minimum: 1, minLength: 2 }
+                # `date-time` and `time` are RFC 3339 values: an offset is valid beside `Z`.
+                # `date-time` と `time` は RFC 3339 の値である。`Z` と同様に、オフセットも有効である。
+                moment: { type: string, format: date-time }
+                clock: { type: string, format: time }
+                # Declared properties beside `additionalProperties`: `name` is a string, and
+                # every other key an integer.
+                # `additionalProperties` と並ぶ宣言済みプロパティ。`name` は string であり、
+                # それ以外のキーはすべて integer である。
+                # A property named like something every JavaScript object inherits.
+                # すべての JavaScript オブジェクトが継承する名前を持つプロパティ。
+                inherited:
+                  type: object
+                  properties:
+                    constructor: { type: integer }
+                    name: { type: string }
+                labelled:
+                  type: object
+                  properties:
+                    name: { type: string }
+                  additionalProperties: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+components:
+  schemas:
+    Id:
+      type: integer
+      format: int64
+      minimum: 0
+  responses:
+    Fields:
+      description: Every validated field, by name, as the runtime typeof and the text of its value.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: true

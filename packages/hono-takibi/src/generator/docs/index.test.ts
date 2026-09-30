@@ -10771,3 +10771,192 @@ This operation does not require authentication
     expect(makeDocs(spec).split('\n').length).toBeLessThan(3000)
   })
 })
+
+// The request lines of the sample: the path, and the headers behind it.
+// サンプルのリクエスト行。パスと、それに続くヘッダー。
+function wireSampleOf(spec: OpenAPI, curl = false) {
+  return makeDocs(spec, 'src/index.ts', '/', curl, 'http://localhost')
+    .split('\n')
+    .filter((text) => /^\s+-P |^\s+-H |^curl /u.test(text))
+    .map((text) => text.trim().replace(/ \\$/u, ''))
+}
+
+function wireSpecOf(path: string, parameters: readonly object[]) {
+  return {
+    openapi: '3.1.0',
+    info: { title: 'Wire', version: '1.0.0' },
+    paths: {
+      [path]: { get: { parameters, responses: { '200': { description: 'OK' } } } },
+    },
+  } as OpenAPI
+}
+
+describe('makeDocs: parameters as they travel', () => {
+  const integer = { type: 'integer', example: 5 }
+  const list = { type: 'array', items: { type: 'integer' }, example: [1, 2] }
+  const record = {
+    type: 'object',
+    properties: { a: { type: 'integer' }, b: { type: 'string' } },
+    example: { a: 1, b: 'x' },
+  }
+  const inPath = (extra: object, schema: object) =>
+    wireSpecOf('/items/{v}', [{ name: 'v', in: 'path', required: true, ...extra, schema }])
+
+  // simple is the default.
+  // simple がデフォルトである。
+  it('writes a simple scalar as it is', () => {
+    expect(wireSampleOf(inPath({}, integer))).toStrictEqual(['-P /items/5'])
+  })
+
+  // The elements are separated by commas.
+  // 要素は、カンマで区切られる。
+  it('writes a simple array with commas', () => {
+    expect(wireSampleOf(inPath({}, list))).toStrictEqual(['-P /items/1,2'])
+  })
+
+  // Without explode, names and values alternate.
+  // explode なしでは、名前と値が交互に並ぶ。
+  it('writes a simple object as alternating names and values', () => {
+    expect(wireSampleOf(inPath({}, record))).toStrictEqual(['-P /items/a,1,b,x'])
+  })
+
+  // With explode, each property is an assignment.
+  // explode ありでは、各プロパティが代入になる。
+  it('writes an exploded simple object as assignments', () => {
+    expect(wireSampleOf(inPath({ explode: true }, record))).toStrictEqual(['-P /items/a=1,b=x'])
+  })
+
+  // A label value follows a dot.
+  // label の値は、ドットに続く。
+  it('writes a label scalar behind a dot', () => {
+    expect(wireSampleOf(inPath({ style: 'label' }, integer))).toStrictEqual(['-P /items/.5'])
+  })
+
+  // Without explode the elements are separated by commas.
+  // explode なしでは、要素はカンマで区切られる。
+  it('writes a label array with commas behind the dot', () => {
+    expect(wireSampleOf(inPath({ style: 'label' }, list))).toStrictEqual(['-P /items/.1,2'])
+  })
+
+  // With explode the elements are separated by dots.
+  // explode ありでは、要素はドットで区切られる。
+  it('writes an exploded label array with dots', () => {
+    expect(wireSampleOf(inPath({ style: 'label', explode: true }, list))).toStrictEqual([
+      '-P /items/.1.2',
+    ])
+  })
+
+  // The assignments are separated by dots.
+  // 代入同士は、ドットで区切られる。
+  it('writes an exploded label object as assignments separated by dots', () => {
+    expect(wireSampleOf(inPath({ style: 'label', explode: true }, record))).toStrictEqual([
+      '-P /items/.a=1.b=x',
+    ])
+  })
+
+  // A matrix value follows ";" and the name. The semicolon is quoted for the shell.
+  // matrix の値は、";" と名前に続く。セミコロンは、シェル向けに引用符で囲まれる。
+  it('writes a matrix scalar behind its name', () => {
+    expect(wireSampleOf(inPath({ style: 'matrix' }, integer))).toStrictEqual(["-P '/items/;v=5'"])
+  })
+
+  // Without explode the elements are separated by commas.
+  // explode なしでは、要素はカンマで区切られる。
+  it('writes a matrix array with commas behind its name', () => {
+    expect(wireSampleOf(inPath({ style: 'matrix' }, list))).toStrictEqual(["-P '/items/;v=1,2'"])
+  })
+
+  // With explode the name is repeated for every element.
+  // explode ありでは、要素ごとに名前が繰り返される。
+  it('writes an exploded matrix array with the name repeated', () => {
+    expect(wireSampleOf(inPath({ style: 'matrix', explode: true }, list))).toStrictEqual([
+      "-P '/items/;v=1;v=2'",
+    ])
+  })
+
+  // Without explode the object is one value behind the name.
+  // explode なしでは、オブジェクトは名前に続く1つの値になる。
+  it('writes a matrix object as pairs behind its name', () => {
+    expect(wireSampleOf(inPath({ style: 'matrix' }, record))).toStrictEqual([
+      "-P '/items/;v=a,1,b,x'",
+    ])
+  })
+
+  // With explode each property is an assignment of its own.
+  // explode ありでは、各プロパティが独立した代入になる。
+  it('writes an exploded matrix object as assignments behind semicolons', () => {
+    expect(wireSampleOf(inPath({ style: 'matrix', explode: true }, record))).toStrictEqual([
+      "-P '/items/;a=1;b=x'",
+    ])
+  })
+
+  // The same value in a URL.
+  // 同じ値を、URL の中に書き出す。
+  it('writes a matrix scalar into a curl command', () => {
+    expect(wireSampleOf(inPath({ style: 'matrix' }, integer), true)).toStrictEqual([
+      "curl 'http://localhost/items/;v=5'",
+    ])
+  })
+
+  // The prefix is part of the style and stays as it is; the value is encoded.
+  // 接頭辞はスタイルの一部であり、そのまま残る。値はエンコードされる。
+  it('percent-encodes the value behind the prefix', () => {
+    expect(
+      wireSampleOf(inPath({ style: 'label' }, { type: 'string', example: 'a b/c' })),
+    ).toStrictEqual(['-P /items/.a%20b%2Fc'])
+  })
+
+  // Without explode, names and values alternate.
+  // explode なしでは、名前と値が交互に並ぶ。
+  it('writes a header object as alternating names and values', () => {
+    expect(
+      wireSampleOf(
+        wireSpecOf('/items', [{ name: 'X-Filter', in: 'header', required: true, schema: record }]),
+      ),
+    ).toStrictEqual(['-P /items', "-H 'X-Filter: a,1,b,x'"])
+  })
+
+  // With explode, each property is an assignment.
+  // explode ありでは、各プロパティが代入になる。
+  it('writes an exploded header object as assignments', () => {
+    expect(
+      wireSampleOf(
+        wireSpecOf('/items', [
+          { name: 'X-Filter', in: 'header', required: true, explode: true, schema: record },
+        ]),
+      ),
+    ).toStrictEqual(['-P /items', "-H 'X-Filter: a=1,b=x'"])
+  })
+
+  // A cookie object explodes by default.
+  // Cookie のオブジェクトは、デフォルトで explode される。
+  it('writes the properties of a cookie object as cookies of their own', () => {
+    expect(
+      wireSampleOf(
+        wireSpecOf('/items', [{ name: 'prefs', in: 'cookie', required: true, schema: record }]),
+      ),
+    ).toStrictEqual(['-P /items', "-H 'Cookie: a=1; b=x'"])
+  })
+
+  // The cookie holds names and values.
+  // 1つの Cookie が、名前と値を保持する。
+  it('writes a cookie object that does not explode as one cookie', () => {
+    expect(
+      wireSampleOf(
+        wireSpecOf('/items', [
+          { name: 'prefs', in: 'cookie', required: true, explode: false, schema: record },
+        ]),
+      ),
+    ).toStrictEqual(['-P /items', "-H 'Cookie: prefs=a,1,b,x'"])
+  })
+
+  // A cookie name appears once, so the elements are one value.
+  // Cookie 名は1回しか現れないため、要素は1つの値になる。
+  it('writes a cookie array with commas', () => {
+    expect(
+      wireSampleOf(
+        wireSpecOf('/items', [{ name: 'ids', in: 'cookie', required: true, schema: list }]),
+      ),
+    ).toStrictEqual(['-P /items', "-H 'Cookie: ids=1,2'"])
+  })
+})

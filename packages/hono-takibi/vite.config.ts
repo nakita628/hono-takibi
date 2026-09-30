@@ -483,9 +483,11 @@ export default defineConfig({
             {
               patterns: [
                 {
-                  regex: '^(\\.\\./)+(cli|config|core|shared|vite-plugin)(/.*)?$',
+                  // `config` is a leaf that imports nothing of the project, so naming its
+                  // type here closes no cycle.
+                  regex: '^(\\.\\./)+(cli|core|shared|vite-plugin)(/.*)?$',
                   message:
-                    'helper may only import utils, guard, generator, openapi, emit, format, file, merge',
+                    'helper may only import utils, guard, generator, openapi, emit, format, file, merge, config',
                 },
                 {
                   regex: '^\\./index(\\.js)?$',
@@ -522,12 +524,11 @@ export default defineConfig({
             {
               patterns: [
                 {
-                  regex:
-                    '^(\\.\\./)+(cli|emit|generator|guard|helper|merge|utils|vite-plugin)(/.*)?$',
+                  regex: '^(\\.\\./)+(cli|emit|generator|guard|merge|utils|vite-plugin)(/.*)?$',
                   // `file` is already below `shared` through `core`, which imports it
                   // directly; naming it here only forced `shared` to re-derive the two
                   // filesystem calls it needs from the raw service.
-                  message: 'shared may only import config, core, file, format, openapi',
+                  message: 'shared may only import config, core, file, format, helper, openapi',
                 },
               ],
             },
@@ -559,9 +560,9 @@ export default defineConfig({
             {
               patterns: [
                 {
-                  regex: '^(\\.\\./)+(cli|core|emit|generator|helper|merge|utils)(/.*)?$',
+                  regex: '^(\\.\\./)+(cli|core|emit|generator|merge|utils)(/.*)?$',
                   message:
-                    'vite-plugin may only import config, file, format, guard, openapi, shared',
+                    'vite-plugin may only import config, file, format, guard, helper, openapi, shared',
                 },
               ],
             },

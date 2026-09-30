@@ -4,9 +4,10 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import type { PlatformError } from 'effect'
 import { Effect, FileSystem, Schema } from 'effect'
 
-import type { Config } from '../config/index.js'
+import type { Config, TestConfig } from '../config/index.js'
 import {
   callbacks,
+  client,
   components,
   defineTemplate,
   docs,
@@ -33,6 +34,15 @@ import {
 import { GenerateError } from '../error/index.js'
 import type { FormatError } from '../error/index.js'
 import { readdir, unlink } from '../file/index.js'
+import {
+  appEntryFile,
+  appEntryImport,
+  appEntryOutput,
+  handlerGroupOf,
+  generatedImport,
+  isInsideDirectory,
+} from '../helper/index.js'
+import type { Grouping } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 
 type Job = {
@@ -134,17 +144,6 @@ function typeSpecSources(
 }
 
 /**
- * Whether `filePath` sits under `directory`, at any depth.
- *
- * Asked of the path segments rather than the string: `/app/spec-old/a.yaml` starts with
- * `/app/spec` and is not inside it.
- */
-export function isInsideDirectory(directory: string, filePath: string) {
-  const relative = path.relative(directory, filePath)
-  return relative !== '' && !relative.startsWith('..') && !path.isAbsolute(relative)
-}
-
-/**
  * The files the document at `input` reads from that sit outside its own directory.
  *
  * For a watcher, and only for a watcher. A `$ref` or a TypeSpec `import` can reach a file
@@ -185,20 +184,74 @@ export function outsideSources(input: string) {
   })
 }
 
-export function appEntryOutput(config: Config) {
-  if (config.output !== undefined) return config.output
-  if (config.template?.define !== true) return config.routes?.output
-  if (config.components?.output === undefined) return 'src/index.ts'
-  const container = config.components.output.endsWith('/index.ts')
-    ? config.components.output.slice(0, -'/index.ts'.length)
-    : config.components.output
-  const anchor = container.includes('/') ? container.slice(0, container.lastIndexOf('/')) : ''
-  return anchor === '' || anchor === '.' ? 'index.ts' : `${anchor}/index.ts`
+export function testJob(openAPI: OpenAPI, config: TestConfig, basePath: string) {
+  return {
+    name: 'test',
+    output: config.output,
+    split: false,
+    run: (output: string) => test(openAPI, output, config.import, basePath, config.testFramework),
+  }
 }
 
 export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
   const defineOn = config.template?.define === true
   const appOutput = appEntryOutput(config)
+  const isSplit = config.template?.split === true
+  // What divides a split application: the handler file where the handlers register their
+  // routes themselves, which goes by the first tag, and the first segment of the path
+  // otherwise. Both are named the way a handler file is.
+  const isInline = config.template?.define === false && !config.template.routeHandler
+  const grouping: Grouping | undefined = isSplit
+    ? isInline
+      ? handlerGroupOf
+      : (endpoint) => handlerGroupOf(endpoint)
+    : undefined
+  // A client that is not an `index.ts` is re-exported by the `index.ts` beside it, and
+  // imported through it — unless that file is what another generator writes.
+  const generatedClient = config.client
+  const clientBarrel = (() => {
+    const output = generatedClient?.output
+    if (output === undefined || path.basename(output) === 'index.ts') return undefined
+    const barrel = path.join(path.dirname(output), 'index.ts')
+    const written = [
+      appOutput === undefined ? undefined : appEntryFile(appOutput, defineOn),
+      config.output,
+      config.routes?.output,
+      config.webhooks?.output,
+      config.components?.output,
+      ...Object.values(config.components ?? {}).map((target) =>
+        typeof target === 'object' ? target.output : undefined,
+      ),
+      config.type?.output,
+      config.rpc?.output,
+      config.swr?.output,
+      config['tanstack-query']?.output,
+      config['preact-query']?.output,
+      config['solid-query']?.output,
+      config['vue-query']?.output,
+      config['svelte-query']?.output,
+      config['angular-query']?.output,
+      config.mock?.output,
+    ]
+    return written.some((file) => file !== undefined && path.normalize(file) === barrel)
+      ? undefined
+      : barrel
+  })()
+  // The module a generated file imports the client from: the one it names, or the file
+  // `client` generates, reached from where the generated file is written.
+  const clientImport = (output: string, named: string | undefined) => {
+    if (named !== undefined || generatedClient === undefined) return named ?? ''
+    // A file beside the client imports the client itself: the barrel is for the others,
+    // and may come to re-export the file that would import it.
+    const isBeside = path.dirname(output) === path.dirname(generatedClient.output)
+    return generatedImport(
+      output,
+      isBeside ? generatedClient.output : (clientBarrel ?? generatedClient.output),
+      appOutput,
+      config.template?.pathAlias,
+      defineOn,
+    )
+  }
   const componentsOutput =
     config.components?.output ??
     (defineOn && appOutput ? `${path.dirname(appOutput)}/components/index.ts` : undefined)
@@ -305,6 +358,7 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
               config.components?.parameters?.exportTypes === true,
               componentsResolve,
               config.readonly,
+              openAPI.components?.schemas,
             ),
         }
       : undefined,
@@ -422,6 +476,7 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
               config.components?.requestBodies?.split === true,
               componentsResolve,
               config.readonly,
+              openAPI.components?.schemas,
             ),
         }
       : undefined,
@@ -462,6 +517,23 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
           run: (output: string) => runType(openAPI, output, config.type?.readonly),
         }
       : undefined,
+    generatedClient && config.template && appOutput
+      ? {
+          name: 'client',
+          output: generatedClient.output,
+          split: false,
+          run: (output: string) =>
+            client(
+              openAPI,
+              output,
+              appEntryImport(output, appOutput, config.template?.pathAlias, defineOn),
+              generatedClient.baseUrl,
+              config.basePath,
+              grouping,
+              clientBarrel === undefined ? undefined : path.join(path.dirname(output), 'index.ts'),
+            ),
+        }
+      : undefined,
     config.rpc
       ? {
           name: 'rpc',
@@ -471,11 +543,12 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
             rpc(
               openAPI,
               output,
-              config.rpc?.import ?? '',
+              clientImport(output, config.rpc?.import),
               config.rpc?.client ?? 'client',
               config.rpc?.parseResponse ?? false,
               config.basePath,
               config.rpc?.docs ?? false,
+              grouping,
             ),
         }
       : undefined,
@@ -497,25 +570,14 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
             output: cfg.output,
             split: false,
             run: (output: string) =>
-              hooks(openAPI, output, cfg.import, library, { clientName: cfg.client ?? 'client' }),
+              hooks(openAPI, output, clientImport(output, cfg.import), library, {
+                clientName: cfg.client ?? 'client',
+                ...(grouping === undefined ? {} : { grouping }),
+                basePath: config.basePath,
+              }),
           }
         : undefined
     }),
-    config.test
-      ? {
-          name: 'test',
-          output: config.test.output,
-          split: false,
-          run: (output: string) =>
-            test(
-              openAPI,
-              output,
-              config.test?.import ?? '',
-              config.basePath,
-              config.test?.testFramework,
-            ),
-        }
-      : undefined,
     config.mock
       ? {
           name: 'mock',
@@ -560,6 +622,7 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
               config.routes?.import,
               config.template?.testFramework,
               config.readonly,
+              isSplit,
             ),
         }
       : config.template && !defineOn && appOutput
@@ -577,6 +640,7 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
                 config.routes?.import,
                 config.template?.define === false ? config.template.routeHandler : false,
                 config.template?.testFramework,
+                isSplit,
               ),
           }
         : undefined,

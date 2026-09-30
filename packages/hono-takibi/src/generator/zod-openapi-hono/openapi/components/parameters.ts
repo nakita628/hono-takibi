@@ -1,4 +1,4 @@
-import { makeParameterSchema } from '../../../../helper/openapi.js'
+import { makeParameterSchema } from '../../../../helper/index.js'
 import type { Components } from '../../../../openapi/index.js'
 import {
   ensureSuffix,
@@ -21,7 +21,7 @@ export function parametersCode(
     .map((k) =>
       zodToOpenAPISchema(
         toIdentifierPascalCase(ensureSuffix(k, 'ParamsSchema')),
-        makeParameterSchema(parameters[k]),
+        makeParameterSchema(parameters[k], undefined, components.schemas),
         exportParameters,
         exportParametersTypes,
         true,

@@ -1,5 +1,5 @@
 import { isMedia, isRefObject } from '../../../../guard/index.js'
-import { makeRef } from '../../../../helper/openapi.js'
+import { makeRef } from '../../../../helper/index.js'
 import type { Components } from '../../../../openapi/index.js'
 import {
   ensureSuffix,

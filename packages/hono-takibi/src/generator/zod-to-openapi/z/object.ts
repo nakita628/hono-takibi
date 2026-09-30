@@ -66,11 +66,13 @@ export function object(schema: Schema, options?: { readonly?: boolean }) {
         .map(([key, propSchema]) => {
           const isRequired = Array.isArray(schema.required) && schema.required.includes(key)
           const safeKey = makeSafeKey(key)
-          const z = zodToOpenAPI(
-            propSchema,
-            undefined,
-            isRequired ? options : { ...options, isOptional: true },
-          )
+          // A property named like something every object inherits, `constructor`, is read
+          // as what the object inherits when it was not sent.
+          const z = zodToOpenAPI(propSchema, undefined, {
+            ...options,
+            ...(isRequired ? {} : { isOptional: true }),
+            ...(key in Object.prototype ? { inheritedAbsent: true } : {}),
+          })
           return `${safeKey}:${z}`
         })
         .join(',')
@@ -111,9 +113,13 @@ export function object(schema: Schema, options?: { readonly?: boolean }) {
   // dependentRequired / dependentSchemas / if-then-else / unevaluatedProperties /
   // patternProperties) applies to both shapes. Previously the record path
   // early-returned and silently dropped every one of those constraints.
+  // Beside declared properties it is what every other key is held to: a record would hold
+  // the declared ones to it as well, and drop what they declare.
   const base =
     typeof schema.additionalProperties === 'object'
-      ? `z.record(z.string(),${zodToOpenAPI(schema.additionalProperties, undefined, options)})`
+      ? Object.keys(schema.properties ?? {}).length > 0
+        ? `z.object({${propertiesCode}}${objectParams}).catchall(${zodToOpenAPI(schema.additionalProperties, undefined, options)})`
+        : `z.record(z.string(),${zodToOpenAPI(schema.additionalProperties, undefined, options)})`
       : `z.${objectType}({${propertiesCode}}${objectParams})`
   const minProperties =
     typeof schema.minProperties === 'number'

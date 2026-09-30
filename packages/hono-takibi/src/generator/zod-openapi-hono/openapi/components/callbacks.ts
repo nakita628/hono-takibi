@@ -1,6 +1,5 @@
 import { isCallbacks } from '../../../../guard/index.js'
-import { makeConst } from '../../../../helper/code.js'
-import { makeCallback } from '../../../../helper/index.js'
+import { makeCallback, makeConst } from '../../../../helper/index.js'
 import type { Components } from '../../../../openapi/index.js'
 
 /**

@@ -239,6 +239,20 @@ describe('utils', () => {
     ])(`makeSafeKey('%s') -> '%s'`, (input, expected) => {
       expect(makeSafeKey(input)).toBe(expected)
     })
+
+    // `{ __proto__: x }` sets the prototype of the object instead of defining a key; a
+    // computed key defines one.
+    // `{ __proto__: x }` は、キーを定義する代わりにオブジェクトのプロトタイプを設定してしまう。
+    // 計算されたキーであれば、キーが定義される。
+    it.concurrent('writes __proto__ as a computed key', () => {
+      expect(makeSafeKey('__proto__')).toBe("['__proto__']")
+    })
+
+    // constructor is an identifier like any other as a key.
+    // constructor は、キーとしては他と同じ識別子である。
+    it.concurrent('writes constructor as it is', () => {
+      expect(makeSafeKey('constructor')).toBe('constructor')
+    })
   })
   // toIdentifierPascalCase
   describe('toIdentifierPascalCase', () => {

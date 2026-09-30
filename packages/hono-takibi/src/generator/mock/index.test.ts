@@ -962,10 +962,13 @@ export const getTreeRoute = createRoute({
   },
 })
 
-function mockNode(): any {
+function mockNode(depth = 0): any {
   return {
     id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]),
-    next: faker.helpers.arrayElement([mockNode(), undefined]),
+    next:
+      depth < 2
+        ? faker.helpers.arrayElement([depth < 16 ? mockNode(depth + 1) : undefined, undefined])
+        : undefined,
   }
 }
 
@@ -1054,9 +1057,16 @@ export const getXRoute = createRoute({
   operationId: 'gx',
   request: {
     query: z.object({
-      id: z.coerce
-        .number()
-        .int()
+      id: z
+        .preprocess(
+          (val) =>
+            typeof val === 'string' &&
+            /^-?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$/.test(val) &&
+            (!/^-?\\d+$/.test(val) || Number.isSafeInteger(Number(val)))
+              ? Number(val)
+              : val,
+          z.int(),
+        )
         .exactOptional()
         .openapi({
           param: { name: 'id', in: 'query', schema: { type: 'integer' }, required: false },
@@ -1313,17 +1323,23 @@ export const getParentRoute = createRoute({
   },
 })
 
-function mockChild(): any {
+function mockChild(depth = 0): any {
   return {
     id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]),
-    parent: faker.helpers.arrayElement([mockParent(), undefined]),
+    parent:
+      depth < 2
+        ? faker.helpers.arrayElement([depth < 16 ? mockParent(depth + 1) : undefined, undefined])
+        : undefined,
   }
 }
 
-function mockParent(): any {
+function mockParent(depth = 0): any {
   return {
     id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]),
-    child: faker.helpers.arrayElement([mockChild(), undefined]),
+    child:
+      depth < 2
+        ? faker.helpers.arrayElement([depth < 16 ? mockChild(depth + 1) : undefined, undefined])
+        : undefined,
   }
 }
 
@@ -2139,9 +2155,16 @@ export const getPostsRoute = createRoute({
   operationId: 'getPosts',
   request: {
     query: z.object({
-      page: z.coerce
-        .number()
-        .int()
+      page: z
+        .preprocess(
+          (val) =>
+            typeof val === 'string' &&
+            /^-?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$/.test(val) &&
+            (!/^-?\\d+$/.test(val) || Number.isSafeInteger(Number(val)))
+              ? Number(val)
+              : val,
+          z.int(),
+        )
         .default(1)
         .exactOptional()
         .openapi({
@@ -2152,9 +2175,16 @@ export const getPostsRoute = createRoute({
             required: false,
           },
         }),
-      rows: z.coerce
-        .number()
-        .int()
+      rows: z
+        .preprocess(
+          (val) =>
+            typeof val === 'string' &&
+            /^-?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$/.test(val) &&
+            (!/^-?\\d+$/.test(val) || Number.isSafeInteger(Number(val)))
+              ? Number(val)
+              : val,
+          z.int(),
+        )
         .default(20)
         .exactOptional()
         .openapi({
@@ -2243,9 +2273,16 @@ export const getPostsRoute = createRoute({
   operationId: 'getPosts',
   request: {
     query: z.object({
-      page: z.coerce
-        .number()
-        .int()
+      page: z
+        .preprocess(
+          (val) =>
+            typeof val === 'string' &&
+            /^-?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$/.test(val) &&
+            (!/^-?\\d+$/.test(val) || Number.isSafeInteger(Number(val)))
+              ? Number(val)
+              : val,
+          z.int(),
+        )
         .default(1)
         .exactOptional()
         .openapi({
@@ -2256,9 +2293,16 @@ export const getPostsRoute = createRoute({
             required: false,
           },
         }),
-      rows: z.coerce
-        .number()
-        .int()
+      rows: z
+        .preprocess(
+          (val) =>
+            typeof val === 'string' &&
+            /^-?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?$/.test(val) &&
+            (!/^-?\\d+$/.test(val) || Number.isSafeInteger(Number(val)))
+              ? Number(val)
+              : val,
+          z.int(),
+        )
         .default(20)
         .exactOptional()
         .openapi({
@@ -2604,7 +2648,7 @@ export default app
       } as OpenAPI
       const result = await runGenerator(fmt(makeMock(spec, '/')))
       expect(withoutPreferHelpers(result))
-        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+        .toBe(String.raw`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
@@ -2627,7 +2671,23 @@ export const getBigRoute = createRoute({
     200: {
       description: 'OK',
       content: {
-        'application/json': { schema: z.object({ id: z.int64() }).openapi({ required: ['id'] }) },
+        'application/json': {
+          schema: z
+            .object({
+              id: z
+                .preprocess(
+                  (val) =>
+                    typeof val === 'number' && Number.isSafeInteger(val)
+                      ? BigInt(val)
+                      : typeof val === 'string' && /^-?\d+$/.test(val)
+                        ? BigInt(val)
+                        : val,
+                  z.int64(),
+                )
+                .openapi({ type: 'integer', format: 'int64' }),
+            })
+            .openapi({ required: ['id'] }),
+        },
       },
     },
   },
@@ -2679,7 +2739,7 @@ export default app
       } as OpenAPI
       const result = await runGenerator(fmt(makeMock(spec, '/')))
       expect(withoutPreferHelpers(result))
-        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+        .toBe(String.raw`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
@@ -2695,7 +2755,19 @@ if (!('toJSON' in BigInt.prototype)) {
 }
 
 const CounterSchema = z
-  .object({ total: z.bigint() })
+  .object({
+    total: z
+      .preprocess(
+        (val) =>
+          typeof val === 'number' && Number.isSafeInteger(val)
+            ? BigInt(val)
+            : typeof val === 'string' && /^-?\d+$/.test(val)
+              ? BigInt(val)
+              : val,
+        z.bigint(),
+      )
+      .openapi({ type: 'integer', format: 'bigint' }),
+  })
   .openapi({ required: ['total'] })
   .openapi('Counter')
 

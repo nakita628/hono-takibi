@@ -247,6 +247,7 @@ describe('extractTestCases', () => {
         pathParams: [],
         queryParams: [],
         headerParams: [],
+        cookieParams: [],
         requestBody: undefined,
         successStatus: 200,
         errorStatuses: [],
@@ -269,6 +270,7 @@ describe('extractTestCases', () => {
         pathParams: [],
         queryParams: [],
         headerParams: [],
+        cookieParams: [],
         requestBody: {
           fakerCode:
             '{ title: faker.lorem.sentence(), done: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]) }',
@@ -524,7 +526,7 @@ describe('makeHandlerTestCode', () => {
     const withoutContext = makeHandlerTestCode(circularSpec, 'handlers/nodes.ts', [], '../app')
     expect(withContext).toBe(withoutContext)
     expect(withContext).toBe(
-      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\nfunction mockTreeNode(): any {\n  return { id: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]), children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTreeNode())), undefined]) }\n}\n\ndescribe('Nodes',()=>{describe('POST /nodes',()=>{it('should return 201 - Create node',async()=>{const body=mockTreeNode()\nconst res=await app.request(`/nodes`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\nfunction mockTreeNode(depth = 0): any {\n  return { id: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]), children: depth < 2 ? faker.helpers.arrayElement([(depth < 2 ? Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTreeNode(depth + 1))) : []), undefined]) : undefined }\n}\n\ndescribe('Nodes',()=>{describe('POST /nodes',()=>{it('should return 201 - Create node',async()=>{const body=mockTreeNode()\nconst res=await app.request(`/nodes`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n",
     )
   })
 
@@ -1095,7 +1097,7 @@ describe('makeTestFile - circular schema references', () => {
     } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTreeNode(): any {\n  return { value: faker.string.alpha({ length: { min: 5, max: 20 } }), children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTreeNode())), undefined]) }\n}\n\ndescribe('Circular API',()=>{describe('nodes',()=>{describe('POST /nodes',()=>{it('should return 201 - Create node',async()=>{const body=mockTreeNode()\nconst res=await app.request(`/nodes`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTreeNode(depth = 0): any {\n  return { value: faker.string.alpha({ length: { min: 5, max: 20 } }), children: depth < 2 ? faker.helpers.arrayElement([(depth < 2 ? Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTreeNode(depth + 1))) : []), undefined]) : undefined }\n}\n\ndescribe('Circular API',()=>{describe('nodes',()=>{describe('POST /nodes',()=>{it('should return 201 - Create node',async()=>{const body=mockTreeNode()\nconst res=await app.request(`/nodes`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
     )
   })
 
@@ -1142,7 +1144,7 @@ describe('makeTestFile - circular schema references', () => {
     const result = makeTestFile(spec)
     // Both A and B are circular; no faker.* calls so no faker import
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\nfunction mockB(): any {\n  return { a: mockA() }\n}\n\nfunction mockA(): any {\n  return { b: mockB() }\n}\n\ndescribe('Mutual Circular API',()=>{describe('default',()=>{describe('POST /a',()=>{it('should return 201 - Create A',async()=>{const body=mockA()\nconst res=await app.request(`/a`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\nfunction mockB(depth = 0): any {\n  return { a: (depth < 16 ? mockA(depth + 1) : undefined) }\n}\n\nfunction mockA(depth = 0): any {\n  return { b: (depth < 16 ? mockB(depth + 1) : undefined) }\n}\n\ndescribe('Mutual Circular API',()=>{describe('default',()=>{describe('POST /a',()=>{it('should return 201 - Create A',async()=>{const body=mockA()\nconst res=await app.request(`/a`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
     )
   })
 })
@@ -1209,7 +1211,7 @@ describe('makeTestFile - header parameters in output', () => {
     } as OpenAPI
     const result = makeTestFile(spec)
     const expected =
-      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Header Test API',()=>{describe('default',()=>{describe('GET /data',()=>{it('should return 200 - Get data',async()=>{const X-Request-Id=faker.string.uuid()\nconst res=await app.request(`/data`,{method:'GET',headers:{'X-Request-Id':String(X-Request-Id)}})\nexpect(res.status).toBe(200)})})\n})\n})\n"
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Header Test API',()=>{describe('default',()=>{describe('GET /data',()=>{it('should return 200 - Get data',async()=>{const xRequestId=faker.string.uuid()\nconst res=await app.request(`/data`,{method:'GET',headers:{'X-Request-Id':String(xRequestId)}})\nexpect(res.status).toBe(200)})})\n})\n})\n"
     expect(result).toBe(expected)
   })
 })
@@ -2793,7 +2795,7 @@ describe('makeTestFile - self-referential circular schema', () => {
     } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTree(): any {\n  return { value: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]), children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTree())), undefined]) }\n}\n\ndescribe('Tree API',()=>{describe('default',()=>{describe('POST /trees',()=>{it('should return 200',async()=>{const body=mockTree()\nconst res=await app.request(`/trees`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTree(depth = 0): any {\n  return { value: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]), children: depth < 2 ? faker.helpers.arrayElement([(depth < 2 ? Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTree(depth + 1))) : []), undefined]) : undefined }\n}\n\ndescribe('Tree API',()=>{describe('default',()=>{describe('POST /trees',()=>{it('should return 200',async()=>{const body=mockTree()\nconst res=await app.request(`/trees`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
     )
   })
 })
@@ -2835,7 +2837,7 @@ describe('makeTestFile - mutually recursive circular schemas', () => {
     } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\nfunction mockB(): any {\n  return { a: mockA() }\n}\n\nfunction mockA(): any {\n  return { b: mockB() }\n}\n\ndescribe('Mutual API',()=>{describe('default',()=>{describe('POST /a',()=>{it('should return 200',async()=>{const body=mockA()\nconst res=await app.request(`/a`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\nfunction mockB(depth = 0): any {\n  return { a: (depth < 16 ? mockA(depth + 1) : undefined) }\n}\n\nfunction mockA(depth = 0): any {\n  return { b: (depth < 16 ? mockB(depth + 1) : undefined) }\n}\n\ndescribe('Mutual API',()=>{describe('default',()=>{describe('POST /a',()=>{it('should return 200',async()=>{const body=mockA()\nconst res=await app.request(`/a`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
     )
   })
 })
@@ -3147,6 +3149,510 @@ expect(res.status).toBe(401)})})
 })
 })
 `,
+    )
+  })
+})
+
+// ─── makeTestFile (parameters as they travel) ───────────────────
+
+// The request a generated test sends, taken out of the file it is in.
+// 生成されたテストが送信するリクエストを、ファイルの中から取り出したもの。
+function requestOf(spec: OpenAPI) {
+  const [, request = ''] = /app\.request\((.*)\)\nexpect/u.exec(makeTestFile(spec)) ?? []
+  return request
+}
+
+// The variables a generated test declares before its request.
+// 生成されたテストが、リクエストの前に宣言する変数。
+function variablesOf(spec: OpenAPI) {
+  return [...makeTestFile(spec).matchAll(/const ([\w$]+)=/gu)].map(([, name]) => name)
+}
+
+function specOf(path: string, parameters: readonly object[], shared?: readonly object[]) {
+  return {
+    openapi: '3.1.0',
+    info: { title: 'Wire', version: '1.0.0' },
+    paths: {
+      [path]: {
+        ...(shared === undefined ? {} : { parameters: shared }),
+        get: { parameters, responses: { '200': { description: 'OK' } } },
+      },
+    },
+  } as OpenAPI
+}
+
+describe('makeTestFile - variables', () => {
+  // A name that is no identifier is declared under one that is.
+  // 識別子でない名前は、識別子として有効な名前で宣言される。
+  it('declares a hyphenated header under a camel-case name', () => {
+    expect(
+      variablesOf(
+        specOf('/data', [
+          { name: 'X-Request-Id', in: 'header', required: true, schema: { type: 'string' } },
+        ]),
+      ),
+    ).toStrictEqual(['xRequestId', 'res'])
+  })
+
+  // A name the generated test has taken is set apart from it.
+  // 生成されるテストがすでに使っている名前は、区別できる名前に変えられる。
+  it('sets a parameter named res apart from the response', () => {
+    expect(
+      variablesOf(
+        specOf('/data', [{ name: 'res', in: 'query', required: true, schema: { type: 'string' } }]),
+      ),
+    ).toStrictEqual(['res_', 'res'])
+  })
+
+  // A word of the language cannot be declared.
+  // 言語の予約語は、変数として宣言できない。
+  it('sets a parameter named class apart from the keyword', () => {
+    expect(
+      variablesOf(
+        specOf('/data', [
+          { name: 'class', in: 'query', required: true, schema: { type: 'string' } },
+        ]),
+      ),
+    ).toStrictEqual(['class_', 'res'])
+  })
+
+  // A name that starts with a digit cannot start a variable.
+  // 数字で始まる名前は、そのままでは変数名にできない。
+  it('declares a name that starts with a digit behind an underscore', () => {
+    expect(
+      variablesOf(
+        specOf('/data', [{ name: '2fa', in: 'query', required: true, schema: { type: 'string' } }]),
+      ),
+    ).toStrictEqual(['_2fa', 'res'])
+  })
+
+  // The same name in the path and in the query is two parameters, declared once each.
+  // パスとクエリに同じ名前があれば、それは2つのパラメータであり、それぞれ1回ずつ宣言される。
+  it('declares a name used in the path and in the query under two names', () => {
+    const spec = specOf('/items/{id}', [
+      { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+      { name: 'id', in: 'query', required: true, schema: { type: 'string' } },
+    ])
+    expect(variablesOf(spec)).toStrictEqual(['id', 'idQuery', 'res'])
+    expect(requestOf(spec)).toBe(
+      "`/items/${id}?id=${encodeURIComponent(String(idQuery))}`,{method:'GET'}",
+    )
+  })
+})
+
+describe('makeTestFile - path parameters as their style writes them', () => {
+  // simple is the default, and a scalar is the value itself.
+  // simple がデフォルトであり、スカラーは値そのものである。
+  it('writes a simple scalar as it is', () => {
+    expect(
+      requestOf(
+        specOf('/items/{id}', [
+          { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+        ]),
+      ),
+    ).toBe("`/items/${id}`,{method:'GET'}")
+  })
+
+  // The elements of a simple array are separated by commas.
+  // simple の配列は、要素をカンマで区切る。
+  it('writes a simple array with commas', () => {
+    expect(
+      requestOf(
+        specOf('/items/{ids}', [
+          {
+            name: 'ids',
+            in: 'path',
+            required: true,
+            schema: { type: 'array', items: { type: 'integer' } },
+          },
+        ]),
+      ),
+    ).toBe("`/items/${ids.map((item)=>encodeURIComponent(String(item))).join(',')}`,{method:'GET'}")
+  })
+
+  // A label value follows a dot.
+  // label の値は、ドットに続く。
+  it('writes a label scalar behind a dot', () => {
+    expect(
+      requestOf(
+        specOf('/items/{id}', [
+          { name: 'id', in: 'path', required: true, style: 'label', schema: { type: 'integer' } },
+        ]),
+      ),
+    ).toBe("`/items/.${id}`,{method:'GET'}")
+  })
+
+  // An exploded label array separates its elements by dots.
+  // explode された label の配列は、要素をドットで区切る。
+  it('writes an exploded label array with dots', () => {
+    expect(
+      requestOf(
+        specOf('/items/{ids}', [
+          {
+            name: 'ids',
+            in: 'path',
+            required: true,
+            style: 'label',
+            explode: true,
+            schema: { type: 'array', items: { type: 'integer' } },
+          },
+        ]),
+      ),
+    ).toBe(
+      "`/items/.${ids.map((item)=>encodeURIComponent(String(item))).join('.')}`,{method:'GET'}",
+    )
+  })
+
+  // A matrix value follows ";" and the name of the parameter.
+  // matrix の値は、";" とパラメータ名に続く。
+  it('writes a matrix scalar behind its name', () => {
+    expect(
+      requestOf(
+        specOf('/items/{id}', [
+          { name: 'id', in: 'path', required: true, style: 'matrix', schema: { type: 'integer' } },
+        ]),
+      ),
+    ).toBe("`/items/;id=${id}`,{method:'GET'}")
+  })
+
+  // An exploded matrix array repeats the name for every element.
+  // explode された matrix の配列は、要素ごとに名前を繰り返す。
+  it('writes an exploded matrix array with the name repeated', () => {
+    expect(
+      requestOf(
+        specOf('/items/{ids}', [
+          {
+            name: 'ids',
+            in: 'path',
+            required: true,
+            style: 'matrix',
+            explode: true,
+            schema: { type: 'array', items: { type: 'integer' } },
+          },
+        ]),
+      ),
+    ).toBe(
+      "`/items/${ids.map((item)=>';ids='+encodeURIComponent(String(item))).join('')}`,{method:'GET'}",
+    )
+  })
+
+  // An exploded simple object is a list of assignments.
+  // explode された simple のオブジェクトは、代入を並べたものである。
+  it('writes an exploded simple object as assignments', () => {
+    expect(
+      requestOf(
+        specOf('/items/{filter}', [
+          {
+            name: 'filter',
+            in: 'path',
+            required: true,
+            explode: true,
+            schema: { type: 'object', properties: { a: { type: 'integer' } } },
+          },
+        ]),
+      ),
+    ).toBe(
+      "`/items/${Object.entries(filter).map(([key,item])=>key+'='+encodeURIComponent(String(item))).join(',')}`,{method:'GET'}",
+    )
+  })
+
+  // A parameter the path item declares belongs to every operation of it.
+  // パスアイテムで宣言されたパラメータは、その配下のすべてのオペレーションに属する。
+  it('writes a parameter the path item declares', () => {
+    expect(
+      requestOf(
+        specOf(
+          '/items/{id}',
+          [],
+          [{ name: 'id', in: 'path', required: true, style: 'label', schema: { type: 'integer' } }],
+        ),
+      ),
+    ).toBe("`/items/.${id}`,{method:'GET'}")
+  })
+
+  // The operation declares the parameter again, and what it declares is what counts.
+  // オペレーションが同じパラメータを宣言し直した場合は、オペレーション側の宣言が有効になる。
+  it('takes the declaration of the operation over that of the path item', () => {
+    expect(
+      requestOf(
+        specOf(
+          '/items/{id}',
+          [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              style: 'matrix',
+              schema: { type: 'integer' },
+            },
+          ],
+          [{ name: 'id', in: 'path', required: true, style: 'label', schema: { type: 'integer' } }],
+        ),
+      ),
+    ).toBe("`/items/;id=${id}`,{method:'GET'}")
+  })
+})
+
+describe('makeTestFile - query parameters as their style writes them', () => {
+  // form with explode, the default, repeats the name.
+  // デフォルトである form + explode は、名前を繰り返す。
+  it('repeats the name for every element of an array', () => {
+    expect(
+      requestOf(
+        specOf('/items', [
+          {
+            name: 'ids',
+            in: 'query',
+            required: true,
+            schema: { type: 'array', items: { type: 'integer' } },
+          },
+        ]),
+      ),
+    ).toBe(
+      "`/items?${ids.map((item)=>'ids='+encodeURIComponent(String(item))).join('&')}`,{method:'GET'}",
+    )
+  })
+
+  // Without explode the elements are one value, separated by commas.
+  // explode なしでは、要素はカンマで区切られた1つの値になる。
+  it('writes an array that does not explode with commas', () => {
+    expect(
+      requestOf(
+        specOf('/items', [
+          {
+            name: 'ids',
+            in: 'query',
+            required: true,
+            explode: false,
+            schema: { type: 'array', items: { type: 'integer' } },
+          },
+        ]),
+      ),
+    ).toBe(
+      "`/items?ids=${ids.map((item)=>encodeURIComponent(String(item))).join(',')}`,{method:'GET'}",
+    )
+  })
+
+  // pipeDelimited separates the elements by pipes.
+  // pipeDelimited は、要素をパイプで区切る。
+  it('writes a pipeDelimited array with pipes', () => {
+    expect(
+      requestOf(
+        specOf('/items', [
+          {
+            name: 'ids',
+            in: 'query',
+            required: true,
+            style: 'pipeDelimited',
+            explode: false,
+            schema: { type: 'array', items: { type: 'integer' } },
+          },
+        ]),
+      ),
+    ).toBe(
+      "`/items?ids=${ids.map((item)=>encodeURIComponent(String(item))).join('|')}`,{method:'GET'}",
+    )
+  })
+
+  // spaceDelimited separates the elements by spaces, which a URL writes as %20.
+  // spaceDelimited は、要素をスペースで区切る。URL ではスペースを %20 と表記する。
+  it('writes a spaceDelimited array with encoded spaces', () => {
+    expect(
+      requestOf(
+        specOf('/items', [
+          {
+            name: 'ids',
+            in: 'query',
+            required: true,
+            style: 'spaceDelimited',
+            explode: false,
+            schema: { type: 'array', items: { type: 'integer' } },
+          },
+        ]),
+      ),
+    ).toBe(
+      "`/items?ids=${ids.map((item)=>encodeURIComponent(String(item))).join('%20')}`,{method:'GET'}",
+    )
+  })
+
+  // An exploded form object spreads its properties over the query.
+  // explode された form のオブジェクトは、プロパティをクエリに展開する。
+  it('spreads the properties of an exploded object over the query', () => {
+    expect(
+      requestOf(
+        specOf('/items', [
+          {
+            name: 'filter',
+            in: 'query',
+            required: true,
+            schema: { type: 'object', properties: { a: { type: 'integer' } } },
+          },
+        ]),
+      ),
+    ).toBe(
+      "`/items?${Object.entries(filter).map(([key,item])=>key+'='+encodeURIComponent(String(item))).join('&')}`,{method:'GET'}",
+    )
+  })
+
+  // A deepObject is written by a function of its own, which follows nested values.
+  // deepObject は、ネストした値をたどる専用の関数によって書き出される。
+  it('writes a deepObject through deepObjectQuery, and declares the function', () => {
+    const spec = specOf('/items', [
+      {
+        name: 'filter',
+        in: 'query',
+        required: true,
+        style: 'deepObject',
+        schema: { type: 'object', properties: { a: { type: 'integer' } } },
+      },
+    ])
+    expect(requestOf(spec)).toBe(
+      "`/items?${deepObjectQuery('filter',filter).join('&')}`,{method:'GET'}",
+    )
+    expect(makeTestFile(spec)).toContain(
+      'function deepObjectQuery(key:string,item:unknown):string[]{',
+    )
+  })
+
+  // A file without a deepObject has no use for the function.
+  // deepObject のないファイルでは、この関数は使われない。
+  it('does not declare deepObjectQuery in a file that has no deepObject', () => {
+    expect(
+      makeTestFile(
+        specOf('/items', [
+          { name: 'page', in: 'query', required: true, schema: { type: 'integer' } },
+        ]),
+      ),
+    ).not.toContain('deepObjectQuery')
+  })
+})
+
+describe('makeTestFile - headers and cookies as they are written', () => {
+  // The elements of a header array are separated by commas.
+  // ヘッダーの配列は、要素をカンマで区切る。
+  it('writes a header array with commas', () => {
+    expect(
+      requestOf(
+        specOf('/items', [
+          {
+            name: 'X-Ids',
+            in: 'header',
+            required: true,
+            schema: { type: 'array', items: { type: 'integer' } },
+          },
+        ]),
+      ),
+    ).toBe("`/items`,{method:'GET',headers:{'X-Ids':xIds.map((item)=>String(item)).join(',')}}")
+  })
+
+  // An exploded header object is a list of assignments.
+  // explode されたヘッダーのオブジェクトは、代入を並べたものである。
+  it('writes an exploded header object as assignments', () => {
+    expect(
+      requestOf(
+        specOf('/items', [
+          {
+            name: 'X-Filter',
+            in: 'header',
+            required: true,
+            explode: true,
+            schema: { type: 'object', properties: { a: { type: 'integer' } } },
+          },
+        ]),
+      ),
+    ).toBe(
+      "`/items`,{method:'GET',headers:{'X-Filter':Object.entries(xFilter).map(([key,item])=>key+'='+String(item)).join(',')}}",
+    )
+  })
+
+  // A required cookie is sent in the Cookie header.
+  // 必須の Cookie は、Cookie ヘッダーで送信される。
+  it('sends a required cookie', () => {
+    expect(
+      requestOf(
+        specOf('/items', [
+          { name: 'session', in: 'cookie', required: true, schema: { type: 'string' } },
+        ]),
+      ),
+    ).toBe(
+      "`/items`,{method:'GET',headers:{'Cookie':`session=${encodeURIComponent(String(session))}`}}",
+    )
+  })
+
+  // An optional cookie is left out, like an optional header.
+  // 任意の Cookie は、任意のヘッダーと同じく送信されない。
+  it('leaves an optional cookie out', () => {
+    expect(
+      requestOf(specOf('/items', [{ name: 'session', in: 'cookie', schema: { type: 'string' } }])),
+    ).toBe("`/items`,{method:'GET'}")
+  })
+
+  // Several cookies are one header.
+  // 複数の Cookie は、1つのヘッダーにまとめられる。
+  it('sends several cookies in one header', () => {
+    expect(
+      requestOf(
+        specOf('/items', [
+          { name: 'a', in: 'cookie', required: true, schema: { type: 'string' } },
+          {
+            name: 'ids',
+            in: 'cookie',
+            required: true,
+            schema: { type: 'array', items: { type: 'integer' } },
+          },
+        ]),
+      ),
+    ).toBe(
+      "`/items`,{method:'GET',headers:{'Cookie':`a=${encodeURIComponent(String(a))}; ids=${ids.map((item)=>encodeURIComponent(String(item))).join(',')}`}}",
+    )
+  })
+
+  // A cookie object explodes by default: each property is a cookie of its own.
+  // Cookie のオブジェクトは、デフォルトで explode される。各プロパティが独立した Cookie になる。
+  it('sends the properties of a cookie object as cookies of their own', () => {
+    expect(
+      requestOf(
+        specOf('/items', [
+          {
+            name: 'prefs',
+            in: 'cookie',
+            required: true,
+            schema: { type: 'object', properties: { size: { type: 'integer' } } },
+          },
+        ]),
+      ),
+    ).toBe(
+      "`/items`,{method:'GET',headers:{'Cookie':`${Object.entries(prefs).map(([key,item])=>key+'='+encodeURIComponent(String(item))).join('; ')}`}}",
+    )
+  })
+
+  // The credential of an apiKey in a cookie travels in the same header as the parameters.
+  // Cookie に置かれる apiKey の認証情報は、パラメータと同じヘッダーで送られる。
+  it('sends a cookie parameter and a cookie credential in one header', () => {
+    const spec = {
+      openapi: '3.1.0',
+      info: { title: 'Wire', version: '1.0.0' },
+      components: { securitySchemes: { sid: { type: 'apiKey', in: 'cookie', name: 'sid' } } },
+      paths: {
+        '/items': {
+          get: {
+            security: [{ sid: [] }],
+            parameters: [
+              { name: 'lang', in: 'cookie', required: true, schema: { type: 'string' } },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    } as OpenAPI
+    const file = makeTestFile(spec)
+    expect(file).toContain(
+      "headers:{'Cookie':`lang=${encodeURIComponent(String(lang))}; sid=${faker.string.alphanumeric(32)}`}",
+    )
+    // Without the credential the parameter is still sent.
+    // 認証情報がない場合も、パラメータは送信される。
+    expect(file).toContain(
+      "const res=await app.request(`/items`,{method:'GET',headers:{'Cookie':`lang=${encodeURIComponent(String(lang))}`}})\nexpect(res.status).toBe(401)",
     )
   })
 })

@@ -22,9 +22,10 @@ import {
   mergeTestFile,
 } from '../merge/index.js'
 import type { OpenAPI, Operation, Schema } from '../openapi/index.js'
-import { methodPath, uncapitalizeWord } from '../utils/index.js'
+import { cyclicNodes, methodPath, uncapitalizeWord } from '../utils/index.js'
 import { makeImports, makeModuleSpec } from './code.js'
-import { mockFunctionName, schemaToFaker } from './faker.js'
+import { mockFunctionSignature, schemaToFaker } from './faker.js'
+import { isGroupName } from './group.js'
 
 function makeRefs(schema: Schema, refs = new Set<string>()) {
   if (schema.$ref) {
@@ -37,10 +38,18 @@ function makeRefs(schema: Schema, refs = new Set<string>()) {
       if (isSchemaObject(item)) makeRefs(item, refs)
     }
   }
+  if (schema.prefixItems) {
+    for (const item of schema.prefixItems) {
+      makeRefs(item, refs)
+    }
+  }
   if (schema.properties) {
     for (const prop of Object.values(schema.properties)) {
       makeRefs(prop, refs)
     }
+  }
+  if (isSchemaObject(schema.additionalProperties)) {
+    makeRefs(schema.additionalProperties, refs)
   }
   if (schema.allOf) {
     for (const s of schema.allOf) {
@@ -60,9 +69,31 @@ function makeRefs(schema: Schema, refs = new Set<string>()) {
   return refs
 }
 
-function makeMockFunction(name: string, schema: Schema, schemas: { readonly [k: string]: Schema }) {
-  const mockBody = schemaToFaker(schema, undefined, { schemas })
-  return `function ${mockFunctionName(name)}() {\n  return ${mockBody}\n}`
+function makeMockFunctions(
+  usedRefs: ReadonlySet<string>,
+  schemas: { readonly [k: string]: Schema },
+) {
+  const reachable = new Set<string>()
+  const visit = (refName: string) => {
+    const schema = schemas[refName]
+    if (reachable.has(refName) || !schema) return
+    reachable.add(refName)
+    for (const dep of makeRefs(schema)) visit(dep)
+  }
+  for (const refName of usedRefs) visit(refName)
+  const circular = cyclicNodes(
+    new Map(Object.entries(schemas).map(([name, schema]) => [name, [...makeRefs(schema)]])),
+  )
+  return [...reachable]
+    .map((refName) => {
+      const isCircular = circular.has(refName)
+      const mockBody = schemaToFaker(schemas[refName], undefined, {
+        schemas,
+        ...(isCircular ? { recursive: circular } : {}),
+      })
+      return `${mockFunctionSignature(refName, isCircular)} {\n  return ${mockBody}\n}`
+    })
+    .join('\n\n')
 }
 
 function makeResponseInfo(operation: Operation) {
@@ -124,6 +155,17 @@ export function makeHandlerFileName(path: string, tags?: readonly string[]): `${
   const pathName = sanitizeHandlerSegment(path.replace(/^\/+/u, '').split('/')[0] ?? '')
   const name = tagName !== '' ? tagName : pathName !== '' ? pathName : '__root'
   return `${name}.ts`
+}
+
+/**
+ * The group an operation belongs to: the name of the handler file it is written to, the
+ * first tag or else the first segment of the path, `/v2-public/ping` as `v2Public`. An
+ * operation belongs to no group, and `undefined` is returned, when the name cannot be an
+ * export: the root, a word the language or the generated app has taken.
+ */
+export function handlerGroupOf(path: string, tags?: readonly string[]): string | undefined {
+  const name = makeHandlerFileName(path, tags).replace(/\.ts$/u, '')
+  return isGroupName(name) ? name : undefined
 }
 
 function isTsFileName(file: string): file is `${string}.ts` {
@@ -363,10 +405,7 @@ function makeInlineMockFileContent(
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
   const fakerImport = handler.needsFaker ? "import { faker } from '@faker-js/faker'\n" : ''
   const importStatements = `import { OpenAPIHono } from '@hono/zod-openapi'\n${fakerImport}${importRoutes}`
-  const mockFunctions = [...handler.usedRefs]
-    .filter((refName) => schemas[refName])
-    .map((refName) => makeMockFunction(refName, schemas[refName], schemas))
-    .join('\n\n')
+  const mockFunctions = makeMockFunctions(handler.usedRefs, schemas)
   const appDecl = 'const app = new OpenAPIHono()'
   const chain = handler.contents.join('\n')
   const body = `export const ${exportName} = app\n${chain}`
@@ -493,10 +532,7 @@ function makeMockFileContent(
   const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${importFrom}';` : ''
   const fakerImport = handler.needsFaker ? "import { faker } from '@faker-js/faker'\n" : ''
   const importStatements = `import type { RouteHandler } from '@hono/zod-openapi'\n${fakerImport}${importRouteTypes}`
-  const mockFunctions = [...handler.usedRefs]
-    .filter((refName) => schemas[refName])
-    .map((refName) => makeMockFunction(refName, schemas[refName], schemas))
-    .join('\n\n')
+  const mockFunctions = makeMockFunctions(handler.usedRefs, schemas)
   return mockFunctions
     ? `${importStatements}\n\n${mockFunctions}\n\n${handler.contents.join('\n\n')}`
     : `${importStatements}\n\n${handler.contents.join('\n\n')}`

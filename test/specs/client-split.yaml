@@ -1,0 +1,137 @@
+# An application with several first path segments, for `template.split`: each of `health`,
+# `vaults`, `items` and `v2-public` becomes a group with a client of its own, the last under
+# the name `v2Public`. `/` names no export and belongs to no group.
+#
+# 先頭のパスセグメントを複数持つアプリケーション。`template.split` の検証に使う。`health`・
+# `vaults`・`items`・`v2-public` は、それぞれ独自のクライアントを持つグループになる。最後の
+# ものは `v2Public` という名前になる。`/` は export 名にできないため、どのグループにも
+# 属さない。
+openapi: 3.1.0
+info: { title: Vault, version: 0.0.0 }
+components:
+  schemas:
+    Vault:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+    Item:
+      type: object
+      required: [id]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+paths:
+  /:
+    get:
+      responses:
+        '200':
+          {
+            description: ok,
+            content:
+              {
+                application/json:
+                  {
+                    schema: { type: object, required: [ok], properties: { ok: { type: boolean } } },
+                  },
+              },
+          }
+  /health:
+    get:
+      responses:
+        '200':
+          {
+            description: ok,
+            content:
+              {
+                application/json:
+                  {
+                    schema:
+                      {
+                        type: object,
+                        required: [status],
+                        properties: { status: { type: string } },
+                      },
+                  },
+              },
+          }
+  /vaults:
+    get:
+      responses:
+        '200':
+          {
+            description: ok,
+            content:
+              {
+                application/json:
+                  { schema: { type: array, items: { $ref: '#/components/schemas/Vault' } } },
+              },
+          }
+    post:
+      requestBody:
+        {
+          required: true,
+          content:
+            {
+              application/json:
+                {
+                  schema:
+                    { type: object, required: [name], properties: { name: { type: string } } },
+                },
+            },
+        }
+      responses:
+        '201':
+          {
+            description: created,
+            content: { application/json: { schema: { $ref: '#/components/schemas/Vault' } } },
+          }
+  /vaults/{id}:
+    get:
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200':
+          {
+            description: ok,
+            content: { application/json: { schema: { $ref: '#/components/schemas/Vault' } } },
+          }
+  /items:
+    get:
+      parameters:
+        - { name: limit, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          {
+            description: ok,
+            content:
+              {
+                application/json:
+                  { schema: { type: array, items: { $ref: '#/components/schemas/Item' } } },
+              },
+          }
+  /items/{id}/shares:
+    post:
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '201':
+          {
+            description: created,
+            content: { application/json: { schema: { $ref: '#/components/schemas/Item' } } },
+          }
+  /v2-public/ping:
+    get:
+      responses:
+        '200':
+          {
+            description: ok,
+            content:
+              {
+                application/json:
+                  {
+                    schema: { type: object, required: [ok], properties: { ok: { type: boolean } } },
+                  },
+              },
+          }

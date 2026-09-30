@@ -4,8 +4,7 @@ import { Effect } from 'effect'
 
 import { emit } from '../../emit/index.js'
 import { GenerateError } from '../../error/index.js'
-import { makeExportConst } from '../../helper/code.js'
-import { makeRef } from '../../helper/index.js'
+import { makeExportConst, makeRef } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import {
   ensureSuffix,

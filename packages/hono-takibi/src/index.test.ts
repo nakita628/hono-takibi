@@ -2862,7 +2862,7 @@ export * from './xmlContent'
     expect(jsonContent).toBe(`import { z } from '@hono/zod-openapi'
 
 export const JsonContentMediaTypeSchema = z
-  .object({ data: z.string(), timestamp: z.iso.datetime().exactOptional() })
+  .object({ data: z.string(), timestamp: z.iso.datetime({ offset: true }).exactOptional() })
   .openapi({ required: ['data'] })
 `)
 

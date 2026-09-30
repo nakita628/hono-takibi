@@ -27,6 +27,13 @@
 //   /required  required parameters / 必須パラメータ
 //   /limits    constraints / 制約
 //   /styles    serialisation styles / シリアライズ形式
+//   /objects   parameters that are an object / オブジェクトであるパラメータ
+//   /absent    allowEmptyValue, a default beside a reference
+//              allowEmptyValue と、参照と並ぶデフォルト値
+//   /refs      a schema behind $ref / $ref の先にあるスキーマ
+//   /combinators  allOf, oneOf, anyOf, not, mixed enum, tuple
+//              allOf・oneOf・anyOf・not・型混在の enum・タプル
+//   /content   a JSON document / JSON 文書
 //
 // This file holds the requests that are rejected. Each answers 422 with the name of every
 // parameter that failed, or 404 when the request matches no route at all.
@@ -51,7 +58,13 @@
 //   - names: parameter names that are not identifiers
 //   - constraints
 //   - wire: encoding, separators and repetition
-//   - leniency: what z.coerce reads beyond a decimal literal (pinned, not endorsed)
+//   - absent: an empty value that stands for none, and a default beside a reference
+//   - objects: a parameter spread over the query
+//   - styles: serialisations other than form + explode
+//   - references: a schema behind $ref
+//   - combinators: the text is read once
+//   - content: a JSON document
+//   - strictness: what the wire grammar does not read
 import { describe, expect, it } from 'vite-plus/test'
 
 import { queryParamsApp } from './app'
@@ -337,14 +350,6 @@ describe('integers: rejected values', () => {
     expect(await res.json()).toStrictEqual({ issues: ['int64'] })
   })
 
-  // Exponent notation cannot become a bigint.
-  // 指数表記は bigint に変換できない。
-  it('int64 rejects "1e3"', async () => {
-    const res = await queryParamsApp.request('/params?int64=1e3')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['int64'] })
-  })
-
   // The JavaScript bigint suffix is source syntax, not a value.
   // JavaScript の bigint 接尾辞はソース上の記法であり、値ではない。
   it('int64 rejects "1n"', async () => {
@@ -375,22 +380,6 @@ describe('integers: rejected values', () => {
     const res = await queryParamsApp.request('/params?uint64=1.5')
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['uint64'] })
-  })
-
-  // A fraction cannot become a bigint, even a zero one.
-  // 小数部が 0 でも、小数は bigint に変換できない。
-  it('bigint rejects "1.0"', async () => {
-    const res = await queryParamsApp.request('/params?bigint=1.0')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['bigint'] })
-  })
-
-  // Exponent notation cannot become a bigint.
-  // 指数表記は bigint に変換できない。
-  it('bigint rejects "1e3"', async () => {
-    const res = await queryParamsApp.request('/params?bigint=1e3')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['bigint'] })
   })
 })
 
@@ -1083,37 +1072,11 @@ describe('formats: what each string format rejects', () => {
     expect(await res.json()).toStrictEqual({ issues: ['time'] })
   })
 
-  // A zone designator.
-  // タイムゾーン指定子が付いている。
-  it('time rejects "12:34:56Z"', async () => {
-    const res = await queryParamsApp.request(`/params?time=${encodeURIComponent('12:34:56Z')}`)
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['time'] })
-  })
-
-  // An offset.
-  // オフセットが付いている。
-  it('time rejects "12:34:56+09:00"', async () => {
-    const res = await queryParamsApp.request(`/params?time=${encodeURIComponent('12:34:56+09:00')}`)
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['time'] })
-  })
-
   // No zone designator.
   // タイムゾーン指定子がない。
   it('datetime rejects "2020-01-02T03:04:05"', async () => {
     const res = await queryParamsApp.request(
       `/params?datetime=${encodeURIComponent('2020-01-02T03:04:05')}`,
-    )
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['datetime'] })
-  })
-
-  // An offset instead of Z: the generated z.iso.datetime() takes Z only.
-  // Z ではなくオフセット。生成される z.iso.datetime() は Z のみを受理する。
-  it('datetime rejects "2020-01-02T03:04:05+09:00"', async () => {
-    const res = await queryParamsApp.request(
-      `/params?datetime=${encodeURIComponent('2020-01-02T03:04:05+09:00')}`,
     )
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['datetime'] })
@@ -1705,14 +1668,6 @@ describe('array elements: rejected values', () => {
     expect(await res.json()).toStrictEqual({ issues: ['int64_arr.1'] })
   })
 
-  // Exponent notation cannot become a bigint.
-  // 指数表記は bigint に変換できない。
-  it('int64_arr rejects "1e3" as its second element', async () => {
-    const res = await queryParamsApp.request('/params?int64_arr=9007199254740993&int64_arr=1e3')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['int64_arr.1'] })
-  })
-
   // The JavaScript bigint suffix is source syntax, not a value.
   // JavaScript の bigint 接尾辞はソース上の記法であり、値ではない。
   it('int64_arr rejects "1n" as its second element', async () => {
@@ -1749,22 +1704,6 @@ describe('array elements: rejected values', () => {
     )
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['uint64_arr.1'] })
-  })
-
-  // A fraction cannot become a bigint, even a zero one.
-  // 小数部が 0 でも、小数は bigint に変換できない。
-  it('bigint_arr rejects "1.0" as its second element', async () => {
-    const res = await queryParamsApp.request('/params?bigint_arr=9007199254740993&bigint_arr=1.0')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['bigint_arr.1'] })
-  })
-
-  // Exponent notation cannot become a bigint.
-  // 指数表記は bigint に変換できない。
-  it('bigint_arr rejects "1e3" as its second element', async () => {
-    const res = await queryParamsApp.request('/params?bigint_arr=9007199254740993&bigint_arr=1e3')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['bigint_arr.1'] })
   })
 
   // Infinity is not finite.
@@ -2618,14 +2557,12 @@ describe('required', () => {
     expect(await res.json()).toStrictEqual({ issues: ['name'] })
   })
 
-  // All five are reported, in declaration order. The array is reported at index 0: see the
-  // leniency section.
-  // 5つすべてが宣言順に報告される。配列はインデックス 0 で報告される(leniency セクションを参照)
-  // 。
+  // All five are reported, in declaration order.
+  // 5つすべてが宣言順に報告される。
   it('reports every required parameter when none is sent', async () => {
     const res = await queryParamsApp.request('/required')
     expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['id', 'big', 'flag', 'name', 'tags.0'] })
+    expect(await res.json()).toStrictEqual({ issues: ['id', 'big', 'flag', 'name', 'tags'] })
   })
 
   // Present is not enough: the value has to be valid too.
@@ -2915,16 +2852,1103 @@ describe('wire: encoding, separators and repetition', () => {
   })
 })
 
-// Numbers are coerced with z.coerce, that is Number(text) and BigInt(text). Both read more
-// than a decimal literal, and these tests pin exactly how much more, so that a change to the
-// coercion shows up here as a decision and not as a surprise. They record today's behaviour;
-// they do not say it is desirable.
-// 数値は z.coerce、すなわち Number(text) と BigInt(text) で変換される。
-// どちらも10進リテラル以外も読み取るため、「どこまで読むか」をここで固定する。
-// coerce の実装を変えたときに、想定外の変化ではなく意図した判断として差分が
-// 現れるようにするためである。これらは現状の挙動の記録であり、
-// 望ましい挙動だと主張するものではない。
-describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not endorsed)', () => {
+// Only the empty value stands for none. Anything else is a value, and has to be a valid one.
+// 「指定なし」を意味するのは、空の値だけである。それ以外はすべて値であり、有効でなければならない。
+describe('absent: an empty value that stands for none, and a default beside a reference', () => {
+  // A word is a value, and not an integer.
+  // 単語は値であり、整数ではない。
+  it('empty_ok rejects a word', async () => {
+    const res = await queryParamsApp.request('/absent?empty_ok=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['empty_ok'] })
+  })
+
+  // Whitespace is not the empty value.
+  // 空白は、空の値ではない。
+  it('empty_ok rejects whitespace', async () => {
+    const res = await queryParamsApp.request('/absent?empty_ok=%20')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['empty_ok'] })
+  })
+
+  // The default does not cover a value that is wrong.
+  // デフォルト値は、誤った値の代わりにはならない。
+  it('empty_def rejects a word instead of falling back to its default', async () => {
+    const res = await queryParamsApp.request('/absent?empty_def=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['empty_def'] })
+  })
+
+  // ref_def does not declare allowEmptyValue, so the empty value is a value, and not a number.
+  // ref_def は allowEmptyValue を宣言していないため、空の値は値として扱われ、数値ではない。
+  it('ref_def rejects an empty value', async () => {
+    const res = await queryParamsApp.request('/absent?ref_def=')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['ref_def'] })
+  })
+
+  // -1 is below the minimum of Count.
+  // -1 は Count の最小値を下回る。
+  it('ref_def rejects a value below the minimum of the component', async () => {
+    const res = await queryParamsApp.request('/absent?ref_def=-1')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['ref_def'] })
+  })
+})
+
+// What the extensions of date-time and time take away.
+// date-time と time の拡張が、受理する範囲から除外するもの。
+describe('iso: date-time and time with their extensions', () => {
+  // x-isoOffset: false takes Z only.
+
+  // x-isoOffset: false は、Z だけを受理する。
+  it('datetime_z rejects "2020-01-02T03:04:05+09:00"', async () => {
+    const res = await queryParamsApp.request(
+      `/iso?datetime_z=${encodeURIComponent('2020-01-02T03:04:05+09:00')}`,
+    )
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['datetime_z'] })
+  })
+
+  // Three fractional digits are required.
+
+  // 小数部3桁が必須である。
+  it('datetime_p3 rejects "2020-01-02T03:04:05Z"', async () => {
+    const res = await queryParamsApp.request(
+      `/iso?datetime_p3=${encodeURIComponent('2020-01-02T03:04:05Z')}`,
+    )
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['datetime_p3'] })
+  })
+
+  // Two digits are not three.
+
+  // 2桁は3桁ではない。
+  it('datetime_p3 rejects "2020-01-02T03:04:05.12+09:00"', async () => {
+    const res = await queryParamsApp.request(
+      `/iso?datetime_p3=${encodeURIComponent('2020-01-02T03:04:05.12+09:00')}`,
+    )
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['datetime_p3'] })
+  })
+
+  // The hour of an offset ends at 23.
+
+  // オフセットの時は 23 までである。
+  it('time_any rejects "12:34:56+24:00"', async () => {
+    const res = await queryParamsApp.request(
+      `/iso?time_any=${encodeURIComponent('12:34:56+24:00')}`,
+    )
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_any'] })
+  })
+
+  // The minute of an offset ends at 59.
+
+  // オフセットの分は 59 までである。
+  it('time_any rejects "12:34:56+09:60"', async () => {
+    const res = await queryParamsApp.request(
+      `/iso?time_any=${encodeURIComponent('12:34:56+09:60')}`,
+    )
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_any'] })
+  })
+
+  // An offset is written with a colon.
+
+  // オフセットはコロン付きで表記する。
+  it('time_any rejects "12:34:56+0900"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_any=${encodeURIComponent('12:34:56+0900')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_any'] })
+  })
+
+  // An offset names its minutes.
+
+  // オフセットには分が必要である。
+  it('time_any rejects "12:34:56+09"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_any=${encodeURIComponent('12:34:56+09')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_any'] })
+  })
+
+  // The zone designator is an upper-case Z.
+
+  // タイムゾーン指定子は大文字の Z である。
+  it('time_any rejects "12:34:56z"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_any=${encodeURIComponent('12:34:56z')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_any'] })
+  })
+
+  // Nothing stands between the time and its zone.
+
+  // 時刻とゾーンの間には何も入らない。
+  it('time_any rejects "12:34:56 Z"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_any=${encodeURIComponent('12:34:56 Z')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_any'] })
+  })
+
+  // The zone is written once.
+
+  // ゾーンは1回だけ書く。
+  it('time_any rejects "12:34:56ZZ"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_any=${encodeURIComponent('12:34:56ZZ')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_any'] })
+  })
+
+  // A zone alone is not a time.
+
+  // ゾーンだけでは時刻にならない。
+  it('time_any rejects "Z"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_any=${encodeURIComponent('Z')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_any'] })
+  })
+
+  // The hour ends at 23, whatever the zone.
+
+  // ゾーンにかかわらず、時は 23 までである。
+  it('time_any rejects "24:00:00Z"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_any=${encodeURIComponent('24:00:00Z')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_any'] })
+  })
+
+  // x-isoOffset: false takes no zone at all.
+
+  // x-isoOffset: false は、ゾーンを一切受理しない。
+  it('time_z rejects "12:34:56Z"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_z=${encodeURIComponent('12:34:56Z')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_z'] })
+  })
+
+  // Nor an offset.
+
+  // オフセットも受理しない。
+  it('time_z rejects "12:34:56+09:00"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_z=${encodeURIComponent('12:34:56+09:00')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_z'] })
+  })
+
+  // Whole seconds are required.
+
+  // 整数の秒が必須である。
+  it('time_p0 rejects "12:34"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_p0=${encodeURIComponent('12:34')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_p0'] })
+  })
+
+  // A fraction is more than whole seconds.
+
+  // 小数部は、整数の秒を超えている。
+  it('time_p0 rejects "12:34:56.1"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_p0=${encodeURIComponent('12:34:56.1')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_p0'] })
+  })
+
+  // The same in UTC.
+
+  // UTC でも同様である。
+  it('time_p0 rejects "12:34:56.1Z"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_p0=${encodeURIComponent('12:34:56.1Z')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_p0'] })
+  })
+
+  // Three fractional digits are required.
+
+  // 小数部3桁が必須である。
+  it('time_p3 rejects "12:34:56"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_p3=${encodeURIComponent('12:34:56')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_p3'] })
+  })
+
+  // Two digits are not three.
+
+  // 2桁は3桁ではない。
+  it('time_p3 rejects "12:34:56.78Z"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_p3=${encodeURIComponent('12:34:56.78Z')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_p3'] })
+  })
+
+  // Seconds are more than hours and minutes.
+
+  // 秒は、時と分を超えている。
+  it('time_minute rejects "12:34:56"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_minute=${encodeURIComponent('12:34:56')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_minute'] })
+  })
+
+  // The same in UTC.
+
+  // UTC でも同様である。
+  it('time_minute rejects "12:34:56Z"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_minute=${encodeURIComponent('12:34:56Z')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['time_minute'] })
+  })
+})
+
+// A required parameter under an inherited name is missing when it is not sent: what the
+// request object inherits does not stand in for it.
+// 継承される名前を持つ必須パラメータは、送信されなければ欠落として扱われる。リクエスト
+// オブジェクトが継承するものは、その代わりにはならない。
+describe('inherited: parameters named like what every object inherits', () => {
+  // toString is required and was not sent.
+
+  // toString は必須であり、送信されていない。
+  it('rejects a request without the required toString', async () => {
+    const res = await queryParamsApp.request('/inherited')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['toString'] })
+  })
+
+  // The other parameters do not make up for it.
+
+  // 他のパラメータでは補えない。
+  it('rejects a request without the required toString, whatever else is sent', async () => {
+    const res = await queryParamsApp.request('/inherited?valueOf=1')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['toString'] })
+  })
+
+  // A value that is sent is validated like any other.
+
+  // 送信された値は、他のパラメータと同じように検証される。
+  it('valueOf rejects a word', async () => {
+    const res = await queryParamsApp.request('/inherited?toString=a&valueOf=abc')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['valueOf'] })
+  })
+
+  // A boolean under an inherited name is validated.
+
+  // 継承される名前を持つ boolean も検証される。
+  it('hasOwnProperty rejects a word', async () => {
+    const res = await queryParamsApp.request('/inherited?toString=a&hasOwnProperty=maybe')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['hasOwnProperty'] })
+  })
+
+  // An element is reported at its index.
+
+  // 要素は、そのインデックスで報告される。
+  it('isPrototypeOf rejects a word as its second element', async () => {
+    const res = await queryParamsApp.request(
+      '/inherited?toString=a&isPrototypeOf=1&isPrototypeOf=x',
+    )
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['isPrototypeOf.1'] })
+  })
+})
+
+// A property is validated like a parameter, and reported under the name of the object and its
+// own.
+// プロパティは、パラメータと同じように検証され、オブジェクト名と自身の名前で報告される。
+describe('objects: a parameter spread over the query', () => {
+  // age is an integer.
+  // age は integer である。
+  it('deep rejects a word where a property is an integer', async () => {
+    const res = await queryParamsApp.request('/objects?deep[age]=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['deep.age'] })
+  })
+
+  // age has minimum: 0.
+  // age は minimum: 0 である。
+  it('deep rejects a property below its minimum', async () => {
+    const res = await queryParamsApp.request('/objects?deep[age]=-1')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['deep.age'] })
+  })
+
+  // ids is an array of integers.
+  // ids は integer の配列である。
+  it('deep rejects a bad element of an array property at its index', async () => {
+    const res = await queryParamsApp.request('/objects?deep[ids]=1&deep[ids]=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['deep.ids.1'] })
+  })
+
+  // name is a string, and a key sent twice arrives as an array.
+  // name は string であり、2回送られたキーは配列として届く。
+  it('deep rejects a scalar property sent twice', async () => {
+    const res = await queryParamsApp.request('/objects?deep[name]=a&deep[name]=b')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['deep.name'] })
+  })
+
+  // deep=5 is a scalar under the name of the object, and a scalar is not an object.
+  // deep=5 は、オブジェクトの名前で送られたスカラーである。スカラーはオブジェクトではない。
+  it('deep rejects a value sent under its own name', async () => {
+    const res = await queryParamsApp.request('/objects?deep=5')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['deep'] })
+  })
+
+  // from is required by Range.
+  // from は、Range で必須とされている。
+  it('deep_ref reports a missing required property', async () => {
+    const res = await queryParamsApp.request('/objects?deep_ref[to]=5')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['deep_ref.from'] })
+  })
+
+  // from is an integer.
+  // from は integer である。
+  it('deep_ref rejects a word where the component declares an integer', async () => {
+    const res = await queryParamsApp.request('/objects?deep_ref[from]=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['deep_ref.from'] })
+  })
+
+  // size is an integer.
+  // size は integer である。
+  it('spread rejects a word where a property is an integer', async () => {
+    const res = await queryParamsApp.request('/objects?size=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['spread.size'] })
+  })
+
+  // sort is an enum of asc and desc.
+  // sort は asc と desc の enum である。
+  it('spread rejects a value that is not a member', async () => {
+    const res = await queryParamsApp.request('/objects?sort=up')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['spread.sort'] })
+  })
+
+  // An exploded object is never sent under its own name: spread=1 is a scalar, not an object.
+  // explode されたオブジェクトは、自身の名前で送られることはない。
+  // spread=1 はスカラーであり、オブジェクトではない。
+  it('spread rejects a value sent under its own name', async () => {
+    const res = await queryParamsApp.request('/objects?spread=1')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['spread'] })
+  })
+
+  // age is an integer.
+  // age は integer である。
+  it('pairs rejects a word where a property is an integer', async () => {
+    const res = await queryParamsApp.request('/objects?pairs=age,x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['pairs.age'] })
+  })
+
+  // name,bob,age has three parts: the last name has no value.
+  // name,bob,age は3つの部分からなる。最後の名前に対応する値がない。
+  it('pairs rejects a name left without its value', async () => {
+    const res = await queryParamsApp.request('/objects?pairs=name,bob,age')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['pairs'] })
+  })
+
+  // An empty value holds no pair.
+  // 空の値は、ペアを1つも含まない。
+  it('pairs rejects an empty value', async () => {
+    const res = await queryParamsApp.request('/objects?pairs=')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['pairs'] })
+  })
+
+  // filter of /styles is a deepObject whose age is an integer.
+  // /styles の filter は deepObject であり、その age は integer である。
+  it('filter validates the properties it gathers', async () => {
+    const res = await queryParamsApp.request('/styles?filter[age]=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['filter.age'] })
+  })
+
+  // name is a string, so a key nested under it names a property name does not have.
+  // name は string であるため、その下にネストしたキーは、name が持たないプロパティを指す。
+  it('deep rejects a key nested under a property that is a string', async () => {
+    const res = await queryParamsApp.request('/objects?deep[name][x]=1')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['deep.name'] })
+  })
+
+  // A key nested under range is read like a property of its own.
+  // range の下にネストしたキーは、独立したプロパティと同じように読まれる。
+  it('deep rejects a word nested under a property that is an integer', async () => {
+    const res = await queryParamsApp.request('/objects?deep[range][min]=abc')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['deep.range.min'] })
+  })
+
+  // A property of an element is validated like any other, and reported at its index.
+  // 要素のプロパティは、他のプロパティと同じように検証され、そのインデックスで報告される。
+  it('deep rejects a word in an element of an array of objects', async () => {
+    const res = await queryParamsApp.request('/objects?deep[points][][x]=1&deep[points][][x]=abc')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['deep.points.1.x'] })
+  })
+
+  // A key nothing declares is a property of extra, which holds it to an integer.
+  // どこにも宣言されていないキーは extra のプロパティになり、integer であることを求められる。
+  it('extra rejects a word for an additional property', async () => {
+    const res = await queryParamsApp.request('/open?other=abc')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['extra.other'] })
+  })
+
+  // range is an object, and the value written for range itself is text.
+  // range はオブジェクトであり、range 自体に書かれた値は文字列である。
+  it('deep rejects a property that is given a value and a key nested under it', async () => {
+    const res = await queryParamsApp.request('/objects?deep[range][min]=1&deep[range]=5')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['deep.range'] })
+  })
+
+  // An element named by its index is validated like any other.
+  // インデックスで指定された要素も、他の要素と同じように検証される。
+  it('deep rejects a word at an index', async () => {
+    const res = await queryParamsApp.request('/objects?deep[ids][0]=1&deep[ids][1]=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['deep.ids.1'] })
+  })
+
+  // An index is a run of digits. -1 is none, so it names a property: ids is then an object
+  // holding it, which is no integer, reported as the one element it arrives as.
+  // インデックスは数字の並びである。-1 はインデックスではないためプロパティ名として扱われ、
+  // ids はそれを持つオブジェクトになる。これは整数ではなく、届いた1要素として報告される。
+  it('deep rejects a negative index', async () => {
+    const res = await queryParamsApp.request('/objects?deep[ids][-1]=1')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['deep.ids.0'] })
+  })
+})
+
+// An element of a split value is validated like an element of a repeated one, and reported at its
+// index.
+// 分割された値の要素は、繰り返し形式の要素と同じように検証され、そのインデックスで報告される。
+describe('styles: serialisations other than form + explode', () => {
+  // The second element is not an integer.
+  // 2番目の要素が整数ではない。
+  it('csv rejects a word among its elements', async () => {
+    const res = await queryParamsApp.request('/styles?csv=1,x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['csv.1'] })
+  })
+
+  // Two commas in a row leave an empty element, which is not an integer.
+  // カンマが連続すると空の要素が残る。空の要素は整数ではない。
+  it('csv rejects an empty element', async () => {
+    const res = await queryParamsApp.request('/styles?csv=1,,2')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['csv.1'] })
+  })
+
+  // An empty value is one empty element, not an empty array.
+  // 空の値は、空の配列ではなく、空の要素1つである。
+  it('csv rejects an empty value', async () => {
+    const res = await queryParamsApp.request('/styles?csv=')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['csv.0'] })
+  })
+
+  // The separator of pipeDelimited is the pipe: 1,2 is one element, and not an integer.
+  // pipeDelimited の区切り文字はパイプである。1,2 は1つの要素であり、整数ではない。
+  it('pipes does not split on a comma', async () => {
+    const res = await queryParamsApp.request('/styles?pipes=1,2')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['pipes.0'] })
+  })
+
+  // The separator of spaceDelimited is the space: 1,2 is one element, and not an integer.
+  // spaceDelimited の区切り文字は空白である。1,2 は1つの要素であり、整数ではない。
+  it('spaces does not split on a comma', async () => {
+    const res = await queryParamsApp.request('/styles?spaces=1,2')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['spaces.0'] })
+  })
+})
+
+// What a component rejects, it rejects behind a reference too: the text is read the same way, and
+// the constraints of the component apply to the value.
+// コンポーネントが拒否する値は、参照経由でも拒否される。文字列は同じ方法で読み取られ、
+// コンポーネントの制約はその値に適用される。
+describe('references: a schema behind $ref', () => {
+  // -1 is an integer, and below the minimum of Count.
+  // -1 は整数であり、Count の最小値を下回る。
+  it('ref_int rejects a value below the minimum of the component', async () => {
+    const res = await queryParamsApp.request('/refs?ref_int=-1')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['ref_int'] })
+  })
+
+  // A word is not an integer.
+  // 単語は整数ではない。
+  it('ref_int rejects a word', async () => {
+    const res = await queryParamsApp.request('/refs?ref_int=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['ref_int'] })
+  })
+
+  // An empty value holds no digits, so it is not a number.
+  // 空の値は数字を含まないため、数値ではない。
+  it('ref_int rejects an empty value', async () => {
+    const res = await queryParamsApp.request('/refs?ref_int=')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['ref_int'] })
+  })
+
+  // A hexadecimal literal is not decimal.
+  // 16進リテラルは10進表記ではない。
+  it('ref_int rejects a hexadecimal literal', async () => {
+    const res = await queryParamsApp.request('/refs?ref_int=0x10')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['ref_int'] })
+  })
+
+  // A fraction is not an int64.
+  // 小数は int64 ではない。
+  it('ref_big rejects a fraction', async () => {
+    const res = await queryParamsApp.request('/refs?ref_big=1.5')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['ref_big'] })
+  })
+
+  // A word is not a number.
+  // 単語は数値ではない。
+  it('ref_num rejects a word', async () => {
+    const res = await queryParamsApp.request('/refs?ref_num=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['ref_num'] })
+  })
+
+  // maybe is not a boolean spelling.
+  // maybe は真偽値の表記ではない。
+  it('ref_bool rejects a word', async () => {
+    const res = await queryParamsApp.request('/refs?ref_bool=maybe')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['ref_bool'] })
+  })
+
+  // 4 is an integer, and not a member of Level.
+  // 4 は整数だが、Level のメンバーではない。
+  it('ref_enum rejects a value that is not a member', async () => {
+    const res = await queryParamsApp.request('/refs?ref_enum=4')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['ref_enum'] })
+  })
+
+  // Name has minLength: 2.
+  // Name は minLength: 2 である。
+  it('ref_str rejects a value shorter than minLength', async () => {
+    const res = await queryParamsApp.request('/refs?ref_str=a')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['ref_str'] })
+  })
+
+  // The second element is not an integer.
+  // 2番目の要素が整数ではない。
+  it('ref_arr rejects a bad element at its index', async () => {
+    const res = await queryParamsApp.request('/refs?ref_arr=1&ref_arr=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['ref_arr.1'] })
+  })
+
+  // The second element is below the minimum of Count.
+  // 2番目の要素が Count の最小値を下回る。
+  it('arr_ref rejects an element below the minimum of the component', async () => {
+    const res = await queryParamsApp.request('/refs?arr_ref=1&arr_ref=-1')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['arr_ref.1'] })
+  })
+
+  // -1 is below the minimum of Count.
+  // -1 は Count の最小値を下回る。
+  it('allof_ref rejects a value below the minimum of the component', async () => {
+    const res = await queryParamsApp.request('/refs?allof_ref=-1')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['allof_ref'] })
+  })
+
+  // A word is not an integer, however many references lead to the schema.
+  // 何段の参照を経由しても、単語は整数ではない。
+  it('ref_ref rejects a word', async () => {
+    const res = await queryParamsApp.request('/refs?ref_ref=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['ref_ref'] })
+  })
+})
+
+// The value a combinator rejects is reported under the name of the parameter, and a request it
+// cannot satisfy is a rejection, never a server error.
+// コンビネータが拒否した値は、パラメータ名で報告される。
+// 満たせないリクエストは拒否となり、サーバーエラーにはならない。
+describe('combinators: the text is read once', () => {
+  // One below the minimum of the second branch.
+  // 2番目の分岐の最小値を 1 下回る。
+  it('allof rejects a value below the minimum', async () => {
+    const res = await queryParamsApp.request('/combinators?allof=4')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['allof'] })
+  })
+
+  // A word is not an integer, the first branch.
+  // 単語は、1番目の分岐が求める整数ではない。
+  it('allof rejects a word', async () => {
+    const res = await queryParamsApp.request('/combinators?allof=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['allof'] })
+  })
+
+  // 5.5 meets the minimum and is not an integer.
+  // 5.5 は最小値を満たすが、整数ではない。
+  it('allof rejects a fraction', async () => {
+    const res = await queryParamsApp.request('/combinators?allof=5.5')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['allof'] })
+  })
+
+  // One below the minimum of the first branch.
+  // 1番目の分岐の最小値を 1 下回る。
+  it('allof_range rejects a value below the first bound', async () => {
+    const res = await queryParamsApp.request('/combinators?allof_range=0')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['allof_range'] })
+  })
+
+  // One above the maximum of the second branch.
+  // 2番目の分岐の最大値を 1 超える。
+  it('allof_range rejects a value above the second bound', async () => {
+    const res = await queryParamsApp.request('/combinators?allof_range=11')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['allof_range'] })
+  })
+
+  // x is not the text of an integer and not a boolean spelling.
+  // x は整数の表記でも、真偽値の表記でもない。
+  it('oneof_ib rejects a word that is neither', async () => {
+    const res = await queryParamsApp.request('/combinators?oneof_ib=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['oneof_ib'] })
+  })
+
+  // 3 is read as a number, and neither the number 3 nor the text "3" is a member.
+  // 3 は number として読み取られるが、number の 3 も文字列の "3" もメンバーではない。
+  it('mixed rejects a number that is not a member', async () => {
+    const res = await queryParamsApp.request('/combinators?mixed=3')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['mixed'] })
+  })
+
+  // b is not a member.
+  // b はメンバーではない。
+  it('mixed rejects a word that is not a member', async () => {
+    const res = await queryParamsApp.request('/combinators?mixed=b')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['mixed'] })
+  })
+
+  // Zero is the excluded value.
+  // 0 は除外された値である。
+  it('not_zero rejects zero', async () => {
+    const res = await queryParamsApp.request('/combinators?not_zero=0')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['not_zero'] })
+  })
+
+  // The type beside not still applies: a word is not an integer.
+  // not と並ぶ type も適用される。単語は整数ではない。
+  it('not_zero rejects a word', async () => {
+    const res = await queryParamsApp.request('/combinators?not_zero=abc')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['not_zero'] })
+  })
+
+  // 1.5 is not zero, and not an integer either.
+  // 1.5 は 0 ではないが、整数でもない。
+  it('not_zero rejects a fraction', async () => {
+    const res = await queryParamsApp.request('/combinators?not_zero=1.5')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['not_zero'] })
+  })
+
+  // A word is a string.
+  // 単語は string である。
+  it('not_string rejects a word', async () => {
+    const res = await queryParamsApp.request('/combinators?not_string=abc')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['not_string'] })
+  })
+
+  // 3 is a number, and not the constant.
+  // 3 は数値だが、定数とは異なる。
+  it('nconst rejects another number', async () => {
+    const res = await queryParamsApp.request('/combinators?nconst=3')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['nconst'] })
+  })
+
+  // The first position is an integer.
+  // 1番目の位置は integer である。
+  it('tuple rejects a word in an integer position', async () => {
+    const res = await queryParamsApp.request('/combinators?tuple=x&tuple=a')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['tuple.0'] })
+  })
+
+  // The third element is validated as items declares, a boolean.
+  // 3番目の要素は、items の宣言どおり boolean として検証される。
+  it('tuple rejects a word past the prefix', async () => {
+    const res = await queryParamsApp.request('/combinators?tuple=1&tuple=a&tuple=maybe')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['tuple.2'] })
+  })
+
+  // x is not the text of a number and not a boolean spelling.
+  // x は数値の表記でも、真偽値の表記でもない。
+  it('multi_nb rejects a word that is neither', async () => {
+    const res = await queryParamsApp.request('/combinators?multi_nb=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['multi_nb'] })
+  })
+})
+
+// A value that is not JSON is handed on as the text it is, which the schema of the document
+// rejects.
+// JSON でない値は文字列のまま渡され、文書のスキーマによって拒否される。
+describe('content: a JSON document', () => {
+  // In JSON "1" is a string. It is not read as a number: the document says what its types are.
+  // JSON では "1" は string である。number としては読み取られない。
+  // 型を決めるのは文書自身である。
+  it('filter rejects a string where an integer is declared', async () => {
+    const res = await queryParamsApp.request(
+      `/content?filter=${encodeURIComponent('{"page":"1"}')}`,
+    )
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['filter.page'] })
+  })
+
+  // page is required.
+  // page は必須である。
+  it('filter rejects a document without its required property', async () => {
+    const res = await queryParamsApp.request(
+      `/content?filter=${encodeURIComponent('{"name":"bob"}')}`,
+    )
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['filter.page'] })
+  })
+
+  // The brace is never closed.
+  // 波括弧が閉じられていない。
+  it('filter rejects text that is not JSON', async () => {
+    const res = await queryParamsApp.request(`/content?filter=${encodeURIComponent('{bad')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['filter'] })
+  })
+
+  // 5 is valid JSON, and not an object.
+  // 5 は有効な JSON だが、オブジェクトではない。
+  it('filter rejects a JSON number', async () => {
+    const res = await queryParamsApp.request(`/content?filter=${encodeURIComponent('5')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['filter'] })
+  })
+
+  // An empty value is not a JSON document.
+  // 空の値は JSON 文書ではない。
+  it('filter rejects an empty value', async () => {
+    const res = await queryParamsApp.request('/content?filter=')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['filter'] })
+  })
+
+  // The second element is a JSON string.
+  // 2番目の要素が JSON の string である。
+  it('list rejects a string element', async () => {
+    const res = await queryParamsApp.request(`/content?list=${encodeURIComponent('[1,"2"]')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['list.1'] })
+  })
+
+  // 1,2 is a serialised list, not a JSON array.
+  // 1,2 はシリアライズされたリストであり、JSON の配列ではない。
+  it('list rejects a comma-separated value', async () => {
+    const res = await queryParamsApp.request('/content?list=1,2')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['list'] })
+  })
+
+  // A field of the form-encoded document is validated like a parameter.
+  // フォームエンコードされた文書のフィールドは、パラメータと同じように検証される。
+  it('form rejects a word where a field is an integer', async () => {
+    const res = await queryParamsApp.request(`/content?form=${encodeURIComponent('a=abc')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['form.a'] })
+  })
+
+  // a is required by the schema of the document.
+  // a は、文書のスキーマで必須とされている。
+  it('form rejects a document without its required field', async () => {
+    const res = await queryParamsApp.request(`/content?form=${encodeURIComponent('b=true')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['form.a'] })
+  })
+})
+
+// Numbers are read from text by a decimal grammar before they are validated: an optional
+// minus sign and digits for an integer, and for a number a fraction and an exponent as well.
+// Number(text) and BigInt(text) read more than that (an empty value as zero, a hexadecimal
+// literal, surrounding whitespace), and none of it is accepted here.
+// 数値は、検証の前に10進の文法で文字列から読み取られる。整数は任意のマイナス記号と数字、
+// 数値はそれに加えて小数部と指数部である。Number(text) や BigInt(text) はそれ以上のもの
+// (空の値を 0 とする、16進リテラル、前後の空白)も読み取るが、ここではいずれも受理しない。
+describe('strictness: what the wire grammar does not read', () => {
+  // The grammar is matched against whatever the client sends, so it must not backtrack: a
+  // pattern that can split a run of digits in more than one way takes seconds on a run this
+  // long, and one request would stall the server. The bound is generous; a backtracking
+  // pattern misses it by an order of magnitude.
+  // 文法はクライアントが送る任意の入力と照合されるため、バックトラックしてはならない。
+  // 数字の並びを複数の方法で分割できるパターンは、この長さの入力に数秒を要し、
+  // 1リクエストでサーバーが停止してしまう。上限には余裕を持たせているが、
+  // バックトラックするパターンであれば、桁違いに超過する。
+  it('number rejects 64000 digits followed by a letter without backtracking', async () => {
+    const started = performance.now()
+    const res = await queryParamsApp.request(`/params?number=${'1'.repeat(64000)}x`)
+    const elapsed = performance.now() - started
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['number'] })
+    expect(elapsed).toBeLessThan(1000)
+  })
+
+  // The same for the integer grammar.
+  // 整数の文法でも同様である。
+  it('integer rejects 64000 digits followed by a letter without backtracking', async () => {
+    const started = performance.now()
+    const res = await queryParamsApp.request(`/params?integer=${'1'.repeat(64000)}x`)
+    const elapsed = performance.now() - started
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['integer'] })
+    expect(elapsed).toBeLessThan(1000)
+  })
+
+  // 64000 digits with nothing after them are a number, and one that is too large to hold.
+  // 後ろに何も続かない 64000 桁は数値であるが、保持できる範囲を超えている。
+  it('number rejects 64000 digits', async () => {
+    const res = await queryParamsApp.request(`/params?number=${'1'.repeat(64000)}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['number'] })
+  })
+
+  // An integer beyond 2^53 cannot be held by a number: it would arrive as 9007199254740992, a
+  // neighbouring value.
+  // 2^53 を超える整数は number では保持できない。
+  // 隣の値である 9007199254740992 として届いてしまう。
+  it('number rejects "9007199254740993"', async () => {
+    const res = await queryParamsApp.request('/params?number=9007199254740993')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['number'] })
+  })
+
+  // A point with no digit on either side.
+  // どちらの側にも数字がない小数点。
+  it('number rejects "."', async () => {
+    const res = await queryParamsApp.request('/params?number=.')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['number'] })
+  })
+
+  // An exponent with no digits.
+  // 数字のない指数部。
+  it('number rejects "1e"', async () => {
+    const res = await queryParamsApp.request('/params?number=1e')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['number'] })
+  })
+
+  // A numeric separator is source code syntax, not part of a decimal literal.
+  // 数値セパレータはソースコードの構文であり、10進リテラルには含まれない。
+  it('number rejects "1_000"', async () => {
+    const res = await queryParamsApp.request('/params?number=1_000')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['number'] })
+  })
+
+  // A minus sign with no digits.
+  // 数字のないマイナス記号。
+  it('integer rejects "-"', async () => {
+    const res = await queryParamsApp.request('/params?integer=-')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['integer'] })
+  })
+
+  // An explicit plus sign is not part of a decimal literal.
+  // 明示的なプラス記号は、10進リテラルには含まれない。
+  it('integer rejects "+1"', async () => {
+    const res = await queryParamsApp.request(`/params?integer=${encodeURIComponent('+1')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['integer'] })
+  })
+
+  // An explicit plus sign is not part of a decimal literal.
+  // 明示的なプラス記号は、10進リテラルには含まれない。
+  it('int64 rejects "+5"', async () => {
+    const res = await queryParamsApp.request(`/params?int64=${encodeURIComponent('+5')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['int64'] })
+  })
+
+  // A hexadecimal literal is not decimal.
+  // 16進リテラルは10進表記ではない。
+  it('integer rejects "0x10"', async () => {
+    const res = await queryParamsApp.request('/params?integer=0x10')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['integer'] })
+  })
+
+  // A binary literal is not decimal.
+  // 2進リテラルは10進表記ではない。
+  it('integer rejects "0b11"', async () => {
+    const res = await queryParamsApp.request('/params?integer=0b11')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['integer'] })
+  })
+
+  // An octal literal is not decimal.
+  // 8進リテラルは10進表記ではない。
+  it('integer rejects "0o7"', async () => {
+    const res = await queryParamsApp.request('/params?integer=0o7')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['integer'] })
+  })
+
+  // A hexadecimal literal is not decimal.
+  // 16進リテラルは10進表記ではない。
+  it('number rejects "0x1F"', async () => {
+    const res = await queryParamsApp.request('/params?number=0x1F')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['number'] })
+  })
+
+  // A hexadecimal literal is not decimal.
+  // 16進リテラルは10進表記ではない。
+  it('int64 rejects "0x10"', async () => {
+    const res = await queryParamsApp.request('/params?int64=0x10')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['int64'] })
+  })
+
+  // Surrounding whitespace is not trimmed.
+  // 前後の空白は取り除かれない。
+  it('integer rejects " 42 "', async () => {
+    const res = await queryParamsApp.request(`/params?integer=${encodeURIComponent(' 42 ')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['integer'] })
+  })
+
+  // Whitespace alone is not a number.
+  // 空白だけの値は数値ではない。
+  it('integer rejects " "', async () => {
+    const res = await queryParamsApp.request(`/params?integer=${encodeURIComponent(' ')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['integer'] })
+  })
+
+  // Whitespace alone is not a number.
+  // 空白だけの値は数値ではない。
+  it('number rejects " "', async () => {
+    const res = await queryParamsApp.request(`/params?number=${encodeURIComponent(' ')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['number'] })
+  })
+
+  // Whitespace alone is not a number.
+  // 空白だけの値は数値ではない。
+  it('int64 rejects " "', async () => {
+    const res = await queryParamsApp.request(`/params?int64=${encodeURIComponent(' ')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['int64'] })
+  })
+
+  // An empty value holds no digits, so it is not a number.
+  // 空の値は数字を含まないため、数値ではない。
+  it('rejects an empty optional integer', async () => {
+    const res = await queryParamsApp.request('/optional?int_opt=')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['int_opt'] })
+  })
+
+  // With no "=" the value is empty too.
+  // "=" がない場合も、値は空になる。
+  it('rejects a bare integer name', async () => {
+    const res = await queryParamsApp.request('/optional?int_opt')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['int_opt'] })
+  })
+
+  // An empty value holds no digits, so it is not an int64.
+  // 空の値は数字を含まないため、int64 ではない。
+  it('rejects an empty optional int64', async () => {
+    const res = await queryParamsApp.request('/optional?int64_opt=')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['int64_opt'] })
+  })
+
+  // An empty value holds no digits, so it is not a number.
+  // 空の値は数字を含まないため、数値ではない。
+  it('rejects an empty optional number', async () => {
+    const res = await queryParamsApp.request('/optional?num_opt=')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['num_opt'] })
+  })
+
+  // The single empty value becomes a one-element array, and its element is not a number.
+  // 単一の空の値は1要素の配列になり、その要素は数値ではない。
+  it('rejects an empty array element', async () => {
+    const res = await queryParamsApp.request('/optional?arr_opt=')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['arr_opt.0'] })
+  })
+
+  // The empty first element is not a number; the second, 1, is.
+  // 空である1番目の要素は数値ではない。2番目の 1 は数値である。
+  it('rejects an empty element among others', async () => {
+    const res = await queryParamsApp.request('/optional?arr_opt=&arr_opt=1')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['arr_opt.0'] })
+  })
+
+  // The default of 20 does not apply, because the parameter was sent, and the empty value is not a
+  // number.
+  // パラメータ自体は送信されているため、デフォルトの 20 は適用されない。
+  // 空の値は数値ではない。
+  it('rejects an empty integer instead of falling back to its default', async () => {
+    const res = await queryParamsApp.request('/defaults?int_def=')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['int_def'] })
+  })
+
+  // type: [integer, null] reads null from the text "null"; the empty value is neither that
+  // nor an integer.
+  // type: [integer, null] は、テキスト "null" から null を読む。
+  // 空の値は、そのテキストでも整数でもない。
+  it('rejects an empty nullable integer', async () => {
+    const res = await queryParamsApp.request('/literals?inull=')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['inull'] })
+  })
+
+  // The text that stands for null is the one JSON spells, in lower case.
+  // null を表すテキストは、JSON の表記どおり小文字である。
+  it('rejects "NULL" for a nullable integer', async () => {
+    const res = await queryParamsApp.request('/literals?inull=NULL')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['inull'] })
+  })
+
   // Not every shape is that forgiving: the empty string is not a boolean spelling.
   // すべての形状が寛容なわけではない。空文字列は真偽値の表記ではない。
   it('rejects an empty boolean', async () => {
@@ -2941,22 +3965,14 @@ describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not en
     expect(await res.json()).toStrictEqual({ issues: ['uuid_opt'] })
   })
 
-  // The word "null" is text, and text is not a number.
-  // "null" という単語は文字列であり、文字列は数値ではない。
-  it('rejects the word null for a nullable integer', async () => {
-    const res = await queryParamsApp.request('/literals?inull=null')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['inull'] })
-  })
-
-  // A required array that is absent is reported as tags.0, not as tags: the generated
-  // preprocess wraps the missing value in a one-element array before validating it.
-  // 必須配列が省略された場合、tags ではなく tags.0 として報告される。生成される preprocess が、
-  // 欠落した値を検証の前に1要素の配列に包むためである。
-  it('reports an absent required array at index 0', async () => {
+  // A required array that is absent is reported as tags, the array itself, and not as its
+  // first element: the generated preprocess hands a missing value on as it is.
+  // 必須配列が省略された場合、先頭要素ではなく配列そのものである tags として報告される。
+  // 生成される preprocess は、欠落した値をそのまま渡すためである。
+  it('reports an absent required array under its name', async () => {
     const res = await queryParamsApp.request('/required?id=1&big=1&flag=true&name=n')
     expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['tags.0'] })
+    expect(await res.json()).toStrictEqual({ issues: ['tags'] })
   })
 
   // The opposite case, stricter than the name suggests: httpUrl requires a dotted domain, so a

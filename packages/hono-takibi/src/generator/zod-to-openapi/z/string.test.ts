@@ -28,8 +28,12 @@ describe('string', () => {
     [{ type: 'string', format: 'cidrv4' }, 'z.cidrv4()'],
     [{ type: 'string', format: 'cidrv6' }, 'z.cidrv6()'],
     [{ type: 'string', format: 'date' }, 'z.iso.date()'],
-    [{ type: 'string', format: 'time' }, 'z.iso.time()'],
-    [{ type: 'string', format: 'date-time' }, 'z.iso.datetime()'],
+    [
+      { type: 'string', format: 'time' },
+      'z.string().regex(/^(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|[+-](?:[01]\\d|2[0-3]):[0-5]\\d)?$/)',
+    ],
+    [{ type: 'string', format: 'time', 'x-isoOffset': false }, 'z.iso.time()'],
+    [{ type: 'string', format: 'date-time' }, 'z.iso.datetime({offset:true})'],
     [{ type: 'string', format: 'duration' }, 'z.iso.duration()'],
     [{ type: 'string', format: 'binary' }, 'z.file()'],
     // `z.toLowerCase()` and friends are checks, not schemas — they belong on a string.
@@ -585,13 +589,17 @@ describe('string', () => {
       // iso datetime options
       [
         { type: 'string', format: 'date-time', 'x-isoPrecision': 3 },
-        'z.iso.datetime({precision:3})',
+        'z.iso.datetime({precision:3,offset:true})',
       ],
+      [{ type: 'string', format: 'date-time', 'x-isoOffset': false }, 'z.iso.datetime()'],
       [
         { type: 'string', format: 'date-time', 'x-isoOffset': true },
         'z.iso.datetime({offset:true})',
       ],
-      [{ type: 'string', format: 'date-time', 'x-isoLocal': true }, 'z.iso.datetime({local:true})'],
+      [
+        { type: 'string', format: 'date-time', 'x-isoLocal': true },
+        'z.iso.datetime({offset:true,local:true})',
+      ],
       [
         {
           type: 'string',
@@ -603,7 +611,14 @@ describe('string', () => {
         'z.iso.datetime({precision:3,offset:true,local:true})',
       ],
       // iso time precision
-      [{ type: 'string', format: 'time', 'x-isoPrecision': 0 }, 'z.iso.time({precision:0})'],
+      [
+        { type: 'string', format: 'time', 'x-isoPrecision': 0 },
+        'z.string().regex(/^(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:Z|[+-](?:[01]\\d|2[0-3]):[0-5]\\d)?$/)',
+      ],
+      [
+        { type: 'string', format: 'time', 'x-isoPrecision': 0, 'x-isoOffset': false },
+        'z.iso.time({precision:0})',
+      ],
       // mac delimiter
       [{ type: 'string', format: 'mac', 'x-macDelimiter': ':' }, 'z.mac({delimiter:":"})'],
       [{ type: 'string', format: 'mac', 'x-macDelimiter': '-' }, 'z.mac({delimiter:"-"})'],

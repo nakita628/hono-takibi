@@ -5,7 +5,7 @@ import { Effect } from 'effect'
 import { readFile, writeFile } from '../../file/index.js'
 import { fmt } from '../../format/index.js'
 import { app } from '../../generator/zod-openapi-hono/app/index.js'
-import { resolveInlineHandlerFileNames, zodOpenAPIHonoHandler } from '../../helper/handler.js'
+import { resolveInlineHandlerFileNames, zodOpenAPIHonoHandler } from '../../helper/index.js'
 import { mergeAppFile } from '../../merge/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
@@ -18,6 +18,7 @@ export function template(
   routeImport: string | undefined,
   routeHandler: boolean,
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  split = false,
 ) {
   return Effect.gen(function* () {
     const isIndexFile = output.endsWith('/index.ts')
@@ -49,6 +50,7 @@ export function template(
         false,
         undefined,
         inlineFiles,
+        split,
       ),
     )
     const existing = yield* readFile(target)

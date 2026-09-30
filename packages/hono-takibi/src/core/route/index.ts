@@ -5,8 +5,13 @@ import { Effect } from 'effect'
 import { emit } from '../../emit/index.js'
 import { GenerateError } from '../../error/index.js'
 import { isParameterRef, isPathItemEntry, isPathItemRef } from '../../guard/index.js'
-import { makeImports } from '../../helper/index.js'
-import { makeCallbacks, makeOperationResponses, makeRequest } from '../../helper/openapi.js'
+import {
+  makeCallbacks,
+  makeImports,
+  makeOperationResponses,
+  makeRequest,
+  warnUnroutablePath,
+} from '../../helper/index.js'
 import type { OpenAPI, Operation, Parameter, PathItem } from '../../openapi/index.js'
 import { makeBarrel, methodPath } from '../../utils/index.js'
 
@@ -30,6 +35,7 @@ export function route(
     const { output, split = false } = routes
     const routeEntries = (): readonly { readonly name: string; readonly code: string }[] => {
       const makeEntry = (path: string, method: string, operation: Operation) => {
+        warnUnroutablePath(path)
         const properties = [
           `method:${JSON.stringify(method)}`,
           `path:${JSON.stringify(path)}`,
@@ -44,8 +50,18 @@ export function route(
           operation.operationId
             ? `operationId:${JSON.stringify(operation.operationId)}`
             : undefined,
-          makeRequest(operation.parameters, operation.requestBody, readonly)
-            ? `request:${makeRequest(operation.parameters, operation.requestBody, readonly)}`
+          makeRequest(
+            operation.parameters,
+            operation.requestBody,
+            readonly,
+            openAPI.components?.schemas,
+          )
+            ? `request:${makeRequest(
+                operation.parameters,
+                operation.requestBody,
+                readonly,
+                openAPI.components?.schemas,
+              )}`
             : undefined,
           operation.responses
             ? `responses:${makeOperationResponses(operation.responses, readonly)}`

@@ -55,7 +55,9 @@
 //   - names
 //   - wire: what a header value carries
 //   - arrays
-//   - leniency: what z.coerce reads beyond a decimal literal (pinned, not endorsed)
+//   - objects: an object in one header
+//   - references: a schema behind $ref
+//   - leniency: what is read beyond the plainest spelling (pinned, not endorsed)
 import { describe, expect, it } from 'vite-plus/test'
 
 import { headerParamsApp } from './app'
@@ -761,6 +763,66 @@ describe('integers: accepted boundaries', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-bigint': { valueType: 'bigint', valueText: '-99999999999999999999999999999' },
+    })
+  })
+
+  // Exponent notation that comes out whole is an integer: JSON Schema looks at the value, not at
+  // how it is written.
+  // 結果が整数になる指数表記は、整数である。
+  // JSON Schema が見るのは値であり、表記ではない。
+  it('x-int64 accepts "1e3"', async () => {
+    const res = await headerParamsApp.request('/headers', { headers: { 'x-int64': '1e3' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-int64': { valueType: 'bigint', valueText: '1000' },
+    })
+  })
+
+  // A number with no fraction is an integer, however it is written: JSON Schema counts 1.0 as
+  // one.
+  // 小数部を持たない数値は、表記にかかわらず整数である。
+  // JSON Schema は 1.0 を整数として扱う。
+  it('x-bigint accepts "1.0"', async () => {
+    const res = await headerParamsApp.request('/headers', { headers: { 'x-bigint': '1.0' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-bigint': { valueType: 'bigint', valueText: '1' },
+    })
+  })
+
+  // Exponent notation that comes out whole is an integer: JSON Schema looks at the value, not at
+  // how it is written.
+  // 結果が整数になる指数表記は、整数である。
+  // JSON Schema が見るのは値であり、表記ではない。
+  it('x-bigint accepts "1e3"', async () => {
+    const res = await headerParamsApp.request('/headers', { headers: { 'x-bigint': '1e3' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-bigint': { valueType: 'bigint', valueText: '1000' },
+    })
+  })
+
+  // A number with no fraction is an integer, however it is written: JSON Schema counts 1.0 as
+  // one.
+  // 小数部を持たない数値は、表記にかかわらず整数である。
+  // JSON Schema は 1.0 を整数として扱う。
+  it('x-integer accepts "1.0"', async () => {
+    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '1.0' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-integer': { valueType: 'number', valueText: '1' },
+    })
+  })
+
+  // Exponent notation that comes out whole is an integer: JSON Schema looks at the value, not at
+  // how it is written.
+  // 結果が整数になる指数表記は、整数である。
+  // JSON Schema が見るのは値であり、表記ではない。
+  it('x-integer accepts "1e3"', async () => {
+    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '1e3' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-integer': { valueType: 'number', valueText: '1000' },
     })
   })
 })
@@ -1512,6 +1574,30 @@ describe('formats: what each string format accepts', () => {
     })
   })
 
+  // A zone designator: `time` names an RFC 3339 full-time, which ends in one.
+  // タイムゾーン指定子が付いている。`time` が指す RFC 3339 の full-time は、これで終わる。
+  it('x-time accepts "12:34:56Z"', async () => {
+    const res = await headerParamsApp.request('/headers', {
+      headers: { 'x-time': '12:34:56Z' },
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-time': { valueType: 'string', valueText: '12:34:56Z' },
+    })
+  })
+
+  // An offset in place of the zone designator.
+  // タイムゾーン指定子の代わりにオフセットが付いている。
+  it('x-time accepts "12:34:56+09:00"', async () => {
+    const res = await headerParamsApp.request('/headers', {
+      headers: { 'x-time': '12:34:56+09:00' },
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-time': { valueType: 'string', valueText: '12:34:56+09:00' },
+    })
+  })
+
   // Fractional seconds.
   // 小数秒。
   it('x-datetime accepts "2020-01-02T03:04:05.123Z"', async () => {
@@ -1521,6 +1607,18 @@ describe('formats: what each string format accepts', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-datetime': { valueType: 'string', valueText: '2020-01-02T03:04:05.123Z' },
+    })
+  })
+
+  // An offset instead of Z: RFC 3339, which `date-time` names, takes either.
+  // Z ではなくオフセット。`date-time` が指す RFC 3339 はどちらも認める。
+  it('x-datetime accepts "2020-01-02T03:04:05+09:00"', async () => {
+    const res = await headerParamsApp.request('/headers', {
+      headers: { 'x-datetime': '2020-01-02T03:04:05+09:00' },
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-datetime': { valueType: 'string', valueText: '2020-01-02T03:04:05+09:00' },
     })
   })
 
@@ -2046,9 +2144,66 @@ describe('required', () => {
   })
 })
 
+// An exploded object is a list of assignments, a=1,b=x.
+// explode されたオブジェクトは、代入を並べたものである(a=1,b=x)。
+describe('objects: a value that holds the separator', () => {
+  // The comma separates the assignments and may stand in a value as well. A part with no "="
+  // continues the value before it.
+  // カンマは代入同士を区切るが、値の中にも現れうる。"=" を持たない部分は、直前の値の
+  // 続きである。
+  it('x-objx reads a value that holds a comma', async () => {
+    const res = await headerParamsApp.request('/optional', {
+      headers: { 'x-objx': 'a=1,b=x,y' },
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-objx': {
+        a: { valueType: 'number', valueText: '1' },
+        b: { valueType: 'string', valueText: 'x,y' },
+      },
+    })
+  })
+})
+
+// `null` has no spelling of its own in a parameter, so the text `null` stands for it.
+// パラメータには `null` 専用の表記がないため、テキスト `null` がその値を表す。
+describe('null', () => {
+  // The text "null" is the value null: the schema takes null and no string.
+  // テキスト "null" は値 null である。スキーマは null を受理し、文字列を受理しない。
+  it('x-inull accepts "null"', async () => {
+    const res = await headerParamsApp.request('/optional', { headers: { 'x-inull': 'null' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-inull': { valueType: 'null', valueText: 'null' },
+    })
+  })
+})
+
 // How a header is named on the wire, and how it is named in the handler.
 // ワイヤ上でのヘッダー名と、ハンドラ内でのヘッダー名。
 describe('names', () => {
+  // A name every object inherits, sent: it is read like any other parameter.
+  // すべてのオブジェクトが継承する名前を送信する。他のパラメータと同じように読まれる。
+  it('constructor accepts "5"', async () => {
+    const res = await headerParamsApp.request('/optional', { headers: { constructor: '5' } })
+    expect(res.status).toBe(200)
+    // The body is compared as text: `toStrictEqual` compares the `constructor` of two
+    // objects to tell their types apart, and here that is the key under test.
+    // ボディは文字列として比較する。`toStrictEqual` は型を見分けるために2つのオブジェクトの
+    // `constructor` を比較するが、ここではそれがテスト対象のキーそのものである。
+    expect(await res.text()).toBe('{"constructor":{"valueType":"number","valueText":"5"}}')
+  })
+
+  // The same name, not sent: what the request object inherits under it is not a value, so
+  // the optional parameter is absent.
+  // 同じ名前を送信しない。リクエストオブジェクトがその名前で継承しているものは値ではない
+  // ため、任意パラメータは存在しない扱いになる。
+  it('constructor is absent when it is not sent', async () => {
+    const res = await headerParamsApp.request('/optional')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({})
+  })
+
   // A header name is case-insensitive on the wire, so however the client spells it, it is the
   // declared header.
   // ヘッダー名はワイヤ上で大文字小文字を区別しない。クライアントがどう綴っても、
@@ -2359,28 +2514,155 @@ describe('arrays', () => {
       'x-str-arr': [{ valueType: 'string', valueText: 'a' }],
     })
   })
-})
 
-// Numbers are coerced with z.coerce, that is Number(text) and BigInt(text). Both read more
-// than a decimal literal, and these tests pin exactly how much more, so that a change to the
-// coercion shows up here as a decision and not as a surprise. They record today's behaviour;
-// they do not say it is desirable.
-// 数値は z.coerce、すなわち Number(text) と BigInt(text) で変換される。
-// どちらも10進リテラル以外も読み取るため、「どこまで読むか」をここで固定する。
-// coerce の実装を変えたときに、想定外の変化ではなく意図した判断として差分が
-// 現れるようにするためである。これらは現状の挙動の記録であり、
-// 望ましい挙動だと主張するものではない。
-describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not endorsed)', () => {
-  // An explicit plus sign.
-  // 明示的なプラス記号。
-  it('x-integer accepts "+1"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '+1' } })
+  // A header array is serialised with style: simple: one header, its values separated by
+  // commas. The generated schema splits the value on them.
+  // ヘッダーの配列は style: simple でシリアライズされる。1つのヘッダーに値をカンマ区切りで
+  // 並べる形式である。生成されるスキーマは、値をカンマで分割する。
+  it('splits a comma-separated value', async () => {
+    const res = await headerParamsApp.request('/headers', { headers: { 'x-ids': '1,2,3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
-      'x-integer': { valueType: 'number', valueText: '1' },
+      'x-ids': [
+        { valueType: 'number', valueText: '1' },
+        { valueType: 'number', valueText: '2' },
+        { valueType: 'number', valueText: '3' },
+      ],
     })
   })
 
+  // HTTP allows optional whitespace after each comma, which is not part of a value.
+  // HTTP では、各カンマの後に任意の空白を置くことができる。空白は値の一部ではない。
+  it('splits a comma-separated value with spaces', async () => {
+    const res = await headerParamsApp.request('/headers', { headers: { 'x-ids': '1, 2, 3' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-ids': [
+        { valueType: 'number', valueText: '1' },
+        { valueType: 'number', valueText: '2' },
+        { valueType: 'number', valueText: '3' },
+      ],
+    })
+  })
+
+  // The same header sent several times reaches the server joined by ", ", the same form as
+  // above.
+  // 同じヘッダーを複数回送ると、サーバーには ", " で連結された、上と同じ形式で届く。
+  it('reads a header sent three times as three elements', async () => {
+    const headers = new Headers()
+    headers.append('x-ids', '1')
+    headers.append('x-ids', '2')
+    headers.append('x-ids', '3')
+    const res = await headerParamsApp.request('/headers', { headers })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-ids': [
+        { valueType: 'number', valueText: '1' },
+        { valueType: 'number', valueText: '2' },
+        { valueType: 'number', valueText: '3' },
+      ],
+    })
+  })
+
+  // The same for an array of strings: "a,b" is two elements, not one that holds a comma.
+  // string の配列でも同様である。"a,b" は2要素であり、カンマを含む1要素ではない。
+  it('splits a comma-separated string array', async () => {
+    const res = await headerParamsApp.request('/optional', { headers: { 'x-str-arr': 'a,b' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-str-arr': [
+        { valueType: 'string', valueText: 'a' },
+        { valueType: 'string', valueText: 'b' },
+      ],
+    })
+  })
+})
+
+// A header is style: simple: an object is one header of alternating names and values, and of
+// assignments with explode: true. Optional whitespace may follow each comma. x-obj and x-objx are
+// a: integer, b: string.
+// ヘッダーは style: simple である。オブジェクトは、名前と値を交互に並べた1つのヘッダーになり、
+// explode: true では代入を並べた形になる。各カンマの後には、任意の空白を置ける。
+// x-obj と x-objx は、a: integer, b: string である。
+describe('objects: an object in one header', () => {
+  // { a: 1, b: "x" } is sent as a,1,b,x.
+  // { a: 1, b: "x" } は a,1,b,x として送信される。
+  it('x-obj reads alternating names and values', async () => {
+    const res = await headerParamsApp.request('/optional', { headers: { 'x-obj': 'a,1,b,x' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-obj': {
+        a: { valueType: 'number', valueText: '1' },
+        b: { valueType: 'string', valueText: 'x' },
+      },
+    })
+  })
+
+  // The whitespace after a comma is not part of a name or a value.
+  // カンマの後の空白は、名前や値の一部ではない。
+  it('x-obj reads names and values with spaces', async () => {
+    const res = await headerParamsApp.request('/optional', { headers: { 'x-obj': 'a, 1, b, x' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-obj': {
+        a: { valueType: 'number', valueText: '1' },
+        b: { valueType: 'string', valueText: 'x' },
+      },
+    })
+  })
+
+  // With explode: true the object is a=1,b=x.
+  // explode: true では、オブジェクトは a=1,b=x になる。
+  it('x-objx reads assignments', async () => {
+    const res = await headerParamsApp.request('/optional', { headers: { 'x-objx': 'a=1,b=x' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-objx': {
+        a: { valueType: 'number', valueText: '1' },
+        b: { valueType: 'string', valueText: 'x' },
+      },
+    })
+  })
+})
+
+// A component schema is generated for a typed value: Count is z.int().min(0), which the text of a
+// header does not satisfy. A header that names one reads the text first and hands the component
+// the value.
+// コンポーネントスキーマは、型付きの値を前提に生成される。Count は z.int().min(0) であり、
+// ヘッダーの文字列はこれを満たさない。コンポーネントを参照するヘッダーは、先に文字列を読み取り、
+// その値をコンポーネントに渡す。
+describe('references: a schema behind $ref', () => {
+  // Count is an integer with minimum: 0.
+  // Count は minimum: 0 の integer である。
+  it('x-ref-int coerces an integer component', async () => {
+    const res = await headerParamsApp.request('/optional', { headers: { 'x-ref-int': '5' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-ref-int': { valueType: 'number', valueText: '5' },
+    })
+  })
+
+  // Zero is the minimum of Count: the constraint of the component applies to the value that was
+  // read.
+  // 0 は Count の最小値である。コンポーネントの制約は、読み取った値に適用される。
+  it('x-ref-int accepts the minimum of the component', async () => {
+    const res = await headerParamsApp.request('/optional', { headers: { 'x-ref-int': '0' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-ref-int': { valueType: 'number', valueText: '0' },
+    })
+  })
+})
+
+// Numbers are read from text by a decimal grammar, and string formats by Zod's own checks.
+// Both take a little more than the plainest spelling, and these tests pin exactly how much
+// more, so that a change shows up here as a decision and not as a surprise. They record
+// today's behaviour; they do not say it is desirable.
+// 数値は10進の文法で、文字列フォーマットは Zod 自身の検証で、文字列から読み取られる。
+// どちらも最も素直な表記より少し広く受理するため、「どこまで読むか」をここで固定する。
+// 変更が、想定外の変化ではなく意図した判断として差分に現れるようにするためである。
+// これらは現状の挙動の記録であり、望ましい挙動だと主張するものではない。
+describe('leniency: what is read beyond the plainest spelling (pinned, not endorsed)', () => {
   // Negative zero is zero.
   // 負のゼロはゼロになる。
   it('x-integer accepts "-0"', async () => {
@@ -2398,36 +2680,6 @@ describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not en
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-integer': { valueType: 'number', valueText: '7' },
-    })
-  })
-
-  // A fraction of zero is an integer.
-  // 小数部が 0 なら整数として扱われる。
-  it('x-integer accepts "1.0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '1.0' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      'x-integer': { valueType: 'number', valueText: '1' },
-    })
-  })
-
-  // Exponent notation that comes out whole.
-  // 結果が整数になる指数表記。
-  it('x-integer accepts "1e3"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '1e3' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      'x-integer': { valueType: 'number', valueText: '1000' },
-    })
-  })
-
-  // An explicit plus sign.
-  // 明示的なプラス記号。
-  it('x-int64 accepts "+5"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-int64': '+5' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      'x-int64': { valueType: 'bigint', valueText: '5' },
     })
   })
 
@@ -2458,56 +2710,6 @@ describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not en
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-number': { valueType: 'number', valueText: '0' },
-    })
-  })
-
-  // A hexadecimal literal is read as 16.
-  // 16進リテラルは 16 として読まれる。
-  it('x-integer accepts "0x10"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '0x10' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      'x-integer': { valueType: 'number', valueText: '16' },
-    })
-  })
-
-  // A binary literal is read as 3.
-  // 2進リテラルは 3 として読まれる。
-  it('x-integer accepts "0b11"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '0b11' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      'x-integer': { valueType: 'number', valueText: '3' },
-    })
-  })
-
-  // An octal literal is read as 7.
-  // 8進リテラルは 7 として読まれる。
-  it('x-integer accepts "0o7"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '0o7' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      'x-integer': { valueType: 'number', valueText: '7' },
-    })
-  })
-
-  // A hexadecimal literal is read as 31.
-  // 16進リテラルは 31 として読まれる。
-  it('x-number accepts "0x1F"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-number': '0x1F' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      'x-number': { valueType: 'number', valueText: '31' },
-    })
-  })
-
-  // BigInt reads a hexadecimal literal too.
-  // BigInt も16進リテラルを読み取る。
-  it('x-int64 accepts "0x10"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-int64': '0x10' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      'x-int64': { valueType: 'bigint', valueText: '16' },
     })
   })
 
@@ -2569,36 +2771,6 @@ describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not en
     })
   })
 
-  // An empty header is Number(""), which is zero.
-  // 空のヘッダーは Number("") であり、0 になる。
-  it('reads an empty integer as zero', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      'x-integer': { valueType: 'number', valueText: '0' },
-    })
-  })
-
-  // BigInt("") is 0n.
-  // BigInt("") は 0n である。
-  it('reads an empty int64 as zero', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-int64': '' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      'x-int64': { valueType: 'bigint', valueText: '0' },
-    })
-  })
-
-  // The whitespace is stripped by the transport, which leaves the empty value.
-  // 空白はトランスポートによって取り除かれ、空の値が残る。
-  it('reads an integer that is only whitespace as zero', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '   ' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      'x-integer': { valueType: 'number', valueText: '0' },
-    })
-  })
-
   // A string with no minLength accepts it.
   // minLength のない string は、空文字列を受理する。
   it('reads an empty string as the empty string', async () => {
@@ -2606,21 +2778,6 @@ describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not en
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-string': { valueType: 'string', valueText: '' },
-    })
-  })
-
-  // The default of 20 does not apply, because the header was sent: the empty value is read as
-  // zero.
-  // ヘッダー自体は送信されているため、デフォルトの 20 は適用されない。
-  // 空の値は 0 として読まれる。
-  it('reads an empty integer over its default', async () => {
-    const res = await headerParamsApp.request('/defaults', { headers: { 'x-int-def': '' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      'x-int-def': { valueType: 'number', valueText: '0' },
-      'x-int64-def': { valueType: 'bigint', valueText: '5' },
-      'x-bool-def': { valueType: 'boolean', valueText: 'false' },
-      'x-str-def': { valueType: 'string', valueText: 'fallback' },
     })
   })
 

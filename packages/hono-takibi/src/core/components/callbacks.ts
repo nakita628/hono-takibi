@@ -5,8 +5,7 @@ import { Effect } from 'effect'
 import { emit } from '../../emit/index.js'
 import { GenerateError } from '../../error/index.js'
 import { isCallbacks } from '../../guard/index.js'
-import { makeConst } from '../../helper/code.js'
-import { makeCallback, makeImports } from '../../helper/index.js'
+import { makeCallback, makeConst, makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import {
   ensureSuffix,

@@ -920,9 +920,60 @@ function serializeQueryParameter(parameter: Parameter, value: unknown): readonly
   return [encodePair(parameter.name, value)]
 }
 
-function serializeHeaderValue(value: unknown) {
+function serializeHeaderValue(value: unknown, explode = false) {
   if (Array.isArray(value)) return value.map((item) => toParamString(item)).join(',')
+  if (isRecord(value)) {
+    return Object.entries(value)
+      .map(([key, item]) =>
+        explode ? `${key}=${toParamString(item)}` : `${key},${toParamString(item)}`,
+      )
+      .join(',')
+  }
   return toParamString(value)
+}
+
+/**
+ * Serializes a cookie parameter. An object explodes by default, each property a cookie of
+ * its own; every other value is one cookie.
+ */
+function serializeCookieParameter(parameter: Parameter, value: unknown): readonly string[] {
+  if (isRecord(value) && (parameter.explode ?? true)) {
+    return Object.entries(value).map(([key, item]) => `${key}=${toParamString(item)}`)
+  }
+  return [`${parameter.name}=${serializeHeaderValue(value)}`]
+}
+
+/**
+ * Serializes a path parameter the way its `style` / `explode` say
+ * (OpenAPI §4.8.12.2.1: `simple` with `explode: false` is the default). A `label` value
+ * follows a ".", a `matrix` value ";" and the name of the parameter.
+ */
+function serializePathParameter(parameter: Parameter, value: unknown) {
+  const style = parameter.style ?? 'simple'
+  const explode = parameter.explode ?? false
+  const encode = (item: unknown) => encodeURIComponent(toParamString(item))
+  const name = encodeURIComponent(parameter.name)
+  if (parameter.content !== undefined && parameter.schema === undefined) return encode(value)
+  const pairs = isRecord(value)
+    ? Object.entries(value).map(([key, item]) =>
+        explode
+          ? `${encodeURIComponent(key)}=${encode(item)}`
+          : `${encodeURIComponent(key)},${encode(item)}`,
+      )
+    : undefined
+  const items = pairs ?? (Array.isArray(value) ? value.map(encode) : undefined)
+  if (items === undefined) {
+    const text = encode(value)
+    if (text === '') return ''
+    return style === 'label' ? `.${text}` : style === 'matrix' ? `;${name}=${text}` : text
+  }
+  if (items.length === 0) return ''
+  if (style === 'label') return `.${items.join(explode ? '.' : ',')}`
+  if (style === 'matrix') {
+    if (!explode) return `;${name}=${items.join(',')}`
+    return items.map((item) => (pairs === undefined ? `;${name}=${item}` : `;${item}`)).join('')
+  }
+  return items.join(',')
 }
 
 /**
@@ -1088,7 +1139,7 @@ function makeCodeSample(
   const cookies = [
     ...params
       .filter((p) => p.in === 'cookie')
-      .map((p) => `${p.name}=${serializeHeaderValue(makeParameterExample(p, doc))}`),
+      .flatMap((p) => serializeCookieParameter(p, makeParameterExample(p, doc))),
     ...credentials.cookies,
   ]
   const headers = [
@@ -1097,7 +1148,7 @@ function makeCodeSample(
     ...credentials.headers,
     ...params
       .filter((p) => p.in === 'header' && !isReservedHeader(p.name))
-      .map((p) => `${p.name}: ${serializeHeaderValue(makeParameterExample(p, doc))}`),
+      .map((p) => `${p.name}: ${serializeHeaderValue(makeParameterExample(p, doc), p.explode)}`),
     ...(cookies.length > 0 ? [`Cookie: ${cookies.join('; ')}`] : []),
   ].map((header) =>
     /\$\{[A-Z_]+\}/u.test(header) ? `-H ${shellQuoteWithVars(header)}` : `-H ${shellQuote(header)}`,
@@ -1116,8 +1167,8 @@ function makeCodeSample(
     (placeholder: string, name: string) => {
       const parameter = allParams.find((p) => p.in === 'path' && p.name === name)
       if (!parameter) return placeholder
-      const value = serializeHeaderValue(makeParameterExample(parameter, doc))
-      return value === '' ? placeholder : encodeURIComponent(value)
+      const value = serializePathParameter(parameter, makeParameterExample(parameter, doc))
+      return value === '' ? placeholder : value
     },
   )
   const fullPath = makeFullPath(options.basePath, samplePath)

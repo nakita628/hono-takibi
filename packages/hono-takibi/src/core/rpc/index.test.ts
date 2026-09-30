@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vite-plus/test'
 
+import { handlerGroupOf } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { rpc } from './index.js'
@@ -1205,5 +1206,121 @@ export async function queryUsers(
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
+  })
+})
+
+describe('rpc (groups of a split application)', () => {
+  const ok = { '200': { description: 'OK' } }
+  const spec = {
+    openapi: '3.1.0',
+    info: { title: 'Library', version: '1.0.0' },
+    paths: {
+      '/': { get: { responses: ok } },
+      '/books': { get: { tags: ['Library'], responses: ok }, post: { responses: ok } },
+      '/books/{id}': { get: { responses: ok } },
+      '/v2-public/ping': { get: { responses: ok } },
+      '/api/status': { get: { responses: ok } },
+    },
+  } as OpenAPI
+  const grouped = {
+    openapi: '3.1.0',
+    info: { title: 'Library', version: '1.0.0' },
+    paths: { '/books': { get: { responses: ok } }, '/items': { get: { responses: ok } } },
+  } as OpenAPI
+
+  // The root and /api/status belong to no group and are called through client. Under the base path the root is the client itself.
+  // ルートパスと /api/status はどのグループにも属さず、client を通して呼び出される。ベースパスの下では、ルートパスはクライアントそのものである。
+  it('calls each operation through the client of its group', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rpc-groups-'))
+    const out = path.join(dir, 'rpc.ts')
+    await runGenerator(
+      rpc(spec, out, './client', 'client', false, '/api', false, (route) => handlerGroupOf(route)),
+    )
+    expect(fs.readFileSync(out, 'utf8'))
+      .toBe(`import type { ClientRequestOptions } from 'hono/client'
+import { client, booksClient, v2PublicClient } from './client'
+
+export async function get(options?: ClientRequestOptions) {
+  return await client.$get(undefined, options)
+}
+
+export async function getBooks(options?: ClientRequestOptions) {
+  return await booksClient.books.$get(undefined, options)
+}
+
+export async function postBooks(options?: ClientRequestOptions) {
+  return await booksClient.books.$post(undefined, options)
+}
+
+export async function getBooksId(options?: ClientRequestOptions) {
+  return await booksClient.books[':id'].$get(undefined, options)
+}
+
+export async function getV2PublicPing(options?: ClientRequestOptions) {
+  return await v2PublicClient['v2-public'].ping.$get(undefined, options)
+}
+
+export async function getApiStatus(options?: ClientRequestOptions) {
+  return await client.api.status.$get(undefined, options)
+}
+`)
+  })
+
+  // GET /books is tagged Library and is called through libraryClient.
+  // GET /books には Library タグが付いており、libraryClient を通して呼び出される。
+  it('groups by the first tag where the grouping looks at tags', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rpc-groups-'))
+    const out = path.join(dir, 'rpc.ts')
+    await runGenerator(rpc(spec, out, './client', 'client', false, '/api', false, handlerGroupOf))
+    expect(fs.readFileSync(out, 'utf8'))
+      .toBe(`import type { ClientRequestOptions } from 'hono/client'
+import { client, libraryClient, booksClient, v2PublicClient } from './client'
+
+export async function get(options?: ClientRequestOptions) {
+  return await client.$get(undefined, options)
+}
+
+export async function getBooks(options?: ClientRequestOptions) {
+  return await libraryClient.books.$get(undefined, options)
+}
+
+export async function postBooks(options?: ClientRequestOptions) {
+  return await booksClient.books.$post(undefined, options)
+}
+
+export async function getBooksId(options?: ClientRequestOptions) {
+  return await booksClient.books[':id'].$get(undefined, options)
+}
+
+export async function getV2PublicPing(options?: ClientRequestOptions) {
+  return await v2PublicClient['v2-public'].ping.$get(undefined, options)
+}
+
+export async function getApiStatus(options?: ClientRequestOptions) {
+  return await client.api.status.$get(undefined, options)
+}
+`)
+  })
+
+  // An import that nothing uses would be an error in a strict project.
+  // どこからも使われない import は、厳格な設定のプロジェクトではエラーになる。
+  it('does not import client when every operation belongs to a group', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rpc-groups-'))
+    const out = path.join(dir, 'rpc.ts')
+    await runGenerator(
+      rpc(grouped, out, './client', 'client', false, '/', false, (route) => handlerGroupOf(route)),
+    )
+    expect(fs.readFileSync(out, 'utf8'))
+      .toBe(`import type { ClientRequestOptions } from 'hono/client'
+import { booksClient, itemsClient } from './client'
+
+export async function getBooks(options?: ClientRequestOptions) {
+  return await booksClient.books.$get(undefined, options)
+}
+
+export async function getItems(options?: ClientRequestOptions) {
+  return await itemsClient.items.$get(undefined, options)
+}
+`)
   })
 })

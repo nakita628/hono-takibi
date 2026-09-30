@@ -23,6 +23,7 @@ export function parameters(
     }
   },
   readonly?: boolean,
+  schemas?: Components['schemas'],
 ) {
   return Effect.gen(function* () {
     if (!parameters) return yield* new GenerateError({ message: 'No parameters found' })
@@ -33,7 +34,10 @@ export function parameters(
       yield* Effect.all(
         [
           ...parameterNames.map((parameterName) => {
-            const singleComponent = { parameters: { [parameterName]: parameters[parameterName] } }
+            const singleComponent = {
+              parameters: { [parameterName]: parameters[parameterName] },
+              ...(schemas === undefined ? {} : { schemas }),
+            }
             const code = parametersCode(singleComponent, true, exportType, readonly)
             const filePath = path.join(outDir, `${uncapitalize(parameterName)}.ts`)
             return emit(
@@ -48,7 +52,12 @@ export function parameters(
       )
       return `Generated parameters code written to ${outDir}/*.ts (index.ts included)`
     }
-    const parameterDefinitions = parametersCode({ parameters }, true, exportType, readonly)
+    const parameterDefinitions = parametersCode(
+      { parameters, ...(schemas === undefined ? {} : { schemas }) },
+      true,
+      exportType,
+      readonly,
+    )
     yield* emit(
       makeImports(parameterDefinitions, output, components, split),
       path.dirname(output),

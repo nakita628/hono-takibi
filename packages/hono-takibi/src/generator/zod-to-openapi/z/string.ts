@@ -55,6 +55,31 @@ const EMAIL_PATTERN_PRESET: { readonly [k: string]: string } = {
 }
 
 /**
+ * Whether a `time` takes an offset. `time` is an RFC 3339 full-time, `12:34:56Z` or
+ * `12:34:56+09:00`, and `z.iso.time()` takes neither. `x-isoOffset: false` asks for that.
+ */
+export function isOffsetTime(schema: Schema): boolean {
+  return schema.format === 'time' && schema['x-isoOffset'] !== false
+}
+
+/**
+ * The text of a `time` that may end in an offset, as the source of a pattern. The time
+ * itself is what `z.iso.time()` reads, seconds optional unless a precision is asked for. No
+ * part of it can be matched two ways, so the pattern does not backtrack.
+ */
+function offsetTimePattern(precision: number | undefined) {
+  const seconds =
+    precision === undefined
+      ? String.raw`(?::[0-5]\d(?:\.\d+)?)?`
+      : precision < 0
+        ? ''
+        : precision === 0
+          ? String.raw`:[0-5]\d`
+          : String.raw`:[0-5]\d\.\d{${precision}}`
+  return String.raw`^(?:[01]\d|2[0-3]):[0-5]\d${seconds}(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)?$`
+}
+
+/**
  * Builds format-specific option entries (excluding `error`) for Zod v4 format
  * constructors like `z.email({ pattern })`, `z.iso.datetime({ precision })`.
  * Returns an empty array when no options apply.
@@ -92,7 +117,9 @@ function makeFormatOptions(schema: Schema): readonly string[] {
         schema['x-isoPrecision'] !== undefined
           ? `precision:${schema['x-isoPrecision']}`
           : undefined,
-        schema['x-isoOffset'] === true ? 'offset:true' : undefined,
+        // `date-time` is an RFC 3339 date-time, whose offset is `Z` or `+09:00` alike, and
+        // `z.iso.datetime()` takes `Z` only. `x-isoOffset: false` asks for that.
+        schema['x-isoOffset'] === false ? undefined : 'offset:true',
         schema['x-isoLocal'] === true ? 'local:true' : undefined,
       ].filter((v) => v !== undefined)
     case 'time':
@@ -227,6 +254,13 @@ export function string(
     if (!format) {
       if (coerce) return baseErrorArg ? `z.coerce.string(${baseErrorArg})` : 'z.coerce.string()'
       return baseErrorArg ? `z.string(${baseErrorArg})` : 'z.string()'
+    }
+    // `z.iso.time()` takes no offset and no pattern of its own, so a time that may carry one
+    // is a string matched against the pattern.
+    if (isOffsetTime(schema)) {
+      const pattern = offsetTimePattern(schema['x-isoPrecision'])
+      const message = errorMessage ? `,${error(errorMessage)}` : ''
+      return `z.string(${baseErrorArg}).regex(/${pattern}/${message})`
     }
     // `z.trim()` / `z.toLowerCase()` / `z.toUpperCase()` are checks, not schemas — they
     // carry no `.parse` and no `.openapi`, so emitting one on its own produces a module

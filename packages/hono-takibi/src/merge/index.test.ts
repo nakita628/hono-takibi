@@ -2072,6 +2072,189 @@ export const deleteUserRouteHandler: RouteHandler<typeof deleteUserRoute> = asyn
     })
   })
 
+  describe('mergeAppFile (split app)', () => {
+    const header = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getBooksRoute, getItemsRoute } from './routes'
+import { getBooksRouteHandler, getItemsRouteHandler } from './handlers'
+`
+
+    it('replaces a group, adds a new one before api and removes one no longer generated', () => {
+      const existing = `${header}
+const app = new OpenAPIHono()
+
+app.use(logger())
+
+export const version = '1'
+
+export const books = app.openapi(getBooksRoute, getBooksRouteHandler)
+
+export const gone = app.openapi(getGoneRoute, getGoneRouteHandler)
+
+export const api = app.openapi(getRootRoute, getRootRouteHandler)
+
+export default app
+`
+      const generated = `${header}
+const app = new OpenAPIHono()
+
+export const books = app.openapi(getBooksRoute, getBooksRouteHandler).openapi(postBooksRoute, postBooksRouteHandler)
+
+export const items = app.openapi(getItemsRoute, getItemsRouteHandler)
+
+export const api = app.openapi(getRootRoute, getRootRouteHandler)
+
+export default app
+`
+      expect(mergeAppFile(existing, generated)).toBe(`${header}
+const app = new OpenAPIHono()
+
+app.use(logger())
+
+export const version = '1'
+
+export const books = app.openapi(getBooksRoute, getBooksRouteHandler).openapi(postBooksRoute, postBooksRouteHandler)
+
+export const items = app.openapi(getItemsRoute, getItemsRouteHandler)
+
+export const api = app.openapi(getRootRoute, getRootRouteHandler)
+
+export default app
+`)
+    })
+
+    it('places a new group after the one the generator wrote before it', () => {
+      const existing = `${header}
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getRootRoute, getRootRouteHandler)
+
+export const items = app.openapi(getItemsRoute, getItemsRouteHandler)
+
+export default app
+`
+      const generated = `${header}
+const app = new OpenAPIHono()
+
+export const health = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export const api = app.openapi(getRootRoute, getRootRouteHandler)
+
+export const books = app.openapi(getBooksRoute, getBooksRouteHandler)
+
+export const items = app.openapi(getItemsRoute, getItemsRouteHandler)
+
+export const trash = app.openapi(deleteTrashRoute, deleteTrashRouteHandler)
+
+export default app
+`
+      expect(mergeAppFile(existing, generated)).toBe(generated)
+    })
+
+    it('replaces the groups of an app whose handler files are mounted', () => {
+      const existing = `${header}
+const app = new OpenAPIHono()
+
+export const admin = app.route('/admin', adminApp)
+
+export const api = app.route('/', __rootHandler)
+
+export const books = app.route('/', booksHandler)
+
+export const gone = app.route('/', goneHandler)
+
+export default app
+`
+      const generated = `${header}
+const app = new OpenAPIHono()
+
+export const api = app.route('/', __rootHandler)
+
+export const books = app.route('/', booksHandler)
+
+export const items = app.route('/', itemsHandler)
+
+export default app
+`
+      expect(mergeAppFile(existing, generated)).toBe(`${header}
+const app = new OpenAPIHono()
+
+export const admin = app.route('/admin', adminApp)
+
+export const api = app.route('/', __rootHandler)
+
+export const books = app.route('/', booksHandler)
+
+export const items = app.route('/', itemsHandler)
+
+export default app
+`)
+    })
+
+    it('replaces the groups of an app that registers defined routes', () => {
+      const existing = `${header}
+const app = new OpenAPIHono()
+
+export const api = app.openapiRoutes([getRootRoute] as const)
+
+export const books = app.openapiRoutes([getBooksRoute] as const)
+
+export default app
+`
+      const generated = `${header}
+const app = new OpenAPIHono()
+
+export const api = app.openapiRoutes([getRootRoute] as const)
+
+export const books = app.openapiRoutes([getBooksRoute, postBooksRoute] as const)
+
+export const items = app.openapiRoutes([getItemsRoute] as const)
+
+export default app
+`
+      expect(mergeAppFile(existing, generated)).toBe(generated)
+    })
+
+    it('removes every group when the app is no longer split', () => {
+      const existing = `${header}
+const app = new OpenAPIHono()
+
+export const books = app.openapi(getBooksRoute, getBooksRouteHandler)
+
+export const api = app
+
+export default app
+`
+      const generated = `${header}
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getBooksRoute, getBooksRouteHandler)
+
+export default app
+`
+      expect(mergeAppFile(existing, generated)).toBe(generated)
+    })
+
+    it('keeps an export the user made of an app of their own', () => {
+      const existing = `${header}
+const app = new OpenAPIHono()
+
+export const admin = new OpenAPIHono().basePath('/admin')
+
+export const api = app.openapi(getBooksRoute, getBooksRouteHandler)
+
+export default app
+`
+      const generated = `${header}
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getBooksRoute, getBooksRouteHandler)
+
+export default app
+`
+      expect(mergeAppFile(existing, generated)).toBe(existing)
+    })
+  })
+
   describe('mergeAppFile (additional patterns)', () => {
     it('handles empty existing code', () => {
       const generated = `import { OpenAPIHono } from '@hono/zod-openapi'

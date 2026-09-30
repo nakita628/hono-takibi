@@ -40,7 +40,7 @@ describe('parametersCode', () => {
     }
     const result = parametersCode(components, false, false)
     expect(result).toBe(
-      `const PageParamsSchema=z.coerce.number().int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}})`,
+      String.raw`const PageParamsSchema=z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}})`,
     )
   })
 
@@ -56,7 +56,7 @@ describe('parametersCode', () => {
     }
     const result = parametersCode(components, true, true)
     expect(result).toBe(
-      `export const LimitParamsSchema=z.coerce.number().int().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"},"required":false}})
+      String.raw`export const LimitParamsSchema=z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"},"required":false}})
 
 export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     )
@@ -78,7 +78,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     } as unknown as Components
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const FilterParamsSchema=z.string().exactOptional().openapi({param:{"name":"filter","in":"query","content":{"application/json":{"schema":{"type":"string"}}},"required":false}})`,
+      `export const FilterParamsSchema=z.preprocess((val)=>{if(typeof val!=='string')return val;try{return JSON.parse(val)}catch{return val}},z.string()).exactOptional().openapi({param:{"name":"filter","in":"query","content":{"application/json":{"schema":{"type":"string"}}},"required":false}})`,
     )
   })
 
@@ -95,7 +95,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const IdParamsSchema=z.coerce.number().int().openapi({param:{"name":"id","in":"path","required":true,"schema":{"type":"integer"}}})`,
+      String.raw`export const IdParamsSchema=z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).openapi({param:{"name":"id","in":"path","required":true,"schema":{"type":"integer"}}})`,
     )
   })
 

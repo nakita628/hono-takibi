@@ -3,19 +3,22 @@ import {
   isMediaWithSchema,
   isOperation,
   isParameter,
+  isPathItemEntry,
+  isPathItemRef,
   isRefObject,
   isSecurityArray,
   isSchemaArray,
   isSchemaObject,
   isSecurityScheme,
 } from '../../guard/index.js'
-import { getNonExistentValue, mockFunctionName, schemaToFaker } from '../../helper/faker.js'
+import { getNonExistentValue, mockFunctionSignature, schemaToFaker } from '../../helper/index.js'
 import type {
   Components,
   Content,
   Media,
   OpenAPI,
   Operation,
+  Reference,
   Responses,
   Schema,
 } from '../../openapi/index.js'
@@ -24,6 +27,7 @@ import {
   ensureSuffix,
   makeStringLiteral,
   methodPath,
+  normalizeTypes,
   statusCodeToNumber,
   toIdentifierPascalCase,
 } from '../../utils/index.js'
@@ -41,10 +45,18 @@ function collectRefs(schema: Schema, refs = new Set<string>()) {
       if (isSchemaObject(item)) collectRefs(item, refs)
     }
   }
+  if (schema.prefixItems) {
+    for (const item of schema.prefixItems) {
+      collectRefs(item, refs)
+    }
+  }
   if (schema.properties) {
     for (const prop of Object.values(schema.properties)) {
       collectRefs(prop, refs)
     }
+  }
+  if (isSchemaObject(schema.additionalProperties)) {
+    collectRefs(schema.additionalProperties, refs)
   }
   if (schema.allOf) {
     for (const s of schema.allOf) {
@@ -159,11 +171,17 @@ function makeMockFunction(
   name: string,
   schema: Schema,
   schemas: { readonly [k: string]: Schema },
-  isCircular: boolean,
+  circularSchemas: ReadonlySet<string>,
   fakerOptions: FakerOptions,
 ) {
-  const mockBody = schemaToFaker(schema, undefined, { schemas, ...fakerOptions })
-  const returnType = isCircular ? ': any' : ''
+  // A circular schema's factory counts its own depth and stops recursing at a
+  // fixed one; called unconditionally it would never return.
+  const isCircular = circularSchemas.has(name)
+  const mockBody = schemaToFaker(schema, undefined, {
+    schemas,
+    ...fakerOptions,
+    ...(isCircular ? { recursive: circularSchemas } : {}),
+  })
   // When the schema is annotated with `x-brand`, the corresponding zod schema
   // is `.brand<"X">()` and the inferred type is `T & $brand<"X">`. The faker
   // call alone produces the un-branded `T` (e.g. plain `string`), which the
@@ -175,8 +193,11 @@ function makeMockFunction(
   // derives as `toIdentifierPascalCase(ensureSuffix(name, 'Schema'))` — using
   // the raw name here would mis-case it (e.g. `userIdSchema` vs `UserIdSchema`).
   const schemaConst = toIdentifierPascalCase(ensureSuffix(name, 'Schema'))
-  const body = schema['x-brand'] ? `${mockBody} as z.infer<typeof ${schemaConst}>` : mockBody
-  return `function ${mockFunctionName(name)}()${returnType}{return ${body}}` as const
+  // A schema that generates no value (`not`, no type) accepts any JSON value;
+  // `null` keeps the response body valid JSON.
+  const value = mockBody === 'undefined' ? 'null' : mockBody
+  const body = schema['x-brand'] ? `${value} as z.infer<typeof ${schemaConst}>` : value
+  return `${mockFunctionSignature(name, isCircular)}{return ${body}}` as const
 }
 
 function extractSecurityInfo(
@@ -185,43 +206,49 @@ function extractSecurityInfo(
   securitySchemes: { readonly [k: string]: unknown } | undefined,
 ) {
   const securityDefs = opSecurity ?? globalSecurity ?? []
-  return securityDefs.flatMap((secDef) =>
-    Object.keys(secDef).flatMap(
-      (
-        schemeName,
-      ): readonly {
-        readonly type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
-        readonly name: string
-        readonly in?: 'header' | 'query' | 'cookie'
-      }[] => {
-        const scheme = securitySchemes?.[schemeName]
-        if (!(scheme && isSecurityScheme(scheme))) return [] as const
-        if (scheme.type === 'http' && scheme.scheme === 'bearer') {
-          return [{ type: 'bearer', name: 'Authorization' }] as const
-        }
-        if (scheme.type === 'http' && scheme.scheme === 'basic') {
-          return [{ type: 'basic', name: 'Authorization' }] as const
-        }
-        if (scheme.type === 'apiKey') {
-          const inLocation =
-            scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie'
-              ? scheme.in
-              : 'header'
-          return [
-            {
-              type: 'apiKey',
-              name: scheme.name ?? 'X-API-Key',
-              in: inLocation,
-            },
-          ] as const
-        }
-        if (scheme.type === 'oauth2') {
-          return [{ type: 'oauth2', name: 'Authorization' }] as const
-        }
-        return [] as const
-      },
-    ),
-  )
+  // A requirement object lists schemes that must all be satisfied (AND); the
+  // array offers alternatives (OR). An empty requirement (`{}`) makes the
+  // operation callable anonymously, so nothing is left to check.
+  if (securityDefs.some((secDef) => Object.keys(secDef).length === 0)) return []
+  return securityDefs
+    .map((secDef) =>
+      Object.keys(secDef).flatMap(
+        (
+          schemeName,
+        ): readonly {
+          readonly type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
+          readonly name: string
+          readonly in?: 'header' | 'query' | 'cookie'
+        }[] => {
+          const scheme = securitySchemes?.[schemeName]
+          if (!(scheme && isSecurityScheme(scheme))) return [] as const
+          if (scheme.type === 'http' && scheme.scheme === 'bearer') {
+            return [{ type: 'bearer', name: 'Authorization' }] as const
+          }
+          if (scheme.type === 'http' && scheme.scheme === 'basic') {
+            return [{ type: 'basic', name: 'Authorization' }] as const
+          }
+          if (scheme.type === 'apiKey') {
+            const inLocation =
+              scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie'
+                ? scheme.in
+                : 'header'
+            return [
+              {
+                type: 'apiKey',
+                name: scheme.name ?? 'X-API-Key',
+                in: inLocation,
+              },
+            ] as const
+          }
+          if (scheme.type === 'oauth2') {
+            return [{ type: 'oauth2', name: 'Authorization' }] as const
+          }
+          return [] as const
+        },
+      ),
+    )
+    .filter((requirement) => requirement.length > 0)
 }
 
 function hasRequestBodyContent(
@@ -319,34 +346,43 @@ function resolveSuccessResponse(
 
 /**
  * Generates the auth check code for a handler.
- * Only emits a check when the route defines a 401 response.
+ * Only emits a check when the route defines a 401 response; `unauthorizedBody`
+ * is the statement answering it.
  */
 function makeAuthCheck(
-  security: readonly {
+  security: readonly (readonly {
     readonly type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
     readonly name: string
     readonly in?: 'header' | 'query' | 'cookie'
-  }[],
-  has401: boolean,
+  }[])[],
+  unauthorizedBody: string | undefined,
 ) {
-  if (!has401 || security.length === 0) return ''
-  const authChecks = security.flatMap((sec) => {
-    if (sec.type === 'bearer' || sec.type === 'oauth2' || sec.type === 'basic') {
-      return [`c.req.header('Authorization')`]
-    }
-    if (sec.type === 'apiKey') {
-      // `name` comes from the document, so it is emitted as an escaped literal.
-      if (sec.in === 'header') return [`c.req.header(${makeStringLiteral(sec.name)})`]
-      if (sec.in === 'query') return [`c.req.query(${makeStringLiteral(sec.name)})`]
-      // Hono's request object does not expose a `.cookie()` accessor; cookies
-      // must come from the `hono/cookie` helper. Caller is responsible for
-      // emitting the matching `import { getCookie } from 'hono/cookie'`.
-      if (sec.in === 'cookie') return [`getCookie(c, ${makeStringLiteral(sec.name)})`]
-    }
-    return []
+  if (unauthorizedBody === undefined || security.length === 0) return ''
+  const authChecks = security.flatMap((requirement) => {
+    const checks = [
+      ...new Set(
+        requirement.flatMap((sec) => {
+          if (sec.type === 'bearer' || sec.type === 'oauth2' || sec.type === 'basic') {
+            return [`c.req.header('Authorization')`]
+          }
+          if (sec.type === 'apiKey') {
+            // `name` comes from the document, so it is emitted as an escaped literal.
+            if (sec.in === 'header') return [`c.req.header(${makeStringLiteral(sec.name)})`]
+            if (sec.in === 'query') return [`c.req.query(${makeStringLiteral(sec.name)})`]
+            // Hono's request object does not expose a `.cookie()` accessor; cookies
+            // must come from the `hono/cookie` helper. Caller is responsible for
+            // emitting the matching `import { getCookie } from 'hono/cookie'`.
+            if (sec.in === 'cookie') return [`getCookie(c, ${makeStringLiteral(sec.name)})`]
+          }
+          return []
+        }),
+      ),
+    ]
+    if (checks.length === 0) return []
+    return [checks.length === 1 ? checks.join('') : `(${checks.join(' && ')})`]
   })
   if (authChecks.length === 0) return ''
-  return `if(!(${authChecks.join(' || ')})){return c.json({ message: 'Unauthorized' }, 401)}`
+  return `if(!(${authChecks.join(' || ')})){${unauthorizedBody}}`
 }
 
 // A media object's `examples` entry, resolved against `components.examples`.
@@ -384,6 +420,71 @@ function jsonMediaType(content: Content | undefined) {
     : types.find((type) => /^application\/(?:[\w.-]+\+)?json(?:;|$)/u.test(type))
 }
 
+function isBigintSchema(schema: Schema) {
+  return (
+    normalizeTypes(schema.type).includes('integer') &&
+    (schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint')
+  )
+}
+
+function resolveSchemaRef(schema: Schema | undefined, schemas: { readonly [k: string]: Schema }) {
+  if (!schema?.$ref) return schema
+  const name = schema.$ref.split('/').at(-1)
+  return name ? schemas[name] : undefined
+}
+
+// The schema an example object's member is described by: an own property, one
+// declared by an `allOf` member, else the map's value schema.
+function memberSchema(
+  schema: Schema | undefined,
+  key: string,
+  schemas: { readonly [k: string]: Schema },
+): Schema | undefined {
+  if (!schema) return undefined
+  if (schema.properties && Object.hasOwn(schema.properties, key)) return schema.properties[key]
+  const inherited = (schema.allOf ?? [])
+    .map((member) => memberSchema(resolveSchemaRef(member, schemas), key, schemas))
+    .find((member) => member !== undefined)
+  if (inherited) return inherited
+  return isSchemaObject(schema.additionalProperties) ? schema.additionalProperties : undefined
+}
+
+// Renders an authored example as code. It is the JSON text, except that an
+// integer the schema declares as int64 becomes a bigint literal — the type the
+// route's zod schema infers, serialized like every generated bigint.
+function exampleCode(
+  example: unknown,
+  schema: Schema | undefined,
+  schemas: { readonly [k: string]: Schema },
+): string {
+  const resolved = resolveSchemaRef(schema, schemas)
+  const isLiteral = resolved?.enum !== undefined || resolved?.const !== undefined
+  if (isLiteral && (typeof example === 'string' || typeof example === 'number')) {
+    return `${JSON.stringify(example)} as const`
+  }
+  if (typeof example === 'number' && resolved && isBigintSchema(resolved)) {
+    return Number.isInteger(example) ? `${BigInt(example)}n` : JSON.stringify(example)
+  }
+  if (Array.isArray(example)) {
+    const items = resolved?.items
+    const itemSchema = isSchemaObject(items) ? items : undefined
+    return `[${example
+      .map((item: unknown, index) =>
+        exampleCode(item, resolved?.prefixItems?.[index] ?? itemSchema, schemas),
+      )
+      .join(',')}]`
+  }
+  if (example !== null && typeof example === 'object') {
+    return `{${Object.entries(example)
+      .map(
+        ([key, value]: [string, unknown]) =>
+          `${JSON.stringify(key)}:${exampleCode(value, memberSchema(resolved, key, schemas), schemas)}`,
+      )
+      .join(',')}}`
+  }
+  return JSON.stringify(example)
+}
+
 /** What a mock can answer for one declared response. */
 type MockResponse = {
   /** The spec key (`404`, `4XX`, `default`), `XX` upper-cased. */
@@ -399,6 +500,24 @@ type MockResponse = {
   readonly exampleCast: string | undefined
 }
 
+function isInlineMedia(media: Media | Reference): media is Media {
+  return !('$ref' in media)
+}
+
+// A media object may be a `$ref` into `components.mediaTypes` (OpenAPI 3.2),
+// itself possibly another reference; `seen` stops a reference cycle.
+function resolveMedia(
+  media: Media | Reference | undefined,
+  components: Components | undefined,
+  seen = new Set<string>(),
+): Media | undefined {
+  if (media === undefined) return undefined
+  if (isInlineMedia(media)) return media
+  const name = media.$ref?.split('/').at(-1)
+  if (name === undefined || seen.has(name)) return undefined
+  return resolveMedia(components?.mediaTypes?.[name], components, seen.add(name))
+}
+
 function describeResponse(
   key: string,
   response: Responses,
@@ -406,8 +525,8 @@ function describeResponse(
   useExamples: boolean,
 ): MockResponse {
   const jsonType = jsonMediaType(response.content)
-  const jsonMedia = jsonType ? response.content?.[jsonType] : undefined
-  const textMedia = response.content?.['text/plain']
+  const jsonMedia = resolveMedia(jsonType ? response.content?.[jsonType] : undefined, components)
+  const textMedia = resolveMedia(response.content?.['text/plain'], components)
   const jsonSchema = jsonMedia && isMediaWithSchema(jsonMedia) ? jsonMedia.schema : undefined
   return {
     key: /^[1-5]xx$/iu.test(key) ? key.toUpperCase() : key,
@@ -438,14 +557,19 @@ function responsePayload(
     // member), so it is pinned to the schema's inferred type when that schema
     // is a named `$ref` — mirroring the `x-brand` handling.
     const cast = response.exampleCast ? ` as z.infer<typeof ${response.exampleCast}>` : ''
-    return { kind: 'json', data: `${JSON.stringify(example)}${cast}` } as const
+    const data = exampleCode(example, response.jsonSchema, schemas)
+    return { kind: 'json', data: `${data}${cast}` } as const
   }
   if (response.jsonSchema) {
     collectRefs(response.jsonSchema, allRefs)
-    const data = schemaToFaker(response.jsonSchema, undefined, { schemas, ...fakerOptions })
+    const value = schemaToFaker(response.jsonSchema, undefined, { schemas, ...fakerOptions })
+    // A schema without a type generates no value; any JSON value fits it, and
+    // `null` keeps the body valid JSON.
+    const data = value === 'undefined' ? 'null' : value
     return { kind: 'json', data } as const
   }
   if (response.textSchema) {
+    collectRefs(response.textSchema, allRefs)
     const data = schemaToFaker(response.textSchema, undefined, { schemas, ...fakerOptions })
     return { kind: 'text', data } as const
   }
@@ -612,7 +736,25 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
     ...(useExamples === 'all' ? { useExamples: true } : {}),
   }
   const filteredOpenapi = filterToJsonContentTypes(openapi)
-  const paths = filteredOpenapi.paths
+  // A path may be a `$ref` into `components.pathItems`; the route generator
+  // resolves it, so the handlers are built from the resolved item too.
+  const resolvedPathItems = new Map(
+    Object.entries(openapi.paths).flatMap(([p, pathItem]: [string, unknown]) => {
+      if (!isPathItemEntry(pathItem)) return []
+      const ref = pathItem.$ref
+      const component =
+        ref && isPathItemRef(ref)
+          ? openapi.components?.pathItems?.[ref.slice(ref.lastIndexOf('/') + 1)]
+          : undefined
+      return [[p, component ? { ...component, ...pathItem } : pathItem] as const]
+    }),
+  )
+  const paths = Object.fromEntries(
+    Object.entries(filteredOpenapi.paths).map(([p, pathItem]) => {
+      const resolved = resolvedPathItems.get(p)
+      return [p, resolved?.$ref ? { ...resolved, ...pathItem } : pathItem] as const
+    }),
+  )
   const schemas = openapi.components?.schemas ?? {}
   const securitySchemes = openapi.components?.securitySchemes
   const componentResponses = openapi.components?.responses
@@ -687,22 +829,41 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
         })
         .join('')
       const preferCall = `resolvePrefer(c.req,${preferTable},${JSON.stringify(successKey)})`
-      // Generate auth check code only when route defines a 401 Unauthorized response
-      const has401 = operation.responses?.[String(401)] !== undefined
-      const authCheck = makeAuthCheck(security, has401)
+      // A 401 that declares a body answers with it, so the body fits the route's
+      // own response schema; one that declares none keeps the plain message.
+      const unauthorizedResponse = responses.find((r) => r.key === '401')
+      const unauthorizedPayload = unauthorizedResponse
+        ? responsePayload(
+            unauthorizedResponse,
+            unauthorizedResponse.example,
+            schemas,
+            fakerOptions,
+            allRefs,
+          )
+        : undefined
+      const unauthorizedBody =
+        operation.responses?.[String(401)] === undefined
+          ? undefined
+          : unauthorizedPayload === undefined || unauthorizedPayload.kind === 'none'
+            ? `return c.json({ message: 'Unauthorized' }, 401)`
+            : makeHandlerBody(401, unauthorizedResponse, unauthorizedPayload)
+      const authCheck = makeAuthCheck(security, unauthorizedBody)
       // The generated test suite requests getNonExistentValue() sentinels for
       // routes declaring a 404, so the mock must answer 404 for exactly those
       // values — the two generators share the sentinel as a contract. An
       // explicit `Prefer` wins over the sentinel.
-      const pathParams = (operation.parameters ?? []).flatMap((rawParam) => {
-        const resolved = rawParam.$ref
-          ? (openapi.components?.parameters?.[
-              rawParam.$ref.replace('#/components/parameters/', '')
-            ] ?? rawParam)
-          : rawParam
-        if (!(isParameter(resolved) && resolved.in === 'path')) return []
-        return [{ name: resolved.name, schema: resolved.schema ?? { type: 'string' as const } }]
-      })
+      const sharedParameters = resolvedPathItems.get(p)?.parameters ?? []
+      const pathParams = [...sharedParameters, ...(operation.parameters ?? [])].flatMap(
+        (rawParam) => {
+          const resolved = rawParam.$ref
+            ? (openapi.components?.parameters?.[
+                rawParam.$ref.replace('#/components/parameters/', '')
+              ] ?? rawParam)
+            : rawParam
+          if (!(isParameter(resolved) && resolved.in === 'path')) return []
+          return [{ name: resolved.name, schema: resolved.schema ?? { type: 'string' as const } }]
+        },
+      )
       const notFoundResponse = responses.find((r) => r.key === '404')
       const notFoundCheck =
         notFoundResponse !== undefined && pathParams.length > 0
@@ -726,7 +887,7 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
       // independent of which requests ran before it, and the handler body runs
       // synchronously after the seed, so concurrent requests cannot interleave.
       const usesFaker = /\bfaker\.|\bmock[A-Za-z0-9_$]*\(/u.test(
-        `${preferBranches}${notFoundCheck}${handlerBody}`,
+        `${authCheck}${preferBranches}${notFoundCheck}${handlerBody}`,
       )
       const seedCall =
         seed !== undefined && usesFaker
@@ -752,13 +913,7 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
   const mockFunctions = sortedRefs
     .filter((refName) => schemas[refName])
     .map((refName) =>
-      makeMockFunction(
-        refName,
-        schemas[refName],
-        schemas,
-        circularSchemas.has(refName),
-        fakerOptions,
-      ),
+      makeMockFunction(refName, schemas[refName], schemas, circularSchemas, fakerOptions),
     )
   // Emit only the schema consts a route can reach. Roots are every
   // `#/components/schemas/X` referenced from the paths and from the non-schema
@@ -820,8 +975,8 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
   // BigInt interface augmentation, and `writable`/`configurable` mirror
   // `Date.prototype.toJSON` so the hook stays removable; `enumerable`
   // stays false so the key never leaks into spreads.
-  const bigIntSerializer = `${mockFunctionsJoined}\n${handlersJoined}`.includes(
-    'faker.number.bigInt(',
+  const bigIntSerializer = /faker\.number\.bigInt\(|(?<![\w.])\d+n\b/u.test(
+    `${mockFunctionsJoined}\n${handlersJoined}`,
   )
     ? `if(!('toJSON'in BigInt.prototype)){Object.defineProperty(BigInt.prototype,'toJSON',{value(this:bigint){return this.toString()},writable:true,configurable:true})}`
     : ''

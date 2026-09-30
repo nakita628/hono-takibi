@@ -1,8 +1,8 @@
 ---
 title: API Docs
 prev:
-  text: 'Test & Mock'
-  link: '/docs/guides/test-mock'
+  text: 'Mock'
+  link: '/docs/guides/mock'
 next:
   text: 'Vendor Extensions'
   link: '/docs/guides/vendor'

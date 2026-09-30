@@ -1,5 +1,5 @@
-// Why hono-takibi coerces query and path parameters: a comparison against naive Zod
-// schemas. This file is an explanation that runs. What the generator does with every
+// Why hono-takibi reads query and path parameters the way it does: a comparison against
+// naive Zod schemas. This file is an explanation that runs. What the generator does with every
 // shape is proved in test/path-params and test/query-params; here the point is why.
 //
 // HTTP has no types: every query and path value reaches the validator as a string ("10",
@@ -9,7 +9,7 @@
 //        reject requests that are perfectly valid per the OpenAPI spec
 //   2. naive coercion (z.coerce.boolean(), z.coerce.number())
 //        accepts, but silently produces WRONG values ("false" becomes true, an int64
-//        loses precision)
+//        loses precision, an empty value becomes 0, "0x10" becomes 16)
 //   3. what hono-takibi generates, embedded VERBATIM from
 //      __generated__/validation/routes.ts (generated from specs/coercion.yaml)
 //        accepts and produces correct values, and still rejects garbage
@@ -17,8 +17,8 @@
 //      requests must yield identical responses, so the code you read in section 3 cannot
 //      drift from what the generator emits today.
 //
-// hono-takibi がクエリ・パスパラメータを coerce する理由を、素朴な Zod スキーマとの比較で
-// 示す。このファイルは「実行できる解説」である。生成器が各形状をどう扱うかは
+// hono-takibi がクエリ・パスパラメータを現在の方法で読み取る理由を、素朴な Zod スキーマとの
+// 比較で示す。このファイルは「実行できる解説」である。生成器が各形状をどう扱うかは
 // test/path-params と test/query-params で検証しており、ここで示すのは「なぜ」である。
 //
 // HTTP には型がない。クエリやパスの値は、すべて文字列("10"・"true"・"9007199254740993")
@@ -27,7 +27,7 @@
 //        OpenAPI 仕様上は完全に有効なリクエストを、拒否してしまう
 //   2. 素朴な coerce(z.coerce.boolean()・z.coerce.number())
 //        受理はするが、黙って「誤った値」を生成する("false" が true になる、int64 が
-//        桁落ちする)
+//        桁落ちする、空の値が 0 になる、"0x10" が 16 になる)
 //   3. hono-takibi が生成するコード。__generated__/validation/routes.ts(specs/coercion.yaml
 //      から生成)を「そのまま」埋め込んでいる
 //        受理して正しい値を生成し、不正な値は引き続き拒否する
@@ -185,6 +185,50 @@ describe('2b. z.coerce.number() accepts int64 but silently loses precision', () 
   })
 })
 
+const coerceLimitRoute = createRoute({
+  method: 'get',
+  path: '/search',
+  request: {
+    query: z.object({
+      limit: z.coerce.number().int(),
+    }),
+  },
+  responses: { 200: { description: 'ok' } },
+})
+
+const coerceLimitApp = new OpenAPIHono().openapi(coerceLimitRoute, (c) => {
+  const { limit } = c.req.valid('query')
+  return c.json({ limit })
+})
+
+describe('2c. z.coerce.number() reads text that is not a number', () => {
+  // Number("") is 0. The client sent no number at all, and the handler receives one.
+  // Number("") は 0 である。クライアントは数値を一切送っていないのに、
+  // ハンドラは数値を受け取る。
+  it('an empty value comes out as 0', async () => {
+    const res = await coerceLimitApp.request('/search?limit=')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ limit: 0 })
+  })
+
+  // Number(" ") is 0 as well.
+  // Number(" ") も 0 である。
+  it('whitespace comes out as 0', async () => {
+    const res = await coerceLimitApp.request('/search?limit=%20')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ limit: 0 })
+  })
+
+  // Number reads the literals of JavaScript source code, which a parameter never means.
+  // Number は JavaScript のソースコード用のリテラルも読み取る。
+  // パラメータがそれを意図することはない。
+  it('a hexadecimal literal comes out as 16', async () => {
+    const res = await coerceLimitApp.request('/search?limit=0x10')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ limit: 16 })
+  })
+})
+
 // ─────────────────────────────────────────────────────────────
 // 3. What hono-takibi generates.
 // The two route definitions below are embedded VERBATIM from
@@ -202,9 +246,11 @@ const getCoerceIdRoute = createRoute({
   operationId: 'coercePathId',
   request: {
     params: z.object({
-      id: z.coerce
-        .bigint()
-        .pipe(z.int64())
+      id: z
+        .preprocess(
+          (val) => (typeof val === 'string' && /^-?\d+$/.test(val) ? BigInt(val) : val),
+          z.int64(),
+        )
         .openapi({
           param: {
             name: 'id',
@@ -234,9 +280,9 @@ const embeddedCoerceIdApp = new OpenAPIHono().openapi(getCoerceIdRoute, (c) => {
   return c.json({ idType: typeof id, idValue: String(id) })
 })
 
-describe('3a. generated z.coerce.bigint().pipe(z.int64()) path param', () => {
-  // The generated schema coerces to a bigint, which holds the value exactly.
-  // 生成されたスキーマは bigint に coerce するため、値が正確に保持される。
+describe('3a. generated z.preprocess(text to bigint, z.int64()) path param', () => {
+  // The generated schema reads decimal text as a bigint, which holds the value exactly.
+  // 生成されたスキーマは、10進の文字列を bigint として読み取るため、値が正確に保持される。
   it('preserves int64 exactly where 2b lost precision', async () => {
     const res = await embeddedCoerceIdApp.request('/coerce/9007199254740993')
     expect(res.status).toBe(200)
@@ -246,10 +292,21 @@ describe('3a. generated z.coerce.bigint().pipe(z.int64()) path param', () => {
     })
   })
 
-  // Coercing does not mean accepting anything: a word is still rejected.
-  // coerce するからといって、何でも受理するわけではない。単語は引き続き拒否される。
+  // Reading text does not mean accepting anything: a word is handed on as the text it is,
+  // and z.int64() rejects it.
+  // 文字列を読み取るからといって、何でも受理するわけではない。単語は文字列のまま渡され、
+  // z.int64() によって拒否される。
   it('rejects non-numeric garbage with 400', async () => {
     const res = await embeddedCoerceIdApp.request('/coerce/abc')
+    expect(res.status).toBe(400)
+  })
+
+  // BigInt("0x10") is 16n. The generated schema matches the text against a decimal grammar
+  // before it converts, so the literal is rejected.
+  // BigInt("0x10") は 16n である。生成されたスキーマは、変換の前に文字列を10進の文法と
+  // 照合するため、このリテラルは拒否される。
+  it('rejects a hexadecimal literal with 400', async () => {
+    const res = await embeddedCoerceIdApp.request('/coerce/0x10')
     expect(res.status).toBe(400)
   })
 })
@@ -260,9 +317,14 @@ const getSearchRoute = createRoute({
   operationId: 'search',
   request: {
     query: z.object({
-      limit: z.coerce
-        .number()
-        .int()
+      limit: z
+        .preprocess(
+          (val) =>
+            typeof val === 'string' && /^-?\d+$/.test(val) && Number.isSafeInteger(Number(val))
+              ? Number(val)
+              : val,
+          z.int(),
+        )
         .default(10)
         .exactOptional()
         .openapi({
@@ -277,7 +339,18 @@ const getSearchRoute = createRoute({
         param: { name: 'active', in: 'query', required: true, schema: { type: 'boolean' } },
       }),
       ids: z
-        .array(z.coerce.number().int())
+        .preprocess(
+          (val) => (val === undefined || Array.isArray(val) ? val : [val]),
+          z.array(
+            z.preprocess(
+              (val) =>
+                typeof val === 'string' && /^-?\d+$/.test(val) && Number.isSafeInteger(Number(val))
+                  ? Number(val)
+                  : val,
+              z.int(),
+            ),
+          ),
+        )
         .exactOptional()
         .openapi({
           param: {
@@ -324,7 +397,7 @@ const embeddedSearchApp = new OpenAPIHono().openapi(getSearchRoute, (c) => {
   })
 })
 
-describe('3b. generated z.coerce.number().int() / z.stringbool() query params', () => {
+describe('3b. generated z.preprocess(text to number, z.int()) / z.stringbool() query params', () => {
   // The generated schema uses z.stringbool(), which reads the word, not its truthiness.
   // 生成されたスキーマは z.stringbool() を使う。これは truthy かどうかではなく、
   // 単語そのものを読み取る。
@@ -335,8 +408,8 @@ describe('3b. generated z.coerce.number().int() / z.stringbool() query params', 
     })
   })
 
-  // Every value is coerced to its declared type, the array element by element.
-  // すべての値が、宣言された型に coerce される。配列は、要素ごとに coerce される。
+  // Every value is read as its declared type, the array element by element.
+  // すべての値が、宣言された型として読み取られる。配列は、要素ごとに読み取られる。
   it('the query schema parses explicit values: "5" → 5, "true" → true, ids → [1, 2]', () => {
     expect(
       getSearchRoute.request.query.parse({ active: 'true', limit: '5', ids: ['1', '2'] }),
@@ -366,9 +439,38 @@ describe('3b. generated z.coerce.number().int() / z.stringbool() query params', 
 
   // A word is not a number.
   // 単語は数値ではない。
-  it('z.coerce.number().int() rejects a non-numeric limit', async () => {
+  it('rejects a non-numeric limit', async () => {
     const res = await embeddedSearchApp.request('/search?active=true&limit=abc')
     expect(res.status).toBe(400)
+  })
+
+  // The empty value that 2c read as 0 holds no digits: it is rejected, and the default of 10
+  // does not apply, because the parameter was sent.
+  // 2c で 0 として読まれた空の値は、数字を含まないため拒否される。パラメータ自体は
+  // 送信されているため、デフォルトの 10 は適用されない。
+  it('rejects the empty limit that 2c read as 0', async () => {
+    const res = await embeddedSearchApp.request('/search?active=true&limit=')
+    expect(res.status).toBe(400)
+  })
+
+  // The hexadecimal literal that 2c read as 16 is not decimal.
+  // 2c で 16 として読まれた16進リテラルは、10進表記ではない。
+  it('rejects the hexadecimal limit that 2c read as 16', async () => {
+    const res = await embeddedSearchApp.request('/search?active=true&limit=0x10')
+    expect(res.status).toBe(400)
+  })
+
+  // A one-element array is sent as a single ids=1, which arrives as a bare string.
+  // 1要素の配列は単一の ids=1 として送られ、素の文字列として届く。
+  it('reads a single ids value as a one-element array', async () => {
+    const res = await embeddedSearchApp.request('/search?active=true&ids=1')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      limit: 10,
+      limitType: 'number',
+      activeType: 'boolean',
+      idsTypes: ['number'],
+    })
   })
 })
 
@@ -403,7 +505,7 @@ describe('4. embedded copies match the imported generated artifact', () => {
   // 生成器の出力が変わると、このテストが失敗し、セクション 3 の更新が必要になる。
   it('path route: identical status and body for exact, garbage, and overflow inputs', async () => {
     const pairs = await Promise.all(
-      ['/coerce/9007199254740993', '/coerce/abc', '/coerce/1'].map(async (url) => {
+      ['/coerce/9007199254740993', '/coerce/abc', '/coerce/1', '/coerce/0x10'].map(async (url) => {
         const [embedded, generated] = await Promise.all([
           embeddedCoerceIdApp.request(url),
           generatedCoerceIdApp.request(url),
@@ -428,8 +530,11 @@ describe('4. embedded copies match the imported generated artifact', () => {
         '/search?active=true',
         '/search?active=false',
         '/search?limit=5&active=true&ids=1&ids=2',
+        '/search?active=true&ids=1',
         '/search?active=maybe',
         '/search?active=true&limit=abc',
+        '/search?active=true&limit=',
+        '/search?active=true&limit=0x10',
       ].map(async (url) => {
         const [embedded, generated] = await Promise.all([
           embeddedSearchApp.request(url),

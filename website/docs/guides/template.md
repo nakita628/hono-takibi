@@ -131,3 +131,30 @@ export const getUsersIdRoute = defineOpenAPIRoute({
 ![define: true, regenerating on TypeSpec save](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/template/template-define.gif)
 
 In this mode `output` is the app entry (default `./src/index.ts`, must be an `index.ts` path). Routes go to `routes/` next to it, and component schemas to `components/index.ts`.
+
+## Splitting the app
+
+`split: true` exports one group per first path segment. See [Client](/docs/guides/client#larger-applications).
+
+```ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  output: './src/routes.ts',
+  template: { routeHandler: true, split: true },
+})
+```
+
+```ts
+// src/index.ts
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getRoute, getRouteHandler)
+
+export const books = app
+  .openapi(getBooksRoute, getBooksRouteHandler)
+  .openapi(postBooksRoute, postBooksRouteHandler)
+
+export default app
+```
+
+Works with `routeHandler: true`, `routeHandler: false` and `define: true`. Re-running keeps your own exports.

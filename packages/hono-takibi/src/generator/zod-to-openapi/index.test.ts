@@ -2828,10 +2828,17 @@ describe('zodToOpenAPI', () => {
         }
       })
 
-      it.concurrent('string format: time → z.iso.time() (accepts "12:34:56" / rejects "not-time")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'time' })).toBe('z.iso.time()')
-        const runtime = z.iso.time()
+      it.concurrent('string format: time → a string matched against a time with an offset (accepts "12:34:56" / rejects "not-time")', () => {
+        expect(zodToOpenAPI({ type: 'string', format: 'time' })).toBe(
+          'z.string().regex(/^(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|[+-](?:[01]\\d|2[0-3]):[0-5]\\d)?$/).openapi({format:"time"})',
+        )
+        const runtime = z.string().regex(
+          // oxlint-disable-next-line require-unicode-regexp -- mirrors the regex literal the generator emits
+          /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)?$/,
+        )
         expect(runtime.safeParse('12:34:56').success).toBe(true)
+        expect(runtime.safeParse('12:34:56Z').success).toBe(true)
+        expect(runtime.safeParse('12:34:56+09:00').success).toBe(true)
         const result = runtime.safeParse('not-time')
         expect(result.success).toBe(false)
         if (!result.success) {
@@ -2839,19 +2846,24 @@ describe('zodToOpenAPI', () => {
             {
               origin: 'string',
               code: 'invalid_format',
-              format: 'time',
-              pattern: '/^(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?$/',
+              format: 'regex',
+              pattern:
+                '/^(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|[+-](?:[01]\\d|2[0-3]):[0-5]\\d)?$/',
               path: [],
-              message: 'Invalid ISO time',
+              message:
+                'Invalid string: must match pattern /^(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|[+-](?:[01]\\d|2[0-3]):[0-5]\\d)?$/',
             },
           ])
         }
       })
 
-      it.concurrent('string format: date-time → z.iso.datetime() (accepts ISO datetime / rejects "not-datetime")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'date-time' })).toBe('z.iso.datetime()')
-        const runtime = z.iso.datetime()
+      it.concurrent('string format: date-time → z.iso.datetime({offset:true}) (accepts ISO datetime / rejects "not-datetime")', () => {
+        expect(zodToOpenAPI({ type: 'string', format: 'date-time' })).toBe(
+          'z.iso.datetime({offset:true})',
+        )
+        const runtime = z.iso.datetime({ offset: true })
         expect(runtime.safeParse('2024-01-01T00:00:00Z').success).toBe(true)
+        expect(runtime.safeParse('2024-01-01T00:00:00+09:00').success).toBe(true)
         const result = runtime.safeParse('not-datetime')
         expect(result.success).toBe(false)
         if (!result.success) {
@@ -2861,7 +2873,7 @@ describe('zodToOpenAPI', () => {
               code: 'invalid_format',
               format: 'datetime',
               pattern:
-                '/^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$/',
+                '/^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$/',
               path: [],
               message: 'Invalid ISO datetime',
             },
@@ -4247,7 +4259,9 @@ describe('zodToOpenAPI', () => {
 
         describe('type: integer, format: int64', () => {
           it.concurrent('int64: bare → z.int64()', () => {
-            expect(zodToOpenAPI({ type: 'integer', format: 'int64' })).toBe('z.int64()')
+            expect(zodToOpenAPI({ type: 'integer', format: 'int64' })).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64()).openapi({type:"integer",format:"int64"})`,
+            )
             const runtime = z.int64()
             expect(runtime.safeParse(1n).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -4270,7 +4284,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 nullable: true,
               }),
-            ).toBe('z.int64().nullable()')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64()).nullable().openapi({type:["integer","null"],format:"int64"})`,
+            )
             const runtime = z.int64().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -4292,7 +4308,9 @@ describe('zodToOpenAPI', () => {
                 type: ['integer', 'null'],
                 format: 'int64',
               }),
-            ).toBe('z.int64().nullable()')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64()).nullable().openapi({type:["integer","null"],format:"int64"})`,
+            )
             const runtime = z.int64().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -4316,7 +4334,9 @@ describe('zodToOpenAPI', () => {
                 minimum: 0,
                 exclusiveMinimum: true,
               }),
-            ).toBe('z.int64().positive()')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().positive()).openapi({type:"integer",format:"int64",minimum:0,exclusiveMinimum:true})`,
+            )
             const runtime = z.int64().positive()
             expect(runtime.safeParse(1n).success).toBe(true)
             const result = runtime.safeParse(0n)
@@ -4342,7 +4362,9 @@ describe('zodToOpenAPI', () => {
                 minimum: 0,
                 exclusiveMinimum: false,
               }),
-            ).toBe('z.int64().nonnegative()')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().nonnegative()).openapi({type:"integer",format:"int64",minimum:0,exclusiveMinimum:false})`,
+            )
             const runtime = z.int64().nonnegative()
             expect(runtime.safeParse(0n).success).toBe(true)
             const result = runtime.safeParse(-1n)
@@ -4368,7 +4390,9 @@ describe('zodToOpenAPI', () => {
                 maximum: 0,
                 exclusiveMaximum: true,
               }),
-            ).toBe('z.int64().negative()')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().negative()).openapi({type:"integer",format:"int64",maximum:0,exclusiveMaximum:true})`,
+            )
             const runtime = z.int64().negative()
             expect(runtime.safeParse(-1n).success).toBe(true)
             const result = runtime.safeParse(0n)
@@ -4394,7 +4418,9 @@ describe('zodToOpenAPI', () => {
                 maximum: 0,
                 exclusiveMaximum: false,
               }),
-            ).toBe('z.int64().nonpositive()')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().nonpositive()).openapi({type:"integer",format:"int64",maximum:0,exclusiveMaximum:false})`,
+            )
             const runtime = z.int64().nonpositive()
             expect(runtime.safeParse(0n).success).toBe(true)
             const result = runtime.safeParse(1n)
@@ -4419,7 +4445,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 minimum: 100,
               }),
-            ).toBe('z.int64().min(100n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().min(100n)).openapi({type:"integer",format:"int64",minimum:100})`,
+            )
             const runtime = z.int64().min(100n)
             expect(runtime.safeParse(200n).success).toBe(true)
             const result = runtime.safeParse(99n)
@@ -4444,7 +4472,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 minimum: 0,
               }),
-            ).toBe('z.int64().min(0n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().min(0n)).openapi({type:"integer",format:"int64",minimum:0})`,
+            )
             const runtime = z.int64().min(0n)
             expect(runtime.safeParse(0n).success).toBe(true)
             const result = runtime.safeParse(-1n)
@@ -4470,7 +4500,9 @@ describe('zodToOpenAPI', () => {
                 minimum: 100,
                 exclusiveMinimum: true,
               }),
-            ).toBe('z.int64().gt(100n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().gt(100n)).openapi({type:"integer",format:"int64",minimum:100,exclusiveMinimum:true})`,
+            )
             const runtime = z.int64().gt(100n)
             expect(runtime.safeParse(101n).success).toBe(true)
             const result = runtime.safeParse(100n)
@@ -4495,7 +4527,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 maximum: 100,
               }),
-            ).toBe('z.int64().max(100n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().max(100n)).openapi({type:"integer",format:"int64",maximum:100})`,
+            )
             const runtime = z.int64().max(100n)
             expect(runtime.safeParse(50n).success).toBe(true)
             const result = runtime.safeParse(101n)
@@ -4520,7 +4554,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 maximum: 0,
               }),
-            ).toBe('z.int64().max(0n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().max(0n)).openapi({type:"integer",format:"int64",maximum:0})`,
+            )
             const runtime = z.int64().max(0n)
             expect(runtime.safeParse(0n).success).toBe(true)
             const result = runtime.safeParse(1n)
@@ -4546,7 +4582,9 @@ describe('zodToOpenAPI', () => {
                 maximum: 100,
                 exclusiveMaximum: true,
               }),
-            ).toBe('z.int64().lt(100n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().lt(100n)).openapi({type:"integer",format:"int64",maximum:100,exclusiveMaximum:true})`,
+            )
             const runtime = z.int64().lt(100n)
             expect(runtime.safeParse(99n).success).toBe(true)
             const result = runtime.safeParse(100n)
@@ -4571,7 +4609,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 exclusiveMaximum: 100,
               }),
-            ).toBe('z.int64().lt(100n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().lt(100n)).openapi({type:"integer",format:"int64",exclusiveMaximum:100})`,
+            )
             const runtime = z.int64().lt(100n)
             expect(runtime.safeParse(99n).success).toBe(true)
             const result = runtime.safeParse(100n)
@@ -4596,7 +4636,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 multipleOf: 2,
               }),
-            ).toBe('z.int64().multipleOf(2n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().multipleOf(2n)).openapi({type:"integer",format:"int64",multipleOf:2})`,
+            )
             const runtime = z.int64().multipleOf(2n)
             expect(runtime.safeParse(4n).success).toBe(true)
             const result = runtime.safeParse(3n)
@@ -4620,7 +4662,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 default: 100,
               }),
-            ).toBe('z.int64().default(100n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64()).default(100n).openapi({type:"integer",format:"int64",default:100})`,
+            )
             const runtime = z.int64().default(100n)
             expect(runtime.safeParse(1n).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -4644,7 +4688,9 @@ describe('zodToOpenAPI', () => {
                 default: 100,
                 nullable: true,
               }),
-            ).toBe('z.int64().nullable().default(100n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64()).nullable().default(100n).openapi({type:["integer","null"],format:"int64",default:100})`,
+            )
             const runtime = z.int64().nullable().default(100n)
             expect(runtime.safeParse(null).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -4667,7 +4713,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 default: 100,
               }),
-            ).toBe('z.int64().nullable().default(100n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64()).nullable().default(100n).openapi({type:["integer","null"],format:"int64",default:100})`,
+            )
             const runtime = z.int64().nullable().default(100n)
             expect(runtime.safeParse(null).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -6422,7 +6470,9 @@ describe('zodToOpenAPI', () => {
               maximum: 100,
               'x-maximum-message': '100以下',
             }),
-          ).toBe('z.int64().max(100n,{error:"100以下"})')
+          ).toBe(
+            String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().max(100n,{error:"100以下"})).openapi({type:"integer",format:"int64",maximum:100})`,
+          )
           const runtime = z.int64().max(100n, { error: '100以下' })
           expect(runtime.safeParse(50n).success).toBe(true)
           const result = runtime.safeParse(101n)
@@ -7465,7 +7515,9 @@ describe('zodToOpenAPI', () => {
               multipleOf: 5,
               'x-error-message': '5の倍数',
             }),
-          ).toBe('z.int64({error:"5の倍数"}).multipleOf(5n,{error:"5の倍数"})')
+          ).toBe(
+            String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64({error:"5の倍数"}).multipleOf(5n,{error:"5の倍数"})).openapi({type:"integer",format:"int64",multipleOf:5})`,
+          )
           const runtime = z.int64({ error: '5の倍数' }).multipleOf(5n, { error: '5の倍数' })
           expect(runtime.safeParse(10n).success).toBe(true)
           const result = runtime.safeParse(3n)
@@ -8613,14 +8665,26 @@ describe('zodToOpenAPI', () => {
   })
 
   describe('v3.2 string format: date-time (ISO 8601)', () => {
-    it.concurrent('codegen: z.iso.datetime()', () => {
-      expect(zodToOpenAPI({ type: 'string', format: 'date-time' })).toBe('z.iso.datetime()')
+    it.concurrent('codegen: z.iso.datetime({offset:true})', () => {
+      expect(zodToOpenAPI({ type: 'string', format: 'date-time' })).toBe(
+        'z.iso.datetime({offset:true})',
+      )
+    })
+    it.concurrent('codegen: x-isoOffset: false → z.iso.datetime()', () => {
+      expect(zodToOpenAPI({ type: 'string', format: 'date-time', 'x-isoOffset': false })).toBe(
+        'z.iso.datetime()',
+      )
     })
     it.concurrent('runtime: "2026-05-12T10:30:00Z" PASSES', () => {
-      expect(z.iso.datetime().safeParse('2026-05-12T10:30:00Z').success).toBe(true)
+      expect(z.iso.datetime({ offset: true }).safeParse('2026-05-12T10:30:00Z').success).toBe(true)
+    })
+    it.concurrent('runtime: "2026-05-12T10:30:00+09:00" PASSES (RFC 3339 offset)', () => {
+      expect(z.iso.datetime({ offset: true }).safeParse('2026-05-12T10:30:00+09:00').success).toBe(
+        true,
+      )
     })
     it.concurrent('runtime: "2026/05/12" FAILS (not ISO)', () => {
-      const result = z.iso.datetime().safeParse('2026/05/12')
+      const result = z.iso.datetime({ offset: true }).safeParse('2026/05/12')
       expect(result.success).toBe(false)
       if (!result.success) {
         expect(result.error.issues).toStrictEqual([
@@ -8629,7 +8693,7 @@ describe('zodToOpenAPI', () => {
             code: 'invalid_format',
             format: 'datetime',
             pattern:
-              '/^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$/',
+              '/^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$/',
             path: [],
             message: 'Invalid ISO datetime',
           },
@@ -10976,10 +11040,10 @@ describe('zodToOpenAPI', () => {
   })
 
   describe('v3.2 x-isoPrecision: 0 (no fractional seconds)', () => {
-    const Dt0 = z.iso.datetime({ precision: 0 })
-    it.concurrent('codegen: z.iso.datetime({precision:0})', () => {
+    const Dt0 = z.iso.datetime({ precision: 0, offset: true })
+    it.concurrent('codegen: z.iso.datetime({precision:0,offset:true})', () => {
       expect(zodToOpenAPI({ type: 'string', format: 'date-time', 'x-isoPrecision': 0 })).toBe(
-        'z.iso.datetime({precision:0})',
+        'z.iso.datetime({precision:0,offset:true})',
       )
     })
     it.concurrent('runtime: "2024-01-02T03:04:05Z" PASSES', () => {
@@ -10995,7 +11059,7 @@ describe('zodToOpenAPI', () => {
             code: 'invalid_format',
             format: 'datetime',
             pattern:
-              '/^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:Z))$/',
+              '/^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$/',
             path: [],
             message: 'Invalid ISO datetime',
           },
@@ -11005,10 +11069,10 @@ describe('zodToOpenAPI', () => {
   })
 
   describe('v3.2 x-isoPrecision: 3 (millisecond precision required)', () => {
-    const Dt3 = z.iso.datetime({ precision: 3 })
-    it.concurrent('codegen: z.iso.datetime({precision:3})', () => {
+    const Dt3 = z.iso.datetime({ precision: 3, offset: true })
+    it.concurrent('codegen: z.iso.datetime({precision:3,offset:true})', () => {
       expect(zodToOpenAPI({ type: 'string', format: 'date-time', 'x-isoPrecision': 3 })).toBe(
-        'z.iso.datetime({precision:3})',
+        'z.iso.datetime({precision:3,offset:true})',
       )
     })
     it.concurrent('runtime: "2024-01-02T03:04:05.123Z" PASSES', () => {
@@ -11024,7 +11088,7 @@ describe('zodToOpenAPI', () => {
             code: 'invalid_format',
             format: 'datetime',
             pattern:
-              '/^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z))$/',
+              '/^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$/',
             path: [],
             message: 'Invalid ISO datetime',
           },
@@ -11055,10 +11119,10 @@ describe('zodToOpenAPI', () => {
   })
 
   describe('v3.2 x-isoLocal: true (no Z required)', () => {
-    const DtLocal = z.iso.datetime({ local: true })
-    it.concurrent('codegen: z.iso.datetime({local:true})', () => {
+    const DtLocal = z.iso.datetime({ offset: true, local: true })
+    it.concurrent('codegen: z.iso.datetime({offset:true,local:true})', () => {
       expect(zodToOpenAPI({ type: 'string', format: 'date-time', 'x-isoLocal': true })).toBe(
-        'z.iso.datetime({local:true})',
+        'z.iso.datetime({offset:true,local:true})',
       )
     })
     it.concurrent('runtime: "2024-01-02T03:04:05" PASSES (no Z)', () => {
@@ -12191,7 +12255,9 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 integer format: bigint', () => {
     const Bi = z.bigint()
     it.concurrent('codegen: z.bigint()', () => {
-      expect(zodToOpenAPI({ type: 'integer', format: 'bigint' })).toBe('z.bigint()')
+      expect(zodToOpenAPI({ type: 'integer', format: 'bigint' })).toBe(
+        String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.bigint()).openapi({type:"integer",format:"bigint"})`,
+      )
     })
     it.concurrent('runtime: BigInt(1) PASSES', () => {
       expect(Bi.safeParse(BigInt(1)).success).toBe(true)
@@ -12215,7 +12281,9 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 integer format: int64', () => {
     const I64 = z.int64()
     it.concurrent('codegen: z.int64()', () => {
-      expect(zodToOpenAPI({ type: 'integer', format: 'int64' })).toBe('z.int64()')
+      expect(zodToOpenAPI({ type: 'integer', format: 'int64' })).toBe(
+        String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64()).openapi({type:"integer",format:"int64"})`,
+      )
     })
     it.concurrent('runtime: BigInt(1) PASSES', () => {
       expect(I64.safeParse(BigInt(1)).success).toBe(true)

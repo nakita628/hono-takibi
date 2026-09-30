@@ -1,5 +1,4 @@
-import { makeConst } from '../../../../helper/code.js'
-import { makeRequestBody } from '../../../../helper/index.js'
+import { makeConst, makeRequestBody } from '../../../../helper/index.js'
 import type { Components } from '../../../../openapi/index.js'
 
 /**
@@ -29,7 +28,7 @@ export function requestBodiesCode(
   return Object.entries(requestBodies)
     .map(([k, body]) => {
       const isRef = '$ref' in body && body.$ref !== undefined
-      return `${makeConst(exportRequestBodies, k, 'RequestBody')}${makeRequestBody(body)}${isRef ? '' : asConst}`
+      return `${makeConst(exportRequestBodies, k, 'RequestBody')}${makeRequestBody(body, undefined, components.schemas)}${isRef ? '' : asConst}`
     })
     .join('\n\n')
 }

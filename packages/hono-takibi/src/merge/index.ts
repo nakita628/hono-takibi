@@ -284,6 +284,8 @@ export function mergeDefineFile(existingCode: string, generatedCode: string) {
  *
  * Merge rules:
  * - `export const api = app.openapi(...)` chain: replaced with generated version (reflects current routes)
+ * - `export const books = app.openapi(...)` groups of a split app: replaced with the
+ *   generated version, added before `api` when new, removed when no longer generated
  * - Imports: sync with generated (remove deleted route/handler imports, add new ones, keep user imports)
  * - Everything else (middleware, comments, helpers): keep existing
  *
@@ -297,17 +299,94 @@ export function mergeAppFile(existingCode: string, generatedCode: string) {
     generatedApiStmt?.getText() ?? '',
     extractChainPrefix(existingApiStmt?.getText() ?? ''),
   )
+  // What the generator owns: the groups of a split app and `api`, in the order it wrote them.
+  const generatedOwned = [
+    ...[...findGroupStatements(generatedFile)].map(
+      ([name, stmt]) => [name, stmt.getStart(), stmt.getText()] as const,
+    ),
+    ...(generatedApiStmt ? [['api', generatedApiStmt.getStart(), generatedApiText] as const] : []),
+  ].toSorted(([, a], [, b]) => a - b)
+  const existingOwned = new Map<string, VariableStatement>([
+    ...findGroupStatements(existingFile),
+    ...(existingApiStmt ? [['api', existingApiStmt] as const] : []),
+  ])
+  const placed = placeOwned(generatedOwned, existingOwned)
+  const bodyStart = getBodyStart(existingFile)
+  const ops = [...existingOwned]
+    .flatMap(([name, stmt]): readonly (readonly [number, number, string])[] => {
+      const text = placed.get(name)
+      if (text !== undefined) return [[stmt.getStart(), stmt.getEnd(), text]]
+      // A group the generator no longer writes is removed; `api` is the user's to keep.
+      return name === 'api' ? [] : [[stmt.getFullStart(), stmt.getEnd(), '']]
+    })
+    .filter(([start]) => start >= bodyStart)
+    .toSorted(([a], [b]) => a - b)
+  const [firstOwned] = generatedOwned
   const existingBody = makeAppBody({
     existingCode,
-    generatedCode,
-    bodyStart: getBodyStart(existingFile),
-    existingApiStmt,
-    generatedApiStmt,
-    generatedApiText,
+    bodyStart,
+    hasApi: existingApiStmt !== undefined,
+    ops,
+    generatedOwnedText:
+      firstOwned === undefined || generatedApiStmt === undefined
+        ? undefined
+        : `${generatedCode.slice(firstOwned[1], generatedApiStmt.getStart())}${generatedApiText}${generatedCode.slice(generatedApiStmt.getEnd())}`,
   })
   const body = existingBody.trim() || generatedCode.slice(getBodyStart(generatedFile)).trim()
   const mergedImports = mergeImports(existingFile, generatedFile)
   return joinSections([mergedImports.join('\n'), body])
+}
+
+/**
+ * The text each statement of the file is replaced by, by name. A statement the file already
+ * has is replaced where it stands. A new one is placed after the statement the generator
+ * wrote before it, so that the order of the document is kept; the ones written before any
+ * the file has go in front of the first.
+ */
+function placeOwned(
+  generatedOwned: readonly (readonly [string, number, string])[],
+  existingOwned: ReadonlyMap<string, VariableStatement>,
+) {
+  const placed = new Map<string, string>()
+  const head: string[] = []
+  const anchors: string[] = []
+  for (const [name, , text] of generatedOwned) {
+    const anchor = anchors.at(-1)
+    if (existingOwned.has(name)) {
+      placed.set(name, [...head.splice(0), text].join('\n\n'))
+      anchors.push(name)
+    } else if (anchor === undefined) {
+      head.push(text)
+    } else {
+      placed.set(anchor, `${placed.get(anchor) ?? ''}\n\n${text}`)
+    }
+  }
+  return placed
+}
+
+// What a group of a split app is made of, as each template writes it: the app registering
+// routes, `app.openapi(...)` or `app.openapiRoutes([...])`, or mounting a handler file at its
+// root, `app.route('/', booksHandler)`.
+const GROUP_INITIALIZER =
+  /^app\s*\.(?:openapi\(|openapiRoutes\(|route\(\s*'\/'\s*,\s*[\w$]+Handler\s*\))/u
+
+/**
+ * The groups of a split app, by name: `export const books = app.openapi(...)`. What tells
+ * one from an export the user wrote is what it is made of.
+ */
+function findGroupStatements(file: SourceFile) {
+  return new Map(
+    file
+      .getVariableStatements()
+      .filter((stmt) => stmt.isExported() && stmt.getDeclarations().length === 1)
+      .flatMap((stmt) => {
+        const [decl] = stmt.getDeclarations()
+        const made = decl?.getInitializer()?.getText() ?? ''
+        return decl !== undefined && decl.getName() !== 'api' && GROUP_INITIALIZER.test(made)
+          ? [[decl.getName(), stmt] as const]
+          : []
+      }),
+  )
 }
 
 function findApiStatement(file: SourceFile) {
@@ -335,25 +414,17 @@ function injectChainPrefix(generatedApiText: string, chainPrefix: string) {
  */
 function makeAppBody(args: {
   readonly existingCode: string
-  readonly generatedCode: string
   readonly bodyStart: number
-  readonly existingApiStmt: VariableStatement | undefined
-  readonly generatedApiStmt: VariableStatement | undefined
-  readonly generatedApiText: string
+  readonly hasApi: boolean
+  readonly ops: readonly (readonly [number, number, string])[]
+  readonly generatedOwnedText: string | undefined
 }) {
-  const { existingCode, generatedCode, bodyStart, existingApiStmt, generatedApiStmt } = args
-  if (existingApiStmt) {
-    return (
-      existingCode.slice(bodyStart, existingApiStmt.getStart()) +
-      args.generatedApiText +
-      existingCode.slice(existingApiStmt.getEnd())
-    )
-  }
+  const { existingCode, bodyStart } = args
+  if (args.hasApi) return applyRangeOps(existingCode, bodyStart, args.ops)
   const slice = existingCode.slice(bodyStart)
-  if (slice.trim().length === 0 || !generatedApiStmt) return slice
+  if (slice.trim().length === 0 || args.generatedOwnedText === undefined) return slice
   if (/\bexport\s+default\b/u.test(slice)) return slice
-  const trailing = generatedCode.slice(generatedApiStmt.getEnd())
-  return `${slice.trimEnd()}\n\n${args.generatedApiText}${trailing}`
+  return `${slice.trimEnd()}\n\n${args.generatedOwnedText}`
 }
 
 /**

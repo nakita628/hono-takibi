@@ -48,7 +48,7 @@ npx hono-takibi
 - [Configuration](https://hono-takibi.dev/docs/guides/config)
 - [Template](https://hono-takibi.dev/docs/guides/template)
 - [Client](https://hono-takibi.dev/docs/guides/client)
-- [Test & Mock](https://hono-takibi.dev/docs/guides/test-mock)
+- [Mock](https://hono-takibi.dev/docs/guides/mock)
 - [API Docs](https://hono-takibi.dev/docs/guides/api-docs)
 - [Vendor Extensions](https://hono-takibi.dev/docs/guides/vendor)
 - [Vite Plugin](https://hono-takibi.dev/docs/guides/vite-plugin)

@@ -562,15 +562,6 @@ describe('integer', () => {
     })
   })
 
-  describe('coerce option vs x-coerce equivalence', () => {
-    it.concurrent('coerce option produces same output as x-coerce', () => {
-      const schema: Schema = { type: 'integer', 'x-error-message': '整数必須' }
-      const withOption = integer(schema, { coerce: true })
-      const withExtension = integer({ ...schema, 'x-coerce': true })
-      expect(withOption).toBe(withExtension)
-    })
-  })
-
   describe('regression: x-coerce + format runtime bounds', () => {
     it.concurrent('int32 + x-coerce accepts INT32_MAX as a string', () => {
       const Schema = z.coerce.number().pipe(z.int32())

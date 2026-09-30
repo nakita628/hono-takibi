@@ -1,4 +1,4 @@
-import { makeConst } from '../../../../helper/code.js'
+import { makeConst } from '../../../../helper/index.js'
 import type { Components } from '../../../../openapi/index.js'
 
 /**

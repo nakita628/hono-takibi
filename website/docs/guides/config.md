@@ -68,6 +68,8 @@ Prefer a Vite dev server? Use the [Vite plugin](/docs/guides/vite-plugin) instea
 - `output` (single file) and `routes` (split) are mutually exclusive. Same for `components.output` and the per-type `components.*` sections.
 - A `split` directory belongs to the generator: its `.ts` files are removed before each run. Keep hand-written code elsewhere.
 - `basePath` must start with `/`. `client` must be an identifier and `import` a module specifier.
+- The `client` block needs `template`.
+- `rpc` and the hooks need an `import`, unless the `client` block is set. With the `client` block, they cannot set `client`.
 
 ## Full reference
 
@@ -86,6 +88,7 @@ export default defineConfig({
     test: true,
     routeHandler: false, // true: RouteHandler exports
     define: false, // true: defineOpenAPIRoute output
+    split: false, // true: one exported group per first path segment
     pathAlias: '@/',
     testFramework: 'vitest', // "vitest" | "vite-plus" | "bun"
   },
@@ -189,10 +192,15 @@ export default defineConfig({
     readonly: true,
   },
 
+  // Hono client of the scaffolded app (needs `template`).
+  client: {
+    output: './src/lib/client.ts',
+    baseUrl: '/', // a URL, { env, source } or { env, import, name }
+  },
+
   rpc: {
     output: './src/rpc.ts',
-    import: '../lib',
-    client: 'client',
+    import: '../lib', // optional with the `client` block
     parseResponse: true,
     docs: false, // operation summary/description as JSDoc
   },
@@ -200,43 +208,30 @@ export default defineConfig({
   swr: {
     output: './src/swr.ts',
     import: '../lib',
-    client: 'client',
   },
   'tanstack-query': {
     output: './src/tanstack-query.ts',
     import: '../lib',
-    client: 'client',
   },
   'preact-query': {
     output: './src/preact-query.ts',
     import: '../lib',
-    client: 'client',
   },
   'solid-query': {
     output: './src/solid-query.ts',
     import: '../lib',
-    client: 'client',
   },
   'vue-query': {
     output: './src/vue-query.ts',
     import: '../lib',
-    client: 'client',
   },
   'svelte-query': {
     output: './src/svelte-query.ts',
     import: '../lib',
-    client: 'client',
   },
   'angular-query': {
     output: './src/angular-query.ts',
     import: '../lib',
-    client: 'client',
-  },
-
-  test: {
-    output: './src/test.ts',
-    import: '.',
-    testFramework: 'vitest', // "vitest" | "vite-plus" | "bun"
   },
 
   mock: {

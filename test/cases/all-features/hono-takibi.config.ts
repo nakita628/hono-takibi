@@ -47,11 +47,6 @@ export default defineConfig({
   mock: {
     output: '../../__generated__/all-features/mock.ts',
   },
-  test: {
-    output: '../../__generated__/all-features/test.ts',
-    import: './mock',
-    testFramework: 'vite-plus',
-  },
   docs: {
     output: '../../__generated__/all-features/docs.md',
     entry: 'src/index.ts',

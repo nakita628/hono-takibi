@@ -29,12 +29,14 @@
 //   - transforms: x-* extensions and format: trim
 //   - literals: enum and const
 //   - constraints: numeric and string
-//   - combinators: oneOf
+//   - combinators: oneOf and allOf
 //   - declarations: several parameters in one path
 //   - declarations: parameter names that are not identifiers
 //   - declarations: $ref and path-item level
 //   - wire: routing
-//   - leniency: what z.coerce reads beyond a decimal literal (pinned, not endorsed)
+//   - styles: simple, label and matrix
+//   - objects: an object in one segment
+//   - strictness: what the wire grammar does not read
 import { describe, expect, it } from 'vite-plus/test'
 
 import { pathParamsApp } from './app'
@@ -320,14 +322,6 @@ describe('integers: rejected values', () => {
     expect(await res.json()).toStrictEqual({ issues: ['value'] })
   })
 
-  // Exponent notation cannot become a bigint.
-  // 指数表記は bigint に変換できない。
-  it('int64 rejects "1e3"', async () => {
-    const res = await pathParamsApp.request('/int64/1e3')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['value'] })
-  })
-
   // The JavaScript bigint suffix is source syntax, not a value.
   // JavaScript の bigint 接尾辞はソース上の記法であり、値ではない。
   it('int64 rejects "1n"', async () => {
@@ -356,22 +350,6 @@ describe('integers: rejected values', () => {
   // 小数は bigint に変換できない。
   it('uint64 rejects "1.5"', async () => {
     const res = await pathParamsApp.request('/uint64/1.5')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['value'] })
-  })
-
-  // A fraction cannot become a bigint, even a zero one.
-  // 小数部が 0 でも、小数は bigint に変換できない。
-  it('bigint rejects "1.0"', async () => {
-    const res = await pathParamsApp.request('/bigint/1.0')
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['value'] })
-  })
-
-  // Exponent notation cannot become a bigint.
-  // 指数表記は bigint に変換できない。
-  it('bigint rejects "1e3"', async () => {
-    const res = await pathParamsApp.request('/bigint/1e3')
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['value'] })
   })
@@ -1050,37 +1028,11 @@ describe('formats: what each string format rejects', () => {
     expect(await res.json()).toStrictEqual({ issues: ['value'] })
   })
 
-  // A zone designator.
-  // タイムゾーン指定子が付いている。
-  it('time rejects "12:34:56Z"', async () => {
-    const res = await pathParamsApp.request(`/time/${encodeURIComponent('12:34:56Z')}`)
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['value'] })
-  })
-
-  // An offset.
-  // オフセットが付いている。
-  it('time rejects "12:34:56+09:00"', async () => {
-    const res = await pathParamsApp.request(`/time/${encodeURIComponent('12:34:56+09:00')}`)
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['value'] })
-  })
-
   // No zone designator.
   // タイムゾーン指定子がない。
   it('datetime rejects "2020-01-02T03:04:05"', async () => {
     const res = await pathParamsApp.request(
       `/datetime/${encodeURIComponent('2020-01-02T03:04:05')}`,
-    )
-    expect(res.status).toBe(422)
-    expect(await res.json()).toStrictEqual({ issues: ['value'] })
-  })
-
-  // An offset instead of Z: the generated z.iso.datetime() takes Z only.
-  // Z ではなくオフセット。生成される z.iso.datetime() は Z のみを受理する。
-  it('datetime rejects "2020-01-02T03:04:05+09:00"', async () => {
-    const res = await pathParamsApp.request(
-      `/datetime/${encodeURIComponent('2020-01-02T03:04:05+09:00')}`,
     )
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['value'] })
@@ -1743,7 +1695,7 @@ describe('constraints: numeric and string', () => {
 // string branch does not need to.
 // パラメータは integer または文字列 "all" の oneOf である。integer 側の分岐は coerce され、
 // string 側の分岐は coerce 不要である。
-describe('combinators: oneOf', () => {
+describe('combinators: oneOf and allOf', () => {
   // Matches neither branch.
   // どちらの分岐にも一致しない。
   it('oneof rejects "other"', async () => {
@@ -1764,6 +1716,22 @@ describe('combinators: oneOf', () => {
   // 小数はどちらの分岐にも一致しない。
   it('oneof rejects "1.5"', async () => {
     const res = await pathParamsApp.request('/oneof/1.5')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // One below the minimum of the second branch.
+  // 2番目の分岐の最小値を 1 下回る。
+  it('allof rejects a value below the minimum', async () => {
+    const res = await pathParamsApp.request('/allof/4')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // A word is not an integer, the first branch. It is a rejection, not a server error.
+  // 単語は、1番目の分岐が求める整数ではない。サーバーエラーではなく、拒否となる。
+  it('allof rejects a word', async () => {
+    const res = await pathParamsApp.request('/allof/x')
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['value'] })
   })
@@ -1899,6 +1867,24 @@ describe('declarations: $ref and path-item level', () => {
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['id'] })
   })
+
+  // -1 is an integer, and below the minimum of the referenced schema, 0: the constraint of
+  // the component applies to the value read from the segment.
+  // -1 は整数であり、参照先スキーマの最小値 0 を下回る。
+  // コンポーネントの制約は、セグメントから読み取った値に適用される。
+  it('a schema $ref rejects a value below the referenced minimum', async () => {
+    const res = await pathParamsApp.request('/schemaref/-1')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // A word is not an integer, behind a reference as much as inline.
+  // 単語は整数ではない。参照経由でも、インライン宣言と同じである。
+  it('a schema $ref rejects a word', async () => {
+    const res = await pathParamsApp.request('/schemaref/abc')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
 })
 
 // What decides whether a request reaches the route at all.
@@ -1971,16 +1957,315 @@ describe('wire: routing', () => {
   })
 })
 
-// Numbers are coerced with z.coerce, that is Number(text) and BigInt(text). Both read more
-// than a decimal literal, and these tests pin exactly how much more, so that a change to the
-// coercion shows up here as a decision and not as a surprise. They record today's behaviour;
-// they do not say it is desirable.
-// 数値は z.coerce、すなわち Number(text) と BigInt(text) で変換される。
-// どちらも10進リテラル以外も読み取るため、「どこまで読むか」をここで固定する。
-// coerce の実装を変えたときに、想定外の変化ではなく意図した判断として差分が
-// 現れるようにするためである。これらは現状の挙動の記録であり、
-// 望ましい挙動だと主張するものではない。
-describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not endorsed)', () => {
+// An element of a split segment is validated on its own and reported at its index.
+// 分割されたセグメントの要素は、個別に検証され、そのインデックスで報告される。
+describe('styles: simple, label and matrix', () => {
+  // The second element is not an integer.
+  // 2番目の要素が整数ではない。
+  it('simplearr rejects a word among its elements', async () => {
+    const res = await pathParamsApp.request('/simplearr/1,x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value.1'] })
+  })
+
+  // Two commas in a row leave an empty element, which is not an integer.
+  // カンマが連続すると空の要素が残る。空の要素は整数ではない。
+  it('simplearr rejects an empty element', async () => {
+    const res = await pathParamsApp.request('/simplearr/1,,2')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value.1'] })
+  })
+
+  // A label value starts with its dot: text without one is not a value of the parameter.
+  // label の値はドットで始まる。ドットのない文字列は、このパラメータの値ではない。
+  it('label rejects a number without its dot', async () => {
+    const res = await pathParamsApp.request('/label/5')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // A string takes any text, and is rejected all the same: the dot is what makes it a value.
+  // string はあらゆる文字列を受理するが、それでも拒否される。値であることを示すのは
+  // ドットである。
+  it('labelstr rejects a string without its dot', async () => {
+    const res = await pathParamsApp.request('/labelstr/abc')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // The elements of a label array follow the dot as well.
+  // label の配列の要素も、ドットに続く。
+  it('labelarr rejects elements without the dot', async () => {
+    const res = await pathParamsApp.request('/labelarr/1,2,3')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // A matrix value starts with ";" and the name of the parameter.
+  // matrix の値は、";" とパラメータ名で始まる。
+  it('matrix rejects a number without the name of the parameter', async () => {
+    const res = await pathParamsApp.request('/matrix/5')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // A string takes any text, and is rejected all the same.
+  // string はあらゆる文字列を受理するが、それでも拒否される。
+  it('matrixstr rejects a string without the name of the parameter', async () => {
+    const res = await pathParamsApp.request('/matrixstr/abc')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // An exploded matrix object starts with ";" as well.
+  // explode された matrix のオブジェクトも、";" で始まる。
+  it('matrixobjx rejects assignments without the leading semicolon', async () => {
+    const res = await pathParamsApp.request('/matrixobjx/a=1;b=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // There is no value before the first part for it to continue.
+  // 最初の部分には、続きとなる直前の値が存在しない。
+  it('simpleobjx rejects a value whose first part is no assignment', async () => {
+    const res = await pathParamsApp.request('/simpleobjx/x,a=1')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // The parts 1 and 5 are read as the value 1.5, which is no integer.
+  // 1 と 5 の部分は 1.5 という値として読まれるが、これは整数ではない。
+  it('labelobjx rejects a decimal where a property is an integer', async () => {
+    const res = await pathParamsApp.request('/labelobjx/.a=1.5')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value.a'] })
+  })
+
+  // The prefix is the name of this parameter.
+  // 接頭辞は、このパラメータ自身の名前である。
+  it('matrixstr rejects the name of another parameter', async () => {
+    const res = await pathParamsApp.request('/matrixstr/;other=abc')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // An exploded label array starts with its dot as well.
+  // explode された label の配列も、ドットで始まる。
+  it('labelexplode rejects elements without the dot', async () => {
+    const res = await pathParamsApp.request('/labelexplode/1.2.3')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // An exploded matrix array starts with ";" and the name.
+  // explode された matrix の配列は、";" と名前で始まる。
+  it('matrixexplode rejects elements without the name of the parameter', async () => {
+    const res = await pathParamsApp.request('/matrixexplode/1;value=2')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // A matrix array starts with ";" and the name.
+  // matrix の配列は、";" と名前で始まる。
+  it('matrixarr rejects elements without the name of the parameter', async () => {
+    const res = await pathParamsApp.request('/matrixarr/1,2,3')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // The prefix is stripped and what is left is not an integer.
+  // 接頭辞を取り除いた残りが、整数ではない。
+  it('label rejects a word after the dot', async () => {
+    const res = await pathParamsApp.request('/label/.x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // The third element is not an integer.
+  // 3番目の要素が整数ではない。
+  it('labelarr rejects a word among its elements', async () => {
+    const res = await pathParamsApp.request('/labelarr/.1,2,x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value.2'] })
+  })
+
+  // The prefix is stripped and what is left is not an integer.
+  // 接頭辞を取り除いた残りが、整数ではない。
+  it('matrix rejects a word after the prefix', async () => {
+    const res = await pathParamsApp.request('/matrix/;value=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // The prefix carries the name of the parameter, value. Another name is not stripped, and what
+  // is left is not an integer.
+  // 接頭辞にはパラメータ名である value が入る。別の名前は取り除かれず、
+  // 残った文字列は整数ではない。
+  it('matrix rejects the prefix of another name', async () => {
+    const res = await pathParamsApp.request('/matrix/;other=5')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // The second element is not an integer.
+  // 2番目の要素が整数ではない。
+  it('matrixexplode rejects a word among its elements', async () => {
+    const res = await pathParamsApp.request('/matrixexplode/;value=1;value=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value.1'] })
+  })
+})
+
+// A property is validated on its own and reported under its name; a segment that does not come
+// apart as the style says is rejected as a whole.
+// プロパティは個別に検証され、その名前で報告される。スタイルの規則どおりに分解できない
+// セグメントは、全体として拒否される。
+describe('objects: an object in one segment', () => {
+  // a is an integer.
+  // a は integer である。
+  it('simpleobj rejects a word where a property is an integer', async () => {
+    const res = await pathParamsApp.request('/simpleobj/a,x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value.a'] })
+  })
+
+  // One part cannot be a pair.
+  // 1つの部分だけでは、ペアにならない。
+  it('simpleobj rejects a name left without its value', async () => {
+    const res = await pathParamsApp.request('/simpleobj/a')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // a has no "=".
+  // a には "=" がない。
+  it('simpleobjx rejects a part that is not an assignment', async () => {
+    const res = await pathParamsApp.request('/simpleobjx/a')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // a is an integer.
+  // a は integer である。
+  it('simpleobjx rejects a word where a property is an integer', async () => {
+    const res = await pathParamsApp.request('/simpleobjx/a=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value.a'] })
+  })
+
+  // a is an integer.
+  // a は integer である。
+  it('matrixobjx rejects a word where a property is an integer', async () => {
+    const res = await pathParamsApp.request('/matrixobjx/;a=x')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value.a'] })
+  })
+})
+
+// Numbers are read from text by a decimal grammar before they are validated: an optional
+// minus sign and digits for an integer, and for a number a fraction and an exponent as well.
+// Number(text) and BigInt(text) read more than that (an empty value as zero, a hexadecimal
+// literal, surrounding whitespace), and none of it is accepted here.
+// 数値は、検証の前に10進の文法で文字列から読み取られる。整数は任意のマイナス記号と数字、
+// 数値はそれに加えて小数部と指数部である。Number(text) や BigInt(text) はそれ以上のもの
+// (空の値を 0 とする、16進リテラル、前後の空白)も読み取るが、ここではいずれも受理しない。
+describe('strictness: what the wire grammar does not read', () => {
+  // An explicit plus sign is not part of a decimal literal.
+  // 明示的なプラス記号は、10進リテラルには含まれない。
+  it('integer rejects "+1"', async () => {
+    const res = await pathParamsApp.request(`/integer/${encodeURIComponent('+1')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // An explicit plus sign is not part of a decimal literal.
+  // 明示的なプラス記号は、10進リテラルには含まれない。
+  it('int64 rejects "+5"', async () => {
+    const res = await pathParamsApp.request(`/int64/${encodeURIComponent('+5')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // A hexadecimal literal is not decimal.
+  // 16進リテラルは10進表記ではない。
+  it('integer rejects "0x10"', async () => {
+    const res = await pathParamsApp.request('/integer/0x10')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // A binary literal is not decimal.
+  // 2進リテラルは10進表記ではない。
+  it('integer rejects "0b11"', async () => {
+    const res = await pathParamsApp.request('/integer/0b11')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // An octal literal is not decimal.
+  // 8進リテラルは10進表記ではない。
+  it('integer rejects "0o7"', async () => {
+    const res = await pathParamsApp.request('/integer/0o7')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // A hexadecimal literal is not decimal.
+  // 16進リテラルは10進表記ではない。
+  it('number rejects "0x1F"', async () => {
+    const res = await pathParamsApp.request('/number/0x1F')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // A hexadecimal literal is not decimal.
+  // 16進リテラルは10進表記ではない。
+  it('int64 rejects "0x10"', async () => {
+    const res = await pathParamsApp.request('/int64/0x10')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // Surrounding whitespace is not trimmed.
+  // 前後の空白は取り除かれない。
+  it('integer rejects " 42 "', async () => {
+    const res = await pathParamsApp.request(`/integer/${encodeURIComponent(' 42 ')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // Whitespace alone is not a number.
+  // 空白だけの値は数値ではない。
+  it('integer rejects " "', async () => {
+    const res = await pathParamsApp.request(`/integer/${encodeURIComponent(' ')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // Whitespace alone is not a number.
+  // 空白だけの値は数値ではない。
+  it('number rejects " "', async () => {
+    const res = await pathParamsApp.request(`/number/${encodeURIComponent(' ')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // Whitespace alone is not a number.
+  // 空白だけの値は数値ではない。
+  it('int64 rejects " "', async () => {
+    const res = await pathParamsApp.request(`/int64/${encodeURIComponent(' ')}`)
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // A hexadecimal literal is not decimal.
+  // 16進リテラルは10進表記ではない。
+  it('ienum rejects "0x1"', async () => {
+    const res = await pathParamsApp.request('/ienum/0x1')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
   // The opposite case, stricter than the name suggests: httpUrl requires a dotted domain, so a
   // bare localhost does not pass.
   // 逆に、名前から想像されるより厳しい例。httpUrl はドットを含むドメインを要求するため、

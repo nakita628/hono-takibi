@@ -5,12 +5,13 @@ import {
   isHttpMethod,
   isOperation,
   isParameter,
+  isPathItemEntry,
   isSecurityArray,
   isSecurityScheme,
 } from '../../guard/index.js'
-import { getNonExistentValue, mockFunctionName, schemaToFaker } from '../../helper/faker.js'
-import type { OpenAPI, Schema } from '../../openapi/index.js'
-import { cyclicNodes, methodPath } from '../../utils/index.js'
+import { getNonExistentValue, mockFunctionSignature, schemaToFaker } from '../../helper/faker.js'
+import type { OpenAPI, Parameter, Schema } from '../../openapi/index.js'
+import { cyclicNodes, methodPath, normalizeTypes } from '../../utils/index.js'
 
 function collectSchemaRefs(
   schema: Schema,
@@ -82,37 +83,161 @@ function extractSecurityRequirements(
   )
 }
 
+type Shape = 'scalar' | 'array' | 'object'
+
+type TestParam = {
+  readonly name: string
+  readonly variable: string
+  readonly fakerCode: string
+  readonly shape?: 'array' | 'object'
+  readonly style?: string
+  readonly explode?: boolean
+}
+
+const TAKEN = new Set([
+  'app',
+  'body',
+  'res',
+  'faker',
+  'describe',
+  'it',
+  'expect',
+  'deepObjectQuery',
+  'break',
+  'case',
+  'catch',
+  'class',
+  'const',
+  'continue',
+  'debugger',
+  'default',
+  'delete',
+  'do',
+  'else',
+  'enum',
+  'export',
+  'extends',
+  'false',
+  'finally',
+  'for',
+  'function',
+  'if',
+  'import',
+  'in',
+  'instanceof',
+  'new',
+  'null',
+  'return',
+  'super',
+  'switch',
+  'this',
+  'throw',
+  'true',
+  'try',
+  'typeof',
+  'var',
+  'void',
+  'while',
+  'with',
+  'let',
+  'static',
+  'yield',
+  'await',
+])
+
+function toVariable(name: string) {
+  const camel = name
+    .replaceAll(/[^A-Za-z0-9_$]+(.?)/gu, (_, next: string) => next.toUpperCase())
+    .replace(/^[A-Z]/u, (first) => first.toLowerCase())
+  const word = /^[A-Za-z_$]/u.test(camel) ? camel : `_${camel}`
+  return TAKEN.has(word) ? `${word}_` : word
+}
+
+function nameVariables<T extends { readonly name: string }>(
+  located: readonly (readonly [string, readonly T[]])[],
+) {
+  const used = new Set<string>()
+  return located.map(([location, params]) =>
+    params.map((param) => {
+      const base = toVariable(param.name)
+      const candidates = [
+        base,
+        `${base}${location}`,
+        ...Array.from({ length: used.size + 1 }, (_, i) => `${base}${location}${i + 2}`),
+      ]
+      const variable = candidates.find((candidate) => !used.has(candidate)) ?? base
+      used.add(variable)
+      return { ...param, variable }
+    }),
+  )
+}
+
+function shapeOf(
+  schema: Schema,
+  schemas: { readonly [k: string]: Schema } | undefined,
+  seen: readonly string[] = [],
+): Shape {
+  if (schema.$ref !== undefined) {
+    const target = schemas?.[schema.$ref.replace('#/components/schemas/', '')]
+    return target === undefined || seen.includes(schema.$ref)
+      ? 'scalar'
+      : shapeOf(target, schemas, [...seen, schema.$ref])
+  }
+  const types = normalizeTypes(schema.type)
+  if (types.includes('array')) return 'array'
+  return types.includes('object') || schema.properties !== undefined ? 'object' : 'scalar'
+}
+
 export function extractTestCases(spec: OpenAPI) {
   const securitySchemes = spec.components?.securitySchemes
   return Object.entries(spec.paths).flatMap(([path, pathItem]) =>
     Object.entries(pathItem).flatMap(([method, operation]) => {
       if (!(isHttpMethod(method) && isOperation(operation))) return [] as const
-      const resolvedParams = (operation.parameters ?? ([] as const)).flatMap((rawParam) => {
-        const param = rawParam.$ref
-          ? (spec.components?.parameters?.[rawParam.$ref.replace('#/components/parameters/', '')] ??
-            rawParam)
-          : rawParam
-        if (!isParameter(param)) return [] as const
+      const resolve = (rawParam: Parameter | { readonly $ref?: string }) => {
+        const ref = '$ref' in rawParam ? rawParam.$ref : undefined
+        const param =
+          ref === undefined
+            ? rawParam
+            : (spec.components?.parameters?.[ref.replace('#/components/parameters/', '')] ??
+              rawParam)
+        return isParameter(param) ? [param] : []
+      }
+      const operationParams = (operation.parameters ?? []).flatMap(resolve)
+      const sharedParams = (isPathItemEntry(pathItem) ? (pathItem.parameters ?? []) : [])
+        .flatMap(resolve)
+        .filter(
+          (shared) =>
+            !operationParams.some((own) => own.name === shared.name && own.in === shared.in),
+        )
+      const resolvedParams = [...sharedParams, ...operationParams].map((param) => {
         const schema = param.schema ?? { type: 'string' as const }
-        return [{ param, schema, fakerCode: schemaToFaker(schema, param.name) }] as const
+        return { param, schema, fakerCode: schemaToFaker(schema, param.name) } as const
       })
-      const pathParams = resolvedParams
-        .filter((p) => p.param.in === 'path')
-        .map((p) => ({ name: p.param.name, fakerCode: p.fakerCode, schema: p.schema }))
-      const queryParams = resolvedParams
-        .filter((p) => p.param.in === 'query')
-        .map((p) => ({
-          name: p.param.name,
-          fakerCode: p.fakerCode,
-          required: p.param.required ?? false,
-        }))
-      const headerParams = resolvedParams
-        .filter((p) => p.param.in === 'header')
-        .map((p) => ({
-          name: p.param.name,
-          fakerCode: p.fakerCode,
-          required: p.param.required ?? false,
-        }))
+      const wire = (param: Parameter, schema: Schema) => {
+        const shape =
+          param.content === undefined ? shapeOf(schema, spec.components?.schemas) : 'scalar'
+        return {
+          ...(shape === 'scalar' ? {} : { shape }),
+          ...(param.style === undefined ? {} : { style: param.style }),
+          ...(param.explode === undefined ? {} : { explode: param.explode }),
+        }
+      }
+      const toPathParam = (p: (typeof resolvedParams)[number]) => ({
+        name: p.param.name,
+        fakerCode: p.fakerCode,
+        schema: p.schema,
+        ...wire(p.param, p.schema),
+      })
+      const toParam = (p: (typeof resolvedParams)[number]) => ({
+        name: p.param.name,
+        fakerCode: p.fakerCode,
+        required: p.param.required ?? false,
+        ...wire(p.param, p.schema),
+      })
+      const pathParams = resolvedParams.filter((p) => p.param.in === 'path').map(toPathParam)
+      const queryParams = resolvedParams.filter((p) => p.param.in === 'query').map(toParam)
+      const headerParams = resolvedParams.filter((p) => p.param.in === 'header').map(toParam)
+      const cookieParams = resolvedParams.filter((p) => p.param.in === 'cookie').map(toParam)
       const jsonBodySchema =
         operation.requestBody && isContentBody(operation.requestBody)
           ? operation.requestBody.content?.['application/json']?.schema
@@ -153,6 +278,7 @@ export function extractTestCases(spec: OpenAPI) {
           pathParams,
           queryParams,
           headerParams,
+          cookieParams,
           requestBody,
           successStatus,
           errorStatuses,
@@ -216,8 +342,13 @@ function makeMockFunctions(
   const circular = circularSchemas ?? detectCircularSchemas(schemas)
   return topologicalOrder(usedSchemaNames, schemas)
     .map((name) => {
-      const returnType = circular.has(name) ? ': any' : ''
-      return `function ${mockFunctionName(name)}()${returnType} {\n  return ${schemaToFaker(schemas[name])}\n}`
+      const isCircular = circular.has(name)
+      const mockBody = schemaToFaker(
+        schemas[name],
+        undefined,
+        isCircular ? { recursive: circular } : {},
+      )
+      return `${mockFunctionSignature(name, isCircular)} {\n  return ${mockBody}\n}`
     })
     .join('\n\n')
 }
@@ -237,12 +368,98 @@ function makeAuthHeader(sec: {
       return "'Authorization':`Basic ${btoa(`${faker.internet.username()}:${faker.internet.password()}`)}`"
     case 'apiKey':
       if (sec.in === 'header') return `${quoteSingle(sec.name)}:faker.string.alphanumeric(32)`
-      // RFC 6265: `Cookie: <name>=<value>`. apiKey-in-query is appended upstream.
-      if (sec.in === 'cookie') {
-        return `'Cookie':\`${escapeTemplateLiteral(sec.name)}=\${faker.string.alphanumeric(32)}\``
-      }
   }
   return ''
+}
+
+const ENCODED = 'encodeURIComponent(String(item))'
+
+const DEEP_OBJECT_QUERY =
+  "function deepObjectQuery(key:string,item:unknown):string[]{if(Array.isArray(item))return item.flatMap((child)=>deepObjectQuery(key+'[]',child));if(typeof item==='object'&&item!==null)return Object.entries(item).flatMap(([name,child])=>deepObjectQuery(key+'['+name+']',child));return[key+'='+encodeURIComponent(String(item))]}"
+
+function makeHelpers(body: string) {
+  return body.includes('deepObjectQuery(') ? `${DEEP_OBJECT_QUERY}\n\n` : ''
+}
+
+function joinedValue(param: TestParam, separator: string, assignments: boolean, encoded = ENCODED) {
+  const glue = quoteSingle(separator)
+  if (param.shape === 'array') return `${param.variable}.map((item)=>${encoded}).join(${glue})`
+  return assignments
+    ? `Object.entries(${param.variable}).map(([key,item])=>key+'='+${encoded}).join(${glue})`
+    : `Object.entries(${param.variable}).flatMap(([key,item])=>[key,${encoded}]).join(${glue})`
+}
+
+function repeatedValue(param: TestParam, before: string, separator: string) {
+  const head = before === '' ? '' : `${quoteSingle(before)}+`
+  const glue = quoteSingle(separator)
+  return param.shape === 'array'
+    ? `${param.variable}.map((item)=>${head}${ENCODED}).join(${glue})`
+    : `Object.entries(${param.variable}).map(([key,item])=>${head}key+'='+${ENCODED}).join(${glue})`
+}
+
+function makePathValue(param: TestParam) {
+  const style = param.style ?? 'simple'
+  const explode = param.explode ?? false
+  const name = escapeTemplateLiteral(param.name)
+  if (param.shape === undefined) {
+    if (style === 'label') return `.\${${param.variable}}`
+    if (style === 'matrix') return `;${name}=\${${param.variable}}`
+    return `\${${param.variable}}`
+  }
+  if (style === 'label') {
+    return `.\${${joinedValue(param, explode ? '.' : ',', explode)}}`
+  }
+  if (style === 'matrix') {
+    return explode
+      ? `\${${repeatedValue(param, param.shape === 'array' ? `;${param.name}=` : ';', '')}}`
+      : `;${name}=\${${joinedValue(param, ',', false)}}`
+  }
+  return `\${${joinedValue(param, ',', explode)}}`
+}
+
+function makeQueryPart(param: TestParam) {
+  const style = param.style ?? 'form'
+  const explode = param.explode ?? style === 'form'
+  const name = escapeTemplateLiteral(param.name)
+  if (param.shape === undefined) {
+    return `${name}=\${encodeURIComponent(String(${param.variable}))}`
+  }
+  if (param.shape === 'object' && style === 'deepObject') {
+    return `\${deepObjectQuery(${quoteSingle(param.name)},${param.variable}).join('&')}`
+  }
+  if (explode) {
+    return `\${${repeatedValue(param, param.shape === 'array' ? `${param.name}=` : '', '&')}}`
+  }
+  const separator = style === 'pipeDelimited' ? '|' : style === 'spaceDelimited' ? '%20' : ','
+  return `${name}=\${${joinedValue(param, separator, false)}}`
+}
+
+function makeHeaderValue(param: TestParam) {
+  if (param.shape === undefined) return `String(${param.variable})`
+  return joinedValue(param, ',', param.explode ?? false, 'String(item)')
+}
+
+function isCookieAuth(sec: { readonly type: string; readonly in?: string }) {
+  return sec.type === 'apiKey' && sec.in === 'cookie'
+}
+
+function makeCookiePart(param: TestParam) {
+  const name = escapeTemplateLiteral(param.name)
+  if (param.shape === undefined) {
+    return `${name}=\${encodeURIComponent(String(${param.variable}))}`
+  }
+  if (param.shape === 'object' && (param.explode ?? true)) {
+    return `\${${repeatedValue(param, '', '; ')}}`
+  }
+  return `${name}=\${${joinedValue(param, ',', false)}}`
+}
+
+function makeCookieHeader(parts: readonly string[]) {
+  return parts.length > 0 ? [`'Cookie':\`${parts.join('; ')}\``] : []
+}
+
+function setup(param: TestParam) {
+  return `const ${param.variable}=${param.fakerCode}`
 }
 
 function makeTestCase(
@@ -256,15 +473,20 @@ function makeTestCase(
   // Escape template-literal metacharacters BEFORE injecting `${name}` markers
   // to prevent codegen injection from malicious path keys.
   const escapedFullPath = escapeTemplateLiteral(fullPath)
-  const testPath = tc.pathParams.reduce(
-    (path, param) => path.replace(`{${param.name}}`, `\${${param.name}}`),
+  const [pathParams = [], queryParams = [], requiredHeaderParams = [], requiredCookieParams = []] =
+    nameVariables<(typeof tc.pathParams)[number] | (typeof tc.queryParams)[number]>([
+      ['Path', tc.pathParams],
+      ['Query', tc.queryParams],
+      ['Header', tc.headerParams.filter((p) => p.required)],
+      ['Cookie', tc.cookieParams.filter((p) => p.required)],
+    ])
+  const testPath = pathParams.reduce(
+    (path, param) => path.replace(`{${param.name}}`, makePathValue(param)),
     escapedFullPath,
   )
-  const pathSetup = tc.pathParams.map((param) => `const ${param.name}=${param.fakerCode}`)
-  const querySetup = tc.queryParams.map((param) => `const ${param.name}=${param.fakerCode}`)
-  const queryParts = tc.queryParams.map(
-    (param) => `${escapeTemplateLiteral(param.name)}=\${encodeURIComponent(String(${param.name}))}`,
-  )
+  const pathSetup = pathParams.map(setup)
+  const querySetup = queryParams.map(setup)
+  const queryParts = queryParams.map(makeQueryPart)
   const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : ''
   // apiKey-in-query credentials go on the URL; bare `queryString` is reused
   // for the unauthorized-flow test which omits the credential.
@@ -277,12 +499,19 @@ function makeTestCase(
         ? `&${authQueryParts.join('&')}`
         : `?${authQueryParts.join('&')}`
       : ''
-  const requiredHeaderParams = tc.headerParams.filter((p) => p.required)
-  const headerSetup = requiredHeaderParams.map((param) => `const ${param.name}=${param.fakerCode}`)
+  const headerSetup = requiredHeaderParams.map(setup)
   const headerEntries = requiredHeaderParams.map(
-    (param) => `${quoteSingle(param.name)}:String(${param.name})`,
+    (param) => `${quoteSingle(param.name)}:${makeHeaderValue(param)}`,
   )
-  const authHeaders = tc.security.map(makeAuthHeader).filter(Boolean)
+  const cookieSetup = requiredCookieParams.map(setup)
+  const cookieParts = requiredCookieParams.map(makeCookiePart)
+  const authCookieParts = tc.security
+    .filter(isCookieAuth)
+    .map((sec) => `${escapeTemplateLiteral(sec.name)}=\${faker.string.alphanumeric(32)}`)
+  const authHeaders = tc.security
+    .filter((sec) => !isCookieAuth(sec))
+    .map(makeAuthHeader)
+    .filter(Boolean)
   const { bodySetup, bodyOption, contentTypeHeader } = tc.requestBody
     ? {
         bodySetup: `const body=${tc.requestBody.fakerCode}`,
@@ -291,13 +520,18 @@ function makeTestCase(
       }
     : { bodySetup: '', bodyOption: '', contentTypeHeader: '' }
   const headers = [...headerEntries, ...(contentTypeHeader ? [contentTypeHeader] : [])]
-  const allHeaders = [...headers, ...authHeaders]
+  const allHeaders = [
+    ...headers,
+    ...authHeaders,
+    ...makeCookieHeader([...cookieParts, ...authCookieParts]),
+  ]
+  const plainHeaders = [...headers, ...makeCookieHeader(cookieParts)]
   const headersOption = allHeaders.length > 0 ? `,headers:{${allHeaders.join(',')}}` : ''
-  const headersWithoutAuth = headers.length > 0 ? `,headers:{${headers.join(',')}}` : ''
+  const headersWithoutAuth = plainHeaders.length > 0 ? `,headers:{${plainHeaders.join(',')}}` : ''
   // `tc.summary` is escaped by `quoteSingle(itTitle)` below.
   const summaryPart = tc.summary ? ` - ${tc.summary}` : ''
   const itDescription = `should return ${tc.successStatus}${summaryPart}`
-  const setupCode = [...pathSetup, ...querySetup, ...headerSetup, bodySetup]
+  const setupCode = [...pathSetup, ...querySetup, ...headerSetup, ...cookieSetup, bodySetup]
     .filter(Boolean)
     .join('\n')
   const describeTitle = quoteSingle(`${tc.method} ${fullPath}`)
@@ -316,10 +550,13 @@ function makeTestCase(
               path.replace(`{${param.name}}`, getNonExistentValue(param.schema, schemas)),
             escapedFullPath,
           )
-          const notFoundQuerySetup = tc.queryParams.map(
-            (param) => `const ${param.name}=${param.fakerCode}`,
-          )
-          const notFoundSetupCode = [...notFoundQuerySetup, ...headerSetup, bodySetup]
+          const notFoundQuerySetup = queryParams.map(setup)
+          const notFoundSetupCode = [
+            ...notFoundQuerySetup,
+            ...headerSetup,
+            ...cookieSetup,
+            bodySetup,
+          ]
             .filter(Boolean)
             .join('\n')
           return `\nit('should return 404 for non-existent resource',async()=>{${notFoundSetupCode}\nconst res=await app.request(\`${notFoundPath}${queryString}\`,{method:${methodLiteral}${headersOption}${bodyOption}})\nexpect(res.status).toBe(404)})`
@@ -376,7 +613,8 @@ export function makeTestFile(
     })
     .join('')
   const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
-  const body = `${mockSection}describe(${quoteSingle(apiTitle)},()=>{${tagDescribes}})\n`
+  const suite = `describe(${quoteSingle(apiTitle)},()=>{${tagDescribes}})\n`
+  const body = `${mockSection}${makeHelpers(suite)}${suite}`
   const needsFaker = body.includes('faker.')
   const fakerImport = needsFaker ? `\nimport{faker}from'@faker-js/faker'` : ''
   const testImportSource = TEST_IMPORT_SOURCE[testFramework]
@@ -429,7 +667,8 @@ export function makeHandlerTestCode(
     .join('')
   const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
   const resourceName = handlerFileName.charAt(0).toUpperCase() + handlerFileName.slice(1)
-  const body = `${mockSection}describe(${quoteSingle(resourceName)},()=>{${testCasesCode}})\n`
+  const suite = `describe(${quoteSingle(resourceName)},()=>{${testCasesCode}})\n`
+  const body = `${mockSection}${makeHelpers(suite)}${suite}`
   const needsFaker = body.includes('faker.')
   const fakerImport = needsFaker ? `\nimport{faker}from'@faker-js/faker'` : ''
   const testImportSource = TEST_IMPORT_SOURCE[testFramework]

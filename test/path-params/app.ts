@@ -2,6 +2,7 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 
 import {
   deleteSharedIdRoute,
+  getAllofValueRoute,
   getBase64urlValueRoute,
   getBase64ValueRoute,
   getBenumValueRoute,
@@ -35,11 +36,23 @@ import {
   getInt64rangeValueRoute,
   getInt64ValueRoute,
   getIntegerValueRoute,
+  getInullValueRoute,
   getIpv4ValueRoute,
   getIpv6ValueRoute,
   getKsuidValueRoute,
+  getLabelarrValueRoute,
+  getLabelexplodeValueRoute,
+  getLabelobjxValueRoute,
+  getLabelstrValueRoute,
+  getLabelValueRoute,
   getLengthValueRoute,
   getMacValueRoute,
+  getMatrixarrValueRoute,
+  getMatrixexplodeValueRoute,
+  getMatrixobjValueRoute,
+  getMatrixobjxValueRoute,
+  getMatrixstrValueRoute,
+  getMatrixValueRoute,
   getMultipleValueRoute,
   getNamedUserIdPostIdRoute,
   getNanoidValueRoute,
@@ -47,6 +60,7 @@ import {
   getNumberValueRoute,
   getNumericsenumValueRoute,
   getNumpasswordValueRoute,
+  getOneofisValueRoute,
   getOneofValueRoute,
   getOrgsOrgIdReposRepoIdIssuesIssueIdRoute,
   getOverrideIdRoute,
@@ -57,6 +71,10 @@ import {
   getSconstValueRoute,
   getSenumValueRoute,
   getSharedIdRoute,
+  getSimplearrValueRoute,
+  getSimpleobjValueRoute,
+  getSimpleobjxValueRoute,
+  getSimplestrarrValueRoute,
   getStringValueRoute,
   getStrpasswordValueRoute,
   getTimeValueRoute,
@@ -169,6 +187,7 @@ export const pathParamsApp = new OpenAPIHono({
   .openapi(getTxupperValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
   .openapi(getTxnormalizeValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
   .openapi(getTxemailValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getInullValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
   .openapi(getIenumValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
   .openapi(getNenumValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
   .openapi(getBenumValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
@@ -203,3 +222,20 @@ export const pathParamsApp = new OpenAPIHono({
   .openapi(getSharedIdRoute, (c) => c.json(echoValue(c.req.valid('param').id)))
   .openapi(deleteSharedIdRoute, (c) => c.json(echoValue(c.req.valid('param').id)))
   .openapi(getOverrideIdRoute, (c) => c.json(echoValue(c.req.valid('param').id)))
+  .openapi(getSimplearrValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getSimplestrarrValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getLabelValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getLabelstrValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getMatrixstrValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getLabelarrValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getLabelexplodeValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getMatrixValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getMatrixarrValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getMatrixexplodeValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getAllofValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getOneofisValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getSimpleobjValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getSimpleobjxValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getLabelobjxValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getMatrixobjValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
+  .openapi(getMatrixobjxValueRoute, (c) => c.json(echoValue(c.req.valid('param').value)))
