@@ -6,7 +6,7 @@
     "dev": "cf dev",
     "deploy": "cf deploy",
     "cf-typegen": "cf build",
-    "test": "vitest run"
+    "test": "vp test run"
   },
   "dependencies": {
     "@hono/zod-openapi": "^1.6.3",
@@ -20,7 +20,6 @@
     "@typespec/openapi3": "catalog:",
     "cf": "catalog:",
     "hono-takibi": "workspace:*",
-    "vitest": "^4.1.11",
     "wrangler": "catalog:"
   }
 }

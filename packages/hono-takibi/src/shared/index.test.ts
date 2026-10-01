@@ -1020,32 +1020,32 @@ describe('outsideSources', () => {
   })
 })
 
-describe('makeJob: the client and what imports it', () => {
-  // Runs every job of the config and reads what was written under src.
-  // 設定のすべてのジョブを実行し、src の下に書き出されたものを読み取る。
-  async function generate(dir: string, config: object) {
-    const cfg = await runGenerator(parseConfig({ input: 'openapi.yaml', ...config }))
-    const jobs = makeJob(openAPI, cfg)
-    // The app entry is what the client and the rpc file are written against, so the jobs
-    // run in the order they are made.
-    // アプリのエントリは、クライアントと rpc ファイルの前提になる。そのため、ジョブは作られた
-    // 順に実行する。
-    for (const job of jobs) {
-      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
-      await runGenerator(job.run(job.output))
-    }
-    return {
-      read: (file: string) => fs.readFileSync(path.join(dir, file), 'utf8'),
-      has: (file: string) => fs.existsSync(path.join(dir, file)),
-      imports: (file: string) =>
-        fs
-          .readFileSync(path.join(dir, file), 'utf8')
-          .split('\n')
-          .filter((text) => /from '(?:\.|@\/|@packages)/u.test(text))
-          .map((text) => text.replace(/^.* from /u, '')),
-    }
+// Runs every job of the config and reads what was written under src.
+// 設定のすべてのジョブを実行し、src の下に書き出されたものを読み取る。
+async function generateClientJobs(dir: string, config: object) {
+  const cfg = await runGenerator(parseConfig({ input: 'openapi.yaml', ...config }))
+  const jobs = makeJob(openAPI, cfg)
+  // The app entry is what the client and the rpc file are written against, so the jobs
+  // run in the order they are made.
+  // アプリのエントリは、クライアントと rpc ファイルの前提になる。そのため、ジョブは作られた
+  // 順に実行する。
+  for (const job of jobs) {
+    // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+    await runGenerator(job.run(job.output))
   }
+  return {
+    read: (file: string) => fs.readFileSync(path.join(dir, file), 'utf8'),
+    has: (file: string) => fs.existsSync(path.join(dir, file)),
+    imports: (file: string) =>
+      fs
+        .readFileSync(path.join(dir, file), 'utf8')
+        .split('\n')
+        .filter((text) => /from '(?:\.|@\/|@packages)/u.test(text))
+        .map((text) => text.replace(/^.* from /u, '')),
+  }
+}
 
+describe('makeJob: the client and what imports it', () => {
   // The client beside the app entry imports it as ./index, and rpc imports the client
   // as ./client. The index.ts there is the app, so no barrel is written over it.
   // アプリのエントリの隣にあるクライアントは、それを ./index として import し、rpc は
@@ -1053,7 +1053,7 @@ describe('makeJob: the client and what imports it', () => {
   // バレルで上書きされることはない。
   it('imports the client beside the app entry by its file', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-beside-'))
-    const out = await generate(tmpDir, {
+    const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true },
       client: { output: `${tmpDir}/src/client.ts` },
@@ -1070,7 +1070,7 @@ describe('makeJob: the client and what imports it', () => {
   // import するのは、そのファイルである。
   it('imports the client in a directory of its own through the barrel', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-barrel-'))
-    const out = await generate(tmpDir, {
+    const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true },
       client: { output: `${tmpDir}/src/lib/client.ts` },
@@ -1089,7 +1089,7 @@ describe('makeJob: the client and what imports it', () => {
   // それを import するファイル自身を再 export するようになる可能性がある。
   it('imports the client by its file from a file beside it', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-sibling-'))
-    const out = await generate(tmpDir, {
+    const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true },
       client: { output: `${tmpDir}/src/lib/client.ts` },
@@ -1102,7 +1102,7 @@ describe('makeJob: the client and what imports it', () => {
   // index.ts であるクライアントは、ディレクトリで import される。バレルは不要である。
   it('imports a client that is an index.ts by its directory', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-index-'))
-    const out = await generate(tmpDir, {
+    const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true },
       client: { output: `${tmpDir}/src/client/index.ts` },
@@ -1118,7 +1118,7 @@ describe('makeJob: the client and what imports it', () => {
   // ファイル名で import され、rpc のファイルはそのまま残る。
   it('writes no barrel over the output of another generator', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-taken-'))
-    const out = await generate(tmpDir, {
+    const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true },
       client: { output: `${tmpDir}/src/lib/client.ts` },
@@ -1132,7 +1132,7 @@ describe('makeJob: the client and what imports it', () => {
   // エイリアスは、アプリのエントリがあるディレクトリを表す。
   it('imports through the path alias', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-alias-'))
-    const out = await generate(tmpDir, {
+    const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true, pathAlias: '@/' },
       client: { output: `${tmpDir}/src/lib/client.ts` },
@@ -1148,7 +1148,7 @@ describe('makeJob: the client and what imports it', () => {
   // ディレクトリの外にあるため、rpc は相対パスで到達する。
   it('imports the app by an alias that names its directory', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-alias-dir-'))
-    const out = await generate(tmpDir, {
+    const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/api/routes.ts`,
       template: { routeHandler: true, pathAlias: '@/api' },
       client: { output: `${tmpDir}/src/client/http.ts` },
@@ -1163,7 +1163,7 @@ describe('makeJob: the client and what imports it', () => {
   // 生成器に指定された import は、client ブロックの内容にかかわらず、そのまま使われる。
   it('takes the import a generator names over the generated client', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-named-'))
-    const out = await generate(tmpDir, {
+    const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true },
       client: { output: `${tmpDir}/src/lib/client.ts` },
@@ -1176,7 +1176,7 @@ describe('makeJob: the client and what imports it', () => {
   // client ブロックがなければ、クライアントは何も書き出されない。
   it('writes no client without a client block', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-none-'))
-    const out = await generate(tmpDir, {
+    const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true },
       rpc: { output: `${tmpDir}/src/rpc.ts`, import: '../lib' },
@@ -1191,7 +1191,7 @@ describe('makeJob: the client and what imports it', () => {
   // template があり client ブロックがなくても、同様である。
   it('imports the named client with template and without client', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-tname-'))
-    const out = await generate(tmpDir, {
+    const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true },
       rpc: { output: `${tmpDir}/src/rpc.ts`, import: '../lib', client: 'api' },
@@ -1202,7 +1202,7 @@ describe('makeJob: the client and what imports it', () => {
 
   it('imports the named client without template', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-name-'))
-    const out = await generate(tmpDir, {
+    const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       rpc: { output: `${tmpDir}/src/rpc.ts`, import: '../lib', client: 'api' },
     })
@@ -1213,7 +1213,7 @@ describe('makeJob: the client and what imports it', () => {
   // フックのライブラリも同様である。
   it('imports the named client into hooks without template', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-hook-'))
-    const out = await generate(tmpDir, {
+    const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       swr: { output: `${tmpDir}/src/swr.ts`, import: '../lib', client: 'api' },
     })
@@ -1221,22 +1221,22 @@ describe('makeJob: the client and what imports it', () => {
   })
 })
 
-describe('makeJob: a split application', () => {
-  async function generate(dir: string, config: object) {
-    const cfg = await runGenerator(parseConfig({ input: 'openapi.yaml', ...config }))
-    for (const job of makeJob(openAPI, cfg)) {
-      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
-      await runGenerator(job.run(job.output))
-    }
-    return (file: string) => fs.readFileSync(path.join(dir, file), 'utf8')
+async function generateSplitJobs(dir: string, config: object) {
+  const cfg = await runGenerator(parseConfig({ input: 'openapi.yaml', ...config }))
+  for (const job of makeJob(openAPI, cfg)) {
+    // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+    await runGenerator(job.run(job.output))
   }
+  return (file: string) => fs.readFileSync(path.join(dir, file), 'utf8')
+}
 
+describe('makeJob: a split application', () => {
   // Every group is the app registering its routes, and rpc calls each through its client.
   // すべてのグループは、アプリが自身のルートを登録したものである。rpc は、それぞれを
   // グループのクライアントを通して呼び出す。
   it('divides the app, the client and rpc with routeHandler', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-job-handler-'))
-    const read = await generate(tmpDir, {
+    const read = await generateSplitJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true, split: true },
       client: { output: `${tmpDir}/src/client.ts` },
@@ -1260,7 +1260,7 @@ export default app
   // ハンドラーファイルが定義するルートでも、同様である。
   it('divides the app, the client and rpc with define', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-job-define-'))
-    const read = await generate(tmpDir, {
+    const read = await generateSplitJobs(tmpDir, {
       output: `${tmpDir}/src/index.ts`,
       template: { define: true, split: true },
       client: { output: `${tmpDir}/src/client.ts` },
@@ -1286,7 +1286,7 @@ export default app
   // ファイルである。
   it('divides the app, the client and rpc where the handlers register their routes', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-job-inline-'))
-    const read = await generate(tmpDir, {
+    const read = await generateSplitJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { split: true },
       client: { output: `${tmpDir}/src/client.ts` },
@@ -1310,7 +1310,7 @@ export default app
   // split がなければ、アプリは1本のチェーンになり、クライアントは1つである。
   it('leaves the app, the client and rpc whole without split', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-job-off-'))
-    const read = await generate(tmpDir, {
+    const read = await generateSplitJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true },
       client: { output: `${tmpDir}/src/client.ts` },

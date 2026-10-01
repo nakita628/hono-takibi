@@ -31,3 +31,7 @@ allowBuilds:
   sharp: true
   vue-demi: true
   workerd: true
+minimumReleaseAgeExclude:
+  - '@effect/platform-node-shared@4.0.0'
+  - '@effect/platform-node@4.0.0'
+  - effect@4.0.0

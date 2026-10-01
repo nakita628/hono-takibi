@@ -208,6 +208,39 @@ function hasNoUserChain(schema: Schema) {
   )
 }
 
+function serializeParam(param: Parameter): string {
+  // Skip keys whose value is `undefined` so the emitted object never contains a
+  // bare `undefined`.
+  const entries = Object.entries(param)
+    .filter(([, value]) => value !== undefined)
+    .map(([key, value]) => {
+      if (key === 'examples' && isExamplesInput(value)) {
+        return `"examples":${makeExamples(value)}`
+      }
+      if (key === 'content' && isRecord(value)) {
+        const media = Object.entries(value).map(([mediaType, mediaObj]) => {
+          if (!isRecord(mediaObj)) {
+            return `${JSON.stringify(mediaType)}:${JSON.stringify(mediaObj)}`
+          }
+          const { examples: mediaExamples, ...mediaRest } = mediaObj
+          // `JSON.stringify(undefined)` yields the value `undefined`, which would be
+          // interpolated into the emitted code as the literal text `undefined`.
+          const restEntries = Object.entries(mediaRest)
+            .filter(([, v]) => v !== undefined)
+            .map(([k, v]) => `${JSON.stringify(k)}:${JSON.stringify(v)}`)
+          const examplesEntry = isExamplesInput(mediaExamples)
+            ? `"examples":${makeExamples(mediaExamples)}`
+            : undefined
+          const mediaEntries = examplesEntry ? [...restEntries, examplesEntry] : restEntries
+          return `${JSON.stringify(mediaType)}:{${mediaEntries.join(',')}}`
+        })
+        return `"content":{${media.join(',')}}`
+      }
+      return `${JSON.stringify(key)}:${JSON.stringify(value)}`
+    })
+  return `{${entries.join(',')}}`
+}
+
 export function wrap(
   zod: string,
   schema: Schema,
@@ -423,42 +456,6 @@ export function wrap(
     openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
       ? openapiSchema.slice(1, -1)
       : openapiSchema
-  const serializeMedia = (mediaObj: unknown): string => {
-    if (!isRecord(mediaObj)) return JSON.stringify(mediaObj)
-    const { examples: mediaExamples, ...mediaRest } = mediaObj
-    // `JSON.stringify(undefined)` yields the value `undefined`, which would be
-    // interpolated into the emitted code as the literal text `undefined`.
-    const restEntries = Object.entries(mediaRest)
-      .filter(([, v]) => v !== undefined)
-      .map(([k, v]) => `${JSON.stringify(k)}:${JSON.stringify(v)}`)
-    const examplesEntry = isExamplesInput(mediaExamples)
-      ? `"examples":${makeExamples(mediaExamples)}`
-      : undefined
-    const entries = examplesEntry ? [...restEntries, examplesEntry] : restEntries
-    return `{${entries.join(',')}}`
-  }
-  const serializeContent = (content: { readonly [k: string]: unknown }): string => {
-    const entries = Object.entries(content).map(
-      ([mediaType, mediaObj]) => `${JSON.stringify(mediaType)}:${serializeMedia(mediaObj)}`,
-    )
-    return `{${entries.join(',')}}`
-  }
-  const serializeParam = (param: Parameter): string => {
-    // Same guard as `serializeMedia`: skip keys whose value is `undefined` so the
-    // emitted object never contains a bare `undefined`.
-    const entries = Object.entries(param)
-      .filter(([, value]) => value !== undefined)
-      .map(([key, value]) => {
-        if (key === 'examples' && isExamplesInput(value)) {
-          return `"examples":${makeExamples(value)}`
-        }
-        if (key === 'content' && isRecord(value)) {
-          return `"content":${serializeContent(value)}`
-        }
-        return `${JSON.stringify(key)}:${JSON.stringify(value)}`
-      })
-    return `{${entries.join(',')}}`
-  }
   // `z.file()` (OpenAPI `format: binary`) is opaque to @hono/zod-openapi's
   // schema derivation: emitting it without an explicit `type`/`format` makes
   // `getOpenAPIDocument()` throw `UnknownZodTypeError`. `type`/`format` are

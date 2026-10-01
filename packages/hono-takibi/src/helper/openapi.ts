@@ -620,22 +620,23 @@ export function makeRequestParams(
   return paramsArray.length > 0 ? paramsArray.join(',') : undefined
 }
 
-export function makePathParameters(parameters: readonly (Parameter | Reference)[]) {
-  const serializeValue = (value: unknown): string => {
-    if (value === null) return 'null'
-    if (value === undefined) return 'undefined'
-    if (typeof value === 'string') return JSON.stringify(value)
-    if (typeof value === 'number' || typeof value === 'boolean') return String(value)
-    if (Array.isArray(value)) return `[${value.map(serializeValue).join(',')}]`
-    if (isRefObject(value)) return makeRef(value.$ref)
-    if (isRecord(value)) {
-      const entries = Object.entries(value)
-        .map(([k, v]) => `${JSON.stringify(k)}:${serializeValue(v)}`)
-        .join(',')
-      return `{${entries}}`
-    }
-    return JSON.stringify(value)
+function serializeValue(value: unknown): string {
+  if (value === null) return 'null'
+  if (value === undefined) return 'undefined'
+  if (typeof value === 'string') return JSON.stringify(value)
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+  if (Array.isArray(value)) return `[${value.map(serializeValue).join(',')}]`
+  if (isRefObject(value)) return makeRef(value.$ref)
+  if (isRecord(value)) {
+    const entries = Object.entries(value)
+      .map(([k, v]) => `${JSON.stringify(k)}:${serializeValue(v)}`)
+      .join(',')
+    return `{${entries}}`
   }
+  return JSON.stringify(value)
+}
+
+export function makePathParameters(parameters: readonly (Parameter | Reference)[]) {
   const items = parameters.map((param) => {
     if (isRefObject(param)) {
       return makeRef(param.$ref)
