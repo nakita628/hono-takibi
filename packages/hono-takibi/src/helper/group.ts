@@ -65,6 +65,12 @@ export function isGroupName(name: string | undefined): name is string {
  */
 export type Grouping = (path: string, tags: readonly string[] | undefined) => string | undefined
 
+/** The string tags of an operation, as a {@link Grouping} reads them. */
+export function operationTags(operation: object): readonly string[] | undefined {
+  const tags: unknown = 'tags' in operation ? operation.tags : undefined
+  return Array.isArray(tags) ? tags.filter((tag) => typeof tag === 'string') : undefined
+}
+
 /** The export a group's client is reached by: `books` through `booksClient`. */
 export function groupClientName(group: string) {
   return `${group}Client`
