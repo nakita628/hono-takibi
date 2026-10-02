@@ -32,7 +32,7 @@
     "@typespec/xml": "catalog:",
     "hono-takibi": "workspace:*",
     "js-yaml": "^5.4.2",
-    "monaco-editor": "0.56.0",
+    "monaco-editor": "0.57.0",
     "pathe": "^2.0.3",
     "prettier": "^3.9.8",
     "tailwindcss": "^4.3.3",
