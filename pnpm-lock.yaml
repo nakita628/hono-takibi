@@ -208,7 +208,7 @@ catalogs:
       version: 1.0.0-beta.5
     wrangler:
       specifier: ^4.144.0
-      version: 4.146.0
+      version: 4.147.0
 
 importers:
 
@@ -250,7 +250,7 @@ importers:
         version: link:../../packages/hono-takibi
       wrangler:
         specifier: 'catalog:'
-        version: 4.146.0(@types/node@26.6.4)
+        version: 4.147.0(@types/node@26.6.4)
 
   packages/hono-takibi:
     dependencies:
@@ -311,22 +311,22 @@ importers:
         version: 1.6.3(hono@4.13.12)(zod@4.6.5)
       '@tanstack/angular-query-experimental':
         specifier: ^5.104.0
-        version: 5.104.0(@angular/common@22.2.1(@angular/core@22.2.1(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.1(rxjs@7.8.2))(csstype@3.2.3)
+        version: 5.104.1(@angular/common@22.2.1(@angular/core@22.2.1(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.1(rxjs@7.8.2))(csstype@3.2.3)
       '@tanstack/preact-query':
         specifier: ^5.104.0
-        version: 5.104.0(preact@10.29.8)
+        version: 5.104.1(preact@10.29.8)
       '@tanstack/react-query':
         specifier: ^5.104.0
-        version: 5.104.0(react@19.3.0)
+        version: 5.104.1(react@19.3.0)
       '@tanstack/solid-query':
         specifier: ^5.104.0
-        version: 5.104.0(solid-js@1.9.15)
+        version: 5.104.1(solid-js@1.9.15)
       '@tanstack/svelte-query':
         specifier: ^6.3.0
-        version: 6.3.0(svelte@5.57.1)
+        version: 6.3.1(svelte@5.57.1)
       '@tanstack/vue-query':
         specifier: ^5.104.0
-        version: 5.104.0(vue@3.5.43(typescript@7.0.2))
+        version: 5.104.1(vue@3.5.43(typescript@7.0.2))
       '@testing-library/react':
         specifier: ^16.3.3
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -464,7 +464,7 @@ importers:
         version: 3.5.43(typescript@7.0.2)
       wrangler:
         specifier: 'catalog:'
-        version: 4.146.0(@types/node@26.6.4)
+        version: 4.147.0(@types/node@26.6.4)
 
 packages:
 
@@ -2782,8 +2782,8 @@ packages:
     peerDependencies:
       vite: ^5.2.0 || ^6 || ^7 || ^8
 
-  '@tanstack/angular-query-experimental@5.104.0':
-    resolution: {integrity: sha512-3BMrBGrVpzB83p3tZ92KfKhttS+uquOif/mQIEq9BbadQH7Iiy/tYvXsd/RiPYS72BykNHShT0YpnHWxVQFYhQ==}
+  '@tanstack/angular-query-experimental@5.104.1':
+    resolution: {integrity: sha512-JyWbOPEzj63O96NFihyh+9zueQIMWP6U5QX+Cf3QpbmZS00n9Msd40LF2N3MmYDly3rLNqZeM3OOrHcN3Ut4eA==}
     peerDependencies:
       '@angular/common': '>=16.0.0'
       '@angular/core': '>=16.0.0'
@@ -2792,34 +2792,34 @@ packages:
     resolution: {integrity: sha512-aPkUQctDzpXLSWhlx7jUDi3mInsI18xcnrK1hvIyIa88ab1ax88cACr7xU+BKMCGB4NZYNwh4SoNSEbv3RY2NA==}
     engines: {node: '>=20'}
 
-  '@tanstack/preact-query@5.104.0':
-    resolution: {integrity: sha512-sCjMn6G0ut6bKmRuvE+OO/q3az56QzuJBn9sFcDhkGpRqMRPUAYuQdRzro0yOnpFXu4YzujstAU8Crlx8xrPCA==}
+  '@tanstack/preact-query@5.104.1':
+    resolution: {integrity: sha512-3+EnqSDx3R8yzGoycJpR0REeKVND3g6Mp+SLa5+KXUyYw8Pt5Twmqn/8/9W4EiWTFQ7OBCW2YOlVJUHa7TGAtQ==}
     peerDependencies:
       preact: ^10.0.0
 
-  '@tanstack/query-core@5.104.0':
-    resolution: {integrity: sha512-JrC2r/JQlXt7khBSdUpsgxNvybzOg+aITa+ARRMlP2AFo93Y8vIqz077rp+e61mJetSZ0T6AJbwW1JHer1vrPQ==}
+  '@tanstack/query-core@5.104.1':
+    resolution: {integrity: sha512-TiRghcrGkUTE+M4JBxvpPSpBhxvIzQairw+cksrHYGr+2uwC77yW1SY9nYxnYRYOppvucf8rEg6b5byoz4rTpw==}
 
-  '@tanstack/query-devtools@5.104.0':
-    resolution: {integrity: sha512-snKyFLVFC5LuNoyUTpyqCD2Z8cRlCWrAeO3xub0nGi81IMz8YAUWq2Z+XdpGSGT7bCxqVdOHUjyiA3CtDuBjfQ==}
+  '@tanstack/query-devtools@5.104.1':
+    resolution: {integrity: sha512-wmXnQbnwEz+SctYMTrwsOWWNHKhCsVgtaliL9E+VI2vx2Xr773d/MpcrbIU1hEOUqC3p7x59swXFUPDLbplT3g==}
 
-  '@tanstack/react-query@5.104.0':
-    resolution: {integrity: sha512-e1TZmDCQnWIfiDVryIHeA6Idj+Lfx1hORLOhXS/l5wcgvtVD4yYqbTDl378sGQKIi2cSgb0TEMC9cKK8GGoJEw==}
+  '@tanstack/react-query@5.104.1':
+    resolution: {integrity: sha512-Zz70EgjahNI7aCz8BZxM3vUGU44ycxEAzMuCUjLeA7SVhhOkg3ZgPjPJPvHjs6Rmky/dtmnu1WzjGHNHmhCoZQ==}
     peerDependencies:
       react: ^18 || ^19
 
-  '@tanstack/solid-query@5.104.0':
-    resolution: {integrity: sha512-kQ+SFieGCve1up0Z4wHPXT2q2cu7AKFLtzRzViBoFwUQ8PMFd2DSjE38LnsbV0+3+O4N8RiS3xYkXM2hvJI49Q==}
+  '@tanstack/solid-query@5.104.1':
+    resolution: {integrity: sha512-o7xAwHOhgVpIY+/AY3jpVAkYprfY+kvh99msDGxXf/kXFltZtEZzffHFSfFou6vv7xxx8t8kt2Dq86Lpzhpk6g==}
     peerDependencies:
       solid-js: ^1.6.0
 
-  '@tanstack/svelte-query@6.3.0':
-    resolution: {integrity: sha512-Lzib+G+fGL6tFi8jJ3jfNKuSE94iEgjpSCz6Pdf33na+Bljfnv+r5aArSDwLecYEnZCBb8mS6uJrcfJj3dR6qg==}
+  '@tanstack/svelte-query@6.3.1':
+    resolution: {integrity: sha512-gyBkXdE1ZNOX6KWTumq7msd0kHHF1wLLUREb8zPxfadUUyVOy1qrgBfo8bNSf9918x0LSu2YuBDxEm7dBi9T4w==}
     peerDependencies:
       svelte: ^5.25.0
 
-  '@tanstack/vue-query@5.104.0':
-    resolution: {integrity: sha512-Nxqsl0YsXrHZQAq9rNQWvVR+elPENBg+YXkQHnuDn7/YM48vts4aaKZYBkRzaU24ckEGLxC13o3GiM3kYUKfdw==}
+  '@tanstack/vue-query@5.104.1':
+    resolution: {integrity: sha512-3858wOmIoIazR9mZ2g8/QsKNccQlzxIY+4/g55OHbhhMeBEi+ig/8vne2e5N+Xx9g5MXuB7Nscfb6B4REPDWlw==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -4815,8 +4815,8 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
 
-  wrangler@4.146.0:
-    resolution: {integrity: sha512-c27eHUH0Isr8HTmgZ6cLtLr/0cxtiBoLren6ywBeTW8ZIzj/dINVNBcqsbZc+iETnI5jrzO7E7Z8mLgLZ/l9iw==}
+  wrangler@4.147.0:
+    resolution: {integrity: sha512-pQYRoiq8PTAxphaG69z8+GC1DkSGd19EDZehQ8zxjo/Ko3mRB6Qs1mTrd8ZuKAarLklIjTqr1lUdCK9r4q2hUg==}
     engines: {node: '>=22.0.0'}
     hasBin: true
     peerDependencies:
@@ -7248,13 +7248,13 @@ snapshots:
       tailwindcss: 4.3.3
       vite: 8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
 
-  '@tanstack/angular-query-experimental@5.104.0(@angular/common@22.2.1(@angular/core@22.2.1(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.1(rxjs@7.8.2))(csstype@3.2.3)':
+  '@tanstack/angular-query-experimental@5.104.1(@angular/common@22.2.1(@angular/core@22.2.1(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.1(rxjs@7.8.2))(csstype@3.2.3)':
     dependencies:
       '@angular/common': 22.2.1(@angular/core@22.2.1(rxjs@7.8.2))(rxjs@7.8.2)
       '@angular/core': 22.2.1(rxjs@7.8.2)
-      '@tanstack/query-core': 5.104.0
+      '@tanstack/query-core': 5.104.1
     optionalDependencies:
-      '@tanstack/query-devtools': 5.104.0(csstype@3.2.3)
+      '@tanstack/query-devtools': 5.104.1(csstype@3.2.3)
     transitivePeerDependencies:
       - csstype
 
@@ -7262,21 +7262,21 @@ snapshots:
     dependencies:
       remove-accents: 0.5.0
 
-  '@tanstack/preact-query@5.104.0(preact@10.29.8)':
+  '@tanstack/preact-query@5.104.1(preact@10.29.8)':
     dependencies:
-      '@tanstack/query-core': 5.104.0
+      '@tanstack/query-core': 5.104.1
       preact: 10.29.8
 
-  '@tanstack/query-core@5.104.0': {}
+  '@tanstack/query-core@5.104.1': {}
 
-  '@tanstack/query-devtools@5.104.0(csstype@3.2.3)':
+  '@tanstack/query-devtools@5.104.1(csstype@3.2.3)':
     dependencies:
       '@kobalte/core': 0.13.14(solid-js@1.9.15)
       '@solid-primitives/keyed': 1.5.3(solid-js@1.9.15)
       '@solid-primitives/resize-observer': 2.2.0(solid-js@1.9.15)
       '@solid-primitives/storage': 1.3.11(solid-js@1.9.15)
       '@tanstack/match-sorter-utils': 9.1.2
-      '@tanstack/query-core': 5.104.0
+      '@tanstack/query-core': 5.104.1
       clsx: 2.1.1
       goober: 2.1.19(csstype@3.2.3)
       solid-js: 1.9.15
@@ -7286,25 +7286,25 @@ snapshots:
       - csstype
     optional: true
 
-  '@tanstack/react-query@5.104.0(react@19.3.0)':
+  '@tanstack/react-query@5.104.1(react@19.3.0)':
     dependencies:
-      '@tanstack/query-core': 5.104.0
+      '@tanstack/query-core': 5.104.1
       react: 19.3.0
 
-  '@tanstack/solid-query@5.104.0(solid-js@1.9.15)':
+  '@tanstack/solid-query@5.104.1(solid-js@1.9.15)':
     dependencies:
-      '@tanstack/query-core': 5.104.0
+      '@tanstack/query-core': 5.104.1
       solid-js: 1.9.15
 
-  '@tanstack/svelte-query@6.3.0(svelte@5.57.1)':
+  '@tanstack/svelte-query@6.3.1(svelte@5.57.1)':
     dependencies:
-      '@tanstack/query-core': 5.104.0
+      '@tanstack/query-core': 5.104.1
       svelte: 5.57.1
 
-  '@tanstack/vue-query@5.104.0(vue@3.5.43(typescript@7.0.2))':
+  '@tanstack/vue-query@5.104.1(vue@3.5.43(typescript@7.0.2))':
     dependencies:
       '@tanstack/match-sorter-utils': 9.1.2
-      '@tanstack/query-core': 5.104.0
+      '@tanstack/query-core': 5.104.1
       '@vue/devtools-api': 6.6.4
       vue: 3.5.43(typescript@7.0.2)
       vue-demi: 0.14.10(vue@3.5.43(typescript@7.0.2))
@@ -9283,7 +9283,7 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20261001.1
       '@cloudflare/workerd-windows-64': 1.20261001.1
 
-  wrangler@4.146.0(@types/node@26.6.4):
+  wrangler@4.147.0(@types/node@26.6.4):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.5.0
       '@cloudflare/unenv-preset': 2.16.2(unenv@2.0.0-rc.24)(workerd@1.20261001.1)
