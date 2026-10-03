@@ -943,6 +943,10 @@ function serializeCookieParameter(parameter: Parameter, value: unknown): readonl
   return [`${parameter.name}=${serializeHeaderValue(value)}`]
 }
 
+function encodePathValue(item: unknown) {
+  return encodeURIComponent(toParamString(item))
+}
+
 /**
  * Serializes a path parameter the way its `style` / `explode` say
  * (OpenAPI §4.8.12.2.1: `simple` with `explode: false` is the default). A `label` value
@@ -951,19 +955,20 @@ function serializeCookieParameter(parameter: Parameter, value: unknown): readonl
 function serializePathParameter(parameter: Parameter, value: unknown) {
   const style = parameter.style ?? 'simple'
   const explode = parameter.explode ?? false
-  const encode = (item: unknown) => encodeURIComponent(toParamString(item))
   const name = encodeURIComponent(parameter.name)
-  if (parameter.content !== undefined && parameter.schema === undefined) return encode(value)
+  if (parameter.content !== undefined && parameter.schema === undefined) {
+    return encodePathValue(value)
+  }
   const pairs = isRecord(value)
     ? Object.entries(value).map(([key, item]) =>
         explode
-          ? `${encodeURIComponent(key)}=${encode(item)}`
-          : `${encodeURIComponent(key)},${encode(item)}`,
+          ? `${encodeURIComponent(key)}=${encodePathValue(item)}`
+          : `${encodeURIComponent(key)},${encodePathValue(item)}`,
       )
     : undefined
-  const items = pairs ?? (Array.isArray(value) ? value.map(encode) : undefined)
+  const items = pairs ?? (Array.isArray(value) ? value.map(encodePathValue) : undefined)
   if (items === undefined) {
-    const text = encode(value)
+    const text = encodePathValue(value)
     if (text === '') return ''
     return style === 'label' ? `.${text}` : style === 'matrix' ? `;${name}=${text}` : text
   }
@@ -1739,7 +1744,9 @@ function makeSchemasSection(doc: OpenAPI): readonly string[] {
   ]
 }
 
-function isOperation(value: unknown): value is Operation {
+// Unlike `isOperation` in guard, `responses` is not required: OpenAPI 3.1 lets an operation
+// omit it, and the docs still list such an operation.
+function isOperationObject(value: unknown): value is Operation {
   return isRecord(value)
 }
 
@@ -1754,7 +1761,9 @@ function operationsOf(pathItem: { readonly [k: string]: unknown }): readonly {
       operation: pathItem[method],
     })),
     ...Object.entries(additional).map(([method, operation]) => ({ method, operation })),
-  ].flatMap(({ method, operation }) => (isOperation(operation) ? [{ method, operation }] : []))
+  ].flatMap(({ method, operation }) =>
+    isOperationObject(operation) ? [{ method, operation }] : [],
+  )
 }
 
 function collectEndpoints(items: unknown, doc: OpenAPI, pathsOnly: boolean): readonly Endpoint[] {

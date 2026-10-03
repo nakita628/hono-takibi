@@ -10,6 +10,7 @@ import {
   groupClientName,
   makeOperationDeps,
   operationHasArgs,
+  operationTags,
   parsePathItem,
 } from '../../helper/index.js'
 import type { Grouping } from '../../helper/index.js'
@@ -72,11 +73,6 @@ function makeOperationCode(
   const jsDoc = docs ? makeJsDoc(operation, method, path) : ''
   const func = `${jsDoc}export async function ${funcName}(${argSig}){return await ${call}}`
   return { code: func, hasArgs, client: deps.client } as const
-}
-
-function operationTags(operation: object): readonly string[] | undefined {
-  const tags: unknown = 'tags' in operation ? operation.tags : undefined
-  return Array.isArray(tags) ? tags.filter((tag) => typeof tag === 'string') : undefined
 }
 
 function makeOperationCodes(

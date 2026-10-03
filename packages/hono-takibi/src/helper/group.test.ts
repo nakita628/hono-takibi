@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { groupClientName, isGroupName } from './group.js'
+import { groupClientName, isGroupName, operationTags } from './group.js'
 
 describe('isGroupName', () => {
   // A group is exported under its name.
@@ -86,5 +86,31 @@ describe('groupClientName', () => {
   it.concurrent('is the name of the group followed by Client', () => {
     expect(groupClientName('books')).toBe('booksClient')
     expect(groupClientName('v2Public')).toBe('v2PublicClient')
+  })
+})
+
+describe('operationTags', () => {
+  // The tags a Grouping reads to place an operation.
+  // Grouping が operation の配置を決めるために読む tags。
+  it.concurrent('is the tags of the operation', () => {
+    expect(operationTags({ tags: ['books', 'admin'] })).toStrictEqual(['books', 'admin'])
+  })
+
+  // An operation without tags gives a Grouping nothing to read.
+  // tags のない operation では、Grouping が読むものはない。
+  it.concurrent('is undefined when the operation has no tags', () => {
+    expect(operationTags({ responses: {} })).toBe(undefined)
+  })
+
+  // tags that is not an array is not read as tags.
+  // 配列でない tags は、tags として読まない。
+  it.concurrent('is undefined when tags is not an array', () => {
+    expect(operationTags({ tags: 'books' })).toBe(undefined)
+  })
+
+  // Only strings can name a group.
+  // グループの名前になれるのは文字列だけである。
+  it.concurrent('keeps only the string tags', () => {
+    expect(operationTags({ tags: ['books', 1, null, 'admin'] })).toStrictEqual(['books', 'admin'])
   })
 })

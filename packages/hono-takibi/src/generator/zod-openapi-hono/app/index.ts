@@ -5,24 +5,6 @@ import { handlerGroupOf, isGroupName, makeHandlerFileName } from '../../../helpe
 import type { OpenAPI } from '../../../openapi/index.js'
 import { methodPath } from '../../../utils/index.js'
 
-function chain(mappings: readonly { readonly routeName: string; readonly handlerName: string }[]) {
-  return mappings
-    .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
-    .join('\n')
-}
-
-// A handler file is a group under its own name, when the name can be an export.
-function fileGroup(file: string) {
-  return isGroupName(file) ? file : undefined
-}
-
-// The groups and `api`, in the order their first route stands in the document. `api` holds
-// what belongs to no group, and is written last when everything belongs to one.
-function orderedGroups(groups: readonly (string | undefined)[]) {
-  const names = [...new Set(groups.map((name) => name ?? 'api'))]
-  return names.includes('api') ? names : [...names, 'api']
-}
-
 /**
  * Generates a Hono app with OpenAPI integration.
  *
@@ -78,20 +60,21 @@ export function app(
       .filter(Boolean)
       .join('\n')
     if (split) {
-      const inits = orderedGroups(routeMappings.map(({ path }) => handlerGroupOf(path))).map(
-        (name) => {
-          const routes = [
-            ...new Set(
-              routeMappings
-                .filter(({ path }) => (handlerGroupOf(path) ?? 'api') === name)
-                .map(({ routeName }) => routeName),
-            ),
-          ]
-          return routes.length > 0
-            ? `export const ${name}=app.openapiRoutes([${routes.join(',')}] as const)`
-            : `export const ${name}=app`
-        },
-      )
+      // The groups and `api`, in the order their first route stands in the document. `api`
+      // holds what belongs to no group, and is written last when everything belongs to one.
+      const groups = [...new Set(routeMappings.map(({ path }) => handlerGroupOf(path) ?? 'api'))]
+      const inits = (groups.includes('api') ? groups : [...groups, 'api']).map((name) => {
+        const routes = [
+          ...new Set(
+            routeMappings
+              .filter(({ path }) => (handlerGroupOf(path) ?? 'api') === name)
+              .map(({ routeName }) => routeName),
+          ),
+        ]
+        return routes.length > 0
+          ? `export const ${name}=app.openapiRoutes([${routes.join(',')}] as const)`
+          : `export const ${name}=app`
+      })
       return [importSection, appInit, ...inits, 'export default app'].join('\n\n')
     }
     const apiInit =
@@ -125,11 +108,13 @@ export function app(
     if (split) {
       // A handler file is a sub-app, and mounting it on the app is what types the group:
       // the app is declared without routes, so what it returns is typed by that file alone.
+      // A handler file is a group under its own name, when the name can be an export.
       const files = handlerFileNames.map((file) => basename(file, '.ts'))
-      const inits = orderedGroups(files.map(fileGroup)).map(
+      const groups = [...new Set(files.map((file) => (isGroupName(file) ? file : 'api')))]
+      const inits = (groups.includes('api') ? groups : [...groups, 'api']).map(
         (name) =>
           `export const ${name}=app${files
-            .filter((file) => (fileGroup(file) ?? 'api') === name)
+            .filter((file) => (isGroupName(file) ? file : 'api') === name)
             .map((file) => `.route('/',${file}Handler)`)
             .join('')}`,
       )
@@ -155,15 +140,21 @@ export function app(
     .filter(Boolean)
     .join('\n')
   if (!split) {
-    const apiInit = `export const api=app${chain(routeMappings)}`
+    const apiInit = `export const api=app${routeMappings
+      .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
+      .join('\n')}`
     return [importSection, appInit, apiInit, 'export default app'].join('\n\n')
   }
   // Every group registers its routes on the one app. What divides them is the type: the
   // app is declared without routes, so each group is typed by the routes it registers and
   // a client of it resolves those alone. `api` holds the routes that belong to no group.
-  const inits = orderedGroups(routeMappings.map(({ path }) => handlerGroupOf(path))).map(
+  const groups = [...new Set(routeMappings.map(({ path }) => handlerGroupOf(path) ?? 'api'))]
+  const inits = (groups.includes('api') ? groups : [...groups, 'api']).map(
     (name) =>
-      `export const ${name}=app${chain(routeMappings.filter(({ path }) => (handlerGroupOf(path) ?? 'api') === name))}`,
+      `export const ${name}=app${routeMappings
+        .filter(({ path }) => (handlerGroupOf(path) ?? 'api') === name)
+        .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
+        .join('\n')}`,
   )
   return [importSection, appInit, ...inits, 'export default app'].join('\n\n')
 }

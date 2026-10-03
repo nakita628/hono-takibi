@@ -7,7 +7,7 @@ import { GenerateError } from '../error/index.js'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
 import { capitalize, methodPath, toIdentifierPascalCase } from '../utils/index.js'
-import { groupClientName } from './group.js'
+import { groupClientName, operationTags } from './group.js'
 import type { Grouping } from './group.js'
 import {
   formatPath,
@@ -1216,11 +1216,6 @@ function makeHookCode(
     hasInfinite: false,
     operationFileName,
   }
-}
-
-function operationTags(operation: object): readonly string[] | undefined {
-  const tags: unknown = 'tags' in operation ? operation.tags : undefined
-  return Array.isArray(tags) ? tags.filter((tag) => typeof tag === 'string') : undefined
 }
 
 function makeHookCodes(

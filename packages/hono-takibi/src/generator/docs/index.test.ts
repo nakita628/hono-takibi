@@ -10791,6 +10791,10 @@ function wireSpecOf(path: string, parameters: readonly object[]) {
   } as OpenAPI
 }
 
+function inPath(extra: object, schema: object) {
+  return wireSpecOf('/items/{v}', [{ name: 'v', in: 'path', required: true, ...extra, schema }])
+}
+
 describe('makeDocs: parameters as they travel', () => {
   const integer = { type: 'integer', example: 5 }
   const list = { type: 'array', items: { type: 'integer' }, example: [1, 2] }
@@ -10799,9 +10803,6 @@ describe('makeDocs: parameters as they travel', () => {
     properties: { a: { type: 'integer' }, b: { type: 'string' } },
     example: { a: 1, b: 'x' },
   }
-  const inPath = (extra: object, schema: object) =>
-    wireSpecOf('/items/{v}', [{ name: 'v', in: 'path', required: true, ...extra, schema }])
-
   // simple is the default.
   // simple がデフォルトである。
   it('writes a simple scalar as it is', () => {

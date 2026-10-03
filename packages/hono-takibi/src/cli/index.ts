@@ -1,5 +1,5 @@
 import { Console, Effect, FileSystem, Option, Path, Ref, Schema, Stream } from 'effect'
-import { Argument, CliError, Command, Flag } from 'effect/unstable/cli'
+import { Argument, CliError, Command, Flag } from 'effect/cli'
 
 import manifest from '../../package.json' with { type: 'json' }
 

@@ -454,7 +454,7 @@ describe('hono-takibi argument validation', () => {
  * rather than described a second time.
  *
  * The assertions name the lines this repository writes — the description, the argument,
- * our three flags, the examples — and not the frame `effect/unstable/cli` draws around
+ * our three flags, the examples — and not the frame `effect/cli` draws around
  * them: `GLOBAL FLAGS`, the column widths and the wording of `--help` itself belong to
  * the library, and pinning those would fail on a dependency bump rather than on drift
  * here.
@@ -508,7 +508,7 @@ describe('hono-takibi --version', () => {
 })
 
 /**
- * The command describes itself in one place — the help `effect/unstable/cli` generates —
+ * The command describes itself in one place — the help `effect/cli` generates —
  * and every failure that leaves the caller without a command to run asks for it by
  * raising `ShowHelp`, whether the parser caught it or the handler did.
  *
