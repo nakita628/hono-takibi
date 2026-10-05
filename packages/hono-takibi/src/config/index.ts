@@ -1708,11 +1708,6 @@ type Client = NonNullable<Encoded['client']>
  * `client` → rpc and the hooks: each needs the one before it, so without `template` there
  * is no `client`, and without `client` nothing that calls it. Everything else the schema
  * checks when the config is read, with a message naming the field.
- *
- * 設定ファイルに書けるもの。`template` → `client` → rpc とフック、という連鎖の各段階に対応する
- * 3 つの形があり、それぞれ前の段階を必要とする。`template` がなければ `client` はなく、
- * `client` がなければそれを呼び出すものもない。ほかの制約は、設定を読み込むときにスキーマが
- * フィールド名を添えて検査する。
  */
 export type ConfigInput =
   | (Base & { readonly template?: undefined; readonly client?: undefined } & NoCallers)

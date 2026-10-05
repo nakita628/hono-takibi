@@ -5,11 +5,6 @@ import { defineConfig } from 'hono-takibi'
 // `client.package` the name the hooks of another package import the client by; the hooks
 // in the package of the client keep importing it relatively. The three package.json files
 // come from seed/, so each output directory is a package when the generator runs.
-// アプリのパッケージとフロントエンドのパッケージの間に、独立したパッケージとして置かれる
-// クライアント。`client.import` はクライアントがアプリの型を import するモジュール、
-// `client.package` は別パッケージのフックがクライアントを import する名前である。クライアントと
-// 同じパッケージのフックは従来どおり相対パスで import する。3 つの package.json は seed/ から
-// 配置され、生成器の実行時には各出力ディレクトリがパッケージになっている。
 export default defineConfig({
   input: '../../specs/users.yaml',
   output: '../../__generated__/client-package/server/src/index.ts',

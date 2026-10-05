@@ -4,8 +4,6 @@ export default defineConfig({
   input: '../../specs/split-alias.yaml',
   // The directory of the app entry is `src`: every generated file in it imports the others
   // under the alias, `~/components/schemas` for `src/components/schemas`.
-  // app entry のディレクトリは `src` である。その中の生成ファイルは、`src/components/schemas` を
-  // `~/components/schemas` のように、エイリアスでほかのファイルを import する。
   pathAlias: '~/',
   routes: { output: '../../__generated__/split-alias/src/routes', split: true },
   components: {
