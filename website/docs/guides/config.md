@@ -117,13 +117,13 @@ export default defineConfig({
   routes: {
     output: './src/routes',
     split: true,
-    // package: '@repo/routes', // the name other packages import these routes by
+    // package: '@packages/routes', // the name other packages import these routes by
   },
 
   webhooks: {
     output: './src/webhooks',
     split: true,
-    // package: '@repo/webhooks',
+    // package: '@packages/webhooks',
   },
 
   // `output` (single file) and the per-type fields below (split) are mutually exclusive.
@@ -137,60 +137,60 @@ export default defineConfig({
       output: './src/schemas',
       exportTypes: true,
       split: true,
-      // package: '@repo/schemas',
+      // package: '@packages/schemas',
     },
     responses: {
       output: './src/responses',
       split: true,
-      // package: '@repo/responses',
+      // package: '@packages/responses',
     },
     parameters: {
       output: './src/parameters',
       exportTypes: true,
       split: true,
-      // package: '@repo/parameters',
+      // package: '@packages/parameters',
     },
     examples: {
       output: './src/examples',
       split: true,
-      // package: '@repo/examples',
+      // package: '@packages/examples',
     },
     requestBodies: {
       output: './src/requestBodies',
       split: true,
-      // package: '@repo/requestBodies',
+      // package: '@packages/requestBodies',
     },
     headers: {
       output: './src/headers',
       exportTypes: true,
       split: true,
-      // package: '@repo/headers',
+      // package: '@packages/headers',
     },
     securitySchemes: {
       output: './src/securitySchemes',
       split: true,
-      // package: '@repo/securitySchemes',
+      // package: '@packages/securitySchemes',
     },
     links: {
       output: './src/links',
       split: true,
-      // package: '@repo/links',
+      // package: '@packages/links',
     },
     callbacks: {
       output: './src/callbacks',
       split: true,
-      // package: '@repo/callbacks',
+      // package: '@packages/callbacks',
     },
     pathItems: {
       output: './src/pathItems',
       split: true,
-      // package: '@repo/pathItems',
+      // package: '@packages/pathItems',
     },
     mediaTypes: {
       output: './src/mediaTypes',
       exportTypes: true,
       split: true,
-      // package: '@repo/mediaTypes',
+      // package: '@packages/mediaTypes',
     },
   },
 
@@ -211,8 +211,8 @@ export default defineConfig({
     // baseUrl: { env: 'API_URL', import: '@/env', name: 'env' }, // your validated env module: env.API_URL
     //
     // Monorepo: the client in a package of its own.
-    // import: '@repo/server', // where the client imports the app's type from (default: relative, or pathAlias)
-    // package: '@repo/client', // what files written into other packages import the client by
+    // import: '@packages/server', // where the client imports the app's type from (default: relative, or pathAlias)
+    // package: '@packages/client', // what files written into other packages import the client by
   },
 
   rpc: {

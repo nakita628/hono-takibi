@@ -54,26 +54,26 @@ export default defineConfig({
   template: { define: true },
   client: {
     output: '../client/src/lib/client.ts',
-    import: '@repo/server', // the client imports the app type from here (default: relative / alias)
-    package: '@repo/client', // other packages import the client by this name
+    import: '@packages/server', // the client imports the app type from here (default: relative / alias)
+    package: '@packages/client', // other packages import the client by this name
   },
   swr: { output: '../client/src/hooks/swr.ts' }, // same package as the client → '../lib'
-  'tanstack-query': { output: '../web/src/api/hooks.ts' }, // another package → '@repo/client'
+  'tanstack-query': { output: '../web/src/api/hooks.ts' }, // another package → '@packages/client'
 })
 ```
 
 ```ts
 // apps/client/src/lib/client.ts
 import { hc } from 'hono/client'
-import type { api } from '@repo/server'
+import type { api } from '@packages/server'
 ```
 
 ```ts
 // apps/web/src/api/hooks.ts
-import { client } from '@repo/client'
+import { client } from '@packages/client'
 ```
 
-A package is what the nearest `package.json` above a generated file delimits. A file in the package of the client imports it relatively, as it does without `package`. `@repo/server` needs an `exports` (or `main`) entry that points at the app entry, `./src/index.ts` for example; no build step is needed for the types. The package of the hooks needs `hono` installed too: the generated hooks import from `hono/client`.
+A package is what the nearest `package.json` above a generated file delimits. A file in the package of the client imports it relatively, as it does without `package`. `@packages/server` needs an `exports` (or `main`) entry that points at the app entry, `./src/index.ts` for example; no build step is needed for the types. The package of the hooks needs `hono` installed too: the generated hooks import from `hono/client`.
 
 ### Base URL
 

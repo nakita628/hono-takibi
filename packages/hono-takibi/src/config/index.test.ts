@@ -396,10 +396,10 @@ describe('parseConfig()', () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          routes: { output: 'src/routes.ts', package: '@repo/routes' },
+          routes: { output: 'src/routes.ts', package: '@packages/routes' },
         }),
       )
-      expect(result.routes?.package).toBe('@repo/routes')
+      expect(result.routes?.package).toBe('@packages/routes')
       expect(result.routes?.output).toBe('src/routes.ts')
     })
 
@@ -408,10 +408,10 @@ describe('parseConfig()', () => {
         parseConfig({
           input: 'openapi.yaml',
           pathAlias: '@/',
-          routes: { output: 'src/routes', split: true, package: '@repo/routes' },
+          routes: { output: 'src/routes', split: true, package: '@packages/routes' },
         }),
       )
-      expect(result.routes?.package).toBe('@repo/routes')
+      expect(result.routes?.package).toBe('@packages/routes')
       expect(result.routes?.output).toBe('src/routes')
       expect(result.pathAlias).toBe('@/')
     })
@@ -462,10 +462,10 @@ describe('parseConfig()', () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          webhooks: { output: 'src/webhooks.ts', package: '@repo/webhooks' },
+          webhooks: { output: 'src/webhooks.ts', package: '@packages/webhooks' },
         }),
       )
-      expect(result.webhooks?.package).toBe('@repo/webhooks')
+      expect(result.webhooks?.package).toBe('@packages/webhooks')
     })
   })
 
@@ -561,7 +561,7 @@ describe('parseConfig()', () => {
           input: 'openapi.yaml',
           output: 'src/routes.ts',
           template: {},
-          client: { output: 'src/client.ts', import: "@repo/server'" },
+          client: { output: 'src/client.ts', import: "@packages/server'" },
         }),
       )
       expect(result.message).toBe(
@@ -1393,8 +1393,8 @@ describe('parseConfig()', () => {
           template: { define: true },
           client: {
             output: '../client/src/lib/client.ts',
-            import: '@repo/server',
-            package: '@repo/client',
+            import: '@packages/server',
+            package: '@packages/client',
           },
           'tanstack-query': { output: '../web/src/api/hooks.ts' },
         }),
@@ -1402,8 +1402,8 @@ describe('parseConfig()', () => {
       expect(result.client).toStrictEqual({
         output: '../client/src/lib/client.ts',
         baseUrl: '/',
-        import: '@repo/server',
-        package: '@repo/client',
+        import: '@packages/server',
+        package: '@packages/client',
       })
     })
 
@@ -2017,7 +2017,7 @@ describe('parseConfig()', () => {
               output: 'schemas',
               split: true,
               exportTypes: true,
-              package: '@repo/schemas',
+              package: '@packages/schemas',
             },
           },
         }),
@@ -2025,7 +2025,7 @@ describe('parseConfig()', () => {
       expect(result.components?.schemas).toStrictEqual({
         split: true,
         output: 'schemas',
-        package: '@repo/schemas',
+        package: '@packages/schemas',
         exportTypes: true,
       })
     })
@@ -2106,12 +2106,12 @@ describe('defineConfig', () => {
       template: { define: true },
       client: {
         output: '../client/src/client.ts',
-        import: '@repo/server',
-        package: '@repo/client',
+        import: '@packages/server',
+        package: '@packages/client',
       },
       'tanstack-query': { output: '../web/src/hooks.ts' },
     })
-    expect(config.client.package).toBe('@repo/client')
+    expect(config.client.package).toBe('@packages/client')
   })
 
   // With template and client, rpc and the hooks are given without a client name.

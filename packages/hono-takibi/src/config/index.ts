@@ -305,7 +305,7 @@ const ConfigSchema = Schema.Struct({
           title: 'Package name',
           description:
             'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
-          examples: ['@repo/routes'],
+          examples: ['@packages/routes'],
         }),
       ),
     })
@@ -346,7 +346,7 @@ const ConfigSchema = Schema.Struct({
           title: 'Package name',
           description:
             'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
-          examples: ['@repo/routes'],
+          examples: ['@packages/routes'],
         }),
       ),
     })
@@ -403,7 +403,7 @@ const ConfigSchema = Schema.Struct({
               title: 'Package name',
               description:
                 'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
-              examples: ['@repo/routes'],
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -443,7 +443,7 @@ const ConfigSchema = Schema.Struct({
               title: 'Package name',
               description:
                 'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
-              examples: ['@repo/routes'],
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -488,7 +488,7 @@ const ConfigSchema = Schema.Struct({
               title: 'Package name',
               description:
                 'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
-              examples: ['@repo/routes'],
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -528,7 +528,7 @@ const ConfigSchema = Schema.Struct({
               title: 'Package name',
               description:
                 'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
-              examples: ['@repo/routes'],
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -568,7 +568,7 @@ const ConfigSchema = Schema.Struct({
               title: 'Package name',
               description:
                 'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
-              examples: ['@repo/routes'],
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -613,7 +613,7 @@ const ConfigSchema = Schema.Struct({
               title: 'Package name',
               description:
                 'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
-              examples: ['@repo/routes'],
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -653,7 +653,7 @@ const ConfigSchema = Schema.Struct({
               title: 'Package name',
               description:
                 'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
-              examples: ['@repo/routes'],
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -693,7 +693,7 @@ const ConfigSchema = Schema.Struct({
               title: 'Package name',
               description:
                 'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
-              examples: ['@repo/routes'],
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -733,7 +733,7 @@ const ConfigSchema = Schema.Struct({
               title: 'Package name',
               description:
                 'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
-              examples: ['@repo/routes'],
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -773,7 +773,7 @@ const ConfigSchema = Schema.Struct({
               title: 'Package name',
               description:
                 'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
-              examples: ['@repo/routes'],
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -818,7 +818,7 @@ const ConfigSchema = Schema.Struct({
               title: 'Package name',
               description:
                 'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
-              examples: ['@repo/routes'],
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -955,8 +955,8 @@ const ConfigSchema = Schema.Struct({
         ).annotate({
           title: 'App import specifier',
           description:
-            'Module the client imports the type of the app from. Left out, the app entry is imported relatively, or under `pathAlias`. Name the package of the app when the client is written into another package: `@repo/server`, whose `exports` (or `main`) point at the app entry.',
-          examples: ['@repo/server', '../server'],
+            'Module the client imports the type of the app from. Left out, the app entry is imported relatively, or under `pathAlias`. Name the package of the app when the client is written into another package: `@packages/server`, whose `exports` (or `main`) point at the app entry.',
+          examples: ['@packages/server', '../server'],
         }),
       ),
       package: Schema.optionalKey(
@@ -968,7 +968,7 @@ const ConfigSchema = Schema.Struct({
           title: 'Package name',
           description:
             'Module the generated files of other packages import the client from: the name of the package the client is written into. A file written into the package of the client imports it relatively, as it does without this. A package is what the nearest `package.json` above a file delimits.',
-          examples: ['@repo/client'],
+          examples: ['@packages/client'],
         }),
       ),
     }).annotate({
@@ -980,8 +980,8 @@ const ConfigSchema = Schema.Struct({
         {
           output: '../client/src/client.ts',
           baseUrl: '/',
-          import: '@repo/server',
-          package: '@repo/client',
+          import: '@packages/server',
+          package: '@packages/client',
         },
       ],
     }),

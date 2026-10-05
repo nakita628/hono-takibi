@@ -885,15 +885,15 @@ export default {}`,
     fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
     fs.mkdirSync(path.join(dir, 'client'))
     fs.mkdirSync(path.join(dir, 'web'))
-    fs.writeFileSync(path.join(dir, 'client/package.json'), '{ "name": "@repo/client" }')
-    fs.writeFileSync(path.join(dir, 'web/package.json'), '{ "name": "@repo/web" }')
+    fs.writeFileSync(path.join(dir, 'client/package.json'), '{ "name": "@packages/client" }')
+    fs.writeFileSync(path.join(dir, 'web/package.json'), '{ "name": "@packages/web" }')
     fs.writeFileSync(
       path.join(dir, 'hono-takibi.config.ts'),
       `export default {
         input: './openapi.json',
         output: './src/index.ts',
         template: { define: true },
-        client: { output: './client/src/lib/client.ts', import: '@repo/server', package: '@repo/client' },
+        client: { output: './client/src/lib/client.ts', import: '@packages/server', package: '@packages/client' },
         swr: { output: './client/src/swr.ts' },
         'tanstack-query': { output: './web/src/hooks.ts' },
       }`,
@@ -903,13 +903,13 @@ export default {}`,
 
     expect(result.ok).toBe(true)
     expect(fs.readFileSync(path.join(dir, 'client/src/lib/client.ts'), 'utf-8')).toContain(
-      "import type { api } from '@repo/server'",
+      "import type { api } from '@packages/server'",
     )
     expect(fs.readFileSync(path.join(dir, 'client/src/swr.ts'), 'utf-8')).toContain(
       "import { client } from './lib'",
     )
     expect(fs.readFileSync(path.join(dir, 'web/src/hooks.ts'), 'utf-8')).toContain(
-      "import { client } from '@repo/client'",
+      "import { client } from '@packages/client'",
     )
   })
 

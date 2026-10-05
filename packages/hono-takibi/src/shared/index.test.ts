@@ -1155,13 +1155,13 @@ describe('makeJob: the client and what imports it', () => {
       {
         output: `${tmpDir}/server/src/routes.ts`,
         template: { routeHandler: true },
-        client: { output: `${tmpDir}/server/src/lib/client.ts`, package: '@repo/client' },
+        client: { output: `${tmpDir}/server/src/lib/client.ts`, package: '@packages/client' },
         rpc: { output: `${tmpDir}/web/src/rpc.ts` },
         swr: { output: `${tmpDir}/server/src/swr.ts` },
       },
       packageRoot,
     )
-    expect(out.read('web/src/rpc.ts')).toContain("import { client } from '@repo/client'")
+    expect(out.read('web/src/rpc.ts')).toContain("import { client } from '@packages/client'")
     expect(out.imports('server/src/swr.ts')).toStrictEqual(["'./lib'"])
   })
 
@@ -1174,7 +1174,7 @@ describe('makeJob: the client and what imports it', () => {
     const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true },
-      client: { output: `${tmpDir}/src/lib/client.ts`, package: '@repo/client' },
+      client: { output: `${tmpDir}/src/lib/client.ts`, package: '@packages/client' },
       rpc: { output: `${tmpDir}/src/rpc.ts` },
     })
     expect(out.imports('src/rpc.ts')).toStrictEqual(["'./lib'"])
@@ -1212,10 +1212,10 @@ describe('makeJob: the client and what imports it', () => {
     const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true },
-      client: { output: `${tmpDir}/src/lib/client.ts`, import: '@repo/server' },
+      client: { output: `${tmpDir}/src/lib/client.ts`, import: '@packages/server' },
       rpc: { output: `${tmpDir}/src/rpc.ts` },
     })
-    expect(out.read('src/lib/client.ts')).toContain("import type { api } from '@repo/server'")
+    expect(out.read('src/lib/client.ts')).toContain("import type { api } from '@packages/server'")
   })
 
   // Without a client block nothing is written for it.
@@ -1240,13 +1240,16 @@ describe('packageRoots: the package of every output', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-'))
     fs.mkdirSync(path.join(tmpDir, 'src/schemas'), { recursive: true })
     fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
-    fs.writeFileSync(path.join(tmpDir, 'src/schemas/package.json'), '{ "name": "@repo/schemas" }')
+    fs.writeFileSync(
+      path.join(tmpDir, 'src/schemas/package.json'),
+      '{ "name": "@packages/schemas" }',
+    )
     const cfg = await runGenerator(
       parseConfig({
         input: 'openapi.yaml',
         routes: { output: `${tmpDir}/src/routes`, split: true },
         components: {
-          schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@repo/schemas' },
+          schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@packages/schemas' },
         },
       }),
     )
@@ -1261,7 +1264,10 @@ describe('packageRoots: the package of every output', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-missing-'))
     fs.mkdirSync(path.join(tmpDir, 'src/schemas'), { recursive: true })
     fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
-    fs.writeFileSync(path.join(tmpDir, 'src/schemas/package.json'), '{ "name": "@repo/schemas" }')
+    fs.writeFileSync(
+      path.join(tmpDir, 'src/schemas/package.json'),
+      '{ "name": "@packages/schemas" }',
+    )
     const cfg = await runGenerator(
       parseConfig({
         input: 'openapi.yaml',
@@ -1281,14 +1287,14 @@ describe('packageRoots: the package of every output', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-client-'))
     fs.mkdirSync(path.join(tmpDir, 'client/src'), { recursive: true })
     fs.mkdirSync(path.join(tmpDir, 'server/src'), { recursive: true })
-    fs.writeFileSync(path.join(tmpDir, 'client/package.json'), '{ "name": "@repo/client" }')
-    fs.writeFileSync(path.join(tmpDir, 'server/package.json'), '{ "name": "@repo/server" }')
+    fs.writeFileSync(path.join(tmpDir, 'client/package.json'), '{ "name": "@packages/client" }')
+    fs.writeFileSync(path.join(tmpDir, 'server/package.json'), '{ "name": "@packages/server" }')
     const cfg = await runGenerator(
       parseConfig({
         input: 'openapi.yaml',
         output: `${tmpDir}/server/src/routes.ts`,
         template: { routeHandler: true },
-        client: { output: `${tmpDir}/client/src/client.ts`, package: '@repo/client' },
+        client: { output: `${tmpDir}/client/src/client.ts`, package: '@packages/client' },
       }),
     )
     const error = await runGeneratorError(packageRoots(cfg))
@@ -1303,13 +1309,16 @@ describe('packageRoots: the package of every output', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-jobs-'))
     fs.mkdirSync(path.join(tmpDir, 'src/schemas'), { recursive: true })
     fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
-    fs.writeFileSync(path.join(tmpDir, 'src/schemas/package.json'), '{ "name": "@repo/schemas" }')
+    fs.writeFileSync(
+      path.join(tmpDir, 'src/schemas/package.json'),
+      '{ "name": "@packages/schemas" }',
+    )
     const cfg = await runGenerator(
       parseConfig({
         input: 'openapi.yaml',
         routes: { output: `${tmpDir}/src/routes`, split: true },
         components: {
-          schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@repo/schemas' },
+          schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@packages/schemas' },
         },
       }),
     )
@@ -1319,7 +1328,7 @@ describe('packageRoots: the package of every output', () => {
       await runGenerator(job.run(job.output))
     }
     const route = fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8')
-    expect(route).toContain("import { UserSchema } from '@repo/schemas'")
+    expect(route).toContain("import { UserSchema } from '@packages/schemas'")
   })
 })
 
