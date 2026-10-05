@@ -123,10 +123,13 @@ export default defineConfig({
   webhooks: {
     output: './src/webhooks',
     split: true,
+    // package: '@repo/webhooks',
   },
 
   // `output` (single file) and the per-type fields below (split) are mutually exclusive.
   // `exportTypes` applies only to schemas / parameters / headers / mediaTypes.
+  // `package` names the package an output is written into, for the files of other packages
+  // that import it; leave it out while everything is in one package.
   components: {
     output: './src/components/index.ts',
 
@@ -134,50 +137,60 @@ export default defineConfig({
       output: './src/schemas',
       exportTypes: true,
       split: true,
-      // package: '@repo/schemas', // when src/schemas is a package of its own
+      // package: '@repo/schemas',
     },
     responses: {
       output: './src/responses',
       split: true,
+      // package: '@repo/responses',
     },
     parameters: {
       output: './src/parameters',
       exportTypes: true,
       split: true,
+      // package: '@repo/parameters',
     },
     examples: {
       output: './src/examples',
       split: true,
+      // package: '@repo/examples',
     },
     requestBodies: {
       output: './src/requestBodies',
       split: true,
+      // package: '@repo/requestBodies',
     },
     headers: {
       output: './src/headers',
       exportTypes: true,
       split: true,
+      // package: '@repo/headers',
     },
     securitySchemes: {
       output: './src/securitySchemes',
       split: true,
+      // package: '@repo/securitySchemes',
     },
     links: {
       output: './src/links',
       split: true,
+      // package: '@repo/links',
     },
     callbacks: {
       output: './src/callbacks',
       split: true,
+      // package: '@repo/callbacks',
     },
     pathItems: {
       output: './src/pathItems',
       split: true,
+      // package: '@repo/pathItems',
     },
     mediaTypes: {
       output: './src/mediaTypes',
       exportTypes: true,
       split: true,
+      // package: '@repo/mediaTypes',
     },
   },
 
