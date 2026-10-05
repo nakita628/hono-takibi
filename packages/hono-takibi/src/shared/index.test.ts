@@ -1258,6 +1258,78 @@ describe('packageRoots: the package of every output', () => {
     expect(packageRoot(`${tmpDir}/src/schemas/user.ts`)).toBe(`${tmpDir}/src/schemas`)
   })
 
+  // Without a package.json anywhere above, every output is in the one package: the alias
+  // applies and nothing is imported by name.
+  // 上に package.json がなければ、すべての出力は 1 つのパッケージにある。エイリアスが効き、
+  // 名前で import されるものはない。
+  it('treats every output as one package when no package.json is above', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-none-'))
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        pathAlias: '@/',
+        routes: { output: `${tmpDir}/src/routes`, split: true },
+        components: {
+          schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@packages/schemas' },
+        },
+      }),
+    )
+    const packageRoot = await runGenerator(packageRoots(cfg))
+    expect(packageRoot(`${tmpDir}/src/routes/getUsers.ts`)).toBe(
+      packageRoot(`${tmpDir}/src/schemas/user.ts`),
+    )
+    const jobs = makeJob(openAPI, cfg, packageRoot)
+    for (const job of jobs) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await runGenerator(job.run(job.output))
+    }
+    expect(fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8')).toContain(
+      "import { UserSchema } from '@/schemas'",
+    )
+  })
+
+  // The alias stands for the directory of the app entry: a target outside it, in the same
+  // package, is imported relatively.
+  // エイリアスは app entry のディレクトリを指す。同じパッケージでもその外にある対象は、
+  // 相対パスで import する。
+  it('imports a target outside the app directory relatively even with an alias', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-outside-'))
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        pathAlias: '@/',
+        routes: { output: `${tmpDir}/src/routes`, split: true },
+        components: { schemas: { output: `${tmpDir}/lib/schemas`, split: true } },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(cfg)))
+    for (const job of jobs) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await runGenerator(job.run(job.output))
+    }
+    expect(fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8')).toContain(
+      "import { UserSchema } from '../../lib/schemas'",
+    )
+  })
+
+  // An output that is no .ts file, the docs for one, is a file all the same: the
+  // package.json is looked for beside it, not under it.
+  // .ts でない出力(ドキュメントなど)もファイルである。package.json はその隣を探し、
+  // その下は探さない。
+  it('takes an output with another extension for a file', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-docs-'))
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: `${tmpDir}/src/routes.ts`,
+        docs: { output: `${tmpDir}/docs/api.md` },
+      }),
+    )
+    const packageRoot = await runGenerator(packageRoots(cfg))
+    expect(packageRoot(`${tmpDir}/docs/api.md`)).toBe(tmpDir)
+  })
+
   // A file cannot import another package without a name for it.
   // 名前がなければ、別のパッケージを import することはできない。
   it('fails when a target in another package names no package', async () => {

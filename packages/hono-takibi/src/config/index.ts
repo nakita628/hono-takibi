@@ -1689,129 +1689,36 @@ export function readConfig(configPath?: string, reload = false) {
   })
 }
 
-type ConfigInput = typeof ConfigSchema.Encoded
+type Encoded = typeof ConfigSchema.Encoded
 
-type ClientCaller = 'rpc' | (typeof HOOK_KINDS)[number]
+type Caller = 'rpc' | (typeof HOOK_KINDS)[number]
 
-type OptionOf<S> = S extends unknown ? keyof S : never
+type Callers = Pick<Encoded, Caller>
 
-type ValueOf<S, K> = S extends unknown ? (K extends keyof S ? S[K] : never) : never
+type NoCallers = { readonly [K in Caller]?: undefined }
 
-type Known<T, S> = T extends readonly unknown[]
-  ? T
-  : T extends object
-    ? {
-        readonly [K in keyof T]: K extends OptionOf<NonNullable<S>>
-          ? Known<T[K], ValueOf<NonNullable<S>, K>>
-          : 'is not an option'
-      }
-    : T
+type Base = Omit<Encoded, 'template' | 'client' | Caller>
 
-type ComponentKind = (typeof COMPONENT_KINDS)[number]
+type Template = NonNullable<Encoded['template']>
 
-type Replaced<V, P, M, S> = {
-  readonly [Q in keyof V]: Q extends P
-    ? M
-    : Q extends OptionOf<NonNullable<S>>
-      ? Known<V[Q], ValueOf<NonNullable<S>, Q>>
-      : 'is not an option'
-}
+type Client = NonNullable<Encoded['client']>
 
-type Outputs<T> = {
-  readonly [K in keyof T]: K extends 'output'
-    ? readonly ['output', T[K]]
-    : K extends 'components'
-      ? {
-          readonly [P in keyof T[K]]: P extends 'output'
-            ? readonly ['components.output', T[K][P]]
-            : T[K][P] extends { readonly output: infer O }
-              ? readonly [`components.${P & string}`, O]
-              : never
-        }[keyof T[K]]
-      : T[K] extends { readonly output: infer O }
-        ? readonly [K, O]
-        : never
-}[keyof T]
+/**
+ * What a config file may say. Three shapes, one for each step of the chain `template` →
+ * `client` → rpc and the hooks: each needs the one before it, so without `template` there
+ * is no `client`, and without `client` nothing that calls it. Everything else the schema
+ * checks when the config is read, with a message naming the field.
+ *
+ * 設定ファイルに書けるもの。`template` → `client` → rpc とフック、という連鎖の各段階に対応する
+ * 3 つの形があり、それぞれ前の段階を必要とする。`template` がなければ `client` はなく、
+ * `client` がなければそれを呼び出すものもない。ほかの制約は、設定を読み込むときにスキーマが
+ * フィールド名を添えて検査する。
+ */
+export type ConfigInput =
+  | (Base & { readonly template?: undefined; readonly client?: undefined } & NoCallers)
+  | (Base & { readonly template: Template; readonly client?: undefined } & NoCallers)
+  | (Base & { readonly template: Template; readonly client: Client } & Callers)
 
-type Sharing<T, F, O> = string extends O
-  ? never
-  : Extract<Exclude<Outputs<T>, readonly [F, unknown]>, readonly [unknown, O]>
-
-type Shared<T, F, O> = [Sharing<T, F, O>] extends [never]
-  ? never
-  : `is also the output of ${Sharing<T, F, O>[0] & string}: every generator needs its own output path`
-
-type Written<T, F, V, S> = V extends { readonly split: true; readonly output: `${string}.ts` }
-  ? Replaced<V, 'output', 'split mode requires a directory, not a .ts file', S>
-  : V extends { readonly output: infer O }
-    ? [Shared<T, F, O>] extends [never]
-      ? Known<V, S>
-      : Replaced<V, 'output', Shared<T, F, O>, S>
-    : Known<V, S>
-
-type Calling<T, K, V, S> = 'client' extends keyof T
-  ? Written<T, K, V, S>
-  : 'needs client: rpc and the hooks call the client the client block generates'
-
-type Single<T, O> = T extends { readonly routes: object }
-  ? 'output and routes are mutually exclusive: output for a single file, routes for a file of their own'
-  : T extends { readonly template: { readonly define: true } }
-    ? O extends 'index.ts' | `${string}/index.ts`
-      ? O
-      : string extends O
-        ? O
-        : 'with template.define, output is the app entry and must be an index.ts file'
-    : [Shared<T, 'output', O>] extends [never]
-      ? O
-      : Shared<T, 'output', O>
-
-type Mounted<P> = P extends `/${string}` ? P : string extends P ? P : "must start with '/'"
-
-type Routed<T, V, S> = T extends { readonly output: string }
-  ? 'output and routes are mutually exclusive: output for a single file, routes for a file of their own'
-  : T extends { readonly template: { readonly define: true } }
-    ? 'template.define and routes are mutually exclusive: define derives routes/ next to the app entry'
-    : Written<T, 'routes', V, S>
-
-type Composed<T, V, S> = {
-  readonly [P in keyof V]: P extends ComponentKind
-    ? T extends { readonly template: { readonly define: true } }
-      ? 'is not supported with template.define: use components.output for a single file'
-      : V extends { readonly output: string }
-        ? 'components.output and the outputs of each type are mutually exclusive'
-        : Written<T, `components.${P}`, V[P], ValueOf<NonNullable<S>, P>>
-    : P extends 'output'
-      ? [Shared<T, 'components.output', V[P]>] extends [never]
-        ? V[P]
-        : Shared<T, 'components.output', V[P]>
-      : P extends OptionOf<NonNullable<S>>
-        ? Known<V[P], ValueOf<NonNullable<S>, P>>
-        : 'is not an option'
-}
-
-type Checked<T> = {
-  readonly [K in keyof T]: K extends keyof ConfigInput
-    ? K extends ClientCaller
-      ? Calling<T, K, T[K], ConfigInput[K]>
-      : K extends 'test'
-        ? // 'is not an option for now: the tests of the routes are written by template.test'
-          'was removed: hono-takibi no longer generates test files'
-        : K extends 'client'
-          ? 'template' extends keyof T
-            ? Written<T, K, T[K], ConfigInput[K]>
-            : 'needs template: the client is typed by the app the template scaffolds'
-          : K extends 'output'
-            ? Single<T, T[K]>
-            : K extends 'basePath'
-              ? Mounted<T[K]>
-              : K extends 'routes'
-                ? Routed<T, T[K], ConfigInput[K]>
-                : K extends 'components'
-                  ? Composed<T, T[K], ConfigInput[K]>
-                  : Written<T, K, T[K], ConfigInput[K]>
-    : 'is not an option'
-}
-
-export function defineConfig<const T extends ConfigInput>(config: Checked<T>) {
+export function defineConfig(config: ConfigInput) {
   return config
 }
