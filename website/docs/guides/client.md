@@ -14,7 +14,7 @@ Generates the [Hono RPC client](https://hono.dev/docs/guides/rpc), typed wrapper
 
 ## Generated client
 
-With [`template`](/docs/guides/template), a `client` block generates the client. `rpc` and the hooks import it on their own.
+With [`template`](/docs/guides/template), a `client` block generates the client. `rpc` and the hooks import it on their own: the `client` block is the one place a client comes from.
 
 ```ts
 export default defineConfig({
@@ -41,6 +41,39 @@ export const client = hcWithType('/').api
 ```
 
 Imports are worked out from the output paths, and follow `template.pathAlias`.
+
+### Monorepo
+
+When the client lives in a package of its own, name the module it imports the app from, and the package other packages import it by.
+
+```ts
+// apps/hono/hono-takibi.config.ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  output: 'src/index.ts',
+  template: { define: true },
+  client: {
+    output: '../client/src/lib/client.ts',
+    import: '@repo/server', // the client imports the app type from here (default: relative / alias)
+    package: '@repo/client', // other packages import the client by this name
+  },
+  swr: { output: '../client/src/hooks/swr.ts' }, // same package as the client → '../lib'
+  'tanstack-query': { output: '../web/src/api/hooks.ts' }, // another package → '@repo/client'
+})
+```
+
+```ts
+// apps/client/src/lib/client.ts
+import { hc } from 'hono/client'
+import type { api } from '@repo/server'
+```
+
+```ts
+// apps/web/src/api/hooks.ts
+import { client } from '@repo/client'
+```
+
+A package is what the nearest `package.json` above a generated file delimits. A file in the package of the client imports it relatively, as it does without `package`. `@repo/server` needs an `exports` (or `main`) entry that points at the app entry, `./src/index.ts` for example; no build step is needed for the types. The package of the hooks needs `hono` installed too: the generated hooks import from `hono/client`.
 
 ### Base URL
 
@@ -94,39 +127,23 @@ export const vaultsClient = hcVaultsWithType('/').api
 | `/v2-public/ping`         | `v2Public` | `v2PublicClient` |
 | `/`                       | `api`      | `client`         |
 
-## Your own client
-
-Without the `client` block, name the module in `import`.
-
-```ts
-export default defineConfig({
-  input: 'openapi.yaml',
-  rpc: {
-    output: './src/rpc.ts',
-    import: '@packages/client',
-    client: 'apiClient', // export name, default 'client'
-  },
-})
-```
-
-| `client` block | `import` | `client` name |
-| -------------- | -------- | ------------- |
-| Not set        | Required | Optional      |
-| Set            | Optional | Not allowed   |
-
 ## RPC
 
 ```ts
 export default defineConfig({
   input: 'openapi.yaml',
+  output: './src/routes.ts',
+  template: { routeHandler: true },
+  client: { output: './src/lib/client.ts' },
   rpc: {
     output: './src/rpc.ts',
-    import: '../lib',
     parseResponse: true, // resolve with the parsed body
     docs: true, // operation summary and description as JSDoc
   },
 })
 ```
+
+Per-request options, headers for example, are passed to each generated function and hook as `ClientRequestOptions`. The `import` and `client` fields of `rpc` and the hooks were removed: the client is always the generated one, exported as `client`.
 
 ## Query hooks
 
@@ -135,9 +152,11 @@ Supported: `swr`, `tanstack-query`, `preact-query`, `solid-query`, `vue-query`, 
 ```ts
 export default defineConfig({
   input: 'openapi.yaml',
+  output: './src/routes.ts',
+  template: { routeHandler: true },
+  client: { output: './src/lib/client.ts' },
   'tanstack-query': {
     output: './src/tanstack-query.ts',
-    import: '../lib',
   },
 })
 ```

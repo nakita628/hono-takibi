@@ -67,9 +67,9 @@ Prefer a Vite dev server? Use the [Vite plugin](/docs/guides/vite-plugin) instea
 - Every generator needs its own `output`. Two generators writing to one file is an error.
 - `output` (single file) and `routes` (split) are mutually exclusive. Same for `components.output` and the per-type `components.*` sections.
 - A `split` directory belongs to the generator: its `.ts` files are removed before each run. Keep hand-written code elsewhere.
-- `basePath` must start with `/`. `client` must be an identifier and `import` a module specifier.
+- `basePath` must start with `/`. `client.import`, `client.package` and every `import` must be module specifiers.
 - The `client` block needs `template`.
-- `rpc` and the hooks need an `import`, unless the `client` block is set. With the `client` block, they cannot set `client`.
+- `rpc` and the hooks need the `client` block: they import the generated client, relatively or by `client.package` from another package.
 
 ## Full reference
 
@@ -192,47 +192,27 @@ export default defineConfig({
     readonly: true,
   },
 
-  // Hono client of the scaffolded app (needs `template`).
+  // Hono client of the scaffolded app (needs `template`). `rpc` and the hooks import it.
   client: {
     output: './src/lib/client.ts',
     baseUrl: '/', // a URL, { env, source } or { env, import, name }
+    // import: '@repo/server', // module the client imports the app type from (default: relative / alias)
+    // package: '@repo/client', // name files in other packages import the client by
   },
 
   rpc: {
     output: './src/rpc.ts',
-    import: '../lib', // optional with the `client` block
     parseResponse: true,
     docs: false, // operation summary/description as JSDoc
   },
 
-  swr: {
-    output: './src/swr.ts',
-    import: '../lib',
-  },
-  'tanstack-query': {
-    output: './src/tanstack-query.ts',
-    import: '../lib',
-  },
-  'preact-query': {
-    output: './src/preact-query.ts',
-    import: '../lib',
-  },
-  'solid-query': {
-    output: './src/solid-query.ts',
-    import: '../lib',
-  },
-  'vue-query': {
-    output: './src/vue-query.ts',
-    import: '../lib',
-  },
-  'svelte-query': {
-    output: './src/svelte-query.ts',
-    import: '../lib',
-  },
-  'angular-query': {
-    output: './src/angular-query.ts',
-    import: '../lib',
-  },
+  swr: { output: './src/swr.ts' },
+  'tanstack-query': { output: './src/tanstack-query.ts' },
+  'preact-query': { output: './src/preact-query.ts' },
+  'solid-query': { output: './src/solid-query.ts' },
+  'vue-query': { output: './src/vue-query.ts' },
+  'svelte-query': { output: './src/svelte-query.ts' },
+  'angular-query': { output: './src/angular-query.ts' },
 
   mock: {
     output: './src/mock.ts',

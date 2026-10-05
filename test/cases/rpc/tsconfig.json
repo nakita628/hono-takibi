@@ -3,7 +3,6 @@
   "include": [
     "../../__generated__/rpc/**/*",
     "../../hosts/users-app.ts",
-    "../../hosts/users-client.ts",
     "../../runtime/rpc.test.ts"
   ]
 }

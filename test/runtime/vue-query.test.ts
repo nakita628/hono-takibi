@@ -12,7 +12,7 @@
 // Vue に固有の点として、引数に `Ref` を渡すことができ、ref が変化するとクエリのキーも
 // 自動的に切り替わる。
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
-import { afterEach, describe, expect, it } from 'vite-plus/test'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { createApp, effectScope, nextTick, ref } from 'vue'
 
 import {
@@ -21,7 +21,12 @@ import {
   usePostUsers,
   useUsersId,
 } from '../__generated__/vue-query/hooks'
-import { requestLog } from '../hosts/users-app'
+import { fetchOf } from '../hosts/fetch'
+import { app as host, requestLog } from '../hosts/users-app'
+
+// The generated client reaches the host through this fetch.
+// 生成されたクライアントは、この fetch を通してホストに届く。
+vi.stubGlobal('fetch', fetchOf(host))
 
 // Long enough for a request to the in-process host to settle.
 // プロセス内のホストへのリクエストが完了するのに十分な待ち時間。

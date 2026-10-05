@@ -1,0 +1,11 @@
+{
+  "name": "@fixtures/client-package-client",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/lib/index.ts",
+      "default": "./src/lib/index.ts"
+    }
+  }
+}

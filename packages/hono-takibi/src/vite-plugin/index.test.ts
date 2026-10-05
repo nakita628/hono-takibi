@@ -85,6 +85,7 @@ const createMockViteDevServer = (configuration: unknown) => {
 
 vi.mock('../core/index.js', () => ({
   callbacks: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('callbacks')),
+  client: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('client')),
   docs: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('docs')),
   examples: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('examples')),
   headers: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('headers')),
@@ -790,23 +791,16 @@ describe('honoTakibiVite', () => {
     const configuration = {
       input: 'openapi.yaml',
       output: path.join(testState.sandboxDirectory, 'out/single.ts'),
+      template: {},
+      client: { output: path.join(testState.sandboxDirectory, 'out/lib/client.ts') },
       type: { output: path.join(testState.sandboxDirectory, 'out/types.ts') },
       mock: { output: path.join(testState.sandboxDirectory, 'out/mock.ts') },
       docs: { output: path.join(testState.sandboxDirectory, 'out/api.md') },
-      rpc: { output: path.join(testState.sandboxDirectory, 'out/rpc/index.ts'), import: '@rpc' },
-      swr: { output: path.join(testState.sandboxDirectory, 'out/swr/index.ts'), import: '@swr' },
-      'tanstack-query': {
-        output: path.join(testState.sandboxDirectory, 'out/tanstack/index.ts'),
-        import: '@tan',
-      },
-      'svelte-query': {
-        output: path.join(testState.sandboxDirectory, 'out/svelte/index.ts'),
-        import: '@svl',
-      },
-      'vue-query': {
-        output: path.join(testState.sandboxDirectory, 'out/vue/index.ts'),
-        import: '@vue',
-      },
+      rpc: { output: path.join(testState.sandboxDirectory, 'out/rpc/index.ts') },
+      swr: { output: path.join(testState.sandboxDirectory, 'out/swr/index.ts') },
+      'tanstack-query': { output: path.join(testState.sandboxDirectory, 'out/tanstack/index.ts') },
+      'svelte-query': { output: path.join(testState.sandboxDirectory, 'out/svelte/index.ts') },
+      'vue-query': { output: path.join(testState.sandboxDirectory, 'out/vue/index.ts') },
     }
     const { server } = createMockViteDevServer(configuration)
     const plugin = honoTakibiVite()

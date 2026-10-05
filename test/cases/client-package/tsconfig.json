@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "paths": {
+      "@fixtures/client-package-server": ["../../__generated__/client-package/server/src/index.ts"],
+      "@fixtures/client-package-client": [
+        "../../__generated__/client-package/client/src/lib/index.ts"
+      ]
+    }
+  },
+  "include": [
+    "../../__generated__/client-package/**/*",
+    "../../runtime/client-package.source.test.ts"
+  ]
+}

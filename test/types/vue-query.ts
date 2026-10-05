@@ -13,7 +13,7 @@ import {
   usePostUsers,
   useUsers,
 } from '../__generated__/vue-query/hooks'
-import type { client } from '../hosts/users-client'
+import type { client } from '../__generated__/vue-query/src/client'
 import { type Equal, type HasKey, type IsAssignable, type NotAny, assertType } from './assert'
 
 /**

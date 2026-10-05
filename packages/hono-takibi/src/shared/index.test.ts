@@ -1022,9 +1022,13 @@ describe('outsideSources', () => {
 
 // Runs every job of the config and reads what was written under src.
 // 設定のすべてのジョブを実行し、src の下に書き出されたものを読み取る。
-async function generateClientJobs(dir: string, config: object) {
+async function generateClientJobs(
+  dir: string,
+  config: object,
+  packageRoot?: (file: string) => string | undefined,
+) {
   const cfg = await runGenerator(parseConfig({ input: 'openapi.yaml', ...config }))
-  const jobs = makeJob(openAPI, cfg)
+  const jobs = makeJob(openAPI, cfg, packageRoot)
   // The app entry is what the client and the rpc file are written against, so the jobs
   // run in the order they are made.
   // アプリのエントリは、クライアントと rpc ファイルの前提になる。そのため、ジョブは作られた
@@ -1159,17 +1163,55 @@ describe('makeJob: the client and what imports it', () => {
     expect(out.imports('src/rpc.ts')).toStrictEqual(["'./client'"])
   })
 
-  // The import a generator names is the one it uses, whatever the client block says.
-  // 生成器に指定された import は、client ブロックの内容にかかわらず、そのまま使われる。
-  it('takes the import a generator names over the generated client', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-named-'))
+  // A file written into another package imports the client by `client.package`; one in
+  // the package of the client keeps importing it relatively.
+  // 別のパッケージに書き出されるファイルは `client.package` でクライアントを import し、
+  // クライアントと同じパッケージのファイルは従来どおり相対パスで import する。
+  it('imports the client by client.package from another package', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-package-'))
+    const packageRoot = (file: string) =>
+      file.startsWith(`${tmpDir}/web/`) ? `${tmpDir}/web` : `${tmpDir}/server`
+    const out = await generateClientJobs(
+      tmpDir,
+      {
+        output: `${tmpDir}/server/src/routes.ts`,
+        template: { routeHandler: true },
+        client: { output: `${tmpDir}/server/src/lib/client.ts`, package: '@repo/client' },
+        rpc: { output: `${tmpDir}/web/src/rpc.ts` },
+        swr: { output: `${tmpDir}/server/src/swr.ts` },
+      },
+      packageRoot,
+    )
+    expect(out.read('web/src/rpc.ts')).toContain("import { client } from '@repo/client'")
+    expect(out.imports('server/src/swr.ts')).toStrictEqual(["'./lib'"])
+  })
+
+  // Without a package root to tell the files apart, every file is in the package of the
+  // client, and `client.package` changes nothing.
+  // パッケージの境界が分からなければ、すべてのファイルはクライアントと同じパッケージにあるものと
+  // して扱われ、`client.package` は何も変えない。
+  it('imports the client relatively when no package root is known', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-package-none-'))
     const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true },
-      client: { output: `${tmpDir}/src/lib/client.ts` },
-      rpc: { output: `${tmpDir}/src/rpc.ts`, import: '@packages/client' },
+      client: { output: `${tmpDir}/src/lib/client.ts`, package: '@repo/client' },
+      rpc: { output: `${tmpDir}/src/rpc.ts` },
     })
-    expect(out.read('src/rpc.ts')).toContain("import { client } from '@packages/client'")
+    expect(out.imports('src/rpc.ts')).toStrictEqual(["'./lib'"])
+  })
+
+  // The client imports the type of the app from the module `client.import` names.
+  // クライアントは、`client.import` が指すモジュールからアプリの型を import する。
+  it('imports the app by client.import', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-import-'))
+    const out = await generateClientJobs(tmpDir, {
+      output: `${tmpDir}/src/routes.ts`,
+      template: { routeHandler: true },
+      client: { output: `${tmpDir}/src/lib/client.ts`, import: '@repo/server' },
+      rpc: { output: `${tmpDir}/src/rpc.ts` },
+    })
+    expect(out.read('src/lib/client.ts')).toContain("import type { api } from '@repo/server'")
   })
 
   // Without a client block nothing is written for it.
@@ -1179,45 +1221,9 @@ describe('makeJob: the client and what imports it', () => {
     const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true },
-      rpc: { output: `${tmpDir}/src/rpc.ts`, import: '../lib' },
     })
     expect(out.has('src/client.ts')).toBe(false)
-    expect(out.imports('src/rpc.ts')).toStrictEqual(["'../lib'"])
-  })
-
-  // Without template, rpc calls the client by the name the config gives.
-  // template がなければ、rpc は設定で指定した名前でクライアントを呼び出す。
-  // With template and without the client block, the same.
-  // template があり client ブロックがなくても、同様である。
-  it('imports the named client with template and without client', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-tname-'))
-    const out = await generateClientJobs(tmpDir, {
-      output: `${tmpDir}/src/routes.ts`,
-      template: { routeHandler: true },
-      rpc: { output: `${tmpDir}/src/rpc.ts`, import: '../lib', client: 'api' },
-    })
-    expect(out.has('src/client.ts')).toBe(false)
-    expect(out.read('src/rpc.ts')).toContain("import { api } from '../lib'")
-  })
-
-  it('imports the named client without template', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-name-'))
-    const out = await generateClientJobs(tmpDir, {
-      output: `${tmpDir}/src/routes.ts`,
-      rpc: { output: `${tmpDir}/src/rpc.ts`, import: '../lib', client: 'api' },
-    })
-    expect(out.read('src/rpc.ts')).toContain("import { api } from '../lib'")
-  })
-
-  // The same for a hook library.
-  // フックのライブラリも同様である。
-  it('imports the named client into hooks without template', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-hook-'))
-    const out = await generateClientJobs(tmpDir, {
-      output: `${tmpDir}/src/routes.ts`,
-      swr: { output: `${tmpDir}/src/swr.ts`, import: '../lib', client: 'api' },
-    })
-    expect(out.read('src/swr.ts')).toContain("import { api } from '../lib'")
+    expect(out.has('src/lib/client.ts')).toBe(false)
   })
 })
 

@@ -15,7 +15,7 @@
 // 区別できなければならない。区別は、名前(`getUsers` / `queryUsers`)、呼び出すクライアント
 // メソッド(`$get` / `$query`)、およびキャッシュキーによって行われる。
 import { QueryClient } from '@tanstack/react-query'
-import { afterEach, describe, expect, it } from 'vite-plus/test'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { getUsers, queryUsers } from '../__generated__/query-method/rpc'
 import { getQueryUsersInfiniteKey, getQueryUsersKey } from '../__generated__/query-method/swr'
@@ -27,7 +27,12 @@ import {
   getUsersKey,
   getUsersQueryKey,
 } from '../__generated__/query-method/tanstack-query'
-import { requestLog } from '../hosts/query-method-app'
+import { fetchOf } from '../hosts/fetch'
+import { app as host, requestLog } from '../hosts/query-method-app'
+
+// The generated client reaches the host through this fetch.
+// 生成されたクライアントは、この fetch を通してホストに届く。
+vi.stubGlobal('fetch', fetchOf(host))
 
 function makeClient() {
   return new QueryClient({ defaultOptions: { queries: { retry: false } } })

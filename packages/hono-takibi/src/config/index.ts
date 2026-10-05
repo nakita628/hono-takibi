@@ -826,11 +826,43 @@ const ConfigSchema = Schema.Struct({
             { env: 'API_URL', import: '@/env', name: 'env' },
           ],
         }),
+      import: Schema.optionalKey(
+        Schema.String.check(
+          Schema.isPattern(/^[^\s'"`\\]+$/u, {
+            message: 'must be a module specifier, with no whitespace or quotes',
+          }),
+        ).annotate({
+          title: 'App import specifier',
+          description:
+            'Module the client imports the type of the app from. Left out, the app entry is imported relatively, or under `template.pathAlias`. Name the package of the app when the client is written into another package: `@repo/server`, whose `exports` (or `main`) point at the app entry.',
+          examples: ['@repo/server', '../server'],
+        }),
+      ),
+      package: Schema.optionalKey(
+        Schema.String.check(
+          Schema.isPattern(/^[^\s'"`\\]+$/u, {
+            message: 'must be a module specifier, with no whitespace or quotes',
+          }),
+        ).annotate({
+          title: 'Package name',
+          description:
+            'Module the generated files of other packages import the client from: the name of the package the client is written into. A file written into the package of the client imports it relatively, as it does without this. A package is what the nearest `package.json` above a file delimits.',
+          examples: ['@repo/client'],
+        }),
+      ),
     }).annotate({
       title: 'Typed client',
       description:
-        'The Hono client of the scaffolded app, with its type declared once so that it is worked out when the file is compiled. With `template.split`, one client for each group, `booksClient` for `books`, and `client` for the routes that belong to none. `rpc` and the hooks import from it unless they name an `import` of their own. Needs `template`.',
-      examples: [{ output: './src/client.ts', baseUrl: '/' }],
+        'The Hono client of the scaffolded app, with its type declared once so that it is worked out when the file is compiled. With `template.split`, one client for each group, `booksClient` for `books`, and `client` for the routes that belong to none. `rpc` and the hooks import from it: relatively, or by `package` from another package. Needs `template`.',
+      examples: [
+        { output: './src/client.ts', baseUrl: '/' },
+        {
+          output: '../client/src/client.ts',
+          baseUrl: '/',
+          import: '@repo/server',
+          package: '@repo/client',
+        },
+      ],
     }),
   ),
   rpc: Schema.optionalKey(
@@ -842,27 +874,15 @@ const ConfigSchema = Schema.Struct({
         examples: ['./src/rpc.ts', './src/rpc'],
       }),
       import: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a module specifier, with no whitespace or quotes',
-          }),
-        ).annotate({
-          title: 'Import specifier',
-          description:
-            'Module specifier the generated file imports the client from. Left out, it is the file the top-level `client` generates.',
-          examples: ['@packages/routes', '../lib', '.'],
+        Schema.Never.annotate({
+          message:
+            'import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
         }),
       ),
       client: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-            message: 'must be a JavaScript identifier',
-          }),
-        ).annotate({
-          title: 'Client export name',
-          description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
-          examples: ['client', 'apiClient'],
+        Schema.Never.annotate({
+          message:
+            'client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
         }),
       ),
       parseResponse: Schema.Boolean.pipe(
@@ -885,8 +905,6 @@ const ConfigSchema = Schema.Struct({
       examples: [
         {
           output: './src/rpc.ts',
-          import: '../lib',
-          client: 'client',
           parseResponse: false,
           docs: false,
         },
@@ -902,27 +920,15 @@ const ConfigSchema = Schema.Struct({
         examples: ['./src/swr.ts', './src/swr'],
       }),
       import: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a module specifier, with no whitespace or quotes',
-          }),
-        ).annotate({
-          title: 'Import specifier',
-          description:
-            'Module specifier the generated file imports the client from. Left out, it is the file the top-level `client` generates.',
-          examples: ['@packages/routes', '../lib', '.'],
+        Schema.Never.annotate({
+          message:
+            'import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
         }),
       ),
       client: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-            message: 'must be a JavaScript identifier',
-          }),
-        ).annotate({
-          title: 'Client export name',
-          description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
-          examples: ['client', 'apiClient'],
+        Schema.Never.annotate({
+          message:
+            'client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
         }),
       ),
       split: Schema.optionalKey(
@@ -934,7 +940,7 @@ const ConfigSchema = Schema.Struct({
     }).annotate({
       title: 'SWR hooks output',
       description: 'Generates `useSWR` / `useSWRMutation` hooks per operation.',
-      examples: [{ output: './src/swr.ts', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/swr.ts' }],
     }),
   ),
   'tanstack-query': Schema.optionalKey(
@@ -946,27 +952,15 @@ const ConfigSchema = Schema.Struct({
         examples: ['./src/tanstack-query.ts', './src/tanstack-query'],
       }),
       import: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a module specifier, with no whitespace or quotes',
-          }),
-        ).annotate({
-          title: 'Import specifier',
-          description:
-            'Module specifier the generated file imports the client from. Left out, it is the file the top-level `client` generates.',
-          examples: ['@packages/routes', '../lib', '.'],
+        Schema.Never.annotate({
+          message:
+            'import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
         }),
       ),
       client: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-            message: 'must be a JavaScript identifier',
-          }),
-        ).annotate({
-          title: 'Client export name',
-          description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
-          examples: ['client', 'apiClient'],
+        Schema.Never.annotate({
+          message:
+            'client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
         }),
       ),
       split: Schema.optionalKey(
@@ -978,7 +972,7 @@ const ConfigSchema = Schema.Struct({
     }).annotate({
       title: 'TanStack Query hooks output',
       description: 'Generates `@tanstack/react-query` hooks per operation.',
-      examples: [{ output: './src/tanstack-query.ts', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/tanstack-query.ts' }],
     }),
   ),
   'preact-query': Schema.optionalKey(
@@ -990,27 +984,15 @@ const ConfigSchema = Schema.Struct({
         examples: ['./src/preact-query.ts', './src/preact-query'],
       }),
       import: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a module specifier, with no whitespace or quotes',
-          }),
-        ).annotate({
-          title: 'Import specifier',
-          description:
-            'Module specifier the generated file imports the client from. Left out, it is the file the top-level `client` generates.',
-          examples: ['@packages/routes', '../lib', '.'],
+        Schema.Never.annotate({
+          message:
+            'import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
         }),
       ),
       client: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-            message: 'must be a JavaScript identifier',
-          }),
-        ).annotate({
-          title: 'Client export name',
-          description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
-          examples: ['client', 'apiClient'],
+        Schema.Never.annotate({
+          message:
+            'client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
         }),
       ),
       split: Schema.optionalKey(
@@ -1022,7 +1004,7 @@ const ConfigSchema = Schema.Struct({
     }).annotate({
       title: 'Preact Query hooks output',
       description: 'Generates `@tanstack/preact-query` hooks per operation.',
-      examples: [{ output: './src/preact-query.ts', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/preact-query.ts' }],
     }),
   ),
   'solid-query': Schema.optionalKey(
@@ -1034,27 +1016,15 @@ const ConfigSchema = Schema.Struct({
         examples: ['./src/solid-query.ts', './src/solid-query'],
       }),
       import: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a module specifier, with no whitespace or quotes',
-          }),
-        ).annotate({
-          title: 'Import specifier',
-          description:
-            'Module specifier the generated file imports the client from. Left out, it is the file the top-level `client` generates.',
-          examples: ['@packages/routes', '../lib', '.'],
+        Schema.Never.annotate({
+          message:
+            'import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
         }),
       ),
       client: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-            message: 'must be a JavaScript identifier',
-          }),
-        ).annotate({
-          title: 'Client export name',
-          description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
-          examples: ['client', 'apiClient'],
+        Schema.Never.annotate({
+          message:
+            'client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
         }),
       ),
       split: Schema.optionalKey(
@@ -1066,7 +1036,7 @@ const ConfigSchema = Schema.Struct({
     }).annotate({
       title: 'Solid Query hooks output',
       description: 'Generates `@tanstack/solid-query` hooks per operation.',
-      examples: [{ output: './src/solid-query.ts', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/solid-query.ts' }],
     }),
   ),
   'vue-query': Schema.optionalKey(
@@ -1078,27 +1048,15 @@ const ConfigSchema = Schema.Struct({
         examples: ['./src/vue-query.ts', './src/vue-query'],
       }),
       import: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a module specifier, with no whitespace or quotes',
-          }),
-        ).annotate({
-          title: 'Import specifier',
-          description:
-            'Module specifier the generated file imports the client from. Left out, it is the file the top-level `client` generates.',
-          examples: ['@packages/routes', '../lib', '.'],
+        Schema.Never.annotate({
+          message:
+            'import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
         }),
       ),
       client: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-            message: 'must be a JavaScript identifier',
-          }),
-        ).annotate({
-          title: 'Client export name',
-          description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
-          examples: ['client', 'apiClient'],
+        Schema.Never.annotate({
+          message:
+            'client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
         }),
       ),
       split: Schema.optionalKey(
@@ -1110,7 +1068,7 @@ const ConfigSchema = Schema.Struct({
     }).annotate({
       title: 'Vue Query hooks output',
       description: 'Generates `@tanstack/vue-query` hooks per operation.',
-      examples: [{ output: './src/vue-query.ts', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/vue-query.ts' }],
     }),
   ),
   'svelte-query': Schema.optionalKey(
@@ -1122,27 +1080,15 @@ const ConfigSchema = Schema.Struct({
         examples: ['./src/svelte-query.ts', './src/svelte-query'],
       }),
       import: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a module specifier, with no whitespace or quotes',
-          }),
-        ).annotate({
-          title: 'Import specifier',
-          description:
-            'Module specifier the generated file imports the client from. Left out, it is the file the top-level `client` generates.',
-          examples: ['@packages/routes', '../lib', '.'],
+        Schema.Never.annotate({
+          message:
+            'import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
         }),
       ),
       client: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-            message: 'must be a JavaScript identifier',
-          }),
-        ).annotate({
-          title: 'Client export name',
-          description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
-          examples: ['client', 'apiClient'],
+        Schema.Never.annotate({
+          message:
+            'client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
         }),
       ),
       split: Schema.optionalKey(
@@ -1154,7 +1100,7 @@ const ConfigSchema = Schema.Struct({
     }).annotate({
       title: 'Svelte Query hooks output',
       description: 'Generates `@tanstack/svelte-query` hooks per operation.',
-      examples: [{ output: './src/svelte-query.ts', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/svelte-query.ts' }],
     }),
   ),
   'angular-query': Schema.optionalKey(
@@ -1166,27 +1112,15 @@ const ConfigSchema = Schema.Struct({
         examples: ['./src/angular-query.ts', './src/angular-query'],
       }),
       import: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a module specifier, with no whitespace or quotes',
-          }),
-        ).annotate({
-          title: 'Import specifier',
-          description:
-            'Module specifier the generated file imports the client from. Left out, it is the file the top-level `client` generates.',
-          examples: ['@packages/routes', '../lib', '.'],
+        Schema.Never.annotate({
+          message:
+            'import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
         }),
       ),
       client: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-            message: 'must be a JavaScript identifier',
-          }),
-        ).annotate({
-          title: 'Client export name',
-          description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
-          examples: ['client', 'apiClient'],
+        Schema.Never.annotate({
+          message:
+            'client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
         }),
       ),
       split: Schema.optionalKey(
@@ -1198,7 +1132,7 @@ const ConfigSchema = Schema.Struct({
     }).annotate({
       title: 'Angular Query hooks output',
       description: 'Generates `@tanstack/angular-query-experimental` hooks per operation.',
-      examples: [{ output: './src/angular-query.ts', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/angular-query.ts' }],
     }),
   ),
   test: Schema.optionalKey(
@@ -1469,27 +1403,13 @@ const ConfigSchema = Schema.Struct({
     }),
     Schema.makeFilter(
       (v) => {
-        if (v.client === undefined) return true
-        const named = (['rpc', ...HOOK_KINDS] as const).find(
-          (kind) => v[kind]?.client !== undefined,
-        )
-        return named === undefined
-          ? true
-          : `${named}.client cannot be set with the client block: the generated client is exported as \`client\`, and a group of a split app as \`<group>Client\`. Remove ${named}.client.`
-      },
-      { message: 'with the client block, the name of the client is not chosen' },
-    ),
-    Schema.makeFilter(
-      (v) => {
         if (v.client !== undefined) return true
-        const missing = (['rpc', ...HOOK_KINDS] as const).find(
-          (kind) => v[kind] !== undefined && v[kind]?.import === undefined,
-        )
+        const missing = (['rpc', ...HOOK_KINDS] as const).find((kind) => v[kind] !== undefined)
         return missing === undefined
           ? true
-          : `${missing}.import is required: name the module that exports the Hono client, or set the client block, with template, to generate the client.`
+          : `${missing} needs client: rpc and the hooks call the client the client block generates, with template.`
       },
-      { message: 'a generator that calls the client needs to know where it is' },
+      { message: 'a generator that calls the client needs the client block' },
     ),
     Schema.makeFilter((v) => !(v.output && v.routes), {
       message:
@@ -1706,19 +1626,9 @@ type Written<T, F, V, S> = V extends { readonly split: true; readonly output: `$
       : Replaced<V, 'output', Shared<T, F, O>, S>
     : Known<V, S>
 
-type Named<T> = {
-  readonly [P in keyof T]: P extends 'client'
-    ? 'cannot be set with the client block: the generated client is exported as `client`'
-    : T[P]
-}
-
-type Calling<T, K, V, S> = T extends { readonly client: object }
-  ? Named<Written<T, K, V, S>>
-  : V extends { readonly import: unknown }
-    ? Written<T, K, V, S>
-    : Written<T, K, V, S> & {
-        readonly import: 'is required without the client block: name the module that exports the Hono client'
-      }
+type Calling<T, K, V, S> = 'client' extends keyof T
+  ? Written<T, K, V, S>
+  : 'needs client: rpc and the hooks call the client the client block generates'
 
 type Single<T, O> = T extends { readonly routes: object }
   ? 'output and routes are mutually exclusive: output for a single file, routes for a file of their own'
@@ -1763,7 +1673,7 @@ type Checked<T> = {
       : K extends 'test'
         ? 'is not an option for now: the tests of the routes are written by template.test'
         : K extends 'client'
-          ? T extends { readonly template: object }
+          ? 'template' extends keyof T
             ? Written<T, K, T[K], ConfigInput[K]>
             : 'needs template: the client is typed by the app the template scaffolds'
           : K extends 'output'

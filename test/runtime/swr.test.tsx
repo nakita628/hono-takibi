@@ -18,7 +18,7 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { DetailedError } from 'hono/client'
 import type { ReactNode } from 'react'
 import { SWRConfig, unstable_serialize } from 'swr'
-import { afterEach, describe, expect, it } from 'vite-plus/test'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import {
   getGetItemsInfiniteKey,
@@ -29,7 +29,12 @@ import {
   useInfiniteGetItems,
   usePostUsers,
 } from '../__generated__/swr/hooks'
-import { requestLog } from '../hosts/users-app'
+import { fetchOf } from '../hosts/fetch'
+import { app as host, requestLog } from '../hosts/users-app'
+
+// The generated client reaches the host through this fetch.
+// 生成されたクライアントは、この fetch を通してホストに届く。
+vi.stubGlobal('fetch', fetchOf(host))
 
 // A cache of its own for every render, and no deduplication, so that every mount fetches.
 // レンダリングごとに専用のキャッシュを用意し、重複排除も無効にする。マウントのたびに

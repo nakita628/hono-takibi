@@ -3,7 +3,6 @@
   "include": [
     "../../__generated__/svelte-query/**/*",
     "../../hosts/users-app.ts",
-    "../../hosts/users-client.ts",
     "../../types/svelte-query.ts",
     "../../types/assert.ts"
   ]

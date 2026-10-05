@@ -6,7 +6,6 @@
   "include": [
     "../../__generated__/swr/**/*",
     "../../hosts/users-app.ts",
-    "../../hosts/users-client.ts",
     "../../runtime/swr.test.tsx"
   ]
 }

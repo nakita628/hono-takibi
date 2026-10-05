@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process'
-import { cpSync, existsSync } from 'node:fs'
+import { cpSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -18,8 +18,40 @@ if (!existsSync(cli)) {
 // Cases without a config (e.g. handwritten-only reference cases) have nothing to generate.
 const cases = listGeneratedCases(testRoot)
 
+// A scaffold's handler stubs are empty, which tsc rejects until they are implemented. A
+// case whose runtime goes through a host of its own (or has no runtime at all) brings no
+// overlay; its stubs are filled so the scaffold, and the client typed by it, typecheck.
+// scaffold のハンドラスタブは空であり、実装するまで tsc が拒否する。実行時に独自のホストを通る
+// (あるいは実行時テストを持たない)ケースは overlay を持たない。そのスタブを埋めて、scaffold と
+// それで型付けされるクライアントが typecheck を通るようにする。
+const fillStubs = (dir) => {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const file = path.join(dir, entry.name)
+    if (entry.isDirectory()) {
+      fillStubs(file)
+    } else if (entry.name.endsWith('.ts')) {
+      const source = readFileSync(file, 'utf8')
+      // oxfmt breaks a long stub across lines: `async (\n  c,\n) => {}`.
+      // oxfmt は長いスタブを `async (\n  c,\n) => {}` のように複数行に分ける。
+      const filled = source.replaceAll(
+        /async \(\s*c,?\s*\) => \{\}/gu,
+        'async (c) => c.notFound() as never',
+      )
+      if (filled !== source) writeFileSync(file, filled)
+    }
+  }
+}
+
 const generateCase = ({ name, dir }) =>
   new Promise((resolve) => {
+    // A seed/ dir holds what must be there before the generator runs — a package.json
+    // that makes an output directory a package of its own, for `client.package`.
+    // seed/ には、生成器の実行前に存在していなければならないものを置く。出力ディレクトリを
+    // 独立したパッケージにする package.json などで、`client.package` のためにある。
+    const seed = path.join(dir, 'seed')
+    if (existsSync(seed)) {
+      cpSync(seed, path.join(testRoot, '__generated__', name), { recursive: true })
+    }
     const child = spawn(process.execPath, [cli], { cwd: dir })
     const chunks = []
     child.stdout.on('data', (chunk) => chunks.push(chunk))
@@ -36,6 +68,8 @@ const generateCase = ({ name, dir }) =>
       const overlay = path.join(dir, 'overlay')
       if (ok && existsSync(overlay)) {
         cpSync(overlay, path.join(testRoot, '__generated__', name), { recursive: true })
+      } else if (ok && existsSync(path.join(testRoot, '__generated__', name))) {
+        fillStubs(path.join(testRoot, '__generated__', name))
       }
       resolve({ name, ok, output: Buffer.concat(chunks).toString() })
     })

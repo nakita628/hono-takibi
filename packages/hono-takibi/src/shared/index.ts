@@ -33,7 +33,7 @@ import {
 } from '../core/index.js'
 import { GenerateError } from '../error/index.js'
 import type { FormatError } from '../error/index.js'
-import { readdir, unlink } from '../file/index.js'
+import { exists, readdir, unlink } from '../file/index.js'
 import {
   appEntryFile,
   appEntryImport,
@@ -193,7 +193,55 @@ export function testJob(openAPI: OpenAPI, config: TestConfig, basePath: string) 
   }
 }
 
-export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
+const HOOK_KINDS = [
+  'swr',
+  'tanstack-query',
+  'preact-query',
+  'solid-query',
+  'vue-query',
+  'svelte-query',
+  'angular-query',
+] as const
+
+/** The directory of the nearest `package.json` above `file`, or `undefined` when there is none. */
+function packageRootOf(file: string) {
+  return Effect.gen(function* () {
+    const directories: string[] = []
+    for (let dir = path.dirname(path.resolve(file)); ; dir = path.dirname(dir)) {
+      directories.push(dir)
+      if (path.dirname(dir) === dir) break
+    }
+    const found = yield* Effect.forEach(directories, (dir) =>
+      exists(path.join(dir, 'package.json')),
+    )
+    return directories.find((_, index) => found[index])
+  })
+}
+
+/**
+ * The package each client caller is written into, as `makeJob` wants it: a file in the
+ * package of the client imports it relatively, one in another package by `client.package`.
+ */
+export function packageRoots(config: Config) {
+  return Effect.gen(function* () {
+    const files = [
+      config.client?.output,
+      config.rpc?.output,
+      ...HOOK_KINDS.map((kind) => config[kind]?.output),
+    ].filter((file) => file !== undefined)
+    const roots = yield* Effect.forEach(files, packageRootOf)
+    const lookup = new Map(files.map((file, index) => [file, roots[index]]))
+    return (file: string) => lookup.get(file)
+  })
+}
+
+export function makeJob(
+  openAPI: OpenAPI,
+  config: Config,
+  // The package root of a generated file, when it is known. Left out, every file is taken
+  // to be in the package of the client.
+  packageRoot: (file: string) => string | undefined = () => undefined,
+): readonly Job[] {
   const defineOn = config.template?.define === true
   const appOutput = appEntryOutput(config)
   const isSplit = config.template?.split === true
@@ -237,10 +285,17 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
       ? undefined
       : barrel
   })()
-  // The module a generated file imports the client from: the one it names, or the file
-  // `client` generates, reached from where the generated file is written.
-  const clientImport = (output: string, named: string | undefined) => {
-    if (named !== undefined || generatedClient === undefined) return named ?? ''
+  // The module a generated file imports the client from: the file `client` generates,
+  // reached from where the generated file is written — or, when the file is written into
+  // another package than the client, the package of the client.
+  const clientImport = (output: string) => {
+    if (generatedClient === undefined) return ''
+    if (
+      generatedClient.package !== undefined &&
+      packageRoot(output) !== packageRoot(generatedClient.output)
+    ) {
+      return generatedClient.package
+    }
     // A file beside the client imports the client itself: the barrel is for the others,
     // and may come to re-export the file that would import it.
     const isBeside = path.dirname(output) === path.dirname(generatedClient.output)
@@ -526,7 +581,8 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
             client(
               openAPI,
               output,
-              appEntryImport(output, appOutput, config.template?.pathAlias, defineOn),
+              generatedClient.import ??
+                appEntryImport(output, appOutput, config.template?.pathAlias, defineOn),
               generatedClient.baseUrl,
               config.basePath,
               grouping,
@@ -543,8 +599,8 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
             rpc(
               openAPI,
               output,
-              clientImport(output, config.rpc?.import),
-              config.rpc?.client ?? 'client',
+              clientImport(output),
+              'client',
               config.rpc?.parseResponse ?? false,
               config.basePath,
               config.rpc?.docs ?? false,
@@ -552,17 +608,7 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
             ),
         }
       : undefined,
-    ...(
-      [
-        'swr',
-        'tanstack-query',
-        'preact-query',
-        'solid-query',
-        'vue-query',
-        'svelte-query',
-        'angular-query',
-      ] as const
-    ).map((library) => {
+    ...HOOK_KINDS.map((library) => {
       const cfg = config[library]
       return cfg
         ? {
@@ -570,8 +616,7 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
             output: cfg.output,
             split: false,
             run: (output: string) =>
-              hooks(openAPI, output, clientImport(output, cfg.import), library, {
-                clientName: cfg.client ?? 'client',
+              hooks(openAPI, output, clientImport(output), library, {
                 ...(grouping === undefined ? {} : { grouping }),
                 basePath: config.basePath,
               }),

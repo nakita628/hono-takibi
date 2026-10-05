@@ -1,0 +1,5 @@
+{
+  "name": "@fixtures/client-package-web",
+  "private": true,
+  "type": "module"
+}

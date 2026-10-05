@@ -826,13 +826,18 @@ export default {}`,
     ['basePath', `basePath: 'api', output: './routes.ts'`, 'basePath: must start with'],
     [
       'rpc.client',
-      `rpc: { output: './rpc.ts', import: '../lib', client: '1bad' }`,
-      'rpc.client: must be a JavaScript identifier',
+      `output: './routes.ts', template: {}, client: { output: './lib/client.ts' }, rpc: { output: './rpc.ts', client: 'apiClient' }`,
+      'rpc.client: client was removed',
     ],
     [
       'rpc.import',
-      `rpc: { output: './rpc.ts', import: '' }`,
-      'rpc.import: must be a module specifier',
+      `output: './routes.ts', template: {}, client: { output: './lib/client.ts' }, rpc: { output: './rpc.ts', import: '../lib' }`,
+      'rpc.import: import was removed',
+    ],
+    [
+      'client.package',
+      `output: './routes.ts', template: {}, client: { output: './lib/client.ts', package: '' }`,
+      'client.package: must be a module specifier',
     ],
   ])('rejects a config whose %s cannot be generated from', async (_field, body, expected) => {
     const dir = useTmpDir('cli-config-field-')
@@ -849,14 +854,17 @@ export default {}`,
     expect(fs.readdirSync(dir).sort()).toStrictEqual(['hono-takibi.config.ts', 'openapi.json'])
   })
 
-  it('generates rpc wrappers that import the configured client', async () => {
+  it('generates rpc wrappers that import the generated client', async () => {
     const dir = useTmpDir('cli-config-rpc-')
     fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
     fs.writeFileSync(
       path.join(dir, 'hono-takibi.config.ts'),
       `export default {
         input: './openapi.json',
-        rpc: { output: './rpc.ts', import: '../lib', client: 'apiClient' },
+        output: './routes.ts',
+        template: {},
+        client: { output: './lib/client.ts' },
+        rpc: { output: './rpc.ts' },
       }`,
     )
 
@@ -864,7 +872,44 @@ export default {}`,
 
     expect(result.ok).toBe(true)
     expect(fs.readFileSync(path.join(dir, 'rpc.ts'), 'utf-8')).toContain(
-      "import { apiClient } from '../lib'",
+      "import { client } from './lib'",
+    )
+  })
+
+  // The client is the one file whose package matters: a file written into another
+  // package imports it by `client.package`, worked out from the nearest package.json.
+  // パッケージが問題になるのはクライアントだけである。別のパッケージに書き出されるファイルは、
+  // 最寄りの package.json から判定して `client.package` でクライアントを import する。
+  it('imports the client by client.package from a file in another package', async () => {
+    const dir = useTmpDir('cli-config-package-')
+    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.mkdirSync(path.join(dir, 'client'))
+    fs.mkdirSync(path.join(dir, 'web'))
+    fs.writeFileSync(path.join(dir, 'client/package.json'), '{ "name": "@repo/client" }')
+    fs.writeFileSync(path.join(dir, 'web/package.json'), '{ "name": "@repo/web" }')
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default {
+        input: './openapi.json',
+        output: './src/index.ts',
+        template: { define: true },
+        client: { output: './client/src/lib/client.ts', import: '@repo/server', package: '@repo/client' },
+        swr: { output: './client/src/swr.ts' },
+        'tanstack-query': { output: './web/src/hooks.ts' },
+      }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(true)
+    expect(fs.readFileSync(path.join(dir, 'client/src/lib/client.ts'), 'utf-8')).toContain(
+      "import type { api } from '@repo/server'",
+    )
+    expect(fs.readFileSync(path.join(dir, 'client/src/swr.ts'), 'utf-8')).toContain(
+      "import { client } from './lib'",
+    )
+    expect(fs.readFileSync(path.join(dir, 'web/src/hooks.ts'), 'utf-8')).toContain(
+      "import { client } from '@repo/client'",
     )
   })
 

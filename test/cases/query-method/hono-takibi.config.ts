@@ -9,22 +9,20 @@ import { defineConfig } from 'hono-takibi'
 export default defineConfig({
   input: '../../specs/query-method.yaml',
   output: '../../__generated__/query-method/routes.ts',
+  template: { routeHandler: true },
+  client: { output: '../../__generated__/query-method/client.ts' },
   rpc: {
     output: '../../__generated__/query-method/rpc.ts',
-    import: '../../hosts/query-method-client',
     parseResponse: true,
   },
   'tanstack-query': {
     output: '../../__generated__/query-method/tanstack-query.ts',
-    import: '../../hosts/query-method-client',
   },
   swr: {
     output: '../../__generated__/query-method/swr.ts',
-    import: '../../hosts/query-method-client',
   },
   'vue-query': {
     output: '../../__generated__/query-method/vue-query.ts',
-    import: '../../hosts/query-method-client',
   },
   type: {
     output: '../../__generated__/query-method/type.ts',
