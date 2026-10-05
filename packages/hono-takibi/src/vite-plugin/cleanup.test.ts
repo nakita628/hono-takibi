@@ -59,7 +59,7 @@ describe('split cleanup', { timeout: 30_000 }, () => {
     fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(openapi))
     const { server, reloaded } = makeServer({
       input: path.join(dir, 'openapi.json'),
-      routes: { split: true, output: './gen', import: '../gen' },
+      routes: { split: true, output: './gen' },
       type: { output: './gen/types.ts' },
     })
 

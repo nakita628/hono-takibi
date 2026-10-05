@@ -694,12 +694,12 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
       `export default {
         input: ${JSON.stringify(input)},
         basePath: '/',
-        routes: { output: ${JSON.stringify(routesDir)}, split: true, import: '../routes' },
-        webhooks: { output: ${JSON.stringify(webhooksDir)}, split: true, import: '../webhooks' },
+        routes: { output: ${JSON.stringify(routesDir)}, split: true },
+        webhooks: { output: ${JSON.stringify(webhooksDir)}, split: true },
         components: {
-          schemas: { output: ${JSON.stringify(schemasDir)}, split: true, exportTypes: true, import: '../schemas' },
-          parameters: { output: ${JSON.stringify(parametersDir)}, split: true, exportTypes: true, import: '../parameters' },
-          responses: { output: ${JSON.stringify(responsesDir)}, split: true, import: '../responses' },
+          schemas: { output: ${JSON.stringify(schemasDir)}, split: true, exportTypes: true },
+          parameters: { output: ${JSON.stringify(parametersDir)}, split: true, exportTypes: true },
+          responses: { output: ${JSON.stringify(responsesDir)}, split: true },
         },
       }`,
     )
@@ -948,8 +948,8 @@ export default {}`,
       path.join(dir, 'hono-takibi.config.ts'),
       `export default {
         input: './openapi.json',
-        routes: { split: true, output: './src/routes', import: '../routes' },
-        components: { schemas: { split: true, output: './src/schemas', import: '../schemas' } },
+        routes: { split: true, output: './src/routes' },
+        components: { schemas: { split: true, output: './src/schemas' } },
       }`,
     )
 

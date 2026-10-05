@@ -67,7 +67,8 @@ Prefer a Vite dev server? Use the [Vite plugin](/docs/guides/vite-plugin) instea
 - Every generator needs its own `output`. Two generators writing to one file is an error.
 - `output` (single file) and `routes` (split) are mutually exclusive. Same for `components.output` and the per-type `components.*` sections.
 - A `split` directory belongs to the generator: its `.ts` files are removed before each run. Keep hand-written code elsewhere.
-- `basePath` must start with `/`. `client.import`, `client.package` and every `import` must be module specifiers.
+- `basePath` must start with `/`. `client.import` and every `package` must be module specifiers.
+- Generated files import one another relatively, under `pathAlias` when the target is in the directory of the app entry, and by the target's `package` from another package. A target in another package without a `package` is an error.
 - The `client` block needs `template`.
 - `rpc` and the hooks need the `client` block: they import the generated client, relatively or by `client.package` from another package.
 
@@ -110,16 +111,18 @@ export default defineConfig({
   exportMediaTypes: true,
   exportMediaTypesTypes: true,
 
+  // How generated files import one another: relatively inside a package, under `pathAlias`
+  // when the target is in the directory of the app entry, and by `package` from another
+  // package (the nearest package.json above an output delimits its package).
   routes: {
     output: './src/routes',
     split: true,
-    import: '@packages/routes',
+    // package: '@repo/routes', // the name other packages import these routes by
   },
 
   webhooks: {
     output: './src/webhooks',
     split: true,
-    import: '@packages/webhooks',
   },
 
   // `output` (single file) and the per-type fields below (split) are mutually exclusive.
@@ -131,60 +134,50 @@ export default defineConfig({
       output: './src/schemas',
       exportTypes: true,
       split: true,
-      import: '../schemas',
+      // package: '@repo/schemas', // when src/schemas is a package of its own
     },
     responses: {
       output: './src/responses',
       split: true,
-      import: '../responses',
     },
     parameters: {
       output: './src/parameters',
       exportTypes: true,
       split: true,
-      import: '../parameters',
     },
     examples: {
       output: './src/examples',
       split: true,
-      import: '../examples',
     },
     requestBodies: {
       output: './src/requestBodies',
       split: true,
-      import: '../requestBodies',
     },
     headers: {
       output: './src/headers',
       exportTypes: true,
       split: true,
-      import: '../headers',
     },
     securitySchemes: {
       output: './src/securitySchemes',
       split: true,
-      import: '../securitySchemes',
     },
     links: {
       output: './src/links',
       split: true,
-      import: '../links',
     },
     callbacks: {
       output: './src/callbacks',
       split: true,
-      import: '../callbacks',
     },
     pathItems: {
       output: './src/pathItems',
       split: true,
-      import: '../pathItems',
     },
     mediaTypes: {
       output: './src/mediaTypes',
       exportTypes: true,
       split: true,
-      import: '../mediaTypes',
     },
   },
 

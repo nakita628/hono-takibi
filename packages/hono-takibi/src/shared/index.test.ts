@@ -6,8 +6,8 @@ import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { parseConfig } from '../config/index.js'
 import type { OpenAPI } from '../openapi/index.js'
-import { runGenerator } from '../testing/index.js'
-import { cleanSplitOutputs, makeJob, outsideSources } from './index.js'
+import { runGenerator, runGeneratorError } from '../testing/index.js'
+import { cleanSplitOutputs, makeJob, outsideSources, packageRoots } from './index.js'
 
 const openAPI = {
   openapi: '3.0.0',
@@ -1228,6 +1228,98 @@ describe('makeJob: the client and what imports it', () => {
     })
     expect(out.has('src/client.ts')).toBe(false)
     expect(out.has('src/lib/client.ts')).toBe(false)
+  })
+})
+
+describe('packageRoots: the package of every output', () => {
+  // The nearest package.json above an output delimits its package; a split directory that
+  // holds one is a package of its own.
+  // 出力の上にある最寄りの package.json がそのパッケージを区切る。package.json を持つ split
+  // ディレクトリは、それ自体が独立したパッケージである。
+  it('tells a split directory with its own package.json apart', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-'))
+    fs.mkdirSync(path.join(tmpDir, 'src/schemas'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
+    fs.writeFileSync(path.join(tmpDir, 'src/schemas/package.json'), '{ "name": "@repo/schemas" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/src/routes`, split: true },
+        components: {
+          schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@repo/schemas' },
+        },
+      }),
+    )
+    const packageRoot = await runGenerator(packageRoots(cfg))
+    expect(packageRoot(`${tmpDir}/src/routes/getUsers.ts`)).toBe(tmpDir)
+    expect(packageRoot(`${tmpDir}/src/schemas/user.ts`)).toBe(`${tmpDir}/src/schemas`)
+  })
+
+  // A file cannot import another package without a name for it.
+  // 名前がなければ、別のパッケージを import することはできない。
+  it('fails when a target in another package names no package', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-missing-'))
+    fs.mkdirSync(path.join(tmpDir, 'src/schemas'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
+    fs.writeFileSync(path.join(tmpDir, 'src/schemas/package.json'), '{ "name": "@repo/schemas" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/src/routes`, split: true },
+        components: { schemas: { output: `${tmpDir}/src/schemas`, split: true } },
+      }),
+    )
+    const error = await runGeneratorError(packageRoots(cfg))
+    expect(error.message).toBe(
+      `routes imports components.schemas from another package: set components.schemas.package to the name of the package ${tmpDir}/src/schemas is written into.`,
+    )
+  })
+
+  // The client cannot import the app from another package without client.import.
+  // client.import がなければ、クライアントは別のパッケージのアプリを import できない。
+  it('fails when the client is in another package and names no client.import', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-client-'))
+    fs.mkdirSync(path.join(tmpDir, 'client/src'), { recursive: true })
+    fs.mkdirSync(path.join(tmpDir, 'server/src'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'client/package.json'), '{ "name": "@repo/client" }')
+    fs.writeFileSync(path.join(tmpDir, 'server/package.json'), '{ "name": "@repo/server" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: `${tmpDir}/server/src/routes.ts`,
+        template: { routeHandler: true },
+        client: { output: `${tmpDir}/client/src/client.ts`, package: '@repo/client' },
+      }),
+    )
+    const error = await runGeneratorError(packageRoots(cfg))
+    expect(error.message).toBe(
+      'client imports the app from another package: set client.import to the name of the package the app is written into.',
+    )
+  })
+
+  // Components in another package are imported by their package.
+  // 別パッケージのコンポーネントは、その package で import する。
+  it('imports a component by its package from another package', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-jobs-'))
+    fs.mkdirSync(path.join(tmpDir, 'src/schemas'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
+    fs.writeFileSync(path.join(tmpDir, 'src/schemas/package.json'), '{ "name": "@repo/schemas" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/src/routes`, split: true },
+        components: {
+          schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@repo/schemas' },
+        },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(cfg)))
+    for (const job of jobs) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await runGenerator(job.run(job.output))
+    }
+    const route = fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8')
+    expect(route).toContain("import { UserSchema } from '@repo/schemas'")
   })
 })
 

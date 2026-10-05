@@ -106,7 +106,7 @@ describe('route', () => {
             schemas: {
               output: path.join(dir, 'schemas'),
               split: true,
-              import: '@packages/schemas',
+              specifier: () => '@packages/schemas',
             },
           },
         ),
@@ -213,7 +213,7 @@ export const getZodOpenapiHonoRoute = createRoute({
             schemas: {
               output: path.join(dir, 'schemas'),
               split: true,
-              import: '@packages/schemas',
+              specifier: () => '@packages/schemas',
             },
           },
         ),

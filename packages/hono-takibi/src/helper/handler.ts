@@ -808,7 +808,10 @@ export function defineOpenAPIRouteHandler(
         ] as const
       ).map((kind) => [
         kind,
-        { output: componentsOutput, ...(componentsImport ? { import: componentsImport } : {}) },
+        {
+          output: componentsOutput,
+          ...(componentsImport ? { specifier: () => componentsImport } : {}),
+        },
       ]),
     )
     // const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined

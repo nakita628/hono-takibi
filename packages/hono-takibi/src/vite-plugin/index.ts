@@ -233,7 +233,11 @@ function runAllGenerationTasks(config: Config) {
     if (Result.isFailure(openAPIResult)) {
       return { logs: [`❌ parseOpenAPI: ${openAPIResult.failure.message}`], changed: false }
     }
-    const jobs = makeJob(openAPIResult.success, config, yield* packageRoots(config))
+    const packagesResult = yield* Effect.result(packageRoots(config))
+    if (Result.isFailure(packagesResult)) {
+      return { logs: [`❌ config: ${packagesResult.failure.message}`], changed: false }
+    }
+    const jobs = makeJob(openAPIResult.success, config, packagesResult.success)
     const targets = jobs.map((job) => ({ job, absOutput: path.resolve(process.cwd(), job.output) }))
     const outputPaths = targets.map(({ absOutput }) => absOutput)
     const beforeSnapshot = yield* snapshotOutputs(outputPaths)

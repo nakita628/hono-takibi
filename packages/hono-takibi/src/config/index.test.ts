@@ -391,29 +391,45 @@ describe('parseConfig()', () => {
     )
   })
 
-  describe('routes.import and webhooks.import', () => {
-    it.concurrent('preserves routes.import through parsing', async () => {
+  describe('routes.package and webhooks.package', () => {
+    it.concurrent('preserves routes.package through parsing', async () => {
       const result = await runGenerator(
+        parseConfig({
+          input: 'openapi.yaml',
+          routes: { output: 'src/routes.ts', package: '@repo/routes' },
+        }),
+      )
+      expect(result.routes?.package).toBe('@repo/routes')
+      expect(result.routes?.output).toBe('src/routes.ts')
+    })
+
+    it.concurrent('preserves routes.package with split and pathAlias', async () => {
+      const result = await runGenerator(
+        parseConfig({
+          input: 'openapi.yaml',
+          pathAlias: '@/',
+          routes: { output: 'src/routes', split: true, package: '@repo/routes' },
+        }),
+      )
+      expect(result.routes?.package).toBe('@repo/routes')
+      expect(result.routes?.output).toBe('src/routes')
+      expect(result.pathAlias).toBe('@/')
+    })
+
+    // A generated file imports another one relatively, under the alias, or by package:
+    // the module is not named by hand any more.
+    // 生成ファイルは相対パス、エイリアス、または package でほかのファイルを import する。
+    // モジュール名を手で指定することはなくなった。
+    it.concurrent('fails when routes still sets the removed import', async () => {
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           routes: { output: 'src/routes.ts', import: '@packages/routes' },
         }),
       )
-      expect(result.routes?.import).toBe('@packages/routes')
-      expect(result.routes?.output).toBe('src/routes.ts')
-    })
-
-    it.concurrent('preserves routes.import with split and pathAlias', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          pathAlias: '@/',
-          routes: { output: 'src/routes', split: true, import: '@packages/routes' },
-        }),
+      expect(result.message).toBe(
+        'Invalid config: routes.import: import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
       )
-      expect(result.routes?.import).toBe('@packages/routes')
-      expect(result.routes?.output).toBe('src/routes')
-      expect(result.pathAlias).toBe('@/')
     })
 
     // The alias applies to every generated file of the package, so it is no option of the
@@ -442,14 +458,14 @@ describe('parseConfig()', () => {
       expect(result.routes?.import).toBeUndefined()
     })
 
-    it.concurrent('preserves webhooks.import through parsing', async () => {
+    it.concurrent('preserves webhooks.package through parsing', async () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          webhooks: { output: 'src/webhooks.ts', import: '@packages/webhooks' },
+          webhooks: { output: 'src/webhooks.ts', package: '@repo/webhooks' },
         }),
       )
-      expect(result.webhooks?.import).toBe('@packages/webhooks')
+      expect(result.webhooks?.package).toBe('@repo/webhooks')
     })
   })
 
@@ -1992,21 +2008,38 @@ describe('parseConfig()', () => {
       })
     })
 
-    it.concurrent('preserves exportTypes: true and import on a split component', async () => {
+    it.concurrent('preserves exportTypes: true and package on a split component', async () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
           components: {
-            schemas: { output: 'schemas', split: true, exportTypes: true, import: '@/schemas' },
+            schemas: {
+              output: 'schemas',
+              split: true,
+              exportTypes: true,
+              package: '@repo/schemas',
+            },
           },
         }),
       )
       expect(result.components?.schemas).toStrictEqual({
         split: true,
         output: 'schemas',
-        import: '@/schemas',
+        package: '@repo/schemas',
         exportTypes: true,
       })
+    })
+
+    it.concurrent('fails when a split component still sets the removed import', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          components: { schemas: { output: 'schemas', split: true, import: '@/schemas' } },
+        }),
+      )
+      expect(result.message).toBe(
+        'Invalid config: components.schemas.import: import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+      )
     })
   })
 })

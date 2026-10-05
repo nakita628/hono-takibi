@@ -80,7 +80,7 @@ export function makeImports(
         readonly [k: string]: {
           readonly output: string
           readonly split?: boolean
-          readonly import?: string
+          readonly specifier?: (fromFile: string) => string
         }
       }
     | undefined,
@@ -90,7 +90,10 @@ export function makeImports(
   const fallbackPrefix = split ? '..' : '.'
   const resolvePath = (k: string): string => {
     const target = components?.[k]
-    return target?.import ?? (target ? makeModuleSpec(fromFile, target) : `${fallbackPrefix}/${k}`)
+    return (
+      target?.specifier?.(fromFile) ??
+      (target ? makeModuleSpec(fromFile, target) : `${fallbackPrefix}/${k}`)
+    )
   }
   const defined = new Set(
     Array.from(code.matchAll(EXPORT_CONST_PATTERN), (m) => m[1]).filter(Boolean),

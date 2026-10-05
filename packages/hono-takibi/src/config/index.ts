@@ -291,14 +291,21 @@ const ConfigSchema = Schema.Struct({
         description: 'Write one file per entry into `output` rather than a single file.',
       }),
       import: Schema.optionalKey(
+        Schema.Never.annotate({
+          message:
+            'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+        }),
+      ),
+      package: Schema.optionalKey(
         Schema.String.check(
           Schema.isPattern(/^[^\s'"`\\]+$/u, {
             message: 'must be a module specifier, with no whitespace or quotes',
           }),
         ).annotate({
-          title: 'Import specifier',
-          description: 'Module specifier the generated files use to import from `output`.',
-          examples: ['@packages/routes', '../lib', '.'],
+          title: 'Package name',
+          description:
+            'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+          examples: ['@repo/routes'],
         }),
       ),
     })
@@ -325,14 +332,21 @@ const ConfigSchema = Schema.Struct({
         description: 'Write one file per entry into `output` rather than a single file.',
       }),
       import: Schema.optionalKey(
+        Schema.Never.annotate({
+          message:
+            'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+        }),
+      ),
+      package: Schema.optionalKey(
         Schema.String.check(
           Schema.isPattern(/^[^\s'"`\\]+$/u, {
             message: 'must be a module specifier, with no whitespace or quotes',
           }),
         ).annotate({
-          title: 'Import specifier',
-          description: 'Module specifier the generated files use to import from `output`.',
-          examples: ['@packages/routes', '../lib', '.'],
+          title: 'Package name',
+          description:
+            'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+          examples: ['@repo/routes'],
         }),
       ),
     })
@@ -375,14 +389,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Also export the TypeScript type inferred from each generated schema.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@repo/routes'],
             }),
           ),
         })
@@ -408,14 +429,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Write one file per entry into `output` rather than a single file.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@repo/routes'],
             }),
           ),
         })
@@ -446,14 +474,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Also export the TypeScript type inferred from each generated schema.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@repo/routes'],
             }),
           ),
         })
@@ -479,14 +514,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Write one file per entry into `output` rather than a single file.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@repo/routes'],
             }),
           ),
         })
@@ -512,14 +554,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Write one file per entry into `output` rather than a single file.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@repo/routes'],
             }),
           ),
         })
@@ -550,14 +599,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Also export the TypeScript type inferred from each generated schema.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@repo/routes'],
             }),
           ),
         })
@@ -583,14 +639,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Write one file per entry into `output` rather than a single file.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@repo/routes'],
             }),
           ),
         })
@@ -616,14 +679,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Write one file per entry into `output` rather than a single file.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@repo/routes'],
             }),
           ),
         })
@@ -649,14 +719,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Write one file per entry into `output` rather than a single file.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@repo/routes'],
             }),
           ),
         })
@@ -682,14 +759,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Write one file per entry into `output` rather than a single file.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@repo/routes'],
             }),
           ),
         })
@@ -720,14 +804,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Also export the TypeScript type inferred from each generated schema.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@repo/routes'],
             }),
           ),
         })

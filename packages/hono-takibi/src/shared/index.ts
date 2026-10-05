@@ -196,6 +196,20 @@ export function outsideSources(input: string) {
 //   }
 // }
 
+const COMPONENT_KINDS = [
+  'schemas',
+  'responses',
+  'parameters',
+  'examples',
+  'requestBodies',
+  'headers',
+  'securitySchemes',
+  'links',
+  'callbacks',
+  'pathItems',
+  'mediaTypes',
+] as const
+
 const HOOK_KINDS = [
   'swr',
   'tanstack-query',
@@ -214,28 +228,143 @@ function packageRootOf(file: string) {
       directories.push(dir)
       if (path.dirname(dir) === dir) break
     }
+    // A directory that is not there yet, or a path under a file, holds no package.json.
     const found = yield* Effect.forEach(directories, (dir) =>
-      exists(path.join(dir, 'package.json')),
+      exists(path.join(dir, 'package.json')).pipe(Effect.orElseSucceed(() => false)),
     )
     return directories.find((_, index) => found[index])
   })
 }
 
+type Target = { readonly output: string; readonly package?: string }
+
+/** The targets of a config that other generated files import, by the name the config gives them. */
+function importTargets(config: Config) {
+  const kinds = COMPONENT_KINDS.flatMap((kind) => {
+    const value = config.components?.[kind]
+    return value ? [[`components.${kind}`, value] as const] : []
+  })
+  const componentTargets: readonly (readonly [string, Target])[] = config.components?.output
+    ? [['components.output', { output: config.components.output }]]
+    : kinds
+  const routes: Target | undefined =
+    config.routes ??
+    (config.output !== undefined && config.template?.define !== true
+      ? { output: config.output }
+      : undefined)
+  const hookTargets: readonly (readonly [string, Target])[] = HOOK_KINDS.flatMap((kind) => {
+    const value = config[kind]
+    return value ? [[kind, value] as const] : []
+  })
+  return {
+    routes,
+    webhooks: config.webhooks,
+    components: componentTargets,
+    client: config.client,
+    rpc: config.rpc,
+    hooks: hookTargets,
+  }
+}
+
+/** The directory an output is written into: the output itself when it is a directory. */
+function directoryOf(output: string) {
+  const resolved = path.resolve(output)
+  return path.extname(resolved) === '' ? resolved : path.dirname(resolved)
+}
+
 /**
- * The package each client caller is written into, as `makeJob` wants it: a file in the
- * package of the client imports it relatively, one in another package by `client.package`.
+ * The package each generated file is written into, as `makeJob` wants it: a file imports
+ * another one of its package relatively, and one of another package by that one's
+ * `package`. A package is what the nearest `package.json` above an output delimits, and
+ * a generated file belongs to the package of the output it is written under.
+ *
+ * Fails when a file would import another package that names no `package`: the import
+ * could not be written.
  */
 export function packageRoots(config: Config) {
   return Effect.gen(function* () {
-    const files = [
-      appEntryOutput(config),
-      config.client?.output,
-      config.rpc?.output,
-      ...HOOK_KINDS.map((kind) => config[kind]?.output),
-    ].filter((file) => file !== undefined)
-    const roots = yield* Effect.forEach(files, packageRootOf)
-    const lookup = new Map(files.map((file, index) => [file, roots[index]]))
-    return (file: string) => lookup.get(file)
+    const targets = importTargets(config)
+    const appOutput = appEntryOutput(config)
+    const defineOn = config.template?.define === true
+    const appEntry = appOutput === undefined ? undefined : appEntryFile(appOutput, defineOn)
+    const outputs = [
+      appEntry,
+      targets.routes?.output,
+      targets.webhooks?.output,
+      ...targets.components.map(([, target]) => target.output),
+      targets.client?.output,
+      targets.rpc?.output,
+      ...targets.hooks.map(([, target]) => target.output),
+      config.type?.output,
+      config.mock?.output,
+      config.docs?.output,
+    ].filter((output) => output !== undefined)
+    const directories = [...new Set(outputs.map(directoryOf))]
+    const roots = yield* Effect.forEach(directories, (dir) => packageRootOf(path.join(dir, 'x')))
+    const known = directories.map((dir, index) => [dir, roots[index]] as const)
+    const packageRoot = (file: string) => {
+      const dir = directoryOf(file)
+      // The longest known directory the file sits under: a split directory inside `src`
+      // may be a package of its own.
+      const match = known
+        .filter(([candidate]) => dir === candidate || dir.startsWith(`${candidate}/`))
+        .toSorted((a, b) => b[0].length - a[0].length)[0]
+      return match?.[1]
+    }
+    // Who imports whom: every edge that crosses a package needs the target's `package`.
+    const scaffold: Target | undefined =
+      appEntry !== undefined && config.template !== undefined ? { output: appEntry } : undefined
+    const importers: readonly (readonly [string, Target | undefined])[] = [
+      ['routes', targets.routes],
+      ['webhooks', targets.webhooks],
+      ...targets.components,
+      ['template', scaffold],
+    ]
+    const clientTarget = targets.client
+    const edges: readonly (readonly [string, Target, string, Target])[] = [
+      ...importers.flatMap(([from, importer]) =>
+        importer === undefined
+          ? []
+          : targets.components
+              .filter(([name]) => name !== from)
+              .map(([name, target]) => [from, importer, name, target] as const),
+      ),
+      ...(scaffold !== undefined && targets.routes !== undefined
+        ? [['template', scaffold, 'routes', targets.routes] as const]
+        : []),
+      ...(clientTarget === undefined
+        ? []
+        : [
+            ...(targets.rpc === undefined
+              ? []
+              : [['rpc', targets.rpc, 'client', clientTarget] as const]),
+            ...targets.hooks.map(
+              ([name, target]) => [name, target, 'client', clientTarget] as const,
+            ),
+          ]),
+    ]
+    const missing = edges.find(
+      ([, importer, , target]) =>
+        packageRoot(importer.output) !== packageRoot(target.output) && target.package === undefined,
+    )
+    if (missing !== undefined) {
+      const [from, , name, target] = missing
+      return yield* new GenerateError({
+        message: `${from} imports ${name} from another package: set ${name}.package to the name of the package ${target.output} is written into.`,
+      })
+    }
+    if (
+      clientTarget !== undefined &&
+      appEntry !== undefined &&
+      clientTarget.import === undefined &&
+      packageRoot(clientTarget.output) !== packageRoot(appEntry)
+    ) {
+      return yield* new GenerateError({
+        message:
+          'client imports the app from another package: set client.import to the name of the package the app is written into.',
+      })
+    }
+    return packageRoot
   })
 }
 
@@ -289,6 +418,22 @@ export function makeJob(
       ? undefined
       : barrel
   })()
+  // How a generated file imports a target: relatively inside its package, under the path
+  // alias when the target is in the directory of the app entry, and by the target's
+  // `package` from another package (`packageRoots` has seen to it that one is named).
+  const specifierOf =
+    (target: { readonly output: string; readonly package?: string }) => (from: string) => {
+      const sameRoot = packageRoot(from) === packageRoot(target.output)
+      return !sameRoot && target.package !== undefined
+        ? target.package
+        : generatedImport(
+            from,
+            target.output,
+            appOutput,
+            sameRoot ? config.pathAlias : undefined,
+            defineOn,
+          )
+    }
   // The path alias is the alias of the package of the app: a file written into another
   // package does not use it.
   const aliasFor = (output: string) =>
@@ -296,27 +441,26 @@ export function makeJob(
       ? config.pathAlias
       : undefined
   // The module a generated file imports the client from: the file `client` generates,
-  // reached from where the generated file is written — or, when the file is written into
-  // another package than the client, the package of the client.
+  // through the barrel beside it unless the file is beside it too — the barrel is for the
+  // others, and may come to re-export the file that would import it.
   const clientImport = (output: string) => {
     if (generatedClient === undefined) return ''
-    if (
-      generatedClient.package !== undefined &&
-      packageRoot(output) !== packageRoot(generatedClient.output)
-    ) {
-      return generatedClient.package
-    }
-    // A file beside the client imports the client itself: the barrel is for the others,
-    // and may come to re-export the file that would import it.
     const isBeside = path.dirname(output) === path.dirname(generatedClient.output)
-    return generatedImport(
-      output,
-      isBeside ? generatedClient.output : (clientBarrel ?? generatedClient.output),
-      appOutput,
-      aliasFor(output),
-      defineOn,
-    )
+    return specifierOf({
+      output: isBeside ? generatedClient.output : (clientBarrel ?? generatedClient.output),
+      ...(generatedClient.package === undefined ? {} : { package: generatedClient.package }),
+    })(output)
   }
+  // The routes the scaffold imports: named only when they are in another package, since a
+  // relative or aliased specifier is worked out where each file is written.
+  const routesTarget: Target | undefined =
+    config.routes ?? (config.output && !defineOn ? { output: config.output } : undefined)
+  const routeImport =
+    routesTarget?.package !== undefined &&
+    appOutput !== undefined &&
+    packageRoot(appEntryFile(appOutput, defineOn)) !== packageRoot(routesTarget.output)
+      ? routesTarget.package
+      : undefined
   const componentsOutput =
     config.components?.output ??
     (defineOn && appOutput ? `${path.dirname(appOutput)}/components/index.ts` : undefined)
@@ -335,17 +479,36 @@ export function makeJob(
     'mediaTypes',
   ] as const
   const rawComponents = config.components
-  const componentsResolve: { readonly [k: string]: { readonly output: string } } | undefined =
-    componentsOutput
-      ? Object.fromEntries(componentKinds.map((kind) => [kind, { output: componentsOutput }]))
-      : rawComponents
-        ? Object.fromEntries(
-            componentKinds.flatMap((kind) => {
-              const value = rawComponents[kind]
-              return value ? ([[kind, value]] as const) : []
-            }),
-          )
-        : undefined
+  const componentsResolve:
+    | {
+        readonly [k: string]: {
+          readonly output: string
+          readonly split?: boolean
+          readonly specifier: (fromFile: string) => string
+        }
+      }
+    | undefined = componentsOutput
+    ? Object.fromEntries(
+        componentKinds.map((kind) => [
+          kind,
+          { output: componentsOutput, specifier: specifierOf({ output: componentsOutput }) },
+        ]),
+      )
+    : rawComponents
+      ? Object.fromEntries(
+          componentKinds.flatMap((kind) => {
+            const value = rawComponents[kind]
+            return value
+              ? ([
+                  [
+                    kind,
+                    { output: value.output, split: value.split, specifier: specifierOf(value) },
+                  ],
+                ] as const)
+              : []
+          }),
+        )
+      : undefined
   return [
     config.output && !defineOn
       ? {
@@ -674,7 +837,7 @@ export function makeJob(
               // config.template?.test ?? false,
               config.basePath,
               config.pathAlias,
-              config.routes?.import,
+              routeImport,
               // config.template?.testFramework,
               config.readonly,
               isSplit,
@@ -692,7 +855,7 @@ export function makeJob(
                 // config.template?.test ?? false,
                 config.basePath,
                 config.pathAlias,
-                config.routes?.import,
+                routeImport,
                 config.template?.define === false ? config.template.routeHandler : false,
                 // config.template?.testFramework,
                 isSplit,
