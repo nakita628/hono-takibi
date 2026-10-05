@@ -407,13 +407,29 @@ describe('parseConfig()', () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          template: { pathAlias: '@/' },
+          pathAlias: '@/',
           routes: { output: 'src/routes', split: true, import: '@packages/routes' },
         }),
       )
       expect(result.routes?.import).toBe('@packages/routes')
       expect(result.routes?.output).toBe('src/routes')
-      expect(result.template?.pathAlias).toBe('@/')
+      expect(result.pathAlias).toBe('@/')
+    })
+
+    // The alias applies to every generated file of the package, so it is no option of the
+    // scaffold any more.
+    // エイリアスはパッケージの生成ファイルすべてに効くため、scaffold のオプションではなくなった。
+    it.concurrent('fails when template still sets the moved pathAlias', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: 'src/routes.ts',
+          template: { pathAlias: '@/' },
+        }),
+      )
+      expect(result.message).toBe(
+        'Invalid config: template.pathAlias: pathAlias was moved to the top level: it applies to every generated file of this package, not only to the scaffold.',
+      )
     })
 
     it.concurrent('routes without import field works (backward compat)', async () => {

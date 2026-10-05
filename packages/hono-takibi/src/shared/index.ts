@@ -228,6 +228,7 @@ function packageRootOf(file: string) {
 export function packageRoots(config: Config) {
   return Effect.gen(function* () {
     const files = [
+      appEntryOutput(config),
       config.client?.output,
       config.rpc?.output,
       ...HOOK_KINDS.map((kind) => config[kind]?.output),
@@ -288,6 +289,12 @@ export function makeJob(
       ? undefined
       : barrel
   })()
+  // The path alias is the alias of the package of the app: a file written into another
+  // package does not use it.
+  const aliasFor = (output: string) =>
+    appOutput !== undefined && packageRoot(output) === packageRoot(appOutput)
+      ? config.pathAlias
+      : undefined
   // The module a generated file imports the client from: the file `client` generates,
   // reached from where the generated file is written — or, when the file is written into
   // another package than the client, the package of the client.
@@ -306,7 +313,7 @@ export function makeJob(
       output,
       isBeside ? generatedClient.output : (clientBarrel ?? generatedClient.output),
       appOutput,
-      config.template?.pathAlias,
+      aliasFor(output),
       defineOn,
     )
   }
@@ -585,7 +592,7 @@ export function makeJob(
               openAPI,
               output,
               generatedClient.import ??
-                appEntryImport(output, appOutput, config.template?.pathAlias, defineOn),
+                appEntryImport(output, appOutput, aliasFor(output), defineOn),
               generatedClient.baseUrl,
               config.basePath,
               grouping,
@@ -666,7 +673,7 @@ export function makeJob(
               componentsOutput,
               // config.template?.test ?? false,
               config.basePath,
-              config.template?.pathAlias,
+              config.pathAlias,
               config.routes?.import,
               // config.template?.testFramework,
               config.readonly,
@@ -684,7 +691,7 @@ export function makeJob(
                 output,
                 // config.template?.test ?? false,
                 config.basePath,
-                config.template?.pathAlias,
+                config.pathAlias,
                 config.routes?.import,
                 config.template?.define === false ? config.template.routeHandler : false,
                 // config.template?.testFramework,

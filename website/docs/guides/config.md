@@ -82,13 +82,16 @@ export default defineConfig({
   output: './src/routes.ts', // single-file mode; with template.define, the app entry (an index.ts path, default ./src/index.ts)
   basePath: '/api',
   readonly: true,
+  // Import prefix the generated files of this package use for one another, `@/routes` instead
+  // of `../routes`. Map it in tsconfig (`"@/*": ["./src/*"]`). Files written into another
+  // package never use it.
+  pathAlias: '@/',
   // format: {}, // oxfmt FormatConfig
 
   template: {
     routeHandler: false, // true: RouteHandler exports
     define: false, // true: defineOpenAPIRoute output
     split: false, // true: one exported group per first path segment
-    pathAlias: '@/',
   },
 
   exportSchemas: true,
@@ -190,12 +193,20 @@ export default defineConfig({
     readonly: true,
   },
 
-  // Hono client of the scaffolded app (needs `template`). `rpc` and the hooks import it.
+  // Hono client of the scaffolded app (needs `template`). `rpc` and the hooks import it:
+  // relatively (or by `pathAlias`) inside this package, by `package` from another package.
   client: {
     output: './src/lib/client.ts',
-    baseUrl: '/', // a URL, { env, source } or { env, import, name }
-    // import: '@repo/server', // module the client imports the app type from (default: relative / alias)
-    // package: '@repo/client', // name files in other packages import the client by
+    // What `hc()` is created with. Pick one:
+    baseUrl: '/', // same origin (default)
+    // baseUrl: 'http://localhost:3000', // one fixed URL
+    // baseUrl: { env: 'VITE_API_URL' }, // Vite: import.meta.env.VITE_API_URL, '/' when unset
+    // baseUrl: { env: 'API_URL', source: 'process.env' }, // Node.js: process.env.API_URL, '/' when unset
+    // baseUrl: { env: 'API_URL', import: '@/env', name: 'env' }, // your validated env module: env.API_URL
+    //
+    // Monorepo: the client in a package of its own.
+    // import: '@repo/server', // where the client imports the app's type from (default: relative, or pathAlias)
+    // package: '@repo/client', // what files written into other packages import the client by
   },
 
   rpc: {

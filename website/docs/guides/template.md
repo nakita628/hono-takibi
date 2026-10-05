@@ -18,9 +18,8 @@ import { defineConfig } from 'hono-takibi'
 export default defineConfig({
   input: 'openapi.yaml',
   output: './src/routes.ts',
-  template: {
-    pathAlias: '@/',
-  },
+  pathAlias: '@/', // the files import one another as `@/routes`, `@/handlers` instead of relative paths
+  template: {},
 })
 ```
 

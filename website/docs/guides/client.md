@@ -40,7 +40,7 @@ const hcWithType = (...args: Parameters<typeof hc>): Client => hc<typeof api>(..
 export const client = hcWithType('/').api
 ```
 
-Imports are worked out from the output paths, and follow `template.pathAlias`.
+Imports are worked out from the output paths, and follow the top-level `pathAlias` inside the package of the app.
 
 ### Monorepo
 
@@ -77,14 +77,17 @@ A package is what the nearest `package.json` above a generated file delimits. A 
 
 ### Base URL
 
-| `baseUrl`                                   | Generated                             |
-| ------------------------------------------- | ------------------------------------- |
-| `'http://localhost:3000'`                   | `hcWithType('http://localhost:3000')` |
-| `{ env: 'VITE_API_URL' }`                   | `import.meta.env.VITE_API_URL ?? '/'` |
-| `{ env: 'API_URL', source: 'process.env' }` | `process.env.API_URL ?? '/'`          |
-| `{ env: 'API_URL', import: '@/env' }`       | `env.API_URL`, imported from `@/env`  |
+`baseUrl` is what the client is created with, `hc(baseUrl)`. It defaults to `'/'`: same-origin requests, which is what a frontend served by the app, or behind a dev proxy, wants.
 
-Defaults to `'/'`.
+| `baseUrl`                                   | Generated                             | When                                                                |
+| ------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------- |
+| `'/'` (default)                             | `hcWithType('/')`                     | Same origin                                                         |
+| `'http://localhost:3000'`                   | `hcWithType('http://localhost:3000')` | One fixed URL, written into the file                                |
+| `{ env: 'VITE_API_URL' }`                   | `import.meta.env.VITE_API_URL ?? '/'` | Vite build: the URL comes from `.env`, `/` when it is not set       |
+| `{ env: 'API_URL', source: 'process.env' }` | `process.env.API_URL ?? '/'`          | Node.js: the URL comes from the environment, `/` when it is not set |
+| `{ env: 'API_URL', import: '@/env' }`       | `env.API_URL`, imported from `@/env`  | A validated env module of yours (t3-env, valibot, zod): no fallback |
+
+With `{ env }`, the variable is read once, when the client module is first imported. Vite only exposes variables prefixed `VITE_` to the browser. With `{ env, import }`, the client imports the object the module exports (`env` by default, `name` to pick another export) and reads the property named by `env`; because such a module validates its exports, the value is guaranteed and nothing stands in for it.
 
 ## Larger applications
 

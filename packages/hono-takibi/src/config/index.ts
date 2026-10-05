@@ -94,6 +94,18 @@ const ConfigSchema = Schema.Struct({
       description: 'Emit `readonly` modifiers on the generated TypeScript types.',
     }),
   ),
+  pathAlias: Schema.optionalKey(
+    Schema.String.check(
+      Schema.isPattern(/^[^\s'"`\\]+$/u, {
+        message: 'must be an import prefix, with no whitespace or quotes',
+      }),
+    ).annotate({
+      title: 'Path alias',
+      description:
+        'Import prefix the generated files use for one another instead of relative paths: `@/` where the tsconfig maps `@/*` to the directory of the app entry. It is the alias of the package this config belongs to, so only files written into that package use it; a file written into another package imports the client by `client.package`.',
+      examples: ['@/', '~/'],
+    }),
+  ),
   format: Schema.optionalKey(
     Schema.declare<FormatConfig>(
       (u): u is FormatConfig => typeof u === 'object' && u !== null,
@@ -126,14 +138,9 @@ const ConfigSchema = Schema.Struct({
           }),
         ),
         pathAlias: Schema.optionalKey(
-          Schema.String.check(
-            Schema.isPattern(/^[^\s'"`\\]+$/u, {
-              message: 'must be an import prefix, with no whitespace or quotes',
-            }),
-          ).annotate({
-            title: 'Path alias',
-            description: 'Import prefix used by the scaffolded files instead of relative paths.',
-            examples: ['@/', '~/'],
+          Schema.Never.annotate({
+            message:
+              'pathAlias was moved to the top level: it applies to every generated file of this package, not only to the scaffold.',
           }),
         ),
         // testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
@@ -174,14 +181,9 @@ const ConfigSchema = Schema.Struct({
           }),
         ),
         pathAlias: Schema.optionalKey(
-          Schema.String.check(
-            Schema.isPattern(/^[^\s'"`\\]+$/u, {
-              message: 'must be an import prefix, with no whitespace or quotes',
-            }),
-          ).annotate({
-            title: 'Path alias',
-            description: 'Import prefix used by the scaffolded files instead of relative paths.',
-            examples: ['@/', '~/'],
+          Schema.Never.annotate({
+            message:
+              'pathAlias was moved to the top level: it applies to every generated file of this package, not only to the scaffold.',
           }),
         ),
         // testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
@@ -207,7 +209,6 @@ const ConfigSchema = Schema.Struct({
           routeHandler: true,
           split: false,
           // test: true,
-          pathAlias: '@/',
           // testFramework: 'vitest',
         },
         // { define: true, split: false, test: true, testFramework: 'vitest' },
@@ -795,7 +796,8 @@ const ConfigSchema = Schema.Struct({
             }),
           ).annotate({
             title: 'Environment variable',
-            description: 'The property of the imported environment the base URL is read from.',
+            description:
+              'The property of the imported environment object that holds the base URL: `API_URL` for `env.API_URL`.',
             examples: ['API_URL'],
           }),
           import: Schema.String.check(
@@ -805,7 +807,7 @@ const ConfigSchema = Schema.Struct({
           ).annotate({
             title: 'Import specifier',
             description:
-              'The module that exports the environment, written into the client file as it stands. One that validates what it exports hands out a value that is there, so nothing stands in for it.',
+              'The module of yours that exports the environment object, written into the client file as it stands: `@/env`, `../env`. Such a module validates its exports (t3-env, valibot, zod), so the property is there and no `/` fallback is written.',
             examples: ['@/env', '../env'],
           }),
           name: Schema.String.check(
@@ -816,7 +818,8 @@ const ConfigSchema = Schema.Struct({
             .pipe(Schema.withDecodingDefault(Effect.succeed('env')))
             .annotate({
               title: 'Environment export name',
-              description: 'Named export to import from `import` as the environment.',
+              description:
+                'The named export of `import` that is the environment object, `env` when left out.',
               examples: ['env'],
             }),
         }),
@@ -827,7 +830,8 @@ const ConfigSchema = Schema.Struct({
             }),
           ).annotate({
             title: 'Environment variable',
-            description: 'The variable the base URL is read from when the client is created.',
+            description:
+              'The environment variable the base URL is read from when the client is created, `/` standing in when it is not set: `VITE_API_URL` for a Vite build (only `VITE_`-prefixed variables reach the browser), `API_URL` for Node.js.',
             examples: ['VITE_API_URL', 'API_URL'],
           }),
           source: Schema.Literals(['import.meta.env', 'process.env'])
@@ -835,7 +839,7 @@ const ConfigSchema = Schema.Struct({
             .annotate({
               title: 'Where the variable is read from',
               description:
-                '`import.meta.env` for code a bundler such as Vite builds, `process.env` for code Node.js runs.',
+                '`import.meta.env` (the default) for code a bundler such as Vite builds, `process.env` for code Node.js runs.',
               examples: ['import.meta.env', 'process.env'],
             }),
         }),
@@ -844,7 +848,7 @@ const ConfigSchema = Schema.Struct({
         .annotate({
           title: 'Base URL',
           description:
-            'What the client is created with, `hc(baseUrl)`: a URL written into the file, an environment variable read when the client is created, with `/` in its place when it is not set, or a property of an environment a module exports.',
+            'What the client is created with, `hc(baseUrl)`. A string is written into the file as it stands: `/` (the default) for same-origin requests, or a full URL. `{ env }` reads an environment variable when the client is created, `import.meta.env.VITE_API_URL` for a Vite build or `process.env.API_URL` with `source: "process.env"`, and falls back to `/` when it is not set. `{ env, import }` reads a property of an environment object a module of yours exports, `env.API_URL` from `@/env`, with no fallback: the module answers for the value.',
           examples: [
             '/',
             'http://localhost:3000',
@@ -860,7 +864,7 @@ const ConfigSchema = Schema.Struct({
         ).annotate({
           title: 'App import specifier',
           description:
-            'Module the client imports the type of the app from. Left out, the app entry is imported relatively, or under `template.pathAlias`. Name the package of the app when the client is written into another package: `@repo/server`, whose `exports` (or `main`) point at the app entry.',
+            'Module the client imports the type of the app from. Left out, the app entry is imported relatively, or under `pathAlias`. Name the package of the app when the client is written into another package: `@repo/server`, whose `exports` (or `main`) point at the app entry.',
           examples: ['@repo/server', '../server'],
         }),
       ),

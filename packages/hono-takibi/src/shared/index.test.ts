@@ -241,7 +241,8 @@ export const UserSchema = z
       parseConfig({
         input: 'openapi.yaml',
         output: `${tmpDir}/src/index.ts`,
-        template: { define: true, pathAlias: '@/' },
+        template: { define: true },
+        pathAlias: '@/',
       }),
     )
     const jobs = makeJob(openAPI, cfg)
@@ -439,7 +440,8 @@ import { UserSchema } from '../../shared/components'`)
       parseConfig({
         input: 'openapi.yaml',
         output: `${tmpDir}/src/index.ts`,
-        template: { define: true, pathAlias: '@/' },
+        template: { define: true },
+        pathAlias: '@/',
         components: { output: `${tmpDir}/src/api/components/index.ts` },
       }),
     )
@@ -461,7 +463,8 @@ import { UserSchema } from '@/api/components'`)
       parseConfig({
         input: 'openapi.yaml',
         output: `${tmpDir}/src/index.ts`,
-        template: { define: true, pathAlias: '@/' },
+        template: { define: true },
+        pathAlias: '@/',
       }),
     )
     const jobs = makeJob(openAPI, cfg)
@@ -791,7 +794,8 @@ export default app
         parseConfig({
           input: 'openapi.yaml',
           output: `${tmpDir}/src/index.ts`,
-          template: { define: true, pathAlias: '@/' },
+          template: { define: true },
+          pathAlias: '@/',
         }),
       )
       const run = (spec: OpenAPI) =>
@@ -1111,7 +1115,8 @@ describe('makeJob: the client and what imports it', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-alias-'))
     const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
-      template: { routeHandler: true, pathAlias: '@/' },
+      template: { routeHandler: true },
+      pathAlias: '@/',
       client: { output: `${tmpDir}/src/lib/client.ts` },
       rpc: { output: `${tmpDir}/src/rpc.ts` },
     })
@@ -1127,7 +1132,8 @@ describe('makeJob: the client and what imports it', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-alias-dir-'))
     const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/api/routes.ts`,
-      template: { routeHandler: true, pathAlias: '@/api' },
+      template: { routeHandler: true },
+      pathAlias: '@/api',
       client: { output: `${tmpDir}/src/client/http.ts` },
       rpc: { output: `${tmpDir}/src/rpc.ts` },
     })
@@ -1172,6 +1178,31 @@ describe('makeJob: the client and what imports it', () => {
       rpc: { output: `${tmpDir}/src/rpc.ts` },
     })
     expect(out.imports('src/rpc.ts')).toStrictEqual(["'./lib'"])
+  })
+
+  // The alias is the alias of the package of the app: a file written into another package
+  // imports the client relatively, not under the alias, even without `client.package`.
+  // エイリアスはアプリのパッケージのものである。別のパッケージに書き出されるファイルは、
+  // `client.package` がなくてもエイリアスではなく相対パスでクライアントを import する。
+  it('keeps the path alias inside the package of the app', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-alias-package-'))
+    const packageRoot = (file: string) =>
+      file.startsWith(`${tmpDir}/web/`) ? `${tmpDir}/web` : `${tmpDir}/server`
+    const out = await generateClientJobs(
+      tmpDir,
+      {
+        output: `${tmpDir}/server/src/routes.ts`,
+        pathAlias: '@/',
+        template: { routeHandler: true },
+        client: { output: `${tmpDir}/server/src/lib/client.ts` },
+        rpc: { output: `${tmpDir}/web/src/rpc.ts` },
+        swr: { output: `${tmpDir}/server/src/swr.ts` },
+      },
+      packageRoot,
+    )
+    expect(out.read('server/src/lib/client.ts')).toContain("import type { api } from '@/index'")
+    expect(out.imports('server/src/swr.ts')).toStrictEqual(["'@/lib'"])
+    expect(out.imports('web/src/rpc.ts')).toStrictEqual(["'../../server/src/lib'"])
   })
 
   // The client imports the type of the app from the module `client.import` names.
