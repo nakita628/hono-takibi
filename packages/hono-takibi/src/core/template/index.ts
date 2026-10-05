@@ -12,12 +12,13 @@ import type { OpenAPI } from '../../openapi/index.js'
 export function template(
   openAPI: OpenAPI,
   output: string,
-  test: boolean,
+  // Test code generation is deprecated: hono-takibi no longer generates test files.
+  // test: boolean,
   basePath: string,
   pathAlias: string | undefined,
   routeImport: string | undefined,
   routeHandler: boolean,
-  testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  // testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
   split = false,
 ) {
   return Effect.gen(function* () {
@@ -27,12 +28,12 @@ export function template(
     yield* zodOpenAPIHonoHandler(
       openAPI,
       output,
-      test,
+      // test,
       pathAlias,
       routeImport,
       routeHandler,
-      basePath,
-      testFramework,
+      // basePath,
+      // testFramework,
     )
     // Inline sub-routers are mounted by file name, so the app entry must follow the files the
     // handlers actually landed in (hand-written splits included), read back after writing.

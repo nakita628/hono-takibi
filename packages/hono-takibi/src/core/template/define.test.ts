@@ -37,7 +37,6 @@ describe('defineTemplate', () => {
         openAPI,
         path.join(tmpDir, 'index.ts'),
         path.join(tmpDir, 'components.ts'),
-        false,
         '/',
         undefined,
         undefined,
@@ -79,7 +78,6 @@ export const getHealthRoute = defineOpenAPIRoute({
         openAPI,
         path.join(tmpDir, 'src'),
         path.join(tmpDir, 'src', 'components.ts'),
-        false,
         '/',
         undefined,
         undefined,
@@ -108,7 +106,6 @@ export const api = new OpenAPIHono()
         openAPI,
         path.join(tmpDir, 'index.ts'),
         path.join(tmpDir, 'components.ts'),
-        false,
         '/',
         undefined,
         undefined,
@@ -118,42 +115,13 @@ export const api = new OpenAPIHono()
     expect(content.includes('custom-marker')).toBe(true)
   })
 
-  it('writes a handler test file next to the handler when test is enabled', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-define-template-test-'))
-    await runGenerator(
-      defineTemplate(
-        openAPI,
-        path.join(tmpDir, 'index.ts'),
-        path.join(tmpDir, 'components.ts'),
-        true,
-        '/',
-        undefined,
-        undefined,
-      ),
-    )
-    expect(fs.readFileSync(path.join(tmpDir, 'routes', 'health.test.ts'), 'utf-8')).toBe(
-      `import { describe, it, expect } from 'vitest'
-import app from '..'
-
-describe('Health', () => {
-  describe('GET /health', () => {
-    it('should return 200', async () => {
-      const res = await app.request(\`/health\`, { method: 'GET' })
-      expect(res.status).toBe(200)
-    })
-  })
-})
-`,
-    )
-  })
-
   it('emits routes/ at cwd when output is a bare index.ts', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-define-template-dot-'))
     const origCwd = process.cwd()
     process.chdir(tmpDir)
     try {
       await runGenerator(
-        defineTemplate(openAPI, 'index.ts', 'components.ts', false, '/', undefined, undefined),
+        defineTemplate(openAPI, 'index.ts', 'components.ts', '/', undefined, undefined),
       )
       expect(fs.existsSync(path.join(tmpDir, 'routes', 'health.ts'))).toBe(true)
       expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8').split('\n')).toContain(
@@ -173,7 +141,6 @@ describe('Health', () => {
         openAPI,
         path.join(tmpDir, 'index.ts'),
         path.join(tmpDir, 'components.ts'),
-        false,
         '/',
         undefined,
         undefined,
@@ -189,7 +156,6 @@ describe('Health', () => {
         openAPI,
         path.join(tmpDir, 'index.ts'),
         path.join(tmpDir, 'components.ts'),
-        false,
         '/',
         '@/',
         undefined,

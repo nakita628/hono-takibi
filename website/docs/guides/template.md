@@ -10,7 +10,7 @@ next:
 
 # Template
 
-Scaffolds the app entry, one handler file per tag, and optional tests around the generated routes.
+Scaffolds the app entry and one handler file per tag around the generated routes.
 
 ```ts
 import { defineConfig } from 'hono-takibi'
@@ -19,9 +19,7 @@ export default defineConfig({
   input: 'openapi.yaml',
   output: './src/routes.ts',
   template: {
-    test: true,
     pathAlias: '@/',
-    testFramework: 'vitest', // "vitest" (default) | "vite-plus" | "bun"
   },
 })
 ```
@@ -30,7 +28,6 @@ Generated files:
 
 - `src/index.ts`: app entry that registers every handler
 - `src/handlers/*.ts`: handler stubs, one file per tag
-- `src/handlers/*.test.ts`: tests with `@faker-js/faker` data (when `test: true`)
 
 ## Re-running is safe
 

@@ -967,52 +967,6 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {})
 `)
   })
 
-  it('generates test files with config template and test', () => {
-    const openAPI = {
-      openapi: '3.0.3',
-      info: { title: 'Test API', version: '1.0.0' },
-      paths: {
-        '/items': {
-          post: {
-            operationId: 'createItem',
-            responses: { 201: { description: 'Created' } },
-          },
-        },
-      },
-    }
-
-    fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
-    fs.writeFileSync(
-      path.join(testDir, 'hono-takibi.config.ts'),
-      `export default { input: 'openapi.json', output: 'src/routes.ts', template: { test: true } }`,
-    )
-
-    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
-      cwd: path.resolve(testDir),
-    })
-
-    // Verify test file exists and contains vitest code
-    const testFileExists = fs.existsSync(path.join(testDir, 'src/handlers/items.test.ts'))
-    expect(testFileExists).toBe(true)
-
-    const testFileContent = fs.readFileSync(
-      path.join(testDir, 'src/handlers/items.test.ts'),
-      'utf-8',
-    )
-    expect(testFileContent).toBe(`import { describe, it, expect } from 'vitest'
-import app from '..'
-
-describe('Items', () => {
-  describe('POST /items', () => {
-    it('should return 201', async () => {
-      const res = await app.request(\`/items\`, { method: 'POST' })
-      expect(res.status).toBe(201)
-    })
-  })
-})
-`)
-  })
-
   it('generates handlers for multiple routes on same path', () => {
     const openAPI = {
       openapi: '3.0.3',

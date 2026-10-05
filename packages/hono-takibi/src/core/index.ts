@@ -8,6 +8,7 @@ export * from './rpc/index.js'
 export * from './takibi/index.js'
 export * from './template/define.js'
 export * from './template/index.js'
-export * from './test/index.js'
+// Test code generation is deprecated: hono-takibi no longer generates test files.
+// export * from './test/index.js'
 export * from './type/index.js'
 export * from './webhooks/index.js'

@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vite-plus/test'
 import { parseConfig } from '../config/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 import { runGenerator } from '../testing/index.js'
-import { cleanSplitOutputs, makeJob, outsideSources, testJob } from './index.js'
+import { cleanSplitOutputs, makeJob, outsideSources } from './index.js'
 
 const openAPI = {
   openapi: '3.0.0',
@@ -819,33 +819,6 @@ export default app
     })
   },
 )
-
-describe('testJob request paths use the global basePath', () => {
-  it('prefixes generated test request paths with the global basePath', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-basepath-'))
-    const job = testJob(
-      openAPI,
-      { output: `${tmpDir}/app.test.ts`, import: './app', testFramework: 'vitest' },
-      '/api',
-    )
-    await runGenerator(job.run(job.output))
-    const content = fs.readFileSync(`${tmpDir}/app.test.ts`, 'utf-8')
-    expect(content.includes('app.request(`/api/health`')).toBe(true)
-    expect(content.includes('app.request(`/health`')).toBe(false)
-  })
-
-  it('does not prefix test request paths when the global basePath is "/"', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-basepath-root-'))
-    const job = testJob(
-      openAPI,
-      { output: `${tmpDir}/app.test.ts`, import: './app', testFramework: 'vitest' },
-      '/',
-    )
-    await runGenerator(job.run(job.output))
-    const content = fs.readFileSync(`${tmpDir}/app.test.ts`, 'utf-8')
-    expect(content.includes('app.request(`/health`')).toBe(true)
-  })
-})
 
 // `cleanSplitOutputs` is the only thing in the package that deletes files the user did
 // not name one by one, so what it leaves alone matters as much as what it removes.

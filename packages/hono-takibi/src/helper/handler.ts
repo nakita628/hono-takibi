@@ -4,7 +4,8 @@ import { Effect } from 'effect'
 
 import { mkdir, readdir, readFile, writeFile } from '../file/index.js'
 import { fmt } from '../format/index.js'
-import { makeHandlerTestCode, makeHandlerTestContext } from '../generator/test/index.js'
+// Test code generation is deprecated: hono-takibi no longer generates test files.
+// import { makeHandlerTestCode, makeHandlerTestContext } from '../generator/test/index.js'
 import { defineEntries } from '../generator/zod-openapi-hono/openapi/define/index.js'
 import {
   isHttpMethod,
@@ -19,11 +20,12 @@ import {
   mergeBarrelFile,
   mergeDefineFile,
   mergeHandlerFile,
-  mergeTestFile,
+  // mergeTestFile,
 } from '../merge/index.js'
 import type { OpenAPI, Operation, Schema } from '../openapi/index.js'
 import { cyclicNodes, methodPath, uncapitalizeWord } from '../utils/index.js'
-import { makeImports, makeModuleSpec } from './code.js'
+// import { makeImports, makeModuleSpec } from './code.js'
+import { makeImports } from './code.js'
 import { mockFunctionSignature, schemaToFaker } from './faker.js'
 import { isGroupName } from './group.js'
 
@@ -248,7 +250,7 @@ function makeOrphanHandlers(
     .filter((fileName) => !assignedFileNames.includes(fileName))
     .map((fileName) => ({
       fileName,
-      testFileName: makeTestFileName(fileName),
+      // testFileName: makeTestFileName(fileName),
       contents: [],
       routeNames: [],
       needsFaker: false,
@@ -256,9 +258,10 @@ function makeOrphanHandlers(
     }))
 }
 
-function makeTestFileName(fileName: `${string}.ts`): `${string}.ts` {
-  return `${basename(fileName, '.ts')}.test.ts`
-}
+// Test code generation is deprecated: hono-takibi no longer generates test files.
+// function makeTestFileName(fileName: `${string}.ts`): `${string}.ts` {
+//   return `${basename(fileName, '.ts')}.test.ts`
+// }
 
 function makePaths(output: string, pathAlias: string | undefined, routeImport?: string) {
   const isDot = output === '.' || output === './'
@@ -277,8 +280,9 @@ function makePaths(output: string, pathAlias: string | undefined, routeImport?: 
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
   const importFrom =
     routeImport ?? (aliasPrefix ? `${aliasPrefix}/${routeModuleName}` : `../${routeModuleName}`)
-  const testImportFrom = aliasPrefix ?? '..'
-  return { handlerPath, importFrom, testImportFrom } as const
+  // const testImportFrom = aliasPrefix ?? '..'
+  // return { handlerPath, importFrom, testImportFrom } as const
+  return { handlerPath, importFrom } as const
 }
 
 function makeInlineMockContent(
@@ -317,7 +321,7 @@ function makeInlineStubHandlerInfo(
   },
 ): {
   readonly fileName: `${string}.ts`
-  readonly testFileName: `${string}.ts`
+  // readonly testFileName: `${string}.ts`
   readonly contents: readonly string[]
   readonly routeNames: readonly string[]
   readonly needsFaker: false
@@ -331,7 +335,7 @@ function makeInlineStubHandlerInfo(
   )
   return {
     fileName,
-    testFileName: makeTestFileName(fileName),
+    // testFileName: makeTestFileName(fileName),
     contents: [`.openapi(${routeId}Route,(c)=>{})`],
     routeNames: [`${routeId}Route`],
     needsFaker: false,
@@ -350,7 +354,7 @@ function makeInlineMockHandlerInfo(
   },
 ): {
   readonly fileName: `${string}.ts`
-  readonly testFileName: `${string}.ts`
+  // readonly testFileName: `${string}.ts`
   readonly contents: readonly string[]
   readonly routeNames: readonly string[]
   readonly needsFaker: boolean
@@ -365,7 +369,7 @@ function makeInlineMockHandlerInfo(
   const result = makeInlineMockContent(routeId, operation, schemas)
   return {
     fileName,
-    testFileName: makeTestFileName(fileName),
+    // testFileName: makeTestFileName(fileName),
     contents: [result.content],
     routeNames: [`${routeId}Route`],
     needsFaker: result.needsFaker,
@@ -424,7 +428,7 @@ function makeStubHandlerInfo(
   },
 ): {
   readonly fileName: `${string}.ts`
-  readonly testFileName: `${string}.ts`
+  // readonly testFileName: `${string}.ts`
   readonly contents: readonly string[]
   readonly routeNames: readonly string[]
   readonly needsFaker: false
@@ -438,7 +442,7 @@ function makeStubHandlerInfo(
   )
   return {
     fileName,
-    testFileName: makeTestFileName(fileName),
+    // testFileName: makeTestFileName(fileName),
     contents: [
       `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(c)=>{}`,
     ],
@@ -467,7 +471,7 @@ function makeMockHandlerInfo(
   const result = makeMockHandlerCode(routeId, operation, schemas)
   return {
     fileName,
-    testFileName: makeTestFileName(fileName),
+    // testFileName: makeTestFileName(fileName),
     contents: [result.content],
     routeNames: [`${routeId}Route`],
     needsFaker: result.needsFaker,
@@ -478,7 +482,7 @@ function makeMockHandlerInfo(
 function makeMergedHandlers<
   T extends {
     readonly fileName: `${string}.ts`
-    readonly testFileName: `${string}.ts`
+    // readonly testFileName: `${string}.ts`
     readonly contents: readonly string[]
     readonly routeNames: readonly string[]
     readonly needsFaker: boolean
@@ -565,15 +569,16 @@ function writeMerged(
   })
 }
 
-/** As {@link writeMerged}, but generated test code that will not format is kept too. */
-function writeMergedTest(filePath: string, source: string) {
-  return Effect.gen(function* () {
-    const generated = yield* fmtOrKeep(source)
-    const existing = yield* readFile(filePath)
-    const merged = existing !== null ? mergeTestFile(existing, generated) : generated
-    yield* writeFile(filePath, yield* fmtOrKeep(merged))
-  })
-}
+// Test code generation is deprecated: hono-takibi no longer generates test files.
+// /** As {@link writeMerged}, but generated test code that will not format is kept too. */
+// function writeMergedTest(filePath: string, source: string) {
+//   return Effect.gen(function* () {
+//     const generated = yield* fmtOrKeep(source)
+//     const existing = yield* readFile(filePath)
+//     const merged = existing !== null ? mergeTestFile(existing, generated) : generated
+//     yield* writeFile(filePath, yield* fmtOrKeep(merged))
+//   })
+// }
 
 /** Writes the `index.ts` that re-exports every handler file, keeping hand-added lines. */
 function writeBarrel(handlerPath: string, fileNames: readonly string[]) {
@@ -589,58 +594,60 @@ function writeBarrel(handlerPath: string, fileNames: readonly string[]) {
 }
 
 /**
- * Writes one handler file and, when the scaffold asks for tests, the test beside it.
+ * Writes one handler file.
  *
  * The three writers below differ only in how the file's contents are built and which merge
  * keeps hand-written code; from there on they are the same, so they share this.
  */
 function writeHandler(options: {
-  readonly openapi: OpenAPI
+  // Test code generation is deprecated: hono-takibi no longer generates test files.
+  // readonly openapi: OpenAPI
   readonly handlerPath: string
   readonly handler: {
     readonly fileName: `${string}.ts`
-    readonly testFileName: `${string}.ts`
+    // readonly testFileName: `${string}.ts`
     readonly routeNames: readonly string[]
   }
   readonly fileContent: string
   readonly merge: (existing: string, incoming: string) => string
-  readonly testImportFrom: string
-  readonly basePath: string
-  readonly testFramework: 'vitest' | 'vite-plus' | 'bun'
-  readonly testContext: ReturnType<typeof makeHandlerTestContext> | undefined
+  // readonly testImportFrom: string
+  // readonly basePath: string
+  // readonly testFramework: 'vitest' | 'vite-plus' | 'bun'
+  // readonly testContext: ReturnType<typeof makeHandlerTestContext> | undefined
 }) {
   return Effect.gen(function* () {
     const filePath = `${options.handlerPath}/${options.handler.fileName}`
     yield* writeMerged(filePath, options.fileContent, options.merge)
-    if (options.testContext === undefined || options.handler.routeNames.length === 0) return
-    const testContent = makeHandlerTestCode(
-      options.openapi,
-      filePath,
-      [...options.handler.routeNames],
-      options.testImportFrom,
-      options.basePath,
-      options.testFramework,
-      options.testContext,
-    )
-    if (testContent) {
-      yield* writeMergedTest(`${options.handlerPath}/${options.handler.testFileName}`, testContent)
-    }
+    // if (options.testContext === undefined || options.handler.routeNames.length === 0) return
+    // const testContent = makeHandlerTestCode(
+    //   options.openapi,
+    //   filePath,
+    //   [...options.handler.routeNames],
+    //   options.testImportFrom,
+    //   options.basePath,
+    //   options.testFramework,
+    //   options.testContext,
+    // )
+    // if (testContent) {
+    //   yield* writeMergedTest(`${options.handlerPath}/${options.handler.testFileName}`, testContent)
+    // }
   })
 }
 
 export function zodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
-  test = false,
+  // Test code generation is deprecated: hono-takibi no longer generates test files.
+  // test = false,
   pathAlias?: string,
   routeImport?: string,
   routeHandler = false,
-  basePath = '/',
-  testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  // basePath = '/',
+  // testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ) {
   return Effect.gen(function* () {
     const paths = openapi.paths
-    const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
+    const { handlerPath, importFrom } = makePaths(output, pathAlias, routeImport)
     const existing = yield* scanExistingHandlerFiles(
       handlerPath,
       routeHandler ? (code) => collectExportedNames(code, 'RouteHandler') : collectInlineRouteNames,
@@ -666,23 +673,23 @@ export function zodOpenAPIHonoHandler(
         specHandlers.map((h) => h.fileName),
       ),
     ]
-    const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
+    // const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
     yield* mkdir(handlerPath)
     yield* Effect.all(
       [
         ...handlers.map((handler) =>
           writeHandler({
-            openapi,
+            // openapi,
             handlerPath,
             handler,
             fileContent: routeHandler
               ? makeStubFileContent(handler, importFrom)
               : makeInlineStubFileContent(handler, importFrom),
             merge: mergeHandlerFile,
-            testImportFrom,
-            basePath,
-            testFramework,
-            testContext: handlerTestContext,
+            // testImportFrom,
+            // basePath,
+            // testFramework,
+            // testContext: handlerTestContext,
           }),
         ),
         writeBarrel(
@@ -737,10 +744,11 @@ export function defineOpenAPIRouteHandler(
   openapi: OpenAPI,
   output: string,
   componentsOutput: string,
-  test = false,
+  // Test code generation is deprecated: hono-takibi no longer generates test files.
+  // test = false,
   pathAlias?: string,
-  basePath = '/',
-  testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  // basePath = '/',
+  // testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
   readonly?: boolean,
 ) {
   return Effect.gen(function* () {
@@ -754,7 +762,7 @@ export function defineOpenAPIRouteHandler(
         string,
         {
           readonly fileName: `${string}.ts`
-          readonly testFileName: `${string}.ts`
+          // readonly testFileName: `${string}.ts`
           readonly contents: readonly string[]
           readonly routeNames: readonly string[]
         }
@@ -768,13 +776,13 @@ export function defineOpenAPIRouteHandler(
       const prev = acc.get(fileName)
       return new Map(acc).set(fileName, {
         fileName,
-        testFileName: makeTestFileName(fileName),
+        // testFileName: makeTestFileName(fileName),
         contents: [...(prev?.contents ?? []), entry.code],
         routeNames: [...(prev?.routeNames ?? []), `${entry.name}Route`],
       })
     }, new Map())
     const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
-    const testImportFrom = aliasPrefix ?? makeModuleSpec(`${handlerPath}/handler.ts`, { output })
+    // const testImportFrom = aliasPrefix ?? makeModuleSpec(`${handlerPath}/handler.ts`, { output })
     // The alias maps to the app entry's directory; resolve the components module relative to it
     // so nested component dirs keep their path (e.g. `src/api/components` → `@/api/components`).
     const componentsModulePath = componentsOutput.endsWith('/index.ts')
@@ -803,7 +811,7 @@ export function defineOpenAPIRouteHandler(
         { output: componentsOutput, ...(componentsImport ? { import: componentsImport } : {}) },
       ]),
     )
-    const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
+    // const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
     yield* mkdir(handlerPath)
     const handlerList = [
       ...specHandlers.values(),
@@ -813,7 +821,7 @@ export function defineOpenAPIRouteHandler(
       [
         ...handlerList.map((handler) =>
           writeHandler({
-            openapi,
+            // openapi,
             handlerPath,
             handler,
             fileContent: makeImports(
@@ -824,10 +832,10 @@ export function defineOpenAPIRouteHandler(
               ['defineOpenAPIRoute'],
             ),
             merge: mergeDefineFile,
-            testImportFrom,
-            basePath,
-            testFramework,
-            testContext: handlerTestContext,
+            // testImportFrom,
+            // basePath,
+            // testFramework,
+            // testContext: handlerTestContext,
           }),
         ),
         writeBarrel(
@@ -846,17 +854,18 @@ export function defineOpenAPIRouteHandler(
 export function mockZodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
-  test: boolean,
+  // Test code generation is deprecated: hono-takibi no longer generates test files.
+  // test: boolean,
   pathAlias?: string,
   routeImport?: string,
   routeHandler = false,
-  basePath = '/',
-  testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  // basePath = '/',
+  // testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ) {
   return Effect.gen(function* () {
     const paths = openapi.paths
     const schemas = openapi.components?.schemas ?? {}
-    const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
+    const { handlerPath, importFrom } = makePaths(output, pathAlias, routeImport)
     const existing = yield* scanExistingHandlerFiles(
       handlerPath,
       routeHandler ? (code) => collectExportedNames(code, 'RouteHandler') : collectInlineRouteNames,
@@ -882,23 +891,23 @@ export function mockZodOpenAPIHonoHandler(
         specHandlers.map((h) => h.fileName),
       ),
     ]
-    const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
+    // const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
     yield* mkdir(handlerPath)
     yield* Effect.all(
       [
         ...handlers.map((handler) =>
           writeHandler({
-            openapi,
+            // openapi,
             handlerPath,
             handler,
             fileContent: routeHandler
               ? makeMockFileContent(handler, importFrom, schemas)
               : makeInlineMockFileContent(handler, importFrom, schemas),
             merge: mergeHandlerFile,
-            testImportFrom,
-            basePath,
-            testFramework,
-            testContext: handlerTestContext,
+            // testImportFrom,
+            // basePath,
+            // testFramework,
+            // testContext: handlerTestContext,
           }),
         ),
         writeBarrel(

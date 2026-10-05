@@ -4,7 +4,9 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import type { PlatformError } from 'effect'
 import { Effect, FileSystem, Schema } from 'effect'
 
-import type { Config, TestConfig } from '../config/index.js'
+// Test code generation is deprecated: hono-takibi no longer generates test files.
+// import type { Config, TestConfig } from '../config/index.js'
+import type { Config } from '../config/index.js'
 import {
   callbacks,
   client,
@@ -27,7 +29,7 @@ import {
   securitySchemes,
   takibi,
   template,
-  test,
+  // test,
   type,
   webhooks,
 } from '../core/index.js'
@@ -184,14 +186,15 @@ export function outsideSources(input: string) {
   })
 }
 
-export function testJob(openAPI: OpenAPI, config: TestConfig, basePath: string) {
-  return {
-    name: 'test',
-    output: config.output,
-    split: false,
-    run: (output: string) => test(openAPI, output, config.import, basePath, config.testFramework),
-  }
-}
+// Test code generation is deprecated: hono-takibi no longer generates test files.
+// export function testJob(openAPI: OpenAPI, config: TestConfig, basePath: string) {
+//   return {
+//     name: 'test',
+//     output: config.output,
+//     split: false,
+//     run: (output: string) => test(openAPI, output, config.import, basePath, config.testFramework),
+//   }
+// }
 
 export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
   const defineOn = config.template?.define === true
@@ -616,11 +619,11 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
               openAPI,
               output,
               componentsOutput,
-              config.template?.test ?? false,
+              // config.template?.test ?? false,
               config.basePath,
               config.template?.pathAlias,
               config.routes?.import,
-              config.template?.testFramework,
+              // config.template?.testFramework,
               config.readonly,
               isSplit,
             ),
@@ -634,12 +637,12 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
               template(
                 openAPI,
                 output,
-                config.template?.test ?? false,
+                // config.template?.test ?? false,
                 config.basePath,
                 config.template?.pathAlias,
                 config.routes?.import,
                 config.template?.define === false ? config.template.routeHandler : false,
-                config.template?.testFramework,
+                // config.template?.testFramework,
                 isSplit,
               ),
           }

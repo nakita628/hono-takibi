@@ -1022,9 +1022,9 @@ describe('parseConfig()', () => {
     })
   })
 
-  describe('testFramework option', () => {
-    // The test option is taken out of the config for now.
-    // test オプションは、当面のあいだ設定から外されている。
+  describe('test option', () => {
+    // Test code generation is deprecated: hono-takibi no longer generates test files.
+    // テストコード生成は廃止された。hono-takibi はテストファイルを生成しない。
     it.concurrent('fails when test is set', async () => {
       const result = await runGeneratorError(
         parseConfig({
@@ -1033,30 +1033,34 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: test: test is not an option for now: the tests of the routes are written by template.test.',
+        'Invalid config: test: test was removed: hono-takibi no longer generates test files.',
       )
     })
 
-    it.concurrent('accepts template.testFramework: bun', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: 'src/routes.ts',
-          template: { test: true, testFramework: 'bun' },
-        }),
-      )
-      expect(result.template?.testFramework).toBe('bun')
-    })
-
-    it.concurrent('template.testFramework defaults to vitest when omitted', async () => {
-      const result = await runGenerator(
+    it.concurrent('fails when template still sets the removed test', async () => {
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           output: 'src/routes.ts',
           template: { test: true },
         }),
       )
-      expect(result.template?.testFramework).toBe('vitest')
+      expect(result.message).toBe(
+        'Invalid config: template.test: test was removed: hono-takibi no longer generates test files. The `.test.ts` files a previous run wrote are yours to keep or delete.',
+      )
+    })
+
+    it.concurrent('fails when template still sets the removed testFramework', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: 'src/routes.ts',
+          template: { testFramework: 'bun' },
+        }),
+      )
+      expect(result.message).toBe(
+        'Invalid config: template.testFramework: testFramework was removed: hono-takibi no longer generates test files.',
+      )
     })
   })
 
@@ -2240,14 +2244,26 @@ describe('defineConfig', () => {
     expect(config.input).toBe('openapi.yaml')
   })
 
-  // The test option does not compile for now.
-  // test オプションは、当面のあいだコンパイルできない。
+  // The test option does not compile: test code generation is deprecated.
+  // test オプションはコンパイルできない。テストコード生成は廃止された。
   it('is a type error to set test', () => {
     const config = defineConfig({
       input: 'openapi.yaml',
       output: 'src/routes.ts',
-      // @ts-expect-error -- test is not an option for now
+      // @ts-expect-error -- test was removed
       test: { output: 'src/test.ts', import: '.' },
+    })
+    expect(config.input).toBe('openapi.yaml')
+  })
+
+  // Neither does template.test.
+  // template.test も同様である。
+  it('is a type error to set template.test', () => {
+    const config = defineConfig({
+      input: 'openapi.yaml',
+      output: 'src/routes.ts',
+      // @ts-expect-error -- test was removed
+      template: { test: true },
     })
     expect(config.input).toBe('openapi.yaml')
   })

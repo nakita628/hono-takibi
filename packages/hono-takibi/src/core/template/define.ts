@@ -13,18 +13,19 @@ export function defineTemplate(
   openAPI: OpenAPI,
   output: string,
   componentsOutput: string,
-  test: boolean,
+  // Test code generation is deprecated: hono-takibi no longer generates test files.
+  // test: boolean,
   basePath: string,
   pathAlias: string | undefined,
   routeImport: string | undefined,
-  testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  // testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
   readonly?: boolean,
   split = false,
 ) {
   const target = output.endsWith('.ts') ? output : path.join(output, 'index.ts')
   // The generated route/handler directory always sits next to the app entry
   // (`dirname(target)/routes`). Everything else (app import specifier, handler
-  // write path, test import) derives from it.
+  // write path) derives from it.
   const baseDir = path.dirname(target)
   const handlerDir = baseDir === '.' ? 'routes' : `${baseDir}/routes`
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
@@ -52,10 +53,10 @@ export function defineTemplate(
           openAPI,
           target,
           componentsOutput,
-          test,
+          // test,
           pathAlias,
-          basePath,
-          testFramework,
+          // basePath,
+          // testFramework,
           readonly,
         ),
       ],
