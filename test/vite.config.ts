@@ -13,8 +13,9 @@ export default defineConfig({
       '*/*.test.tsx',
       'runtime/**/*.test.ts',
       'runtime/**/*.test.tsx',
-      '__generated__/mock/**/*.test.ts',
-      '__generated__/template/**/*.test.ts',
+      // Test code generation is deprecated: hono-takibi no longer generates test files.
+      // '__generated__/mock/**/*.test.ts',
+      // '__generated__/template/**/*.test.ts',
     ],
     exclude: ['**/node_modules/**'],
     // Regenerates __generated__ from specs before the suite runs (needs hono-takibi built).

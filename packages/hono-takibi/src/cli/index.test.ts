@@ -613,7 +613,7 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
       `export default {
         input: ${JSON.stringify(input)},
         basePath: '/',
-        output: ${JSON.stringify(routes)}, template: { test: false, routeHandler: false },
+        output: ${JSON.stringify(routes)}, template: { routeHandler: false },
         type: { output: ${JSON.stringify(types)} },
         mock: { output: ${JSON.stringify(mockOut)} },
         docs: { output: ${JSON.stringify(docsOut)} },

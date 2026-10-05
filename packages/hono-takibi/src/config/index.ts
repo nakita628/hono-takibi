@@ -28,34 +28,35 @@ const HOOK_KINDS = [
   'angular-query',
 ] as const
 
-export const TestSchema = Schema.Struct({
-  output: Schema.String.annotate({
-    title: 'Output file',
-    description:
-      'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
-    examples: ['./src/test.ts', './src/test'],
-  }),
-  import: Schema.String.check(
-    Schema.isPattern(/^[^\s'"`\\]+$/u, {
-      message: 'must be a module specifier, with no whitespace or quotes',
-    }),
-  ).annotate({
-    title: 'Import specifier',
-    description: 'Module specifier the generated files use to import from `output`.',
-    examples: ['@packages/routes', '../lib', '.'],
-  }),
-  testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
-    .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
-    .annotate({
-      title: 'Test framework',
-      description: 'Framework whose import specifier the generated test files use.',
-      examples: ['vitest', 'vite-plus', 'bun'],
-    }),
-}).annotate({
-  title: 'Route tests output',
-  description: 'Generates a request-level test per operation against the generated app.',
-  examples: [{ output: './src/test.ts', import: '.', testFramework: 'vitest' }],
-})
+// Test code generation is deprecated: hono-takibi no longer generates test files.
+// export const TestSchema = Schema.Struct({
+//   output: Schema.String.annotate({
+//     title: 'Output file',
+//     description:
+//       'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
+//     examples: ['./src/test.ts', './src/test'],
+//   }),
+//   import: Schema.String.check(
+//     Schema.isPattern(/^[^\s'"`\\]+$/u, {
+//       message: 'must be a module specifier, with no whitespace or quotes',
+//     }),
+//   ).annotate({
+//     title: 'Import specifier',
+//     description: 'Module specifier the generated files use to import from `output`.',
+//     examples: ['@packages/routes', '../lib', '.'],
+//   }),
+//   testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
+//     .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
+//     .annotate({
+//       title: 'Test framework',
+//       description: 'Framework whose import specifier the generated test files use.',
+//       examples: ['vitest', 'vite-plus', 'bun'],
+//     }),
+// }).annotate({
+//   title: 'Route tests output',
+//   description: 'Generates a request-level test per operation against the generated app.',
+// examples: [{ output: './src/test.ts', import: '.', testFramework: 'vitest' }],
+// })
 
 const ConfigSchema = Schema.Struct({
   input: Schema.declare<`${string}.yaml` | `${string}.json` | `${string}.tsp`>(
@@ -114,9 +115,16 @@ const ConfigSchema = Schema.Struct({
           description:
             'Divide the routes into groups, each exported under its name, and the rest as `api`. Every group is registered on the one app; what is divided is the type, so that a client of one group resolves the routes of that group and not of the whole application. A group is the first segment of the path, `/books` and `/books/{id}` as `books` and `/v2-public/ping` as `v2Public` — or, where the handlers register their routes themselves (`routeHandler: false`), the handler file the app mounts, which goes by the first tag. The root belongs to no group.',
         }),
-        test: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
-          description: 'Also scaffold a test file per handler.',
-        }),
+        // Test code generation is deprecated: hono-takibi no longer generates test files.
+        // test: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+        //   description: 'Also scaffold a test file per handler.',
+        // }),
+        test: Schema.optionalKey(
+          Schema.Never.annotate({
+            message:
+              'test was removed: hono-takibi no longer generates test files. The `.test.ts` files a previous run wrote are yours to keep or delete.',
+          }),
+        ),
         pathAlias: Schema.optionalKey(
           Schema.String.check(
             Schema.isPattern(/^[^\s'"`\\]+$/u, {
@@ -128,13 +136,18 @@ const ConfigSchema = Schema.Struct({
             examples: ['@/', '~/'],
           }),
         ),
-        testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
-          .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
-          .annotate({
-            title: 'Test framework',
-            description: 'Framework whose import specifier the generated test files use.',
-            examples: ['vitest', 'vite-plus', 'bun'],
+        // testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
+        //   .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
+        //   .annotate({
+        //     title: 'Test framework',
+        //     description: 'Framework whose import specifier the generated test files use.',
+        //     examples: ['vitest', 'vite-plus', 'bun'],
+        //   }),
+        testFramework: Schema.optionalKey(
+          Schema.Never.annotate({
+            message: 'testFramework was removed: hono-takibi no longer generates test files.',
           }),
+        ),
       }),
       Schema.Struct({
         define: Schema.Literal(false)
@@ -150,9 +163,16 @@ const ConfigSchema = Schema.Struct({
           description:
             'Divide the routes into groups, each exported under its name, and the rest as `api`. Every group is registered on the one app; what is divided is the type, so that a client of one group resolves the routes of that group and not of the whole application. A group is the first segment of the path, `/books` and `/books/{id}` as `books` and `/v2-public/ping` as `v2Public` — or, where the handlers register their routes themselves (`routeHandler: false`), the handler file the app mounts, which goes by the first tag. The root belongs to no group.',
         }),
-        test: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
-          description: 'Also scaffold a test file per handler.',
-        }),
+        // Test code generation is deprecated: hono-takibi no longer generates test files.
+        // test: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+        //   description: 'Also scaffold a test file per handler.',
+        // }),
+        test: Schema.optionalKey(
+          Schema.Never.annotate({
+            message:
+              'test was removed: hono-takibi no longer generates test files. The `.test.ts` files a previous run wrote are yours to keep or delete.',
+          }),
+        ),
         pathAlias: Schema.optionalKey(
           Schema.String.check(
             Schema.isPattern(/^[^\s'"`\\]+$/u, {
@@ -164,28 +184,34 @@ const ConfigSchema = Schema.Struct({
             examples: ['@/', '~/'],
           }),
         ),
-        testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
-          .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
-          .annotate({
-            title: 'Test framework',
-            description: 'Framework whose import specifier the generated test files use.',
-            examples: ['vitest', 'vite-plus', 'bun'],
+        // testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
+        //   .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
+        //   .annotate({
+        //     title: 'Test framework',
+        //     description: 'Framework whose import specifier the generated test files use.',
+        //     examples: ['vitest', 'vite-plus', 'bun'],
+        //   }),
+        testFramework: Schema.optionalKey(
+          Schema.Never.annotate({
+            message: 'testFramework was removed: hono-takibi no longer generates test files.',
           }),
+        ),
       }),
     ]).annotate({
       title: 'App scaffold',
       description:
-        'Scaffolds the Hono app, handler stubs, and optional tests around the routes. Discriminated on `define`: the scaffold options are common, only `define` and `routeHandler` differ.',
+        'Scaffolds the Hono app and handler stubs around the routes. Discriminated on `define`: the scaffold options are common, only `define` and `routeHandler` differ.',
       examples: [
         {
           define: false,
           routeHandler: true,
           split: false,
-          test: true,
+          // test: true,
           pathAlias: '@/',
-          testFramework: 'vitest',
+          // testFramework: 'vitest',
         },
-        { define: true, split: false, test: true, testFramework: 'vitest' },
+        // { define: true, split: false, test: true, testFramework: 'vitest' },
+        { define: true, split: false },
       ],
     }),
   ),
@@ -1137,8 +1163,9 @@ const ConfigSchema = Schema.Struct({
   ),
   test: Schema.optionalKey(
     Schema.Never.annotate({
-      message:
-        'test is not an option for now: the tests of the routes are written by template.test.',
+      // message:
+      //   'test is not an option for now: the tests of the routes are written by template.test.',
+      message: 'test was removed: hono-takibi no longer generates test files.',
     }),
   ),
   mock: Schema.optionalKey(
@@ -1504,7 +1531,8 @@ const ConfigSchema = Schema.Struct({
 
 export type Config = typeof ConfigSchema.Type
 
-export type TestConfig = typeof TestSchema.Type
+// Test code generation is deprecated: hono-takibi no longer generates test files.
+// export type TestConfig = typeof TestSchema.Type
 
 // oxlint-disable-next-line unicorn/throw-new-error -- `Schema.TaggedError()` is the class factory, not a throw
 export class ConfigError extends Schema.TaggedError<ConfigError>()('ConfigError', {
@@ -1671,7 +1699,8 @@ type Checked<T> = {
     ? K extends ClientCaller
       ? Calling<T, K, T[K], ConfigInput[K]>
       : K extends 'test'
-        ? 'is not an option for now: the tests of the routes are written by template.test'
+        ? // 'is not an option for now: the tests of the routes are written by template.test'
+          'was removed: hono-takibi no longer generates test files'
         : K extends 'client'
           ? 'template' extends keyof T
             ? Written<T, K, T[K], ConfigInput[K]>

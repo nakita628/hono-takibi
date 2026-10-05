@@ -752,21 +752,22 @@ function mergeInlineHandler(existingText: string, generatedText: string) {
   return `${prefix}\n${mergedCalls.join('\n')}`
 }
 
-/**
- * Extracts top-level `function mockXxx(...) { ... }` definitions from test code.
- *
- * Returns a map of function name to block info including text and source positions.
- */
-function extractMockFunctions(file: SourceFile, code: string) {
-  const result = new Map<string, { text: string; start: number; end: number }>()
-  for (const fn of file.getFunctions()) {
-    const name = fn.getName()
-    if (!name || !/^mock[A-Z]/u.test(name)) continue
-    const [start, end] = [fn.getStart(), fn.getEnd()]
-    result.set(name, { text: code.slice(start, end), start, end })
-  }
-  return result
-}
+// Test code generation is deprecated: hono-takibi no longer generates test files.
+// /**
+//  * Extracts top-level `function mockXxx(...) { ... }` definitions from test code.
+//  *
+//  * Returns a map of function name to block info including text and source positions.
+//  */
+// function extractMockFunctions(file: SourceFile, code: string) {
+//   const result = new Map<string, { text: string; start: number; end: number }>()
+//   for (const fn of file.getFunctions()) {
+//     const name = fn.getName()
+//     if (!name || !/^mock[A-Z]/u.test(name)) continue
+//     const [start, end] = [fn.getStart(), fn.getEnd()]
+//     result.set(name, { text: code.slice(start, end), start, end })
+//   }
+//   return result
+// }
 
 /**
  * Extracts `describe('METHOD /path', ...)` calls from test code.
@@ -778,118 +779,118 @@ function extractMockFunctions(file: SourceFile, code: string) {
  * Returns a map of route identifier (e.g., "GET /users") to block info
  * including text and source positions for removal.
  */
-const DESCRIBE_MODIFIERS = new Set(['skip', 'only', 'skipIf', 'runIf', 'concurrent', 'sequential'])
+// const DESCRIBE_MODIFIERS = new Set(['skip', 'only', 'skipIf', 'runIf', 'concurrent', 'sequential'])
 
-function extractRouteDescribeBlocks(file: SourceFile, code: string) {
-  const result = new Map<string, { text: string; start: number; end: number }>()
-  for (const call of file.getDescendantsOfKind(SyntaxKind.CallExpression)) {
-    const expr = call.getExpression()
-    const isDescribe =
-      (Node.isIdentifier(expr) && expr.getText() === 'describe') ||
-      (Node.isPropertyAccessExpression(expr) &&
-        Node.isIdentifier(expr.getExpression()) &&
-        expr.getExpression().getText() === 'describe' &&
-        DESCRIBE_MODIFIERS.has(expr.getName()))
-    if (!isDescribe) continue
-    const firstArg = call.getArguments()[0]
-    if (
-      !firstArg ||
-      (!Node.isStringLiteral(firstArg) && !Node.isNoSubstitutionTemplateLiteral(firstArg))
-    ) {
-      continue
-    }
-    const title = firstArg.getLiteralText()
-    if (!/^[A-Z]+\s+\//u.test(title)) continue
-    const [start, end] = [call.getStart(), call.getEnd()]
-    result.set(title, { text: code.slice(start, end), start, end })
-  }
-  return result
-}
+// function extractRouteDescribeBlocks(file: SourceFile, code: string) {
+//   const result = new Map<string, { text: string; start: number; end: number }>()
+//   for (const call of file.getDescendantsOfKind(SyntaxKind.CallExpression)) {
+//     const expr = call.getExpression()
+//     const isDescribe =
+//       (Node.isIdentifier(expr) && expr.getText() === 'describe') ||
+//       (Node.isPropertyAccessExpression(expr) &&
+//         Node.isIdentifier(expr.getExpression()) &&
+//         expr.getExpression().getText() === 'describe' &&
+//         DESCRIBE_MODIFIERS.has(expr.getName()))
+//     if (!isDescribe) continue
+//     const firstArg = call.getArguments()[0]
+//     if (
+//       !firstArg ||
+//       (!Node.isStringLiteral(firstArg) && !Node.isNoSubstitutionTemplateLiteral(firstArg))
+//     ) {
+//       continue
+//     }
+//     const title = firstArg.getLiteralText()
+//     if (!/^[A-Z]+\s+\//u.test(title)) continue
+//     const [start, end] = [call.getStart(), call.getEnd()]
+//     result.set(title, { text: code.slice(start, end), start, end })
+//   }
+//   return result
+// }
 
-/**
- * Merges generated test file with existing user-modified test file.
- *
- * Merge rules:
- * - Route describe blocks (`describe('METHOD /path', ...)`) in both: keep existing (user mocks/edits preserved)
- * - Route describe blocks only in generated: add (new route test stubs)
- * - Route describe blocks only in existing: delete (route removed from OpenAPI)
- * - Everything else (user mocks, custom tests, helpers): keep existing
- * - Imports: merge (add missing, keep user imports)
- *
- * A "route describe block" is identified by the pattern `describe('METHOD /path', ...)`.
- */
-export function mergeTestFile(existingCode: string, generatedCode: string) {
-  const { existingFile, generatedFile } = makeSourcePair(existingCode, generatedCode)
-  const existingBlocks = extractRouteDescribeBlocks(existingFile, existingCode)
-  const generatedBlocks = extractRouteDescribeBlocks(generatedFile, generatedCode)
-  const filteredImports = filterTestFrameworkImports(
-    mergeImports(existingFile, generatedFile),
-    generatedFile,
-  )
-  const bodyStart = getBodyStart(existingFile)
-  const staleRanges = [...existingBlocks.entries()]
-    .filter(([route]) => !generatedBlocks.has(route))
-    .map(([, block]) => [block.start, block.end] as const)
-    .filter(([start]) => start >= bodyStart)
-    .toSorted(([a], [b]) => a - b)
-  const newBlocks = [...generatedBlocks.entries()]
-    .filter(([route]) => !existingBlocks.has(route))
-    .map(([, block]) => block.text)
-  const bodyWithStaleRemoved = applyRangeOps(
-    existingCode,
-    bodyStart,
-    staleRanges.map(([start, end]) => [start, end, ''] as const),
-  ).replaceAll(/\n{3,}/gu, '\n\n')
-  const existingMocks = extractMockFunctions(existingFile, existingCode)
-  const missingMocks = [...extractMockFunctions(generatedFile, generatedCode).entries()]
-    .filter(([name]) => !existingMocks.has(name))
-    .map(([, block]) => block.text)
-  const bodyAfterMocks = insertMissingMocks(bodyWithStaleRemoved, missingMocks)
-  const body = insertNewRouteDescribes(bodyAfterMocks, newBlocks).trim()
-  return joinSections([filteredImports.join('\n'), body])
-}
+// /**
+//  * Merges generated test file with existing user-modified test file.
+//  *
+//  * Merge rules:
+//  * - Route describe blocks (`describe('METHOD /path', ...)`) in both: keep existing (user mocks/edits preserved)
+//  * - Route describe blocks only in generated: add (new route test stubs)
+//  * - Route describe blocks only in existing: delete (route removed from OpenAPI)
+//  * - Everything else (user mocks, custom tests, helpers): keep existing
+//  * - Imports: merge (add missing, keep user imports)
+//  *
+//  * A "route describe block" is identified by the pattern `describe('METHOD /path', ...)`.
+//  */
+// export function mergeTestFile(existingCode: string, generatedCode: string) {
+//   const { existingFile, generatedFile } = makeSourcePair(existingCode, generatedCode)
+//   const existingBlocks = extractRouteDescribeBlocks(existingFile, existingCode)
+//   const generatedBlocks = extractRouteDescribeBlocks(generatedFile, generatedCode)
+//   const filteredImports = filterTestFrameworkImports(
+//     mergeImports(existingFile, generatedFile),
+//     generatedFile,
+//   )
+//   const bodyStart = getBodyStart(existingFile)
+//   const staleRanges = [...existingBlocks.entries()]
+//     .filter(([route]) => !generatedBlocks.has(route))
+//     .map(([, block]) => [block.start, block.end] as const)
+//     .filter(([start]) => start >= bodyStart)
+//     .toSorted(([a], [b]) => a - b)
+//   const newBlocks = [...generatedBlocks.entries()]
+//     .filter(([route]) => !existingBlocks.has(route))
+//     .map(([, block]) => block.text)
+//   const bodyWithStaleRemoved = applyRangeOps(
+//     existingCode,
+//     bodyStart,
+//     staleRanges.map(([start, end]) => [start, end, ''] as const),
+//   ).replaceAll(/\n{3,}/gu, '\n\n')
+//   const existingMocks = extractMockFunctions(existingFile, existingCode)
+//   const missingMocks = [...extractMockFunctions(generatedFile, generatedCode).entries()]
+//     .filter(([name]) => !existingMocks.has(name))
+//     .map(([, block]) => block.text)
+//   const bodyAfterMocks = insertMissingMocks(bodyWithStaleRemoved, missingMocks)
+//   const body = insertNewRouteDescribes(bodyAfterMocks, newBlocks).trim()
+//   return joinSections([filteredImports.join('\n'), body])
+// }
 
-/**
- * Drops test-framework imports from any module other than the one used by the generated
- * file. Without this, switching frameworks (e.g. existing `vitest` → generated
- * `vite-plus/test`) would leave duplicate framework imports.
- */
-function filterTestFrameworkImports(mergedImports: readonly string[], generatedFile: SourceFile) {
-  const TEST_FRAMEWORK_MODULES = new Set(['vitest', 'bun:test', 'vite-plus/test'])
-  const generatedTestModule = generatedFile
-    .getImportDeclarations()
-    .map((d) => d.getModuleSpecifierValue())
-    .find((spec) => TEST_FRAMEWORK_MODULES.has(spec))
-  if (!generatedTestModule) return [...mergedImports]
-  return mergedImports.filter((line) => {
-    const spec = line.match(/from\s+'([^']+)'/u)?.[1] ?? ''
-    return !TEST_FRAMEWORK_MODULES.has(spec) || spec === generatedTestModule
-  })
-}
+// /**
+//  * Drops test-framework imports from any module other than the one used by the generated
+//  * file. Without this, switching frameworks (e.g. existing `vitest` → generated
+//  * `vite-plus/test`) would leave duplicate framework imports.
+//  */
+// function filterTestFrameworkImports(mergedImports: readonly string[], generatedFile: SourceFile) {
+//   const TEST_FRAMEWORK_MODULES = new Set(['vitest', 'bun:test', 'vite-plus/test'])
+//   const generatedTestModule = generatedFile
+//     .getImportDeclarations()
+//     .map((d) => d.getModuleSpecifierValue())
+//     .find((spec) => TEST_FRAMEWORK_MODULES.has(spec))
+//   if (!generatedTestModule) return [...mergedImports]
+//   return mergedImports.filter((line) => {
+//     const spec = line.match(/from\s+'([^']+)'/u)?.[1] ?? ''
+//     return !TEST_FRAMEWORK_MODULES.has(spec) || spec === generatedTestModule
+//   })
+// }
 
-/**
- * Inserts new route describe blocks. When the body has an outer non-route describe wrapper
- * (e.g. `describe('Users', ...)`), inserts before its closing `})` so new blocks remain
- * nested. Otherwise appends at end — preventing the last `})` (which belongs to the last
- * route describe) from being treated as the wrapper close.
- */
-function insertNewRouteDescribes(body: string, newBlocks: readonly string[]) {
-  if (newBlocks.length === 0) return body
-  const lines = body.split('\n')
-  const hasOuterWrapper = [...body.matchAll(/^describe\s*\(\s*['"]([^'"]+)['"]/gmu)].some(
-    (m) => !/^[A-Z]+\s+\//u.test(m[1] ?? ''),
-  )
-  const insertLineIndex = hasOuterWrapper
-    ? lines.findLastIndex((line) => /^\s*\}\s*\)\s*;?\s*$/u.test(line))
-    : -1
-  if (insertLineIndex === -1) return [...lines, '', ...newBlocks].join('\n')
-  return [
-    ...lines.slice(0, insertLineIndex),
-    '',
-    ...newBlocks.map((block) => `  ${block}`),
-    ...lines.slice(insertLineIndex),
-  ].join('\n')
-}
+// /**
+//  * Inserts new route describe blocks. When the body has an outer non-route describe wrapper
+//  * (e.g. `describe('Users', ...)`), inserts before its closing `})` so new blocks remain
+//  * nested. Otherwise appends at end — preventing the last `})` (which belongs to the last
+//  * route describe) from being treated as the wrapper close.
+//  */
+// function insertNewRouteDescribes(body: string, newBlocks: readonly string[]) {
+//   if (newBlocks.length === 0) return body
+//   const lines = body.split('\n')
+//   const hasOuterWrapper = [...body.matchAll(/^describe\s*\(\s*['"]([^'"]+)['"]/gmu)].some(
+//     (m) => !/^[A-Z]+\s+\//u.test(m[1] ?? ''),
+//   )
+//   const insertLineIndex = hasOuterWrapper
+//     ? lines.findLastIndex((line) => /^\s*\}\s*\)\s*;?\s*$/u.test(line))
+//     : -1
+//   if (insertLineIndex === -1) return [...lines, '', ...newBlocks].join('\n')
+//   return [
+//     ...lines.slice(0, insertLineIndex),
+//     '',
+//     ...newBlocks.map((block) => `  ${block}`),
+//     ...lines.slice(insertLineIndex),
+//   ].join('\n')
+// }
 
 /**
  * Merges the barrel file (index.ts) with the generated version.
@@ -919,18 +920,18 @@ export function mergeBarrelFile(existingCode: string, generatedCode: string) {
   return `${base ? `${base}\n` : ''}${missingExports.join('\n')}\n`
 }
 
-/**
- * Inserts missing mock function definitions into the test body.
- *
- * Inserts before the first `describe(` block, or at the start of body if none found.
- * Collapses triple+ newlines after insertion.
- */
-function insertMissingMocks(body: string, missingMocks: readonly string[]) {
-  if (missingMocks.length === 0) return body
-  const describeMatch = body.match(/\n(?=describe\s*\()/u)
-  const inserted =
-    describeMatch?.index !== undefined
-      ? `${body.slice(0, describeMatch.index)}\n${missingMocks.join('\n\n')}\n${body.slice(describeMatch.index)}`
-      : `\n${missingMocks.join('\n\n')}\n${body}`
-  return inserted.replaceAll(/\n{3,}/gu, '\n\n')
-}
+// /**
+//  * Inserts missing mock function definitions into the test body.
+//  *
+//  * Inserts before the first `describe(` block, or at the start of body if none found.
+//  * Collapses triple+ newlines after insertion.
+//  */
+// function insertMissingMocks(body: string, missingMocks: readonly string[]) {
+//   if (missingMocks.length === 0) return body
+//   const describeMatch = body.match(/\n(?=describe\s*\()/u)
+//   const inserted =
+//     describeMatch?.index !== undefined
+//       ? `${body.slice(0, describeMatch.index)}\n${missingMocks.join('\n\n')}\n${body.slice(describeMatch.index)}`
+//       : `\n${missingMocks.join('\n\n')}\n${body}`
+//   return inserted.replaceAll(/\n{3,}/gu, '\n\n')
+// }

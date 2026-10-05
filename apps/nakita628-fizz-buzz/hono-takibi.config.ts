@@ -5,6 +5,7 @@ export default defineConfig({
   output: 'src/routes/index.ts',
   exportSchemas: true,
   template: {
-    test: true,
+    // Test code generation is deprecated: hono-takibi no longer generates test files.
+    // test: true,
   },
 })

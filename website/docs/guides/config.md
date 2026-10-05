@@ -85,12 +85,10 @@ export default defineConfig({
   // format: {}, // oxfmt FormatConfig
 
   template: {
-    test: true,
     routeHandler: false, // true: RouteHandler exports
     define: false, // true: defineOpenAPIRoute output
     split: false, // true: one exported group per first path segment
     pathAlias: '@/',
-    testFramework: 'vitest', // "vitest" | "vite-plus" | "bun"
   },
 
   exportSchemas: true,

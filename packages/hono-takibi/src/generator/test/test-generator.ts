@@ -1,677 +1,682 @@
-import { basename } from 'node:path'
+// Test code generation is deprecated: hono-takibi no longer generates test files.
+// The implementation is kept commented out for reference.
+// oxlint-disable-next-line unicorn/require-module-specifiers -- an empty export keeps the commented-out module a module
+export {}
 
-import {
-  isContentBody,
-  isHttpMethod,
-  isOperation,
-  isParameter,
-  isPathItemEntry,
-  isSecurityArray,
-  isSecurityScheme,
-} from '../../guard/index.js'
-import { getNonExistentValue, mockFunctionSignature, schemaToFaker } from '../../helper/faker.js'
-import type { OpenAPI, Parameter, Schema } from '../../openapi/index.js'
-import { cyclicNodes, methodPath, normalizeTypes } from '../../utils/index.js'
-
-function collectSchemaRefs(
-  schema: Schema,
-  schemas?: { readonly [k: string]: Schema },
-  visited: Set<string> = new Set<string>(),
-): readonly string[] {
-  if (schema.$ref) {
-    const refName = schema.$ref.replace('#/components/schemas/', '')
-    if (visited.has(refName)) return [] as const
-    visited.add(refName)
-    const referenced = schemas?.[refName]
-    return [
-      refName,
-      ...(referenced ? collectSchemaRefs(referenced, schemas, visited) : ([] as const)),
-    ]
-  }
-  const propRefs = schema.properties
-    ? Object.values(schema.properties).flatMap((p) => collectSchemaRefs(p, schemas, visited))
-    : []
-  const items = schema.items
-    ? Array.isArray(schema.items)
-      ? schema.items
-      : ([schema.items] as const)
-    : ([] as const)
-  const itemRefs = items.flatMap((item: Schema) => collectSchemaRefs(item, schemas, visited))
-  const compositeRefs = (['allOf', 'oneOf', 'anyOf'] as const).flatMap((k) => {
-    const composite = schema[k]
-    return composite ? composite.flatMap((sub) => collectSchemaRefs(sub, schemas, visited)) : []
-  })
-  return [...propRefs, ...itemRefs, ...compositeRefs] as const
-}
-
-function extractSecurityRequirements(
-  opSecurity: readonly { readonly [k: string]: readonly string[] }[] | undefined,
-  globalSecurity: readonly { readonly [k: string]: readonly string[] }[] | undefined,
-  securitySchemes: { readonly [k: string]: unknown } | undefined,
-) {
-  const securityDefs = opSecurity ?? globalSecurity ?? ([] as const)
-  return securityDefs.flatMap((secDef) =>
-    Object.keys(secDef).flatMap(
-      (
-        schemeName,
-      ): {
-        type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
-        name: string
-        in?: 'header' | 'query' | 'cookie'
-      }[] => {
-        const scheme = securitySchemes?.[schemeName]
-        if (!(scheme && isSecurityScheme(scheme))) return [] as const
-        if (scheme.type === 'http' && scheme.scheme === 'bearer') {
-          return [{ type: 'bearer', name: 'Authorization' }]
-        }
-        if (scheme.type === 'http' && scheme.scheme === 'basic') {
-          return [{ type: 'basic', name: 'Authorization' }]
-        }
-        if (scheme.type === 'apiKey') {
-          const inLocation =
-            scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie'
-              ? scheme.in
-              : 'header'
-          return [{ type: 'apiKey', name: scheme.name ?? 'X-API-Key', in: inLocation }] as const
-        }
-        if (scheme.type === 'oauth2') {
-          return [{ type: 'oauth2', name: 'Authorization' }] as const
-        }
-        return [] as const
-      },
-    ),
-  )
-}
-
-type Shape = 'scalar' | 'array' | 'object'
-
-type TestParam = {
-  readonly name: string
-  readonly variable: string
-  readonly fakerCode: string
-  readonly shape?: 'array' | 'object'
-  readonly style?: string
-  readonly explode?: boolean
-}
-
-const TAKEN = new Set([
-  'app',
-  'body',
-  'res',
-  'faker',
-  'describe',
-  'it',
-  'expect',
-  'deepObjectQuery',
-  'break',
-  'case',
-  'catch',
-  'class',
-  'const',
-  'continue',
-  'debugger',
-  'default',
-  'delete',
-  'do',
-  'else',
-  'enum',
-  'export',
-  'extends',
-  'false',
-  'finally',
-  'for',
-  'function',
-  'if',
-  'import',
-  'in',
-  'instanceof',
-  'new',
-  'null',
-  'return',
-  'super',
-  'switch',
-  'this',
-  'throw',
-  'true',
-  'try',
-  'typeof',
-  'var',
-  'void',
-  'while',
-  'with',
-  'let',
-  'static',
-  'yield',
-  'await',
-])
-
-function toVariable(name: string) {
-  const camel = name
-    .replaceAll(/[^A-Za-z0-9_$]+(.?)/gu, (_, next: string) => next.toUpperCase())
-    .replace(/^[A-Z]/u, (first) => first.toLowerCase())
-  const word = /^[A-Za-z_$]/u.test(camel) ? camel : `_${camel}`
-  return TAKEN.has(word) ? `${word}_` : word
-}
-
-function nameVariables<T extends { readonly name: string }>(
-  located: readonly (readonly [string, readonly T[]])[],
-) {
-  const used = new Set<string>()
-  return located.map(([location, params]) =>
-    params.map((param) => {
-      const base = toVariable(param.name)
-      const candidates = [
-        base,
-        `${base}${location}`,
-        ...Array.from({ length: used.size + 1 }, (_, i) => `${base}${location}${i + 2}`),
-      ]
-      const variable = candidates.find((candidate) => !used.has(candidate)) ?? base
-      used.add(variable)
-      return { ...param, variable }
-    }),
-  )
-}
-
-function shapeOf(
-  schema: Schema,
-  schemas: { readonly [k: string]: Schema } | undefined,
-  seen: readonly string[] = [],
-): Shape {
-  if (schema.$ref !== undefined) {
-    const target = schemas?.[schema.$ref.replace('#/components/schemas/', '')]
-    return target === undefined || seen.includes(schema.$ref)
-      ? 'scalar'
-      : shapeOf(target, schemas, [...seen, schema.$ref])
-  }
-  const types = normalizeTypes(schema.type)
-  if (types.includes('array')) return 'array'
-  return types.includes('object') || schema.properties !== undefined ? 'object' : 'scalar'
-}
-
-export function extractTestCases(spec: OpenAPI) {
-  const securitySchemes = spec.components?.securitySchemes
-  return Object.entries(spec.paths).flatMap(([path, pathItem]) =>
-    Object.entries(pathItem).flatMap(([method, operation]) => {
-      if (!(isHttpMethod(method) && isOperation(operation))) return [] as const
-      const resolve = (rawParam: Parameter | { readonly $ref?: string }) => {
-        const ref = '$ref' in rawParam ? rawParam.$ref : undefined
-        const param =
-          ref === undefined
-            ? rawParam
-            : (spec.components?.parameters?.[ref.replace('#/components/parameters/', '')] ??
-              rawParam)
-        return isParameter(param) ? [param] : []
-      }
-      const operationParams = (operation.parameters ?? []).flatMap(resolve)
-      const sharedParams = (isPathItemEntry(pathItem) ? (pathItem.parameters ?? []) : [])
-        .flatMap(resolve)
-        .filter(
-          (shared) =>
-            !operationParams.some((own) => own.name === shared.name && own.in === shared.in),
-        )
-      const resolvedParams = [...sharedParams, ...operationParams].map((param) => {
-        const schema = param.schema ?? { type: 'string' as const }
-        return { param, schema, fakerCode: schemaToFaker(schema, param.name) } as const
-      })
-      const wire = (param: Parameter, schema: Schema) => {
-        const shape =
-          param.content === undefined ? shapeOf(schema, spec.components?.schemas) : 'scalar'
-        return {
-          ...(shape === 'scalar' ? {} : { shape }),
-          ...(param.style === undefined ? {} : { style: param.style }),
-          ...(param.explode === undefined ? {} : { explode: param.explode }),
-        }
-      }
-      const toPathParam = (p: (typeof resolvedParams)[number]) => ({
-        name: p.param.name,
-        fakerCode: p.fakerCode,
-        schema: p.schema,
-        ...wire(p.param, p.schema),
-      })
-      const toParam = (p: (typeof resolvedParams)[number]) => ({
-        name: p.param.name,
-        fakerCode: p.fakerCode,
-        required: p.param.required ?? false,
-        ...wire(p.param, p.schema),
-      })
-      const pathParams = resolvedParams.filter((p) => p.param.in === 'path').map(toPathParam)
-      const queryParams = resolvedParams.filter((p) => p.param.in === 'query').map(toParam)
-      const headerParams = resolvedParams.filter((p) => p.param.in === 'header').map(toParam)
-      const cookieParams = resolvedParams.filter((p) => p.param.in === 'cookie').map(toParam)
-      const jsonBodySchema =
-        operation.requestBody && isContentBody(operation.requestBody)
-          ? operation.requestBody.content?.['application/json']?.schema
-          : undefined
-      const requestBody = jsonBodySchema
-        ? { fakerCode: schemaToFaker(jsonBodySchema), contentType: 'application/json' }
-        : undefined
-      const bodyRefs = jsonBodySchema
-        ? collectSchemaRefs(jsonBodySchema, spec.components?.schemas)
-        : ([] as const)
-      const paramRefs = resolvedParams.flatMap((p) =>
-        collectSchemaRefs(p.schema, spec.components?.schemas),
-      )
-      const usedSchemaRefs = [...new Set([...bodyRefs, ...paramRefs])]
-      const responseKeys = Object.keys(operation.responses || {})
-      const successStatus =
-        responseKeys
-          .filter((s) => s.startsWith('2'))
-          .map((s) => Number.parseInt(s, 10))
-          .toSorted((a, b) => a - b)[0] ?? 200
-      const errorStatuses = responseKeys
-        .filter((s) => (s.startsWith('4') || s.startsWith('5')) && s !== 'default')
-        .map((s) => Number.parseInt(s, 10))
-        .toSorted((a, b) => a - b)
-      const security = extractSecurityRequirements(
-        isSecurityArray(operation.security) ? operation.security : undefined,
-        isSecurityArray(spec.security) ? spec.security : undefined,
-        securitySchemes,
-      )
-      return [
-        {
-          operationId: operation.operationId ?? `${method}${path.replaceAll('/', '_')}`,
-          method: method.toUpperCase(),
-          path,
-          summary: operation.summary ?? '',
-          description: operation.description ?? '',
-          tag: operation.tags?.[0],
-          pathParams,
-          queryParams,
-          headerParams,
-          cookieParams,
-          requestBody,
-          successStatus,
-          errorStatuses,
-          security,
-          usedSchemaRefs,
-        },
-      ] as const
-    }),
-  )
-}
-
-function shallowRefs(schema: Schema): readonly string[] {
-  const selfRef = schema.$ref ? [schema.$ref.replace('#/components/schemas/', '')] : []
-  const propRefs = schema.properties ? Object.values(schema.properties).flatMap(shallowRefs) : []
-  const items = schema.items ? (Array.isArray(schema.items) ? schema.items : [schema.items]) : []
-  const itemRefs = items.flatMap(shallowRefs)
-  const compositeRefs = (['allOf', 'oneOf', 'anyOf'] as const).flatMap((k) => {
-    const composite = schema[k]
-    return composite ? composite.flatMap(shallowRefs) : ([] as const)
-  })
-  return [...selfRef, ...propRefs, ...itemRefs, ...compositeRefs] as const
-}
-
-function detectCircularSchemas(schemas: { [k: string]: Schema }) {
-  return cyclicNodes(
-    new Map(Object.entries(schemas).map(([name, schema]) => [name, shallowRefs(schema)])),
-  )
-}
-
-function topologicalOrder(
-  usedSchemaNames: Set<string>,
-  schemas: { [k: string]: Schema },
-): readonly string[] {
-  const visit = (name: string, visited: Set<string>, visiting: Set<string>): string[] => {
-    if (visited.has(name) || !usedSchemaNames.has(name) || visiting.has(name)) return [] as const
-    const nextVisiting = new Set(visiting).add(name)
-    const schema = schemas[name]
-    const depOrder = schema
-      ? collectSchemaRefs(schema, schemas, new Set([name])).flatMap((dep) => {
-          const subOrder = visit(dep, visited, nextVisiting)
-          for (const n of subOrder) {
-            visited.add(n)
-          }
-          return subOrder
-        })
-      : ([] as const)
-    visited.add(name)
-    return [...depOrder, name] as const
-  }
-  const visited = new Set<string>()
-  return [...usedSchemaNames].flatMap((name) => visit(name, visited, new Set()))
-}
-
-function makeMockFunctions(
-  spec: OpenAPI,
-  usedSchemaNames: Set<string>,
-  circularSchemas?: ReadonlySet<string>,
-) {
-  if (!spec.components?.schemas || usedSchemaNames.size === 0) return ''
-  const schemas = spec.components.schemas
-  const circular = circularSchemas ?? detectCircularSchemas(schemas)
-  return topologicalOrder(usedSchemaNames, schemas)
-    .map((name) => {
-      const isCircular = circular.has(name)
-      const mockBody = schemaToFaker(
-        schemas[name],
-        undefined,
-        isCircular ? { recursive: circular } : {},
-      )
-      return `${mockFunctionSignature(name, isCircular)} {\n  return ${mockBody}\n}`
-    })
-    .join('\n\n')
-}
-
-function makeAuthHeader(sec: {
-  type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
-  name: string
-  in?: 'header' | 'query' | 'cookie'
-}) {
-  switch (sec.type) {
-    case 'bearer':
-    case 'oauth2':
-      // oxlint-disable-next-line no-template-curly-in-string -- the placeholder belongs to the emitted template literal
-      return "'Authorization':`Bearer ${faker.string.alphanumeric(32)}`"
-    case 'basic':
-      // oxlint-disable-next-line no-template-curly-in-string -- the placeholder belongs to the emitted template literal
-      return "'Authorization':`Basic ${btoa(`${faker.internet.username()}:${faker.internet.password()}`)}`"
-    case 'apiKey':
-      if (sec.in === 'header') return `${quoteSingle(sec.name)}:faker.string.alphanumeric(32)`
-  }
-  return ''
-}
-
-const ENCODED = 'encodeURIComponent(String(item))'
-
-const DEEP_OBJECT_QUERY =
-  "function deepObjectQuery(key:string,item:unknown):string[]{if(Array.isArray(item))return item.flatMap((child)=>deepObjectQuery(key+'[]',child));if(typeof item==='object'&&item!==null)return Object.entries(item).flatMap(([name,child])=>deepObjectQuery(key+'['+name+']',child));return[key+'='+encodeURIComponent(String(item))]}"
-
-function makeHelpers(body: string) {
-  return body.includes('deepObjectQuery(') ? `${DEEP_OBJECT_QUERY}\n\n` : ''
-}
-
-function joinedValue(param: TestParam, separator: string, assignments: boolean, encoded = ENCODED) {
-  const glue = quoteSingle(separator)
-  if (param.shape === 'array') return `${param.variable}.map((item)=>${encoded}).join(${glue})`
-  return assignments
-    ? `Object.entries(${param.variable}).map(([key,item])=>key+'='+${encoded}).join(${glue})`
-    : `Object.entries(${param.variable}).flatMap(([key,item])=>[key,${encoded}]).join(${glue})`
-}
-
-function repeatedValue(param: TestParam, before: string, separator: string) {
-  const head = before === '' ? '' : `${quoteSingle(before)}+`
-  const glue = quoteSingle(separator)
-  return param.shape === 'array'
-    ? `${param.variable}.map((item)=>${head}${ENCODED}).join(${glue})`
-    : `Object.entries(${param.variable}).map(([key,item])=>${head}key+'='+${ENCODED}).join(${glue})`
-}
-
-function makePathValue(param: TestParam) {
-  const style = param.style ?? 'simple'
-  const explode = param.explode ?? false
-  const name = escapeTemplateLiteral(param.name)
-  if (param.shape === undefined) {
-    if (style === 'label') return `.\${${param.variable}}`
-    if (style === 'matrix') return `;${name}=\${${param.variable}}`
-    return `\${${param.variable}}`
-  }
-  if (style === 'label') {
-    return `.\${${joinedValue(param, explode ? '.' : ',', explode)}}`
-  }
-  if (style === 'matrix') {
-    return explode
-      ? `\${${repeatedValue(param, param.shape === 'array' ? `;${param.name}=` : ';', '')}}`
-      : `;${name}=\${${joinedValue(param, ',', false)}}`
-  }
-  return `\${${joinedValue(param, ',', explode)}}`
-}
-
-function makeQueryPart(param: TestParam) {
-  const style = param.style ?? 'form'
-  const explode = param.explode ?? style === 'form'
-  const name = escapeTemplateLiteral(param.name)
-  if (param.shape === undefined) {
-    return `${name}=\${encodeURIComponent(String(${param.variable}))}`
-  }
-  if (param.shape === 'object' && style === 'deepObject') {
-    return `\${deepObjectQuery(${quoteSingle(param.name)},${param.variable}).join('&')}`
-  }
-  if (explode) {
-    return `\${${repeatedValue(param, param.shape === 'array' ? `${param.name}=` : '', '&')}}`
-  }
-  const separator = style === 'pipeDelimited' ? '|' : style === 'spaceDelimited' ? '%20' : ','
-  return `${name}=\${${joinedValue(param, separator, false)}}`
-}
-
-function makeHeaderValue(param: TestParam) {
-  if (param.shape === undefined) return `String(${param.variable})`
-  return joinedValue(param, ',', param.explode ?? false, 'String(item)')
-}
-
-function isCookieAuth(sec: { readonly type: string; readonly in?: string }) {
-  return sec.type === 'apiKey' && sec.in === 'cookie'
-}
-
-function makeCookiePart(param: TestParam) {
-  const name = escapeTemplateLiteral(param.name)
-  if (param.shape === undefined) {
-    return `${name}=\${encodeURIComponent(String(${param.variable}))}`
-  }
-  if (param.shape === 'object' && (param.explode ?? true)) {
-    return `\${${repeatedValue(param, '', '; ')}}`
-  }
-  return `${name}=\${${joinedValue(param, ',', false)}}`
-}
-
-function makeCookieHeader(parts: readonly string[]) {
-  return parts.length > 0 ? [`'Cookie':\`${parts.join('; ')}\``] : []
-}
-
-function setup(param: TestParam) {
-  return `const ${param.variable}=${param.fakerCode}`
-}
-
-function makeTestCase(
-  tc: ReturnType<typeof extractTestCases>[number],
-  basePath = '/',
-  schemas?: { [k: string]: Schema },
-) {
-  const basePathPrefix = basePath !== '/' ? basePath : ''
-  const fullPath =
-    tc.path === '/' && basePathPrefix ? basePathPrefix : `${basePathPrefix}${tc.path}`
-  // Escape template-literal metacharacters BEFORE injecting `${name}` markers
-  // to prevent codegen injection from malicious path keys.
-  const escapedFullPath = escapeTemplateLiteral(fullPath)
-  const [pathParams = [], queryParams = [], requiredHeaderParams = [], requiredCookieParams = []] =
-    nameVariables<(typeof tc.pathParams)[number] | (typeof tc.queryParams)[number]>([
-      ['Path', tc.pathParams],
-      ['Query', tc.queryParams],
-      ['Header', tc.headerParams.filter((p) => p.required)],
-      ['Cookie', tc.cookieParams.filter((p) => p.required)],
-    ])
-  const testPath = pathParams.reduce(
-    (path, param) => path.replace(`{${param.name}}`, makePathValue(param)),
-    escapedFullPath,
-  )
-  const pathSetup = pathParams.map(setup)
-  const querySetup = queryParams.map(setup)
-  const queryParts = queryParams.map(makeQueryPart)
-  const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : ''
-  // apiKey-in-query credentials go on the URL; bare `queryString` is reused
-  // for the unauthorized-flow test which omits the credential.
-  const authQueryParts = tc.security
-    .filter((sec) => sec.type === 'apiKey' && sec.in === 'query')
-    .map((sec) => `${escapeTemplateLiteral(sec.name)}=\${faker.string.alphanumeric(32)}`)
-  const authQueryString =
-    authQueryParts.length > 0
-      ? queryString
-        ? `&${authQueryParts.join('&')}`
-        : `?${authQueryParts.join('&')}`
-      : ''
-  const headerSetup = requiredHeaderParams.map(setup)
-  const headerEntries = requiredHeaderParams.map(
-    (param) => `${quoteSingle(param.name)}:${makeHeaderValue(param)}`,
-  )
-  const cookieSetup = requiredCookieParams.map(setup)
-  const cookieParts = requiredCookieParams.map(makeCookiePart)
-  const authCookieParts = tc.security
-    .filter(isCookieAuth)
-    .map((sec) => `${escapeTemplateLiteral(sec.name)}=\${faker.string.alphanumeric(32)}`)
-  const authHeaders = tc.security
-    .filter((sec) => !isCookieAuth(sec))
-    .map(makeAuthHeader)
-    .filter(Boolean)
-  const { bodySetup, bodyOption, contentTypeHeader } = tc.requestBody
-    ? {
-        bodySetup: `const body=${tc.requestBody.fakerCode}`,
-        bodyOption: ',body:JSON.stringify(body)',
-        contentTypeHeader: "'Content-Type':'application/json'",
-      }
-    : { bodySetup: '', bodyOption: '', contentTypeHeader: '' }
-  const headers = [...headerEntries, ...(contentTypeHeader ? [contentTypeHeader] : [])]
-  const allHeaders = [
-    ...headers,
-    ...authHeaders,
-    ...makeCookieHeader([...cookieParts, ...authCookieParts]),
-  ]
-  const plainHeaders = [...headers, ...makeCookieHeader(cookieParts)]
-  const headersOption = allHeaders.length > 0 ? `,headers:{${allHeaders.join(',')}}` : ''
-  const headersWithoutAuth = plainHeaders.length > 0 ? `,headers:{${plainHeaders.join(',')}}` : ''
-  // `tc.summary` is escaped by `quoteSingle(itTitle)` below.
-  const summaryPart = tc.summary ? ` - ${tc.summary}` : ''
-  const itDescription = `should return ${tc.successStatus}${summaryPart}`
-  const setupCode = [...pathSetup, ...querySetup, ...headerSetup, ...cookieSetup, bodySetup]
-    .filter(Boolean)
-    .join('\n')
-  const describeTitle = quoteSingle(`${tc.method} ${fullPath}`)
-  const itTitle = quoteSingle(itDescription)
-  const methodLiteral = quoteSingle(tc.method)
-  const mainTest = `describe(${describeTitle},()=>{it(${itTitle},async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}${authQueryString}\`,{method:${methodLiteral}${headersOption}${bodyOption}})\nexpect(res.status).toBe(${tc.successStatus})})`
-  const unauthorizedTest =
-    tc.security.length > 0
-      ? `\nit('should return 401 without auth',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:${methodLiteral}${headersWithoutAuth}${bodyOption}})\nexpect(res.status).toBe(401)})`
-      : ''
-  const notFoundTest =
-    tc.pathParams.length > 0 && tc.errorStatuses.includes(404)
-      ? (() => {
-          const notFoundPath = tc.pathParams.reduce(
-            (path, param) =>
-              path.replace(`{${param.name}}`, getNonExistentValue(param.schema, schemas)),
-            escapedFullPath,
-          )
-          const notFoundQuerySetup = queryParams.map(setup)
-          const notFoundSetupCode = [
-            ...notFoundQuerySetup,
-            ...headerSetup,
-            ...cookieSetup,
-            bodySetup,
-          ]
-            .filter(Boolean)
-            .join('\n')
-          return `\nit('should return 404 for non-existent resource',async()=>{${notFoundSetupCode}\nconst res=await app.request(\`${notFoundPath}${queryString}\`,{method:${methodLiteral}${headersOption}${bodyOption}})\nexpect(res.status).toBe(404)})`
-        })()
-      : ''
-  return `${mainTest}${unauthorizedTest}${notFoundTest}})\n`
-}
-
-// Safe single-quoted JS string literal (delimiter included).
-function quoteSingle(s: string) {
-  return `'${s
-    .replaceAll('\\', '\\\\')
-    .replaceAll("'", "\\'")
-    .replaceAll('\n', '\\n')
-    .replaceAll('\r', '\\r')
-    .replaceAll('	', '\\t')}'`
-}
-
-// Escape \, `, ${ for static text inside a template literal. Caller-added
-// ${...} substitution markers (added AFTER this escape) remain active.
-function escapeTemplateLiteral(s: string) {
-  return s.replaceAll('\\', '\\\\').replaceAll('`', '\\`').replaceAll('${', '\\${')
-}
-
-const TEST_IMPORT_SOURCE: Record<'vitest' | 'vite-plus' | 'bun', string> = {
-  vitest: 'vitest',
-  'vite-plus': 'vite-plus/test',
-  bun: 'bun:test',
-}
-
-export function makeTestFile(
-  spec: OpenAPI,
-  appImportPath = './app',
-  basePath = '/',
-  testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
-) {
-  const testCases = extractTestCases(spec)
-  // oxlint-disable-next-line typescript/prefer-nullish-coalescing -- an empty title falls back too
-  const apiTitle = spec.info?.title || 'API'
-  const usedSchemaNames = new Set(testCases.flatMap((tc) => tc.usedSchemaRefs))
-  const byTag = testCases.reduce((acc, tc) => {
-    const tag = tc.tag ?? 'default'
-    return acc.set(tag, [...(acc.get(tag) ?? []), tc])
-  }, new Map<string, ReturnType<typeof extractTestCases>>())
-  const mockFunctions = makeMockFunctions(spec, usedSchemaNames)
-  const tagDescribes = [...byTag.entries()]
-    .map(([tag, cases]) => {
-      const tagInfo = spec.tags?.find((t) => t.name === tag)
-      const tagDescription = tagInfo?.description ?? tag
-      const testCasesCode = cases
-        .map((tc) => makeTestCase(tc, basePath, spec.components?.schemas))
-        .join('')
-      return `describe(${quoteSingle(tagDescription)},()=>{${testCasesCode}})\n`
-    })
-    .join('')
-  const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
-  const suite = `describe(${quoteSingle(apiTitle)},()=>{${tagDescribes}})\n`
-  const body = `${mockSection}${makeHelpers(suite)}${suite}`
-  const needsFaker = body.includes('faker.')
-  const fakerImport = needsFaker ? `\nimport{faker}from'@faker-js/faker'` : ''
-  const testImportSource = TEST_IMPORT_SOURCE[testFramework]
-  const imports = `import{describe,it,expect}from${quoteSingle(testImportSource)}${fakerImport}\nimport app from${quoteSingle(appImportPath)}\n`
-  return `${imports}\n${body}`
-}
-
-function getPathFirstSegment(path: string) {
-  const rawSegment = path.replace(/^\/+/u, '').split('/')[0] ?? ''
-  const sanitized = rawSegment
-    .replaceAll(/\{([^}]+)\}/gu, '$1')
-    .replaceAll(/[^0-9A-Za-z._-]/gu, '_')
-    .replaceAll(/^[._-]+|[._-]+$/gu, '')
-    .replaceAll(/__+/gu, '_')
-    .replaceAll(/[-._](\w)/gu, (_, c: string) => c.toUpperCase())
-  return sanitized === '' ? '__root' : sanitized
-}
-
-export function makeHandlerTestContext(spec: OpenAPI) {
-  return {
-    testCases: extractTestCases(spec),
-    circularSchemas: detectCircularSchemas(spec.components?.schemas ?? {}),
-  } as const
-}
-
-export function makeHandlerTestCode(
-  spec: OpenAPI,
-  handlerPath: string,
-  routeNames: readonly string[],
-  importFrom: string,
-  basePath = '/',
-  testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
-  context: ReturnType<typeof makeHandlerTestContext> = makeHandlerTestContext(spec),
-) {
-  const handlerFileName = basename(handlerPath, '.ts')
-  // Handler files are grouped by tag (or by an existing hand-written split), so the routes
-  // they hold are the only reliable link; the path-segment match is a fallback for callers
-  // that pass no route names.
-  const routeNameSet = new Set(routeNames)
-  const relevantCases = context.testCases.filter((testCase) =>
-    routeNames.length > 0
-      ? routeNameSet.has(`${methodPath(testCase.method.toLowerCase(), testCase.path)}Route`)
-      : getPathFirstSegment(testCase.path) === handlerFileName,
-  )
-  if (relevantCases.length === 0) return ''
-  const usedSchemaNames = new Set(relevantCases.flatMap((testCase) => testCase.usedSchemaRefs))
-  const mockFunctions = makeMockFunctions(spec, usedSchemaNames, context.circularSchemas)
-  const testCasesCode = relevantCases
-    .map((testCase) => makeTestCase(testCase, basePath, spec.components?.schemas))
-    .join('')
-  const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
-  const resourceName = handlerFileName.charAt(0).toUpperCase() + handlerFileName.slice(1)
-  const suite = `describe(${quoteSingle(resourceName)},()=>{${testCasesCode}})\n`
-  const body = `${mockSection}${makeHelpers(suite)}${suite}`
-  const needsFaker = body.includes('faker.')
-  const fakerImport = needsFaker ? `\nimport{faker}from'@faker-js/faker'` : ''
-  const testImportSource = TEST_IMPORT_SOURCE[testFramework]
-  const imports = `import{describe,it,expect}from${quoteSingle(testImportSource)}${fakerImport}\nimport app from${quoteSingle(importFrom)}\n`
-  return `${imports}\n${body}`
-}
+// import { basename } from 'node:path'
+//
+// import {
+//   isContentBody,
+//   isHttpMethod,
+//   isOperation,
+//   isParameter,
+//   isPathItemEntry,
+//   isSecurityArray,
+//   isSecurityScheme,
+// } from '../../guard/index.js'
+// import { getNonExistentValue, mockFunctionSignature, schemaToFaker } from '../../helper/faker.js'
+// import type { OpenAPI, Parameter, Schema } from '../../openapi/index.js'
+// import { cyclicNodes, methodPath, normalizeTypes } from '../../utils/index.js'
+//
+// function collectSchemaRefs(
+//   schema: Schema,
+//   schemas?: { readonly [k: string]: Schema },
+//   visited: Set<string> = new Set<string>(),
+// ): readonly string[] {
+//   if (schema.$ref) {
+//     const refName = schema.$ref.replace('#/components/schemas/', '')
+//     if (visited.has(refName)) return [] as const
+//     visited.add(refName)
+//     const referenced = schemas?.[refName]
+//     return [
+//       refName,
+//       ...(referenced ? collectSchemaRefs(referenced, schemas, visited) : ([] as const)),
+//     ]
+//   }
+//   const propRefs = schema.properties
+//     ? Object.values(schema.properties).flatMap((p) => collectSchemaRefs(p, schemas, visited))
+//     : []
+//   const items = schema.items
+//     ? Array.isArray(schema.items)
+//       ? schema.items
+//       : ([schema.items] as const)
+//     : ([] as const)
+//   const itemRefs = items.flatMap((item: Schema) => collectSchemaRefs(item, schemas, visited))
+//   const compositeRefs = (['allOf', 'oneOf', 'anyOf'] as const).flatMap((k) => {
+//     const composite = schema[k]
+//     return composite ? composite.flatMap((sub) => collectSchemaRefs(sub, schemas, visited)) : []
+//   })
+//   return [...propRefs, ...itemRefs, ...compositeRefs] as const
+// }
+//
+// function extractSecurityRequirements(
+//   opSecurity: readonly { readonly [k: string]: readonly string[] }[] | undefined,
+//   globalSecurity: readonly { readonly [k: string]: readonly string[] }[] | undefined,
+//   securitySchemes: { readonly [k: string]: unknown } | undefined,
+// ) {
+//   const securityDefs = opSecurity ?? globalSecurity ?? ([] as const)
+//   return securityDefs.flatMap((secDef) =>
+//     Object.keys(secDef).flatMap(
+//       (
+//         schemeName,
+//       ): {
+//         type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
+//         name: string
+//         in?: 'header' | 'query' | 'cookie'
+//       }[] => {
+//         const scheme = securitySchemes?.[schemeName]
+//         if (!(scheme && isSecurityScheme(scheme))) return [] as const
+//         if (scheme.type === 'http' && scheme.scheme === 'bearer') {
+//           return [{ type: 'bearer', name: 'Authorization' }]
+//         }
+//         if (scheme.type === 'http' && scheme.scheme === 'basic') {
+//           return [{ type: 'basic', name: 'Authorization' }]
+//         }
+//         if (scheme.type === 'apiKey') {
+//           const inLocation =
+//             scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie'
+//               ? scheme.in
+//               : 'header'
+//           return [{ type: 'apiKey', name: scheme.name ?? 'X-API-Key', in: inLocation }] as const
+//         }
+//         if (scheme.type === 'oauth2') {
+//           return [{ type: 'oauth2', name: 'Authorization' }] as const
+//         }
+//         return [] as const
+//       },
+//     ),
+//   )
+// }
+//
+// type Shape = 'scalar' | 'array' | 'object'
+//
+// type TestParam = {
+//   readonly name: string
+//   readonly variable: string
+//   readonly fakerCode: string
+//   readonly shape?: 'array' | 'object'
+//   readonly style?: string
+//   readonly explode?: boolean
+// }
+//
+// const TAKEN = new Set([
+//   'app',
+//   'body',
+//   'res',
+//   'faker',
+//   'describe',
+//   'it',
+//   'expect',
+//   'deepObjectQuery',
+//   'break',
+//   'case',
+//   'catch',
+//   'class',
+//   'const',
+//   'continue',
+//   'debugger',
+//   'default',
+//   'delete',
+//   'do',
+//   'else',
+//   'enum',
+//   'export',
+//   'extends',
+//   'false',
+//   'finally',
+//   'for',
+//   'function',
+//   'if',
+//   'import',
+//   'in',
+//   'instanceof',
+//   'new',
+//   'null',
+//   'return',
+//   'super',
+//   'switch',
+//   'this',
+//   'throw',
+//   'true',
+//   'try',
+//   'typeof',
+//   'var',
+//   'void',
+//   'while',
+//   'with',
+//   'let',
+//   'static',
+//   'yield',
+//   'await',
+// ])
+//
+// function toVariable(name: string) {
+//   const camel = name
+//     .replaceAll(/[^A-Za-z0-9_$]+(.?)/gu, (_, next: string) => next.toUpperCase())
+//     .replace(/^[A-Z]/u, (first) => first.toLowerCase())
+//   const word = /^[A-Za-z_$]/u.test(camel) ? camel : `_${camel}`
+//   return TAKEN.has(word) ? `${word}_` : word
+// }
+//
+// function nameVariables<T extends { readonly name: string }>(
+//   located: readonly (readonly [string, readonly T[]])[],
+// ) {
+//   const used = new Set<string>()
+//   return located.map(([location, params]) =>
+//     params.map((param) => {
+//       const base = toVariable(param.name)
+//       const candidates = [
+//         base,
+//         `${base}${location}`,
+//         ...Array.from({ length: used.size + 1 }, (_, i) => `${base}${location}${i + 2}`),
+//       ]
+//       const variable = candidates.find((candidate) => !used.has(candidate)) ?? base
+//       used.add(variable)
+//       return { ...param, variable }
+//     }),
+//   )
+// }
+//
+// function shapeOf(
+//   schema: Schema,
+//   schemas: { readonly [k: string]: Schema } | undefined,
+//   seen: readonly string[] = [],
+// ): Shape {
+//   if (schema.$ref !== undefined) {
+//     const target = schemas?.[schema.$ref.replace('#/components/schemas/', '')]
+//     return target === undefined || seen.includes(schema.$ref)
+//       ? 'scalar'
+//       : shapeOf(target, schemas, [...seen, schema.$ref])
+//   }
+//   const types = normalizeTypes(schema.type)
+//   if (types.includes('array')) return 'array'
+//   return types.includes('object') || schema.properties !== undefined ? 'object' : 'scalar'
+// }
+//
+// export function extractTestCases(spec: OpenAPI) {
+//   const securitySchemes = spec.components?.securitySchemes
+//   return Object.entries(spec.paths).flatMap(([path, pathItem]) =>
+//     Object.entries(pathItem).flatMap(([method, operation]) => {
+//       if (!(isHttpMethod(method) && isOperation(operation))) return [] as const
+//       const resolve = (rawParam: Parameter | { readonly $ref?: string }) => {
+//         const ref = '$ref' in rawParam ? rawParam.$ref : undefined
+//         const param =
+//           ref === undefined
+//             ? rawParam
+//             : (spec.components?.parameters?.[ref.replace('#/components/parameters/', '')] ??
+//               rawParam)
+//         return isParameter(param) ? [param] : []
+//       }
+//       const operationParams = (operation.parameters ?? []).flatMap(resolve)
+//       const sharedParams = (isPathItemEntry(pathItem) ? (pathItem.parameters ?? []) : [])
+//         .flatMap(resolve)
+//         .filter(
+//           (shared) =>
+//             !operationParams.some((own) => own.name === shared.name && own.in === shared.in),
+//         )
+//       const resolvedParams = [...sharedParams, ...operationParams].map((param) => {
+//         const schema = param.schema ?? { type: 'string' as const }
+//         return { param, schema, fakerCode: schemaToFaker(schema, param.name) } as const
+//       })
+//       const wire = (param: Parameter, schema: Schema) => {
+//         const shape =
+//           param.content === undefined ? shapeOf(schema, spec.components?.schemas) : 'scalar'
+//         return {
+//           ...(shape === 'scalar' ? {} : { shape }),
+//           ...(param.style === undefined ? {} : { style: param.style }),
+//           ...(param.explode === undefined ? {} : { explode: param.explode }),
+//         }
+//       }
+//       const toPathParam = (p: (typeof resolvedParams)[number]) => ({
+//         name: p.param.name,
+//         fakerCode: p.fakerCode,
+//         schema: p.schema,
+//         ...wire(p.param, p.schema),
+//       })
+//       const toParam = (p: (typeof resolvedParams)[number]) => ({
+//         name: p.param.name,
+//         fakerCode: p.fakerCode,
+//         required: p.param.required ?? false,
+//         ...wire(p.param, p.schema),
+//       })
+//       const pathParams = resolvedParams.filter((p) => p.param.in === 'path').map(toPathParam)
+//       const queryParams = resolvedParams.filter((p) => p.param.in === 'query').map(toParam)
+//       const headerParams = resolvedParams.filter((p) => p.param.in === 'header').map(toParam)
+//       const cookieParams = resolvedParams.filter((p) => p.param.in === 'cookie').map(toParam)
+//       const jsonBodySchema =
+//         operation.requestBody && isContentBody(operation.requestBody)
+//           ? operation.requestBody.content?.['application/json']?.schema
+//           : undefined
+//       const requestBody = jsonBodySchema
+//         ? { fakerCode: schemaToFaker(jsonBodySchema), contentType: 'application/json' }
+//         : undefined
+//       const bodyRefs = jsonBodySchema
+//         ? collectSchemaRefs(jsonBodySchema, spec.components?.schemas)
+//         : ([] as const)
+//       const paramRefs = resolvedParams.flatMap((p) =>
+//         collectSchemaRefs(p.schema, spec.components?.schemas),
+//       )
+//       const usedSchemaRefs = [...new Set([...bodyRefs, ...paramRefs])]
+//       const responseKeys = Object.keys(operation.responses || {})
+//       const successStatus =
+//         responseKeys
+//           .filter((s) => s.startsWith('2'))
+//           .map((s) => Number.parseInt(s, 10))
+//           .toSorted((a, b) => a - b)[0] ?? 200
+//       const errorStatuses = responseKeys
+//         .filter((s) => (s.startsWith('4') || s.startsWith('5')) && s !== 'default')
+//         .map((s) => Number.parseInt(s, 10))
+//         .toSorted((a, b) => a - b)
+//       const security = extractSecurityRequirements(
+//         isSecurityArray(operation.security) ? operation.security : undefined,
+//         isSecurityArray(spec.security) ? spec.security : undefined,
+//         securitySchemes,
+//       )
+//       return [
+//         {
+//           operationId: operation.operationId ?? `${method}${path.replaceAll('/', '_')}`,
+//           method: method.toUpperCase(),
+//           path,
+//           summary: operation.summary ?? '',
+//           description: operation.description ?? '',
+//           tag: operation.tags?.[0],
+//           pathParams,
+//           queryParams,
+//           headerParams,
+//           cookieParams,
+//           requestBody,
+//           successStatus,
+//           errorStatuses,
+//           security,
+//           usedSchemaRefs,
+//         },
+//       ] as const
+//     }),
+//   )
+// }
+//
+// function shallowRefs(schema: Schema): readonly string[] {
+//   const selfRef = schema.$ref ? [schema.$ref.replace('#/components/schemas/', '')] : []
+//   const propRefs = schema.properties ? Object.values(schema.properties).flatMap(shallowRefs) : []
+//   const items = schema.items ? (Array.isArray(schema.items) ? schema.items : [schema.items]) : []
+//   const itemRefs = items.flatMap(shallowRefs)
+//   const compositeRefs = (['allOf', 'oneOf', 'anyOf'] as const).flatMap((k) => {
+//     const composite = schema[k]
+//     return composite ? composite.flatMap(shallowRefs) : ([] as const)
+//   })
+//   return [...selfRef, ...propRefs, ...itemRefs, ...compositeRefs] as const
+// }
+//
+// function detectCircularSchemas(schemas: { [k: string]: Schema }) {
+//   return cyclicNodes(
+//     new Map(Object.entries(schemas).map(([name, schema]) => [name, shallowRefs(schema)])),
+//   )
+// }
+//
+// function topologicalOrder(
+//   usedSchemaNames: Set<string>,
+//   schemas: { [k: string]: Schema },
+// ): readonly string[] {
+//   const visit = (name: string, visited: Set<string>, visiting: Set<string>): string[] => {
+//     if (visited.has(name) || !usedSchemaNames.has(name) || visiting.has(name)) return [] as const
+//     const nextVisiting = new Set(visiting).add(name)
+//     const schema = schemas[name]
+//     const depOrder = schema
+//       ? collectSchemaRefs(schema, schemas, new Set([name])).flatMap((dep) => {
+//           const subOrder = visit(dep, visited, nextVisiting)
+//           for (const n of subOrder) {
+//             visited.add(n)
+//           }
+//           return subOrder
+//         })
+//       : ([] as const)
+//     visited.add(name)
+//     return [...depOrder, name] as const
+//   }
+//   const visited = new Set<string>()
+//   return [...usedSchemaNames].flatMap((name) => visit(name, visited, new Set()))
+// }
+//
+// function makeMockFunctions(
+//   spec: OpenAPI,
+//   usedSchemaNames: Set<string>,
+//   circularSchemas?: ReadonlySet<string>,
+// ) {
+//   if (!spec.components?.schemas || usedSchemaNames.size === 0) return ''
+//   const schemas = spec.components.schemas
+//   const circular = circularSchemas ?? detectCircularSchemas(schemas)
+//   return topologicalOrder(usedSchemaNames, schemas)
+//     .map((name) => {
+//       const isCircular = circular.has(name)
+//       const mockBody = schemaToFaker(
+//         schemas[name],
+//         undefined,
+//         isCircular ? { recursive: circular } : {},
+//       )
+//       return `${mockFunctionSignature(name, isCircular)} {\n  return ${mockBody}\n}`
+//     })
+//     .join('\n\n')
+// }
+//
+// function makeAuthHeader(sec: {
+//   type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
+//   name: string
+//   in?: 'header' | 'query' | 'cookie'
+// }) {
+//   switch (sec.type) {
+//     case 'bearer':
+//     case 'oauth2':
+//       // oxlint-disable-next-line no-template-curly-in-string -- the placeholder belongs to the emitted template literal
+//       return "'Authorization':`Bearer ${faker.string.alphanumeric(32)}`"
+//     case 'basic':
+//       // oxlint-disable-next-line no-template-curly-in-string -- the placeholder belongs to the emitted template literal
+//       return "'Authorization':`Basic ${btoa(`${faker.internet.username()}:${faker.internet.password()}`)}`"
+//     case 'apiKey':
+//       if (sec.in === 'header') return `${quoteSingle(sec.name)}:faker.string.alphanumeric(32)`
+//   }
+//   return ''
+// }
+//
+// const ENCODED = 'encodeURIComponent(String(item))'
+//
+// const DEEP_OBJECT_QUERY =
+//   "function deepObjectQuery(key:string,item:unknown):string[]{if(Array.isArray(item))return item.flatMap((child)=>deepObjectQuery(key+'[]',child));if(typeof item==='object'&&item!==null)return Object.entries(item).flatMap(([name,child])=>deepObjectQuery(key+'['+name+']',child));return[key+'='+encodeURIComponent(String(item))]}"
+//
+// function makeHelpers(body: string) {
+//   return body.includes('deepObjectQuery(') ? `${DEEP_OBJECT_QUERY}\n\n` : ''
+// }
+//
+// function joinedValue(param: TestParam, separator: string, assignments: boolean, encoded = ENCODED) {
+//   const glue = quoteSingle(separator)
+//   if (param.shape === 'array') return `${param.variable}.map((item)=>${encoded}).join(${glue})`
+//   return assignments
+//     ? `Object.entries(${param.variable}).map(([key,item])=>key+'='+${encoded}).join(${glue})`
+//     : `Object.entries(${param.variable}).flatMap(([key,item])=>[key,${encoded}]).join(${glue})`
+// }
+//
+// function repeatedValue(param: TestParam, before: string, separator: string) {
+//   const head = before === '' ? '' : `${quoteSingle(before)}+`
+//   const glue = quoteSingle(separator)
+//   return param.shape === 'array'
+//     ? `${param.variable}.map((item)=>${head}${ENCODED}).join(${glue})`
+//     : `Object.entries(${param.variable}).map(([key,item])=>${head}key+'='+${ENCODED}).join(${glue})`
+// }
+//
+// function makePathValue(param: TestParam) {
+//   const style = param.style ?? 'simple'
+//   const explode = param.explode ?? false
+//   const name = escapeTemplateLiteral(param.name)
+//   if (param.shape === undefined) {
+//     if (style === 'label') return `.\${${param.variable}}`
+//     if (style === 'matrix') return `;${name}=\${${param.variable}}`
+//     return `\${${param.variable}}`
+//   }
+//   if (style === 'label') {
+//     return `.\${${joinedValue(param, explode ? '.' : ',', explode)}}`
+//   }
+//   if (style === 'matrix') {
+//     return explode
+//       ? `\${${repeatedValue(param, param.shape === 'array' ? `;${param.name}=` : ';', '')}}`
+//       : `;${name}=\${${joinedValue(param, ',', false)}}`
+//   }
+//   return `\${${joinedValue(param, ',', explode)}}`
+// }
+//
+// function makeQueryPart(param: TestParam) {
+//   const style = param.style ?? 'form'
+//   const explode = param.explode ?? style === 'form'
+//   const name = escapeTemplateLiteral(param.name)
+//   if (param.shape === undefined) {
+//     return `${name}=\${encodeURIComponent(String(${param.variable}))}`
+//   }
+//   if (param.shape === 'object' && style === 'deepObject') {
+//     return `\${deepObjectQuery(${quoteSingle(param.name)},${param.variable}).join('&')}`
+//   }
+//   if (explode) {
+//     return `\${${repeatedValue(param, param.shape === 'array' ? `${param.name}=` : '', '&')}}`
+//   }
+//   const separator = style === 'pipeDelimited' ? '|' : style === 'spaceDelimited' ? '%20' : ','
+//   return `${name}=\${${joinedValue(param, separator, false)}}`
+// }
+//
+// function makeHeaderValue(param: TestParam) {
+//   if (param.shape === undefined) return `String(${param.variable})`
+//   return joinedValue(param, ',', param.explode ?? false, 'String(item)')
+// }
+//
+// function isCookieAuth(sec: { readonly type: string; readonly in?: string }) {
+//   return sec.type === 'apiKey' && sec.in === 'cookie'
+// }
+//
+// function makeCookiePart(param: TestParam) {
+//   const name = escapeTemplateLiteral(param.name)
+//   if (param.shape === undefined) {
+//     return `${name}=\${encodeURIComponent(String(${param.variable}))}`
+//   }
+//   if (param.shape === 'object' && (param.explode ?? true)) {
+//     return `\${${repeatedValue(param, '', '; ')}}`
+//   }
+//   return `${name}=\${${joinedValue(param, ',', false)}}`
+// }
+//
+// function makeCookieHeader(parts: readonly string[]) {
+//   return parts.length > 0 ? [`'Cookie':\`${parts.join('; ')}\``] : []
+// }
+//
+// function setup(param: TestParam) {
+//   return `const ${param.variable}=${param.fakerCode}`
+// }
+//
+// function makeTestCase(
+//   tc: ReturnType<typeof extractTestCases>[number],
+//   basePath = '/',
+//   schemas?: { [k: string]: Schema },
+// ) {
+//   const basePathPrefix = basePath !== '/' ? basePath : ''
+//   const fullPath =
+//     tc.path === '/' && basePathPrefix ? basePathPrefix : `${basePathPrefix}${tc.path}`
+//   // Escape template-literal metacharacters BEFORE injecting `${name}` markers
+//   // to prevent codegen injection from malicious path keys.
+//   const escapedFullPath = escapeTemplateLiteral(fullPath)
+//   const [pathParams = [], queryParams = [], requiredHeaderParams = [], requiredCookieParams = []] =
+//     nameVariables<(typeof tc.pathParams)[number] | (typeof tc.queryParams)[number]>([
+//       ['Path', tc.pathParams],
+//       ['Query', tc.queryParams],
+//       ['Header', tc.headerParams.filter((p) => p.required)],
+//       ['Cookie', tc.cookieParams.filter((p) => p.required)],
+//     ])
+//   const testPath = pathParams.reduce(
+//     (path, param) => path.replace(`{${param.name}}`, makePathValue(param)),
+//     escapedFullPath,
+//   )
+//   const pathSetup = pathParams.map(setup)
+//   const querySetup = queryParams.map(setup)
+//   const queryParts = queryParams.map(makeQueryPart)
+//   const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : ''
+//   // apiKey-in-query credentials go on the URL; bare `queryString` is reused
+//   // for the unauthorized-flow test which omits the credential.
+//   const authQueryParts = tc.security
+//     .filter((sec) => sec.type === 'apiKey' && sec.in === 'query')
+//     .map((sec) => `${escapeTemplateLiteral(sec.name)}=\${faker.string.alphanumeric(32)}`)
+//   const authQueryString =
+//     authQueryParts.length > 0
+//       ? queryString
+//         ? `&${authQueryParts.join('&')}`
+//         : `?${authQueryParts.join('&')}`
+//       : ''
+//   const headerSetup = requiredHeaderParams.map(setup)
+//   const headerEntries = requiredHeaderParams.map(
+//     (param) => `${quoteSingle(param.name)}:${makeHeaderValue(param)}`,
+//   )
+//   const cookieSetup = requiredCookieParams.map(setup)
+//   const cookieParts = requiredCookieParams.map(makeCookiePart)
+//   const authCookieParts = tc.security
+//     .filter(isCookieAuth)
+//     .map((sec) => `${escapeTemplateLiteral(sec.name)}=\${faker.string.alphanumeric(32)}`)
+//   const authHeaders = tc.security
+//     .filter((sec) => !isCookieAuth(sec))
+//     .map(makeAuthHeader)
+//     .filter(Boolean)
+//   const { bodySetup, bodyOption, contentTypeHeader } = tc.requestBody
+//     ? {
+//         bodySetup: `const body=${tc.requestBody.fakerCode}`,
+//         bodyOption: ',body:JSON.stringify(body)',
+//         contentTypeHeader: "'Content-Type':'application/json'",
+//       }
+//     : { bodySetup: '', bodyOption: '', contentTypeHeader: '' }
+//   const headers = [...headerEntries, ...(contentTypeHeader ? [contentTypeHeader] : [])]
+//   const allHeaders = [
+//     ...headers,
+//     ...authHeaders,
+//     ...makeCookieHeader([...cookieParts, ...authCookieParts]),
+//   ]
+//   const plainHeaders = [...headers, ...makeCookieHeader(cookieParts)]
+//   const headersOption = allHeaders.length > 0 ? `,headers:{${allHeaders.join(',')}}` : ''
+//   const headersWithoutAuth = plainHeaders.length > 0 ? `,headers:{${plainHeaders.join(',')}}` : ''
+//   // `tc.summary` is escaped by `quoteSingle(itTitle)` below.
+//   const summaryPart = tc.summary ? ` - ${tc.summary}` : ''
+//   const itDescription = `should return ${tc.successStatus}${summaryPart}`
+//   const setupCode = [...pathSetup, ...querySetup, ...headerSetup, ...cookieSetup, bodySetup]
+//     .filter(Boolean)
+//     .join('\n')
+//   const describeTitle = quoteSingle(`${tc.method} ${fullPath}`)
+//   const itTitle = quoteSingle(itDescription)
+//   const methodLiteral = quoteSingle(tc.method)
+//   const mainTest = `describe(${describeTitle},()=>{it(${itTitle},async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}${authQueryString}\`,{method:${methodLiteral}${headersOption}${bodyOption}})\nexpect(res.status).toBe(${tc.successStatus})})`
+//   const unauthorizedTest =
+//     tc.security.length > 0
+//       ? `\nit('should return 401 without auth',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:${methodLiteral}${headersWithoutAuth}${bodyOption}})\nexpect(res.status).toBe(401)})`
+//       : ''
+//   const notFoundTest =
+//     tc.pathParams.length > 0 && tc.errorStatuses.includes(404)
+//       ? (() => {
+//           const notFoundPath = tc.pathParams.reduce(
+//             (path, param) =>
+//               path.replace(`{${param.name}}`, getNonExistentValue(param.schema, schemas)),
+//             escapedFullPath,
+//           )
+//           const notFoundQuerySetup = queryParams.map(setup)
+//           const notFoundSetupCode = [
+//             ...notFoundQuerySetup,
+//             ...headerSetup,
+//             ...cookieSetup,
+//             bodySetup,
+//           ]
+//             .filter(Boolean)
+//             .join('\n')
+//           return `\nit('should return 404 for non-existent resource',async()=>{${notFoundSetupCode}\nconst res=await app.request(\`${notFoundPath}${queryString}\`,{method:${methodLiteral}${headersOption}${bodyOption}})\nexpect(res.status).toBe(404)})`
+//         })()
+//       : ''
+//   return `${mainTest}${unauthorizedTest}${notFoundTest}})\n`
+// }
+//
+// // Safe single-quoted JS string literal (delimiter included).
+// function quoteSingle(s: string) {
+//   return `'${s
+//     .replaceAll('\\', '\\\\')
+//     .replaceAll("'", "\\'")
+//     .replaceAll('\n', '\\n')
+//     .replaceAll('\r', '\\r')
+//     .replaceAll('	', '\\t')}'`
+// }
+//
+// // Escape \, `, ${ for static text inside a template literal. Caller-added
+// // ${...} substitution markers (added AFTER this escape) remain active.
+// function escapeTemplateLiteral(s: string) {
+//   return s.replaceAll('\\', '\\\\').replaceAll('`', '\\`').replaceAll('${', '\\${')
+// }
+//
+// const TEST_IMPORT_SOURCE: Record<'vitest' | 'vite-plus' | 'bun', string> = {
+//   vitest: 'vitest',
+//   'vite-plus': 'vite-plus/test',
+//   bun: 'bun:test',
+// }
+//
+// export function makeTestFile(
+//   spec: OpenAPI,
+//   appImportPath = './app',
+//   basePath = '/',
+//   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+// ) {
+//   const testCases = extractTestCases(spec)
+//   // oxlint-disable-next-line typescript/prefer-nullish-coalescing -- an empty title falls back too
+//   const apiTitle = spec.info?.title || 'API'
+//   const usedSchemaNames = new Set(testCases.flatMap((tc) => tc.usedSchemaRefs))
+//   const byTag = testCases.reduce((acc, tc) => {
+//     const tag = tc.tag ?? 'default'
+//     return acc.set(tag, [...(acc.get(tag) ?? []), tc])
+//   }, new Map<string, ReturnType<typeof extractTestCases>>())
+//   const mockFunctions = makeMockFunctions(spec, usedSchemaNames)
+//   const tagDescribes = [...byTag.entries()]
+//     .map(([tag, cases]) => {
+//       const tagInfo = spec.tags?.find((t) => t.name === tag)
+//       const tagDescription = tagInfo?.description ?? tag
+//       const testCasesCode = cases
+//         .map((tc) => makeTestCase(tc, basePath, spec.components?.schemas))
+//         .join('')
+//       return `describe(${quoteSingle(tagDescription)},()=>{${testCasesCode}})\n`
+//     })
+//     .join('')
+//   const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
+//   const suite = `describe(${quoteSingle(apiTitle)},()=>{${tagDescribes}})\n`
+//   const body = `${mockSection}${makeHelpers(suite)}${suite}`
+//   const needsFaker = body.includes('faker.')
+//   const fakerImport = needsFaker ? `\nimport{faker}from'@faker-js/faker'` : ''
+//   const testImportSource = TEST_IMPORT_SOURCE[testFramework]
+//   const imports = `import{describe,it,expect}from${quoteSingle(testImportSource)}${fakerImport}\nimport app from${quoteSingle(appImportPath)}\n`
+//   return `${imports}\n${body}`
+// }
+//
+// function getPathFirstSegment(path: string) {
+//   const rawSegment = path.replace(/^\/+/u, '').split('/')[0] ?? ''
+//   const sanitized = rawSegment
+//     .replaceAll(/\{([^}]+)\}/gu, '$1')
+//     .replaceAll(/[^0-9A-Za-z._-]/gu, '_')
+//     .replaceAll(/^[._-]+|[._-]+$/gu, '')
+//     .replaceAll(/__+/gu, '_')
+//     .replaceAll(/[-._](\w)/gu, (_, c: string) => c.toUpperCase())
+//   return sanitized === '' ? '__root' : sanitized
+// }
+//
+// export function makeHandlerTestContext(spec: OpenAPI) {
+//   return {
+//     testCases: extractTestCases(spec),
+//     circularSchemas: detectCircularSchemas(spec.components?.schemas ?? {}),
+//   } as const
+// }
+//
+// export function makeHandlerTestCode(
+//   spec: OpenAPI,
+//   handlerPath: string,
+//   routeNames: readonly string[],
+//   importFrom: string,
+//   basePath = '/',
+//   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+//   context: ReturnType<typeof makeHandlerTestContext> = makeHandlerTestContext(spec),
+// ) {
+//   const handlerFileName = basename(handlerPath, '.ts')
+//   // Handler files are grouped by tag (or by an existing hand-written split), so the routes
+//   // they hold are the only reliable link; the path-segment match is a fallback for callers
+//   // that pass no route names.
+//   const routeNameSet = new Set(routeNames)
+//   const relevantCases = context.testCases.filter((testCase) =>
+//     routeNames.length > 0
+//       ? routeNameSet.has(`${methodPath(testCase.method.toLowerCase(), testCase.path)}Route`)
+//       : getPathFirstSegment(testCase.path) === handlerFileName,
+//   )
+//   if (relevantCases.length === 0) return ''
+//   const usedSchemaNames = new Set(relevantCases.flatMap((testCase) => testCase.usedSchemaRefs))
+//   const mockFunctions = makeMockFunctions(spec, usedSchemaNames, context.circularSchemas)
+//   const testCasesCode = relevantCases
+//     .map((testCase) => makeTestCase(testCase, basePath, spec.components?.schemas))
+//     .join('')
+//   const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
+//   const resourceName = handlerFileName.charAt(0).toUpperCase() + handlerFileName.slice(1)
+//   const suite = `describe(${quoteSingle(resourceName)},()=>{${testCasesCode}})\n`
+//   const body = `${mockSection}${makeHelpers(suite)}${suite}`
+//   const needsFaker = body.includes('faker.')
+//   const fakerImport = needsFaker ? `\nimport{faker}from'@faker-js/faker'` : ''
+//   const testImportSource = TEST_IMPORT_SOURCE[testFramework]
+//   const imports = `import{describe,it,expect}from${quoteSingle(testImportSource)}${fakerImport}\nimport app from${quoteSingle(importFrom)}\n`
+//   return `${imports}\n${body}`
+// }
