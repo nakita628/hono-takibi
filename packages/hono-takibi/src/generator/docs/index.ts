@@ -1,20 +1,9 @@
 import { STATUS_CODES } from 'node:http'
 
+import { HTTP_METHODS } from '../../constants/index.js'
 import { isRecord, isRefObject, isSchemaArray } from '../../guard/index.js'
 import type { OpenAPI, Operation, Parameter, PathItem, Schema } from '../../openapi/index.js'
 import { escapeHtml } from '../../utils/index.js'
-
-const HTTP_METHODS = [
-  'get',
-  'put',
-  'post',
-  'delete',
-  'options',
-  'head',
-  'patch',
-  'trace',
-  'query',
-] as const
 
 type Endpoint = {
   readonly method: string

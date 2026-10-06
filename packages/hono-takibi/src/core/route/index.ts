@@ -2,6 +2,7 @@ import { basename, dirname, join } from 'node:path'
 
 import { Effect } from 'effect'
 
+import { HTTP_METHODS } from '../../constants/index.js'
 import { emit } from '../../emit/index.js'
 import { GenerateError } from '../../error/index.js'
 import { isParameterRef, isPathItemEntry, isPathItemRef } from '../../guard/index.js'
@@ -99,9 +100,7 @@ export function route(
     const entries = Object.entries(openAPI.paths).flatMap(([path, pathItem]) => {
       if (!isPathItemEntry(pathItem)) return [] as const
       const resolved = resolvePathItem(pathItem)
-      return (
-        ['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace', 'query'] as const
-      ).flatMap((method) => {
+      return HTTP_METHODS.flatMap((method) => {
         const operation = resolved[method]
         if (!operation?.responses) return []
         const parameters = [

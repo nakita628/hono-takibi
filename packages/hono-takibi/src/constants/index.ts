@@ -23,3 +23,19 @@ export const HOOK_LIBRARIES = [
   'svelte-query',
   'angular-query',
 ] as const
+
+/**
+ * The HTTP methods an OpenAPI path item can hold, in the order the specification lists
+ * them: OpenAPI 3.2 adds `query`. Operations of one path are generated in this order.
+ */
+export const HTTP_METHODS = [
+  'get',
+  'put',
+  'post',
+  'delete',
+  'options',
+  'head',
+  'patch',
+  'trace',
+  'query',
+] as const

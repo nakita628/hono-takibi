@@ -2,6 +2,7 @@ import path from 'node:path'
 
 import { Effect } from 'effect'
 
+import { HTTP_METHODS } from '../../constants/index.js'
 import { emit } from '../../emit/index.js'
 import { GenerateError } from '../../error/index.js'
 import { isParameterRef } from '../../guard/index.js'
@@ -98,32 +99,15 @@ export function webhooks(
       }
       return Object.entries(openAPI.webhooks).flatMap(([name, pathItem]) =>
         pathItem
-          ? (
-              [
-                'get',
-                'put',
-                'post',
-                'delete',
-                'patch',
-                'options',
-                'head',
-                'trace',
-                'query',
-              ] as const
-            )
-              .filter((m) => pathItem[m]?.responses)
-              .flatMap((method) => {
-                const operation = pathItem[method]
-                if (!operation) return []
-                const sourceParams = [
-                  ...(pathItem.parameters ?? []),
-                  ...(operation.parameters ?? []),
-                ]
-                const params = sourceParams.map(resolve).filter((p) => p !== undefined)
-                const effectiveOperation =
-                  sourceParams.length > 0 ? { ...operation, parameters: params } : operation
-                return [makeEntry(name, method, effectiveOperation)]
-              })
+          ? HTTP_METHODS.filter((m) => pathItem[m]?.responses).flatMap((method) => {
+              const operation = pathItem[method]
+              if (!operation) return []
+              const sourceParams = [...(pathItem.parameters ?? []), ...(operation.parameters ?? [])]
+              const params = sourceParams.map(resolve).filter((p) => p !== undefined)
+              const effectiveOperation =
+                sourceParams.length > 0 ? { ...operation, parameters: params } : operation
+              return [makeEntry(name, method, effectiveOperation)]
+            })
           : [],
       )
     }
