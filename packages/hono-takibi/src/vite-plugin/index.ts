@@ -233,7 +233,7 @@ function runAllGenerationTasks(config: Config) {
     if (Result.isFailure(openAPIResult)) {
       return { logs: [`❌ parseOpenAPI: ${openAPIResult.failure.message}`], changed: false }
     }
-    const packagesResult = yield* Effect.result(packageRoots(config))
+    const packagesResult = yield* Effect.result(packageRoots(openAPIResult.success, config))
     if (Result.isFailure(packagesResult)) {
       return { logs: [`❌ config: ${packagesResult.failure.message}`], changed: false }
     }

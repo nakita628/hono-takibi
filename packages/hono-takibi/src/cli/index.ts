@@ -74,7 +74,8 @@ function runJobs(config: Effect.Success<ReturnType<typeof loadConfig>>) {
           import('../shared/index.js'),
         ]),
       )
-    const jobs = makeJob(yield* parseOpenAPI(config.input), config, yield* packageRoots(config))
+    const openAPI = yield* parseOpenAPI(config.input)
+    const jobs = makeJob(openAPI, config, yield* packageRoots(openAPI, config))
     yield* cleanSplitOutputs(jobs.filter((job) => job.split).map((job) => job.output))
     const messages = yield* Effect.forEach(jobs, (job) => job.run(job.output), {
       concurrency: 'unbounded',

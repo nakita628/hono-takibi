@@ -2,6 +2,7 @@ import { basename, dirname, relative } from 'node:path'
 
 import { Effect } from 'effect'
 
+import { COMPONENT_NAMES } from '../constants/index.js'
 import { mkdir, readdir, readFile, writeFile } from '../file/index.js'
 import { fmt } from '../format/index.js'
 // Test code generation is deprecated: hono-takibi no longer generates test files.
@@ -789,21 +790,7 @@ export function defineOpenAPIRouteHandler(
       ? `${aliasPrefix}/${relative(baseDir, componentsModulePath).replaceAll('\\', '/')}`
       : undefined
     const componentsMap = Object.fromEntries(
-      (
-        [
-          'schemas',
-          'responses',
-          'parameters',
-          'examples',
-          'requestBodies',
-          'headers',
-          'securitySchemes',
-          'links',
-          'callbacks',
-          'pathItems',
-          'mediaTypes',
-        ] as const
-      ).map((kind) => [
+      COMPONENT_NAMES.map((kind) => [
         kind,
         {
           output: componentsOutput,

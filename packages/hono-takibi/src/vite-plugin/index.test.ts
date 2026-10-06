@@ -10,6 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { FormatError } from '../error/index.js'
 import type * as FormatModule from '../format/index.js'
 import type * as OpenAPIModule from '../openapi/index.js'
+import type { OpenAPI } from '../openapi/index.js'
 import { honoTakibiVite } from './index.js'
 
 type ViteDevServer = {
@@ -772,6 +773,26 @@ describe('honoTakibiVite', () => {
   // The package check runs before the jobs; its failure is logged like a document's.
   // パッケージの検査はジョブの前に走り、失敗はドキュメントの失敗と同じように記録される。
   it('logs a config error when a split output in another package names no package', async () => {
+    const { parseOpenAPI } = await import('../openapi/index.js')
+    vi.mocked(parseOpenAPI).mockImplementationOnce(() =>
+      Effect.succeed({
+        openapi: '3.1.0',
+        info: { title: 'Pets', version: '1.0.0' },
+        paths: {
+          '/pets': {
+            get: {
+              responses: {
+                200: {
+                  description: 'OK',
+                  content: { 'application/json': { schema: { $ref: '#/components/schemas/Pet' } } },
+                },
+              },
+            },
+          },
+        },
+        components: { schemas: { Pet: { type: 'object' } } },
+      } as unknown as OpenAPI),
+    )
     const schemas = path.join(testState.sandboxDirectory, 'out/schemas')
     fs.mkdirSync(schemas, { recursive: true })
     fs.writeFileSync(path.join(schemas, 'package.json'), '{ "name": "@packages/schemas" }')

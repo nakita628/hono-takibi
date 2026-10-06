@@ -7,6 +7,7 @@ import { Effect, FileSystem, Schema } from 'effect'
 // Test code generation is deprecated: hono-takibi no longer generates test files.
 // import type { Config, TestConfig } from '../config/index.js'
 import type { Config } from '../config/index.js'
+import { COMPONENT_NAMES, HOOK_LIBRARIES } from '../constants/index.js'
 import {
   callbacks,
   client,
@@ -196,30 +197,6 @@ export function outsideSources(input: string) {
 //   }
 // }
 
-const COMPONENT_KINDS = [
-  'schemas',
-  'responses',
-  'parameters',
-  'examples',
-  'requestBodies',
-  'headers',
-  'securitySchemes',
-  'links',
-  'callbacks',
-  'pathItems',
-  'mediaTypes',
-] as const
-
-const HOOK_KINDS = [
-  'swr',
-  'tanstack-query',
-  'preact-query',
-  'solid-query',
-  'vue-query',
-  'svelte-query',
-  'angular-query',
-] as const
-
 /** The directory of the nearest `package.json` above `file`, or `undefined` when there is none. */
 function packageRootOf(file: string) {
   return Effect.gen(function* () {
@@ -238,38 +215,56 @@ function packageRootOf(file: string) {
 
 type Target = { readonly output: string; readonly package?: string; readonly split?: boolean }
 
-/**
- * Which component kinds the generated file of a kind can import. Routes, webhooks,
- * callbacks and path items hold whole operations and can import any kind; the others
- * import only what their objects can refer to. Schemas, examples, links and security
- * schemes import no other kind.
- */
-const COMPONENT_IMPORTS: { readonly [K in (typeof COMPONENT_KINDS)[number]]: readonly string[] } = {
-  schemas: [],
-  examples: [],
-  links: [],
-  securitySchemes: [],
-  parameters: ['schemas', 'examples', 'mediaTypes'],
-  headers: ['schemas', 'examples', 'mediaTypes'],
-  requestBodies: ['schemas', 'examples', 'mediaTypes'],
-  mediaTypes: ['schemas', 'examples'],
-  responses: ['schemas', 'examples', 'headers', 'links', 'mediaTypes'],
-  callbacks: [...COMPONENT_KINDS],
-  pathItems: [...COMPONENT_KINDS],
+/** The component kinds the `$ref`s under `node` point at: `#/components/<kind>/...`. */
+function refKinds(node: unknown, found = new Set<string>()): ReadonlySet<string> {
+  if (Array.isArray(node)) {
+    for (const item of node) refKinds(item, found)
+  } else if (typeof node === 'object' && node !== null) {
+    for (const [key, value] of Object.entries(node)) {
+      const kind =
+        key === '$ref' && typeof value === 'string'
+          ? /^#\/components\/(\w+)\//u.exec(value)?.[1]
+          : undefined
+      if (kind !== undefined) found.add(kind)
+      else refKinds(value, found)
+    }
+  }
+  return found
 }
 
-/** Whether a file written by `from` can import the component target named `name`. */
-function importsComponent(from: string, name: string) {
-  if (name === 'components.output') return true
-  const kind = name.replace(/^components\./u, '')
-  if (!from.startsWith('components.')) return true
-  const own = COMPONENT_KINDS.find((candidate) => `components.${candidate}` === from)
-  return own === undefined || COMPONENT_IMPORTS[own].includes(kind)
+/**
+ * Which component kinds the generated files of each output import, read from the document:
+ * a file imports a kind exactly where what it is generated from holds a `$ref` to it. Routes
+ * are generated from `paths`, webhooks from `webhooks`, and each component kind from its
+ * own section.
+ */
+export function referencedKinds(openAPI: OpenAPI): ReadonlyMap<string, ReadonlySet<string>> {
+  return new Map([
+    ['routes', refKinds(openAPI.paths)],
+    ['webhooks', refKinds(openAPI.webhooks)],
+    ...COMPONENT_NAMES.map(
+      (kind) => [`components.${kind}`, refKinds(openAPI.components?.[kind])] as const,
+    ),
+  ])
+}
+
+/** Whether a file written by `from` imports the component target named `name`. */
+function importsComponent(
+  referenced: ReadonlyMap<string, ReadonlySet<string>>,
+  from: string,
+  name: string,
+) {
+  // The scaffold with define writes the routes, and imports what they refer to.
+  const kinds = referenced.get(from === 'template' ? 'routes' : from)
+  if (kinds === undefined) return false
+  // A single components file holds every kind.
+  if (name === 'components.output') return kinds.size > 0
+  return kinds.has(name.replace(/^components\./u, ''))
 }
 
 /** The targets of a config that other generated files import, by the name the config gives them. */
 function importTargets(config: Config) {
-  const kinds = COMPONENT_KINDS.flatMap((kind) => {
+  const kinds = COMPONENT_NAMES.flatMap((kind) => {
     const value = config.components?.[kind]
     return value ? [[`components.${kind}`, value] as const] : []
   })
@@ -291,7 +286,7 @@ function importTargets(config: Config) {
     (config.output !== undefined && config.template?.define !== true
       ? { output: config.output }
       : undefined)
-  const hookTargets: readonly (readonly [string, Target])[] = HOOK_KINDS.flatMap((kind) => {
+  const hookTargets: readonly (readonly [string, Target])[] = HOOK_LIBRARIES.flatMap((kind) => {
     const value = config[kind]
     return value ? [[kind, value] as const] : []
   })
@@ -314,8 +309,9 @@ function importTargets(config: Config) {
  * Fails when a file would import another package that names no `package`: the import
  * could not be written.
  */
-export function packageRoots(config: Config) {
+export function packageRoots(openAPI: OpenAPI, config: Config) {
   return Effect.gen(function* () {
+    const referenced = referencedKinds(openAPI)
     const targets = importTargets(config)
     const appOutput = appEntryOutput(config)
     const defineOn = config.template?.define === true
@@ -381,7 +377,7 @@ export function packageRoots(config: Config) {
         importer === undefined
           ? []
           : targets.components
-              .filter(([name]) => name !== from && importsComponent(from, name))
+              .filter(([name]) => name !== from && importsComponent(referenced, from, name))
               .map(([name, target]) => [from, importer, name, target] as const),
       ),
       ...(scaffold !== undefined && targets.routes !== undefined
@@ -519,20 +515,6 @@ export function makeJob(
   const componentsOutput =
     config.components?.output ??
     (defineOn && appOutput ? `${path.dirname(appOutput)}/components/index.ts` : undefined)
-  // OpenAPI 3.x Components Object kinds, in declaration / config-field order.
-  const componentKinds = [
-    'schemas',
-    'responses',
-    'parameters',
-    'examples',
-    'requestBodies',
-    'headers',
-    'securitySchemes',
-    'links',
-    'callbacks',
-    'pathItems',
-    'mediaTypes',
-  ] as const
   const rawComponents = config.components
   const componentsResolve:
     | {
@@ -544,7 +526,7 @@ export function makeJob(
       }
     | undefined = componentsOutput
     ? Object.fromEntries(
-        componentKinds.map((kind) => [
+        COMPONENT_NAMES.map((kind) => [
           kind,
           {
             output: componentsOutput,
@@ -559,7 +541,7 @@ export function makeJob(
       )
     : rawComponents
       ? Object.fromEntries(
-          componentKinds.flatMap((kind) => {
+          COMPONENT_NAMES.flatMap((kind) => {
             const value = rawComponents[kind]
             return value
               ? ([
@@ -844,7 +826,7 @@ export function makeJob(
             ),
         }
       : undefined,
-    ...HOOK_KINDS.map((library) => {
+    ...HOOK_LIBRARIES.map((library) => {
       const cfg = config[library]
       return cfg
         ? {

@@ -4,29 +4,7 @@ import { pathToFileURL } from 'node:url'
 import { Effect, FileSystem, Schema, SchemaIssue, SchemaTransformation } from 'effect'
 import type { FormatConfig } from 'oxfmt'
 
-const COMPONENT_KINDS = [
-  'schemas',
-  'responses',
-  'parameters',
-  'examples',
-  'requestBodies',
-  'headers',
-  'securitySchemes',
-  'links',
-  'callbacks',
-  'pathItems',
-  'mediaTypes',
-] as const
-
-const HOOK_KINDS = [
-  'swr',
-  'tanstack-query',
-  'preact-query',
-  'solid-query',
-  'vue-query',
-  'svelte-query',
-  'angular-query',
-] as const
+import { COMPONENT_NAMES, HOOK_LIBRARIES } from '../constants/index.js'
 
 // Test code generation is deprecated: hono-takibi no longer generates test files.
 // export const TestSchema = Schema.Struct({
@@ -847,7 +825,7 @@ const ConfigSchema = Schema.Struct({
     })
       .check(
         Schema.makeFilter(
-          (v) => v.output === undefined || !COMPONENT_KINDS.some((k) => v[k] !== undefined),
+          (v) => v.output === undefined || !COMPONENT_NAMES.some((k) => v[k] !== undefined),
           {
             message:
               'components.output is mutually exclusive with per-type component outputs (schemas, responses, ...). Use output for single-file mode, or per-type fields for split mode.',
@@ -1544,7 +1522,7 @@ const ConfigSchema = Schema.Struct({
     Schema.makeFilter(
       (v) => {
         if (v.client !== undefined) return true
-        const missing = (['rpc', ...HOOK_KINDS] as const).find((kind) => v[kind] !== undefined)
+        const missing = (['rpc', ...HOOK_LIBRARIES] as const).find((kind) => v[kind] !== undefined)
         return missing === undefined
           ? true
           : `${missing} needs client: rpc and the hooks call the client the client block generates, with template.`
@@ -1576,7 +1554,7 @@ const ConfigSchema = Schema.Struct({
         !(
           v.template?.define === true &&
           v.components !== undefined &&
-          COMPONENT_KINDS.some((k) => v.components?.[k] !== undefined)
+          COMPONENT_NAMES.some((k) => v.components?.[k] !== undefined)
         ),
       {
         message:
@@ -1611,13 +1589,13 @@ const ConfigSchema = Schema.Struct({
           ['routes.output', v.routes?.output],
           ['webhooks.output', v.webhooks?.output],
           ['components.output', v.components?.output],
-          ...COMPONENT_KINDS.map(
+          ...COMPONENT_NAMES.map(
             (kind) => [`components.${kind}.output`, v.components?.[kind]?.output] as const,
           ),
           ['type.output', v.type?.output],
           ['client.output', v.client?.output],
           ['rpc.output', v.rpc?.output],
-          ...HOOK_KINDS.map((kind) => [`${kind}.output`, v[kind]?.output] as const),
+          ...HOOK_LIBRARIES.map((kind) => [`${kind}.output`, v[kind]?.output] as const),
           ['mock.output', v.mock?.output],
           ['docs.output', v.docs?.output],
         ]
@@ -1709,7 +1687,7 @@ export function readConfig(configPath?: string, reload = false) {
 
 type Encoded = typeof ConfigSchema.Encoded
 
-type Caller = 'rpc' | (typeof HOOK_KINDS)[number]
+type Caller = 'rpc' | (typeof HOOK_LIBRARIES)[number]
 
 type Callers = Pick<Encoded, Caller>
 

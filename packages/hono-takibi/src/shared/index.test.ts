@@ -7,7 +7,13 @@ import { afterEach, describe, expect, it } from 'vite-plus/test'
 import { parseConfig } from '../config/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 import { runGenerator, runGeneratorError } from '../testing/index.js'
-import { cleanSplitOutputs, makeJob, outsideSources, packageRoots } from './index.js'
+import {
+  cleanSplitOutputs,
+  makeJob,
+  outsideSources,
+  packageRoots,
+  referencedKinds,
+} from './index.js'
 
 const openAPI = {
   openapi: '3.0.0',
@@ -1253,7 +1259,7 @@ describe('packageRoots: the package of every output', () => {
         },
       }),
     )
-    const packageRoot = await runGenerator(packageRoots(cfg))
+    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
     expect(packageRoot(`${tmpDir}/src/routes/getUsers.ts`)).toBe(tmpDir)
     expect(packageRoot(`${tmpDir}/src/schemas/user.ts`)).toBe(`${tmpDir}/src/schemas`)
   })
@@ -1276,7 +1282,7 @@ describe('packageRoots: the package of every output', () => {
         },
       }),
     )
-    const packageRoot = await runGenerator(packageRoots(cfg))
+    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
     expect(packageRoot(`${tmpDir}/src/api.v2`)).toBe(`${tmpDir}/src/api.v2`)
     expect(packageRoot(`${tmpDir}/src/api.v2/user.ts`)).toBe(`${tmpDir}/src/api.v2`)
     expect(packageRoot(`${tmpDir}/src/routes/getUsers.ts`)).toBe(tmpDir)
@@ -1298,7 +1304,7 @@ describe('packageRoots: the package of every output', () => {
         },
       }),
     )
-    const packageRoot = await runGenerator(packageRoots(cfg))
+    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
     expect(packageRoot(`${tmpDir}/src/routes/getUsers.ts`)).toBe(
       packageRoot(`${tmpDir}/src/schemas/user.ts`),
     )
@@ -1326,7 +1332,7 @@ describe('packageRoots: the package of every output', () => {
         components: { schemas: { output: `${tmpDir}/lib/schemas`, split: true } },
       }),
     )
-    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(cfg)))
+    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)))
     for (const job of jobs) {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
       await runGenerator(job.run(job.output))
@@ -1350,7 +1356,7 @@ describe('packageRoots: the package of every output', () => {
         docs: { output: `${tmpDir}/docs/api.md` },
       }),
     )
-    const packageRoot = await runGenerator(packageRoots(cfg))
+    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
     expect(packageRoot(`${tmpDir}/docs/api.md`)).toBe(tmpDir)
   })
 
@@ -1371,7 +1377,7 @@ describe('packageRoots: the package of every output', () => {
         components: { schemas: { output: `${tmpDir}/src/schemas`, split: true } },
       }),
     )
-    const error = await runGeneratorError(packageRoots(cfg))
+    const error = await runGeneratorError(packageRoots(openAPI, cfg))
     expect(error.message).toBe(
       `routes imports components.schemas from another package: set components.schemas.package to the name of the package ${tmpDir}/src/schemas is written into.`,
     )
@@ -1393,7 +1399,7 @@ describe('packageRoots: the package of every output', () => {
         client: { output: `${tmpDir}/client/src/client.ts`, package: '@packages/client' },
       }),
     )
-    const error = await runGeneratorError(packageRoots(cfg))
+    const error = await runGeneratorError(packageRoots(openAPI, cfg))
     expect(error.message).toBe(
       'client imports the app from another package: set client.import to the name of the package the app is written into.',
     )
@@ -1414,7 +1420,7 @@ describe('packageRoots: the package of every output', () => {
         template: { routeHandler: true },
       }),
     )
-    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(cfg)))
+    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)))
     for (const job of jobs) {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
       await runGenerator(job.run(job.output))
@@ -1447,7 +1453,7 @@ describe('packageRoots: the package of every output', () => {
         },
       }),
     )
-    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(cfg)))
+    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)))
     for (const job of jobs) {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
       await runGenerator(job.run(job.output))
@@ -1472,7 +1478,7 @@ describe('packageRoots: the package of every output', () => {
         components: { output: `${tmpDir}/src/components/index.ts` },
       }),
     )
-    const error = await runGeneratorError(packageRoots(cfg))
+    const error = await runGeneratorError(packageRoots(openAPI, cfg))
     expect(error.message).toBe(
       `routes imports components.output from another package: set components.output.package to the name of the package ${tmpDir}/src/components/index.ts is written into.`,
     )
@@ -1496,7 +1502,7 @@ describe('packageRoots: the package of every output', () => {
         components: { output: `${tmpDir}/shared/index.ts`, package: '@x/shared' },
       }),
     )
-    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(cfg)))
+    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)))
     for (const job of jobs) {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
       await runGenerator(job.run(job.output))
@@ -1529,7 +1535,7 @@ describe('packageRoots: the package of every output', () => {
         },
       }),
     )
-    await expect(runGenerator(packageRoots(cfg))).resolves.toBeTypeOf('function')
+    await expect(runGenerator(packageRoots(openAPI, cfg))).resolves.toBeTypeOf('function')
   })
 
   // The other way round the import is written, and the package is asked for: responses
@@ -1550,7 +1556,23 @@ describe('packageRoots: the package of every output', () => {
         },
       }),
     )
-    const error = await runGeneratorError(packageRoots(cfg))
+    // A response that points at an example: the responses import the examples.
+    const withExample = {
+      ...openAPI,
+      components: {
+        ...openAPI.components,
+        examples: { Ok: { value: 'ok' } },
+        responses: {
+          Ok: {
+            description: 'OK',
+            content: {
+              'application/json': { examples: { ok: { $ref: '#/components/examples/Ok' } } },
+            },
+          },
+        },
+      },
+    } as unknown as OpenAPI
+    const error = await runGeneratorError(packageRoots(withExample, cfg))
     expect(error.message).toBe(
       `components.responses imports components.examples from another package: set components.examples.package to the name of the package ${tmpDir}/server/src/examples is written into.`,
     )
@@ -1575,7 +1597,7 @@ describe('packageRoots: the package of every output', () => {
         },
       }),
     )
-    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(cfg)))
+    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)))
     for (const job of jobs) {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
       await runGenerator(job.run(job.output))
@@ -1829,5 +1851,150 @@ export default app
     await generateAgain(openAPI, tmpDir, true)
     const read = await generateAgain(openAPI, tmpDir, true)
     expect(read('src/lib/index.ts')).toBe("export * from './client'\n")
+  })
+})
+
+// packageRoots asks for a package only where referencedKinds, read from the document's
+// `$ref`s, says an import is written. An import the generators write and referencedKinds
+// misses would cross a package boundary unchecked, so every kind is split here from a
+// document whose components refer to one another, and every import written is checked.
+// packageRoots は、ドキュメントの `$ref` から求めた referencedKinds が import ありと言う箇所に
+// だけ package を求める。生成器が書くのに referencedKinds が見落とす import は、検査されないまま
+// パッケージ境界をまたぎうる。そこで、互いに参照し合う components を持つドキュメントから全種類を
+// 分割生成し、書かれた import をすべて照合する。
+describe('referencedKinds covers every import the generators write', () => {
+  const COMPONENTS = [
+    'schemas',
+    'responses',
+    'parameters',
+    'examples',
+    'requestBodies',
+    'headers',
+    'securitySchemes',
+    'links',
+    'callbacks',
+    'pathItems',
+  ] as const
+  const document = {
+    openapi: '3.1.0',
+    info: { title: 'refs', version: '1.0.0' },
+    paths: {
+      '/users/{id}': {
+        get: {
+          operationId: 'getUser',
+          parameters: [{ $ref: '#/components/parameters/Id' }],
+          responses: { 200: { $ref: '#/components/responses/User' } },
+          callbacks: { onEvent: { $ref: '#/components/callbacks/OnEvent' } },
+        },
+        post: {
+          operationId: 'postUser',
+          requestBody: { $ref: '#/components/requestBodies/User' },
+          responses: { 201: { $ref: '#/components/responses/User' } },
+        },
+      },
+      '/items': { $ref: '#/components/pathItems/Items' },
+    },
+    components: {
+      schemas: {
+        User: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
+      },
+      examples: { User: { value: { id: '1' } } },
+      headers: { Trace: { schema: { $ref: '#/components/schemas/User' } } },
+      links: { Self: { operationId: 'getUser' } },
+      securitySchemes: { Bearer: { type: 'http', scheme: 'bearer' } },
+      parameters: {
+        Id: {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          examples: { one: { $ref: '#/components/examples/User' } },
+        },
+      },
+      requestBodies: {
+        User: {
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } },
+        },
+      },
+      responses: {
+        User: {
+          description: 'OK',
+          headers: { 'x-trace': { $ref: '#/components/headers/Trace' } },
+          links: { self: { $ref: '#/components/links/Self' } },
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/User' },
+              examples: { one: { $ref: '#/components/examples/User' } },
+            },
+          },
+        },
+      },
+      callbacks: {
+        OnEvent: {
+          '{$request.body#/url}': {
+            post: {
+              requestBody: { $ref: '#/components/requestBodies/User' },
+              responses: { 200: { $ref: '#/components/responses/User' } },
+            },
+          },
+        },
+      },
+      pathItems: {
+        Items: {
+          get: {
+            operationId: 'getItems',
+            parameters: [{ $ref: '#/components/parameters/Id' }],
+            responses: { 200: { $ref: '#/components/responses/User' } },
+          },
+        },
+      },
+    },
+  } as unknown as OpenAPI
+
+  it('every kind each split output imports is referenced', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'referenced-kinds-'))
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/routes`, split: true },
+        components: Object.fromEntries(
+          COMPONENTS.map((kind) => [kind, { output: `${tmpDir}/${kind}`, split: true }]),
+        ),
+      }),
+    )
+    for (const job of makeJob(document, cfg)) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await runGenerator(job.run(job.output))
+    }
+    const referenced = referencedKinds(document)
+    const imported = (directory: string) => {
+      const kinds = fs
+        .readdirSync(path.join(tmpDir, directory))
+        .filter((file) => file.endsWith('.ts'))
+        .flatMap((file) =>
+          [
+            ...fs
+              .readFileSync(path.join(tmpDir, directory, file), 'utf8')
+              .matchAll(/from '\.\.\/(\w+)'/gu),
+          ].map((match) => match[1] ?? ''),
+        )
+      return [...new Set(kinds)].filter(
+        (kind) => kind !== directory && COMPONENTS.some((name) => name === kind),
+      )
+    }
+    const outputs = [
+      ['routes', 'routes'],
+      ...COMPONENTS.map((kind) => [kind, `components.${kind}`] as const),
+    ] as const
+    // The document has to make outputs import other kinds, or this checks nothing.
+    expect(outputs.filter(([directory]) => imported(directory).length > 0).length).toBeGreaterThan(
+      4,
+    )
+    for (const [directory, name] of outputs) {
+      const kinds = referenced.get(name) ?? new Set<string>()
+      expect({ [name]: imported(directory).filter((kind) => !kinds.has(kind)) }).toStrictEqual({
+        [name]: [],
+      })
+    }
   })
 })

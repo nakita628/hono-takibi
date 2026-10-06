@@ -1012,7 +1012,28 @@ export default {}`,
   // package のない別パッケージの出力先は、何も書き出す前に実行を止め、設定すべきフィールドを示す。
   it('rejects a split output in another package that names no package', async () => {
     const dir = useTmpDir('cli-config-package-missing-')
-    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(
+      path.join(dir, 'openapi.json'),
+      JSON.stringify({
+        ...minimalOpenapi,
+        paths: {
+          '/items': {
+            get: {
+              operationId: 'getItems',
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': { schema: { $ref: '#/components/schemas/Item' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: { schemas: { Item: { type: 'object' } } },
+      }),
+    )
     fs.mkdirSync(path.join(dir, 'src/schemas'), { recursive: true })
     fs.writeFileSync(path.join(dir, 'src/schemas/package.json'), '{ "name": "@packages/schemas" }')
     fs.writeFileSync(

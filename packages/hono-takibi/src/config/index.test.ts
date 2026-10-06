@@ -2061,7 +2061,7 @@ const CALLERS = [
   'angular-query',
 ] as const
 
-const COMPONENT_KINDS = [
+const COMPONENT_NAMES = [
   'schemas',
   'responses',
   'parameters',
@@ -2147,7 +2147,7 @@ describe('every generator that calls the client', () => {
 })
 
 describe('every component output', () => {
-  it.concurrent.each(COMPONENT_KINDS)('%s takes a package', async (kind) => {
+  it.concurrent.each(COMPONENT_NAMES)('%s takes a package', async (kind) => {
     const result = await runGenerator(
       parseConfig({
         input: 'openapi.yaml',
@@ -2159,7 +2159,7 @@ describe('every component output', () => {
     expect(result.components?.[kind]?.package).toBe(`@packages/${kind}`)
   })
 
-  it.concurrent.each(COMPONENT_KINDS)('%s refuses the removed import', async (kind) => {
+  it.concurrent.each(COMPONENT_NAMES)('%s refuses the removed import', async (kind) => {
     const result = await runGeneratorError(
       parseConfig({
         input: 'openapi.yaml',
