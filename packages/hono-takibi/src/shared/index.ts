@@ -238,6 +238,35 @@ function packageRootOf(file: string) {
 
 type Target = { readonly output: string; readonly package?: string; readonly split?: boolean }
 
+/**
+ * Which component kinds the generated file of a kind can import. Routes, webhooks,
+ * callbacks and path items hold whole operations and can import any kind; the others
+ * import only what their objects can refer to. Schemas, examples, links and security
+ * schemes import no other kind.
+ */
+const COMPONENT_IMPORTS: { readonly [K in (typeof COMPONENT_KINDS)[number]]: readonly string[] } = {
+  schemas: [],
+  examples: [],
+  links: [],
+  securitySchemes: [],
+  parameters: ['schemas', 'examples', 'mediaTypes'],
+  headers: ['schemas', 'examples', 'mediaTypes'],
+  requestBodies: ['schemas', 'examples', 'mediaTypes'],
+  mediaTypes: ['schemas', 'examples'],
+  responses: ['schemas', 'examples', 'headers', 'links', 'mediaTypes'],
+  callbacks: [...COMPONENT_KINDS],
+  pathItems: [...COMPONENT_KINDS],
+}
+
+/** Whether a file written by `from` can import the component target named `name`. */
+function importsComponent(from: string, name: string) {
+  if (name === 'components.output') return true
+  const kind = name.replace(/^components\./u, '')
+  if (!from.startsWith('components.')) return true
+  const own = COMPONENT_KINDS.find((candidate) => `components.${candidate}` === from)
+  return own === undefined || COMPONENT_IMPORTS[own].includes(kind)
+}
+
 /** The targets of a config that other generated files import, by the name the config gives them. */
 function importTargets(config: Config) {
   const kinds = COMPONENT_KINDS.flatMap((kind) => {
@@ -339,11 +368,12 @@ export function packageRoots(config: Config) {
     // Who imports whom: every edge that crosses a package needs the target's `package`.
     const scaffold: Target | undefined =
       appEntry !== undefined && config.template !== undefined ? { output: appEntry } : undefined
+    // The scaffold imports components only with define, where route and handler are one file.
     const importers: readonly (readonly [string, Target | undefined])[] = [
       ['routes', targets.routes],
       ['webhooks', targets.webhooks],
       ...targets.components,
-      ['template', scaffold],
+      ...(defineOn ? [['template', scaffold] as const] : []),
     ]
     const clientTarget = targets.client
     const edges: readonly (readonly [string, Target, string, Target])[] = [
@@ -351,7 +381,7 @@ export function packageRoots(config: Config) {
         importer === undefined
           ? []
           : targets.components
-              .filter(([name]) => name !== from)
+              .filter(([name]) => name !== from && importsComponent(from, name))
               .map(([name, target]) => [from, importer, name, target] as const),
       ),
       ...(scaffold !== undefined && targets.routes !== undefined
@@ -874,6 +904,11 @@ export function makeJob(
               // config.template?.testFramework,
               config.readonly,
               isSplit,
+              (from: string) =>
+                config.components?.package !== undefined &&
+                packageRoot(from) !== packageRoot(componentsOutput)
+                  ? config.components.package
+                  : undefined,
             ),
         }
       : config.template && !defineOn && appOutput

@@ -25,7 +25,7 @@ import {
 import type { OpenAPI, Operation, Schema } from '../openapi/index.js'
 import { cyclicNodes, methodPath, uncapitalizeWord } from '../utils/index.js'
 // import { makeImports, makeModuleSpec } from './code.js'
-import { makeImports } from './code.js'
+import { makeImports, makeModuleSpec } from './code.js'
 import { mockFunctionSignature, schemaToFaker } from './faker.js'
 import { isGroupName } from './group.js'
 import { appEntryDirectory } from './path.js'
@@ -745,6 +745,8 @@ export function defineOpenAPIRouteHandler(
   // basePath = '/',
   // testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
   readonly?: boolean,
+  // The name a handler file imports the components by when they are in another package.
+  componentsPackage?: (fromFile: string) => string | undefined,
 ) {
   return Effect.gen(function* () {
     const baseDir = dirname(output)
@@ -805,7 +807,10 @@ export function defineOpenAPIRouteHandler(
         kind,
         {
           output: componentsOutput,
-          ...(componentsImport ? { specifier: () => componentsImport } : {}),
+          specifier: (fromFile: string) =>
+            componentsPackage?.(fromFile) ??
+            componentsImport ??
+            makeModuleSpec(fromFile, { output: componentsOutput }),
         },
       ]),
     )

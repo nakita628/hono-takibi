@@ -1478,6 +1478,84 @@ describe('packageRoots: the package of every output', () => {
     )
   })
 
+  // With define, route and handler are one file, and it imports the components: by
+  // components.package when they are in another package.
+  // define ではルートとハンドラが 1 ファイルで、そこが components を import する。別パッケージなら
+  // components.package で import する。
+  it('imports the components by components.package from define-mode handlers', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-define-'))
+    fs.mkdirSync(path.join(tmpDir, 'server/src'), { recursive: true })
+    fs.mkdirSync(path.join(tmpDir, 'shared'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'server/package.json'), '{ "name": "@x/server" }')
+    fs.writeFileSync(path.join(tmpDir, 'shared/package.json'), '{ "name": "@x/shared" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: `${tmpDir}/server/src/index.ts`,
+        template: { define: true },
+        components: { output: `${tmpDir}/shared/index.ts`, package: '@x/shared' },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(cfg)))
+    for (const job of jobs) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await runGenerator(job.run(job.output))
+    }
+    const routes = fs
+      .readdirSync(path.join(tmpDir, 'server/src/routes'))
+      .filter((file) => file !== 'index.ts')
+      .map((file) => fs.readFileSync(path.join(tmpDir, 'server/src/routes', file), 'utf8'))
+    expect(routes.some((source) => source.includes("from '@x/shared'"))).toBe(true)
+    expect(routes.some((source) => source.includes('../../../shared'))).toBe(false)
+  })
+
+  // Only the imports that are written need a package: schemas import no other kind, so a
+  // schemas package of its own does not need the examples beside the app to name one.
+  // package が要るのは実際に書かれる import だけである。schemas はほかの種類を import しないので、
+  // 独立した schemas パッケージがあっても、アプリ側の examples に package は要らない。
+  it('asks for no package on an import that is never written', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-unwritten-'))
+    fs.mkdirSync(path.join(tmpDir, 'server/src'), { recursive: true })
+    fs.mkdirSync(path.join(tmpDir, 'shared/schemas'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'server/package.json'), '{ "name": "@x/server" }')
+    fs.writeFileSync(path.join(tmpDir, 'shared/package.json'), '{ "name": "@x/shared" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/server/src/routes`, split: true },
+        components: {
+          schemas: { output: `${tmpDir}/shared/schemas`, split: true, package: '@x/shared' },
+          examples: { output: `${tmpDir}/server/src/examples`, split: true },
+        },
+      }),
+    )
+    await expect(runGenerator(packageRoots(cfg))).resolves.toBeTypeOf('function')
+  })
+
+  // The other way round the import is written, and the package is asked for: responses
+  // import examples.
+  // 逆向きでは import が書かれるので、package を求める。responses は examples を import する。
+  it('asks for a package on an import that is written', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-written-'))
+    fs.mkdirSync(path.join(tmpDir, 'server/src'), { recursive: true })
+    fs.mkdirSync(path.join(tmpDir, 'shared/responses'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'server/package.json'), '{ "name": "@x/server" }')
+    fs.writeFileSync(path.join(tmpDir, 'shared/package.json'), '{ "name": "@x/shared" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        components: {
+          responses: { output: `${tmpDir}/shared/responses`, split: true, package: '@x/shared' },
+          examples: { output: `${tmpDir}/server/src/examples`, split: true },
+        },
+      }),
+    )
+    const error = await runGeneratorError(packageRoots(cfg))
+    expect(error.message).toBe(
+      `components.responses imports components.examples from another package: set components.examples.package to the name of the package ${tmpDir}/server/src/examples is written into.`,
+    )
+  })
+
   // Components in another package are imported by their package.
   // 別パッケージのコンポーネントは、その package で import する。
   it('imports a component by its package from another package', async () => {

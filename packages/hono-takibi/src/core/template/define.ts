@@ -21,6 +21,7 @@ export function defineTemplate(
   // testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
   readonly?: boolean,
   split = false,
+  componentsPackage?: (fromFile: string) => string | undefined,
 ) {
   const target = output.endsWith('.ts') ? output : path.join(output, 'index.ts')
   // The generated route/handler directory always sits next to the app entry
@@ -58,6 +59,7 @@ export function defineTemplate(
           // basePath,
           // testFramework,
           readonly,
+          componentsPackage,
         ),
       ],
       { concurrency: 'unbounded' },
