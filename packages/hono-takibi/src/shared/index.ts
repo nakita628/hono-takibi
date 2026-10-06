@@ -236,7 +236,7 @@ function packageRootOf(file: string) {
   })
 }
 
-type Target = { readonly output: string; readonly package?: string }
+type Target = { readonly output: string; readonly package?: string; readonly split?: boolean }
 
 /** The targets of a config that other generated files import, by the name the config gives them. */
 function importTargets(config: Config) {
@@ -245,7 +245,17 @@ function importTargets(config: Config) {
     return value ? [[`components.${kind}`, value] as const] : []
   })
   const componentTargets: readonly (readonly [string, Target])[] = config.components?.output
-    ? [['components.output', { output: config.components.output }]]
+    ? [
+        [
+          'components.output',
+          {
+            output: config.components.output,
+            ...(config.components.package === undefined
+              ? {}
+              : { package: config.components.package }),
+          },
+        ],
+      ]
     : kinds
   const routes: Target | undefined =
     config.routes ??
@@ -266,12 +276,6 @@ function importTargets(config: Config) {
   }
 }
 
-/** The directory an output is written into: the output itself when it is a directory. */
-function directoryOf(output: string) {
-  const resolved = path.resolve(output)
-  return path.extname(resolved) === '' ? resolved : path.dirname(resolved)
-}
-
 /**
  * The package each generated file is written into, as `makeJob` wants it: a file imports
  * another one of its package relatively, and one of another package by that one's
@@ -287,11 +291,14 @@ export function packageRoots(config: Config) {
     const appOutput = appEntryOutput(config)
     const defineOn = config.template?.define === true
     const appEntry = appOutput === undefined ? undefined : appEntryFile(appOutput, defineOn)
-    const outputs = [
+    // The directories generated files are written into: a split output is a directory of
+    // its own, every other output is a file in one.
+    const splitDirectory = (target: Target | undefined) =>
+      target !== undefined && 'split' in target && target.split
+        ? path.resolve(target.output)
+        : undefined
+    const files = [
       appEntry,
-      targets.routes?.output,
-      targets.webhooks?.output,
-      ...targets.components.map(([, target]) => target.output),
       targets.client?.output,
       targets.rpc?.output,
       ...targets.hooks.map(([, target]) => target.output),
@@ -299,15 +306,33 @@ export function packageRoots(config: Config) {
       config.mock?.output,
       config.docs?.output,
     ].filter((output) => output !== undefined)
-    const directories = [...new Set(outputs.map(directoryOf))]
+    const directories = [
+      ...new Set([
+        ...files.map((file) => path.dirname(path.resolve(file))),
+        ...[
+          targets.routes,
+          targets.webhooks,
+          ...targets.components.map(([, target]) => target),
+        ].map(
+          (target) =>
+            splitDirectory(target) ??
+            (target === undefined ? undefined : path.dirname(path.resolve(target.output))),
+        ),
+      ]),
+    ].filter((dir) => dir !== undefined)
     const roots = yield* Effect.forEach(directories, (dir) => packageRootOf(path.join(dir, 'x')))
     const known = directories.map((dir, index) => [dir, roots[index]] as const)
     const packageRoot = (file: string) => {
-      const dir = directoryOf(file)
+      const resolved = path.resolve(file)
+      // An output that is a known directory is asked about as that directory; anything
+      // else is a file in one.
+      const dir = known.some(([candidate]) => candidate === resolved)
+        ? resolved
+        : path.dirname(resolved)
       // The longest known directory the file sits under: a split directory inside `src`
       // may be a package of its own.
       const match = known
-        .filter(([candidate]) => dir === candidate || dir.startsWith(`${candidate}/`))
+        .filter(([candidate]) => dir === candidate || isInsideDirectory(candidate, dir))
         .toSorted((a, b) => b[0].length - a[0].length)[0]
       return match?.[1]
     }
@@ -491,7 +516,15 @@ export function makeJob(
     ? Object.fromEntries(
         componentKinds.map((kind) => [
           kind,
-          { output: componentsOutput, specifier: specifierOf({ output: componentsOutput }) },
+          {
+            output: componentsOutput,
+            specifier: specifierOf({
+              output: componentsOutput,
+              ...(config.components?.package === undefined
+                ? {}
+                : { package: config.components.package }),
+            }),
+          },
         ]),
       )
     : rawComponents

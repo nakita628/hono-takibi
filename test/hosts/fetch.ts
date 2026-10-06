@@ -1,5 +1,3 @@
-import type { Hono } from 'hono'
-
 /**
  * A `fetch` that hands every request to `app` in-process. The generated client calls
  * `fetch` with the paths of the app, so a test installs this as the global fetch and the
@@ -9,7 +7,12 @@ import type { Hono } from 'hono'
  * `fetch` を呼ぶため、テストはこれをグローバルの fetch として差し込み、ホストが応答する。
  * フックにクライアントを渡していたころの `testClient` と同じ役割である。
  */
-export function fetchOf(app: Pick<Hono, 'request'>) {
+export function fetchOf(app: {
+  readonly request: (
+    input: string | Request | URL,
+    init?: RequestInit,
+  ) => Response | Promise<Response>
+}) {
   return (input: string | URL | Request, init?: RequestInit) =>
     input instanceof Request ? app.request(input) : app.request(String(input), init)
 }

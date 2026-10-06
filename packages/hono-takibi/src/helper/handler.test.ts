@@ -374,6 +374,30 @@ describe('zodOpenAPIHonoHandler', () => {
     expect(fs.existsSync(`${testDir}/src/handlers/users.ts`)).toBe(true)
   })
 
+  // A bare `./index.ts` output is the module `index` in the working directory: the handlers
+  // import it as `../index`, not as `../.`.
+  it('handles a bare index.ts output', async () => {
+    const cwd = process.cwd()
+    process.chdir(testDir)
+    try {
+      await runGenerator(zodOpenAPIHonoHandler(simpleOpenAPI, './index.ts'))
+    } finally {
+      process.chdir(cwd)
+    }
+    expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')).toContain("from '../index'")
+  })
+
+  // A split routes directory (`routes: { output: 'src/routes', split: true }`) is a module
+  // like `src/routes/index.ts`: the handlers go beside it and import it by its barrel.
+  it('handles a split routes directory as the routes module', async () => {
+    await runGenerator(zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/src/routes`))
+
+    expect(fs.existsSync(`${testDir}/src/handlers/users.ts`)).toBe(true)
+    expect(fs.readFileSync(`${testDir}/src/handlers/users.ts`, 'utf-8')).toContain(
+      "from '../routes'",
+    )
+  })
+
   it('emits the mock functions a referenced schema depends on', async () => {
     const openAPI = {
       openapi: '3.1.0',

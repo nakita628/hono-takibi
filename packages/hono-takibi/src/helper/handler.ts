@@ -28,6 +28,7 @@ import { cyclicNodes, methodPath, uncapitalizeWord } from '../utils/index.js'
 import { makeImports } from './code.js'
 import { mockFunctionSignature, schemaToFaker } from './faker.js'
 import { isGroupName } from './group.js'
+import { appEntryDirectory } from './path.js'
 
 function makeRefs(schema: Schema, refs = new Set<string>()) {
   if (schema.$ref) {
@@ -263,20 +264,14 @@ function makeOrphanHandlers(
 //   return `${basename(fileName, '.ts')}.test.ts`
 // }
 
+// The handlers go beside the app entry, which `appEntryDirectory` derives from the routes
+// output, and import the routes by the module's name: `routes` for `src/routes.ts`,
+// `src/routes/index.ts` and the split directory `src/routes` alike.
 function makePaths(output: string, pathAlias: string | undefined, routeImport?: string) {
-  const isDot = output === '.' || output === './'
-  const isIndexFile = !isDot && output.endsWith('/index.ts')
-  const baseDir = isDot
-    ? '.'
-    : isIndexFile
-      ? (output.match(/^(.*)\/[^/]+\/index\.ts$/u)?.[1] ?? '.')
-      : (output.match(/^(.*)\/[^/]+\.ts$/u)?.[1] ?? '.')
+  const baseDir = appEntryDirectory(output, false)
   const handlerPath = baseDir === '.' ? 'handlers' : `${baseDir}/handlers`
-  const routeModuleName = isIndexFile
-    ? (output.match(/([^/]+)\/index\.ts$/u)?.[1] ?? 'index')
-    : output.endsWith('.ts')
-      ? basename(output, '.ts')
-      : 'index'
+  const moduleName = basename(output.endsWith('/index.ts') ? dirname(output) : output, '.ts')
+  const routeModuleName = moduleName === '.' || moduleName === '' ? 'index' : moduleName
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
   const importFrom =
     routeImport ?? (aliasPrefix ? `${aliasPrefix}/${routeModuleName}` : `../${routeModuleName}`)

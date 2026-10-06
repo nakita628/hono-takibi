@@ -34,8 +34,8 @@ const fillStubs = (dir) => {
       // oxfmt breaks a long stub across lines: `async (\n  c,\n) => {}`.
       // oxfmt は長いスタブを `async (\n  c,\n) => {}` のように複数行に分ける。
       const filled = source.replaceAll(
-        /async \(\s*c,?\s*\) => \{\}/gu,
-        'async (c) => c.notFound() as never',
+        /(async )?\(\s*c,?\s*\) => \{\}/gu,
+        (_, async_ = '') => `${async_}(c) => c.notFound() as never`,
       )
       if (filled !== source) writeFileSync(file, filled)
     }

@@ -132,6 +132,7 @@ export default defineConfig({
   // that import it; leave it out while everything is in one package.
   components: {
     output: './src/components/index.ts',
+    // package: '@packages/components', // when src/components is a package of its own
 
     schemas: {
       output: './src/schemas',

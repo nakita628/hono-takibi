@@ -1,11 +1,13 @@
-import path from 'node:path'
-
 import { Effect } from 'effect'
 
 import { readFile, writeFile } from '../../file/index.js'
 import { fmt } from '../../format/index.js'
 import { app } from '../../generator/zod-openapi-hono/app/index.js'
-import { resolveInlineHandlerFileNames, zodOpenAPIHonoHandler } from '../../helper/index.js'
+import {
+  appEntryFile,
+  resolveInlineHandlerFileNames,
+  zodOpenAPIHonoHandler,
+} from '../../helper/index.js'
 import { mergeAppFile } from '../../merge/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
@@ -22,9 +24,7 @@ export function template(
   split = false,
 ) {
   return Effect.gen(function* () {
-    const isIndexFile = output.endsWith('/index.ts')
-    const dir = isIndexFile ? path.dirname(path.dirname(output)) : path.dirname(output)
-    const target = path.join(dir, 'index.ts')
+    const target = appEntryFile(output, false)
     yield* zodOpenAPIHonoHandler(
       openAPI,
       output,

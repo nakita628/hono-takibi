@@ -13,9 +13,12 @@ export function isInsideDirectory(directory: string, filePath: string) {
   return relative !== '' && !relative.startsWith('..') && !path.isAbsolute(relative)
 }
 
-// Without `define` the output named is the routes file, and the app entry is the
-// `index.ts` beside it.
-function appEntryDirectory(appOutput: string, define: boolean) {
+/**
+ * The directory the app entry is in. Without `define` the output named is the routes
+ * module — a file (`src/routes.ts`), a module directory (`src/routes/index.ts`) or a split
+ * directory (`src/routes`) — and the app entry is the `index.ts` beside it.
+ */
+export function appEntryDirectory(appOutput: string, define: boolean) {
   return define || !appOutput.endsWith('/index.ts')
     ? path.dirname(appOutput)
     : path.dirname(path.dirname(appOutput))

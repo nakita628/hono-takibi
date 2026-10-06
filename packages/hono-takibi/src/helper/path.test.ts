@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import { parseConfig } from '../config/index.js'
 import { runGenerator } from '../testing/index.js'
-import { appEntryImport, appEntryOutput, generatedImport, isInsideDirectory } from './path.js'
+import {
+  appEntryDirectory,
+  appEntryImport,
+  appEntryOutput,
+  generatedImport,
+  isInsideDirectory,
+} from './path.js'
 
 describe('isInsideDirectory', () => {
   // A file directly in the directory.
@@ -54,6 +60,26 @@ describe('isInsideDirectory', () => {
 // is relative to it. A wrong anchor here breaks every route import at once.
 const entry = async (config: Record<string, unknown>) =>
   appEntryOutput(await runGenerator(parseConfig({ input: 'openapi.yaml', ...config })))
+
+describe('appEntryDirectory', () => {
+  // Without define, the app entry is the index.ts beside the routes module, whichever
+  // shape the module takes.
+  // define がなければ、app entry は routes モジュールの隣の index.ts である。モジュールの形は問わない。
+  it.concurrent('is the directory beside the routes module', () => {
+    expect(appEntryDirectory('src/routes.ts', false)).toBe('src')
+    expect(appEntryDirectory('src/routes/index.ts', false)).toBe('src')
+    expect(appEntryDirectory('src/routes', false)).toBe('src')
+    expect(appEntryDirectory('index.ts', false)).toBe('.')
+    expect(appEntryDirectory('.', false)).toBe('.')
+  })
+
+  // With define, the output is the app entry itself.
+  // define では、output がそのまま app entry である。
+  it.concurrent('is the directory of the app entry with define', () => {
+    expect(appEntryDirectory('src/index.ts', true)).toBe('src')
+    expect(appEntryDirectory('src/server/index.ts', true)).toBe('src/server')
+  })
+})
 
 describe('appEntryOutput', () => {
   it.concurrent('prefers an explicit output in every mode', async () => {

@@ -769,6 +769,32 @@ describe('honoTakibiVite', () => {
     logSpy.mockRestore()
   })
 
+  // The package check runs before the jobs; its failure is logged like a document's.
+  // パッケージの検査はジョブの前に走り、失敗はドキュメントの失敗と同じように記録される。
+  it('logs a config error when a split output in another package names no package', async () => {
+    const schemas = path.join(testState.sandboxDirectory, 'out/schemas')
+    fs.mkdirSync(schemas, { recursive: true })
+    fs.writeFileSync(path.join(schemas, 'package.json'), '{ "name": "@packages/schemas" }')
+    const configuration = {
+      input: 'openapi.yaml',
+      routes: { output: path.join(testState.sandboxDirectory, 'out/routes'), split: true },
+      components: { schemas: { output: schemas, split: true } },
+    }
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const { server } = createMockViteDevServer(configuration)
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await waitFor(() => {
+      expect(logSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          '❌ config: routes imports components.schemas from another package: set components.schemas.package',
+        ),
+      )
+    })
+    logSpy.mockRestore()
+  })
+
   it('logs config error when output path is not .ts', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const configuration = {

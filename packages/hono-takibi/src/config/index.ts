@@ -372,6 +372,18 @@ const ConfigSchema = Schema.Struct({
           examples: ['./src/components/index.ts'],
         }),
       ),
+      package: Schema.optionalKey(
+        Schema.String.check(
+          Schema.isPattern(/^[^\s'"`\\]+$/u, {
+            message: 'must be a module specifier, with no whitespace or quotes',
+          }),
+        ).annotate({
+          title: 'Package name',
+          description:
+            'Module the generated files of other packages import `output` from: the name of the package it is written into. Goes with `output`; a per-type output names its own.',
+          examples: ['@packages/components'],
+        }),
+      ),
       schemas: Schema.optionalKey(
         Schema.Struct({
           output: Schema.String.annotate({
@@ -841,6 +853,10 @@ const ConfigSchema = Schema.Struct({
               'components.output is mutually exclusive with per-type component outputs (schemas, responses, ...). Use output for single-file mode, or per-type fields for split mode.',
           },
         ),
+        Schema.makeFilter((v) => v.package === undefined || v.output !== undefined, {
+          message:
+            'components.package goes with components.output: a per-type output names its package in its own block.',
+        }),
       )
       .annotate({
         title: 'Components output',

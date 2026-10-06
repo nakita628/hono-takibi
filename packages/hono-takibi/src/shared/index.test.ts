@@ -1258,6 +1258,30 @@ describe('packageRoots: the package of every output', () => {
     expect(packageRoot(`${tmpDir}/src/schemas/user.ts`)).toBe(`${tmpDir}/src/schemas`)
   })
 
+  // A split directory is a directory whatever its name: one with a dot in it is still looked
+  // up for its own package.json, not taken for a file.
+  // split ディレクトリは名前にかかわらずディレクトリである。ドットを含む名前でも、ファイルとは
+  // 見なさず、その中の package.json を探す。
+  it('tells a split directory with a dot in its name apart', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-dot-'))
+    fs.mkdirSync(path.join(tmpDir, 'src/api.v2'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
+    fs.writeFileSync(path.join(tmpDir, 'src/api.v2/package.json'), '{ "name": "@packages/v2" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/src/routes`, split: true },
+        components: {
+          schemas: { output: `${tmpDir}/src/api.v2`, split: true, package: '@packages/v2' },
+        },
+      }),
+    )
+    const packageRoot = await runGenerator(packageRoots(cfg))
+    expect(packageRoot(`${tmpDir}/src/api.v2`)).toBe(`${tmpDir}/src/api.v2`)
+    expect(packageRoot(`${tmpDir}/src/api.v2/user.ts`)).toBe(`${tmpDir}/src/api.v2`)
+    expect(packageRoot(`${tmpDir}/src/routes/getUsers.ts`)).toBe(tmpDir)
+  })
+
   // Without a package.json anywhere above, every output is in the one package: the alias
   // applies and nothing is imported by name.
   // 上に package.json がなければ、すべての出力は 1 つのパッケージにある。エイリアスが効き、
@@ -1372,6 +1396,85 @@ describe('packageRoots: the package of every output', () => {
     const error = await runGeneratorError(packageRoots(cfg))
     expect(error.message).toBe(
       'client imports the app from another package: set client.import to the name of the package the app is written into.',
+    )
+  })
+
+  // The scaffold imports routes in another package by their package: the handlers and the
+  // app entry alike.
+  // scaffold は、別パッケージの routes をその package で import する。ハンドラも app entry も同様。
+  it('scaffolds handlers that import routes by their package', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-routes-'))
+    fs.mkdirSync(path.join(tmpDir, 'src/routes'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
+    fs.writeFileSync(path.join(tmpDir, 'src/routes/package.json'), '{ "name": "@packages/routes" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/src/routes`, split: true, package: '@packages/routes' },
+        template: { routeHandler: true },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(cfg)))
+    for (const job of jobs) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await runGenerator(job.run(job.output))
+    }
+    expect(fs.readFileSync(path.join(tmpDir, 'src/handlers/users.ts'), 'utf8')).toContain(
+      "from '@packages/routes'",
+    )
+    expect(fs.readFileSync(path.join(tmpDir, 'src/index.ts'), 'utf8')).toContain(
+      "from '@packages/routes'",
+    )
+  })
+
+  // The single components file in a package of its own is imported by components.package.
+  // 独立したパッケージにある単一の components ファイルは、components.package で import する。
+  it('imports the single components file by components.package', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-components-'))
+    fs.mkdirSync(path.join(tmpDir, 'src/components'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
+    fs.writeFileSync(
+      path.join(tmpDir, 'src/components/package.json'),
+      '{ "name": "@packages/components" }',
+    )
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/src/routes`, split: true },
+        components: {
+          output: `${tmpDir}/src/components/index.ts`,
+          package: '@packages/components',
+        },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(cfg)))
+    for (const job of jobs) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await runGenerator(job.run(job.output))
+    }
+    expect(fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8')).toContain(
+      "import { UserSchema } from '@packages/components'",
+    )
+  })
+
+  it('fails when the single components file is in another package without a package', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-components-missing-'))
+    fs.mkdirSync(path.join(tmpDir, 'src/components'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
+    fs.writeFileSync(
+      path.join(tmpDir, 'src/components/package.json'),
+      '{ "name": "@packages/components" }',
+    )
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/src/routes`, split: true },
+        components: { output: `${tmpDir}/src/components/index.ts` },
+      }),
+    )
+    const error = await runGeneratorError(packageRoots(cfg))
+    expect(error.message).toBe(
+      `routes imports components.output from another package: set components.output.package to the name of the package ${tmpDir}/src/components/index.ts is written into.`,
     )
   })
 

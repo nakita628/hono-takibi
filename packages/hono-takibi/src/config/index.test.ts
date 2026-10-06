@@ -2171,6 +2171,28 @@ describe('every component output', () => {
     )
   })
 
+  it.concurrent('components.output takes a package', async () => {
+    const result = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        components: { output: 'src/components/index.ts', package: '@packages/components' },
+      }),
+    )
+    expect(result.components?.package).toBe('@packages/components')
+  })
+
+  it.concurrent('fails when components.package is set without components.output', async () => {
+    const result = await runGeneratorError(
+      parseConfig({
+        input: 'openapi.yaml',
+        components: { package: '@packages/components', schemas: { output: 'src/schemas' } },
+      }),
+    )
+    expect(result.message).toBe(
+      'Invalid config: components: components.package goes with components.output: a per-type output names its package in its own block.',
+    )
+  })
+
   it.concurrent.each(['routes', 'webhooks'] as const)('%s takes a package', async (kind) => {
     const result = await runGenerator(
       parseConfig({
@@ -2221,6 +2243,17 @@ describe('defineConfig', () => {
       docs: { output: 'docs/api.md', curl: true, baseUrl: 'http://localhost:3000' },
     })
     expect(config.output).toBe('src/index.ts')
+  })
+
+  // The single components file names its package beside its output.
+  // 単一の components ファイルは、output の隣で package を指定する。
+  it('accepts components.package with components.output', () => {
+    const config = defineConfig({
+      input: 'openapi.yaml',
+      routes: { output: 'src/routes', split: true },
+      components: { output: 'src/components/index.ts', package: '@packages/components' },
+    })
+    expect(config.components?.package).toBe('@packages/components')
   })
 
   // The split outputs with their packages compile.
@@ -2274,7 +2307,7 @@ describe('defineConfig', () => {
       input: 'openapi.yaml',
       output: 'src/routes.ts',
       template: { routeHandler: true },
-      client: { output: 'src/client.ts' },
+      client: { output: 'src/client.ts', baseUrl: '/' },
       rpc: { output: 'src/rpc.ts' },
       'tanstack-query': { output: 'src/query.ts' },
     })
