@@ -1460,10 +1460,10 @@ describe('parseConfig()', () => {
       expect(defined.template?.split).toBe(true)
     })
 
-    // A URL is written into the client as it stands.
-    // URL は、そのままクライアントに書き込まれる。
-    it.concurrent('accepts client.baseUrl as a URL', async () => {
-      const result = await runGenerator(
+    // A URL differs between environments, so it is read from one and never written in.
+    // URL は環境ごとに違うので、環境から読む。ファイルに書き込むことはない。
+    it.concurrent('refuses a fixed URL as client.baseUrl', async () => {
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           output: 'src/routes.ts',
@@ -1471,7 +1471,9 @@ describe('parseConfig()', () => {
           client: { output: 'src/client.ts', baseUrl: 'http://localhost:3000' },
         }),
       )
-      expect(result.client?.baseUrl).toBe('http://localhost:3000')
+      expect(result.message).toBe(
+        "Invalid config: client.baseUrl: a fixed URL was removed: leave baseUrl out (or set '/') for the same origin, or read it from the environment with { env } or { env, import }",
+      )
     })
 
     // A variable is read from import.meta.env unless the config says otherwise.
@@ -2384,11 +2386,26 @@ describe('defineConfig', () => {
       // @ts-expect-error -- pathAlias was moved to the top level
       template: { pathAlias: '@/' },
     })
+    const fixedUrl = defineConfig({
+      input: 'openapi.yaml',
+      output: 'src/routes.ts',
+      template: {},
+      // @ts-expect-error -- a fixed URL was removed
+      client: { output: 'src/client.ts', baseUrl: 'http://localhost:3000' },
+    })
     expect(
-      [rpcClient, rpcImport, swrClient, routes, schemas, test, templateTest, templateAlias].map(
-        (c) => c.input,
-      ),
-    ).toHaveLength(8)
+      [
+        rpcClient,
+        rpcImport,
+        swrClient,
+        routes,
+        schemas,
+        test,
+        templateTest,
+        templateAlias,
+        fixedUrl,
+      ].map((c) => c.input),
+    ).toHaveLength(9)
   })
 
   // An option that does not exist does not compile.

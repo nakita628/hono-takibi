@@ -873,9 +873,12 @@ const ConfigSchema = Schema.Struct({
         { message: 'must be .ts file' },
       ).annotate({ title: 'Client output file', examples: ['./src/client.ts'] }),
       baseUrl: Schema.Union([
+        // `/` is the default and the only URL written into the file: a fixed URL differs
+        // between environments, so it is read from the environment instead.
         Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a URL or a path, with no whitespace or quotes',
+          Schema.isPattern(/^\/$/u, {
+            message:
+              "a fixed URL was removed: leave baseUrl out (or set '/') for the same origin, or read it from the environment with { env } or { env, import }",
           }),
         ),
         // An object that names a module is read as one: the member that takes `import` stands
@@ -922,7 +925,7 @@ const ConfigSchema = Schema.Struct({
           ).annotate({
             title: 'Environment variable',
             description:
-              'The environment variable the base URL is read from when the client is created, `/` standing in when it is not set: `VITE_API_URL` for a Vite build (only `VITE_`-prefixed variables reach the browser), `API_URL` for Node.js.',
+              'The environment variable the base URL is read from when the client is created, asserted present with `!`: `VITE_API_URL` for a Vite build (only `VITE_`-prefixed variables reach the browser), `API_URL` for Node.js. Set it in every environment; nothing stands in for it.',
             examples: ['VITE_API_URL', 'API_URL'],
           }),
           source: Schema.Literals(['import.meta.env', 'process.env'])
@@ -939,10 +942,9 @@ const ConfigSchema = Schema.Struct({
         .annotate({
           title: 'Base URL',
           description:
-            'What the client is created with, `hc(baseUrl)`. A string is written into the file as it stands: `/` (the default) for same-origin requests, or a full URL. `{ env }` reads an environment variable when the client is created, `import.meta.env.VITE_API_URL` for a Vite build or `process.env.API_URL` with `source: "process.env"`, and falls back to `/` when it is not set. `{ env, import }` reads a property of an environment object a module of yours exports, `env.API_URL` from `@/env`, with no fallback: the module answers for the value.',
+            'What the client is created with, `hc(baseUrl)`. `/` (the default) is written into the file for same-origin requests; a fixed URL is not taken, since it differs between environments. `{ env }` reads an environment variable when the client is created, `import.meta.env.VITE_API_URL!` for a Vite build or `process.env.API_URL!` with `source: "process.env"`; it is asserted present, with no fallback. `{ env, import }` reads a property of an environment object a module of yours exports, `env.API_URL` from `@/env`, with no fallback: the module answers for the value.',
           examples: [
             '/',
-            'http://localhost:3000',
             { env: 'VITE_API_URL', source: 'import.meta.env' },
             { env: 'API_URL', import: '@/env', name: 'env' },
           ],
@@ -1701,7 +1703,12 @@ type Base = Omit<Encoded, 'template' | 'client' | Caller>
 
 type Template = NonNullable<Encoded['template']>
 
-type Client = NonNullable<Encoded['client']>
+type ClientEncoded = NonNullable<Encoded['client']>
+
+// `/` is the only string the schema takes; the type says so, where the schema says `string`.
+type Client = Omit<ClientEncoded, 'baseUrl'> & {
+  readonly baseUrl?: '/' | Exclude<ClientEncoded['baseUrl'], string>
+}
 
 /**
  * What a config file may say. Three shapes, one for each step of the chain `template` →

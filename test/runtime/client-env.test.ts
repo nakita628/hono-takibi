@@ -15,6 +15,9 @@
 //
 // クライアントは src/lib/client.ts に出力され、隣のバレル src/lib/index.ts から再 export
 // される。テストは、生成された rpc ファイルと同じく、バレルを import する。
+import fs from 'node:fs'
+import path from 'node:path'
+
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
 afterEach(() => {
@@ -69,20 +72,18 @@ describe('client: the base URL is the value of the variable', () => {
   })
 })
 
-describe('client: a variable that is not set', () => {
-  // Without the variable the base URL is "/", the origin the page was served from.
-  // 変数がなければ、ベース URL は "/" になる。ページを配信したオリジンである。
-  it('vaultsClient requests the path alone', async () => {
-    vi.stubEnv('CLIENT_ENV_API_URL', undefined)
-    const { vaultsClient } = await import('../__generated__/client-env/src/lib')
-    const requested: string[] = []
-    await vaultsClient.vaults.$get(undefined, {
-      fetch: (input: string | URL | Request) => {
-        requested.push(input instanceof Request ? input.url : input.toString())
-        return Promise.resolve(Response.json([]))
-      },
-    })
-    expect(requested).toStrictEqual(['/api/vaults'])
+describe('client: the variable is asserted, not defaulted', () => {
+  // The generated file reads the variable with `!`: nothing stands in for a variable that
+  // is not set, so a deployment that forgets it is not silently talking to "/".
+  // 生成ファイルは変数を `!` 付きで読む。未設定の変数の代わりになる値はないため、設定を
+  // 忘れたデプロイが黙って "/" に向かうことはない。
+  it('reads the variable with a non-null assertion', () => {
+    const source = fs.readFileSync(
+      path.resolve(import.meta.dirname, '../__generated__/client-env/src/lib/client.ts'),
+      'utf8',
+    )
+    expect(source).toContain('const baseUrl = process.env.CLIENT_ENV_API_URL!')
+    expect(source).not.toContain("?? '/'")
   })
 })
 

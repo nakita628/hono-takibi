@@ -57,8 +57,8 @@ export const client = hcWithType('http://localhost:3000').api
 `)
   })
 
-  // The variable is read once, with "/" in its place when it is not set.
-  // 変数は1回だけ読み取られ、未設定の場合は "/" が代わりに使われる。
+  // The variable is read once and asserted present: no fallback stands in for it.
+  // 変数は1回だけ読み取られ、存在するものとして扱われる。代わりの値はない。
   it('reads a variable from process.env', async () => {
     const file = path.join(makeDir(), 'client.ts')
     await runGenerator(
@@ -67,7 +67,7 @@ export const client = hcWithType('http://localhost:3000').api
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
 import type { api } from './index'
 
-const baseUrl = process.env.API_URL ?? '/'
+const baseUrl = process.env.API_URL!
 
 type Client = ReturnType<typeof hc<typeof api>>
 
@@ -94,7 +94,7 @@ export const client = hcWithType(baseUrl).api
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
 import type { api } from './index'
 
-const baseUrl = import.meta.env.VITE_API_URL ?? '/'
+const baseUrl = import.meta.env.VITE_API_URL!
 
 type Client = ReturnType<typeof hc<typeof api>>
 

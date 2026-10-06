@@ -14,7 +14,7 @@ Generates the [Hono RPC client](https://hono.dev/docs/guides/rpc), typed wrapper
 
 ## Generated client
 
-With [`template`](/docs/guides/template), a `client` block generates the client. `rpc` and the hooks import it on their own: the `client` block is the one place a client comes from.
+With [`template`](/docs/guides/template), a `client` block generates the client. `rpc` and the hooks import it; you never create one.
 
 ```ts
 export default defineConfig({
@@ -24,7 +24,6 @@ export default defineConfig({
   template: { routeHandler: true },
   client: { output: './src/lib/client.ts' },
   rpc: { output: './src/rpc.ts' },
-  'tanstack-query': { output: './src/hooks/query.ts' },
 })
 ```
 
@@ -40,54 +39,56 @@ const hcWithType = (...args: Parameters<typeof hc>): Client => hc<typeof api>(..
 export const client = hcWithType('/').api
 ```
 
-Imports are worked out from the output paths, and follow the top-level `pathAlias` inside the package of the app.
+| Option           | Sets              | Meaning                                                  |
+| ---------------- | ----------------- | -------------------------------------------------------- |
+| `client.output`  | the file          | `rpc` and the hooks import it from there.                |
+| `client.baseUrl` | `hcWithType('/')` | `'/'` (default) or an environment variable, see below.   |
+| `basePath`       | `.api`            | Calls are `client.users.$get()`, not `client.api.users`. |
+| `client.import`  | `from '../index'` | Where the app's type comes from. Only across packages.   |
+| `client.package` | imports elsewhere | What other packages import the client by.                |
 
-### Monorepo
+Only the type of the app is imported, so no server code reaches the browser. The file is overwritten on every run.
 
-When the client lives in a package of its own, name the module it imports the app from, and the package other packages import it by.
-
-```ts
-// apps/hono/hono-takibi.config.ts
-export default defineConfig({
-  input: 'openapi.yaml',
-  output: 'src/index.ts',
-  template: { define: true },
-  client: {
-    output: '../client/src/lib/client.ts',
-    import: '@packages/server', // the client imports the app type from here (default: relative / alias)
-    package: '@packages/client', // other packages import the client by this name
-  },
-  swr: { output: '../client/src/hooks/swr.ts' }, // same package as the client → '../lib'
-  'tanstack-query': { output: '../web/src/api/hooks.ts' }, // another package → '@packages/client'
-})
-```
+Per-request options (`headers`, `init`, `fetch`) go in the last argument, everywhere:
 
 ```ts
-// apps/client/src/lib/client.ts
-import { hc } from 'hono/client'
-import type { api } from '@packages/server'
+await client.users.$get(undefined, { headers: { Authorization: `Bearer ${token}` } })
+await getUsers({ headers: { Authorization: `Bearer ${token}` } }) // rpc
+useUsers({ options: { headers: { Authorization: `Bearer ${token}` } } }) // hooks
 ```
-
-```ts
-// apps/web/src/api/hooks.ts
-import { client } from '@packages/client'
-```
-
-A package is what the nearest `package.json` above a generated file delimits. A file in the package of the client imports it relatively, as it does without `package`. `@packages/server` needs an `exports` (or `main`) entry that points at the app entry, `./src/index.ts` for example; no build step is needed for the types. The package of the hooks needs `hono` installed too: the generated hooks import from `hono/client`.
 
 ### Base URL
 
-`baseUrl` is what the client is created with, `hc(baseUrl)`. It defaults to `'/'`: same-origin requests, which is what a frontend served by the app, or behind a dev proxy, wants.
+`'/'` by default: same-origin requests. Anything else comes from the environment at startup; there is no fallback.
 
-| `baseUrl`                                   | Generated                             | When                                                                |
-| ------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------- |
-| `'/'` (default)                             | `hcWithType('/')`                     | Same origin                                                         |
-| `'http://localhost:3000'`                   | `hcWithType('http://localhost:3000')` | One fixed URL, written into the file                                |
-| `{ env: 'VITE_API_URL' }`                   | `import.meta.env.VITE_API_URL ?? '/'` | Vite build: the URL comes from `.env`, `/` when it is not set       |
-| `{ env: 'API_URL', source: 'process.env' }` | `process.env.API_URL ?? '/'`          | Node.js: the URL comes from the environment, `/` when it is not set |
-| `{ env: 'API_URL', import: '@/env' }`       | `env.API_URL`, imported from `@/env`  | A validated env module of yours (t3-env, valibot, zod): no fallback |
+| `baseUrl`                                   | Generated                       |
+| ------------------------------------------- | ------------------------------- |
+| `{ env: 'VITE_API_URL' }`                   | `import.meta.env.VITE_API_URL!` |
+| `{ env: 'API_URL', source: 'process.env' }` | `process.env.API_URL!`          |
+| `{ env: 'API_URL', import: '@/env' }`       | `env.API_URL` from `@/env`      |
 
-With `{ env }`, the variable is read once, when the client module is first imported. Vite only exposes variables prefixed `VITE_` to the browser. With `{ env, import }`, the client imports the object the module exports (`env` by default, `name` to pick another export) and reads the property named by `env`; because such a module validates its exports, the value is guaranteed and nothing stands in for it.
+With `import`, the export is `env` unless `name` says otherwise:
+
+```ts
+baseUrl: { env: 'API_URL', import: '../config', name: 'config' } // config.API_URL
+```
+
+### Monorepo
+
+When the client is a package of its own, name where the app's type comes from and what other packages import the client by:
+
+```ts
+// apps/hono/hono-takibi.config.ts
+client: {
+  output: '../client/src/lib/client.ts',
+  import: '@packages/server', // → import type { api } from '@packages/server'
+  package: '@packages/client', // → import { client } from '@packages/client' (in other packages)
+},
+swr: { output: '../client/src/hooks/swr.ts' }, // same package → '../lib'
+'tanstack-query': { output: '../web/src/api/hooks.ts' }, // other package → '@packages/client'
+```
+
+A package is what the nearest `package.json` above a file delimits. `@packages/server` needs an `exports` (or `main`) pointing at the app entry; no build is needed for the types. The hooks' package needs `hono` installed.
 
 ## Larger applications
 

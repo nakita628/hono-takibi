@@ -199,20 +199,12 @@ export default defineConfig({
     readonly: true,
   },
 
-  // Hono client of the scaffolded app (needs `template`). `rpc` and the hooks import it:
-  // relatively (or by `pathAlias`) inside this package, by `package` from another package.
+  // Hono client of the scaffolded app (needs `template`); `rpc` and the hooks import it.
   client: {
     output: './src/lib/client.ts',
-    // What `hc()` is created with. Pick one:
-    baseUrl: '/', // same origin (default)
-    // baseUrl: 'http://localhost:3000', // one fixed URL
-    // baseUrl: { env: 'VITE_API_URL' }, // Vite: import.meta.env.VITE_API_URL, '/' when unset
-    // baseUrl: { env: 'API_URL', source: 'process.env' }, // Node.js: process.env.API_URL, '/' when unset
-    // baseUrl: { env: 'API_URL', import: '@/env', name: 'env' }, // your validated env module: env.API_URL
-    //
-    // Monorepo: the client in a package of its own.
-    // import: '@packages/server', // where the client imports the app's type from (default: relative, or pathAlias)
-    // package: '@packages/client', // what files written into other packages import the client by
+    baseUrl: '/', // same origin (default); from the environment: { env: 'VITE_API_URL' }, { env: 'API_URL', source: 'process.env' }, { env: 'API_URL', import: '@/env' }
+    // import: '@packages/server', // monorepo: where the app's type comes from
+    // package: '@packages/client', // monorepo: what other packages import the client by
   },
 
   rpc: {
