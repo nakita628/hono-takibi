@@ -10,6 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { FormatError } from '../error/index.js'
 import type * as FormatModule from '../format/index.js'
 import type * as OpenAPIModule from '../openapi/index.js'
+import type { OpenAPI } from '../openapi/index.js'
 import { honoTakibiVite } from './index.js'
 
 type ViteDevServer = {
@@ -85,6 +86,7 @@ const createMockViteDevServer = (configuration: unknown) => {
 
 vi.mock('../core/index.js', () => ({
   callbacks: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('callbacks')),
+  client: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('client')),
   docs: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('docs')),
   examples: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('examples')),
   headers: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('headers')),
@@ -768,6 +770,52 @@ describe('honoTakibiVite', () => {
     logSpy.mockRestore()
   })
 
+  // The package check runs before the jobs; its failure is logged like a document's.
+  // パッケージの検査はジョブの前に走り、失敗はドキュメントの失敗と同じように記録される。
+  it('logs a config error when a split output in another package names no package', async () => {
+    const { parseOpenAPI } = await import('../openapi/index.js')
+    vi.mocked(parseOpenAPI).mockImplementationOnce(() =>
+      Effect.succeed({
+        openapi: '3.1.0',
+        info: { title: 'Pets', version: '1.0.0' },
+        paths: {
+          '/pets': {
+            get: {
+              responses: {
+                200: {
+                  description: 'OK',
+                  content: { 'application/json': { schema: { $ref: '#/components/schemas/Pet' } } },
+                },
+              },
+            },
+          },
+        },
+        components: { schemas: { Pet: { type: 'object' } } },
+      } as unknown as OpenAPI),
+    )
+    const schemas = path.join(testState.sandboxDirectory, 'out/schemas')
+    fs.mkdirSync(schemas, { recursive: true })
+    fs.writeFileSync(path.join(schemas, 'package.json'), '{ "name": "@packages/schemas" }')
+    const configuration = {
+      input: 'openapi.yaml',
+      routes: { output: path.join(testState.sandboxDirectory, 'out/routes'), split: true },
+      components: { schemas: { output: schemas, split: true } },
+    }
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const { server } = createMockViteDevServer(configuration)
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await waitFor(() => {
+      expect(logSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          '❌ config: routes imports components.schemas from another package: set components.schemas.package',
+        ),
+      )
+    })
+    logSpy.mockRestore()
+  })
+
   it('logs config error when output path is not .ts', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const configuration = {
@@ -790,23 +838,16 @@ describe('honoTakibiVite', () => {
     const configuration = {
       input: 'openapi.yaml',
       output: path.join(testState.sandboxDirectory, 'out/single.ts'),
+      template: {},
+      client: { output: path.join(testState.sandboxDirectory, 'out/lib/client.ts') },
       type: { output: path.join(testState.sandboxDirectory, 'out/types.ts') },
       mock: { output: path.join(testState.sandboxDirectory, 'out/mock.ts') },
       docs: { output: path.join(testState.sandboxDirectory, 'out/api.md') },
-      rpc: { output: path.join(testState.sandboxDirectory, 'out/rpc/index.ts'), import: '@rpc' },
-      swr: { output: path.join(testState.sandboxDirectory, 'out/swr/index.ts'), import: '@swr' },
-      'tanstack-query': {
-        output: path.join(testState.sandboxDirectory, 'out/tanstack/index.ts'),
-        import: '@tan',
-      },
-      'svelte-query': {
-        output: path.join(testState.sandboxDirectory, 'out/svelte/index.ts'),
-        import: '@svl',
-      },
-      'vue-query': {
-        output: path.join(testState.sandboxDirectory, 'out/vue/index.ts'),
-        import: '@vue',
-      },
+      rpc: { output: path.join(testState.sandboxDirectory, 'out/rpc/index.ts') },
+      swr: { output: path.join(testState.sandboxDirectory, 'out/swr/index.ts') },
+      'tanstack-query': { output: path.join(testState.sandboxDirectory, 'out/tanstack/index.ts') },
+      'svelte-query': { output: path.join(testState.sandboxDirectory, 'out/svelte/index.ts') },
+      'vue-query': { output: path.join(testState.sandboxDirectory, 'out/vue/index.ts') },
     }
     const { server } = createMockViteDevServer(configuration)
     const plugin = honoTakibiVite()

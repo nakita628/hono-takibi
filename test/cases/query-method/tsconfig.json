@@ -6,7 +6,6 @@
   "include": [
     "../../__generated__/query-method/**/*",
     "../../hosts/query-method-app.ts",
-    "../../hosts/query-method-client.ts",
     "../../runtime/query-method.test.ts"
   ]
 }

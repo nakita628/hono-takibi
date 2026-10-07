@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@fixtures/split-package-schemas": ["../../__generated__/split-package/schemas/index.ts"]
+    }
+  },
+  "include": [
+    "../../__generated__/split-package/**/*",
+    "../../runtime/split-package.source.test.ts"
+  ]
+}

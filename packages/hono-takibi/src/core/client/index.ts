@@ -34,8 +34,9 @@ type BaseUrl =
   | { readonly env: string; readonly import: string; readonly name: string }
 
 // A URL written into the file is a literal. One read from the environment is read once,
-// into `baseUrl`, with `/` in its place when the variable is not set. One read from an
-// environment a module exports is that property, which the module answers for.
+// into `baseUrl`, and asserted present: the variable is the deployment's to set, and a
+// fallback would only hide its absence. One read from an environment a module exports is
+// that property, which the module answers for.
 function makeBaseUrl(baseUrl: BaseUrl) {
   if (typeof baseUrl === 'string') {
     return { imports: [], declaration: [], url: JSON.stringify(baseUrl) }
@@ -49,7 +50,7 @@ function makeBaseUrl(baseUrl: BaseUrl) {
   }
   return {
     imports: [],
-    declaration: [`const baseUrl=${baseUrl.source}.${baseUrl.env}??'/'`],
+    declaration: [`const baseUrl=${baseUrl.source}.${baseUrl.env}!`],
     url: 'baseUrl',
   }
 }

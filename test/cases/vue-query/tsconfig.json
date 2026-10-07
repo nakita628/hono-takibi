@@ -6,7 +6,6 @@
   "include": [
     "../../__generated__/vue-query/**/*",
     "../../hosts/users-app.ts",
-    "../../hosts/users-client.ts",
     "../../runtime/vue-query.test.ts",
     "../../types/vue-query.ts",
     "../../types/assert.ts"

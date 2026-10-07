@@ -1,3 +1,4 @@
+import { HTTP_METHODS } from '../../../../constants/index.js'
 import { isParameterRef, isPathItemEntry, isPathItemRef } from '../../../../guard/index.js'
 import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/openapi.js'
 import type { OpenAPI, Operation, Parameter, PathItem } from '../../../../openapi/index.js'
@@ -92,9 +93,7 @@ export function defineEntries(
   return Object.entries(openapi.paths).flatMap(([path, pathItem]) => {
     if (!isPathItemEntry(pathItem)) return [] as const
     const resolved = resolvePathItem(pathItem)
-    return (
-      ['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace', 'query'] as const
-    ).flatMap((method) => {
+    return HTTP_METHODS.flatMap((method) => {
       const operation = resolved[method]
       if (!operation?.responses) return []
       const parameters = [

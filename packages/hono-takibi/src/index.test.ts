@@ -967,52 +967,6 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {})
 `)
   })
 
-  it('generates test files with config template and test', () => {
-    const openAPI = {
-      openapi: '3.0.3',
-      info: { title: 'Test API', version: '1.0.0' },
-      paths: {
-        '/items': {
-          post: {
-            operationId: 'createItem',
-            responses: { 201: { description: 'Created' } },
-          },
-        },
-      },
-    }
-
-    fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
-    fs.writeFileSync(
-      path.join(testDir, 'hono-takibi.config.ts'),
-      `export default { input: 'openapi.json', output: 'src/routes.ts', template: { test: true } }`,
-    )
-
-    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
-      cwd: path.resolve(testDir),
-    })
-
-    // Verify test file exists and contains vitest code
-    const testFileExists = fs.existsSync(path.join(testDir, 'src/handlers/items.test.ts'))
-    expect(testFileExists).toBe(true)
-
-    const testFileContent = fs.readFileSync(
-      path.join(testDir, 'src/handlers/items.test.ts'),
-      'utf-8',
-    )
-    expect(testFileContent).toBe(`import { describe, it, expect } from 'vitest'
-import app from '..'
-
-describe('Items', () => {
-  describe('POST /items', () => {
-    it('should return 201', async () => {
-      const res = await app.request(\`/items\`, { method: 'POST' })
-      expect(res.status).toBe(201)
-    })
-  })
-})
-`)
-  })
-
   it('generates handlers for multiple routes on same path', () => {
     const openAPI = {
       openapi: '3.0.3',
@@ -1098,9 +1052,10 @@ describe('hono-takibi.config.ts split generation tests', { timeout: 30_000 }, ()
 
     const config = `export default {
   input: 'openapi.json',
+  pathAlias: '@/',
   routes: { output: 'src/routes', split: true },
   components: {
-    schemas: { output: 'src/schemas', split: true, import: '@/schemas' },
+    schemas: { output: 'src/schemas', split: true },
   },
 }`
 
@@ -1273,7 +1228,7 @@ export const getTestRoute = createRoute({
   input: 'openapi.json',
   routes: { output: 'src/routes', split: true },
   components: {
-    schemas: { output: 'src/schemas', split: true, import: '../schemas' },
+    schemas: { output: 'src/schemas', split: true },
   },
 }`
 
@@ -1331,9 +1286,10 @@ export const getPostsRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
+  pathAlias: '~/',
   routes: { output: 'src/routes', split: true },
   components: {
-    schemas: { output: 'src/schemas', split: true, import: '~/schemas' },
+    schemas: { output: 'src/schemas', split: true },
   },
 }`
 
@@ -1396,13 +1352,16 @@ export const getCommentsRoute = createRoute({
   input: 'openapi.json',
   routes: { output: 'src/routes', split: true },
   components: {
-    schemas: { output: 'src/schemas', split: true, import: '@myorg/schemas' },
+    schemas: { output: 'src/schemas', split: true, package: '@myorg/schemas' },
   },
 }`
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
+    // `src/schemas` is a package of its own, so the routes import it by name.
+    fs.mkdirSync(path.join(testDir, 'src/schemas'), { recursive: true })
+    fs.writeFileSync(path.join(testDir, 'src/schemas/package.json'), '{ "name": "@myorg/schemas" }')
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
@@ -1452,9 +1411,10 @@ export const getProductsRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
+  pathAlias: '@/',
   routes: { output: 'src/routes', split: true },
   components: {
-    parameters: { output: 'src/parameters', split: true, import: '@/parameters' },
+    parameters: { output: 'src/parameters', split: true },
   },
 }`
 
@@ -1515,7 +1475,7 @@ export const getItemsItemIdRoute = createRoute({
   input: 'openapi.json',
   routes: { output: 'src/api/routes', split: true },
   components: {
-    responses: { output: 'src/api/responses', split: true, import: '../responses' },
+    responses: { output: 'src/api/responses', split: true },
   },
 }`
 
@@ -1577,9 +1537,10 @@ export const getOrdersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
+  pathAlias: '@/',
   routes: { output: 'src/routes', split: true },
   components: {
-    headers: { output: 'src/headers', split: true, import: '@/headers' },
+    headers: { output: 'src/headers', split: true },
   },
 }`
 
@@ -1644,7 +1605,7 @@ export const getUsersRoute = createRoute({
   input: 'openapi.json',
   routes: { output: 'src/routes', split: true },
   components: {
-    securitySchemes: { output: 'src/security', split: true, import: '../security' },
+    securitySchemes: { output: 'src/security', split: true },
   },
 }`
 
@@ -1710,13 +1671,19 @@ export const getSecureRoute = createRoute({
   input: 'openapi.json',
   routes: { output: 'src/routes', split: true },
   components: {
-    requestBodies: { output: 'src/bodies', split: true, import: '@myorg/request-bodies' },
+    requestBodies: { output: 'src/bodies', split: true, package: '@myorg/request-bodies' },
   },
 }`
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
+    // `src/bodies` is a package of its own, so the routes import it by name.
+    fs.mkdirSync(path.join(testDir, 'src/bodies'), { recursive: true })
+    fs.writeFileSync(
+      path.join(testDir, 'src/bodies/package.json'),
+      '{ "name": "@myorg/request-bodies" }',
+    )
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
@@ -1785,9 +1752,10 @@ export const postUsersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
+  pathAlias: '~/',
   routes: { output: 'src/routes', split: true },
   components: {
-    examples: { output: 'src/examples', split: true, import: '~/examples' },
+    examples: { output: 'src/examples', split: true },
   },
 }`
 
@@ -1874,9 +1842,10 @@ export const getUsersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
+  pathAlias: '@/',
   routes: { output: 'src/routes', split: true },
   components: {
-    examples: { output: 'src/examples', split: true, import: '@/examples' },
+    examples: { output: 'src/examples', split: true },
   },
 }`
 
@@ -1983,9 +1952,10 @@ export const getUsersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
+  pathAlias: '@/',
   routes: { output: 'src/routes', split: true },
   components: {
-    examples: { output: 'src/examples', split: true, import: '@/examples' },
+    examples: { output: 'src/examples', split: true },
   },
 }`
 
@@ -2087,9 +2057,10 @@ export const getUsersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
+  pathAlias: '@/',
   routes: { output: 'src/routes', split: true },
   components: {
-    examples: { output: 'src/examples', split: true, import: '@/examples' },
+    examples: { output: 'src/examples', split: true },
   },
 }`
 
@@ -2181,9 +2152,10 @@ export const getMessagesRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
+  pathAlias: '@/',
   routes: { output: 'src/routes', split: true },
   components: {
-    links: { output: 'src/links', split: true, import: '@/links' },
+    links: { output: 'src/links', split: true },
   },
 }`
 
@@ -2267,7 +2239,7 @@ export const getUsersIdRoute = createRoute({
   input: 'openapi.json',
   routes: { output: 'src/routes', split: true },
   components: {
-    callbacks: { output: 'src/callbacks', split: true, import: '../callbacks' },
+    callbacks: { output: 'src/callbacks', split: true },
   },
 }`
 
@@ -2404,8 +2376,8 @@ export const postSubscribeRoute = createRoute({
   input: 'openapi.json',
   routes: { output: 'src/routes', split: true },
   components: {
-    schemas: { output: 'src/schemas', split: true, import: '../schemas' },
-    callbacks: { output: 'src/callbacks', split: true, import: '../callbacks' },
+    schemas: { output: 'src/schemas', split: true },
+    callbacks: { output: 'src/callbacks', split: true },
   },
 }`
 
@@ -2546,10 +2518,11 @@ export const getSimpleRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
+  pathAlias: '@/',
   routes: { output: 'src/routes', split: true },
   components: {
-    schemas: { output: 'src/schemas', split: true, import: '@/schemas' },
-    parameters: { output: 'src/parameters', split: true, import: '@/parameters' },
+    schemas: { output: 'src/schemas', split: true },
+    parameters: { output: 'src/parameters', split: true },
   },
 }`
 
@@ -2836,9 +2809,10 @@ export const paymentReceivedPostWebhook = {
 
     const config = `export default {
   input: 'openapi.json',
+  pathAlias: '@/',
   routes: { output: 'src/routes', split: true },
   components: {
-    mediaTypes: { output: 'src/mediaTypes', split: true, import: '@/mediaTypes' },
+    mediaTypes: { output: 'src/mediaTypes', split: true },
   },
 }`
 
@@ -3043,10 +3017,11 @@ export const getDataRoute = createRoute({
     }
     const config = `export default {
   input: 'openapi.json',
+  pathAlias: '~/',
   routes: { output: 'src/routes', split: true },
   components: {
-    schemas: { output: 'src/schemas', split: true, import: '~/schemas' },
-    callbacks: { output: 'src/callbacks', split: true, import: '~/callbacks' },
+    schemas: { output: 'src/schemas', split: true },
+    callbacks: { output: 'src/callbacks', split: true },
   },
 }`
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
@@ -3104,10 +3079,11 @@ export const UserCreatedCallback = {
     }
     const config = `export default {
   input: 'openapi.json',
+  pathAlias: '~/',
   routes: { output: 'src/routes', split: true },
   components: {
-    schemas: { output: 'src/schemas', split: true, import: '~/schemas' },
-    mediaTypes: { output: 'src/mediaTypes', split: true, import: '@/mediaTypes' },
+    schemas: { output: 'src/schemas', split: true },
+    mediaTypes: { output: 'src/mediaTypes', split: true },
   },
 }`
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))

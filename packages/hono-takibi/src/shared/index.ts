@@ -4,7 +4,10 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import type { PlatformError } from 'effect'
 import { Effect, FileSystem, Schema } from 'effect'
 
-import type { Config, TestConfig } from '../config/index.js'
+// Test code generation is deprecated: hono-takibi no longer generates test files.
+// import type { Config, TestConfig } from '../config/index.js'
+import type { Config } from '../config/index.js'
+import { COMPONENT_NAMES, HOOK_LIBRARIES } from '../constants/index.js'
 import {
   callbacks,
   client,
@@ -27,13 +30,13 @@ import {
   securitySchemes,
   takibi,
   template,
-  test,
+  // test,
   type,
   webhooks,
 } from '../core/index.js'
 import { GenerateError } from '../error/index.js'
 import type { FormatError } from '../error/index.js'
-import { readdir, unlink } from '../file/index.js'
+import { exists, readdir, unlink } from '../file/index.js'
 import {
   appEntryFile,
   appEntryImport,
@@ -184,16 +187,245 @@ export function outsideSources(input: string) {
   })
 }
 
-export function testJob(openAPI: OpenAPI, config: TestConfig, basePath: string) {
+// Test code generation is deprecated: hono-takibi no longer generates test files.
+// export function testJob(openAPI: OpenAPI, config: TestConfig, basePath: string) {
+//   return {
+//     name: 'test',
+//     output: config.output,
+//     split: false,
+//     run: (output: string) => test(openAPI, output, config.import, basePath, config.testFramework),
+//   }
+// }
+
+/** The directory of the nearest `package.json` above `file`, or `undefined` when there is none. */
+function packageRootOf(file: string) {
+  return Effect.gen(function* () {
+    const directories: string[] = []
+    for (let dir = path.dirname(path.resolve(file)); ; dir = path.dirname(dir)) {
+      directories.push(dir)
+      if (path.dirname(dir) === dir) break
+    }
+    // A directory that is not there yet, or a path under a file, holds no package.json.
+    const found = yield* Effect.forEach(directories, (dir) =>
+      exists(path.join(dir, 'package.json')).pipe(Effect.orElseSucceed(() => false)),
+    )
+    return directories.find((_, index) => found[index])
+  })
+}
+
+type Target = { readonly output: string; readonly package?: string; readonly split?: boolean }
+
+/** The component kinds the `$ref`s under `node` point at: `#/components/<kind>/...`. */
+function refKinds(node: unknown, found = new Set<string>()): ReadonlySet<string> {
+  if (Array.isArray(node)) {
+    for (const item of node) refKinds(item, found)
+  } else if (typeof node === 'object' && node !== null) {
+    for (const [key, value] of Object.entries(node)) {
+      const kind =
+        key === '$ref' && typeof value === 'string'
+          ? /^#\/components\/(\w+)\//u.exec(value)?.[1]
+          : undefined
+      if (kind !== undefined) found.add(kind)
+      else refKinds(value, found)
+    }
+  }
+  return found
+}
+
+/**
+ * Which component kinds the generated files of each output import, read from the document:
+ * a file imports a kind exactly where what it is generated from holds a `$ref` to it. Routes
+ * are generated from `paths`, webhooks from `webhooks`, and each component kind from its
+ * own section.
+ */
+export function referencedKinds(openAPI: OpenAPI): ReadonlyMap<string, ReadonlySet<string>> {
+  return new Map([
+    ['routes', refKinds(openAPI.paths)],
+    ['webhooks', refKinds(openAPI.webhooks)],
+    ...COMPONENT_NAMES.map(
+      (kind) => [`components.${kind}`, refKinds(openAPI.components?.[kind])] as const,
+    ),
+  ])
+}
+
+/** Whether a file written by `from` imports the component target named `name`. */
+function importsComponent(
+  referenced: ReadonlyMap<string, ReadonlySet<string>>,
+  from: string,
+  name: string,
+) {
+  // The scaffold with define writes the routes, and imports what they refer to.
+  const kinds = referenced.get(from === 'template' ? 'routes' : from)
+  if (kinds === undefined) return false
+  // A single components file holds every kind.
+  if (name === 'components.output') return kinds.size > 0
+  return kinds.has(name.replace(/^components\./u, ''))
+}
+
+/** The targets of a config that other generated files import, by the name the config gives them. */
+function importTargets(config: Config) {
+  const kinds = COMPONENT_NAMES.flatMap((kind) => {
+    const value = config.components?.[kind]
+    return value ? [[`components.${kind}`, value] as const] : []
+  })
+  const componentTargets: readonly (readonly [string, Target])[] = config.components?.output
+    ? [
+        [
+          'components.output',
+          {
+            output: config.components.output,
+            ...(config.components.package === undefined
+              ? {}
+              : { package: config.components.package }),
+          },
+        ],
+      ]
+    : kinds
+  const routes: Target | undefined =
+    config.routes ??
+    (config.output !== undefined && config.template?.define !== true
+      ? { output: config.output }
+      : undefined)
+  const hookTargets: readonly (readonly [string, Target])[] = HOOK_LIBRARIES.flatMap((kind) => {
+    const value = config[kind]
+    return value ? [[kind, value] as const] : []
+  })
   return {
-    name: 'test',
-    output: config.output,
-    split: false,
-    run: (output: string) => test(openAPI, output, config.import, basePath, config.testFramework),
+    routes,
+    webhooks: config.webhooks,
+    components: componentTargets,
+    client: config.client,
+    rpc: config.rpc,
+    hooks: hookTargets,
   }
 }
 
-export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
+/**
+ * The package each generated file is written into, as `makeJob` wants it: a file imports
+ * another one of its package relatively, and one of another package by that one's
+ * `package`. A package is what the nearest `package.json` above an output delimits, and
+ * a generated file belongs to the package of the output it is written under.
+ *
+ * Fails when a file would import another package that names no `package`: the import
+ * could not be written.
+ */
+export function packageRoots(openAPI: OpenAPI, config: Config) {
+  return Effect.gen(function* () {
+    const referenced = referencedKinds(openAPI)
+    const targets = importTargets(config)
+    const appOutput = appEntryOutput(config)
+    const defineOn = config.template?.define === true
+    const appEntry = appOutput === undefined ? undefined : appEntryFile(appOutput, defineOn)
+    // The directories generated files are written into: a split output is a directory of
+    // its own, every other output is a file in one.
+    const splitDirectory = (target: Target | undefined) =>
+      target !== undefined && 'split' in target && target.split
+        ? path.resolve(target.output)
+        : undefined
+    const files = [
+      appEntry,
+      targets.client?.output,
+      targets.rpc?.output,
+      ...targets.hooks.map(([, target]) => target.output),
+      config.type?.output,
+      config.mock?.output,
+      config.docs?.output,
+    ].filter((output) => output !== undefined)
+    const directories = [
+      ...new Set([
+        ...files.map((file) => path.dirname(path.resolve(file))),
+        ...[
+          targets.routes,
+          targets.webhooks,
+          ...targets.components.map(([, target]) => target),
+        ].map(
+          (target) =>
+            splitDirectory(target) ??
+            (target === undefined ? undefined : path.dirname(path.resolve(target.output))),
+        ),
+      ]),
+    ].filter((dir) => dir !== undefined)
+    const roots = yield* Effect.forEach(directories, (dir) => packageRootOf(path.join(dir, 'x')))
+    const known = directories.map((dir, index) => [dir, roots[index]] as const)
+    const packageRoot = (file: string) => {
+      const resolved = path.resolve(file)
+      // An output that is a known directory is asked about as that directory; anything
+      // else is a file in one.
+      const dir = known.some(([candidate]) => candidate === resolved)
+        ? resolved
+        : path.dirname(resolved)
+      // The longest known directory the file sits under: a split directory inside `src`
+      // may be a package of its own.
+      const match = known
+        .filter(([candidate]) => dir === candidate || isInsideDirectory(candidate, dir))
+        .toSorted((a, b) => b[0].length - a[0].length)[0]
+      return match?.[1]
+    }
+    // Who imports whom: every edge that crosses a package needs the target's `package`.
+    const scaffold: Target | undefined =
+      appEntry !== undefined && config.template !== undefined ? { output: appEntry } : undefined
+    // The scaffold imports components only with define, where route and handler are one file.
+    const importers: readonly (readonly [string, Target | undefined])[] = [
+      ['routes', targets.routes],
+      ['webhooks', targets.webhooks],
+      ...targets.components,
+      ...(defineOn ? [['template', scaffold] as const] : []),
+    ]
+    const clientTarget = targets.client
+    const edges: readonly (readonly [string, Target, string, Target])[] = [
+      ...importers.flatMap(([from, importer]) =>
+        importer === undefined
+          ? []
+          : targets.components
+              .filter(([name]) => name !== from && importsComponent(referenced, from, name))
+              .map(([name, target]) => [from, importer, name, target] as const),
+      ),
+      ...(scaffold !== undefined && targets.routes !== undefined
+        ? [['template', scaffold, 'routes', targets.routes] as const]
+        : []),
+      ...(clientTarget === undefined
+        ? []
+        : [
+            ...(targets.rpc === undefined
+              ? []
+              : [['rpc', targets.rpc, 'client', clientTarget] as const]),
+            ...targets.hooks.map(
+              ([name, target]) => [name, target, 'client', clientTarget] as const,
+            ),
+          ]),
+    ]
+    const missing = edges.find(
+      ([, importer, , target]) =>
+        packageRoot(importer.output) !== packageRoot(target.output) && target.package === undefined,
+    )
+    if (missing !== undefined) {
+      const [from, , name, target] = missing
+      return yield* new GenerateError({
+        message: `${from} imports ${name} from another package: set ${name}.package to the name of the package ${target.output} is written into.`,
+      })
+    }
+    if (
+      clientTarget !== undefined &&
+      appEntry !== undefined &&
+      clientTarget.import === undefined &&
+      packageRoot(clientTarget.output) !== packageRoot(appEntry)
+    ) {
+      return yield* new GenerateError({
+        message:
+          'client imports the app from another package: set client.import to the name of the package the app is written into.',
+      })
+    }
+    return packageRoot
+  })
+}
+
+export function makeJob(
+  openAPI: OpenAPI,
+  config: Config,
+  // The package root of a generated file, when it is known. Left out, every file is taken
+  // to be in the package of the client.
+  packageRoot: (file: string) => string | undefined = () => undefined,
+): readonly Job[] {
   const defineOn = config.template?.define === true
   const appOutput = appEntryOutput(config)
   const isSplit = config.template?.split === true
@@ -237,50 +469,91 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
       ? undefined
       : barrel
   })()
-  // The module a generated file imports the client from: the one it names, or the file
-  // `client` generates, reached from where the generated file is written.
-  const clientImport = (output: string, named: string | undefined) => {
-    if (named !== undefined || generatedClient === undefined) return named ?? ''
-    // A file beside the client imports the client itself: the barrel is for the others,
-    // and may come to re-export the file that would import it.
+  // How a generated file imports a target: relatively inside its package, under the path
+  // alias when the target is in the directory of the app entry, and by the target's
+  // `package` from another package (`packageRoots` has seen to it that one is named).
+  const specifierOf =
+    (target: { readonly output: string; readonly package?: string }) => (from: string) => {
+      const sameRoot = packageRoot(from) === packageRoot(target.output)
+      return !sameRoot && target.package !== undefined
+        ? target.package
+        : generatedImport(
+            from,
+            target.output,
+            appOutput,
+            sameRoot ? config.pathAlias : undefined,
+            defineOn,
+          )
+    }
+  // The path alias is the alias of the package of the app: a file written into another
+  // package does not use it.
+  const aliasFor = (output: string) =>
+    appOutput !== undefined && packageRoot(output) === packageRoot(appOutput)
+      ? config.pathAlias
+      : undefined
+  // The module a generated file imports the client from: the file `client` generates,
+  // through the barrel beside it unless the file is beside it too — the barrel is for the
+  // others, and may come to re-export the file that would import it.
+  const clientImport = (output: string) => {
+    if (generatedClient === undefined) return ''
     const isBeside = path.dirname(output) === path.dirname(generatedClient.output)
-    return generatedImport(
-      output,
-      isBeside ? generatedClient.output : (clientBarrel ?? generatedClient.output),
-      appOutput,
-      config.template?.pathAlias,
-      defineOn,
-    )
+    return specifierOf({
+      output: isBeside ? generatedClient.output : (clientBarrel ?? generatedClient.output),
+      ...(generatedClient.package === undefined ? {} : { package: generatedClient.package }),
+    })(output)
   }
+  // The routes the scaffold imports: named only when they are in another package, since a
+  // relative or aliased specifier is worked out where each file is written.
+  const routesTarget: Target | undefined =
+    config.routes ?? (config.output && !defineOn ? { output: config.output } : undefined)
+  const routeImport =
+    routesTarget?.package !== undefined &&
+    appOutput !== undefined &&
+    packageRoot(appEntryFile(appOutput, defineOn)) !== packageRoot(routesTarget.output)
+      ? routesTarget.package
+      : undefined
   const componentsOutput =
     config.components?.output ??
     (defineOn && appOutput ? `${path.dirname(appOutput)}/components/index.ts` : undefined)
-  // OpenAPI 3.x Components Object kinds, in declaration / config-field order.
-  const componentKinds = [
-    'schemas',
-    'responses',
-    'parameters',
-    'examples',
-    'requestBodies',
-    'headers',
-    'securitySchemes',
-    'links',
-    'callbacks',
-    'pathItems',
-    'mediaTypes',
-  ] as const
   const rawComponents = config.components
-  const componentsResolve: { readonly [k: string]: { readonly output: string } } | undefined =
-    componentsOutput
-      ? Object.fromEntries(componentKinds.map((kind) => [kind, { output: componentsOutput }]))
-      : rawComponents
-        ? Object.fromEntries(
-            componentKinds.flatMap((kind) => {
-              const value = rawComponents[kind]
-              return value ? ([[kind, value]] as const) : []
+  const componentsResolve:
+    | {
+        readonly [k: string]: {
+          readonly output: string
+          readonly split?: boolean
+          readonly specifier: (fromFile: string) => string
+        }
+      }
+    | undefined = componentsOutput
+    ? Object.fromEntries(
+        COMPONENT_NAMES.map((kind) => [
+          kind,
+          {
+            output: componentsOutput,
+            specifier: specifierOf({
+              output: componentsOutput,
+              ...(config.components?.package === undefined
+                ? {}
+                : { package: config.components.package }),
             }),
-          )
-        : undefined
+          },
+        ]),
+      )
+    : rawComponents
+      ? Object.fromEntries(
+          COMPONENT_NAMES.flatMap((kind) => {
+            const value = rawComponents[kind]
+            return value
+              ? ([
+                  [
+                    kind,
+                    { output: value.output, split: value.split, specifier: specifierOf(value) },
+                  ],
+                ] as const)
+              : []
+          }),
+        )
+      : undefined
   return [
     config.output && !defineOn
       ? {
@@ -526,7 +799,8 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
             client(
               openAPI,
               output,
-              appEntryImport(output, appOutput, config.template?.pathAlias, defineOn),
+              generatedClient.import ??
+                appEntryImport(output, appOutput, aliasFor(output), defineOn),
               generatedClient.baseUrl,
               config.basePath,
               grouping,
@@ -543,8 +817,8 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
             rpc(
               openAPI,
               output,
-              clientImport(output, config.rpc?.import),
-              config.rpc?.client ?? 'client',
+              clientImport(output),
+              'client',
               config.rpc?.parseResponse ?? false,
               config.basePath,
               config.rpc?.docs ?? false,
@@ -552,17 +826,7 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
             ),
         }
       : undefined,
-    ...(
-      [
-        'swr',
-        'tanstack-query',
-        'preact-query',
-        'solid-query',
-        'vue-query',
-        'svelte-query',
-        'angular-query',
-      ] as const
-    ).map((library) => {
+    ...HOOK_LIBRARIES.map((library) => {
       const cfg = config[library]
       return cfg
         ? {
@@ -570,8 +834,7 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
             output: cfg.output,
             split: false,
             run: (output: string) =>
-              hooks(openAPI, output, clientImport(output, cfg.import), library, {
-                clientName: cfg.client ?? 'client',
+              hooks(openAPI, output, clientImport(output), library, {
                 ...(grouping === undefined ? {} : { grouping }),
                 basePath: config.basePath,
               }),
@@ -616,13 +879,18 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
               openAPI,
               output,
               componentsOutput,
-              config.template?.test ?? false,
+              // config.template?.test ?? false,
               config.basePath,
-              config.template?.pathAlias,
-              config.routes?.import,
-              config.template?.testFramework,
+              config.pathAlias,
+              routeImport,
+              // config.template?.testFramework,
               config.readonly,
               isSplit,
+              (from: string) =>
+                config.components?.package !== undefined &&
+                packageRoot(from) !== packageRoot(componentsOutput)
+                  ? config.components.package
+                  : undefined,
             ),
         }
       : config.template && !defineOn && appOutput
@@ -634,12 +902,12 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
               template(
                 openAPI,
                 output,
-                config.template?.test ?? false,
+                // config.template?.test ?? false,
                 config.basePath,
-                config.template?.pathAlias,
-                config.routes?.import,
+                config.pathAlias,
+                routeImport,
                 config.template?.define === false ? config.template.routeHandler : false,
-                config.template?.testFramework,
+                // config.template?.testFramework,
                 isSplit,
               ),
           }

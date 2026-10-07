@@ -19,7 +19,7 @@ export function parameters(
     readonly [k: string]: {
       readonly output: string
       readonly split?: boolean
-      readonly import?: string
+      readonly specifier?: (fromFile: string) => string
     }
   },
   readonly?: boolean,

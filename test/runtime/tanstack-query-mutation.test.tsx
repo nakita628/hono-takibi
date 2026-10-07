@@ -16,14 +16,19 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
-import { afterEach, describe, expect, it } from 'vite-plus/test'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import {
   getPostUsersMutationKey,
   getPostUsersMutationOptions,
   usePostUsers,
 } from '../__generated__/tanstack-query/query'
-import { requestLog } from '../hosts/users-app'
+import { fetchOf } from '../hosts/fetch'
+import { app as host, requestLog } from '../hosts/users-app'
+
+// The generated client reaches the host through this fetch.
+// 生成されたクライアントは、この fetch を通してホストに届く。
+vi.stubGlobal('fetch', fetchOf(host))
 
 function makeClient() {
   return new QueryClient({ defaultOptions: { mutations: { retry: false } } })

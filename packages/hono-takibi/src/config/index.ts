@@ -4,58 +4,37 @@ import { pathToFileURL } from 'node:url'
 import { Effect, FileSystem, Schema, SchemaIssue, SchemaTransformation } from 'effect'
 import type { FormatConfig } from 'oxfmt'
 
-const COMPONENT_KINDS = [
-  'schemas',
-  'responses',
-  'parameters',
-  'examples',
-  'requestBodies',
-  'headers',
-  'securitySchemes',
-  'links',
-  'callbacks',
-  'pathItems',
-  'mediaTypes',
-] as const
+import { COMPONENT_NAMES, HOOK_LIBRARIES } from '../constants/index.js'
 
-const HOOK_KINDS = [
-  'swr',
-  'tanstack-query',
-  'preact-query',
-  'solid-query',
-  'vue-query',
-  'svelte-query',
-  'angular-query',
-] as const
-
-export const TestSchema = Schema.Struct({
-  output: Schema.String.annotate({
-    title: 'Output file',
-    description:
-      'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
-    examples: ['./src/test.ts', './src/test'],
-  }),
-  import: Schema.String.check(
-    Schema.isPattern(/^[^\s'"`\\]+$/u, {
-      message: 'must be a module specifier, with no whitespace or quotes',
-    }),
-  ).annotate({
-    title: 'Import specifier',
-    description: 'Module specifier the generated files use to import from `output`.',
-    examples: ['@packages/routes', '../lib', '.'],
-  }),
-  testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
-    .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
-    .annotate({
-      title: 'Test framework',
-      description: 'Framework whose import specifier the generated test files use.',
-      examples: ['vitest', 'vite-plus', 'bun'],
-    }),
-}).annotate({
-  title: 'Route tests output',
-  description: 'Generates a request-level test per operation against the generated app.',
-  examples: [{ output: './src/test.ts', import: '.', testFramework: 'vitest' }],
-})
+// Test code generation is deprecated: hono-takibi no longer generates test files.
+// export const TestSchema = Schema.Struct({
+//   output: Schema.String.annotate({
+//     title: 'Output file',
+//     description:
+//       'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
+//     examples: ['./src/test.ts', './src/test'],
+//   }),
+//   import: Schema.String.check(
+//     Schema.isPattern(/^[^\s'"`\\]+$/u, {
+//       message: 'must be a module specifier, with no whitespace or quotes',
+//     }),
+//   ).annotate({
+//     title: 'Import specifier',
+//     description: 'Module specifier the generated files use to import from `output`.',
+//     examples: ['@packages/routes', '../lib', '.'],
+//   }),
+//   testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
+//     .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
+//     .annotate({
+//       title: 'Test framework',
+//       description: 'Framework whose import specifier the generated test files use.',
+//       examples: ['vitest', 'vite-plus', 'bun'],
+//     }),
+// }).annotate({
+//   title: 'Route tests output',
+//   description: 'Generates a request-level test per operation against the generated app.',
+// examples: [{ output: './src/test.ts', import: '.', testFramework: 'vitest' }],
+// })
 
 const ConfigSchema = Schema.Struct({
   input: Schema.declare<`${string}.yaml` | `${string}.json` | `${string}.tsp`>(
@@ -93,6 +72,18 @@ const ConfigSchema = Schema.Struct({
       description: 'Emit `readonly` modifiers on the generated TypeScript types.',
     }),
   ),
+  pathAlias: Schema.optionalKey(
+    Schema.String.check(
+      Schema.isPattern(/^[^\s'"`\\]+$/u, {
+        message: 'must be an import prefix, with no whitespace or quotes',
+      }),
+    ).annotate({
+      title: 'Path alias',
+      description:
+        'Import prefix the generated files use for one another instead of relative paths: `@/` where the tsconfig maps `@/*` to the directory of the app entry. It is the alias of the package this config belongs to, so only files written into that package use it; a file written into another package imports the client by `client.package`.',
+      examples: ['@/', '~/'],
+    }),
+  ),
   format: Schema.optionalKey(
     Schema.declare<FormatConfig>(
       (u): u is FormatConfig => typeof u === 'object' && u !== null,
@@ -114,27 +105,34 @@ const ConfigSchema = Schema.Struct({
           description:
             'Divide the routes into groups, each exported under its name, and the rest as `api`. Every group is registered on the one app; what is divided is the type, so that a client of one group resolves the routes of that group and not of the whole application. A group is the first segment of the path, `/books` and `/books/{id}` as `books` and `/v2-public/ping` as `v2Public` — or, where the handlers register their routes themselves (`routeHandler: false`), the handler file the app mounts, which goes by the first tag. The root belongs to no group.',
         }),
-        test: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
-          description: 'Also scaffold a test file per handler.',
-        }),
-        pathAlias: Schema.optionalKey(
-          Schema.String.check(
-            Schema.isPattern(/^[^\s'"`\\]+$/u, {
-              message: 'must be an import prefix, with no whitespace or quotes',
-            }),
-          ).annotate({
-            title: 'Path alias',
-            description: 'Import prefix used by the scaffolded files instead of relative paths.',
-            examples: ['@/', '~/'],
+        // Test code generation is deprecated: hono-takibi no longer generates test files.
+        // test: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+        //   description: 'Also scaffold a test file per handler.',
+        // }),
+        test: Schema.optionalKey(
+          Schema.Never.annotate({
+            message:
+              'test was removed: hono-takibi no longer generates test files. The `.test.ts` files a previous run wrote are yours to keep or delete.',
           }),
         ),
-        testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
-          .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
-          .annotate({
-            title: 'Test framework',
-            description: 'Framework whose import specifier the generated test files use.',
-            examples: ['vitest', 'vite-plus', 'bun'],
+        pathAlias: Schema.optionalKey(
+          Schema.Never.annotate({
+            message:
+              'pathAlias was moved to the top level: it applies to every generated file of this package, not only to the scaffold.',
           }),
+        ),
+        // testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
+        //   .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
+        //   .annotate({
+        //     title: 'Test framework',
+        //     description: 'Framework whose import specifier the generated test files use.',
+        //     examples: ['vitest', 'vite-plus', 'bun'],
+        //   }),
+        testFramework: Schema.optionalKey(
+          Schema.Never.annotate({
+            message: 'testFramework was removed: hono-takibi no longer generates test files.',
+          }),
+        ),
       }),
       Schema.Struct({
         define: Schema.Literal(false)
@@ -150,42 +148,49 @@ const ConfigSchema = Schema.Struct({
           description:
             'Divide the routes into groups, each exported under its name, and the rest as `api`. Every group is registered on the one app; what is divided is the type, so that a client of one group resolves the routes of that group and not of the whole application. A group is the first segment of the path, `/books` and `/books/{id}` as `books` and `/v2-public/ping` as `v2Public` — or, where the handlers register their routes themselves (`routeHandler: false`), the handler file the app mounts, which goes by the first tag. The root belongs to no group.',
         }),
-        test: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
-          description: 'Also scaffold a test file per handler.',
-        }),
-        pathAlias: Schema.optionalKey(
-          Schema.String.check(
-            Schema.isPattern(/^[^\s'"`\\]+$/u, {
-              message: 'must be an import prefix, with no whitespace or quotes',
-            }),
-          ).annotate({
-            title: 'Path alias',
-            description: 'Import prefix used by the scaffolded files instead of relative paths.',
-            examples: ['@/', '~/'],
+        // Test code generation is deprecated: hono-takibi no longer generates test files.
+        // test: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+        //   description: 'Also scaffold a test file per handler.',
+        // }),
+        test: Schema.optionalKey(
+          Schema.Never.annotate({
+            message:
+              'test was removed: hono-takibi no longer generates test files. The `.test.ts` files a previous run wrote are yours to keep or delete.',
           }),
         ),
-        testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
-          .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
-          .annotate({
-            title: 'Test framework',
-            description: 'Framework whose import specifier the generated test files use.',
-            examples: ['vitest', 'vite-plus', 'bun'],
+        pathAlias: Schema.optionalKey(
+          Schema.Never.annotate({
+            message:
+              'pathAlias was moved to the top level: it applies to every generated file of this package, not only to the scaffold.',
           }),
+        ),
+        // testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
+        //   .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
+        //   .annotate({
+        //     title: 'Test framework',
+        //     description: 'Framework whose import specifier the generated test files use.',
+        //     examples: ['vitest', 'vite-plus', 'bun'],
+        //   }),
+        testFramework: Schema.optionalKey(
+          Schema.Never.annotate({
+            message: 'testFramework was removed: hono-takibi no longer generates test files.',
+          }),
+        ),
       }),
     ]).annotate({
       title: 'App scaffold',
       description:
-        'Scaffolds the Hono app, handler stubs, and optional tests around the routes. Discriminated on `define`: the scaffold options are common, only `define` and `routeHandler` differ.',
+        'Scaffolds the Hono app and handler stubs around the routes. Discriminated on `define`: the scaffold options are common, only `define` and `routeHandler` differ.',
       examples: [
         {
           define: false,
           routeHandler: true,
           split: false,
-          test: true,
-          pathAlias: '@/',
-          testFramework: 'vitest',
+          // test: true,
+          // testFramework: 'vitest',
         },
-        { define: true, split: false, test: true, testFramework: 'vitest' },
+        // { define: true, split: false, test: true, testFramework: 'vitest' },
+        { define: true, split: false },
       ],
     }),
   ),
@@ -264,14 +269,21 @@ const ConfigSchema = Schema.Struct({
         description: 'Write one file per entry into `output` rather than a single file.',
       }),
       import: Schema.optionalKey(
+        Schema.Never.annotate({
+          message:
+            'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+        }),
+      ),
+      package: Schema.optionalKey(
         Schema.String.check(
           Schema.isPattern(/^[^\s'"`\\]+$/u, {
             message: 'must be a module specifier, with no whitespace or quotes',
           }),
         ).annotate({
-          title: 'Import specifier',
-          description: 'Module specifier the generated files use to import from `output`.',
-          examples: ['@packages/routes', '../lib', '.'],
+          title: 'Package name',
+          description:
+            'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+          examples: ['@packages/routes'],
         }),
       ),
     })
@@ -298,14 +310,21 @@ const ConfigSchema = Schema.Struct({
         description: 'Write one file per entry into `output` rather than a single file.',
       }),
       import: Schema.optionalKey(
+        Schema.Never.annotate({
+          message:
+            'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+        }),
+      ),
+      package: Schema.optionalKey(
         Schema.String.check(
           Schema.isPattern(/^[^\s'"`\\]+$/u, {
             message: 'must be a module specifier, with no whitespace or quotes',
           }),
         ).annotate({
-          title: 'Import specifier',
-          description: 'Module specifier the generated files use to import from `output`.',
-          examples: ['@packages/routes', '../lib', '.'],
+          title: 'Package name',
+          description:
+            'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+          examples: ['@packages/routes'],
         }),
       ),
     })
@@ -331,6 +350,18 @@ const ConfigSchema = Schema.Struct({
           examples: ['./src/components/index.ts'],
         }),
       ),
+      package: Schema.optionalKey(
+        Schema.String.check(
+          Schema.isPattern(/^[^\s'"`\\]+$/u, {
+            message: 'must be a module specifier, with no whitespace or quotes',
+          }),
+        ).annotate({
+          title: 'Package name',
+          description:
+            'Module the generated files of other packages import `output` from: the name of the package it is written into. Goes with `output`; a per-type output names its own.',
+          examples: ['@packages/components'],
+        }),
+      ),
       schemas: Schema.optionalKey(
         Schema.Struct({
           output: Schema.String.annotate({
@@ -348,14 +379,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Also export the TypeScript type inferred from each generated schema.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -381,14 +419,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Write one file per entry into `output` rather than a single file.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -419,14 +464,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Also export the TypeScript type inferred from each generated schema.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -452,14 +504,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Write one file per entry into `output` rather than a single file.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -485,14 +544,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Write one file per entry into `output` rather than a single file.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -523,14 +589,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Also export the TypeScript type inferred from each generated schema.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -556,14 +629,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Write one file per entry into `output` rather than a single file.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -589,14 +669,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Write one file per entry into `output` rather than a single file.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -622,14 +709,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Write one file per entry into `output` rather than a single file.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -655,14 +749,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Write one file per entry into `output` rather than a single file.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -693,14 +794,21 @@ const ConfigSchema = Schema.Struct({
             description: 'Also export the TypeScript type inferred from each generated schema.',
           }),
           import: Schema.optionalKey(
+            Schema.Never.annotate({
+              message:
+                'import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+            }),
+          ),
+          package: Schema.optionalKey(
             Schema.String.check(
               Schema.isPattern(/^[^\s'"`\\]+$/u, {
                 message: 'must be a module specifier, with no whitespace or quotes',
               }),
             ).annotate({
-              title: 'Import specifier',
-              description: 'Module specifier the generated files use to import from `output`.',
-              examples: ['@packages/routes', '../lib', '.'],
+              title: 'Package name',
+              description:
+                'Module the generated files of other packages import `output` from: the name of the package it is written into. Files in the same package import it relatively, or under `pathAlias`.',
+              examples: ['@packages/routes'],
             }),
           ),
         })
@@ -717,12 +825,16 @@ const ConfigSchema = Schema.Struct({
     })
       .check(
         Schema.makeFilter(
-          (v) => v.output === undefined || !COMPONENT_KINDS.some((k) => v[k] !== undefined),
+          (v) => v.output === undefined || !COMPONENT_NAMES.some((k) => v[k] !== undefined),
           {
             message:
               'components.output is mutually exclusive with per-type component outputs (schemas, responses, ...). Use output for single-file mode, or per-type fields for split mode.',
           },
         ),
+        Schema.makeFilter((v) => v.package === undefined || v.output !== undefined, {
+          message:
+            'components.package goes with components.output: a per-type output names its package in its own block.',
+        }),
       )
       .annotate({
         title: 'Components output',
@@ -755,9 +867,12 @@ const ConfigSchema = Schema.Struct({
         { message: 'must be .ts file' },
       ).annotate({ title: 'Client output file', examples: ['./src/client.ts'] }),
       baseUrl: Schema.Union([
+        // `/` is the default and the only URL written into the file: a fixed URL differs
+        // between environments, so it is read from the environment instead.
         Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a URL or a path, with no whitespace or quotes',
+          Schema.isPattern(/^\/$/u, {
+            message:
+              "a fixed URL was removed: leave baseUrl out (or set '/') for the same origin, or read it from the environment with { env } or { env, import }",
           }),
         ),
         // An object that names a module is read as one: the member that takes `import` stands
@@ -769,7 +884,8 @@ const ConfigSchema = Schema.Struct({
             }),
           ).annotate({
             title: 'Environment variable',
-            description: 'The property of the imported environment the base URL is read from.',
+            description:
+              'The property of the imported environment object that holds the base URL: `API_URL` for `env.API_URL`.',
             examples: ['API_URL'],
           }),
           import: Schema.String.check(
@@ -779,7 +895,7 @@ const ConfigSchema = Schema.Struct({
           ).annotate({
             title: 'Import specifier',
             description:
-              'The module that exports the environment, written into the client file as it stands. One that validates what it exports hands out a value that is there, so nothing stands in for it.',
+              'The module of yours that exports the environment object, written into the client file as it stands: `@/env`, `../env`. Such a module validates its exports (t3-env, valibot, zod), so the property is there and no `/` fallback is written.',
             examples: ['@/env', '../env'],
           }),
           name: Schema.String.check(
@@ -790,7 +906,8 @@ const ConfigSchema = Schema.Struct({
             .pipe(Schema.withDecodingDefault(Effect.succeed('env')))
             .annotate({
               title: 'Environment export name',
-              description: 'Named export to import from `import` as the environment.',
+              description:
+                'The named export of `import` that is the environment object, `env` when left out.',
               examples: ['env'],
             }),
         }),
@@ -801,7 +918,8 @@ const ConfigSchema = Schema.Struct({
             }),
           ).annotate({
             title: 'Environment variable',
-            description: 'The variable the base URL is read from when the client is created.',
+            description:
+              'The environment variable the base URL is read from when the client is created, asserted present with `!`: `VITE_API_URL` for a Vite build (only `VITE_`-prefixed variables reach the browser), `API_URL` for Node.js. Set it in every environment; nothing stands in for it.',
             examples: ['VITE_API_URL', 'API_URL'],
           }),
           source: Schema.Literals(['import.meta.env', 'process.env'])
@@ -809,7 +927,7 @@ const ConfigSchema = Schema.Struct({
             .annotate({
               title: 'Where the variable is read from',
               description:
-                '`import.meta.env` for code a bundler such as Vite builds, `process.env` for code Node.js runs.',
+                '`import.meta.env` (the default) for code a bundler such as Vite builds, `process.env` for code Node.js runs.',
               examples: ['import.meta.env', 'process.env'],
             }),
         }),
@@ -818,19 +936,50 @@ const ConfigSchema = Schema.Struct({
         .annotate({
           title: 'Base URL',
           description:
-            'What the client is created with, `hc(baseUrl)`: a URL written into the file, an environment variable read when the client is created, with `/` in its place when it is not set, or a property of an environment a module exports.',
+            'What the client is created with, `hc(baseUrl)`. `/` (the default) is written into the file for same-origin requests; a fixed URL is not taken, since it differs between environments. `{ env }` reads an environment variable when the client is created, `import.meta.env.VITE_API_URL!` for a Vite build or `process.env.API_URL!` with `source: "process.env"`; it is asserted present, with no fallback. `{ env, import }` reads a property of an environment object a module of yours exports, `env.API_URL` from `@/env`, with no fallback: the module answers for the value.',
           examples: [
             '/',
-            'http://localhost:3000',
             { env: 'VITE_API_URL', source: 'import.meta.env' },
             { env: 'API_URL', import: '@/env', name: 'env' },
           ],
         }),
+      import: Schema.optionalKey(
+        Schema.String.check(
+          Schema.isPattern(/^[^\s'"`\\]+$/u, {
+            message: 'must be a module specifier, with no whitespace or quotes',
+          }),
+        ).annotate({
+          title: 'App import specifier',
+          description:
+            'Module the client imports the type of the app from. Left out, the app entry is imported relatively, or under `pathAlias`. Name the package of the app when the client is written into another package: `@packages/server`, whose `exports` (or `main`) point at the app entry.',
+          examples: ['@packages/server', '../server'],
+        }),
+      ),
+      package: Schema.optionalKey(
+        Schema.String.check(
+          Schema.isPattern(/^[^\s'"`\\]+$/u, {
+            message: 'must be a module specifier, with no whitespace or quotes',
+          }),
+        ).annotate({
+          title: 'Package name',
+          description:
+            'Module the generated files of other packages import the client from: the name of the package the client is written into. A file written into the package of the client imports it relatively, as it does without this. A package is what the nearest `package.json` above a file delimits.',
+          examples: ['@packages/client'],
+        }),
+      ),
     }).annotate({
       title: 'Typed client',
       description:
-        'The Hono client of the scaffolded app, with its type declared once so that it is worked out when the file is compiled. With `template.split`, one client for each group, `booksClient` for `books`, and `client` for the routes that belong to none. `rpc` and the hooks import from it unless they name an `import` of their own. Needs `template`.',
-      examples: [{ output: './src/client.ts', baseUrl: '/' }],
+        'The Hono client of the scaffolded app, with its type declared once so that it is worked out when the file is compiled. With `template.split`, one client for each group, `booksClient` for `books`, and `client` for the routes that belong to none. `rpc` and the hooks import from it: relatively, or by `package` from another package. Needs `template`.',
+      examples: [
+        { output: './src/client.ts', baseUrl: '/' },
+        {
+          output: '../client/src/client.ts',
+          baseUrl: '/',
+          import: '@packages/server',
+          package: '@packages/client',
+        },
+      ],
     }),
   ),
   rpc: Schema.optionalKey(
@@ -842,27 +991,15 @@ const ConfigSchema = Schema.Struct({
         examples: ['./src/rpc.ts', './src/rpc'],
       }),
       import: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a module specifier, with no whitespace or quotes',
-          }),
-        ).annotate({
-          title: 'Import specifier',
-          description:
-            'Module specifier the generated file imports the client from. Left out, it is the file the top-level `client` generates.',
-          examples: ['@packages/routes', '../lib', '.'],
+        Schema.Never.annotate({
+          message:
+            'import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
         }),
       ),
       client: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-            message: 'must be a JavaScript identifier',
-          }),
-        ).annotate({
-          title: 'Client export name',
-          description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
-          examples: ['client', 'apiClient'],
+        Schema.Never.annotate({
+          message:
+            'client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
         }),
       ),
       parseResponse: Schema.Boolean.pipe(
@@ -885,8 +1022,6 @@ const ConfigSchema = Schema.Struct({
       examples: [
         {
           output: './src/rpc.ts',
-          import: '../lib',
-          client: 'client',
           parseResponse: false,
           docs: false,
         },
@@ -902,27 +1037,15 @@ const ConfigSchema = Schema.Struct({
         examples: ['./src/swr.ts', './src/swr'],
       }),
       import: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a module specifier, with no whitespace or quotes',
-          }),
-        ).annotate({
-          title: 'Import specifier',
-          description:
-            'Module specifier the generated file imports the client from. Left out, it is the file the top-level `client` generates.',
-          examples: ['@packages/routes', '../lib', '.'],
+        Schema.Never.annotate({
+          message:
+            'import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
         }),
       ),
       client: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-            message: 'must be a JavaScript identifier',
-          }),
-        ).annotate({
-          title: 'Client export name',
-          description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
-          examples: ['client', 'apiClient'],
+        Schema.Never.annotate({
+          message:
+            'client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
         }),
       ),
       split: Schema.optionalKey(
@@ -934,7 +1057,7 @@ const ConfigSchema = Schema.Struct({
     }).annotate({
       title: 'SWR hooks output',
       description: 'Generates `useSWR` / `useSWRMutation` hooks per operation.',
-      examples: [{ output: './src/swr.ts', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/swr.ts' }],
     }),
   ),
   'tanstack-query': Schema.optionalKey(
@@ -946,27 +1069,15 @@ const ConfigSchema = Schema.Struct({
         examples: ['./src/tanstack-query.ts', './src/tanstack-query'],
       }),
       import: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a module specifier, with no whitespace or quotes',
-          }),
-        ).annotate({
-          title: 'Import specifier',
-          description:
-            'Module specifier the generated file imports the client from. Left out, it is the file the top-level `client` generates.',
-          examples: ['@packages/routes', '../lib', '.'],
+        Schema.Never.annotate({
+          message:
+            'import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
         }),
       ),
       client: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-            message: 'must be a JavaScript identifier',
-          }),
-        ).annotate({
-          title: 'Client export name',
-          description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
-          examples: ['client', 'apiClient'],
+        Schema.Never.annotate({
+          message:
+            'client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
         }),
       ),
       split: Schema.optionalKey(
@@ -978,7 +1089,7 @@ const ConfigSchema = Schema.Struct({
     }).annotate({
       title: 'TanStack Query hooks output',
       description: 'Generates `@tanstack/react-query` hooks per operation.',
-      examples: [{ output: './src/tanstack-query.ts', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/tanstack-query.ts' }],
     }),
   ),
   'preact-query': Schema.optionalKey(
@@ -990,27 +1101,15 @@ const ConfigSchema = Schema.Struct({
         examples: ['./src/preact-query.ts', './src/preact-query'],
       }),
       import: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a module specifier, with no whitespace or quotes',
-          }),
-        ).annotate({
-          title: 'Import specifier',
-          description:
-            'Module specifier the generated file imports the client from. Left out, it is the file the top-level `client` generates.',
-          examples: ['@packages/routes', '../lib', '.'],
+        Schema.Never.annotate({
+          message:
+            'import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
         }),
       ),
       client: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-            message: 'must be a JavaScript identifier',
-          }),
-        ).annotate({
-          title: 'Client export name',
-          description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
-          examples: ['client', 'apiClient'],
+        Schema.Never.annotate({
+          message:
+            'client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
         }),
       ),
       split: Schema.optionalKey(
@@ -1022,7 +1121,7 @@ const ConfigSchema = Schema.Struct({
     }).annotate({
       title: 'Preact Query hooks output',
       description: 'Generates `@tanstack/preact-query` hooks per operation.',
-      examples: [{ output: './src/preact-query.ts', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/preact-query.ts' }],
     }),
   ),
   'solid-query': Schema.optionalKey(
@@ -1034,27 +1133,15 @@ const ConfigSchema = Schema.Struct({
         examples: ['./src/solid-query.ts', './src/solid-query'],
       }),
       import: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a module specifier, with no whitespace or quotes',
-          }),
-        ).annotate({
-          title: 'Import specifier',
-          description:
-            'Module specifier the generated file imports the client from. Left out, it is the file the top-level `client` generates.',
-          examples: ['@packages/routes', '../lib', '.'],
+        Schema.Never.annotate({
+          message:
+            'import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
         }),
       ),
       client: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-            message: 'must be a JavaScript identifier',
-          }),
-        ).annotate({
-          title: 'Client export name',
-          description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
-          examples: ['client', 'apiClient'],
+        Schema.Never.annotate({
+          message:
+            'client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
         }),
       ),
       split: Schema.optionalKey(
@@ -1066,7 +1153,7 @@ const ConfigSchema = Schema.Struct({
     }).annotate({
       title: 'Solid Query hooks output',
       description: 'Generates `@tanstack/solid-query` hooks per operation.',
-      examples: [{ output: './src/solid-query.ts', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/solid-query.ts' }],
     }),
   ),
   'vue-query': Schema.optionalKey(
@@ -1078,27 +1165,15 @@ const ConfigSchema = Schema.Struct({
         examples: ['./src/vue-query.ts', './src/vue-query'],
       }),
       import: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a module specifier, with no whitespace or quotes',
-          }),
-        ).annotate({
-          title: 'Import specifier',
-          description:
-            'Module specifier the generated file imports the client from. Left out, it is the file the top-level `client` generates.',
-          examples: ['@packages/routes', '../lib', '.'],
+        Schema.Never.annotate({
+          message:
+            'import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
         }),
       ),
       client: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-            message: 'must be a JavaScript identifier',
-          }),
-        ).annotate({
-          title: 'Client export name',
-          description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
-          examples: ['client', 'apiClient'],
+        Schema.Never.annotate({
+          message:
+            'client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
         }),
       ),
       split: Schema.optionalKey(
@@ -1110,7 +1185,7 @@ const ConfigSchema = Schema.Struct({
     }).annotate({
       title: 'Vue Query hooks output',
       description: 'Generates `@tanstack/vue-query` hooks per operation.',
-      examples: [{ output: './src/vue-query.ts', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/vue-query.ts' }],
     }),
   ),
   'svelte-query': Schema.optionalKey(
@@ -1122,27 +1197,15 @@ const ConfigSchema = Schema.Struct({
         examples: ['./src/svelte-query.ts', './src/svelte-query'],
       }),
       import: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a module specifier, with no whitespace or quotes',
-          }),
-        ).annotate({
-          title: 'Import specifier',
-          description:
-            'Module specifier the generated file imports the client from. Left out, it is the file the top-level `client` generates.',
-          examples: ['@packages/routes', '../lib', '.'],
+        Schema.Never.annotate({
+          message:
+            'import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
         }),
       ),
       client: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-            message: 'must be a JavaScript identifier',
-          }),
-        ).annotate({
-          title: 'Client export name',
-          description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
-          examples: ['client', 'apiClient'],
+        Schema.Never.annotate({
+          message:
+            'client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
         }),
       ),
       split: Schema.optionalKey(
@@ -1154,7 +1217,7 @@ const ConfigSchema = Schema.Struct({
     }).annotate({
       title: 'Svelte Query hooks output',
       description: 'Generates `@tanstack/svelte-query` hooks per operation.',
-      examples: [{ output: './src/svelte-query.ts', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/svelte-query.ts' }],
     }),
   ),
   'angular-query': Schema.optionalKey(
@@ -1166,27 +1229,15 @@ const ConfigSchema = Schema.Struct({
         examples: ['./src/angular-query.ts', './src/angular-query'],
       }),
       import: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[^\s'"`\\]+$/u, {
-            message: 'must be a module specifier, with no whitespace or quotes',
-          }),
-        ).annotate({
-          title: 'Import specifier',
-          description:
-            'Module specifier the generated file imports the client from. Left out, it is the file the top-level `client` generates.',
-          examples: ['@packages/routes', '../lib', '.'],
+        Schema.Never.annotate({
+          message:
+            'import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
         }),
       ),
       client: Schema.optionalKey(
-        Schema.String.check(
-          Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-            message: 'must be a JavaScript identifier',
-          }),
-        ).annotate({
-          title: 'Client export name',
-          description:
-            'Named export to import from `import` as the Hono client instance, `client` when left out. Not taken with the top-level `client` block: the generated client is exported as `client`.',
-          examples: ['client', 'apiClient'],
+        Schema.Never.annotate({
+          message:
+            'client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
         }),
       ),
       split: Schema.optionalKey(
@@ -1198,13 +1249,14 @@ const ConfigSchema = Schema.Struct({
     }).annotate({
       title: 'Angular Query hooks output',
       description: 'Generates `@tanstack/angular-query-experimental` hooks per operation.',
-      examples: [{ output: './src/angular-query.ts', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/angular-query.ts' }],
     }),
   ),
   test: Schema.optionalKey(
     Schema.Never.annotate({
-      message:
-        'test is not an option for now: the tests of the routes are written by template.test.',
+      // message:
+      //   'test is not an option for now: the tests of the routes are written by template.test.',
+      message: 'test was removed: hono-takibi no longer generates test files.',
     }),
   ),
   mock: Schema.optionalKey(
@@ -1469,27 +1521,13 @@ const ConfigSchema = Schema.Struct({
     }),
     Schema.makeFilter(
       (v) => {
-        if (v.client === undefined) return true
-        const named = (['rpc', ...HOOK_KINDS] as const).find(
-          (kind) => v[kind]?.client !== undefined,
-        )
-        return named === undefined
-          ? true
-          : `${named}.client cannot be set with the client block: the generated client is exported as \`client\`, and a group of a split app as \`<group>Client\`. Remove ${named}.client.`
-      },
-      { message: 'with the client block, the name of the client is not chosen' },
-    ),
-    Schema.makeFilter(
-      (v) => {
         if (v.client !== undefined) return true
-        const missing = (['rpc', ...HOOK_KINDS] as const).find(
-          (kind) => v[kind] !== undefined && v[kind]?.import === undefined,
-        )
+        const missing = (['rpc', ...HOOK_LIBRARIES] as const).find((kind) => v[kind] !== undefined)
         return missing === undefined
           ? true
-          : `${missing}.import is required: name the module that exports the Hono client, or set the client block, with template, to generate the client.`
+          : `${missing} needs client: rpc and the hooks call the client the client block generates, with template.`
       },
-      { message: 'a generator that calls the client needs to know where it is' },
+      { message: 'a generator that calls the client needs the client block' },
     ),
     Schema.makeFilter((v) => !(v.output && v.routes), {
       message:
@@ -1516,7 +1554,7 @@ const ConfigSchema = Schema.Struct({
         !(
           v.template?.define === true &&
           v.components !== undefined &&
-          COMPONENT_KINDS.some((k) => v.components?.[k] !== undefined)
+          COMPONENT_NAMES.some((k) => v.components?.[k] !== undefined)
         ),
       {
         message:
@@ -1551,13 +1589,13 @@ const ConfigSchema = Schema.Struct({
           ['routes.output', v.routes?.output],
           ['webhooks.output', v.webhooks?.output],
           ['components.output', v.components?.output],
-          ...COMPONENT_KINDS.map(
+          ...COMPONENT_NAMES.map(
             (kind) => [`components.${kind}.output`, v.components?.[kind]?.output] as const,
           ),
           ['type.output', v.type?.output],
           ['client.output', v.client?.output],
           ['rpc.output', v.rpc?.output],
-          ...HOOK_KINDS.map((kind) => [`${kind}.output`, v[kind]?.output] as const),
+          ...HOOK_LIBRARIES.map((kind) => [`${kind}.output`, v[kind]?.output] as const),
           ['mock.output', v.mock?.output],
           ['docs.output', v.docs?.output],
         ]
@@ -1584,7 +1622,8 @@ const ConfigSchema = Schema.Struct({
 
 export type Config = typeof ConfigSchema.Type
 
-export type TestConfig = typeof TestSchema.Type
+// Test code generation is deprecated: hono-takibi no longer generates test files.
+// export type TestConfig = typeof TestSchema.Type
 
 // oxlint-disable-next-line unicorn/throw-new-error -- `Schema.TaggedError()` is the class factory, not a throw
 export class ConfigError extends Schema.TaggedError<ConfigError>()('ConfigError', {
@@ -1646,138 +1685,36 @@ export function readConfig(configPath?: string, reload = false) {
   })
 }
 
-type ConfigInput = typeof ConfigSchema.Encoded
+type Encoded = typeof ConfigSchema.Encoded
 
-type ClientCaller = 'rpc' | (typeof HOOK_KINDS)[number]
+type Caller = 'rpc' | (typeof HOOK_LIBRARIES)[number]
 
-type OptionOf<S> = S extends unknown ? keyof S : never
+type Callers = Pick<Encoded, Caller>
 
-type ValueOf<S, K> = S extends unknown ? (K extends keyof S ? S[K] : never) : never
+type NoCallers = { readonly [K in Caller]?: undefined }
 
-type Known<T, S> = T extends readonly unknown[]
-  ? T
-  : T extends object
-    ? {
-        readonly [K in keyof T]: K extends OptionOf<NonNullable<S>>
-          ? Known<T[K], ValueOf<NonNullable<S>, K>>
-          : 'is not an option'
-      }
-    : T
+type Base = Omit<Encoded, 'template' | 'client' | Caller>
 
-type ComponentKind = (typeof COMPONENT_KINDS)[number]
+type Template = NonNullable<Encoded['template']>
 
-type Replaced<V, P, M, S> = {
-  readonly [Q in keyof V]: Q extends P
-    ? M
-    : Q extends OptionOf<NonNullable<S>>
-      ? Known<V[Q], ValueOf<NonNullable<S>, Q>>
-      : 'is not an option'
+type ClientEncoded = NonNullable<Encoded['client']>
+
+// `/` is the only string the schema takes; the type says so, where the schema says `string`.
+type Client = Omit<ClientEncoded, 'baseUrl'> & {
+  readonly baseUrl?: '/' | Exclude<ClientEncoded['baseUrl'], string>
 }
 
-type Outputs<T> = {
-  readonly [K in keyof T]: K extends 'output'
-    ? readonly ['output', T[K]]
-    : K extends 'components'
-      ? {
-          readonly [P in keyof T[K]]: P extends 'output'
-            ? readonly ['components.output', T[K][P]]
-            : T[K][P] extends { readonly output: infer O }
-              ? readonly [`components.${P & string}`, O]
-              : never
-        }[keyof T[K]]
-      : T[K] extends { readonly output: infer O }
-        ? readonly [K, O]
-        : never
-}[keyof T]
+/**
+ * What a config file may say. Three shapes, one for each step of the chain `template` →
+ * `client` → rpc and the hooks: each needs the one before it, so without `template` there
+ * is no `client`, and without `client` nothing that calls it. Everything else the schema
+ * checks when the config is read, with a message naming the field.
+ */
+export type ConfigInput =
+  | (Base & { readonly template?: undefined; readonly client?: undefined } & NoCallers)
+  | (Base & { readonly template: Template; readonly client?: undefined } & NoCallers)
+  | (Base & { readonly template: Template; readonly client: Client } & Callers)
 
-type Sharing<T, F, O> = string extends O
-  ? never
-  : Extract<Exclude<Outputs<T>, readonly [F, unknown]>, readonly [unknown, O]>
-
-type Shared<T, F, O> = [Sharing<T, F, O>] extends [never]
-  ? never
-  : `is also the output of ${Sharing<T, F, O>[0] & string}: every generator needs its own output path`
-
-type Written<T, F, V, S> = V extends { readonly split: true; readonly output: `${string}.ts` }
-  ? Replaced<V, 'output', 'split mode requires a directory, not a .ts file', S>
-  : V extends { readonly output: infer O }
-    ? [Shared<T, F, O>] extends [never]
-      ? Known<V, S>
-      : Replaced<V, 'output', Shared<T, F, O>, S>
-    : Known<V, S>
-
-type Named<T> = {
-  readonly [P in keyof T]: P extends 'client'
-    ? 'cannot be set with the client block: the generated client is exported as `client`'
-    : T[P]
-}
-
-type Calling<T, K, V, S> = T extends { readonly client: object }
-  ? Named<Written<T, K, V, S>>
-  : V extends { readonly import: unknown }
-    ? Written<T, K, V, S>
-    : Written<T, K, V, S> & {
-        readonly import: 'is required without the client block: name the module that exports the Hono client'
-      }
-
-type Single<T, O> = T extends { readonly routes: object }
-  ? 'output and routes are mutually exclusive: output for a single file, routes for a file of their own'
-  : T extends { readonly template: { readonly define: true } }
-    ? O extends 'index.ts' | `${string}/index.ts`
-      ? O
-      : string extends O
-        ? O
-        : 'with template.define, output is the app entry and must be an index.ts file'
-    : [Shared<T, 'output', O>] extends [never]
-      ? O
-      : Shared<T, 'output', O>
-
-type Mounted<P> = P extends `/${string}` ? P : string extends P ? P : "must start with '/'"
-
-type Routed<T, V, S> = T extends { readonly output: string }
-  ? 'output and routes are mutually exclusive: output for a single file, routes for a file of their own'
-  : T extends { readonly template: { readonly define: true } }
-    ? 'template.define and routes are mutually exclusive: define derives routes/ next to the app entry'
-    : Written<T, 'routes', V, S>
-
-type Composed<T, V, S> = {
-  readonly [P in keyof V]: P extends ComponentKind
-    ? T extends { readonly template: { readonly define: true } }
-      ? 'is not supported with template.define: use components.output for a single file'
-      : V extends { readonly output: string }
-        ? 'components.output and the outputs of each type are mutually exclusive'
-        : Written<T, `components.${P}`, V[P], ValueOf<NonNullable<S>, P>>
-    : P extends 'output'
-      ? [Shared<T, 'components.output', V[P]>] extends [never]
-        ? V[P]
-        : Shared<T, 'components.output', V[P]>
-      : P extends OptionOf<NonNullable<S>>
-        ? Known<V[P], ValueOf<NonNullable<S>, P>>
-        : 'is not an option'
-}
-
-type Checked<T> = {
-  readonly [K in keyof T]: K extends keyof ConfigInput
-    ? K extends ClientCaller
-      ? Calling<T, K, T[K], ConfigInput[K]>
-      : K extends 'test'
-        ? 'is not an option for now: the tests of the routes are written by template.test'
-        : K extends 'client'
-          ? T extends { readonly template: object }
-            ? Written<T, K, T[K], ConfigInput[K]>
-            : 'needs template: the client is typed by the app the template scaffolds'
-          : K extends 'output'
-            ? Single<T, T[K]>
-            : K extends 'basePath'
-              ? Mounted<T[K]>
-              : K extends 'routes'
-                ? Routed<T, T[K], ConfigInput[K]>
-                : K extends 'components'
-                  ? Composed<T, T[K], ConfigInput[K]>
-                  : Written<T, K, T[K], ConfigInput[K]>
-    : 'is not an option'
-}
-
-export function defineConfig<const T extends ConfigInput>(config: Checked<T>) {
+export function defineConfig(config: ConfigInput) {
   return config
 }

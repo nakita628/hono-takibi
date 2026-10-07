@@ -1,3 +1,4 @@
+import { HTTP_METHODS } from '../constants/index.js'
 import type {
   Callbacks,
   Header,
@@ -16,20 +17,8 @@ export function isRecord(v: unknown): v is { readonly [k: string]: unknown } {
   return typeof v === 'object' && v !== null && !Array.isArray(v)
 }
 
-export function isHttpMethod(
-  method: string,
-): method is 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace' | 'query' {
-  return (
-    method === 'get' ||
-    method === 'put' ||
-    method === 'post' ||
-    method === 'delete' ||
-    method === 'patch' ||
-    method === 'options' ||
-    method === 'head' ||
-    method === 'trace' ||
-    method === 'query'
-  )
+export function isHttpMethod(method: string): method is (typeof HTTP_METHODS)[number] {
+  return HTTP_METHODS.some((candidate) => candidate === method)
 }
 
 export function isValidIdent(str: string): boolean {

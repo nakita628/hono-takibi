@@ -67,9 +67,10 @@ Prefer a Vite dev server? Use the [Vite plugin](/docs/guides/vite-plugin) instea
 - Every generator needs its own `output`. Two generators writing to one file is an error.
 - `output` (single file) and `routes` (split) are mutually exclusive. Same for `components.output` and the per-type `components.*` sections.
 - A `split` directory belongs to the generator: its `.ts` files are removed before each run. Keep hand-written code elsewhere.
-- `basePath` must start with `/`. `client` must be an identifier and `import` a module specifier.
+- `basePath` must start with `/`. `client.import` and every `package` must be module specifiers.
+- Generated files import one another relatively, under `pathAlias` when the target is in the directory of the app entry, and by the target's `package` from another package. A target in another package without a `package` is an error.
 - The `client` block needs `template`.
-- `rpc` and the hooks need an `import`, unless the `client` block is set. With the `client` block, they cannot set `client`.
+- `rpc` and the hooks need the `client` block: they import the generated client, relatively or by `client.package` from another package.
 
 ## Full reference
 
@@ -82,15 +83,16 @@ export default defineConfig({
   output: './src/routes.ts', // single-file mode; with template.define, the app entry (an index.ts path, default ./src/index.ts)
   basePath: '/api',
   readonly: true,
+  // Import prefix the generated files of this package use for one another, `@/routes` instead
+  // of `../routes`. Map it in tsconfig (`"@/*": ["./src/*"]`). Files written into another
+  // package never use it.
+  pathAlias: '@/',
   // format: {}, // oxfmt FormatConfig
 
   template: {
-    test: true,
     routeHandler: false, // true: RouteHandler exports
     define: false, // true: defineOpenAPIRoute output
     split: false, // true: one exported group per first path segment
-    pathAlias: '@/',
-    testFramework: 'vitest', // "vitest" | "vite-plus" | "bun"
   },
 
   exportSchemas: true,
@@ -109,81 +111,87 @@ export default defineConfig({
   exportMediaTypes: true,
   exportMediaTypesTypes: true,
 
+  // How generated files import one another: relatively inside a package, under `pathAlias`
+  // when the target is in the directory of the app entry, and by `package` from another
+  // package (the nearest package.json above an output delimits its package).
   routes: {
     output: './src/routes',
     split: true,
-    import: '@packages/routes',
+    // package: '@packages/routes', // the name other packages import these routes by
   },
 
   webhooks: {
     output: './src/webhooks',
     split: true,
-    import: '@packages/webhooks',
+    // package: '@packages/webhooks',
   },
 
   // `output` (single file) and the per-type fields below (split) are mutually exclusive.
   // `exportTypes` applies only to schemas / parameters / headers / mediaTypes.
+  // `package` names the package an output is written into, for the files of other packages
+  // that import it; leave it out while everything is in one package.
   components: {
     output: './src/components/index.ts',
+    // package: '@packages/components', // when src/components is a package of its own
 
     schemas: {
       output: './src/schemas',
       exportTypes: true,
       split: true,
-      import: '../schemas',
+      // package: '@packages/schemas',
     },
     responses: {
       output: './src/responses',
       split: true,
-      import: '../responses',
+      // package: '@packages/responses',
     },
     parameters: {
       output: './src/parameters',
       exportTypes: true,
       split: true,
-      import: '../parameters',
+      // package: '@packages/parameters',
     },
     examples: {
       output: './src/examples',
       split: true,
-      import: '../examples',
+      // package: '@packages/examples',
     },
     requestBodies: {
       output: './src/requestBodies',
       split: true,
-      import: '../requestBodies',
+      // package: '@packages/requestBodies',
     },
     headers: {
       output: './src/headers',
       exportTypes: true,
       split: true,
-      import: '../headers',
+      // package: '@packages/headers',
     },
     securitySchemes: {
       output: './src/securitySchemes',
       split: true,
-      import: '../securitySchemes',
+      // package: '@packages/securitySchemes',
     },
     links: {
       output: './src/links',
       split: true,
-      import: '../links',
+      // package: '@packages/links',
     },
     callbacks: {
       output: './src/callbacks',
       split: true,
-      import: '../callbacks',
+      // package: '@packages/callbacks',
     },
     pathItems: {
       output: './src/pathItems',
       split: true,
-      import: '../pathItems',
+      // package: '@packages/pathItems',
     },
     mediaTypes: {
       output: './src/mediaTypes',
       exportTypes: true,
       split: true,
-      import: '../mediaTypes',
+      // package: '@packages/mediaTypes',
     },
   },
 
@@ -192,47 +200,27 @@ export default defineConfig({
     readonly: true,
   },
 
-  // Hono client of the scaffolded app (needs `template`).
+  // Hono client of the scaffolded app (needs `template`); `rpc` and the hooks import it.
   client: {
     output: './src/lib/client.ts',
-    baseUrl: '/', // a URL, { env, source } or { env, import, name }
+    baseUrl: '/', // same origin (default); from the environment: { env: 'VITE_API_URL' }, { env: 'API_URL', source: 'process.env' }, { env: 'API_URL', import: '@/env' }
+    // import: '@packages/server', // monorepo: where the app's type comes from
+    // package: '@packages/client', // monorepo: what other packages import the client by
   },
 
   rpc: {
     output: './src/rpc.ts',
-    import: '../lib', // optional with the `client` block
     parseResponse: true,
     docs: false, // operation summary/description as JSDoc
   },
 
-  swr: {
-    output: './src/swr.ts',
-    import: '../lib',
-  },
-  'tanstack-query': {
-    output: './src/tanstack-query.ts',
-    import: '../lib',
-  },
-  'preact-query': {
-    output: './src/preact-query.ts',
-    import: '../lib',
-  },
-  'solid-query': {
-    output: './src/solid-query.ts',
-    import: '../lib',
-  },
-  'vue-query': {
-    output: './src/vue-query.ts',
-    import: '../lib',
-  },
-  'svelte-query': {
-    output: './src/svelte-query.ts',
-    import: '../lib',
-  },
-  'angular-query': {
-    output: './src/angular-query.ts',
-    import: '../lib',
-  },
+  swr: { output: './src/swr.ts' },
+  'tanstack-query': { output: './src/tanstack-query.ts' },
+  'preact-query': { output: './src/preact-query.ts' },
+  'solid-query': { output: './src/solid-query.ts' },
+  'vue-query': { output: './src/vue-query.ts' },
+  'svelte-query': { output: './src/svelte-query.ts' },
+  'angular-query': { output: './src/angular-query.ts' },
 
   mock: {
     output: './src/mock.ts',

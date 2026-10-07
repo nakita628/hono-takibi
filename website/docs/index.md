@@ -13,7 +13,7 @@ next:
 From one document it can generate:
 
 - [Zod](https://zod.dev/) schemas and [@hono/zod-openapi](https://hono.dev/examples/zod-openapi) route definitions
-- App entry, handler stubs and test files
+- App entry and handler stubs
 - RPC client and hooks for SWR, TanStack Query, Preact / Solid / Vue / Svelte / Angular Query
 - Mock server, TypeScript types and API reference docs
 

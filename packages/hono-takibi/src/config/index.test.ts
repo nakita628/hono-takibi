@@ -158,7 +158,10 @@ describe('parseConfig()', () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          rpc: { output: 'rpc', import: '../client' },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          rpc: { output: 'rpc' },
         }),
       )
       expect(result.rpc?.output).toBe('rpc/index.ts')
@@ -388,29 +391,61 @@ describe('parseConfig()', () => {
     )
   })
 
-  describe('routes.import and webhooks.import', () => {
-    it.concurrent('preserves routes.import through parsing', async () => {
+  describe('routes.package and webhooks.package', () => {
+    it.concurrent('preserves routes.package through parsing', async () => {
       const result = await runGenerator(
+        parseConfig({
+          input: 'openapi.yaml',
+          routes: { output: 'src/routes.ts', package: '@packages/routes' },
+        }),
+      )
+      expect(result.routes?.package).toBe('@packages/routes')
+      expect(result.routes?.output).toBe('src/routes.ts')
+    })
+
+    it.concurrent('preserves routes.package with split and pathAlias', async () => {
+      const result = await runGenerator(
+        parseConfig({
+          input: 'openapi.yaml',
+          pathAlias: '@/',
+          routes: { output: 'src/routes', split: true, package: '@packages/routes' },
+        }),
+      )
+      expect(result.routes?.package).toBe('@packages/routes')
+      expect(result.routes?.output).toBe('src/routes')
+      expect(result.pathAlias).toBe('@/')
+    })
+
+    // A generated file imports another one relatively, under the alias, or by package:
+    // the module is not named by hand any more.
+    // 生成ファイルは相対パス、エイリアス、または package でほかのファイルを import する。
+    // モジュール名を手で指定することはなくなった。
+    it.concurrent('fails when routes still sets the removed import', async () => {
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           routes: { output: 'src/routes.ts', import: '@packages/routes' },
         }),
       )
-      expect(result.routes?.import).toBe('@packages/routes')
-      expect(result.routes?.output).toBe('src/routes.ts')
+      expect(result.message).toBe(
+        'Invalid config: routes.import: import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+      )
     })
 
-    it.concurrent('preserves routes.import with split and pathAlias', async () => {
-      const result = await runGenerator(
+    // The alias applies to every generated file of the package, so it is no option of the
+    // scaffold any more.
+    // エイリアスはパッケージの生成ファイルすべてに効くため、scaffold のオプションではなくなった。
+    it.concurrent('fails when template still sets the moved pathAlias', async () => {
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
+          output: 'src/routes.ts',
           template: { pathAlias: '@/' },
-          routes: { output: 'src/routes', split: true, import: '@packages/routes' },
         }),
       )
-      expect(result.routes?.import).toBe('@packages/routes')
-      expect(result.routes?.output).toBe('src/routes')
-      expect(result.template?.pathAlias).toBe('@/')
+      expect(result.message).toBe(
+        'Invalid config: template.pathAlias: pathAlias was moved to the top level: it applies to every generated file of this package, not only to the scaffold.',
+      )
     })
 
     it.concurrent('routes without import field works (backward compat)', async () => {
@@ -423,14 +458,14 @@ describe('parseConfig()', () => {
       expect(result.routes?.import).toBeUndefined()
     })
 
-    it.concurrent('preserves webhooks.import through parsing', async () => {
+    it.concurrent('preserves webhooks.package through parsing', async () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          webhooks: { output: 'src/webhooks.ts', import: '@packages/webhooks' },
+          webhooks: { output: 'src/webhooks.ts', package: '@packages/webhooks' },
         }),
       )
-      expect(result.webhooks?.import).toBe('@packages/webhooks')
+      expect(result.webhooks?.package).toBe('@packages/webhooks')
     })
   })
 
@@ -451,7 +486,10 @@ describe('parseConfig()', () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          rpc: { output: 'rpc', import: '../client', split: true },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          rpc: { output: 'rpc', split: true },
         }),
       )
       expect(result.message).toBe(
@@ -468,59 +506,80 @@ describe('parseConfig()', () => {
       expect(result.message).toBe('Invalid config: input: must be .yaml | .json | .tsp')
     })
 
-    it.concurrent('accepts rpc with custom client name', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          rpc: { output: 'rpc/index.ts', import: '../api', client: 'authClient' },
-        }),
-      )
-      expect(result.rpc?.client).toBe('authClient')
-    })
-
-    it.concurrent('fails when rpc client is not a string', async () => {
+    // rpc and the hooks call the client the client block generates: they no longer name
+    // the module or the export of a client of their own.
+    // rpc とフックは client ブロックが生成するクライアントを呼び出す。独自のクライアントの
+    // モジュールやエクスポート名は指定できない。
+    it.concurrent('fails when rpc still sets the removed client', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          rpc: { output: 'rpc/index.ts', import: '../client', client: 123 as unknown as string },
-        }),
-      )
-      expect(result.message).toBe('Invalid config: rpc.client: Expected string')
-    })
-
-    // `client` lands in `import { <client> } from '...'`; without this the failure
-    // surfaces as an oxfmt syntax error about the generated file.
-    it.concurrent('fails when rpc client is not a JavaScript identifier', async () => {
-      const result = await runGeneratorError(
-        parseConfig({
-          input: 'openapi.yaml',
-          rpc: { output: 'rpc.ts', import: '../client', client: '1bad' },
-        }),
-      )
-      expect(result.message).toBe('Invalid config: rpc.client: must be a JavaScript identifier')
-    })
-
-    it.concurrent('fails when an import specifier is empty', async () => {
-      const result = await runGeneratorError(
-        parseConfig({
-          input: 'openapi.yaml',
-          rpc: { output: 'rpc.ts', import: '' },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          rpc: { output: 'rpc/index.ts', client: 'authClient' },
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: rpc.import: must be a module specifier, with no whitespace or quotes',
+        'Invalid config: rpc.client: client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
       )
     })
 
-    it.concurrent('fails when an import specifier carries a quote', async () => {
+    it.concurrent('fails when rpc still sets the removed import', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          swr: { output: 'swr.ts', import: "../lib'" },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          rpc: { output: 'rpc.ts', import: '../client' },
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: swr.import: must be a module specifier, with no whitespace or quotes',
+        'Invalid config: rpc.import: import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
+      )
+    })
+
+    it.concurrent('fails when swr still sets the removed import', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          swr: { output: 'swr.ts', import: '../lib' },
+        }),
+      )
+      expect(result.message).toBe(
+        'Invalid config: swr.import: import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
+      )
+    })
+
+    it.concurrent('fails when client.import carries a quote', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts', import: "@packages/server'" },
+        }),
+      )
+      expect(result.message).toBe(
+        'Invalid config: client.import: must be a module specifier, with no whitespace or quotes',
+      )
+    })
+
+    it.concurrent('fails when client.package is empty', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts', package: '' },
+        }),
+      )
+      expect(result.message).toBe(
+        'Invalid config: client.package: must be a module specifier, with no whitespace or quotes',
       )
     })
   })
@@ -574,8 +633,10 @@ describe('parseConfig()', () => {
         parseConfig({
           input: 'openapi.yaml',
           output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
           type: { output: 'src/types.ts' },
-          rpc: { output: 'src/rpc.ts', import: '../lib' },
+          rpc: { output: 'src/rpc.ts' },
           mock: { output: 'src/mock.ts' },
           docs: { output: 'docs/api.md' },
         }),
@@ -1022,9 +1083,9 @@ describe('parseConfig()', () => {
     })
   })
 
-  describe('testFramework option', () => {
-    // The test option is taken out of the config for now.
-    // test オプションは、当面のあいだ設定から外されている。
+  describe('test option', () => {
+    // Test code generation is deprecated: hono-takibi no longer generates test files.
+    // テストコード生成は廃止された。hono-takibi はテストファイルを生成しない。
     it.concurrent('fails when test is set', async () => {
       const result = await runGeneratorError(
         parseConfig({
@@ -1033,30 +1094,34 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: test: test is not an option for now: the tests of the routes are written by template.test.',
+        'Invalid config: test: test was removed: hono-takibi no longer generates test files.',
       )
     })
 
-    it.concurrent('accepts template.testFramework: bun', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: 'src/routes.ts',
-          template: { test: true, testFramework: 'bun' },
-        }),
-      )
-      expect(result.template?.testFramework).toBe('bun')
-    })
-
-    it.concurrent('template.testFramework defaults to vitest when omitted', async () => {
-      const result = await runGenerator(
+    it.concurrent('fails when template still sets the removed test', async () => {
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           output: 'src/routes.ts',
           template: { test: true },
         }),
       )
-      expect(result.template?.testFramework).toBe('vitest')
+      expect(result.message).toBe(
+        'Invalid config: template.test: test was removed: hono-takibi no longer generates test files. The `.test.ts` files a previous run wrote are yours to keep or delete.',
+      )
+    })
+
+    it.concurrent('fails when template still sets the removed testFramework', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: 'src/routes.ts',
+          template: { testFramework: 'bun' },
+        }),
+      )
+      expect(result.message).toBe(
+        'Invalid config: template.testFramework: testFramework was removed: hono-takibi no longer generates test files.',
+      )
     })
   })
 
@@ -1085,10 +1150,13 @@ describe('parseConfig()', () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          rpc: { output: 'rpc/index.ts', import: '../client', client: 123 },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          rpc: { output: 'rpc/index.ts', parseResponse: 123 },
         }),
       )
-      expect(result.message).toBe('Invalid config: rpc.client: Expected string')
+      expect(result.message).toBe('Invalid config: rpc.parseResponse: Expected boolean | undefined')
     })
 
     it.concurrent('omits path prefix when path is empty', async () => {
@@ -1228,25 +1296,18 @@ describe('parseConfig()', () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          swr: { output: 'swr', import: '../client' },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          swr: { output: 'swr' },
         }),
       )
       expect(result.swr?.output).toBe('swr/index.ts')
     })
 
-    it.concurrent('accepts swr with custom client', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          swr: { output: 'swr/index.ts', import: '../client', client: 'apiClient' },
-        }),
-      )
-      expect(result.swr?.client).toBe('apiClient')
-    })
-
-    // A generator that calls the client has to be told where the client is.
-    // クライアントを呼び出す生成器には、クライアントの場所を伝える必要がある。
-    it.concurrent('fails when rpc names no import and no client is generated', async () => {
+    // A generator that calls the client needs the client block, whatever else is set.
+    // クライアントを呼び出す生成器には、ほかに何があっても client ブロックが必要である。
+    it.concurrent('fails when rpc has no client block', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
@@ -1254,13 +1315,13 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: rpc.import is required: name the module that exports the Hono client, or set the client block, with template, to generate the client.',
+        'Invalid config: rpc needs client: rpc and the hooks call the client the client block generates, with template.',
       )
     })
 
     // The same for a hook library.
     // フックのライブラリも同様である。
-    it.concurrent('fails when tanstack-query names no import and no client is generated', async () => {
+    it.concurrent('fails when tanstack-query has no client block', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
@@ -1268,67 +1329,13 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: tanstack-query.import is required: name the module that exports the Hono client, or set the client block, with template, to generate the client.',
+        'Invalid config: tanstack-query needs client: rpc and the hooks call the client the client block generates, with template.',
       )
     })
 
-    // Without template, rpc is generated against the client the import names.
-    // template がなくても、rpc は import が指すクライアントに対して生成される。
-    it.concurrent('accepts rpc without template when it names an import', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          rpc: { output: 'rpc.ts', import: '../client' },
-        }),
-      )
-      expect(result.rpc?.import).toBe('../client')
-      expect(result.rpc?.client).toBe(undefined)
-    })
-
-    // Without template, the name of the client is the one the config gives.
-    // template がなければ、クライアントの名前は設定で指定したものになる。
-    it.concurrent('accepts a client name for rpc without template', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          rpc: { output: 'rpc.ts', import: '../client', client: 'apiClient' },
-        }),
-      )
-      expect(result.rpc?.client).toBe('apiClient')
-    })
-
-    // With template and without the client block, rpc calls the client the import names.
-    // template があり client ブロックがなければ、rpc は import が指すクライアントを呼び出す。
-    it.concurrent('accepts rpc with template and without client', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: 'src/routes.ts',
-          template: { routeHandler: true },
-          rpc: { output: 'src/rpc.ts', import: '../client', client: 'apiClient' },
-        }),
-      )
-      expect(result.rpc?.import).toBe('../client')
-      expect(result.rpc?.client).toBe('apiClient')
-    })
-
-    // The same for a hook library.
-    // フックのライブラリも同様である。
-    it.concurrent('accepts swr with template and without client', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: 'src/routes.ts',
-          template: {},
-          swr: { output: 'src/swr.ts', import: '../client' },
-        }),
-      )
-      expect(result.swr?.import).toBe('../client')
-    })
-
-    // With template and without the client block, the import is still required.
-    // template があっても client ブロックがなければ、import は必須である。
-    it.concurrent('fails when rpc names no import with template and without client', async () => {
+    // template alone scaffolds no client.
+    // template だけではクライアントは生成されない。
+    it.concurrent('fails when rpc has template and no client block', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
@@ -1338,7 +1345,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: rpc.import is required: name the module that exports the Hono client, or set the client block, with template, to generate the client.',
+        'Invalid config: rpc needs client: rpc and the hooks call the client the client block generates, with template.',
       )
     })
 
@@ -1358,40 +1365,6 @@ describe('parseConfig()', () => {
       )
     })
 
-    // With the client block the client has a fixed name, so rpc cannot choose one.
-    // client ブロックがあるとクライアントの名前が決まっているため、rpc では指定できない。
-    it.concurrent('fails when rpc names the client with the client block', async () => {
-      const result = await runGeneratorError(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: 'src/routes.ts',
-          template: { routeHandler: true },
-          client: { output: 'src/client.ts' },
-          rpc: { output: 'src/rpc.ts', client: 'apiClient' },
-        }),
-      )
-      expect(result.message).toBe(
-        'Invalid config: rpc.client cannot be set with the client block: the generated client is exported as `client`, and a group of a split app as `<group>Client`. Remove rpc.client.',
-      )
-    })
-
-    // Naming it `client`, the name it already has, is refused as well.
-    // すでにその名前である `client` を指定しても、同様に拒否される。
-    it.concurrent('fails when tanstack-query names the client `client` with the client block', async () => {
-      const result = await runGeneratorError(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: 'src/routes.ts',
-          template: { routeHandler: true },
-          client: { output: 'src/client.ts' },
-          'tanstack-query': { output: 'src/query.ts', client: 'client' },
-        }),
-      )
-      expect(result.message).toBe(
-        'Invalid config: tanstack-query.client cannot be set with the client block: the generated client is exported as `client`, and a group of a split app as `<group>Client`. Remove tanstack-query.client.',
-      )
-    })
-
     // With template and client, rpc and a hook library are accepted together.
     // template と client があれば、rpc とフックのライブラリは併せて受け付けられる。
     it.concurrent('accepts rpc and swr with template and client', async () => {
@@ -1405,24 +1378,33 @@ describe('parseConfig()', () => {
           swr: { output: 'src/swr.ts' },
         }),
       )
-      expect(result.rpc?.client).toBe(undefined)
-      expect(result.swr?.client).toBe(undefined)
+      expect(result.rpc?.output).toBe('src/rpc.ts')
+      expect(result.swr?.output).toBe('src/swr.ts')
+      expect(result.client).toStrictEqual({ output: 'src/client.ts', baseUrl: '/' })
     })
 
-    // With a client to generate, the import is worked out from where the files are written.
-    // 生成するクライアントがあれば、import は出力先から自動で計算される。
-    it.concurrent('accepts rpc without an import when a client is generated', async () => {
+    // The client names the module of the app, and the package other packages import it by.
+    // client は、アプリのモジュールと、他のパッケージが client を import するパッケージ名を指定する。
+    it.concurrent('accepts client.import and client.package', async () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          output: 'src/routes.ts',
-          template: { routeHandler: true },
-          client: { output: 'src/client.ts' },
-          rpc: { output: 'src/rpc.ts' },
+          output: 'src/index.ts',
+          template: { define: true },
+          client: {
+            output: '../client/src/lib/client.ts',
+            import: '@packages/server',
+            package: '@packages/client',
+          },
+          'tanstack-query': { output: '../web/src/api/hooks.ts' },
         }),
       )
-      expect(result.rpc?.import).toBeUndefined()
-      expect(result.client).toStrictEqual({ output: 'src/client.ts', baseUrl: '/' })
+      expect(result.client).toStrictEqual({
+        output: '../client/src/lib/client.ts',
+        baseUrl: '/',
+        import: '@packages/server',
+        package: '@packages/client',
+      })
     })
 
     // The client is typed by the app the template scaffolds.
@@ -1478,10 +1460,10 @@ describe('parseConfig()', () => {
       expect(defined.template?.split).toBe(true)
     })
 
-    // A URL is written into the client as it stands.
-    // URL は、そのままクライアントに書き込まれる。
-    it.concurrent('accepts client.baseUrl as a URL', async () => {
-      const result = await runGenerator(
+    // A URL differs between environments, so it is read from one and never written in.
+    // URL は環境ごとに違うので、環境から読む。ファイルに書き込むことはない。
+    it.concurrent('refuses a fixed URL as client.baseUrl', async () => {
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           output: 'src/routes.ts',
@@ -1489,7 +1471,9 @@ describe('parseConfig()', () => {
           client: { output: 'src/client.ts', baseUrl: 'http://localhost:3000' },
         }),
       )
-      expect(result.client?.baseUrl).toBe('http://localhost:3000')
+      expect(result.message).toBe(
+        "Invalid config: client.baseUrl: a fixed URL was removed: leave baseUrl out (or set '/') for the same origin, or read it from the environment with { env } or { env, import }",
+      )
     })
 
     // A variable is read from import.meta.env unless the config says otherwise.
@@ -1626,7 +1610,10 @@ describe('parseConfig()', () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          swr: { output: 'swr', import: '../client', split: true },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          swr: { output: 'swr', split: true },
         }),
       )
       expect(result.message).toBe(
@@ -1638,7 +1625,10 @@ describe('parseConfig()', () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          'tanstack-query': { output: 'tanstack', import: '../client' },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          'tanstack-query': { output: 'tanstack' },
         }),
       )
       expect(result['tanstack-query']?.output).toBe('tanstack/index.ts')
@@ -1648,7 +1638,10 @@ describe('parseConfig()', () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          'tanstack-query': { output: 'tanstack', import: '../client', split: true },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          'tanstack-query': { output: 'tanstack', split: true },
         }),
       )
       expect(result.message).toBe(
@@ -1660,7 +1653,10 @@ describe('parseConfig()', () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          'svelte-query': { output: 'svelte', import: '../client' },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          'svelte-query': { output: 'svelte' },
         }),
       )
       expect(result['svelte-query']?.output).toBe('svelte/index.ts')
@@ -1670,7 +1666,10 @@ describe('parseConfig()', () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          'svelte-query': { output: 'svelte', import: '../client', split: true },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          'svelte-query': { output: 'svelte', split: true },
         }),
       )
       expect(result.message).toBe(
@@ -1682,7 +1681,10 @@ describe('parseConfig()', () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          'vue-query': { output: 'vue', import: '../client' },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          'vue-query': { output: 'vue' },
         }),
       )
       expect(result['vue-query']?.output).toBe('vue/index.ts')
@@ -1692,7 +1694,10 @@ describe('parseConfig()', () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          'vue-query': { output: 'vue', import: '../client', split: true },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          'vue-query': { output: 'vue', split: true },
         }),
       )
       expect(result.message).toBe(
@@ -1704,7 +1709,10 @@ describe('parseConfig()', () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          'preact-query': { output: 'preact', import: '../client' },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          'preact-query': { output: 'preact' },
         }),
       )
       expect(result['preact-query']?.output).toBe('preact/index.ts')
@@ -1714,7 +1722,10 @@ describe('parseConfig()', () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          'preact-query': { output: 'preact', import: '../client', split: true },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          'preact-query': { output: 'preact', split: true },
         }),
       )
       expect(result.message).toBe(
@@ -1726,7 +1737,10 @@ describe('parseConfig()', () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          'solid-query': { output: 'solid', import: '../client' },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          'solid-query': { output: 'solid' },
         }),
       )
       expect(result['solid-query']?.output).toBe('solid/index.ts')
@@ -1736,7 +1750,10 @@ describe('parseConfig()', () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          'solid-query': { output: 'solid', import: '../client', split: true },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          'solid-query': { output: 'solid', split: true },
         }),
       )
       expect(result.message).toBe(
@@ -1748,7 +1765,10 @@ describe('parseConfig()', () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          'angular-query': { output: 'angular', import: '../client' },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          'angular-query': { output: 'angular' },
         }),
       )
       expect(result['angular-query']?.output).toBe('angular/index.ts')
@@ -1758,7 +1778,10 @@ describe('parseConfig()', () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          'angular-query': { output: 'angular', import: '../client', split: true },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          'angular-query': { output: 'angular', split: true },
         }),
       )
       expect(result.message).toBe(
@@ -1772,7 +1795,10 @@ describe('parseConfig()', () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          rpc: { output: 'rpc/index.ts', import: '../client', parseResponse: true },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          rpc: { output: 'rpc/index.ts', parseResponse: true },
         }),
       )
       expect(result.rpc?.parseResponse).toBe(true)
@@ -1782,7 +1808,10 @@ describe('parseConfig()', () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          rpc: { output: 'rpc/index.ts', import: '../client' },
+          output: 'src/routes.ts',
+          template: {},
+          client: { output: 'src/client.ts' },
+          rpc: { output: 'rpc/index.ts' },
         }),
       )
       expect(result.rpc?.parseResponse).toBe(false)
@@ -1981,22 +2010,197 @@ describe('parseConfig()', () => {
       })
     })
 
-    it.concurrent('preserves exportTypes: true and import on a split component', async () => {
+    it.concurrent('preserves exportTypes: true and package on a split component', async () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
           components: {
-            schemas: { output: 'schemas', split: true, exportTypes: true, import: '@/schemas' },
+            schemas: {
+              output: 'schemas',
+              split: true,
+              exportTypes: true,
+              package: '@packages/schemas',
+            },
           },
         }),
       )
       expect(result.components?.schemas).toStrictEqual({
         split: true,
         output: 'schemas',
-        import: '@/schemas',
+        package: '@packages/schemas',
         exportTypes: true,
       })
     })
+
+    it.concurrent('fails when a split component still sets the removed import', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          components: { schemas: { output: 'schemas', split: true, import: '@/schemas' } },
+        }),
+      )
+      expect(result.message).toBe(
+        'Invalid config: components.schemas.import: import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.',
+      )
+    })
+  })
+})
+
+// Every generator that calls the client, and every component output, is held to the same
+// rules; the loops keep a kind from being left out when one is added.
+// クライアントを呼び出す生成器と、コンポーネントの出力は、すべて同じ規則に従う。ループは、
+// 種類が増えたときに取りこぼしを防ぐ。
+const CALLERS = [
+  'rpc',
+  'swr',
+  'tanstack-query',
+  'preact-query',
+  'solid-query',
+  'vue-query',
+  'svelte-query',
+  'angular-query',
+] as const
+
+const COMPONENT_NAMES = [
+  'schemas',
+  'responses',
+  'parameters',
+  'examples',
+  'requestBodies',
+  'headers',
+  'securitySchemes',
+  'links',
+  'callbacks',
+  'pathItems',
+  'mediaTypes',
+] as const
+
+describe('every generator that calls the client', () => {
+  it.concurrent.each(CALLERS)('%s fails without the client block', async (kind) => {
+    const result = await runGeneratorError(
+      parseConfig({ input: 'openapi.yaml', [kind]: { output: `src/${kind}.ts` } }),
+    )
+    expect(result.message).toBe(
+      `Invalid config: ${kind} needs client: rpc and the hooks call the client the client block generates, with template.`,
+    )
+  })
+
+  it.concurrent.each(CALLERS)(
+    '%s fails with template and without the client block',
+    async (kind) => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: 'src/routes.ts',
+          template: {},
+          [kind]: { output: `src/${kind}.ts` },
+        }),
+      )
+      expect(result.message).toBe(
+        `Invalid config: ${kind} needs client: rpc and the hooks call the client the client block generates, with template.`,
+      )
+    },
+  )
+
+  it.concurrent.each(CALLERS)('%s is accepted with template and client', async (kind) => {
+    const result = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: 'src/routes.ts',
+        template: {},
+        client: { output: 'src/client.ts' },
+        [kind]: { output: `src/${kind}.ts` },
+      }),
+    )
+    expect(result[kind]?.output).toBe(`src/${kind}.ts`)
+  })
+
+  it.concurrent.each(CALLERS)('%s refuses the removed import', async (kind) => {
+    const result = await runGeneratorError(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: 'src/routes.ts',
+        template: {},
+        client: { output: 'src/client.ts' },
+        [kind]: { output: `src/${kind}.ts`, import: '../lib' },
+      }),
+    )
+    expect(result.message).toBe(
+      `Invalid config: ${kind}.import: import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.`,
+    )
+  })
+
+  it.concurrent.each(CALLERS)('%s refuses the removed client name', async (kind) => {
+    const result = await runGeneratorError(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: 'src/routes.ts',
+        template: {},
+        client: { output: 'src/client.ts' },
+        [kind]: { output: `src/${kind}.ts`, client: 'apiClient' },
+      }),
+    )
+    expect(result.message).toBe(
+      `Invalid config: ${kind}.client: client was removed: the generated client is exported as \`client\`, and a group of a split app as \`<group>Client\`.`,
+    )
+  })
+})
+
+describe('every component output', () => {
+  it.concurrent.each(COMPONENT_NAMES)('%s takes a package', async (kind) => {
+    const result = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        components: {
+          [kind]: { output: `src/${kind}`, split: true, package: `@packages/${kind}` },
+        },
+      }),
+    )
+    expect(result.components?.[kind]?.package).toBe(`@packages/${kind}`)
+  })
+
+  it.concurrent.each(COMPONENT_NAMES)('%s refuses the removed import', async (kind) => {
+    const result = await runGeneratorError(
+      parseConfig({
+        input: 'openapi.yaml',
+        components: { [kind]: { output: `src/${kind}`, split: true, import: `../${kind}` } },
+      }),
+    )
+    expect(result.message).toBe(
+      `Invalid config: components.${kind}.import: import was removed: a generated file imports another one relatively, under pathAlias inside the directory of the app entry, or by package from another package.`,
+    )
+  })
+
+  it.concurrent('components.output takes a package', async () => {
+    const result = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        components: { output: 'src/components/index.ts', package: '@packages/components' },
+      }),
+    )
+    expect(result.components?.package).toBe('@packages/components')
+  })
+
+  it.concurrent('fails when components.package is set without components.output', async () => {
+    const result = await runGeneratorError(
+      parseConfig({
+        input: 'openapi.yaml',
+        components: { package: '@packages/components', schemas: { output: 'src/schemas' } },
+      }),
+    )
+    expect(result.message).toBe(
+      'Invalid config: components: components.package goes with components.output: a per-type output names its package in its own block.',
+    )
+  })
+
+  it.concurrent.each(['routes', 'webhooks'] as const)('%s takes a package', async (kind) => {
+    const result = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        [kind]: { output: `src/${kind}`, split: true, package: `@packages/${kind}` },
+      }),
+    )
+    expect(result[kind]?.package).toBe(`@packages/${kind}`)
   })
 })
 
@@ -2022,16 +2226,53 @@ describe('defineConfig', () => {
       input: 'openapi.yaml',
       output: 'src/index.ts',
       basePath: '/api',
+      pathAlias: '@/',
       template: { define: true, split: true },
       components: { output: 'src/components/index.ts' },
       type: { output: 'src/types.ts' },
       client: { output: 'src/client.ts', baseUrl: { env: 'API_URL', import: '@/env' } },
       rpc: { output: 'src/rpc.ts' },
       swr: { output: 'src/swr.ts' },
+      'tanstack-query': { output: 'src/tanstack-query.ts' },
+      'preact-query': { output: 'src/preact-query.ts' },
+      'solid-query': { output: 'src/solid-query.ts' },
+      'vue-query': { output: 'src/vue-query.ts' },
+      'svelte-query': { output: 'src/svelte-query.ts' },
+      'angular-query': { output: 'src/angular-query.ts' },
       mock: { output: 'src/mock.ts', delay: { min: 100, max: 800 } },
       docs: { output: 'docs/api.md', curl: true, baseUrl: 'http://localhost:3000' },
     })
     expect(config.output).toBe('src/index.ts')
+  })
+
+  // The single components file names its package beside its output.
+  // 単一の components ファイルは、output の隣で package を指定する。
+  it('accepts components.package with components.output', () => {
+    const config = defineConfig({
+      input: 'openapi.yaml',
+      routes: { output: 'src/routes', split: true },
+      components: { output: 'src/components/index.ts', package: '@packages/components' },
+    })
+    expect(config.components?.package).toBe('@packages/components')
+  })
+
+  // The split outputs with their packages compile.
+  // 分割出力と、その package の指定はコンパイルできる。
+  it('accepts a package on every split output', () => {
+    const config = defineConfig({
+      input: 'openapi.yaml',
+      routes: { output: 'src/routes', split: true, package: '@packages/routes' },
+      webhooks: { output: 'src/webhooks', split: true, package: '@packages/webhooks' },
+      components: {
+        schemas: { output: 'src/schemas', split: true, package: '@packages/schemas' },
+        securitySchemes: {
+          output: 'src/securitySchemes',
+          split: true,
+          package: '@packages/securitySchemes',
+        },
+      },
+    })
+    expect(config.components?.schemas?.package).toBe('@packages/schemas')
   })
 
   it('returns the config object as-is', () => {
@@ -2042,14 +2283,21 @@ describe('defineConfig', () => {
     expect(defineConfig(config)).toBe(config)
   })
 
-  // Without template, rpc names the module and the export of the client.
-  // template がなければ、rpc はクライアントのモジュールとエクスポート名を指定する。
-  it('accepts a client name for rpc without template', () => {
+  // The client names the module of the app and the package it is imported by.
+  // client は、アプリのモジュールと、それを import するパッケージ名を指定する。
+  it('accepts client.import and client.package', () => {
     const config = defineConfig({
       input: 'openapi.yaml',
-      rpc: { output: 'src/rpc.ts', import: '../client', client: 'apiClient' },
+      output: 'src/index.ts',
+      template: { define: true },
+      client: {
+        output: '../client/src/client.ts',
+        import: '@packages/server',
+        package: '@packages/client',
+      },
+      'tanstack-query': { output: '../web/src/hooks.ts' },
     })
-    expect(config.rpc?.client).toBe('apiClient')
+    expect(config.client?.package).toBe('@packages/client')
   })
 
   // With template and client, rpc and the hooks are given without a client name.
@@ -2059,201 +2307,54 @@ describe('defineConfig', () => {
       input: 'openapi.yaml',
       output: 'src/routes.ts',
       template: { routeHandler: true },
-      client: { output: 'src/client.ts' },
+      client: { output: 'src/client.ts', baseUrl: '/' },
       rpc: { output: 'src/rpc.ts' },
       'tanstack-query': { output: 'src/query.ts' },
     })
     expect(config.client?.output).toBe('src/client.ts')
   })
 
-  // With the client block, naming the client in rpc does not compile.
-  // client ブロックがあると、rpc でクライアント名を指定するとコンパイルできない。
-  it('is a type error to name the client in rpc with the client block', () => {
-    const config = defineConfig({
-      input: 'openapi.yaml',
-      output: 'src/routes.ts',
-      template: { routeHandler: true },
-      client: { output: 'src/client.ts' },
-      // @ts-expect-error -- the generated client is exported as `client`
-      rpc: { output: 'src/rpc.ts', client: 'apiClient' },
-    })
+  // Without the client block, nothing that calls the client compiles: not rpc, not a hook.
+  // client ブロックがなければ、クライアントを呼び出すものはコンパイルできない。rpc もフックも。
+  it('is a type error to set rpc without the client block', () => {
+    // @ts-expect-error -- rpc calls the client the client block generates
+    const config = defineConfig({ input: 'openapi.yaml', rpc: { output: 'src/rpc.ts' } })
     expect(config.input).toBe('openapi.yaml')
   })
 
-  // The same for a hook library.
-  // フックのライブラリも同様である。
-  it('is a type error to name the client in swr with the client block', () => {
+  it('is a type error to set a hook without the client block', () => {
+    // @ts-expect-error -- the hooks call the client the client block generates
+    const swr = defineConfig({ input: 'openapi.yaml', swr: { output: 'src/swr.ts' } })
+    // @ts-expect-error -- the hooks call the client the client block generates
+    const tanstack = defineConfig({ input: 'openapi.yaml', 'tanstack-query': { output: 'q.ts' } })
+    // @ts-expect-error -- the hooks call the client the client block generates
+    const preact = defineConfig({ input: 'openapi.yaml', 'preact-query': { output: 'q.ts' } })
+    // @ts-expect-error -- the hooks call the client the client block generates
+    const solid = defineConfig({ input: 'openapi.yaml', 'solid-query': { output: 'q.ts' } })
+    // @ts-expect-error -- the hooks call the client the client block generates
+    const vue = defineConfig({ input: 'openapi.yaml', 'vue-query': { output: 'q.ts' } })
+    // @ts-expect-error -- the hooks call the client the client block generates
+    const svelte = defineConfig({ input: 'openapi.yaml', 'svelte-query': { output: 'q.ts' } })
+    // @ts-expect-error -- the hooks call the client the client block generates
+    const angular = defineConfig({ input: 'openapi.yaml', 'angular-query': { output: 'q.ts' } })
+    expect([swr, tanstack, preact, solid, vue, svelte, angular].map((c) => c.input)).toHaveLength(7)
+  })
+
+  // With template and without the client block, rpc does not compile either.
+  // template があっても client ブロックがなければ、rpc はコンパイルできない。
+  it('is a type error to set rpc with template and without the client block', () => {
+    // @ts-expect-error -- rpc calls the client the client block generates
     const config = defineConfig({
       input: 'openapi.yaml',
       output: 'src/routes.ts',
       template: { routeHandler: true },
-      client: { output: 'src/client.ts' },
-      // @ts-expect-error -- the generated client is exported as `client`
-      swr: { output: 'src/swr.ts', client: 'client' },
-    })
-    expect(config.input).toBe('openapi.yaml')
-  })
-
-  // With template and without the client block, rpc names the client itself.
-  // template があり client ブロックがなければ、rpc はクライアントを自分で指定する。
-  it('accepts rpc with template and without client', () => {
-    const config = defineConfig({
-      input: 'openapi.yaml',
-      output: 'src/routes.ts',
-      template: { routeHandler: true },
-      rpc: { output: 'src/rpc.ts', import: '../client', client: 'apiClient' },
-    })
-    expect(config.rpc.client).toBe('apiClient')
-  })
-
-  // Without the client block, rpc without an import does not compile.
-  // client ブロックがなければ、import のない rpc はコンパイルできない。
-  it('is a type error to leave out the import of rpc without the client block', () => {
-    const config = defineConfig({
-      input: 'openapi.yaml',
-      output: 'src/routes.ts',
-      // @ts-expect-error -- without the client block, rpc names the module of the client
       rpc: { output: 'src/rpc.ts' },
     })
     expect(config.input).toBe('openapi.yaml')
   })
 
-  // output and routes together do not compile.
-  // output と routes を併せて指定すると、コンパイルできない。
-  it('is a type error to set output and routes together', () => {
-    const config = defineConfig({
-      input: 'openapi.yaml',
-      // @ts-expect-error -- output and routes are mutually exclusive
-      output: 'src/routes.ts',
-      // @ts-expect-error -- output and routes are mutually exclusive
-      routes: { output: 'src/routes' },
-    })
-    expect(config.input).toBe('openapi.yaml')
-  })
-
-  // A split output that is a .ts file does not compile.
-  // split の出力先が .ts ファイルだと、コンパイルできない。
-  it('is a type error to split routes into a .ts file', () => {
-    const config = defineConfig({
-      input: 'openapi.yaml',
-      // @ts-expect-error -- split mode requires a directory
-      routes: { output: 'src/routes.ts', split: true },
-    })
-    expect(config.input).toBe('openapi.yaml')
-  })
-
-  // The same for a component output.
-  // コンポーネントの出力先も同様である。
-  it('is a type error to split schemas into a .ts file', () => {
-    const config = defineConfig({
-      input: 'openapi.yaml',
-      output: 'src/routes.ts',
-      // @ts-expect-error -- split mode requires a directory
-      components: { schemas: { output: 'src/schemas.ts', split: true } },
-    })
-    expect(config.input).toBe('openapi.yaml')
-  })
-
-  // With template.define, an output that is not an index.ts does not compile.
-  // template.define では、index.ts でない output はコンパイルできない。
-  it('is a type error to name an output other than index.ts with template.define', () => {
-    const config = defineConfig({
-      input: 'openapi.yaml',
-      // @ts-expect-error -- with template.define, output is the app entry
-      output: 'src/app.ts',
-      template: { define: true },
-    })
-    expect(config.input).toBe('openapi.yaml')
-  })
-
-  // With template.define, routes does not compile.
-  // template.define では、routes はコンパイルできない。
-  it('is a type error to set routes with template.define', () => {
-    const config = defineConfig({
-      input: 'openapi.yaml',
-      template: { define: true },
-      // @ts-expect-error -- define derives routes/ next to the app entry
-      routes: { output: 'src/routes' },
-    })
-    expect(config.input).toBe('openapi.yaml')
-  })
-
-  // With template.define, the output of one component type does not compile.
-  // template.define では、コンポーネントの種類ごとの出力はコンパイルできない。
-  it('is a type error to set components.schemas with template.define', () => {
-    const config = defineConfig({
-      input: 'openapi.yaml',
-      output: 'src/index.ts',
-      template: { define: true },
-      // @ts-expect-error -- use components.output for a single file
-      components: { schemas: { output: 'src/schemas' } },
-    })
-    expect(config.input).toBe('openapi.yaml')
-  })
-
-  // components.output with the output of one type does not compile.
-  // components.output と種類ごとの出力を併せて指定すると、コンパイルできない。
-  it('is a type error to set components.output with components.schemas', () => {
-    const config = defineConfig({
-      input: 'openapi.yaml',
-      output: 'src/routes.ts',
-      // @ts-expect-error -- components.output and the outputs of each type are mutually exclusive
-      components: { output: 'src/components.ts', schemas: { output: 'src/schemas' } },
-    })
-    expect(config.input).toBe('openapi.yaml')
-  })
-
-  // Two generators writing to one path do not compile.
-  // 2 つの生成器が同じパスに書き出すと、コンパイルできない。
-  it('is a type error to give two generators one output', () => {
-    const config = defineConfig({
-      input: 'openapi.yaml',
-      // @ts-expect-error -- every generator needs its own output path
-      output: 'src/routes.ts',
-      // @ts-expect-error -- every generator needs its own output path
-      type: { output: 'src/routes.ts' },
-    })
-    expect(config.input).toBe('openapi.yaml')
-  })
-
-  // A basePath without the leading slash does not compile.
-  // 先頭にスラッシュのない basePath は、コンパイルできない。
-  it('is a type error to set a basePath without the leading slash', () => {
-    const config = defineConfig({
-      input: 'openapi.yaml',
-      output: 'src/routes.ts',
-      // @ts-expect-error -- basePath must start with '/'
-      basePath: 'api',
-    })
-    expect(config.input).toBe('openapi.yaml')
-  })
-
-  // An option that does not exist does not compile.
-  // 存在しないオプションは、コンパイルできない。
-  it('is a type error to set an option that does not exist', () => {
-    const config = defineConfig({
-      input: 'openapi.yaml',
-      output: 'src/routes.ts',
-      // @ts-expect-error -- imprt is not an option
-      rpc: { output: 'src/rpc.ts', import: '../client', imprt: '../client' },
-    })
-    expect(config.input).toBe('openapi.yaml')
-  })
-
-  // The test option does not compile for now.
-  // test オプションは、当面のあいだコンパイルできない。
-  it('is a type error to set test', () => {
-    const config = defineConfig({
-      input: 'openapi.yaml',
-      output: 'src/routes.ts',
-      // @ts-expect-error -- test is not an option for now
-      test: { output: 'src/test.ts', import: '.' },
-    })
-    expect(config.input).toBe('openapi.yaml')
-  })
-
-  // The client block without template does not compile either.
-  // template のない client ブロックも、コンパイルできない。
+  // The client without template does not compile.
+  // template のない client は、コンパイルできない。
   it('is a type error to set client without template', () => {
     const config = defineConfig({
       input: 'openapi.yaml',
@@ -2262,5 +2363,112 @@ describe('defineConfig', () => {
       client: { output: 'src/client.ts' },
     })
     expect(config.input).toBe('openapi.yaml')
+  })
+
+  // The removed options do not compile: the client name and import of rpc and the hooks,
+  // the import of the split outputs, the test options, and template.pathAlias.
+  // 廃止されたオプションはコンパイルできない。rpc とフックのクライアント名と import、
+  // 分割出力の import、テストのオプション、template.pathAlias である。
+  it('is a type error to set a removed option', () => {
+    const rpcClient = defineConfig({
+      input: 'openapi.yaml',
+      output: 'src/routes.ts',
+      template: {},
+      client: { output: 'src/client.ts' },
+      // @ts-expect-error -- client was removed
+      rpc: { output: 'src/rpc.ts', client: 'apiClient' },
+    })
+    const rpcImport = defineConfig({
+      input: 'openapi.yaml',
+      output: 'src/routes.ts',
+      template: {},
+      client: { output: 'src/client.ts' },
+      // @ts-expect-error -- import was removed
+      rpc: { output: 'src/rpc.ts', import: '../client' },
+    })
+    const swrClient = defineConfig({
+      input: 'openapi.yaml',
+      output: 'src/routes.ts',
+      template: {},
+      client: { output: 'src/client.ts' },
+      // @ts-expect-error -- client was removed
+      swr: { output: 'src/swr.ts', client: 'client' },
+    })
+    const routes = defineConfig({
+      input: 'openapi.yaml',
+      // @ts-expect-error -- import was removed
+      routes: { output: 'src/routes', import: '@packages/routes' },
+    })
+    const schemas = defineConfig({
+      input: 'openapi.yaml',
+      // @ts-expect-error -- import was removed
+      components: { schemas: { output: 'src/schemas', import: '@/schemas' } },
+    })
+    const test = defineConfig({
+      input: 'openapi.yaml',
+      // @ts-expect-error -- test was removed
+      test: { output: 'src/test.ts', import: '.' },
+    })
+    const templateTest = defineConfig({
+      input: 'openapi.yaml',
+      // @ts-expect-error -- test was removed
+      template: { test: true },
+    })
+    const templateAlias = defineConfig({
+      input: 'openapi.yaml',
+      // @ts-expect-error -- pathAlias was moved to the top level
+      template: { pathAlias: '@/' },
+    })
+    const fixedUrl = defineConfig({
+      input: 'openapi.yaml',
+      output: 'src/routes.ts',
+      template: {},
+      // @ts-expect-error -- a fixed URL was removed
+      client: { output: 'src/client.ts', baseUrl: 'http://localhost:3000' },
+    })
+    expect(
+      [
+        rpcClient,
+        rpcImport,
+        swrClient,
+        routes,
+        schemas,
+        test,
+        templateTest,
+        templateAlias,
+        fixedUrl,
+      ].map((c) => c.input),
+    ).toHaveLength(9)
+  })
+
+  // An option that does not exist does not compile.
+  // 存在しないオプションは、コンパイルできない。
+  it('is a type error to set an option that does not exist', () => {
+    const config = defineConfig({
+      input: 'openapi.yaml',
+      output: 'src/routes.ts',
+      template: {},
+      client: { output: 'src/client.ts' },
+      // @ts-expect-error -- imprt is not an option
+      rpc: { output: 'src/rpc.ts', imprt: '../client' },
+    })
+    expect(config.input).toBe('openapi.yaml')
+  })
+
+  // What the types no longer say, the schema says when the config is read: output and
+  // routes together, a split output that is a .ts file, an output of template.define that
+  // is not an index.ts, two generators on one path, a basePath without the leading slash.
+  // 型が言わなくなったことは、設定を読み込むときにスキーマが言う。output と routes の併用、
+  // .ts ファイルへの分割出力、index.ts でない template.define の output、同じパスへの 2 つの
+  // 生成器、先頭にスラッシュのない basePath である。
+  it('leaves the rules of the outputs to the schema', async () => {
+    const result = await runGeneratorError(
+      parseConfig(
+        defineConfig({ input: 'openapi.yaml', output: 'src/routes.ts', basePath: 'api' }),
+      ),
+    )
+    expect(result.message).toBe(
+      "Invalid config: basePath: must start with '/' and contain no whitespace or quotes",
+    )
   })
 })

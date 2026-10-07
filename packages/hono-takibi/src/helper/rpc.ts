@@ -1,3 +1,4 @@
+import type { HTTP_METHODS } from '../constants/index.js'
 import {
   isOperationLike,
   isParameterObject,
@@ -158,9 +159,7 @@ function makePickAllBodyInfo(componentsRequestBodies: { readonly [k: string]: un
 export function parsePathItem(rawItem: { readonly [k: string]: unknown }): {
   parameters?: unknown
 } & {
-  readonly [
-    M in 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace' | 'query'
-  ]?:
+  readonly [M in (typeof HTTP_METHODS)[number]]?:
     | {
         readonly summary?: string
         readonly description?: string
@@ -192,7 +191,7 @@ export function makeParseResponseType(
     readonly bracketSuffix: string
     readonly hasBracket: boolean
   },
-  method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace' | 'query',
+  method: (typeof HTTP_METHODS)[number],
 ) {
   const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
   const clientMethodType = hasBracket
@@ -215,7 +214,7 @@ export function operationHasArgs(
   item: {
     parameters?: unknown
   } & {
-    [M in 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace' | 'query']?:
+    [M in (typeof HTTP_METHODS)[number]]?:
       | {
           readonly summary?: string
           readonly description?: string

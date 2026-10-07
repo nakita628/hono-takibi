@@ -1,3 +1,4 @@
+import { HTTP_METHODS } from '../constants/index.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import {
@@ -297,17 +298,7 @@ export function makeCallbacks(
       },
   readonly?: boolean,
 ) {
-  const methods = [
-    'get',
-    'put',
-    'post',
-    'delete',
-    'options',
-    'head',
-    'patch',
-    'trace',
-    'query',
-  ] as const
+  const methods = HTTP_METHODS
   const makeMethodsCode = (record: { readonly [k: string]: unknown }): string =>
     methods
       .map((method) => {

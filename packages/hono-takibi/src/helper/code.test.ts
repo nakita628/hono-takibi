@@ -301,7 +301,7 @@ describe('makeImports', () => {
   it.concurrent('uses custom import path from component config', () => {
     const code = 'UserSchema'
     const result = makeImports(code, '/src/routes/user.ts', {
-      schemas: { output: '/src/schemas.ts', import: '@/schemas' },
+      schemas: { output: '/src/schemas.ts', specifier: () => '@/schemas' },
     })
     expect(result).toBe("import{UserSchema}from'@/schemas'\n\n\nUserSchema")
   })

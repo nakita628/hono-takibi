@@ -29,7 +29,12 @@ import {
   getUsersKey,
   getUsersQueryOptions,
 } from '../__generated__/tanstack-query/query'
-import { abortLog, requestLog } from '../hosts/users-app'
+import { fetchOf } from '../hosts/fetch'
+import { abortLog, app as host, requestLog } from '../hosts/users-app'
+
+// The generated client reaches the host through this fetch.
+// 生成されたクライアントは、この fetch を通してホストに届く。
+vi.stubGlobal('fetch', fetchOf(host))
 
 // No retry, so a failure is reported at once; no garbage collection, so the cache can be
 // inspected after the query settles.

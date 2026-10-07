@@ -9,7 +9,6 @@ export default defineConfig({
   },
   client: {
     output: '../../__generated__/crud/src/client.ts',
-    baseUrl: 'http://localhost:3000',
   },
   rpc: {
     output: '../../__generated__/crud/src/rpc.ts',

@@ -32,9 +32,7 @@ describe('template', () => {
         },
       },
     } as OpenAPI
-    const result = await runGenerator(
-      template(openAPI, output, false, '/', undefined, undefined, false),
-    )
+    const result = await runGenerator(template(openAPI, output, '/', undefined, undefined, false))
     expect(result).toBe('🔥 Generated code and template files written')
     expect(fs.existsSync(path.join(tmpDir, 'index.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'handlers', 'health.ts'))).toBe(true)
@@ -57,7 +55,7 @@ describe('template', () => {
         },
       },
     } as OpenAPI
-    await runGenerator(template(openAPI, output, false, '/', undefined, undefined, false))
+    await runGenerator(template(openAPI, output, '/', undefined, undefined, false))
     // `server/index.ts` means "module server/", so the app entry and handlers land beside it.
     expect(fs.existsSync(path.join(tmpDir, 'index.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'handlers', 'health.ts'))).toBe(true)
@@ -67,6 +65,39 @@ describe('template', () => {
     expect(
       fs.readFileSync(path.join(tmpDir, 'handlers', 'health.ts'), 'utf-8').split('\n'),
     ).toContain("import { getHealthRoute } from '../server'")
+  })
+
+  // A split routes directory (`routes: { output: 'src/routes', split: true }`) is the routes
+  // module too: the app entry and the handlers land beside it, and import it by its barrel.
+  // Before, the directory was taken for a file in no directory, and the handlers went to
+  // `./handlers` of the working directory.
+  it('treats a split routes directory as the routes module', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-split-dir-'))
+    const output = path.join(tmpDir, 'src', 'routes')
+    const openAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/health': {
+          get: {
+            operationId: 'healthCheck',
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    } as OpenAPI
+    await runGenerator(template(openAPI, output, '/', undefined, undefined, true))
+    expect(fs.existsSync(path.join(tmpDir, 'src', 'index.ts'))).toBe(true)
+    expect(fs.existsSync(path.join(tmpDir, 'src', 'handlers', 'health.ts'))).toBe(true)
+    expect(fs.existsSync(path.join(tmpDir, 'handlers'))).toBe(false)
+    expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf-8').split('\n')).toContain(
+      "import { getHealthRoute } from './routes'",
+    )
+    expect(
+      fs.readFileSync(path.join(tmpDir, 'src', 'handlers', 'health.ts'), 'utf-8').split('\n'),
+    ).toContain("import type { getHealthRoute } from '../routes'")
   })
 
   it('merges into an existing app file, preserving custom imports', async () => {
@@ -96,7 +127,7 @@ export const api = new OpenAPIHono()
         },
       },
     } as OpenAPI
-    await runGenerator(template(openAPI, output, false, '/', undefined, undefined, false))
+    await runGenerator(template(openAPI, output, '/', undefined, undefined, false))
     const content = fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')
     expect(content.includes('custom-marker')).toBe(true)
   })
@@ -142,7 +173,7 @@ export const debug = { workerEnv, appEnv, BookService, ReviewService }
         },
       },
     } as OpenAPI
-    await runGenerator(template(openAPI, output, false, '/', '@/api', undefined, true))
+    await runGenerator(template(openAPI, output, '/', '@/api', undefined, true))
     expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')).toBe(
       `import { OpenAPIHono } from '@hono/zod-openapi'
 import { env as workerEnv } from 'cloudflare:workers'
@@ -175,7 +206,7 @@ export const debug = { workerEnv, appEnv, BookService, ReviewService }
         },
       },
     } as OpenAPI
-    await runGenerator(template(untagged, output, false, '/', undefined, undefined, false))
+    await runGenerator(template(untagged, output, '/', undefined, undefined, false))
     const implemented = `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getUsersRoute } from '../routes'
 
@@ -200,7 +231,7 @@ export const usersHandler = app.openapi(getUsersRoute, async (c) => {
         },
       },
     } as OpenAPI
-    await runGenerator(template(tagged, output, false, '/', undefined, undefined, false))
+    await runGenerator(template(tagged, output, '/', undefined, undefined, false))
     expect(fs.existsSync(path.join(tmpDir, 'handlers', 'userManagement.ts'))).toBe(false)
     expect(fs.readFileSync(path.join(tmpDir, 'handlers', 'users.ts'), 'utf-8')).toBe(implemented)
     expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')).toBe(
@@ -236,7 +267,7 @@ export default app
       },
     } as OpenAPI
     const result = await runGeneratorError(
-      template(openAPI, output, false, '/', undefined, undefined, false),
+      template(openAPI, output, '/', undefined, undefined, false),
     )
     expect(result.message.length > 0).toBe(true)
   })

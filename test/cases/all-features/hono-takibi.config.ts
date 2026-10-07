@@ -3,6 +3,8 @@ import { defineConfig } from 'hono-takibi'
 export default defineConfig({
   input: '../../specs/all-features.yaml',
   output: '../../__generated__/all-features/routes.ts',
+  template: { routeHandler: true },
+  client: { output: '../../__generated__/all-features/client.ts' },
   exportSchemas: true,
   exportSchemasTypes: true,
   exportResponses: true,
@@ -23,26 +25,21 @@ export default defineConfig({
   },
   rpc: {
     output: '../../__generated__/all-features/rpc.ts',
-    import: './client',
   },
-  swr: { output: '../../__generated__/all-features/swr.ts', import: './client' },
+  swr: { output: '../../__generated__/all-features/swr.ts' },
   'tanstack-query': {
     output: '../../__generated__/all-features/tanstack-query.ts',
-    import: './client',
   },
   'preact-query': {
     output: '../../__generated__/all-features/preact-query.ts',
-    import: './client',
   },
-  'solid-query': { output: '../../__generated__/all-features/solid-query.ts', import: './client' },
-  'vue-query': { output: '../../__generated__/all-features/vue-query.ts', import: './client' },
+  'solid-query': { output: '../../__generated__/all-features/solid-query.ts' },
+  'vue-query': { output: '../../__generated__/all-features/vue-query.ts' },
   'svelte-query': {
     output: '../../__generated__/all-features/svelte-query.ts',
-    import: './client',
   },
   'angular-query': {
     output: '../../__generated__/all-features/angular-query.ts',
-    import: './client',
   },
   mock: {
     output: '../../__generated__/all-features/mock.ts',

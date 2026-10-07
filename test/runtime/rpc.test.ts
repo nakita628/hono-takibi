@@ -14,7 +14,7 @@
 // ステータスとパース済みのエラーボディが含まれるため、呼び出し側は仕様で宣言された
 // 型付きのエラー契約を受け取れる。
 import { DetailedError } from 'hono/client'
-import { afterEach, describe, expect, it } from 'vite-plus/test'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import {
   deleteUsersId,
@@ -24,7 +24,12 @@ import {
   getUsersId,
   postUsers,
 } from '../__generated__/rpc/rpc'
-import { requestLog } from '../hosts/users-app'
+import { fetchOf } from '../hosts/fetch'
+import { app as host, requestLog } from '../hosts/users-app'
+
+// The generated client reaches the host through this fetch.
+// 生成されたクライアントは、この fetch を通してホストに届く。
+vi.stubGlobal('fetch', fetchOf(host))
 
 // The host records every request it serves. Each test starts from an empty log.
 // ホストは、処理したすべてのリクエストを記録する。各テストは空のログから開始する。

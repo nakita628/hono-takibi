@@ -1,3 +1,4 @@
+import type { HTTP_METHODS } from '../constants/index.js'
 /**
  * Normalize a JSON Schema `type` value into an array of type strings.
  */
@@ -396,7 +397,7 @@ export function makeInferRequestType(
     bracketSuffix: string
     hasBracket: boolean
   },
-  method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace' | 'query',
+  method: (typeof HTTP_METHODS)[number],
 ) {
   const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
   return hasBracket

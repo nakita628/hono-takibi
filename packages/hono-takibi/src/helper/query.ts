@@ -2,6 +2,7 @@ import path from 'node:path'
 
 import { Effect } from 'effect'
 
+import { HTTP_METHODS } from '../constants/index.js'
 import { emit } from '../emit/index.js'
 import { GenerateError } from '../error/index.js'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
@@ -870,7 +871,7 @@ function makeMutationHookCode(
 
 function makeHookCode(
   pathStr: string,
-  method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace' | 'query',
+  method: (typeof HTTP_METHODS)[number],
   item: ReturnType<typeof parsePathItem>,
   deps: ReturnType<typeof makeOperationDeps>,
   config: {
@@ -1259,17 +1260,7 @@ function makeHookCodes(
     .filter((entry): entry is [string, { [k: string]: unknown }] => isRecord(entry[1]))
     .flatMap(([p, rawItem]) => {
       const pathItem = parsePathItem(rawItem)
-      const methods = [
-        'get',
-        'put',
-        'post',
-        'delete',
-        'options',
-        'head',
-        'patch',
-        'trace',
-        'query',
-      ] as const
+      const methods = HTTP_METHODS
       return methods
         .map((method) => {
           const operation = pathItem[method]

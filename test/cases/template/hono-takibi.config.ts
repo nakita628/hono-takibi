@@ -6,7 +6,8 @@ export default defineConfig({
   output: '../../__generated__/template/src/routes.ts',
   template: {
     routeHandler: true,
-    test: true,
-    testFramework: 'vite-plus',
+    // Test code generation is deprecated: hono-takibi no longer generates test files.
+    // test: true,
+    // testFramework: 'vite-plus',
   },
 })

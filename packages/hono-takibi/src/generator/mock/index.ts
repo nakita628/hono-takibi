@@ -1,3 +1,4 @@
+import { HTTP_METHODS } from '../../constants/index.js'
 import {
   isHttpMethod,
   isMediaWithSchema,
@@ -269,19 +270,7 @@ function filterToJsonContentTypes(openapi: OpenAPI) {
     Object.entries(openapi.paths).map(([path, pathItem]) => {
       const filteredPathItem = Object.fromEntries(
         Object.entries(pathItem).map(([k, v]) => {
-          if (
-            ![
-              'get',
-              'post',
-              'put',
-              'delete',
-              'patch',
-              'options',
-              'head',
-              'trace',
-              'query',
-            ].includes(k)
-          ) {
+          if (!HTTP_METHODS.some((method) => method === k)) {
             return [k, v] as const
           }
           if (!hasRequestBodyContent(v)) return [k, v] as const

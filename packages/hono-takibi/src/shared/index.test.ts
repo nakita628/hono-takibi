@@ -6,8 +6,14 @@ import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { parseConfig } from '../config/index.js'
 import type { OpenAPI } from '../openapi/index.js'
-import { runGenerator } from '../testing/index.js'
-import { cleanSplitOutputs, makeJob, outsideSources, testJob } from './index.js'
+import { runGenerator, runGeneratorError } from '../testing/index.js'
+import {
+  cleanSplitOutputs,
+  makeJob,
+  outsideSources,
+  packageRoots,
+  referencedKinds,
+} from './index.js'
 
 const openAPI = {
   openapi: '3.0.0',
@@ -241,7 +247,8 @@ export const UserSchema = z
       parseConfig({
         input: 'openapi.yaml',
         output: `${tmpDir}/src/index.ts`,
-        template: { define: true, pathAlias: '@/' },
+        template: { define: true },
+        pathAlias: '@/',
       }),
     )
     const jobs = makeJob(openAPI, cfg)
@@ -439,7 +446,8 @@ import { UserSchema } from '../../shared/components'`)
       parseConfig({
         input: 'openapi.yaml',
         output: `${tmpDir}/src/index.ts`,
-        template: { define: true, pathAlias: '@/' },
+        template: { define: true },
+        pathAlias: '@/',
         components: { output: `${tmpDir}/src/api/components/index.ts` },
       }),
     )
@@ -461,7 +469,8 @@ import { UserSchema } from '@/api/components'`)
       parseConfig({
         input: 'openapi.yaml',
         output: `${tmpDir}/src/index.ts`,
-        template: { define: true, pathAlias: '@/' },
+        template: { define: true },
+        pathAlias: '@/',
       }),
     )
     const jobs = makeJob(openAPI, cfg)
@@ -791,7 +800,8 @@ export default app
         parseConfig({
           input: 'openapi.yaml',
           output: `${tmpDir}/src/index.ts`,
-          template: { define: true, pathAlias: '@/' },
+          template: { define: true },
+          pathAlias: '@/',
         }),
       )
       const run = (spec: OpenAPI) =>
@@ -819,33 +829,6 @@ export default app
     })
   },
 )
-
-describe('testJob request paths use the global basePath', () => {
-  it('prefixes generated test request paths with the global basePath', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-basepath-'))
-    const job = testJob(
-      openAPI,
-      { output: `${tmpDir}/app.test.ts`, import: './app', testFramework: 'vitest' },
-      '/api',
-    )
-    await runGenerator(job.run(job.output))
-    const content = fs.readFileSync(`${tmpDir}/app.test.ts`, 'utf-8')
-    expect(content.includes('app.request(`/api/health`')).toBe(true)
-    expect(content.includes('app.request(`/health`')).toBe(false)
-  })
-
-  it('does not prefix test request paths when the global basePath is "/"', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-basepath-root-'))
-    const job = testJob(
-      openAPI,
-      { output: `${tmpDir}/app.test.ts`, import: './app', testFramework: 'vitest' },
-      '/',
-    )
-    await runGenerator(job.run(job.output))
-    const content = fs.readFileSync(`${tmpDir}/app.test.ts`, 'utf-8')
-    expect(content.includes('app.request(`/health`')).toBe(true)
-  })
-})
 
 // `cleanSplitOutputs` is the only thing in the package that deletes files the user did
 // not name one by one, so what it leaves alone matters as much as what it removes.
@@ -1022,9 +1005,13 @@ describe('outsideSources', () => {
 
 // Runs every job of the config and reads what was written under src.
 // 設定のすべてのジョブを実行し、src の下に書き出されたものを読み取る。
-async function generateClientJobs(dir: string, config: object) {
+async function generateClientJobs(
+  dir: string,
+  config: object,
+  packageRoot?: (file: string) => string | undefined,
+) {
   const cfg = await runGenerator(parseConfig({ input: 'openapi.yaml', ...config }))
-  const jobs = makeJob(openAPI, cfg)
+  const jobs = makeJob(openAPI, cfg, packageRoot)
   // The app entry is what the client and the rpc file are written against, so the jobs
   // run in the order they are made.
   // アプリのエントリは、クライアントと rpc ファイルの前提になる。そのため、ジョブは作られた
@@ -1134,7 +1121,8 @@ describe('makeJob: the client and what imports it', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-alias-'))
     const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
-      template: { routeHandler: true, pathAlias: '@/' },
+      template: { routeHandler: true },
+      pathAlias: '@/',
       client: { output: `${tmpDir}/src/lib/client.ts` },
       rpc: { output: `${tmpDir}/src/rpc.ts` },
     })
@@ -1150,7 +1138,8 @@ describe('makeJob: the client and what imports it', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-alias-dir-'))
     const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/api/routes.ts`,
-      template: { routeHandler: true, pathAlias: '@/api' },
+      template: { routeHandler: true },
+      pathAlias: '@/api',
       client: { output: `${tmpDir}/src/client/http.ts` },
       rpc: { output: `${tmpDir}/src/rpc.ts` },
     })
@@ -1159,17 +1148,80 @@ describe('makeJob: the client and what imports it', () => {
     expect(out.imports('src/rpc.ts')).toStrictEqual(["'./client'"])
   })
 
-  // The import a generator names is the one it uses, whatever the client block says.
-  // 生成器に指定された import は、client ブロックの内容にかかわらず、そのまま使われる。
-  it('takes the import a generator names over the generated client', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-named-'))
+  // A file written into another package imports the client by `client.package`; one in
+  // the package of the client keeps importing it relatively.
+  // 別のパッケージに書き出されるファイルは `client.package` でクライアントを import し、
+  // クライアントと同じパッケージのファイルは従来どおり相対パスで import する。
+  it('imports the client by client.package from another package', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-package-'))
+    const packageRoot = (file: string) =>
+      file.startsWith(`${tmpDir}/web/`) ? `${tmpDir}/web` : `${tmpDir}/server`
+    const out = await generateClientJobs(
+      tmpDir,
+      {
+        output: `${tmpDir}/server/src/routes.ts`,
+        template: { routeHandler: true },
+        client: { output: `${tmpDir}/server/src/lib/client.ts`, package: '@packages/client' },
+        rpc: { output: `${tmpDir}/web/src/rpc.ts` },
+        swr: { output: `${tmpDir}/server/src/swr.ts` },
+      },
+      packageRoot,
+    )
+    expect(out.read('web/src/rpc.ts')).toContain("import { client } from '@packages/client'")
+    expect(out.imports('server/src/swr.ts')).toStrictEqual(["'./lib'"])
+  })
+
+  // Without a package root to tell the files apart, every file is in the package of the
+  // client, and `client.package` changes nothing.
+  // パッケージの境界が分からなければ、すべてのファイルはクライアントと同じパッケージにあるものと
+  // して扱われ、`client.package` は何も変えない。
+  it('imports the client relatively when no package root is known', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-package-none-'))
     const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true },
-      client: { output: `${tmpDir}/src/lib/client.ts` },
-      rpc: { output: `${tmpDir}/src/rpc.ts`, import: '@packages/client' },
+      client: { output: `${tmpDir}/src/lib/client.ts`, package: '@packages/client' },
+      rpc: { output: `${tmpDir}/src/rpc.ts` },
     })
-    expect(out.read('src/rpc.ts')).toContain("import { client } from '@packages/client'")
+    expect(out.imports('src/rpc.ts')).toStrictEqual(["'./lib'"])
+  })
+
+  // The alias is the alias of the package of the app: a file written into another package
+  // imports the client relatively, not under the alias, even without `client.package`.
+  // エイリアスはアプリのパッケージのものである。別のパッケージに書き出されるファイルは、
+  // `client.package` がなくてもエイリアスではなく相対パスでクライアントを import する。
+  it('keeps the path alias inside the package of the app', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-alias-package-'))
+    const packageRoot = (file: string) =>
+      file.startsWith(`${tmpDir}/web/`) ? `${tmpDir}/web` : `${tmpDir}/server`
+    const out = await generateClientJobs(
+      tmpDir,
+      {
+        output: `${tmpDir}/server/src/routes.ts`,
+        pathAlias: '@/',
+        template: { routeHandler: true },
+        client: { output: `${tmpDir}/server/src/lib/client.ts` },
+        rpc: { output: `${tmpDir}/web/src/rpc.ts` },
+        swr: { output: `${tmpDir}/server/src/swr.ts` },
+      },
+      packageRoot,
+    )
+    expect(out.read('server/src/lib/client.ts')).toContain("import type { api } from '@/index'")
+    expect(out.imports('server/src/swr.ts')).toStrictEqual(["'@/lib'"])
+    expect(out.imports('web/src/rpc.ts')).toStrictEqual(["'../../server/src/lib'"])
+  })
+
+  // The client imports the type of the app from the module `client.import` names.
+  // クライアントは、`client.import` が指すモジュールからアプリの型を import する。
+  it('imports the app by client.import', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-import-'))
+    const out = await generateClientJobs(tmpDir, {
+      output: `${tmpDir}/src/routes.ts`,
+      template: { routeHandler: true },
+      client: { output: `${tmpDir}/src/lib/client.ts`, import: '@packages/server' },
+      rpc: { output: `${tmpDir}/src/rpc.ts` },
+    })
+    expect(out.read('src/lib/client.ts')).toContain("import type { api } from '@packages/server'")
   })
 
   // Without a client block nothing is written for it.
@@ -1179,45 +1231,379 @@ describe('makeJob: the client and what imports it', () => {
     const out = await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true },
-      rpc: { output: `${tmpDir}/src/rpc.ts`, import: '../lib' },
     })
     expect(out.has('src/client.ts')).toBe(false)
-    expect(out.imports('src/rpc.ts')).toStrictEqual(["'../lib'"])
+    expect(out.has('src/lib/client.ts')).toBe(false)
+  })
+})
+
+describe('packageRoots: the package of every output', () => {
+  // The nearest package.json above an output delimits its package; a split directory that
+  // holds one is a package of its own.
+  // 出力の上にある最寄りの package.json がそのパッケージを区切る。package.json を持つ split
+  // ディレクトリは、それ自体が独立したパッケージである。
+  it('tells a split directory with its own package.json apart', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-'))
+    fs.mkdirSync(path.join(tmpDir, 'src/schemas'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
+    fs.writeFileSync(
+      path.join(tmpDir, 'src/schemas/package.json'),
+      '{ "name": "@packages/schemas" }',
+    )
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/src/routes`, split: true },
+        components: {
+          schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@packages/schemas' },
+        },
+      }),
+    )
+    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
+    expect(packageRoot(`${tmpDir}/src/routes/getUsers.ts`)).toBe(tmpDir)
+    expect(packageRoot(`${tmpDir}/src/schemas/user.ts`)).toBe(`${tmpDir}/src/schemas`)
   })
 
-  // Without template, rpc calls the client by the name the config gives.
-  // template がなければ、rpc は設定で指定した名前でクライアントを呼び出す。
-  // With template and without the client block, the same.
-  // template があり client ブロックがなくても、同様である。
-  it('imports the named client with template and without client', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-tname-'))
-    const out = await generateClientJobs(tmpDir, {
-      output: `${tmpDir}/src/routes.ts`,
-      template: { routeHandler: true },
-      rpc: { output: `${tmpDir}/src/rpc.ts`, import: '../lib', client: 'api' },
-    })
-    expect(out.has('src/client.ts')).toBe(false)
-    expect(out.read('src/rpc.ts')).toContain("import { api } from '../lib'")
+  // A split directory is a directory whatever its name: one with a dot in it is still looked
+  // up for its own package.json, not taken for a file.
+  // split ディレクトリは名前にかかわらずディレクトリである。ドットを含む名前でも、ファイルとは
+  // 見なさず、その中の package.json を探す。
+  it('tells a split directory with a dot in its name apart', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-dot-'))
+    fs.mkdirSync(path.join(tmpDir, 'src/api.v2'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
+    fs.writeFileSync(path.join(tmpDir, 'src/api.v2/package.json'), '{ "name": "@packages/v2" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/src/routes`, split: true },
+        components: {
+          schemas: { output: `${tmpDir}/src/api.v2`, split: true, package: '@packages/v2' },
+        },
+      }),
+    )
+    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
+    expect(packageRoot(`${tmpDir}/src/api.v2`)).toBe(`${tmpDir}/src/api.v2`)
+    expect(packageRoot(`${tmpDir}/src/api.v2/user.ts`)).toBe(`${tmpDir}/src/api.v2`)
+    expect(packageRoot(`${tmpDir}/src/routes/getUsers.ts`)).toBe(tmpDir)
   })
 
-  it('imports the named client without template', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-name-'))
-    const out = await generateClientJobs(tmpDir, {
-      output: `${tmpDir}/src/routes.ts`,
-      rpc: { output: `${tmpDir}/src/rpc.ts`, import: '../lib', client: 'api' },
-    })
-    expect(out.read('src/rpc.ts')).toContain("import { api } from '../lib'")
+  // Without a package.json anywhere above, every output is in the one package: the alias
+  // applies and nothing is imported by name.
+  // 上に package.json がなければ、すべての出力は 1 つのパッケージにある。エイリアスが効き、
+  // 名前で import されるものはない。
+  it('treats every output as one package when no package.json is above', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-none-'))
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        pathAlias: '@/',
+        routes: { output: `${tmpDir}/src/routes`, split: true },
+        components: {
+          schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@packages/schemas' },
+        },
+      }),
+    )
+    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
+    expect(packageRoot(`${tmpDir}/src/routes/getUsers.ts`)).toBe(
+      packageRoot(`${tmpDir}/src/schemas/user.ts`),
+    )
+    const jobs = makeJob(openAPI, cfg, packageRoot)
+    for (const job of jobs) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await runGenerator(job.run(job.output))
+    }
+    expect(fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8')).toContain(
+      "import { UserSchema } from '@/schemas'",
+    )
   })
 
-  // The same for a hook library.
-  // フックのライブラリも同様である。
-  it('imports the named client into hooks without template', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-hook-'))
-    const out = await generateClientJobs(tmpDir, {
-      output: `${tmpDir}/src/routes.ts`,
-      swr: { output: `${tmpDir}/src/swr.ts`, import: '../lib', client: 'api' },
-    })
-    expect(out.read('src/swr.ts')).toContain("import { api } from '../lib'")
+  // The alias stands for the directory of the app entry: a target outside it, in the same
+  // package, is imported relatively.
+  // エイリアスは app entry のディレクトリを指す。同じパッケージでもその外にある対象は、
+  // 相対パスで import する。
+  it('imports a target outside the app directory relatively even with an alias', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-outside-'))
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        pathAlias: '@/',
+        routes: { output: `${tmpDir}/src/routes`, split: true },
+        components: { schemas: { output: `${tmpDir}/lib/schemas`, split: true } },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)))
+    for (const job of jobs) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await runGenerator(job.run(job.output))
+    }
+    expect(fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8')).toContain(
+      "import { UserSchema } from '../../lib/schemas'",
+    )
+  })
+
+  // An output that is no .ts file, the docs for one, is a file all the same: the
+  // package.json is looked for beside it, not under it.
+  // .ts でない出力(ドキュメントなど)もファイルである。package.json はその隣を探し、
+  // その下は探さない。
+  it('takes an output with another extension for a file', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-docs-'))
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: `${tmpDir}/src/routes.ts`,
+        docs: { output: `${tmpDir}/docs/api.md` },
+      }),
+    )
+    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
+    expect(packageRoot(`${tmpDir}/docs/api.md`)).toBe(tmpDir)
+  })
+
+  // A file cannot import another package without a name for it.
+  // 名前がなければ、別のパッケージを import することはできない。
+  it('fails when a target in another package names no package', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-missing-'))
+    fs.mkdirSync(path.join(tmpDir, 'src/schemas'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
+    fs.writeFileSync(
+      path.join(tmpDir, 'src/schemas/package.json'),
+      '{ "name": "@packages/schemas" }',
+    )
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/src/routes`, split: true },
+        components: { schemas: { output: `${tmpDir}/src/schemas`, split: true } },
+      }),
+    )
+    const error = await runGeneratorError(packageRoots(openAPI, cfg))
+    expect(error.message).toBe(
+      `routes imports components.schemas from another package: set components.schemas.package to the name of the package ${tmpDir}/src/schemas is written into.`,
+    )
+  })
+
+  // The client cannot import the app from another package without client.import.
+  // client.import がなければ、クライアントは別のパッケージのアプリを import できない。
+  it('fails when the client is in another package and names no client.import', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-client-'))
+    fs.mkdirSync(path.join(tmpDir, 'client/src'), { recursive: true })
+    fs.mkdirSync(path.join(tmpDir, 'server/src'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'client/package.json'), '{ "name": "@packages/client" }')
+    fs.writeFileSync(path.join(tmpDir, 'server/package.json'), '{ "name": "@packages/server" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: `${tmpDir}/server/src/routes.ts`,
+        template: { routeHandler: true },
+        client: { output: `${tmpDir}/client/src/client.ts`, package: '@packages/client' },
+      }),
+    )
+    const error = await runGeneratorError(packageRoots(openAPI, cfg))
+    expect(error.message).toBe(
+      'client imports the app from another package: set client.import to the name of the package the app is written into.',
+    )
+  })
+
+  // The scaffold imports routes in another package by their package: the handlers and the
+  // app entry alike.
+  // scaffold は、別パッケージの routes をその package で import する。ハンドラも app entry も同様。
+  it('scaffolds handlers that import routes by their package', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-routes-'))
+    fs.mkdirSync(path.join(tmpDir, 'src/routes'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
+    fs.writeFileSync(path.join(tmpDir, 'src/routes/package.json'), '{ "name": "@packages/routes" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/src/routes`, split: true, package: '@packages/routes' },
+        template: { routeHandler: true },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)))
+    for (const job of jobs) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await runGenerator(job.run(job.output))
+    }
+    expect(fs.readFileSync(path.join(tmpDir, 'src/handlers/users.ts'), 'utf8')).toContain(
+      "from '@packages/routes'",
+    )
+    expect(fs.readFileSync(path.join(tmpDir, 'src/index.ts'), 'utf8')).toContain(
+      "from '@packages/routes'",
+    )
+  })
+
+  // The single components file in a package of its own is imported by components.package.
+  // 独立したパッケージにある単一の components ファイルは、components.package で import する。
+  it('imports the single components file by components.package', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-components-'))
+    fs.mkdirSync(path.join(tmpDir, 'src/components'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
+    fs.writeFileSync(
+      path.join(tmpDir, 'src/components/package.json'),
+      '{ "name": "@packages/components" }',
+    )
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/src/routes`, split: true },
+        components: {
+          output: `${tmpDir}/src/components/index.ts`,
+          package: '@packages/components',
+        },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)))
+    for (const job of jobs) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await runGenerator(job.run(job.output))
+    }
+    expect(fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8')).toContain(
+      "import { UserSchema } from '@packages/components'",
+    )
+  })
+
+  it('fails when the single components file is in another package without a package', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-components-missing-'))
+    fs.mkdirSync(path.join(tmpDir, 'src/components'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
+    fs.writeFileSync(
+      path.join(tmpDir, 'src/components/package.json'),
+      '{ "name": "@packages/components" }',
+    )
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/src/routes`, split: true },
+        components: { output: `${tmpDir}/src/components/index.ts` },
+      }),
+    )
+    const error = await runGeneratorError(packageRoots(openAPI, cfg))
+    expect(error.message).toBe(
+      `routes imports components.output from another package: set components.output.package to the name of the package ${tmpDir}/src/components/index.ts is written into.`,
+    )
+  })
+
+  // With define, route and handler are one file, and it imports the components: by
+  // components.package when they are in another package.
+  // define ではルートとハンドラが 1 ファイルで、そこが components を import する。別パッケージなら
+  // components.package で import する。
+  it('imports the components by components.package from define-mode handlers', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-define-'))
+    fs.mkdirSync(path.join(tmpDir, 'server/src'), { recursive: true })
+    fs.mkdirSync(path.join(tmpDir, 'shared'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'server/package.json'), '{ "name": "@x/server" }')
+    fs.writeFileSync(path.join(tmpDir, 'shared/package.json'), '{ "name": "@x/shared" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: `${tmpDir}/server/src/index.ts`,
+        template: { define: true },
+        components: { output: `${tmpDir}/shared/index.ts`, package: '@x/shared' },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)))
+    for (const job of jobs) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await runGenerator(job.run(job.output))
+    }
+    const routes = fs
+      .readdirSync(path.join(tmpDir, 'server/src/routes'))
+      .filter((file) => file !== 'index.ts')
+      .map((file) => fs.readFileSync(path.join(tmpDir, 'server/src/routes', file), 'utf8'))
+    expect(routes.some((source) => source.includes("from '@x/shared'"))).toBe(true)
+    expect(routes.some((source) => source.includes('../../../shared'))).toBe(false)
+  })
+
+  // Only the imports that are written need a package: schemas import no other kind, so a
+  // schemas package of its own does not need the examples beside the app to name one.
+  // package が要るのは実際に書かれる import だけである。schemas はほかの種類を import しないので、
+  // 独立した schemas パッケージがあっても、アプリ側の examples に package は要らない。
+  it('asks for no package on an import that is never written', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-unwritten-'))
+    fs.mkdirSync(path.join(tmpDir, 'server/src'), { recursive: true })
+    fs.mkdirSync(path.join(tmpDir, 'shared/schemas'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'server/package.json'), '{ "name": "@x/server" }')
+    fs.writeFileSync(path.join(tmpDir, 'shared/package.json'), '{ "name": "@x/shared" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/server/src/routes`, split: true },
+        components: {
+          schemas: { output: `${tmpDir}/shared/schemas`, split: true, package: '@x/shared' },
+          examples: { output: `${tmpDir}/server/src/examples`, split: true },
+        },
+      }),
+    )
+    await expect(runGenerator(packageRoots(openAPI, cfg))).resolves.toBeTypeOf('function')
+  })
+
+  // The other way round the import is written, and the package is asked for: responses
+  // import examples.
+  // 逆向きでは import が書かれるので、package を求める。responses は examples を import する。
+  it('asks for a package on an import that is written', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-written-'))
+    fs.mkdirSync(path.join(tmpDir, 'server/src'), { recursive: true })
+    fs.mkdirSync(path.join(tmpDir, 'shared/responses'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'server/package.json'), '{ "name": "@x/server" }')
+    fs.writeFileSync(path.join(tmpDir, 'shared/package.json'), '{ "name": "@x/shared" }')
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        components: {
+          responses: { output: `${tmpDir}/shared/responses`, split: true, package: '@x/shared' },
+          examples: { output: `${tmpDir}/server/src/examples`, split: true },
+        },
+      }),
+    )
+    // A response that points at an example: the responses import the examples.
+    const withExample = {
+      ...openAPI,
+      components: {
+        ...openAPI.components,
+        examples: { Ok: { value: 'ok' } },
+        responses: {
+          Ok: {
+            description: 'OK',
+            content: {
+              'application/json': { examples: { ok: { $ref: '#/components/examples/Ok' } } },
+            },
+          },
+        },
+      },
+    } as unknown as OpenAPI
+    const error = await runGeneratorError(packageRoots(withExample, cfg))
+    expect(error.message).toBe(
+      `components.responses imports components.examples from another package: set components.examples.package to the name of the package ${tmpDir}/server/src/examples is written into.`,
+    )
+  })
+
+  // Components in another package are imported by their package.
+  // 別パッケージのコンポーネントは、その package で import する。
+  it('imports a component by its package from another package', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-jobs-'))
+    fs.mkdirSync(path.join(tmpDir, 'src/schemas'), { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
+    fs.writeFileSync(
+      path.join(tmpDir, 'src/schemas/package.json'),
+      '{ "name": "@packages/schemas" }',
+    )
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/src/routes`, split: true },
+        components: {
+          schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@packages/schemas' },
+        },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)))
+    for (const job of jobs) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await runGenerator(job.run(job.output))
+    }
+    const route = fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8')
+    expect(route).toContain("import { UserSchema } from '@packages/schemas'")
   })
 })
 
@@ -1465,5 +1851,150 @@ export default app
     await generateAgain(openAPI, tmpDir, true)
     const read = await generateAgain(openAPI, tmpDir, true)
     expect(read('src/lib/index.ts')).toBe("export * from './client'\n")
+  })
+})
+
+// packageRoots asks for a package only where referencedKinds, read from the document's
+// `$ref`s, says an import is written. An import the generators write and referencedKinds
+// misses would cross a package boundary unchecked, so every kind is split here from a
+// document whose components refer to one another, and every import written is checked.
+// packageRoots は、ドキュメントの `$ref` から求めた referencedKinds が import ありと言う箇所に
+// だけ package を求める。生成器が書くのに referencedKinds が見落とす import は、検査されないまま
+// パッケージ境界をまたぎうる。そこで、互いに参照し合う components を持つドキュメントから全種類を
+// 分割生成し、書かれた import をすべて照合する。
+describe('referencedKinds covers every import the generators write', () => {
+  const COMPONENTS = [
+    'schemas',
+    'responses',
+    'parameters',
+    'examples',
+    'requestBodies',
+    'headers',
+    'securitySchemes',
+    'links',
+    'callbacks',
+    'pathItems',
+  ] as const
+  const document = {
+    openapi: '3.1.0',
+    info: { title: 'refs', version: '1.0.0' },
+    paths: {
+      '/users/{id}': {
+        get: {
+          operationId: 'getUser',
+          parameters: [{ $ref: '#/components/parameters/Id' }],
+          responses: { 200: { $ref: '#/components/responses/User' } },
+          callbacks: { onEvent: { $ref: '#/components/callbacks/OnEvent' } },
+        },
+        post: {
+          operationId: 'postUser',
+          requestBody: { $ref: '#/components/requestBodies/User' },
+          responses: { 201: { $ref: '#/components/responses/User' } },
+        },
+      },
+      '/items': { $ref: '#/components/pathItems/Items' },
+    },
+    components: {
+      schemas: {
+        User: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
+      },
+      examples: { User: { value: { id: '1' } } },
+      headers: { Trace: { schema: { $ref: '#/components/schemas/User' } } },
+      links: { Self: { operationId: 'getUser' } },
+      securitySchemes: { Bearer: { type: 'http', scheme: 'bearer' } },
+      parameters: {
+        Id: {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          examples: { one: { $ref: '#/components/examples/User' } },
+        },
+      },
+      requestBodies: {
+        User: {
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } },
+        },
+      },
+      responses: {
+        User: {
+          description: 'OK',
+          headers: { 'x-trace': { $ref: '#/components/headers/Trace' } },
+          links: { self: { $ref: '#/components/links/Self' } },
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/User' },
+              examples: { one: { $ref: '#/components/examples/User' } },
+            },
+          },
+        },
+      },
+      callbacks: {
+        OnEvent: {
+          '{$request.body#/url}': {
+            post: {
+              requestBody: { $ref: '#/components/requestBodies/User' },
+              responses: { 200: { $ref: '#/components/responses/User' } },
+            },
+          },
+        },
+      },
+      pathItems: {
+        Items: {
+          get: {
+            operationId: 'getItems',
+            parameters: [{ $ref: '#/components/parameters/Id' }],
+            responses: { 200: { $ref: '#/components/responses/User' } },
+          },
+        },
+      },
+    },
+  } as unknown as OpenAPI
+
+  it('every kind each split output imports is referenced', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'referenced-kinds-'))
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: `${tmpDir}/routes`, split: true },
+        components: Object.fromEntries(
+          COMPONENTS.map((kind) => [kind, { output: `${tmpDir}/${kind}`, split: true }]),
+        ),
+      }),
+    )
+    for (const job of makeJob(document, cfg)) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await runGenerator(job.run(job.output))
+    }
+    const referenced = referencedKinds(document)
+    const imported = (directory: string) => {
+      const kinds = fs
+        .readdirSync(path.join(tmpDir, directory))
+        .filter((file) => file.endsWith('.ts'))
+        .flatMap((file) =>
+          [
+            ...fs
+              .readFileSync(path.join(tmpDir, directory, file), 'utf8')
+              .matchAll(/from '\.\.\/(\w+)'/gu),
+          ].map((match) => match[1] ?? ''),
+        )
+      return [...new Set(kinds)].filter(
+        (kind) => kind !== directory && COMPONENTS.some((name) => name === kind),
+      )
+    }
+    const outputs = [
+      ['routes', 'routes'],
+      ...COMPONENTS.map((kind) => [kind, `components.${kind}`] as const),
+    ] as const
+    // The document has to make outputs import other kinds, or this checks nothing.
+    expect(outputs.filter(([directory]) => imported(directory).length > 0).length).toBeGreaterThan(
+      4,
+    )
+    for (const [directory, name] of outputs) {
+      const kinds = referenced.get(name) ?? new Set<string>()
+      expect({ [name]: imported(directory).filter((kind) => !kinds.has(kind)) }).toStrictEqual({
+        [name]: [],
+      })
+    }
   })
 })

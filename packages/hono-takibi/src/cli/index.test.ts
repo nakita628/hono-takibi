@@ -613,7 +613,7 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
       `export default {
         input: ${JSON.stringify(input)},
         basePath: '/',
-        output: ${JSON.stringify(routes)}, template: { test: false, routeHandler: false },
+        output: ${JSON.stringify(routes)}, template: { routeHandler: false },
         type: { output: ${JSON.stringify(types)} },
         mock: { output: ${JSON.stringify(mockOut)} },
         docs: { output: ${JSON.stringify(docsOut)} },
@@ -694,12 +694,12 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
       `export default {
         input: ${JSON.stringify(input)},
         basePath: '/',
-        routes: { output: ${JSON.stringify(routesDir)}, split: true, import: '../routes' },
-        webhooks: { output: ${JSON.stringify(webhooksDir)}, split: true, import: '../webhooks' },
+        routes: { output: ${JSON.stringify(routesDir)}, split: true },
+        webhooks: { output: ${JSON.stringify(webhooksDir)}, split: true },
         components: {
-          schemas: { output: ${JSON.stringify(schemasDir)}, split: true, exportTypes: true, import: '../schemas' },
-          parameters: { output: ${JSON.stringify(parametersDir)}, split: true, exportTypes: true, import: '../parameters' },
-          responses: { output: ${JSON.stringify(responsesDir)}, split: true, import: '../responses' },
+          schemas: { output: ${JSON.stringify(schemasDir)}, split: true, exportTypes: true },
+          parameters: { output: ${JSON.stringify(parametersDir)}, split: true, exportTypes: true },
+          responses: { output: ${JSON.stringify(responsesDir)}, split: true },
         },
       }`,
     )
@@ -826,13 +826,23 @@ export default {}`,
     ['basePath', `basePath: 'api', output: './routes.ts'`, 'basePath: must start with'],
     [
       'rpc.client',
-      `rpc: { output: './rpc.ts', import: '../lib', client: '1bad' }`,
-      'rpc.client: must be a JavaScript identifier',
+      `output: './routes.ts', template: {}, client: { output: './lib/client.ts' }, rpc: { output: './rpc.ts', client: 'apiClient' }`,
+      'rpc.client: client was removed',
     ],
     [
       'rpc.import',
-      `rpc: { output: './rpc.ts', import: '' }`,
-      'rpc.import: must be a module specifier',
+      `output: './routes.ts', template: {}, client: { output: './lib/client.ts' }, rpc: { output: './rpc.ts', import: '../lib' }`,
+      'rpc.import: import was removed',
+    ],
+    [
+      'client.package',
+      `output: './routes.ts', template: {}, client: { output: './lib/client.ts', package: '' }`,
+      'client.package: must be a module specifier',
+    ],
+    [
+      'client.baseUrl',
+      `output: './routes.ts', template: {}, client: { output: './lib/client.ts', baseUrl: 'http://localhost:3000' }`,
+      'client.baseUrl: a fixed URL was removed',
     ],
   ])('rejects a config whose %s cannot be generated from', async (_field, body, expected) => {
     const dir = useTmpDir('cli-config-field-')
@@ -849,14 +859,17 @@ export default {}`,
     expect(fs.readdirSync(dir).sort()).toStrictEqual(['hono-takibi.config.ts', 'openapi.json'])
   })
 
-  it('generates rpc wrappers that import the configured client', async () => {
+  it('generates rpc wrappers that import the generated client', async () => {
     const dir = useTmpDir('cli-config-rpc-')
     fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
     fs.writeFileSync(
       path.join(dir, 'hono-takibi.config.ts'),
       `export default {
         input: './openapi.json',
-        rpc: { output: './rpc.ts', import: '../lib', client: 'apiClient' },
+        output: './routes.ts',
+        template: {},
+        client: { output: './lib/client.ts' },
+        rpc: { output: './rpc.ts' },
       }`,
     )
 
@@ -864,7 +877,217 @@ export default {}`,
 
     expect(result.ok).toBe(true)
     expect(fs.readFileSync(path.join(dir, 'rpc.ts'), 'utf-8')).toContain(
-      "import { apiClient } from '../lib'",
+      "import { client } from './lib'",
+    )
+  })
+
+  // Split routes and the scaffold together: the app entry and the handlers land beside the
+  // routes directory, never in the working directory.
+  // 分割 routes と scaffold の併用: app entry とハンドラは routes ディレクトリの隣に出て、
+  // 作業ディレクトリ直下には出ない。
+  it('scaffolds beside a split routes directory', async () => {
+    const dir = useTmpDir('cli-config-split-scaffold-')
+    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default {
+        input: './openapi.json',
+        routes: { output: './src/routes', split: true },
+        template: { routeHandler: true },
+      }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(true)
+    expect(fs.readdirSync(path.join(dir, 'src')).sort()).toStrictEqual([
+      'handlers',
+      'index.ts',
+      'routes',
+    ])
+    expect(fs.existsSync(path.join(dir, 'handlers'))).toBe(false)
+    expect(fs.existsSync(path.join(dir, 'src/routes/index.ts'))).toBe(true)
+    expect(fs.readFileSync(path.join(dir, 'src/index.ts'), 'utf-8')).toContain("from './routes'")
+    const handlers = fs.readdirSync(path.join(dir, 'src/handlers')).filter((f) => f !== 'index.ts')
+    expect(handlers.length).toBeGreaterThan(0)
+    for (const file of handlers) {
+      expect(fs.readFileSync(path.join(dir, 'src/handlers', file), 'utf-8')).toContain(
+        "from '../routes'",
+      )
+    }
+  })
+
+  // The base URL comes from the environment at startup, asserted present: the generated
+  // file names the variable and nothing stands in for it.
+  // ベース URL は起動時に環境から読み、存在するものとして扱う。生成ファイルは変数名を書き、
+  // 代わりの値は書かない。
+  it.each([
+    ['import.meta.env', `{ env: 'VITE_API_URL' }`, 'const baseUrl = import.meta.env.VITE_API_URL!'],
+    [
+      'process.env',
+      `{ env: 'API_URL', source: 'process.env' }`,
+      'const baseUrl = process.env.API_URL!',
+    ],
+  ])('reads the base URL from %s with a non-null assertion', async (_source, baseUrl, line) => {
+    const dir = useTmpDir('cli-config-base-url-')
+    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default {
+        input: './openapi.json',
+        output: './routes.ts',
+        template: {},
+        client: { output: './lib/client.ts', baseUrl: ${baseUrl} },
+      }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(true)
+    const client = fs.readFileSync(path.join(dir, 'lib/client.ts'), 'utf-8')
+    expect(client).toContain(line)
+    expect(client).toContain('hcWithType(baseUrl)')
+    expect(client).not.toContain("?? '/'")
+  })
+
+  // The single components file in a package of its own: the routes import it by name.
+  // 独立したパッケージにある単一の components ファイルは、routes が名前で import する。
+  it('imports the single components file by components.package', async () => {
+    const dir = useTmpDir('cli-config-components-package-')
+    // A route that refers to a component schema, so the routes file has something to import.
+    fs.writeFileSync(
+      path.join(dir, 'openapi.json'),
+      JSON.stringify({
+        openapi: '3.1.0',
+        info: { title: 'Cfg', version: '1.0.0' },
+        paths: {
+          '/items': {
+            get: {
+              operationId: 'getItems',
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': { schema: { $ref: '#/components/schemas/Item' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Item: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
+          },
+        },
+      }),
+    )
+    fs.mkdirSync(path.join(dir, 'src/components'), { recursive: true })
+    fs.writeFileSync(
+      path.join(dir, 'src/components/package.json'),
+      '{ "name": "@packages/components" }',
+    )
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default {
+        input: './openapi.json',
+        routes: { output: './src/routes', split: true },
+        components: { output: './src/components/index.ts', package: '@packages/components' },
+      }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(true)
+    const routes = fs
+      .readdirSync(path.join(dir, 'src/routes'))
+      .filter((file) => file !== 'index.ts')
+      .map((file) => fs.readFileSync(path.join(dir, 'src/routes', file), 'utf-8'))
+    expect(routes.some((source) => source.includes("from '@packages/components'"))).toBe(true)
+    expect(routes.some((source) => source.includes("from '../components'"))).toBe(false)
+  })
+
+  // A target in another package that names no package stops the run before anything is
+  // written, with the field to set.
+  // package のない別パッケージの出力先は、何も書き出す前に実行を止め、設定すべきフィールドを示す。
+  it('rejects a split output in another package that names no package', async () => {
+    const dir = useTmpDir('cli-config-package-missing-')
+    fs.writeFileSync(
+      path.join(dir, 'openapi.json'),
+      JSON.stringify({
+        ...minimalOpenapi,
+        paths: {
+          '/items': {
+            get: {
+              operationId: 'getItems',
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': { schema: { $ref: '#/components/schemas/Item' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: { schemas: { Item: { type: 'object' } } },
+      }),
+    )
+    fs.mkdirSync(path.join(dir, 'src/schemas'), { recursive: true })
+    fs.writeFileSync(path.join(dir, 'src/schemas/package.json'), '{ "name": "@packages/schemas" }')
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default {
+        input: './openapi.json',
+        routes: { output: './src/routes', split: true },
+        components: { schemas: { output: './src/schemas', split: true } },
+      }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain(
+      'routes imports components.schemas from another package: set components.schemas.package',
+    )
+    expect(fs.existsSync(path.join(dir, 'src/routes'))).toBe(false)
+  })
+
+  // The client is the one file whose package matters: a file written into another
+  // package imports it by `client.package`, worked out from the nearest package.json.
+  // パッケージが問題になるのはクライアントだけである。別のパッケージに書き出されるファイルは、
+  // 最寄りの package.json から判定して `client.package` でクライアントを import する。
+  it('imports the client by client.package from a file in another package', async () => {
+    const dir = useTmpDir('cli-config-package-')
+    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.mkdirSync(path.join(dir, 'client'))
+    fs.mkdirSync(path.join(dir, 'web'))
+    fs.writeFileSync(path.join(dir, 'client/package.json'), '{ "name": "@packages/client" }')
+    fs.writeFileSync(path.join(dir, 'web/package.json'), '{ "name": "@packages/web" }')
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default {
+        input: './openapi.json',
+        output: './src/index.ts',
+        template: { define: true },
+        client: { output: './client/src/lib/client.ts', import: '@packages/server', package: '@packages/client' },
+        swr: { output: './client/src/swr.ts' },
+        'tanstack-query': { output: './web/src/hooks.ts' },
+      }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(true)
+    expect(fs.readFileSync(path.join(dir, 'client/src/lib/client.ts'), 'utf-8')).toContain(
+      "import type { api } from '@packages/server'",
+    )
+    expect(fs.readFileSync(path.join(dir, 'client/src/swr.ts'), 'utf-8')).toContain(
+      "import { client } from './lib'",
+    )
+    expect(fs.readFileSync(path.join(dir, 'web/src/hooks.ts'), 'utf-8')).toContain(
+      "import { client } from '@packages/client'",
     )
   })
 
@@ -903,8 +1126,8 @@ export default {}`,
       path.join(dir, 'hono-takibi.config.ts'),
       `export default {
         input: './openapi.json',
-        routes: { split: true, output: './src/routes', import: '../routes' },
-        components: { schemas: { split: true, output: './src/schemas', import: '../schemas' } },
+        routes: { split: true, output: './src/routes' },
+        components: { schemas: { split: true, output: './src/schemas' } },
       }`,
     )
 

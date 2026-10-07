@@ -385,6 +385,7 @@ export default defineConfig({
           'src/merge/**',
           'src/openapi/**',
           'src/config/**',
+          'src/constants/**',
         ],
         rules: {
           'no-restricted-imports': [
@@ -392,8 +393,9 @@ export default defineConfig({
             {
               patterns: [
                 {
-                  regex: '^\\.\\./',
-                  message: 'leaf module: no project-internal imports allowed',
+                  // `constants` is plain data with no imports of its own, so a leaf may read it.
+                  regex: '^\\.\\./(?!constants(/|$))',
+                  message: 'leaf module: no project-internal imports allowed but constants',
                 },
               ],
             },

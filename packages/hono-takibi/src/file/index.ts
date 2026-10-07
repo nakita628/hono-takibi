@@ -27,6 +27,13 @@ export function readdir(dir: string) {
   })
 }
 
+export function exists(path: string) {
+  return Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    return yield* fs.exists(path)
+  })
+}
+
 export function readFile(path: string) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem

@@ -324,7 +324,7 @@ describe('mediaTypes', () => {
             schemas: {
               output: path.join(tmpDir, 'schemas'),
               split: true,
-              import: '~/components/schemas',
+              specifier: () => '~/components/schemas',
             },
           },
         ),
