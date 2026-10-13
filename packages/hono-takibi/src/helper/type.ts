@@ -1,4 +1,4 @@
-import { isSchemaArray } from '../guard/index.js'
+import { isSchemaArray, isValidIdent } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { toIdentifierPascalCase } from '../utils/index.js'
 
@@ -187,7 +187,7 @@ function makeObjectTypeString(
   const propertyStrings = Object.entries(properties).map(([key, propSchema]) => {
     const propType = makeTypeString(propSchema, selfTypeName, cyclicGroup, readonly)
     const isRequired = requiredSet.has(key)
-    const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/u.test(key) ? key : `'${key}'`
+    const safeKey = isValidIdent(key) ? key : `'${key}'`
     return `${readonlyPrefix}${safeKey}${isRequired ? '' : '?'}:${propType}`
   })
   return `{${propertyStrings.join(';')}}`

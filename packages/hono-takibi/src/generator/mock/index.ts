@@ -1,4 +1,4 @@
-import { HTTP_METHODS } from '../../constants/index.js'
+import { COMPONENT_REF_PREFIX, HTTP_METHODS } from '../../constants/index.js'
 import {
   hasRequestBodyContent,
   isHttpMethod,
@@ -834,7 +834,7 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
         (rawParam) => {
           const resolved = rawParam.$ref
             ? (openapi.components?.parameters?.[
-                rawParam.$ref.replace('#/components/parameters/', '')
+                rawParam.$ref.replace(COMPONENT_REF_PREFIX.parameters, '')
               ] ?? rawParam)
             : rawParam
           if (!(isParameter(resolved) && resolved.in === 'path')) return []

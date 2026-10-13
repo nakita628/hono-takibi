@@ -1,3 +1,4 @@
+import { COMPONENT_REF_PREFIX } from '../constants/index.js'
 import { isSchemaArray } from '../guard/index.js'
 import type { Parameter, Schema } from '../openapi/index.js'
 import { normalizeTypes } from '../utils/index.js'
@@ -12,8 +13,6 @@ import { normalizeTypes } from '../utils/index.js'
 type WireKind = 'integer' | 'number' | 'bigint' | 'boolean' | 'truth' | 'string'
 
 type Schemas = { readonly [k: string]: Schema }
-
-const SCHEMA_REF_PREFIX = '#/components/schemas/'
 
 // `z.coerce.number()` is `Number(input)`, which reads `""` and `" "` as 0, `"0x10"` as 16
 // and `"0b11"` as 3. A decimal literal is what a parameter means, so the text is matched
@@ -51,8 +50,8 @@ export const WIRE_NULL = "(val)=>(val==='null'?null:val)"
 
 /** Looks a `#/components/schemas/<name>` reference up; anything else is not resolved. */
 export function resolveSchemaRef(ref: string, schemas: Schemas | undefined): Schema | undefined {
-  if (!ref.startsWith(SCHEMA_REF_PREFIX)) return undefined
-  const name = ref.slice(SCHEMA_REF_PREFIX.length)
+  if (!ref.startsWith(COMPONENT_REF_PREFIX.schemas)) return undefined
+  const name = ref.slice(COMPONENT_REF_PREFIX.schemas.length)
   if (name.includes('/')) return undefined
   return schemas?.[decodeURIComponent(name)]
 }

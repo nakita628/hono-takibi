@@ -1,3 +1,4 @@
+import { COMPONENT_REF_PREFIX } from '../constants/index.js'
 import { hasNumericConstraint, isSchemaArray, isSchemaObject } from '../guard/index.js'
 import type { Schema, Type } from '../openapi/index.js'
 import {
@@ -950,7 +951,7 @@ export function getNonExistentValue(schema?: Schema, schemas?: { readonly [k: st
   if (!schema) return '__non_existent__'
   const resolved =
     schema.$ref && schemas
-      ? (schemas[schema.$ref.replace('#/components/schemas/', '')] ?? schema)
+      ? (schemas[schema.$ref.replace(COMPONENT_REF_PREFIX.schemas, '')] ?? schema)
       : schema
   const types = normalizeTypes(resolved.type)
   const primary = TYPE_PRIORITY.find((t) => types.includes(t))

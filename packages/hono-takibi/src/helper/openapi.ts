@@ -1,4 +1,4 @@
-import { HTTP_METHODS } from '../constants/index.js'
+import { COMPONENT_REF_PREFIX, HTTP_METHODS } from '../constants/index.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import {
@@ -45,17 +45,17 @@ export function makeRef($ref: string) {
     readonly prefix: string
     readonly suffix: string
   }[] = [
-    { prefix: '#/components/schemas/', suffix: 'Schema' },
-    { prefix: '#/components/parameters/', suffix: 'ParamsSchema' },
-    { prefix: '#/components/headers/', suffix: 'HeaderSchema' },
-    { prefix: '#/components/securitySchemes/', suffix: 'SecurityScheme' },
-    { prefix: '#/components/requestBodies/', suffix: 'RequestBody' },
-    { prefix: '#/components/responses/', suffix: 'Response' },
-    { prefix: '#/components/examples/', suffix: 'Example' },
-    { prefix: '#/components/links/', suffix: 'Link' },
-    { prefix: '#/components/callbacks/', suffix: 'Callback' },
-    { prefix: '#/components/pathItems/', suffix: 'PathItem' },
-    { prefix: '#/components/mediaTypes/', suffix: 'MediaTypeSchema' },
+    { prefix: COMPONENT_REF_PREFIX.schemas, suffix: 'Schema' },
+    { prefix: COMPONENT_REF_PREFIX.parameters, suffix: 'ParamsSchema' },
+    { prefix: COMPONENT_REF_PREFIX.headers, suffix: 'HeaderSchema' },
+    { prefix: COMPONENT_REF_PREFIX.securitySchemes, suffix: 'SecurityScheme' },
+    { prefix: COMPONENT_REF_PREFIX.requestBodies, suffix: 'RequestBody' },
+    { prefix: COMPONENT_REF_PREFIX.responses, suffix: 'Response' },
+    { prefix: COMPONENT_REF_PREFIX.examples, suffix: 'Example' },
+    { prefix: COMPONENT_REF_PREFIX.links, suffix: 'Link' },
+    { prefix: COMPONENT_REF_PREFIX.callbacks, suffix: 'Callback' },
+    { prefix: COMPONENT_REF_PREFIX.pathItems, suffix: 'PathItem' },
+    { prefix: COMPONENT_REF_PREFIX.mediaTypes, suffix: 'MediaTypeSchema' },
   ]
   const propertiesMatch = $ref.match(/^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/u)
   if (propertiesMatch) {
@@ -348,7 +348,7 @@ export function makeContent(
           : JSON.stringify(contentType)
         if (isRefObject(mediaOrRef)) {
           // A `components.mediaTypes` constant is the body schema, not a Media Type Object.
-          return mediaOrRef.$ref.startsWith('#/components/mediaTypes/')
+          return mediaOrRef.$ref.startsWith(COMPONENT_REF_PREFIX.mediaTypes)
             ? `${key}:{schema:${makeRef(mediaOrRef.$ref)}}`
             : `${key}:${makeRef(mediaOrRef.$ref)}`
         }

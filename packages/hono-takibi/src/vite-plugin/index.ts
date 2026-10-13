@@ -7,6 +7,7 @@ import { Effect, FileSystem, Option, Result } from 'effect'
 
 import { parseConfig } from '../config/index.js'
 import type { Config } from '../config/index.js'
+import { INPUT_EXTENSIONS } from '../constants/index.js'
 import { FormatOptions } from '../format/index.js'
 import { isRecord } from '../guard/index.js'
 import { appEntryOutput, isInsideDirectory } from '../helper/index.js'
@@ -68,7 +69,7 @@ function debounce(delayMilliseconds: number, callback: () => void): () => void {
 }
 
 function isWatchedInputFile(filePath: string) {
-  return filePath.endsWith('.yaml') || filePath.endsWith('.json') || filePath.endsWith('.tsp')
+  return INPUT_EXTENSIONS.some((extension) => filePath.endsWith(extension))
 }
 
 /**

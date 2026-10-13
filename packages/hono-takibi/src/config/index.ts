@@ -4,7 +4,12 @@ import { pathToFileURL } from 'node:url'
 import { Effect, FileSystem, Schema, SchemaIssue, SchemaTransformation } from 'effect'
 import type { FormatConfig } from 'oxfmt'
 
-import { COMPONENT_NAMES, HOOK_LIBRARIES } from '../constants/index.js'
+import {
+  COMPONENT_NAMES,
+  HOOK_LIBRARIES,
+  IDENTIFIER_PATTERN,
+  INPUT_EXTENSIONS,
+} from '../constants/index.js'
 
 // Test code generation is deprecated: hono-takibi no longer generates test files.
 // export const TestSchema = Schema.Struct({
@@ -38,7 +43,7 @@ import { COMPONENT_NAMES, HOOK_LIBRARIES } from '../constants/index.js'
 
 const ConfigSchema = Schema.Struct({
   input: Schema.declare<`${string}.yaml` | `${string}.json` | `${string}.tsp`>(
-    Schema.is(Schema.TemplateLiteral([Schema.String, Schema.Literals(['.yaml', '.json', '.tsp'])])),
+    Schema.is(Schema.TemplateLiteral([Schema.String, Schema.Literals(INPUT_EXTENSIONS)])),
     { message: 'must be .yaml | .json | .tsp' },
   ).annotate({
     title: 'Input document',
@@ -899,7 +904,7 @@ const ConfigSchema = Schema.Struct({
             examples: ['@/env', '../env'],
           }),
           name: Schema.String.check(
-            Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
+            Schema.isPattern(IDENTIFIER_PATTERN, {
               message: 'must be a JavaScript identifier',
             }),
           )

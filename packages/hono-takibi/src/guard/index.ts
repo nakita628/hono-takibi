@@ -1,4 +1,4 @@
-import { HTTP_METHODS } from '../constants/index.js'
+import { COMPONENT_REF_PREFIX, HTTP_METHODS, IDENTIFIER_PATTERN } from '../constants/index.js'
 import type {
   Callbacks,
   Header,
@@ -22,7 +22,7 @@ export function isHttpMethod(method: string): method is (typeof HTTP_METHODS)[nu
 }
 
 export function isValidIdent(str: string) {
-  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/u.test(str)
+  return IDENTIFIER_PATTERN.test(str)
 }
 
 export function isOpenAPIPaths(v: unknown): v is OpenAPIPaths {
@@ -76,11 +76,11 @@ export function isDiscriminableBranch(branch: Schema, discriminator: string) {
 }
 
 export function isParameterRef(ref: string): ref is `#/components/parameters/${string}` {
-  return ref.startsWith('#/components/parameters/')
+  return ref.startsWith(COMPONENT_REF_PREFIX.parameters)
 }
 
 export function isPathItemRef(ref: string): ref is `#/components/pathItems/${string}` {
-  return ref.startsWith('#/components/pathItems/')
+  return ref.startsWith(COMPONENT_REF_PREFIX.pathItems)
 }
 
 export function isParameterObject(v: unknown): v is {

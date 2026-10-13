@@ -1,3 +1,4 @@
+import { COMPONENT_REF_PREFIX } from '../../constants/index.js'
 import {
   hasTypelessConstraint,
   isDiscriminableBranch,
@@ -304,8 +305,10 @@ export function zodToOpenAPI(
     const branches = schema.oneOf.map((s) =>
       s.$ref === undefined
         ? s
-        : isRefOnly(s) && s.$ref.startsWith('#/components/schemas/')
-          ? options?.schemas?.[decodeURIComponent(s.$ref.slice('#/components/schemas/'.length))]
+        : isRefOnly(s) && s.$ref.startsWith(COMPONENT_REF_PREFIX.schemas)
+          ? options?.schemas?.[
+              decodeURIComponent(s.$ref.slice(COMPONENT_REF_PREFIX.schemas.length))
+            ]
           : undefined,
     )
     const literalsPerBranch = branches.map((branch) => {
