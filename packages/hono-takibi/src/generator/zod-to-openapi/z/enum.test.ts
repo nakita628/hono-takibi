@@ -99,42 +99,42 @@ describe('_enum', () => {
   // per-value business rules belong in handler code.
 })
 
+// Reads one single-quoted JS string literal starting at `start` following the
+// ECMAScript escape rules the emitter relies on, and returns the decoded value plus
+// the index just past the closing quote. Returns undefined when the literal never
+// closes. This is a structural syntax check that needs no eval / new Function.
+const readSingleQuoted = (code: string, start: number) => {
+  if (code[start] !== "'") return undefined
+  const simple: { readonly [k: string]: string } = {
+    n: '\n',
+    r: '\r',
+    t: '\t',
+    "'": "'",
+    '\\': '\\',
+  }
+  let out = ''
+  let i = start + 1
+  while (i < code.length) {
+    const c = code[i]
+    if (c === "'") return { value: out, end: i + 1 }
+    if (c === '\n' || c === '\r') return undefined
+    if (c === '\\') {
+      const next = code[i + 1]
+      if (next === undefined || simple[next] === undefined) return undefined
+      out += simple[next]
+      i += 2
+    } else {
+      out += c
+      i += 1
+    }
+  }
+  return undefined
+}
+
 // Regression guard for the literal-breakout bug (fixed in favour of makeStringLiteral):
 // the previous emitter escaped `'` only, so a value ending in `\'` produced `\\'` and
 // closed the literal early, letting the rest of the value run as code at import time.
 describe('_enum string literal escaping (document-supplied values are code)', () => {
-  // Reads one single-quoted JS string literal starting at `start` following the
-  // ECMAScript escape rules the emitter relies on, and returns the decoded value plus
-  // the index just past the closing quote. Returns undefined when the literal never
-  // closes. This is a structural syntax check that needs no eval / new Function.
-  const readSingleQuoted = (code: string, start: number) => {
-    if (code[start] !== "'") return undefined
-    const simple: { readonly [k: string]: string } = {
-      n: '\n',
-      r: '\r',
-      t: '\t',
-      "'": "'",
-      '\\': '\\',
-    }
-    let out = ''
-    let i = start + 1
-    while (i < code.length) {
-      const c = code[i]
-      if (c === "'") return { value: out, end: i + 1 }
-      if (c === '\n' || c === '\r') return undefined
-      if (c === '\\') {
-        const next = code[i + 1]
-        if (next === undefined || simple[next] === undefined) return undefined
-        out += simple[next]
-        i += 2
-      } else {
-        out += c
-        i += 1
-      }
-    }
-    return undefined
-  }
-
   const payloads: readonly string[] = [
     'a\\',
     "\\'",
