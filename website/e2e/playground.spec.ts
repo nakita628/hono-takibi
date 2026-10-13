@@ -94,6 +94,19 @@ test.describe('Playground', () => {
     await expect(page.locator('.pg-pane .monaco-editor')).toHaveCount(2)
   })
 
+  test('switches both editors to the dark theme with the site appearance', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light' })
+    await page.goto('/playground')
+    const editors = page.locator('.pg-pane .monaco-editor')
+    await expect(editors).toHaveCount(2)
+    await expect(editors.nth(0)).toHaveClass(/\bvs\b/)
+    await expect(editors.nth(1)).toHaveClass(/\bvs\b/)
+    await page.locator('.VPSwitchAppearance').click()
+    await expect(page.locator('html')).toHaveClass(/\bdark\b/)
+    await expect(editors.nth(0)).toHaveClass(/\bvs-dark\b/)
+    await expect(editors.nth(1)).toHaveClass(/\bvs-dark\b/)
+  })
+
   test('generates Hono code from the default TypeSpec sample', async ({ page }) => {
     await page.goto('/playground')
     await expect(page.locator('.pg-pane').nth(1)).toContainText('welcome')
