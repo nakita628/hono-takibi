@@ -2,6 +2,7 @@ import { COMPONENT_REF_PREFIX, HTTP_METHODS } from '../constants/index.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import {
+  isInheritedName,
   isMedia,
   isOperation,
   isParameter,
@@ -33,7 +34,6 @@ import {
 import {
   inlineWireRefs,
   isEmptyAbsent,
-  isInheritedName,
   isObjectParameter,
   WIRE_FORM,
   wireGather,

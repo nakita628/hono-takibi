@@ -410,6 +410,17 @@ describe('zodToOpenAPI', () => {
           `z.discriminatedUnion('status',[z.object({status:z.literal("success"),data:z.string()}).openapi({"required":["status","data"]}),z.object({status:z.literal("failed"),error:z.string()}).openapi({"required":["status","error"]})]).openapi({"discriminator":{"propertyName":"status"}})`,
         )
       })
+      it.concurrent('codegen: escapes a quote in the discriminator property name', () => {
+        expect(
+          zodToOpenAPI({
+            oneOf: [
+              { type: 'object', properties: { "it's": { const: 'a' } }, required: ["it's"] },
+              { type: 'object', properties: { "it's": { const: 'b' } }, required: ["it's"] },
+            ],
+            discriminator: { propertyName: "it's" },
+          }),
+        ).toMatch(/^z\.discriminatedUnion\('it\\'s',/u)
+      })
       it.concurrent('runtime: inline-object discriminatedUnion routes by discriminator', () => {
         const DU = z.discriminatedUnion('status', [
           z.object({ status: z.literal('success'), data: z.string() }),
@@ -5321,9 +5332,9 @@ describe('zodToOpenAPI', () => {
             contentEncoding: 'base64',
           })
           expect(generated).toBe(
-            'z.base64().transform((val)=>typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8"))',
+            'z.base64().transform((val)=>new TextDecoder().decode(Uint8Array.from(atob(val),(c)=>c.charCodeAt(0))))',
           )
-          // runtime skipped: depends on env atob/Buffer; codegen-only verification
+          // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
         // ----- base64 + JSON + contentSchema -----
         it.concurrent('string: base64 + application/json + contentSchema(object) → transform + pipe(z.object(...))', () => {
@@ -5338,9 +5349,9 @@ describe('zodToOpenAPI', () => {
             },
           })
           expect(generated).toBe(
-            'z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",params:{cause:e instanceof Error?e.message:String(e)}});return z.NEVER}}).pipe(z.object({name:z.string()}).openapi({"required":["name"]}))',
+            'z.base64().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val),(c)=>c.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(z.object({name:z.string()}).openapi({"required":["name"]}))',
           )
-          // runtime skipped: env dependency on atob/Buffer
+          // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
         // ----- dependentSchemas -----
         it.concurrent('object: dependentSchemas → superRefine with closure-captured Schema', () => {
@@ -5504,9 +5515,9 @@ describe('zodToOpenAPI', () => {
             contentEncoding: 'base64url',
           })
           expect(generated).toBe(
-            'z.base64url().transform((val)=>typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8"))',
+            'z.base64url().transform((val)=>new TextDecoder().decode(Uint8Array.from(atob(val.replace(/-/g,"+").replace(/_/g,"/")),(c)=>c.charCodeAt(0))))',
           )
-          // runtime skipped: env dependency on atob/Buffer
+          // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
         it.concurrent('string: contentEncoding=binary → z.string() (no decode)', () => {
           expect(zodToOpenAPI({ type: 'string', contentEncoding: 'binary' })).toBe('z.string()')
@@ -5551,7 +5562,7 @@ describe('zodToOpenAPI', () => {
             contentSchema: { $ref: '#/components/schemas/Inner' },
           })
           expect(generated).toBe(
-            'z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",params:{cause:e instanceof Error?e.message:String(e)}});return z.NEVER}}).pipe(InnerSchema)',
+            'z.base64().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val),(c)=>c.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(InnerSchema)',
           )
           // runtime skipped: InnerSchema is external identifier
         })
@@ -5733,9 +5744,9 @@ describe('zodToOpenAPI', () => {
             contentSchema: { type: 'array', items: { type: 'number' } },
           })
           expect(generated).toBe(
-            'z.base64url().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",params:{cause:e instanceof Error?e.message:String(e)}});return z.NEVER}}).pipe(z.array(z.number()))',
+            'z.base64url().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val.replace(/-/g,"+").replace(/_/g,"/")),(c)=>c.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(z.array(z.number()))',
           )
-          // runtime skipped: env dependency on atob/Buffer
+          // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
         // ----- contentMediaType text/plain (no JSON parse) -----
         it.concurrent('string: base64 + text/plain → UTF-8 decode (no JSON parse)', () => {
@@ -5745,9 +5756,9 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'text/plain',
           })
           expect(generated).toBe(
-            'z.base64().transform((val)=>typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8"))',
+            'z.base64().transform((val)=>new TextDecoder().decode(Uint8Array.from(atob(val),(c)=>c.charCodeAt(0))))',
           )
-          // runtime skipped: env dependency on atob/Buffer
+          // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
         // ----- binary MIME → Uint8Array -----
         it.concurrent('string: base64 + image/png → Uint8Array.from(atob(...))', () => {
@@ -5757,9 +5768,9 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'image/png',
           })
           expect(generated).toBe(
-            'z.base64().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
+            'z.base64().transform((val)=>Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)))',
           )
-          // runtime skipped: env dependency on atob/Buffer
+          // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
         it.concurrent('string: base64 + audio/mpeg → Uint8Array binary handling', () => {
           const generated = zodToOpenAPI({
@@ -5768,9 +5779,9 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'audio/mpeg',
           })
           expect(generated).toBe(
-            'z.base64().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
+            'z.base64().transform((val)=>Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)))',
           )
-          // runtime skipped: env dependency on atob/Buffer
+          // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
         it.concurrent('string: base64 + video/mp4 → Uint8Array binary handling', () => {
           const generated = zodToOpenAPI({
@@ -5779,9 +5790,9 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'video/mp4',
           })
           expect(generated).toBe(
-            'z.base64().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
+            'z.base64().transform((val)=>Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)))',
           )
-          // runtime skipped: env dependency on atob/Buffer
+          // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
         it.concurrent('string: base64 + application/octet-stream → Uint8Array binary handling', () => {
           const generated = zodToOpenAPI({
@@ -5790,9 +5801,9 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'application/octet-stream',
           })
           expect(generated).toBe(
-            'z.base64().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
+            'z.base64().transform((val)=>Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)))',
           )
-          // runtime skipped: env dependency on atob/Buffer
+          // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
         // ----- base64url + binary MIME -----
         it.concurrent('string: base64url + image/jpeg → Uint8Array binary handling', () => {
@@ -5802,9 +5813,9 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'image/jpeg',
           })
           expect(generated).toBe(
-            'z.base64url().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
+            'z.base64url().transform((val)=>Uint8Array.from(atob(val.replace(/-/g,"+").replace(/_/g,"/")),(c)=>c.charCodeAt(0)))',
           )
-          // runtime skipped: env dependency on atob/Buffer
+          // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
       })
 
@@ -8303,11 +8314,7 @@ describe('zodToOpenAPI', () => {
     const ImageSchema = z.object({
       image: z
         .base64()
-        .transform((b64) =>
-          typeof atob === 'function'
-            ? Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))
-            : new Uint8Array(Buffer.from(b64, 'base64')),
-        )
+        .transform((b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)))
         .exactOptional(),
     })
 
@@ -8324,7 +8331,7 @@ describe('zodToOpenAPI', () => {
           },
         }),
       ).toBe(
-        'z.object({image:z.base64().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64"))).exactOptional()}).openapi({"required":[]})',
+        'z.object({image:z.base64().transform((val)=>Uint8Array.from(atob(val),(c)=>c.charCodeAt(0))).exactOptional()}).openapi({"required":[]})',
       )
     })
 
@@ -8350,9 +8357,9 @@ describe('zodToOpenAPI', () => {
         .base64()
         .transform((b64, ctx) => {
           try {
-            const s =
-              typeof atob === 'function' ? atob(b64) : Buffer.from(b64, 'base64').toString('utf8')
-            return JSON.parse(s)
+            return JSON.parse(
+              new TextDecoder().decode(Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))),
+            )
           } catch (error) {
             ctx.addIssue({
               code: 'custom',
@@ -8382,7 +8389,7 @@ describe('zodToOpenAPI', () => {
           },
         }),
       ).toBe(
-        'z.object({style:z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",params:{cause:e instanceof Error?e.message:String(e)}});return z.NEVER}}).pipe(z.object({name:z.string().exactOptional()}).openapi({"required":[]})).exactOptional()}).openapi({"required":[]})',
+        'z.object({style:z.base64().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val),(c)=>c.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(z.object({name:z.string().exactOptional()}).openapi({"required":[]})).exactOptional()}).openapi({"required":[]})',
       )
     })
 

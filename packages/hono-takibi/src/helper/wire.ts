@@ -788,11 +788,6 @@ export function nullReading(
 export const WIRE_INHERITED =
   "(val)=>(typeof val==='function'||val===Object.prototype?undefined:val)"
 
-/** Whether a parameter is named like something every object inherits. */
-export function isInheritedName(parameter: Parameter) {
-  return parameter.in !== 'path' && parameter.name in Object.prototype
-}
-
 /**
  * `allowEmptyValue: true` lets a query parameter be sent with no value, `?page=`, to say
  * the same as leaving it out. Text that holds nothing is then read as absent, so that a

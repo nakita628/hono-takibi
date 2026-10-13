@@ -11,6 +11,7 @@ import {
   isDiscriminableBranch,
   isExamplesInput,
   isHttpMethod,
+  isInheritedName,
   isInlineMedia,
   isMedia,
   isMediaWithSchema,
@@ -902,5 +903,37 @@ describe('isInlineMedia', () => {
 
   it.concurrent('returns false for a reference', () => {
     expect(isInlineMedia({ $ref: '#/components/mediaTypes/Json' })).toBe(false)
+  })
+})
+
+describe('isInheritedName', () => {
+  // The request object answers to the name whether the parameter was sent or not.
+  // リクエストオブジェクトは、パラメータが送信されたかどうかにかかわらず、この名前に応答する。
+  it.concurrent('is true for a query parameter named like what every object inherits', () => {
+    expect(isInheritedName({ name: 'constructor', in: 'query' })).toBe(true)
+    expect(isInheritedName({ name: 'toString', in: 'query' })).toBe(true)
+    expect(isInheritedName({ name: 'valueOf', in: 'query' })).toBe(true)
+    expect(isInheritedName({ name: 'hasOwnProperty', in: 'query' })).toBe(true)
+    expect(isInheritedName({ name: '__proto__', in: 'query' })).toBe(true)
+  })
+
+  // The same for a header and for a cookie.
+  // ヘッダーと Cookie でも同様である。
+  it.concurrent('is true for a header and for a cookie of such a name', () => {
+    expect(isInheritedName({ name: 'constructor', in: 'header' })).toBe(true)
+    expect(isInheritedName({ name: 'constructor', in: 'cookie' })).toBe(true)
+  })
+
+  // A path parameter is always sent: the route does not match without it.
+  // パスパラメータは、必ず送信される。なければ、ルートが一致しない。
+  it.concurrent('is false for a path parameter', () => {
+    expect(isInheritedName({ name: 'constructor', in: 'path' })).toBe(false)
+  })
+
+  // A name no object inherits.
+  // どのオブジェクトも継承しない名前。
+  it.concurrent('is false for any other name', () => {
+    expect(isInheritedName({ name: 'page', in: 'query' })).toBe(false)
+    expect(isInheritedName({ name: 'x-request-id', in: 'header' })).toBe(false)
   })
 })

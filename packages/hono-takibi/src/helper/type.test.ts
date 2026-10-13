@@ -205,11 +205,19 @@ describe('makeTypeString', () => {
     it('should handle mixed enum', () => {
       expect(makeTypeString({ enum: ['a', 1, 'b'] }, 'Test')).toBe("'a'|1|'b'")
     })
+
+    it('should escape quotes and backslashes in string enum', () => {
+      expect(makeTypeString({ enum: ["it's", 'a\\'] }, 'Test')).toBe(String.raw`'it\'s'|'a\\'`)
+    })
   })
 
   describe('const types', () => {
     it('should handle string const', () => {
       expect(makeTypeString({ const: 'fixed' }, 'Test')).toBe("'fixed'")
+    })
+
+    it('should escape quotes in string const', () => {
+      expect(makeTypeString({ const: "it's" }, 'Test')).toBe(String.raw`'it\'s'`)
     })
 
     it('should handle numeric const', () => {
@@ -277,6 +285,12 @@ describe('makeTypeString', () => {
         'Test',
       )
       expect(result).toBe('{id:number;name?:string}')
+    })
+
+    it('should escape quotes in a non-identifier key', () => {
+      expect(
+        makeTypeString({ type: 'object', properties: { "it's": { type: 'string' } } }, 'Test'),
+      ).toBe(String.raw`{'it\'s'?:string}`)
     })
 
     it('should handle object with additionalProperties true', () => {

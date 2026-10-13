@@ -193,21 +193,32 @@ export function string(
       const mt = mediaType ? mediaType.toLowerCase() : ''
       const isBinary = /^(image|audio|video)\//u.test(mt) || mt === 'application/octet-stream'
       const isJson = mt.length > 0 && mt.includes('json')
+      // Decode with a bare `atob`, exactly as Zod does internally
+      // (core/util.js base64ToUint8Array) — Zod 4 already requires it, so no
+      // Buffer fallback is needed. `atob` rejects the base64url alphabet
+      // (`-` / `_` → InvalidCharacterError) but accepts unpadded input, so
+      // base64url only needs the alphabet swapped back.
+      const b64Expr = enc === 'base64url' ? 'val.replace(/-/g,"+").replace(/_/g,"/")' : 'val'
+      const bytesExpr = `Uint8Array.from(atob(${b64Expr}),(c)=>c.charCodeAt(0))`
+      // `atob` returns a latin1 binary string, NOT UTF-8 text — multibyte
+      // payloads (e.g. "あ") would be mangled. Go through the bytes and
+      // TextDecoder for the text / JSON families.
+      const textExpr = `new TextDecoder().decode(${bytesExpr})`
       // Binary MIME types decode base64 directly to Uint8Array — UTF-8
       // decoding would corrupt the bytes.
       if (isBinary) {
-        return '.transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))'
+        return `.transform((val)=>${bytesExpr})`
       }
       // JSON MIME: try/catch + ctx.addIssue so SyntaxError becomes a Zod
       // issue rather than an uncaught throw at safeParse time.
       if (isJson) {
         const issueExpr = errorMessage
-          ? `{code:"custom",message:${JSON.stringify(errorMessage)},params:{cause:e instanceof Error?e.message:String(e)}}`
-          : '{code:"custom",params:{cause:e instanceof Error?e.message:String(e)}}'
-        return `.transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue(${issueExpr});return z.NEVER}})`
+          ? `{code:"custom",message:${JSON.stringify(errorMessage)},params:{cause:err instanceof Error?err.message:String(err)}}`
+          : '{code:"custom",params:{cause:err instanceof Error?err.message:String(err)}}'
+        return `.transform((val,ctx)=>{try{return JSON.parse(${textExpr})}catch(err){ctx.addIssue(${issueExpr});return z.NEVER}})`
       }
-      // Text / unspecified MIME → preserve previous UTF-8 decoding behavior.
-      return '.transform((val)=>typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8"))'
+      // Text / unspecified MIME → UTF-8 string.
+      return `.transform((val)=>${textExpr})`
     })()
     // contentSchema may be a $ref or inline schema; both branches recurse
     // through zodToOpenAPI which already handles refs via makeRef. Propagate

@@ -26,7 +26,7 @@ import {
 import { undecorated, wrap } from '../../helper/wrap.js'
 import { emitTypelessRefine, makeUnevaluatedPropertiesCheck } from '../../helper/zod.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
-import { baseError, error, normalizeTypes } from '../../utils/index.js'
+import { baseError, error, makeStringLiteral, normalizeTypes } from '../../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
 import { _enum, integer, number, object, string } from './z/index.js'
 
@@ -344,7 +344,7 @@ export function zodToOpenAPI(
       )
     }
     const z = isDiscriminated
-      ? `z.discriminatedUnion('${discriminator}',[${oneOfSchemas.join(',')}]${oneOfErrorArg})`
+      ? `z.discriminatedUnion(${makeStringLiteral(discriminator)},[${oneOfSchemas.join(',')}]${oneOfErrorArg})`
       : `z.xor([${oneOfSchemas.join(',')}]${oneOfErrorArg})`
     return done(z, schema)
   }

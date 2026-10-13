@@ -1,6 +1,6 @@
 import { isSchemaArray, isValidIdent } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
-import { toIdentifierPascalCase } from '../utils/index.js'
+import { makeStringLiteral, toIdentifierPascalCase } from '../utils/index.js'
 
 export function makeTypeString(
   schema: Schema,
@@ -22,11 +22,13 @@ export function makeTypeString(
     return makeUnionTypeString(schema.allOf, selfTypeName, cyclicGroup, '&', readonly)
   }
   if (schema.enum && schema.enum.length > 0) {
-    return schema.enum.map((v) => (typeof v === 'string' ? `'${v}'` : String(v))).join('|')
+    return schema.enum
+      .map((v) => (typeof v === 'string' ? makeStringLiteral(v) : String(v)))
+      .join('|')
   }
   if (schema.const !== undefined) {
     if (typeof schema.const === 'string') {
-      return `'${schema.const}'`
+      return makeStringLiteral(schema.const)
     }
     if (typeof schema.const === 'number' || typeof schema.const === 'boolean') {
       return String(schema.const)
@@ -187,7 +189,7 @@ function makeObjectTypeString(
   const propertyStrings = Object.entries(properties).map(([key, propSchema]) => {
     const propType = makeTypeString(propSchema, selfTypeName, cyclicGroup, readonly)
     const isRequired = requiredSet.has(key)
-    const safeKey = isValidIdent(key) ? key : `'${key}'`
+    const safeKey = isValidIdent(key) ? key : makeStringLiteral(key)
     return `${readonlyPrefix}${safeKey}${isRequired ? '' : '?'}:${propType}`
   })
   return `{${propertyStrings.join(';')}}`

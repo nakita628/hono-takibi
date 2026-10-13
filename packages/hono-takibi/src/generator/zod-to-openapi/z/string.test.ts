@@ -734,7 +734,7 @@ describe('string', () => {
 
   // The contentSchema decode failure (base64 + JSON) delegates its message to the Zod default:
   // `x-error-message` overrides it, otherwise the message field is omitted entirely. The
-  // SyntaxError text (e.message) is kept in `params.cause` for debugging in both cases.
+  // SyntaxError text (err.message) is kept in `params.cause` for debugging in both cases.
   describe('v0.13.0 contentSchema base64-json: x-error-message 上書き + params.cause 保全', () => {
     it.concurrent('A: x-error-message 指定時はメッセージを上書き', () => {
       const out = string({
@@ -745,7 +745,7 @@ describe('string', () => {
         'x-error-message': 'デコード失敗',
       })
       expect(out).toBe(
-        'z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"デコード失敗",params:{cause:e instanceof Error?e.message:String(e)}});return z.NEVER}}).pipe(z.object({x:z.string().exactOptional()}).openapi({"required":[]}))',
+        'z.base64().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val),(c)=>c.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",message:"デコード失敗",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(z.object({x:z.string().exactOptional()}).openapi({"required":[]}))',
       )
     })
 
@@ -757,7 +757,7 @@ describe('string', () => {
         contentSchema: { type: 'object', properties: { x: { type: 'string' } } },
       })
       expect(out).toBe(
-        'z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",params:{cause:e instanceof Error?e.message:String(e)}});return z.NEVER}}).pipe(z.object({x:z.string().exactOptional()}).openapi({"required":[]}))',
+        'z.base64().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val),(c)=>c.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(z.object({x:z.string().exactOptional()}).openapi({"required":[]}))',
       )
     })
 
@@ -768,9 +768,9 @@ describe('string', () => {
         .base64()
         .transform((val, ctx) => {
           try {
-            const s =
-              typeof atob === 'function' ? atob(val) : Buffer.from(val, 'base64').toString('utf8')
-            return JSON.parse(s)
+            return JSON.parse(
+              new TextDecoder().decode(Uint8Array.from(atob(val), (c) => c.charCodeAt(0))),
+            )
           } catch (error) {
             // codegen emits message="M" alongside params.cause
             ctx.addIssue({
@@ -790,6 +790,54 @@ describe('string', () => {
         expect(result.error.issues[0].message).toBe('M')
       }
     })
+
+    // `atob` yields a latin1 binary string; decoding it as text directly would turn "あ"
+    // into "ã\x81\x82". The emitted TextDecoder round-trip must keep multibyte intact.
+    it.concurrent('D: ランタイム: 非 ASCII (UTF-8 マルチバイト) の JSON ペイロードが化けない', () => {
+      const schema = z
+        .base64()
+        .transform((val, ctx) => {
+          try {
+            return JSON.parse(
+              new TextDecoder().decode(Uint8Array.from(atob(val), (c) => c.charCodeAt(0))),
+            )
+          } catch (error) {
+            ctx.addIssue({
+              code: 'custom',
+              params: { cause: error instanceof Error ? error.message : String(error) },
+            })
+            return z.NEVER
+          }
+        })
+        .pipe(z.object({ x: z.string() }))
+      // base64 of '{"x":"あいう🔥"}' (UTF-8)
+      const b64 = 'eyJ4Ijoi44GC44GE44GG8J+UpSJ9'
+      const result = schema.safeParse(b64)
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data).toStrictEqual({ x: 'あいう🔥' })
+      }
+    })
+
+    // `atob` rejects `-` / `_` (InvalidCharacterError) and base64url is unpadded, so the
+    // emitted base64url path swaps the alphabet back before calling atob.
+    it.concurrent('E: ランタイム: base64url (`-`/`_`、パディング無し) を atob でデコードできる', () => {
+      const schema = z
+        .base64url()
+        .transform((val) =>
+          new TextDecoder().decode(
+            Uint8Array.from(atob(val.replaceAll('-', '+').replaceAll('_', '/')), (c) =>
+              c.charCodeAt(0),
+            ),
+          ),
+        )
+      // "~~~?/あ" → base64 "fn5+Py/jgYI=" → base64url "fn5-Py_jgYI" (both url-safe chars, no padding).
+      const result = schema.safeParse('fn5-Py_jgYI')
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data).toBe('~~~?/あ')
+      }
+    })
   })
 
   describe('edge case combinations', () => {
@@ -799,12 +847,12 @@ describe('string', () => {
       // base64 + binary MIME → Uint8Array decode path (preserves raw bytes)
       [
         { type: 'string', contentEncoding: 'base64', contentMediaType: 'image/png' },
-        'z.base64().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
+        'z.base64().transform((val)=>Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)))',
       ],
       // base64url + text MIME → UTF-8 string decode path
       [
         { type: 'string', contentEncoding: 'base64url', contentMediaType: 'text/plain' },
-        'z.base64url().transform((val)=>typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8"))',
+        'z.base64url().transform((val)=>new TextDecoder().decode(Uint8Array.from(atob(val.replace(/-/g,"+").replace(/_/g,"/")),(c)=>c.charCodeAt(0))))',
       ],
       // contentEncoding: binary alone → falls through to plain z.string()
       [{ type: 'string', contentEncoding: 'binary' }, 'z.string()'],

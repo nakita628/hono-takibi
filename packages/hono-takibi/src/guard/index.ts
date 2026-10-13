@@ -388,3 +388,8 @@ export function hasNoContentResponse(operation: {
     return !Number.isNaN(code) && [204, 205].includes(code)
   })
 }
+
+/** Whether a parameter is named like something every object inherits. */
+export function isInheritedName(parameter: Parameter) {
+  return parameter.in !== 'path' && parameter.name in Object.prototype
+}
