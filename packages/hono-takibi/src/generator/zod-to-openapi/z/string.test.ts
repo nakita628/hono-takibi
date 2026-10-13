@@ -745,7 +745,7 @@ describe('string', () => {
         'x-error-message': 'デコード失敗',
       })
       expect(out).toBe(
-        'z.base64().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val),(c)=>c.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",message:"デコード失敗",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(z.object({x:z.string().exactOptional()}).openapi({"required":[]}))',
+        'z.base64().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val),(char)=>char.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",message:"デコード失敗",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(z.object({x:z.string().exactOptional()}).openapi({"required":[]}))',
       )
     })
 
@@ -757,7 +757,7 @@ describe('string', () => {
         contentSchema: { type: 'object', properties: { x: { type: 'string' } } },
       })
       expect(out).toBe(
-        'z.base64().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val),(c)=>c.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(z.object({x:z.string().exactOptional()}).openapi({"required":[]}))',
+        'z.base64().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val),(char)=>char.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(z.object({x:z.string().exactOptional()}).openapi({"required":[]}))',
       )
     })
 
@@ -769,7 +769,7 @@ describe('string', () => {
         .transform((val, ctx) => {
           try {
             return JSON.parse(
-              new TextDecoder().decode(Uint8Array.from(atob(val), (c) => c.charCodeAt(0))),
+              new TextDecoder().decode(Uint8Array.from(atob(val), (char) => char.charCodeAt(0))),
             )
           } catch (error) {
             // codegen emits message="M" alongside params.cause
@@ -799,7 +799,7 @@ describe('string', () => {
         .transform((val, ctx) => {
           try {
             return JSON.parse(
-              new TextDecoder().decode(Uint8Array.from(atob(val), (c) => c.charCodeAt(0))),
+              new TextDecoder().decode(Uint8Array.from(atob(val), (char) => char.charCodeAt(0))),
             )
           } catch (error) {
             ctx.addIssue({
@@ -847,12 +847,12 @@ describe('string', () => {
       // base64 + binary MIME → Uint8Array decode path (preserves raw bytes)
       [
         { type: 'string', contentEncoding: 'base64', contentMediaType: 'image/png' },
-        'z.base64().transform((val)=>Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)))',
+        'z.base64().transform((val)=>Uint8Array.from(atob(val),(char)=>char.charCodeAt(0)))',
       ],
       // base64url + text MIME → UTF-8 string decode path
       [
         { type: 'string', contentEncoding: 'base64url', contentMediaType: 'text/plain' },
-        'z.base64url().transform((val)=>new TextDecoder().decode(Uint8Array.from(atob(val.replace(/-/g,"+").replace(/_/g,"/")),(c)=>c.charCodeAt(0))))',
+        'z.base64url().transform((val)=>new TextDecoder().decode(Uint8Array.from(atob(val.replace(/-/g,"+").replace(/_/g,"/")),(char)=>char.charCodeAt(0))))',
       ],
       // contentEncoding: binary alone → falls through to plain z.string()
       [{ type: 'string', contentEncoding: 'binary' }, 'z.string()'],

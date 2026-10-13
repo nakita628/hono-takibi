@@ -200,7 +200,7 @@ export function string(
       // (`-` / `_` → InvalidCharacterError) but accepts unpadded input, so
       // base64url only needs the alphabet swapped back.
       const b64Expr = enc === 'base64url' ? 'val.replace(/-/g,"+").replace(/_/g,"/")' : 'val'
-      const bytesExpr = `Uint8Array.from(atob(${b64Expr}),(c)=>c.charCodeAt(0))`
+      const bytesExpr = `Uint8Array.from(atob(${b64Expr}),(char)=>char.charCodeAt(0))`
       // `atob` returns a latin1 binary string, NOT UTF-8 text — multibyte
       // payloads (e.g. "あ") would be mangled. Go through the bytes and
       // TextDecoder for the text / JSON families.

@@ -5445,7 +5445,7 @@ describe('zodToOpenAPI', () => {
             contentEncoding: 'base64',
           })
           expect(generated).toBe(
-            'z.base64().transform((val)=>new TextDecoder().decode(Uint8Array.from(atob(val),(c)=>c.charCodeAt(0))))',
+            'z.base64().transform((val)=>new TextDecoder().decode(Uint8Array.from(atob(val),(char)=>char.charCodeAt(0))))',
           )
           // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
@@ -5462,7 +5462,7 @@ describe('zodToOpenAPI', () => {
             },
           })
           expect(generated).toBe(
-            'z.base64().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val),(c)=>c.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(z.object({name:z.string()}).openapi({"required":["name"]}))',
+            'z.base64().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val),(char)=>char.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(z.object({name:z.string()}).openapi({"required":["name"]}))',
           )
           // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
@@ -5628,7 +5628,7 @@ describe('zodToOpenAPI', () => {
             contentEncoding: 'base64url',
           })
           expect(generated).toBe(
-            'z.base64url().transform((val)=>new TextDecoder().decode(Uint8Array.from(atob(val.replace(/-/g,"+").replace(/_/g,"/")),(c)=>c.charCodeAt(0))))',
+            'z.base64url().transform((val)=>new TextDecoder().decode(Uint8Array.from(atob(val.replace(/-/g,"+").replace(/_/g,"/")),(char)=>char.charCodeAt(0))))',
           )
           // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
@@ -5675,7 +5675,7 @@ describe('zodToOpenAPI', () => {
             contentSchema: { $ref: '#/components/schemas/Inner' },
           })
           expect(generated).toBe(
-            'z.base64().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val),(c)=>c.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(InnerSchema)',
+            'z.base64().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val),(char)=>char.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(InnerSchema)',
           )
           // runtime skipped: InnerSchema is external identifier
         })
@@ -5857,7 +5857,7 @@ describe('zodToOpenAPI', () => {
             contentSchema: { type: 'array', items: { type: 'number' } },
           })
           expect(generated).toBe(
-            'z.base64url().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val.replace(/-/g,"+").replace(/_/g,"/")),(c)=>c.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(z.array(z.number()))',
+            'z.base64url().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val.replace(/-/g,"+").replace(/_/g,"/")),(char)=>char.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(z.array(z.number()))',
           )
           // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
@@ -5869,7 +5869,7 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'text/plain',
           })
           expect(generated).toBe(
-            'z.base64().transform((val)=>new TextDecoder().decode(Uint8Array.from(atob(val),(c)=>c.charCodeAt(0))))',
+            'z.base64().transform((val)=>new TextDecoder().decode(Uint8Array.from(atob(val),(char)=>char.charCodeAt(0))))',
           )
           // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
@@ -5881,7 +5881,7 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'image/png',
           })
           expect(generated).toBe(
-            'z.base64().transform((val)=>Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)))',
+            'z.base64().transform((val)=>Uint8Array.from(atob(val),(char)=>char.charCodeAt(0)))',
           )
           // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
@@ -5892,7 +5892,7 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'audio/mpeg',
           })
           expect(generated).toBe(
-            'z.base64().transform((val)=>Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)))',
+            'z.base64().transform((val)=>Uint8Array.from(atob(val),(char)=>char.charCodeAt(0)))',
           )
           // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
@@ -5903,7 +5903,7 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'video/mp4',
           })
           expect(generated).toBe(
-            'z.base64().transform((val)=>Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)))',
+            'z.base64().transform((val)=>Uint8Array.from(atob(val),(char)=>char.charCodeAt(0)))',
           )
           // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
@@ -5914,7 +5914,7 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'application/octet-stream',
           })
           expect(generated).toBe(
-            'z.base64().transform((val)=>Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)))',
+            'z.base64().transform((val)=>Uint8Array.from(atob(val),(char)=>char.charCodeAt(0)))',
           )
           // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
@@ -5926,7 +5926,7 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'image/jpeg',
           })
           expect(generated).toBe(
-            'z.base64url().transform((val)=>Uint8Array.from(atob(val.replace(/-/g,"+").replace(/_/g,"/")),(c)=>c.charCodeAt(0)))',
+            'z.base64url().transform((val)=>Uint8Array.from(atob(val.replace(/-/g,"+").replace(/_/g,"/")),(char)=>char.charCodeAt(0)))',
           )
           // runtime skipped: codegen-only verification (runtime decode covered elsewhere)
         })
@@ -8427,7 +8427,7 @@ describe('zodToOpenAPI', () => {
     const ImageSchema = z.object({
       image: z
         .base64()
-        .transform((b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)))
+        .transform((b64) => Uint8Array.from(atob(b64), (char) => char.charCodeAt(0)))
         .exactOptional(),
     })
 
@@ -8444,7 +8444,7 @@ describe('zodToOpenAPI', () => {
           },
         }),
       ).toBe(
-        'z.object({image:z.base64().transform((val)=>Uint8Array.from(atob(val),(c)=>c.charCodeAt(0))).exactOptional()}).openapi({"required":[]})',
+        'z.object({image:z.base64().transform((val)=>Uint8Array.from(atob(val),(char)=>char.charCodeAt(0))).exactOptional()}).openapi({"required":[]})',
       )
     })
 
@@ -8471,7 +8471,7 @@ describe('zodToOpenAPI', () => {
         .transform((b64, ctx) => {
           try {
             return JSON.parse(
-              new TextDecoder().decode(Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))),
+              new TextDecoder().decode(Uint8Array.from(atob(b64), (char) => char.charCodeAt(0))),
             )
           } catch (error) {
             ctx.addIssue({
@@ -8502,7 +8502,7 @@ describe('zodToOpenAPI', () => {
           },
         }),
       ).toBe(
-        'z.object({style:z.base64().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val),(c)=>c.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(z.object({name:z.string().exactOptional()}).openapi({"required":[]})).exactOptional()}).openapi({"required":[]})',
+        'z.object({style:z.base64().transform((val,ctx)=>{try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(val),(char)=>char.charCodeAt(0))))}catch(err){ctx.addIssue({code:"custom",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}}).pipe(z.object({name:z.string().exactOptional()}).openapi({"required":[]})).exactOptional()}).openapi({"required":[]})',
       )
     })
 
