@@ -233,7 +233,7 @@ function makeOutputTypes(
   })
 }
 
-function isJsonMediaType(mediaType: string): boolean {
+function isJsonMediaType(mediaType: string) {
   return mediaType === 'application/json' || mediaType.endsWith('+json')
 }
 

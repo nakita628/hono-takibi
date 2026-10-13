@@ -230,7 +230,7 @@ export function needsWireConversion(
  * every user of it; outside it they hide the component from the document. A decorated
  * reference is therefore written out in place, where the decoration belongs to it alone.
  */
-export function isDecoratedRef(schema: Schema): boolean {
+export function isDecoratedRef(schema: Schema) {
   return (
     schema.$ref !== undefined &&
     (schema.default !== undefined ||
@@ -400,7 +400,7 @@ export function wrapWire(
 }
 
 /** Whether text of these kinds is tried as several readings, one after the other. */
-export function hasSeveralReadings(kinds: readonly WireKind[]): boolean {
+export function hasSeveralReadings(kinds: readonly WireKind[]) {
   return wireReaders(kinds).length + (kinds.includes('string') ? 1 : 0) > 1
 }
 
@@ -536,7 +536,7 @@ function resolveObject(
 }
 
 /** Whether a parameter is an object, whatever its location and style. */
-export function isObjectParameter(parameter: Parameter, schemas: Schemas | undefined): boolean {
+export function isObjectParameter(parameter: Parameter, schemas: Schemas | undefined) {
   return parameter.schema !== undefined && resolveObject(parameter.schema, schemas) !== undefined
 }
 
@@ -790,7 +790,7 @@ export const WIRE_INHERITED =
   "(val)=>(typeof val==='function'||val===Object.prototype?undefined:val)"
 
 /** Whether a parameter is named like something every object inherits. */
-export function isInheritedName(parameter: Parameter): boolean {
+export function isInheritedName(parameter: Parameter) {
   return parameter.in !== 'path' && parameter.name in Object.prototype
 }
 
@@ -803,7 +803,7 @@ export function isInheritedName(parameter: Parameter): boolean {
 export const WIRE_EMPTY = "(val)=>(val===''?undefined:val)"
 
 /** Whether an empty value of the parameter is read as absent. */
-export function isEmptyAbsent(parameter: Parameter, schemas: Schemas | undefined): boolean {
+export function isEmptyAbsent(parameter: Parameter, schemas: Schemas | undefined) {
   if (parameter.in !== 'query' || parameter.allowEmptyValue !== true) return false
   if (parameter.schema === undefined) return false
   const kinds = wireKinds(parameter.schema, schemas)

@@ -1,4 +1,5 @@
 import {
+  hasTypelessConstraint,
   isDiscriminableBranch,
   isRefOnly,
   isSchemaArray,
@@ -22,11 +23,7 @@ import {
 } from '../../helper/wire.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { undecorated, wrap } from '../../helper/wrap.js'
-import {
-  emitTypelessRefine,
-  hasTypelessConstraint,
-  makeUnevaluatedPropertiesCheck,
-} from '../../helper/zod.js'
+import { emitTypelessRefine, makeUnevaluatedPropertiesCheck } from '../../helper/zod.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
 import { baseError, error, normalizeTypes } from '../../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other

@@ -1,12 +1,21 @@
 import { describe, expect, it } from 'vite-plus/test'
 
 import {
+  hasNoContentResponse,
+  hasNotProperty,
+  hasNoUserChain,
+  hasNumericConstraint,
+  hasRequestBodyContent,
+  hasTypelessConstraint,
   isContentBody,
   isDiscriminableBranch,
+  isExamplesInput,
   isHttpMethod,
+  isInlineMedia,
   isMedia,
   isMediaWithSchema,
   isOAuthFlowValue,
+  isOffsetTime,
   isOpenAPIPaths,
   isOperation,
   isOperationLike,
@@ -742,5 +751,156 @@ describe('isDiscriminableBranch', () => {
     expect(
       isDiscriminableBranch({ type: 'object', properties, required, default: {} }, 'kind'),
     ).toBe(false)
+  })
+})
+
+/* ═══════════════════════════════════ Schema Predicates ═══════════════════════════════════ */
+
+describe('hasTypelessConstraint', () => {
+  it.concurrent('returns false for empty schema', () => {
+    expect(hasTypelessConstraint({})).toBe(false)
+  })
+
+  it.concurrent('returns false for schema with only `type`', () => {
+    expect(hasTypelessConstraint({ type: 'string' })).toBe(false)
+  })
+
+  it.concurrent('returns true for schema with `required`', () => {
+    expect(hasTypelessConstraint({ required: ['x'] })).toBe(true)
+  })
+
+  it.concurrent('returns true for schema with `if`', () => {
+    expect(hasTypelessConstraint({ if: { type: 'object' } })).toBe(true)
+  })
+
+  it.concurrent('returns true for schema with `contains`', () => {
+    expect(hasTypelessConstraint({ contains: { type: 'string' } })).toBe(true)
+  })
+})
+
+describe('isOffsetTime', () => {
+  it.concurrent('returns true for a `time` format', () => {
+    expect(isOffsetTime({ type: 'string', format: 'time' })).toBe(true)
+  })
+
+  it.concurrent('returns false when `x-isoOffset` is false', () => {
+    expect(isOffsetTime({ type: 'string', format: 'time', 'x-isoOffset': false })).toBe(false)
+  })
+
+  it.concurrent('returns false for another format', () => {
+    expect(isOffsetTime({ type: 'string', format: 'date' })).toBe(false)
+  })
+})
+
+describe('hasNumericConstraint', () => {
+  it.concurrent('returns false for a bare number', () => {
+    expect(hasNumericConstraint({ type: 'number' })).toBe(false)
+  })
+
+  it.concurrent.each([
+    { minimum: 0 },
+    { maximum: 10 },
+    { exclusiveMinimum: 0 },
+    { exclusiveMaximum: 10 },
+    { multipleOf: 2 },
+  ])('returns true for %o', (constraint) => {
+    expect(hasNumericConstraint({ type: 'number', ...constraint })).toBe(true)
+  })
+})
+
+describe('hasNoUserChain', () => {
+  it.concurrent('returns true for a plain schema', () => {
+    expect(hasNoUserChain({ type: 'string' })).toBe(true)
+  })
+
+  it.concurrent.each(['x-preprocess', 'x-transform', 'x-pipe', 'x-codec'] as const)(
+    'returns false with `%s`',
+    (key) => {
+      expect(hasNoUserChain({ type: 'string', [key]: 'v' })).toBe(false)
+    },
+  )
+})
+
+describe('hasNotProperty', () => {
+  it.concurrent('returns true for an object with `not`', () => {
+    expect(hasNotProperty({ not: false })).toBe(true)
+  })
+
+  it.concurrent('returns false for an object without `not`', () => {
+    expect(hasNotProperty({ type: 'string' })).toBe(false)
+  })
+
+  it.concurrent('returns false for null', () => {
+    expect(hasNotProperty(null)).toBe(false)
+  })
+})
+
+describe('isExamplesInput', () => {
+  it.concurrent('returns true for a map of example objects', () => {
+    expect(isExamplesInput({ a: { value: 1 }, b: { $ref: '#/components/examples/B' } })).toBe(true)
+  })
+
+  it.concurrent('returns true for an empty map', () => {
+    expect(isExamplesInput({})).toBe(true)
+  })
+
+  it.concurrent('returns false for an array', () => {
+    expect(isExamplesInput([{ value: 1 }])).toBe(false)
+  })
+
+  it.concurrent('returns false when an entry is not an object', () => {
+    expect(isExamplesInput({ a: 1 })).toBe(false)
+  })
+})
+
+/* ═══════════════════════════════════ Operation Predicates ═══════════════════════════════════ */
+
+describe('hasRequestBodyContent', () => {
+  it.concurrent('returns true for a request body with content', () => {
+    expect(hasRequestBodyContent({ requestBody: { content: {} }, responses: {} })).toBe(true)
+  })
+
+  it.concurrent('returns false for a request body without content', () => {
+    expect(hasRequestBodyContent({ requestBody: { required: true }, responses: {} })).toBe(false)
+  })
+
+  it.concurrent('returns false without a request body', () => {
+    expect(hasRequestBodyContent({ responses: {} })).toBe(false)
+  })
+
+  it.concurrent('returns false for null', () => {
+    expect(hasRequestBodyContent(null)).toBe(false)
+  })
+})
+
+describe('hasNoContentResponse', () => {
+  it.concurrent('returns true for 204 response', () => {
+    expect(hasNoContentResponse({ responses: { '204': {} } })).toBe(true)
+  })
+
+  it.concurrent('returns true for 205 response', () => {
+    expect(hasNoContentResponse({ responses: { '205': {} } })).toBe(true)
+  })
+
+  it.concurrent('returns false for 200 response only', () => {
+    expect(hasNoContentResponse({ responses: { '200': {} } })).toBe(false)
+  })
+
+  it.concurrent('returns false for no responses', () => {
+    expect(hasNoContentResponse({})).toBe(false)
+  })
+
+  it.concurrent('returns true when 204 is among multiple responses', () => {
+    expect(hasNoContentResponse({ responses: { '200': {}, '204': {} } })).toBe(true)
+  })
+})
+
+describe('isInlineMedia', () => {
+  it.concurrent('returns true for a media object', () => {
+    expect(isInlineMedia({ schema: { type: 'string' } })).toBe(true)
+  })
+
+  it.concurrent('returns false for a reference', () => {
+    expect(isInlineMedia({ $ref: '#/components/mediaTypes/Json' })).toBe(false)
   })
 })

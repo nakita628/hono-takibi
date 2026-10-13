@@ -1,4 +1,4 @@
-import { isSchemaArray, isSchemaObject } from '../guard/index.js'
+import { hasNumericConstraint, isSchemaArray, isSchemaObject } from '../guard/index.js'
 import type { Schema, Type } from '../openapi/index.js'
 import {
   makeSafeKey,
@@ -359,16 +359,6 @@ function exampleLiteral(schema: Schema) {
     return isAccepted('boolean') ? `${example}${asConst}` : undefined
   }
   return undefined
-}
-
-function hasNumericConstraint(schema: Schema) {
-  return (
-    schema.minimum !== undefined ||
-    schema.maximum !== undefined ||
-    schema.exclusiveMinimum !== undefined ||
-    schema.exclusiveMaximum !== undefined ||
-    schema.multipleOf !== undefined
-  )
 }
 
 // Normalize JSON Schema / OpenAPI numeric bounds into faker-compatible inclusive

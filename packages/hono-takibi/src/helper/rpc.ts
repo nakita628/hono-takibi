@@ -92,21 +92,6 @@ export function formatPath(p: string, hasBasePath?: boolean) {
   return { runtimePath, typeofPrefix, bracketSuffix, hasBracket } as const
 }
 
-export function hasNoContentResponse(operation: {
-  readonly summary?: string
-  readonly description?: string
-  readonly parameters?: unknown
-  readonly requestBody?: unknown
-  readonly responses?: unknown
-}) {
-  const responses = operation.responses
-  if (!isRecord(responses)) return false
-  return Object.keys(responses).some((status) => {
-    const code = Number.parseInt(status, 10)
-    return !Number.isNaN(code) && [204, 205].includes(code)
-  })
-}
-
 function refRequestBodyName(refLike: unknown) {
   const ref =
     typeof refLike === 'string' ? refLike : isRefObject(refLike) ? refLike.$ref : undefined

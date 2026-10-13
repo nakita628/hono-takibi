@@ -1,6 +1,8 @@
 import { HTTP_METHODS } from '../../constants/index.js'
 import {
+  hasRequestBodyContent,
   isHttpMethod,
+  isInlineMedia,
   isMediaWithSchema,
   isOperation,
   isParameter,
@@ -18,7 +20,6 @@ import type {
   Content,
   Media,
   OpenAPI,
-  Operation,
   Reference,
   Responses,
   Schema,
@@ -252,15 +253,6 @@ function extractSecurityInfo(
     .filter((requirement) => requirement.length > 0)
 }
 
-function hasRequestBodyContent(
-  operation: unknown,
-): operation is Operation & { requestBody: { content: { readonly [k: string]: unknown } } } {
-  if (typeof operation !== 'object' || operation === null) return false
-  if (!('requestBody' in operation)) return false
-  if (typeof operation.requestBody !== 'object' || operation.requestBody === null) return false
-  return 'content' in operation.requestBody
-}
-
 /**
  * Filter OpenAPI spec to only include JSON content types for request bodies.
  * This is needed because @hono/zod-openapi doesn't correctly handle multiple content types.
@@ -487,10 +479,6 @@ type MockResponse = {
   readonly namedExamples: readonly (readonly [string, unknown])[]
   /** The schema const an authored example is cast to (a named `$ref` schema). */
   readonly exampleCast: string | undefined
-}
-
-function isInlineMedia(media: Media | Reference): media is Media {
-  return !('$ref' in media)
 }
 
 // A media object may be a `$ref` into `components.mediaTypes` (OpenAPI 3.2),

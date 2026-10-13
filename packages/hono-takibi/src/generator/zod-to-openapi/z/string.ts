@@ -1,3 +1,4 @@
+import { isOffsetTime } from '../../../guard/index.js'
 import type { Schema } from '../../../openapi/index.js'
 import { baseError, error, escapeRegexLiteral } from '../../../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
@@ -52,14 +53,6 @@ const EMAIL_PATTERN_PRESET: { readonly [k: string]: string } = {
   html5: 'html5Email',
   rfc5322: 'rfc5322Email',
   unicode: 'unicodeEmail',
-}
-
-/**
- * Whether a `time` takes an offset. `time` is an RFC 3339 full-time, `12:34:56Z` or
- * `12:34:56+09:00`, and `z.iso.time()` takes neither. `x-isoOffset: false` asks for that.
- */
-export function isOffsetTime(schema: Schema): boolean {
-  return schema.format === 'time' && schema['x-isoOffset'] !== false
 }
 
 /**

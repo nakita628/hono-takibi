@@ -1,48 +1,8 @@
-import { isRecord } from '../guard/index.js'
+import { hasNotProperty, hasNoUserChain, isExamplesInput, isRecord } from '../guard/index.js'
 import type { Header, Parameter, Schema } from '../openapi/index.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { makeExamples } from './openapi.js'
 import { WIRE_EMPTY, WIRE_INHERITED, WIRE_NULL, wireStyle } from './wire.js'
-
-function hasNotProperty(v: unknown): v is { not: unknown } {
-  return typeof v === 'object' && v !== null && 'not' in v
-}
-function isExamplesInput(v: unknown): v is {
-  readonly [k: string]:
-    | {
-        readonly summary?: string
-        readonly description?: string
-        readonly defaultValue?: unknown
-        readonly serializedValue?: string
-        readonly externalValue?: string
-        readonly value?: unknown
-      }
-    | {
-        readonly $ref?:
-          | `#/components/schemas/${string}`
-          | `#/components/parameters/${string}`
-          | `#/components/securitySchemes/${string}`
-          | `#/components/requestBodies/${string}`
-          | `#/components/responses/${string}`
-          | `#/components/headers/${string}`
-          | `#/components/examples/${string}`
-          | `#/components/links/${string}`
-          | `#/components/callbacks/${string}`
-          | `#/components/pathItems/${string}`
-          | `#/components/mediaTypes/${string}`
-        readonly summary?: string
-        readonly description?: string
-      }
-} {
-  return (
-    typeof v === 'object' &&
-    v !== null &&
-    !Array.isArray(v) &&
-    Object.values(v).every(
-      (entry) => typeof entry === 'object' && entry !== null && !Array.isArray(entry),
-    )
-  )
-}
 
 // Drop-list: keys already expressed in the zod method chain.
 const zodExpressedProps = new Set([
@@ -194,17 +154,6 @@ export function undecorated(schema: Schema): Schema {
         ? Object.assign(kept, { [key]: value })
         : kept,
     {},
-  )
-}
-
-// A user-supplied chain replaces the generated schema, and with it what the document
-// derives from it.
-function hasNoUserChain(schema: Schema) {
-  return (
-    schema['x-preprocess'] === undefined &&
-    schema['x-transform'] === undefined &&
-    schema['x-pipe'] === undefined &&
-    schema['x-codec'] === undefined
   )
 }
 

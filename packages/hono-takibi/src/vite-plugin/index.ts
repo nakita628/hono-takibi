@@ -67,7 +67,7 @@ function debounce(delayMilliseconds: number, callback: () => void): () => void {
   return wrappedFunction
 }
 
-function isWatchedInputFile(filePath: string): boolean {
+function isWatchedInputFile(filePath: string) {
   return filePath.endsWith('.yaml') || filePath.endsWith('.json') || filePath.endsWith('.tsp')
 }
 
