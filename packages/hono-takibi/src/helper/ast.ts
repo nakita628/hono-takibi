@@ -1,5 +1,6 @@
 import { ts } from 'ts-morph'
 
+import { COMPONENT_REF_PREFIX } from '../constants/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { isDiscriminableBranch, isRefOnly } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
@@ -55,8 +56,8 @@ function findDiscriminatedBranches(
       const discriminator = schema?.discriminator?.propertyName
       if (discriminator === undefined || schema?.oneOf === undefined) return []
       return schema.oneOf.flatMap((branch) => {
-        if (!(isRefOnly(branch) && branch.$ref?.startsWith('#/components/schemas/'))) return []
-        const name = decodeURIComponent(branch.$ref.slice('#/components/schemas/'.length))
+        if (!(isRefOnly(branch) && branch.$ref?.startsWith(COMPONENT_REF_PREFIX.schemas))) return []
+        const name = decodeURIComponent(branch.$ref.slice(COMPONENT_REF_PREFIX.schemas.length))
         const target = schemas[name]
         return target && isDiscriminableBranch(target, discriminator) ? [name] : []
       })

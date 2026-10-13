@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import {
   formatPath,
-  hasNoContentResponse,
   makeOperationDeps,
   makeParseResponseType,
   operationHasArgs,
@@ -82,30 +81,6 @@ describe('formatPath', () => {
       bracketSuffix: '',
       hasBracket: false,
     })
-  })
-})
-
-/* ═══════════════════════════════════ hasNoContentResponse ═══════════════════════════════════ */
-
-describe('hasNoContentResponse', () => {
-  it.concurrent('returns true for 204 response', () => {
-    expect(hasNoContentResponse({ responses: { '204': {} } })).toBe(true)
-  })
-
-  it.concurrent('returns true for 205 response', () => {
-    expect(hasNoContentResponse({ responses: { '205': {} } })).toBe(true)
-  })
-
-  it.concurrent('returns false for 200 response only', () => {
-    expect(hasNoContentResponse({ responses: { '200': {} } })).toBe(false)
-  })
-
-  it.concurrent('returns false for no responses', () => {
-    expect(hasNoContentResponse({})).toBe(false)
-  })
-
-  it.concurrent('returns true when 204 is among multiple responses', () => {
-    expect(hasNoContentResponse({ responses: { '200': {}, '204': {} } })).toBe(true)
   })
 })
 
@@ -460,12 +435,6 @@ describe('Use Case: REST API CRUD patterns', () => {
     // DELETE with no params or body → no args
     const deleteOp = { responses: {} }
     expect(operationHasArgs({}, deleteOp, deps)).toBe(false)
-  })
-
-  it.concurrent('detects 204 No Content for DELETE operations', () => {
-    expect(hasNoContentResponse({ responses: { '204': {} } })).toBe(true)
-    expect(hasNoContentResponse({ responses: { '200': {} } })).toBe(false)
-    expect(hasNoContentResponse({ responses: { '200': {}, '204': {} } })).toBe(true)
   })
 })
 

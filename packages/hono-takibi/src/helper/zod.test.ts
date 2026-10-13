@@ -4,7 +4,6 @@ import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Schema } from '../openapi/index.js'
 import {
   emitTypelessRefine,
-  hasTypelessConstraint,
   makeUnevaluatedProperties,
   makeUnevaluatedPropertiesCheck,
 } from './zod.js'
@@ -17,24 +16,6 @@ const recurse = zodToOpenAPI
 // on Zod lives in zod-to-openapi/index.test.ts, so this file only asserts the emitted string.
 
 describe('helper/zod', () => {
-  describe('hasTypelessConstraint', () => {
-    it('returns false for empty schema', () => {
-      expect(hasTypelessConstraint({})).toBe(false)
-    })
-    it('returns false for schema with only `type`', () => {
-      expect(hasTypelessConstraint({ type: 'string' })).toBe(false)
-    })
-    it('returns true for schema with `required`', () => {
-      expect(hasTypelessConstraint({ required: ['x'] })).toBe(true)
-    })
-    it('returns true for schema with `if`', () => {
-      expect(hasTypelessConstraint({ if: { type: 'object' } })).toBe(true)
-    })
-    it('returns true for schema with `contains`', () => {
-      expect(hasTypelessConstraint({ contains: { type: 'string' } })).toBe(true)
-    })
-  })
-
   describe('emitTypelessRefine', () => {
     it('returns z.any() for empty schema (blocks.length === 0 branch)', () => {
       expect(emitTypelessRefine({}, recurse)).toBe('z.any()')

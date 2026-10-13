@@ -5,18 +5,12 @@ import { Effect } from 'effect'
 import { HTTP_METHODS } from '../constants/index.js'
 import { emit } from '../emit/index.js'
 import { GenerateError } from '../error/index.js'
-import { isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
+import { hasNoContentResponse, isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
 import { capitalize, methodPath, toIdentifierPascalCase } from '../utils/index.js'
 import { groupClientName, operationTags } from './group.js'
 import type { Grouping } from './group.js'
-import {
-  formatPath,
-  hasNoContentResponse,
-  makeOperationDeps,
-  operationHasArgs,
-  parsePathItem,
-} from './rpc.js'
+import { formatPath, makeOperationDeps, operationHasArgs, parsePathItem } from './rpc.js'
 
 // Every TanStack adapter's hook takes a trailing argument after the options — `queryClient`
 // (an accessor of one in Solid and Svelte), or `{ injector }` in Angular. The generated hooks

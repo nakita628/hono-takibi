@@ -1,4 +1,5 @@
-import { isSchemaArray, isSchemaObject } from '../guard/index.js'
+import { COMPONENT_REF_PREFIX } from '../constants/index.js'
+import { hasNumericConstraint, isSchemaArray, isSchemaObject } from '../guard/index.js'
 import type { Schema, Type } from '../openapi/index.js'
 import {
   makeSafeKey,
@@ -359,16 +360,6 @@ function exampleLiteral(schema: Schema) {
     return isAccepted('boolean') ? `${example}${asConst}` : undefined
   }
   return undefined
-}
-
-function hasNumericConstraint(schema: Schema) {
-  return (
-    schema.minimum !== undefined ||
-    schema.maximum !== undefined ||
-    schema.exclusiveMinimum !== undefined ||
-    schema.exclusiveMaximum !== undefined ||
-    schema.multipleOf !== undefined
-  )
 }
 
 // Normalize JSON Schema / OpenAPI numeric bounds into faker-compatible inclusive
@@ -960,7 +951,7 @@ export function getNonExistentValue(schema?: Schema, schemas?: { readonly [k: st
   if (!schema) return '__non_existent__'
   const resolved =
     schema.$ref && schemas
-      ? (schemas[schema.$ref.replace('#/components/schemas/', '')] ?? schema)
+      ? (schemas[schema.$ref.replace(COMPONENT_REF_PREFIX.schemas, '')] ?? schema)
       : schema
   const types = normalizeTypes(resolved.type)
   const primary = TYPE_PRIORITY.find((t) => types.includes(t))

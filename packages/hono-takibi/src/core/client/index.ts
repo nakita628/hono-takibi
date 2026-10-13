@@ -5,7 +5,7 @@ import { Effect } from 'effect'
 import { emit } from '../../emit/index.js'
 import { GenerateError } from '../../error/index.js'
 import { readFile } from '../../file/index.js'
-import { isHttpMethod, isOpenAPIPaths, isOperation } from '../../guard/index.js'
+import { isHttpMethod, isOpenAPIPaths, isOperation, isValidIdent } from '../../guard/index.js'
 import { groupClientName } from '../../helper/index.js'
 import type { Grouping } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
@@ -21,7 +21,7 @@ function makeBasePathAccess(basePath: string) {
     .split('/')
     .filter((segment) => segment !== '')
     .map((segment) =>
-      /^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(segment)
+      isValidIdent(segment)
         ? `.${segment}`
         : `['${segment.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}']`,
     )

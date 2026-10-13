@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { error } from '../../../utils/index.js'
+import { error, makeStringLiteral } from '../../../utils/index.js'
 
 /**
  * Generates a Zod enum schema. String enums map to `z.enum`, number/integer/
@@ -35,7 +35,7 @@ export function _enum(schema: Schema) {
   const outerLit = (v: unknown, suffix?: string): string => {
     const arg = suffix ?? errorArg
     if (v === null) return `z.literal(null${arg})`
-    if (typeof v === 'string') return `z.literal('${v.replaceAll("'", "\\'")}'${arg})`
+    if (typeof v === 'string') return `z.literal(${makeStringLiteral(v)}${arg})`
     // An int64 is a bigint in the generated schema, and so are the members of its enum.
     if (typeof v === 'number' && isBigint && Number.isInteger(v)) return `z.literal(${v}n${arg})`
     if (typeof v === 'number' || typeof v === 'boolean') return `z.literal(${String(v)}${arg})`

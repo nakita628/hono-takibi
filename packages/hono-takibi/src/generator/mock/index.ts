@@ -1,6 +1,13 @@
-import { HTTP_METHODS } from '../../constants/index.js'
 import {
+  COMPONENT_REF_PREFIX,
+  HTTP_METHODS,
+  JSON_MEDIA_TYPE,
+  TEXT_MEDIA_TYPE,
+} from '../../constants/index.js'
+import {
+  hasRequestBodyContent,
   isHttpMethod,
+  isInlineMedia,
   isMediaWithSchema,
   isOperation,
   isParameter,
@@ -18,7 +25,6 @@ import type {
   Content,
   Media,
   OpenAPI,
-  Operation,
   Reference,
   Responses,
   Schema,
@@ -252,15 +258,6 @@ function extractSecurityInfo(
     .filter((requirement) => requirement.length > 0)
 }
 
-function hasRequestBodyContent(
-  operation: unknown,
-): operation is Operation & { requestBody: { content: { readonly [k: string]: unknown } } } {
-  if (typeof operation !== 'object' || operation === null) return false
-  if (!('requestBody' in operation)) return false
-  if (typeof operation.requestBody !== 'object' || operation.requestBody === null) return false
-  return 'content' in operation.requestBody
-}
-
 /**
  * Filter OpenAPI spec to only include JSON content types for request bodies.
  * This is needed because @hono/zod-openapi doesn't correctly handle multiple content types.
@@ -274,13 +271,13 @@ function filterToJsonContentTypes(openapi: OpenAPI) {
             return [k, v] as const
           }
           if (!hasRequestBodyContent(v)) return [k, v] as const
-          const jsonContent = v.requestBody.content['application/json']
+          const jsonContent = v.requestBody.content[JSON_MEDIA_TYPE]
           if (!jsonContent) return [k, v] as const
           return [
             k,
             {
               ...v,
-              requestBody: { ...v.requestBody, content: { 'application/json': jsonContent } },
+              requestBody: { ...v.requestBody, content: { [JSON_MEDIA_TYPE]: jsonContent } },
             },
           ] as const
         }),
@@ -404,8 +401,8 @@ function extractMediaExample(media: Media, components: Components | undefined): 
 // as problem+json, and would otherwise mock to an empty body.
 function jsonMediaType(content: Content | undefined) {
   const types = Object.keys(content ?? {})
-  return types.includes('application/json')
-    ? 'application/json'
+  return types.includes(JSON_MEDIA_TYPE)
+    ? JSON_MEDIA_TYPE
     : types.find((type) => /^application\/(?:[\w.-]+\+)?json(?:;|$)/u.test(type))
 }
 
@@ -489,10 +486,6 @@ type MockResponse = {
   readonly exampleCast: string | undefined
 }
 
-function isInlineMedia(media: Media | Reference): media is Media {
-  return !('$ref' in media)
-}
-
 // A media object may be a `$ref` into `components.mediaTypes` (OpenAPI 3.2),
 // itself possibly another reference; `seen` stops a reference cycle.
 function resolveMedia(
@@ -515,7 +508,7 @@ function describeResponse(
 ): MockResponse {
   const jsonType = jsonMediaType(response.content)
   const jsonMedia = resolveMedia(jsonType ? response.content?.[jsonType] : undefined, components)
-  const textMedia = resolveMedia(response.content?.['text/plain'], components)
+  const textMedia = resolveMedia(response.content?.[TEXT_MEDIA_TYPE], components)
   const jsonSchema = jsonMedia && isMediaWithSchema(jsonMedia) ? jsonMedia.schema : undefined
   return {
     key: /^[1-5]xx$/iu.test(key) ? key.toUpperCase() : key,
@@ -575,7 +568,7 @@ function makeHandlerBody(
   if (payload.kind === 'json') {
     // `c.json` defaults the header to application/json; a `+json` type is kept.
     const headers =
-      response?.jsonType && response.jsonType !== 'application/json'
+      response?.jsonType && response.jsonType !== JSON_MEDIA_TYPE
         ? `, { 'Content-Type': ${makeStringLiteral(response.jsonType)} }`
         : ''
     return `return c.json(${payload.data}, ${statusCode}${headers})`
@@ -594,11 +587,11 @@ function makeRawHandlerBody(
   payload: ReturnType<typeof responsePayload>,
 ) {
   if (payload.kind === 'json') {
-    const type = makeStringLiteral(response.jsonType ?? 'application/json')
+    const type = makeStringLiteral(response.jsonType ?? JSON_MEDIA_TYPE)
     return `return preferResponse(${statusExpr}, JSON.stringify(${payload.data}), ${type})`
   }
   if (payload.kind === 'text') {
-    return `return preferResponse(${statusExpr}, String(${payload.data}), 'text/plain')`
+    return `return preferResponse(${statusExpr}, String(${payload.data}), ${makeStringLiteral(TEXT_MEDIA_TYPE)})`
   }
   return `return preferResponse(${statusExpr}, null)`
 }
@@ -846,7 +839,7 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
         (rawParam) => {
           const resolved = rawParam.$ref
             ? (openapi.components?.parameters?.[
-                rawParam.$ref.replace('#/components/parameters/', '')
+                rawParam.$ref.replace(COMPONENT_REF_PREFIX.parameters, '')
               ] ?? rawParam)
             : rawParam
           if (!(isParameter(resolved) && resolved.in === 'path')) return []

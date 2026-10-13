@@ -1,3 +1,5 @@
+import { isValidIdent } from '../guard/index.js'
+
 const RESERVED = new Set([
   'api',
   'app',
@@ -51,7 +53,7 @@ const RESERVED = new Set([
 export function isGroupName(name: string | undefined): name is string {
   return (
     name !== undefined &&
-    /^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(name) &&
+    isValidIdent(name) &&
     !RESERVED.has(name) &&
     !name.startsWith('__') &&
     !name.endsWith('Route') &&

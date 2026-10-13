@@ -1,4 +1,4 @@
-import { HTTP_METHODS } from '../constants/index.js'
+import { COMPONENT_REF_PREFIX, HTTP_METHODS, IDENTIFIER_PATTERN } from '../constants/index.js'
 import type {
   Callbacks,
   Header,
@@ -21,8 +21,8 @@ export function isHttpMethod(method: string): method is (typeof HTTP_METHODS)[nu
   return HTTP_METHODS.some((candidate) => candidate === method)
 }
 
-export function isValidIdent(str: string): boolean {
-  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/u.test(str)
+export function isValidIdent(str: string) {
+  return IDENTIFIER_PATTERN.test(str)
 }
 
 export function isOpenAPIPaths(v: unknown): v is OpenAPIPaths {
@@ -76,11 +76,11 @@ export function isDiscriminableBranch(branch: Schema, discriminator: string) {
 }
 
 export function isParameterRef(ref: string): ref is `#/components/parameters/${string}` {
-  return ref.startsWith('#/components/parameters/')
+  return ref.startsWith(COMPONENT_REF_PREFIX.parameters)
 }
 
 export function isPathItemRef(ref: string): ref is `#/components/pathItems/${string}` {
-  return ref.startsWith('#/components/pathItems/')
+  return ref.startsWith(COMPONENT_REF_PREFIX.pathItems)
 }
 
 export function isParameterObject(v: unknown): v is {
@@ -244,4 +244,152 @@ export function isOAuthFlowValue(v: unknown): v is {
 } {
   if (typeof v !== 'object' || v === null || Array.isArray(v)) return false
   return 'authorizationUrl' in v || 'tokenUrl' in v || 'scopes' in v
+}
+
+// JSON Schema 2020-12 typeless keywords. Emit `z.unknown().superRefine(...)`
+// with value-type-aware checks. Messages are slot-driven (x-<keyword>-message).
+const TYPELESS_KEYWORDS: readonly (keyof Schema)[] = [
+  'required',
+  'properties',
+  'additionalProperties',
+  'patternProperties',
+  'propertyNames',
+  'minProperties',
+  'maxProperties',
+  'dependentRequired',
+  'dependentSchemas',
+  'unevaluatedProperties',
+  'minItems',
+  'maxItems',
+  'uniqueItems',
+  'items',
+  'prefixItems',
+  'contains',
+  'minContains',
+  'maxContains',
+  'unevaluatedItems',
+  'minLength',
+  'maxLength',
+  'pattern',
+  'minimum',
+  'maximum',
+  'exclusiveMinimum',
+  'exclusiveMaximum',
+  'multipleOf',
+  'enum',
+  'const',
+  'allOf',
+  'anyOf',
+  'oneOf',
+  'not',
+  'if',
+  'then',
+  'else',
+]
+
+export function hasTypelessConstraint(schema: Schema) {
+  return TYPELESS_KEYWORDS.some((k) => schema[k] !== undefined)
+}
+
+/**
+ * Whether a `time` takes an offset. `time` is an RFC 3339 full-time, `12:34:56Z` or
+ * `12:34:56+09:00`, and `z.iso.time()` takes neither. `x-isoOffset: false` asks for that.
+ */
+export function isOffsetTime(schema: Schema) {
+  return schema.format === 'time' && schema['x-isoOffset'] !== false
+}
+
+export function hasNumericConstraint(schema: Schema) {
+  return (
+    schema.minimum !== undefined ||
+    schema.maximum !== undefined ||
+    schema.exclusiveMinimum !== undefined ||
+    schema.exclusiveMaximum !== undefined ||
+    schema.multipleOf !== undefined
+  )
+}
+
+export function hasNotProperty(v: unknown) {
+  return typeof v === 'object' && v !== null && 'not' in v
+}
+
+export function isExamplesInput(v: unknown): v is {
+  readonly [k: string]:
+    | {
+        readonly summary?: string
+        readonly description?: string
+        readonly defaultValue?: unknown
+        readonly serializedValue?: string
+        readonly externalValue?: string
+        readonly value?: unknown
+      }
+    | {
+        readonly $ref?:
+          | `#/components/schemas/${string}`
+          | `#/components/parameters/${string}`
+          | `#/components/securitySchemes/${string}`
+          | `#/components/requestBodies/${string}`
+          | `#/components/responses/${string}`
+          | `#/components/headers/${string}`
+          | `#/components/examples/${string}`
+          | `#/components/links/${string}`
+          | `#/components/callbacks/${string}`
+          | `#/components/pathItems/${string}`
+          | `#/components/mediaTypes/${string}`
+        readonly summary?: string
+        readonly description?: string
+      }
+} {
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    !Array.isArray(v) &&
+    Object.values(v).every(
+      (entry) => typeof entry === 'object' && entry !== null && !Array.isArray(entry),
+    )
+  )
+}
+
+// A user-supplied chain replaces the generated schema, and with it what the document
+// derives from it.
+export function hasNoUserChain(schema: Schema) {
+  return (
+    schema['x-preprocess'] === undefined &&
+    schema['x-transform'] === undefined &&
+    schema['x-pipe'] === undefined &&
+    schema['x-codec'] === undefined
+  )
+}
+
+export function hasRequestBodyContent(
+  operation: unknown,
+): operation is Operation & { requestBody: { content: { readonly [k: string]: unknown } } } {
+  if (typeof operation !== 'object' || operation === null) return false
+  if (!('requestBody' in operation)) return false
+  if (typeof operation.requestBody !== 'object' || operation.requestBody === null) return false
+  return 'content' in operation.requestBody
+}
+
+export function isInlineMedia(media: Media | Reference): media is Media {
+  return !('$ref' in media)
+}
+
+export function hasNoContentResponse(operation: {
+  readonly summary?: string
+  readonly description?: string
+  readonly parameters?: unknown
+  readonly requestBody?: unknown
+  readonly responses?: unknown
+}) {
+  const responses = operation.responses
+  if (!isRecord(responses)) return false
+  return Object.keys(responses).some((status) => {
+    const code = Number.parseInt(status, 10)
+    return !Number.isNaN(code) && [204, 205].includes(code)
+  })
+}
+
+/** Whether a parameter is named like something every object inherits. */
+export function isInheritedName(parameter: Parameter) {
+  return parameter.in !== 'path' && parameter.name in Object.prototype
 }

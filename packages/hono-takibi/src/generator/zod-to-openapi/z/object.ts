@@ -1,3 +1,4 @@
+import { ARROW_FUNCTION_PATTERN } from '../../../constants/index.js'
 import { makeUnevaluatedProperties } from '../../../helper/zod.js'
 import type { Schema } from '../../../openapi/index.js'
 import { error, makeSafeKey } from '../../../utils/index.js'
@@ -164,7 +165,7 @@ export function object(schema: Schema, options?: { readonly?: boolean }) {
             .map((d) => {
               const fallback = dependentRequiredMessage ?? errorMessage
               const msg = fallback ?? `requires "${d}" when "${key}" present`
-              const msgExpr = /^\s*\(.*?\)\s*=>/u.test(msg)
+              const msgExpr = ARROW_FUNCTION_PATTERN.test(msg)
                 ? `(${msg})({code:'custom',path:[${JSON.stringify(d)}],input:o})`
                 : JSON.stringify(msg)
               return `if(!Object.hasOwn(o,${JSON.stringify(d)})){ctx.addIssue({code:'custom',message:${msgExpr},path:[${JSON.stringify(d)}]})}`

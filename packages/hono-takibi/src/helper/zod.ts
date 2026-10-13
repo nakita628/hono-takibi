@@ -1,51 +1,6 @@
 import { isSchemaObject, isSingleSchema } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 
-// JSON Schema 2020-12 typeless keywords. Emit `z.unknown().superRefine(...)`
-// with value-type-aware checks. Messages are slot-driven (x-<keyword>-message).
-const TYPELESS_KEYWORDS: readonly (keyof Schema)[] = [
-  'required',
-  'properties',
-  'additionalProperties',
-  'patternProperties',
-  'propertyNames',
-  'minProperties',
-  'maxProperties',
-  'dependentRequired',
-  'dependentSchemas',
-  'unevaluatedProperties',
-  'minItems',
-  'maxItems',
-  'uniqueItems',
-  'items',
-  'prefixItems',
-  'contains',
-  'minContains',
-  'maxContains',
-  'unevaluatedItems',
-  'minLength',
-  'maxLength',
-  'pattern',
-  'minimum',
-  'maximum',
-  'exclusiveMinimum',
-  'exclusiveMaximum',
-  'multipleOf',
-  'enum',
-  'const',
-  'allOf',
-  'anyOf',
-  'oneOf',
-  'not',
-  'if',
-  'then',
-  'else',
-]
-
-export function hasTypelessConstraint(schema: Schema): boolean {
-  return TYPELESS_KEYWORDS.some((k) => schema[k] !== undefined)
-}
-
 // Returns the slot value JSON-encoded for splicing into generated code, or
 // undefined when the slot is absent / non-string (callers omit `message`).
 function pickMessage(schema: Schema, slot: keyof Schema): string | undefined {

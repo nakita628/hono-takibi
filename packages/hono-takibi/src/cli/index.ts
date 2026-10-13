@@ -2,6 +2,7 @@ import { Console, Effect, FileSystem, Option, Path, Ref, Schema, Stream } from '
 import { Argument, CliError, Command, Flag } from 'effect/cli'
 
 import manifest from '../../package.json' with { type: 'json' }
+import { INPUT_EXTENSIONS } from '../constants/index.js'
 
 const COMMAND_NAME = 'hono-takibi'
 
@@ -9,7 +10,7 @@ const DEFAULT_CONFIG_FILE = 'hono-takibi.config.ts'
 
 const DocumentPathSchema = Schema.String.pipe(
   Schema.refine(
-    Schema.is(Schema.TemplateLiteral([Schema.String, Schema.Literals(['.yaml', '.json', '.tsp'])])),
+    Schema.is(Schema.TemplateLiteral([Schema.String, Schema.Literals(INPUT_EXTENSIONS)])),
     { message: 'an OpenAPI (.yaml, .json) or TypeSpec (.tsp) document' },
   ),
 ).annotate({
@@ -54,8 +55,6 @@ const commandLine = {
     Flag.withDefault(false),
   ),
 } as const
-
-const INPUT_EXTENSIONS = ['.yaml', '.json', '.tsp'] as const
 
 function loadConfig(configPath: string, reload: boolean) {
   return Effect.gen(function* () {

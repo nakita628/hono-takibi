@@ -1,3 +1,4 @@
+import { COMPONENT_REF_PREFIX } from '../constants/index.js'
 import { isSchemaArray } from '../guard/index.js'
 import type { Parameter, Schema } from '../openapi/index.js'
 import { normalizeTypes } from '../utils/index.js'
@@ -12,8 +13,6 @@ import { normalizeTypes } from '../utils/index.js'
 type WireKind = 'integer' | 'number' | 'bigint' | 'boolean' | 'truth' | 'string'
 
 type Schemas = { readonly [k: string]: Schema }
-
-const SCHEMA_REF_PREFIX = '#/components/schemas/'
 
 // `z.coerce.number()` is `Number(input)`, which reads `""` and `" "` as 0, `"0x10"` as 16
 // and `"0b11"` as 3. A decimal literal is what a parameter means, so the text is matched
@@ -51,8 +50,8 @@ export const WIRE_NULL = "(val)=>(val==='null'?null:val)"
 
 /** Looks a `#/components/schemas/<name>` reference up; anything else is not resolved. */
 export function resolveSchemaRef(ref: string, schemas: Schemas | undefined): Schema | undefined {
-  if (!ref.startsWith(SCHEMA_REF_PREFIX)) return undefined
-  const name = ref.slice(SCHEMA_REF_PREFIX.length)
+  if (!ref.startsWith(COMPONENT_REF_PREFIX.schemas)) return undefined
+  const name = ref.slice(COMPONENT_REF_PREFIX.schemas.length)
   if (name.includes('/')) return undefined
   return schemas?.[decodeURIComponent(name)]
 }
@@ -230,7 +229,7 @@ export function needsWireConversion(
  * every user of it; outside it they hide the component from the document. A decorated
  * reference is therefore written out in place, where the decoration belongs to it alone.
  */
-export function isDecoratedRef(schema: Schema): boolean {
+export function isDecoratedRef(schema: Schema) {
   return (
     schema.$ref !== undefined &&
     (schema.default !== undefined ||
@@ -400,7 +399,7 @@ export function wrapWire(
 }
 
 /** Whether text of these kinds is tried as several readings, one after the other. */
-export function hasSeveralReadings(kinds: readonly WireKind[]): boolean {
+export function hasSeveralReadings(kinds: readonly WireKind[]) {
   return wireReaders(kinds).length + (kinds.includes('string') ? 1 : 0) > 1
 }
 
@@ -536,7 +535,7 @@ function resolveObject(
 }
 
 /** Whether a parameter is an object, whatever its location and style. */
-export function isObjectParameter(parameter: Parameter, schemas: Schemas | undefined): boolean {
+export function isObjectParameter(parameter: Parameter, schemas: Schemas | undefined) {
   return parameter.schema !== undefined && resolveObject(parameter.schema, schemas) !== undefined
 }
 
@@ -789,11 +788,6 @@ export function nullReading(
 export const WIRE_INHERITED =
   "(val)=>(typeof val==='function'||val===Object.prototype?undefined:val)"
 
-/** Whether a parameter is named like something every object inherits. */
-export function isInheritedName(parameter: Parameter): boolean {
-  return parameter.in !== 'path' && parameter.name in Object.prototype
-}
-
 /**
  * `allowEmptyValue: true` lets a query parameter be sent with no value, `?page=`, to say
  * the same as leaving it out. Text that holds nothing is then read as absent, so that a
@@ -803,7 +797,7 @@ export function isInheritedName(parameter: Parameter): boolean {
 export const WIRE_EMPTY = "(val)=>(val===''?undefined:val)"
 
 /** Whether an empty value of the parameter is read as absent. */
-export function isEmptyAbsent(parameter: Parameter, schemas: Schemas | undefined): boolean {
+export function isEmptyAbsent(parameter: Parameter, schemas: Schemas | undefined) {
   if (parameter.in !== 'query' || parameter.allowEmptyValue !== true) return false
   if (parameter.schema === undefined) return false
   const kinds = wireKinds(parameter.schema, schemas)
