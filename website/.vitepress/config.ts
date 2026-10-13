@@ -27,6 +27,11 @@ export default defineConfig({
       },
     },
     resolve: {
+      // @typespec/playground resolves its own monaco-editor (^0.56) and registers
+      // the TypeSpec language and the `typespec` / `typespec-dark` themes on it.
+      // Without a single shared instance the editors are created on a different
+      // monaco that never sees those themes, so the dark mode toggle is ignored.
+      dedupe: ['monaco-editor'],
       alias: [
         {
           find: /^prettier\/plugins\/yaml\.js$/,
