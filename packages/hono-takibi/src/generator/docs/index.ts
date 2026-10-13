@@ -1,6 +1,11 @@
 import { STATUS_CODES } from 'node:http'
 
-import { HTTP_METHODS } from '../../constants/index.js'
+import {
+  FORM_URLENCODED_MEDIA_TYPE,
+  HTTP_METHODS,
+  JSON_MEDIA_TYPE,
+  MULTIPART_MEDIA_TYPE,
+} from '../../constants/index.js'
 import { isRecord, isRefObject, isSchemaArray } from '../../guard/index.js'
 import type { OpenAPI, Operation, Parameter, PathItem, Schema } from '../../openapi/index.js'
 import { escapeHtml } from '../../utils/index.js'
@@ -67,9 +72,8 @@ const MAX_EXPANSIONS_PER_RECURSIVE_REF = 2
 
 type Budget = { readonly take: (ref: string) => boolean }
 
-const FORM_URLENCODED = 'application/x-www-form-urlencoded'
-
-const MULTIPART = 'multipart/form-data'
+/** A `${NAME}` placeholder a curl example leaves for the shell to expand. */
+const SHELL_VARIABLE_PATTERN = /\$\{[A-Z_]+\}/u
 
 const MULTIPART_BOUNDARY = 'boundary'
 
@@ -228,7 +232,7 @@ function hasPayload(media: MediaLike) {
 function pickJsonMedia(content: unknown, doc: OpenAPI): PickedMedia | undefined {
   const all = listMedia(content, doc).filter(({ media }) => hasPayload(media))
   return (
-    all.find(({ mediaType }) => baseMediaType(mediaType) === 'application/json') ??
+    all.find(({ mediaType }) => baseMediaType(mediaType) === JSON_MEDIA_TYPE) ??
     all.find(({ mediaType }) => isJsonMediaType(mediaType))
   )
 }
@@ -241,8 +245,8 @@ function pickMedia(content: unknown, doc: OpenAPI): PickedMedia | undefined {
   const all = listMedia(content, doc)
   return (
     pickJsonMedia(content, doc) ??
-    all.find(({ mediaType }) => baseMediaType(mediaType) === FORM_URLENCODED) ??
-    all.find(({ mediaType }) => baseMediaType(mediaType) === MULTIPART) ??
+    all.find(({ mediaType }) => baseMediaType(mediaType) === FORM_URLENCODED_MEDIA_TYPE) ??
+    all.find(({ mediaType }) => baseMediaType(mediaType) === MULTIPART_MEDIA_TYPE) ??
     all.find(({ media }) => hasPayload(media)) ??
     all[0]
   )
@@ -819,7 +823,7 @@ function shellQuoteAnsi(value: string) {
 }
 
 function shellArg(value: string, quoteBraces: boolean) {
-  if (/\$\{[A-Z_]+\}/u.test(value)) return shellQuoteWithVars(value)
+  if (SHELL_VARIABLE_PATTERN.test(value)) return shellQuoteWithVars(value)
   const safe = /^[\w\-./:~%=@+,{}]+$/u.test(value) && !(quoteBraces && value.includes('{'))
   return safe ? value : shellQuote(value)
 }
@@ -1055,12 +1059,12 @@ function makeSampleBodyArgs(
     if (example === undefined) return []
     return [`-d ${shellQuote(indentJsonBody(JSON.stringify(example, null, 2)))}`]
   }
-  if (mediaType === FORM_URLENCODED) {
+  if (mediaType === FORM_URLENCODED_MEDIA_TYPE) {
     if (!isRecord(example)) return []
     const pairs = Object.entries(example).map(([key, value]) => encodePair(key, value))
     return pairs.length > 0 ? [`-d ${shellQuote(pairs.join('&'))}`] : []
   }
-  if (mediaType === MULTIPART) {
+  if (mediaType === MULTIPART_MEDIA_TYPE) {
     if (!isRecord(example)) return []
     const target = media.schema ? derefSchema(media.schema, doc, new Set<string>()) : undefined
     const properties = target?.schema.properties ?? {}
@@ -1094,7 +1098,7 @@ function acceptedMediaType(operation: Operation, doc: OpenAPI) {
     return isRecord(resolved) && isRecord(resolved.content) ? Object.keys(resolved.content) : []
   })
   return (
-    mediaTypes.find((mediaType) => baseMediaType(mediaType) === 'application/json') ??
+    mediaTypes.find((mediaType) => baseMediaType(mediaType) === JSON_MEDIA_TYPE) ??
     mediaTypes.find((mediaType) => isJsonMediaType(mediaType))
   )
 }
@@ -1117,7 +1121,8 @@ function makeCodeSample(
   const picked =
     !curl && (method === 'GET' || method === 'HEAD') ? undefined : getBodyMedia(operation, doc)
   const bodyArgs = makeSampleBodyArgs(picked, doc, curl)
-  const isMultipart = picked !== undefined && baseMediaType(picked.mediaType) === MULTIPART
+  const isMultipart =
+    picked !== undefined && baseMediaType(picked.mediaType) === MULTIPART_MEDIA_TYPE
 
   // curl writes the multipart boundary into the header itself; a hand-written
   // `Content-Type: multipart/form-data` would drop it. `hono request` sends the
@@ -1128,7 +1133,7 @@ function makeCodeSample(
       ? picked.mediaType
       : curl || bodyArgs.length === 0
         ? undefined
-        : `${MULTIPART}; boundary=${MULTIPART_BOUNDARY}`
+        : `${MULTIPART_MEDIA_TYPE}; boundary=${MULTIPART_BOUNDARY}`
   const accept = acceptedMediaType(operation, doc)
   const cookies = [
     ...params
@@ -1145,7 +1150,9 @@ function makeCodeSample(
       .map((p) => `${p.name}: ${serializeHeaderValue(makeParameterExample(p, doc), p.explode)}`),
     ...(cookies.length > 0 ? [`Cookie: ${cookies.join('; ')}`] : []),
   ].map((header) =>
-    /\$\{[A-Z_]+\}/u.test(header) ? `-H ${shellQuoteWithVars(header)}` : `-H ${shellQuote(header)}`,
+    SHELL_VARIABLE_PATTERN.test(header)
+      ? `-H ${shellQuoteWithVars(header)}`
+      : `-H ${shellQuote(header)}`,
   )
 
   const query = [
@@ -1228,7 +1235,7 @@ function makeBodyParameterBlock(operation: Operation, doc: OpenAPI): readonly st
   const mediaType = baseMediaType(picked.mediaType)
   const block = isJsonMediaType(mediaType)
     ? makeFence(JSON.stringify(example, null, 2), 'json')
-    : mediaType === FORM_URLENCODED || mediaType === MULTIPART
+    : mediaType === FORM_URLENCODED_MEDIA_TYPE || mediaType === MULTIPART_MEDIA_TYPE
       ? makeFence(toYaml(example), 'yaml')
       : typeof example === 'string'
         ? makeFence(example, 'text')

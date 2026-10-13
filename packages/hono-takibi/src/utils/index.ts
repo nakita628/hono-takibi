@@ -1,4 +1,4 @@
-import { IDENTIFIER_PATTERN } from '../constants/index.js'
+import { ARROW_FUNCTION_PATTERN, IDENTIFIER_PATTERN } from '../constants/index.js'
 import type { HTTP_METHODS } from '../constants/index.js'
 /**
  * Normalize a JSON Schema `type` value into an array of type strings.
@@ -361,7 +361,7 @@ export function makeBarrel(value: { readonly [k: string]: unknown }) {
  * ```
  */
 export function error(message: string) {
-  if (/^\s*\(.*?\)\s*=>/u.test(message)) {
+  if (ARROW_FUNCTION_PATTERN.test(message)) {
     return `{error:${message}}` as const
   }
   return `{error:${JSON.stringify(message)}}` as const

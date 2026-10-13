@@ -2,6 +2,7 @@ import path from 'node:path'
 
 import { Effect } from 'effect'
 
+import { JSON_MEDIA_TYPE } from '../../constants/index.js'
 import { emit } from '../../emit/index.js'
 import {
   isHttpMethod,
@@ -234,7 +235,7 @@ function makeOutputTypes(
 }
 
 function isJsonMediaType(mediaType: string) {
-  return mediaType === 'application/json' || mediaType.endsWith('+json')
+  return mediaType === JSON_MEDIA_TYPE || mediaType.endsWith('+json')
 }
 
 function makeResolvedParameter(parameter: unknown, components: Components | undefined) {

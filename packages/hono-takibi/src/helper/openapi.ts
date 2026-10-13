@@ -1,4 +1,4 @@
-import { COMPONENT_REF_PREFIX, HTTP_METHODS } from '../constants/index.js'
+import { COMPONENT_REF_PREFIX, FORM_MEDIA_TYPES, HTTP_METHODS } from '../constants/index.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import {
@@ -356,8 +356,7 @@ export function makeContent(
           const mediaType = contentType.toLowerCase()
           const isForm =
             request !== undefined &&
-            (mediaType.startsWith('application/x-www-form-urlencoded') ||
-              mediaType.startsWith('multipart/form-data'))
+            FORM_MEDIA_TYPES.some((formType) => mediaType.startsWith(formType))
           return `${key}:${makeMedia(mediaOrRef, readonly, isForm ? request : undefined)}`
         }
         return undefined

@@ -1,4 +1,9 @@
-import { COMPONENT_REF_PREFIX, HTTP_METHODS } from '../../constants/index.js'
+import {
+  COMPONENT_REF_PREFIX,
+  HTTP_METHODS,
+  JSON_MEDIA_TYPE,
+  TEXT_MEDIA_TYPE,
+} from '../../constants/index.js'
 import {
   hasRequestBodyContent,
   isHttpMethod,
@@ -266,13 +271,13 @@ function filterToJsonContentTypes(openapi: OpenAPI) {
             return [k, v] as const
           }
           if (!hasRequestBodyContent(v)) return [k, v] as const
-          const jsonContent = v.requestBody.content['application/json']
+          const jsonContent = v.requestBody.content[JSON_MEDIA_TYPE]
           if (!jsonContent) return [k, v] as const
           return [
             k,
             {
               ...v,
-              requestBody: { ...v.requestBody, content: { 'application/json': jsonContent } },
+              requestBody: { ...v.requestBody, content: { [JSON_MEDIA_TYPE]: jsonContent } },
             },
           ] as const
         }),
@@ -396,8 +401,8 @@ function extractMediaExample(media: Media, components: Components | undefined): 
 // as problem+json, and would otherwise mock to an empty body.
 function jsonMediaType(content: Content | undefined) {
   const types = Object.keys(content ?? {})
-  return types.includes('application/json')
-    ? 'application/json'
+  return types.includes(JSON_MEDIA_TYPE)
+    ? JSON_MEDIA_TYPE
     : types.find((type) => /^application\/(?:[\w.-]+\+)?json(?:;|$)/u.test(type))
 }
 
@@ -503,7 +508,7 @@ function describeResponse(
 ): MockResponse {
   const jsonType = jsonMediaType(response.content)
   const jsonMedia = resolveMedia(jsonType ? response.content?.[jsonType] : undefined, components)
-  const textMedia = resolveMedia(response.content?.['text/plain'], components)
+  const textMedia = resolveMedia(response.content?.[TEXT_MEDIA_TYPE], components)
   const jsonSchema = jsonMedia && isMediaWithSchema(jsonMedia) ? jsonMedia.schema : undefined
   return {
     key: /^[1-5]xx$/iu.test(key) ? key.toUpperCase() : key,
@@ -563,7 +568,7 @@ function makeHandlerBody(
   if (payload.kind === 'json') {
     // `c.json` defaults the header to application/json; a `+json` type is kept.
     const headers =
-      response?.jsonType && response.jsonType !== 'application/json'
+      response?.jsonType && response.jsonType !== JSON_MEDIA_TYPE
         ? `, { 'Content-Type': ${makeStringLiteral(response.jsonType)} }`
         : ''
     return `return c.json(${payload.data}, ${statusCode}${headers})`
@@ -582,11 +587,11 @@ function makeRawHandlerBody(
   payload: ReturnType<typeof responsePayload>,
 ) {
   if (payload.kind === 'json') {
-    const type = makeStringLiteral(response.jsonType ?? 'application/json')
+    const type = makeStringLiteral(response.jsonType ?? JSON_MEDIA_TYPE)
     return `return preferResponse(${statusExpr}, JSON.stringify(${payload.data}), ${type})`
   }
   if (payload.kind === 'text') {
-    return `return preferResponse(${statusExpr}, String(${payload.data}), 'text/plain')`
+    return `return preferResponse(${statusExpr}, String(${payload.data}), ${makeStringLiteral(TEXT_MEDIA_TYPE)})`
   }
   return `return preferResponse(${statusExpr}, null)`
 }

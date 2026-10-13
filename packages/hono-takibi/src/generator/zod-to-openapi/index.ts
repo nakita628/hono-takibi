@@ -1,4 +1,4 @@
-import { COMPONENT_REF_PREFIX } from '../../constants/index.js'
+import { ARROW_FUNCTION_PATTERN, COMPONENT_REF_PREFIX } from '../../constants/index.js'
 import {
   hasTypelessConstraint,
   isDiscriminableBranch,
@@ -238,7 +238,7 @@ export function zodToOpenAPI(
     )
     if (allOfMessage || unevalCheck) {
       const safeParseBranches = (() => {
-        const isArrow = allOfMessage ? /^\s*\(.*?\)\s*=>/u.test(allOfMessage) : false
+        const isArrow = allOfMessage ? ARROW_FUNCTION_PATTERN.test(allOfMessage) : false
         const msgExpr = allOfMessage
           ? isArrow
             ? `(${allOfMessage})(issue)`

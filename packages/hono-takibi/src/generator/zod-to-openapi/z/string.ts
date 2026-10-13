@@ -1,3 +1,4 @@
+import { OCTET_STREAM_MEDIA_TYPE } from '../../../constants/index.js'
 import { isOffsetTime } from '../../../guard/index.js'
 import type { Schema } from '../../../openapi/index.js'
 import { baseError, error, escapeRegexLiteral } from '../../../utils/index.js'
@@ -191,7 +192,7 @@ export function string(
       // JSON.parse with a guarded try/catch so syntax errors surface as
       // Zod issues instead of uncaught exceptions.
       const mt = mediaType ? mediaType.toLowerCase() : ''
-      const isBinary = /^(image|audio|video)\//u.test(mt) || mt === 'application/octet-stream'
+      const isBinary = /^(image|audio|video)\//u.test(mt) || mt === OCTET_STREAM_MEDIA_TYPE
       const isJson = mt.length > 0 && mt.includes('json')
       // Decode with a bare `atob`, exactly as Zod does internally
       // (core/util.js base64ToUint8Array) — Zod 4 already requires it, so no
