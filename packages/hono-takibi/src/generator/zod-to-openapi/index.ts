@@ -277,6 +277,12 @@ export function zodToOpenAPI(
   }
   if (schema.anyOf !== undefined) {
     if (schema.anyOf.length === 0) return done('z.any()', schema)
+    // `discriminator` is not consulted here on purpose. anyOf means "at least one
+    // branch matches" (JSON Schema §10.2.1.2), and `z.union` already is exactly
+    // that. A discriminator is only a routing hint for consumers (OpenAPI 3.1.1 /
+    // 3.2: it MUST NOT change the validation outcome), so honoring it could only
+    // make the validator stricter than the schema. It still reaches the output as
+    // `.openapi({discriminator})` metadata via `done`.
     const anyOfSchemas = schema.anyOf.map(child)
     const anyOfMessage =
       schema['x-implication-message'] ?? schema['x-anyOf-message'] ?? schema['x-error-message']
@@ -311,6 +317,28 @@ export function zodToOpenAPI(
             ]
           : undefined,
     )
+    // Semantic contract. `oneOf` is JSON Schema: "exactly one branch matches"
+    // (§10.2.1.3), which `z.xor` implements literally. `discriminator` is an
+    // OpenAPI-only hint and MUST NOT change the validation outcome (3.1.1 §4.8.25 /
+    // 3.2 §4.25). `z.discriminatedUnion` is therefore only an optimization, and it is
+    // emitted solely when it is provably equivalent to the xor: every branch is a
+    // plain object that `required`s the discriminator and pins it to string literals
+    // (see `isDiscriminableBranch`), and no two branches share a literal. In that
+    // case routing by key and "exactly one matches" accept and reject the same
+    // payloads; only the issue shape differs. Anything else falls back to `z.xor`
+    // so the meaning of the document is preserved rather than guessed.
+    //
+    // `discriminator.mapping` is deliberately not used for routing. Which branch
+    // accepts a payload is decided by the branches' own `const`/`enum`, never by the
+    // mapping table; the mapping (like `propertyName`) is passed through untouched
+    // as `.openapi({discriminator})` metadata for documentation consumers.
+    //
+    // Consequence for OpenAPI 3.0-style documents that rely on the discriminator
+    // alone (branches that never declare the discriminating property): under strict
+    // oneOf every branch accepts the same payload, so "exactly one" never holds and
+    // the generated `z.xor` rejects everything. That is the faithful reading of the
+    // schema, not a bug; the `console.warn` below points the author at the fix
+    // (declare the literal per branch, or switch to anyOf).
     const literalsPerBranch = branches.map((branch) => {
       if (discriminator === undefined || branch === undefined) return undefined
       if (!isDiscriminableBranch(branch, discriminator)) return undefined

@@ -421,6 +421,119 @@ describe('zodToOpenAPI', () => {
           }),
         ).toMatch(/^z\.discriminatedUnion\('it\\'s',/u)
       })
+      it.concurrent('codegen: escapes backslash + quote in the discriminator property name (no literal breakout)', () => {
+        const name = "a\\'b"
+        const out = zodToOpenAPI({
+          oneOf: [
+            { type: 'object', properties: { [name]: { const: 'x' } }, required: [name] },
+            { type: 'object', properties: { [name]: { const: 'y' } }, required: [name] },
+          ],
+          discriminator: { propertyName: name },
+        })
+        // `\\` then `\'`: the backslash is doubled first so it cannot eat the escape on the quote.
+        expect(out.startsWith(String.raw`z.discriminatedUnion('a\\\'b',[`)).toBe(true)
+        expect(out).toBe(
+          String.raw`z.discriminatedUnion('a\\\'b',[z.object({'a\\\'b':z.literal("x")}).openapi({"required":["a\\'b"]}),z.object({'a\\\'b':z.literal("y")}).openapi({"required":["a\\'b"]})]).openapi({"discriminator":{"propertyName":"a\\'b"}})`,
+        )
+      })
+
+      // Semantics (see the comment block above `literalsPerBranch` in index.ts):
+      // discriminator is an OpenAPI hint that MUST NOT change the validation outcome,
+      // so z.discriminatedUnion is emitted only when it is provably the same as the
+      // strict oneOf xor, mapping never drives routing, and anyOf ignores it entirely.
+      describe('discriminator is a hint, never a validation rule', () => {
+        const Cat: Schema = {
+          type: 'object',
+          required: ['kind'],
+          properties: { kind: { const: 'cat' }, meow: { type: 'string' } },
+        }
+        const Dog: Schema = {
+          type: 'object',
+          required: ['kind'],
+          properties: { kind: { const: 'dog' }, bark: { type: 'string' } },
+        }
+
+        it.concurrent('codegen: discriminator.mapping is passed through as metadata and does not drive routing', () => {
+          // Mapping keys (c / d) deliberately differ from the branch literals (cat / dog):
+          // routing must still come from the branches' own `const`.
+          expect(
+            zodToOpenAPI({
+              oneOf: [Cat, Dog],
+              discriminator: {
+                propertyName: 'kind',
+                mapping: { c: '#/components/schemas/Cat', d: '#/components/schemas/Dog' },
+              },
+            }),
+          ).toBe(
+            'z.discriminatedUnion(\'kind\',[z.object({kind:z.literal("cat"),meow:z.string().exactOptional()}).openapi({"required":["kind"]}),z.object({kind:z.literal("dog"),bark:z.string().exactOptional()}).openapi({"required":["kind"]})]).openapi({"discriminator":{"propertyName":"kind","mapping":{"c":"#/components/schemas/Cat","d":"#/components/schemas/Dog"}}})',
+          )
+        })
+
+        it.concurrent('runtime: with a mapping, the branch literal decides — mapping keys are not accepted values', () => {
+          const schema = z.discriminatedUnion('kind', [
+            z.object({ kind: z.literal('cat'), meow: z.string().optional() }),
+            z.object({ kind: z.literal('dog'), bark: z.string().optional() }),
+          ])
+          expect(schema.safeParse({ kind: 'cat' }).success).toBe(true)
+          expect(schema.safeParse({ kind: 'c' }).success).toBe(false)
+        })
+
+        it.concurrent('codegen: anyOf + discriminator → z.union (at least one), discriminator kept only as metadata', () => {
+          expect(zodToOpenAPI({ anyOf: [Cat, Dog], discriminator: { propertyName: 'kind' } })).toBe(
+            'z.union([z.object({kind:z.literal("cat"),meow:z.string().exactOptional()}).openapi({"required":["kind"]}),z.object({kind:z.literal("dog"),bark:z.string().exactOptional()}).openapi({"required":["kind"]})]).openapi({"discriminator":{"propertyName":"kind"}})',
+          )
+        })
+
+        it.concurrent('runtime: discriminatedUnion and xor accept and reject the same payloads when the guard holds', () => {
+          const CatZ = z.object({ kind: z.literal('cat'), meow: z.string().optional() })
+          const DogZ = z.object({ kind: z.literal('dog'), bark: z.string().optional() })
+          const du = z.discriminatedUnion('kind', [CatZ, DogZ])
+          const xor = z.xor([CatZ, DogZ])
+          const payloads: readonly unknown[] = [
+            { kind: 'cat' },
+            { kind: 'dog', bark: 'w' },
+            { kind: 'cow' },
+            {},
+            'cat',
+            null,
+            { kind: 'cat', bark: 1 },
+            { kind: 'cat', extra: true },
+          ]
+          for (const p of payloads) {
+            expect(du.safeParse(p).success).toBe(xor.safeParse(p).success)
+          }
+        })
+
+        it('codegen: OpenAPI 3.0-style branches that never declare the discriminator → z.xor + warning', () => {
+          const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+          expect(
+            zodToOpenAPI({
+              oneOf: [
+                { type: 'object', properties: { meow: { type: 'string' } } },
+                { type: 'object', properties: { bark: { type: 'string' } } },
+              ],
+              discriminator: { propertyName: 'kind' },
+            }),
+          ).toBe(
+            'z.xor([z.object({meow:z.string().exactOptional()}).openapi({"required":[]}),z.object({bark:z.string().exactOptional()}).openapi({"required":[]})]).openapi({"discriminator":{"propertyName":"kind"}})',
+          )
+          expect(warn).toHaveBeenCalledTimes(1)
+          expect(warn.mock.calls[0]?.[0]).toBe(
+            'oneOf rejects every payload: 2 branches accept {}, so no input matches exactly one. Add a discriminator (a required literal property per branch plus `discriminator`), or use anyOf if the branches are meant to overlap.',
+          )
+          warn.mockRestore()
+        })
+
+        it.concurrent('runtime: the 3.0-style xor rejects a payload both branches accept — strict oneOf, not discriminator routing', () => {
+          const xor = z.xor([
+            z.object({ meow: z.string().optional() }),
+            z.object({ bark: z.string().optional() }),
+          ])
+          // Both branches accept {kind:"cat"} (unknown keys are stripped), so "exactly one" fails.
+          expect(xor.safeParse({ kind: 'cat' }).success).toBe(false)
+          expect(xor.safeParse({ kind: 'cat', meow: 'm' }).success).toBe(false)
+        })
+      })
       it.concurrent('runtime: inline-object discriminatedUnion routes by discriminator', () => {
         const DU = z.discriminatedUnion('status', [
           z.object({ status: z.literal('success'), data: z.string() }),
