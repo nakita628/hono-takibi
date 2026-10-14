@@ -1,6 +1,8 @@
 import { Node, Project, SyntaxKind } from 'ts-morph'
 import type { SourceFile, VariableStatement } from 'ts-morph'
 
+import { escapeRegexLiteral } from '../utils/index.js'
+
 function isInlineHandlerName(name: string) {
   return name.endsWith('Handler') && !name.endsWith('RouteHandler')
 }
@@ -279,58 +281,86 @@ export function mergeDefineFile(existingCode: string, generatedCode: string) {
   return joinSections([mergedImports.join('\n'), body.trim(), newRouteStatements.join('\n\n')])
 }
 
+/** The binding of the app entry a merge tells the generator's statements by. */
+type EntryNames = { readonly app: string }
+
+// The name of an entry no group has taken it from.
+const DEFAULT_ENTRY: EntryNames = { app: 'app' }
+
 /**
  * Merges generated app file (index.ts) with existing user-modified version.
  *
  * Merge rules:
- * - `export const api = app.openapi(...)` chain: replaced with generated version (reflects current routes)
- * - `export const books = app.openapi(...)` groups of a split app: replaced with the
- *   generated version, added before `api` when new, removed when no longer generated
+ * - What the generator owns, `export const api = app.openapi(...)` of an app that is not
+ *   split and `export const books = app.openapi(...)` of each group of one that is: replaced
+ *   with the generated version where it stands, placed after the statement the generator
+ *   wrote before it when new, removed when no longer generated. A chain the user put between
+ *   `app` and the routes, `.basePath('/api')`, is kept.
  * - Imports: sync with generated (remove deleted route/handler imports, add new ones, keep user imports)
  * - Everything else (middleware, comments, helpers): keep existing
  *
  * Uses AST for analysis only. The existing file's original text is preserved by slicing.
  */
-export function mergeAppFile(existingCode: string, generatedCode: string) {
+export function mergeAppFile(
+  existingCode: string,
+  generatedCode: string,
+  // What the entry binds for itself: the app the routes are registered on, `app2` when a
+  // group took the name.
+  names: EntryNames = DEFAULT_ENTRY,
+) {
   const { existingFile, generatedFile } = makeSourcePair(existingCode, generatedCode)
-  const existingApiStmt = findApiStatement(existingFile)
-  const generatedApiStmt = findApiStatement(generatedFile)
-  const generatedApiText = injectChainPrefix(
-    generatedApiStmt?.getText() ?? '',
-    extractChainPrefix(existingApiStmt?.getText() ?? ''),
+  // What the generator owns, in the order it wrote it, each with the chain the user put
+  // into its counterpart.
+  const generatedStatements = [
+    ...findOwnedStatements(generatedFile, names.app, new Set<string>()),
+  ].toSorted(([, a], [, b]) => a.getStart() - b.getStart())
+  const existingOwned = findOwnedStatements(
+    existingFile,
+    names.app,
+    new Set(generatedStatements.map(([name]) => name)),
   )
-  // What the generator owns: the groups of a split app and `api`, in the order it wrote them.
-  const generatedOwned = [
-    ...[...findGroupStatements(generatedFile)].map(
-      ([name, stmt]) => [name, stmt.getStart(), stmt.getText()] as const,
-    ),
-    ...(generatedApiStmt ? [['api', generatedApiStmt.getStart(), generatedApiText] as const] : []),
-  ].toSorted(([, a], [, b]) => a - b)
-  const existingOwned = new Map<string, VariableStatement>([
-    ...findGroupStatements(existingFile),
-    ...(existingApiStmt ? [['api', existingApiStmt] as const] : []),
-  ])
+  const generatedOwned = generatedStatements.map(
+    ([name, stmt]) =>
+      [
+        name,
+        stmt.getStart(),
+        injectChainPrefix(
+          stmt.getText(),
+          extractChainPrefix(existingOwned.get(name)?.getText() ?? '', names.app),
+          names.app,
+        ),
+      ] as const,
+  )
   const placed = placeOwned(generatedOwned, existingOwned)
   const bodyStart = getBodyStart(existingFile)
   const ops = [...existingOwned]
     .flatMap(([name, stmt]): readonly (readonly [number, number, string])[] => {
       const text = placed.get(name)
       if (text !== undefined) return [[stmt.getStart(), stmt.getEnd(), text]]
-      // A group the generator no longer writes is removed; `api` is the user's to keep.
-      return name === 'api' ? [] : [[stmt.getFullStart(), stmt.getEnd(), '']]
+      // A statement the generator no longer writes is removed.
+      return [[stmt.getFullStart(), stmt.getEnd(), '']]
     })
     .filter(([start]) => start >= bodyStart)
     .toSorted(([a], [b]) => a - b)
-  const [firstOwned] = generatedOwned
+  // The generated file from its first owned statement on, chains kept, for a file that has
+  // none of them yet.
+  const [firstStatement] = generatedStatements
+  const generatedOwnedText =
+    firstStatement === undefined
+      ? undefined
+      : generatedStatements
+          .map(([, stmt], index) => {
+            const next = generatedStatements[index + 1]?.[1]
+            const between = generatedCode.slice(stmt.getEnd(), next?.getStart())
+            return `${generatedOwned[index]?.[2] ?? ''}${between}`
+          })
+          .join('')
   const existingBody = makeAppBody({
     existingCode,
     bodyStart,
-    hasApi: existingApiStmt !== undefined,
+    hasOwned: existingOwned.size > 0,
     ops,
-    generatedOwnedText:
-      firstOwned === undefined || generatedApiStmt === undefined
-        ? undefined
-        : `${generatedCode.slice(firstOwned[1], generatedApiStmt.getStart())}${generatedApiText}${generatedCode.slice(generatedApiStmt.getEnd())}`,
+    generatedOwnedText,
   })
   const body = existingBody.trim() || generatedCode.slice(getBodyStart(generatedFile)).trim()
   const mergedImports = mergeImports(existingFile, generatedFile)
@@ -341,7 +371,8 @@ export function mergeAppFile(existingCode: string, generatedCode: string) {
  * The text each statement of the file is replaced by, by name. A statement the file already
  * has is replaced where it stands. A new one is placed after the statement the generator
  * wrote before it, so that the order of the document is kept; the ones written before any
- * the file has go in front of the first.
+ * the file has go in front of the first. When the file has none of them, they stand where
+ * its first owned statement did, which is replaced, not removed.
  */
 function placeOwned(
   generatedOwned: readonly (readonly [string, number, string])[],
@@ -361,66 +392,73 @@ function placeOwned(
       placed.set(anchor, `${placed.get(anchor) ?? ''}\n\n${text}`)
     }
   }
+  const [first] = existingOwned.keys()
+  if (head.length > 0 && first !== undefined) placed.set(first, head.join('\n\n'))
   return placed
 }
 
-// What a group of a split app is made of, as each template writes it: the app registering
-// routes, `app.openapi(...)` or `app.openapiRoutes([...])`, or mounting a handler file at its
-// root, `app.route('/', booksHandler)`.
-const GROUP_INITIALIZER =
-  /^app\s*\.(?:openapi\(|openapiRoutes\(|route\(\s*'\/'\s*,\s*[\w$]+Handler\s*\))/u
+// What the generator writes an export of the entry as: the app registering routes,
+// `app.openapi(...)` or `app.openapiRoutes([...])`, mounting a handler file at its root,
+// `app.route('/', booksHandler)`, or the app as it stands, `app`, when there is no route.
+// The user may put a chain between the app and the routes, `app.basePath('/api').openapi(...)`.
+function ownedShape(app: string) {
+  const routes = String.raw`\.(?:openapi\(|openapiRoutes\(|route\(\s*'\/'\s*,\s*[\w$]+Handler\s*\))`
+  const name = escapeRegexLiteral(app)
+  return {
+    written: new RegExp(String.raw`^${name}\s*(?:$|${routes})`, 'u'),
+    chained: new RegExp(String.raw`^${name}\b(?:\s*$|[\s\S]*?${routes})`, 'u'),
+  }
+}
 
 /**
- * The groups of a split app, by name: `export const books = app.openapi(...)`. What tells
- * one from an export the user wrote is what it is made of.
+ * The statements of the file the generator owns, by name: `export const api = app.openapi(...)`
+ * of an app that is not split, `export const books = app.openapi(...)` of a group. What
+ * tells one from an export the user wrote is what it is made of, as the generator writes
+ * it; one of a name the generator writes this time is the generator's also with a chain the
+ * user put into it.
  */
-function findGroupStatements(file: SourceFile) {
+function findOwnedStatements(file: SourceFile, app: string, written: ReadonlySet<string>) {
+  const shape = ownedShape(app)
   return new Map(
     file
       .getVariableStatements()
       .filter((stmt) => stmt.isExported() && stmt.getDeclarations().length === 1)
       .flatMap((stmt) => {
         const [decl] = stmt.getDeclarations()
-        const made = decl?.getInitializer()?.getText() ?? ''
-        return decl !== undefined && decl.getName() !== 'api' && GROUP_INITIALIZER.test(made)
-          ? [[decl.getName(), stmt] as const]
-          : []
+        if (decl === undefined) return []
+        const made = decl.getInitializer()?.getText() ?? ''
+        const owned = written.has(decl.getName()) ? shape.chained : shape.written
+        return owned.test(made) ? [[decl.getName(), stmt] as const] : []
       }),
   )
 }
 
-function findApiStatement(file: SourceFile) {
-  return file
-    .getVariableStatements()
-    .find(
-      (stmt) =>
-        stmt.isExported() && stmt.getDeclarations().some((decl) => decl.getName() === 'api'),
-    )
-}
-
-function injectChainPrefix(generatedApiText: string, chainPrefix: string) {
-  if (!chainPrefix) return generatedApiText
-  return generatedApiText.replace(
-    /\bapp(\s*)\.(?=\s*(?:openapiRoutes|openapi|route)\s*\()/u,
-    (_, ws) => `app${chainPrefix}${ws}.`,
+function injectChainPrefix(generatedText: string, chainPrefix: string, app: string) {
+  if (!chainPrefix) return generatedText
+  return generatedText.replace(
+    new RegExp(
+      String.raw`\b${escapeRegexLiteral(app)}(\s*)\.(?=\s*(?:openapiRoutes|openapi|route)\s*\()`,
+      'u',
+    ),
+    (_, ws) => `${app}${chainPrefix}${ws}.`,
   )
 }
 
 /**
- * Builds the merged app body by either replacing the existing api statement in place,
- * or — when existing has no api but is incomplete (lacks `export default`) — appending
- * the generated api block plus any trailing exports. When existing keeps `export default`
- * but no api, treats the omission as intentional and leaves the body untouched.
+ * Builds the merged app body by replacing the owned statements where they stand, or — when
+ * the file has none of them but is incomplete (lacks `export default`) — appending the
+ * generated ones plus what follows them. When the file keeps `export default` but none of
+ * them, treats the omission as intentional and leaves the body untouched.
  */
 function makeAppBody(args: {
   readonly existingCode: string
   readonly bodyStart: number
-  readonly hasApi: boolean
+  readonly hasOwned: boolean
   readonly ops: readonly (readonly [number, number, string])[]
   readonly generatedOwnedText: string | undefined
 }) {
   const { existingCode, bodyStart } = args
-  if (args.hasApi) return applyRangeOps(existingCode, bodyStart, args.ops)
+  if (args.hasOwned) return applyRangeOps(existingCode, bodyStart, args.ops)
   const slice = existingCode.slice(bodyStart)
   if (slice.trim().length === 0 || args.generatedOwnedText === undefined) return slice
   if (/\bexport\s+default\b/u.test(slice)) return slice
@@ -677,8 +715,10 @@ function formatImportLine(
  * this returns `.basePath('/api')`.
  * Returns empty string if there is no prefix chain.
  */
-function extractChainPrefix(apiStmtText: string) {
-  const initMatch = apiStmtText.match(/[=]\s*app\b/u)
+function extractChainPrefix(apiStmtText: string, app: string) {
+  const initMatch = apiStmtText.match(
+    new RegExp(String.raw`[=]\s*${escapeRegexLiteral(app)}\b`, 'u'),
+  )
   if (initMatch?.index === undefined) return ''
   const afterApp = apiStmtText.slice(initMatch.index + initMatch[0].length)
   const routeMatch = afterApp.match(/\.(?:openapiRoutes|openapi|route)\s*\(/u)

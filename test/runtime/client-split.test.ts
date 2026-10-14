@@ -2,10 +2,10 @@
 // specs/client-split.yaml with `template.split` and `client`).
 //
 // `template.split` divides the routes by the first segment of each path: `vaults` is
-// `/vaults` and `/vaults/{id}`, registered on the one app like every other group. `client`
-// generates the file of typed clients, `vaultsClient` for `vaults` and `client` for the
-// routes that belong to no group. The rpc functions are generated to call the client of
-// their group.
+// `/vaults` and `/vaults/{id}`, registered on the one app like every other group, and the
+// root `/` is the group `__root`. `client` generates the file of typed clients, `vaultsClient`
+// for `vaults` and `__rootClient` for `__root`. The rpc functions are generated to call the
+// client of their group.
 //
 // What this file checks is that the division changes nothing a caller can see: every route
 // answers under the base path as before, and every generated function reaches its route.
@@ -14,10 +14,10 @@
 // specs/client-split.yaml から `template.split` と `client` を指定して生成)。
 //
 // `template.split` は、各パスの先頭セグメントでルートを分割する。`vaults` は `/vaults` と
-// `/vaults/{id}` であり、他のグループと同じく、1つのアプリに登録される。`client` は
-// 型付きクライアントのファイルを生成する。`vaults` 用が `vaultsClient`、どのグループにも
-// 属さないルート用が `client` である。rpc 関数は、自身のグループのクライアントを呼び出す
-// ように生成される。
+// `/vaults/{id}` であり、他のグループと同じく、1つのアプリに登録される。ルート `/` は
+// `__root` グループである。`client` は型付きクライアントのファイルを生成する。`vaults` 用が
+// `vaultsClient`、`__root` 用が `__rootClient` である。rpc 関数は、自身のグループのクライアントを
+// 呼び出すように生成される。
 //
 // このファイルが確認するのは、分割によって呼び出し側から見える挙動が変わらないことである。
 // すべてのルートは従来どおりベースパスの下で応答し、生成された関数はすべて自身のルートに届く。
@@ -69,9 +69,9 @@ describe('app: every route answers under the base path', () => {
     expect(await res.json()).toStrictEqual({ id: 3, title: 'shared' })
   })
 
-  // The root names no group and is a route of api.
-  // ルートはグループ名にならないため、api のルートになる。
-  it('GET /api is a route of api', async () => {
+  // The root is the group __root.
+  // ルートは __root グループである。
+  it('GET /api is a route of __root', async () => {
     const res = await app.request('/api')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ ok: true })
@@ -189,8 +189,8 @@ describe('clients: the client of a group requests under the base path', () => {
 })
 
 describe('rpc: every generated function reaches its route', () => {
-  // A route of no group, called through client.
-  // どのグループにも属さないルート。client を通して呼び出される。
+  // A route of __root, called through __rootClient.
+  // __root のルート。__rootClient を通して呼び出される。
   it('get resolves with the body of /api', async () => {
     expect(await get(options)).toStrictEqual({ ok: true })
   })

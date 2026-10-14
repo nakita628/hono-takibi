@@ -37,15 +37,15 @@ describe('client: the base URL is the property of the imported environment', () 
     expect(requested).toStrictEqual(['http://api.test/vaults'])
   })
 
-  // The client of the routes that belong to no group is created with the same URL. The
-  // root is the one route of it, reached as index.
-  // どのグループにも属さないルートのクライアントも、同じ URL で作られる。そのルートは
-  // ルートパスだけであり、index として呼び出す。
-  it('client requests the URL of the environment', async () => {
+  // The client of __root, the group of the root, is created with the same URL. The root is
+  // its one route, reached as index.
+  // ルートのグループ __root のクライアントも、同じ URL で作られる。そのルートはルートパス
+  // だけであり、index として呼び出す。
+  it('__rootClient requests the URL of the environment', async () => {
     vi.stubEnv('CLIENT_IMPORT_API_URL', 'http://api.test')
-    const { client } = await import('../__generated__/client-import/src/client')
+    const { __rootClient } = await import('../__generated__/client-import/src/client')
     const requested: string[] = []
-    await client.index.$get(undefined, {
+    await __rootClient.index.$get(undefined, {
       fetch: (input: string | URL | Request) => {
         requested.push(input instanceof Request ? input.url : input.toString())
         return Promise.resolve(Response.json({ ok: true }))

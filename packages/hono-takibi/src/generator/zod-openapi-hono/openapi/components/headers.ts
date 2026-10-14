@@ -32,38 +32,30 @@ export function headersCode(
   return Object.entries(headers)
     .map(([k, header]) => {
       const schemaName = toIdentifierPascalCase(ensureSuffix(k, 'HeaderSchema'))
+      // `readonly` reaches the schema of the header, where it is put on the objects and
+      // arrays alone: a scalar is not wrapped, and a reference names a constant that has it
+      // already.
       if ('$ref' in header) {
         const refName = makeRef(header.$ref)
-        return zodToOpenAPISchema(
-          schemaName,
-          refName,
-          exportHeaders,
-          exportHeadersTypes,
-          true,
-          readonly,
-        )
+        return zodToOpenAPISchema(schemaName, refName, exportHeaders, exportHeadersTypes, true)
       }
       if (isHeader(header)) {
         if (header.schema) {
-          const schema = zodToOpenAPI(header.schema, { headers: header })
-          return zodToOpenAPISchema(
-            schemaName,
-            schema,
-            exportHeaders,
-            exportHeadersTypes,
-            true,
-            readonly,
+          const schema = zodToOpenAPI(
+            header.schema,
+            { headers: header },
+            readonly === true ? { readonly: true } : undefined,
           )
+          return zodToOpenAPISchema(schemaName, schema, exportHeaders, exportHeadersTypes, true)
         }
         if (header.content) {
-          const content = makeContent(header.content)
+          const content = makeContent(header.content, readonly)
           return zodToOpenAPISchema(
             schemaName,
             `{${content.join(',')}}`,
             exportHeaders,
             exportHeadersTypes,
             true,
-            readonly,
           )
         }
       }

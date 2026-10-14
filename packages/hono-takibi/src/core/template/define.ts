@@ -4,8 +4,8 @@ import { Effect } from 'effect'
 
 import { readFile, writeFile } from '../../file/index.js'
 import { fmt } from '../../format/index.js'
-import { app } from '../../generator/zod-openapi-hono/app/index.js'
-import { defineOpenAPIRouteHandler, makeModuleSpec } from '../../helper/index.js'
+import { app, appGroups } from '../../generator/zod-openapi-hono/app/index.js'
+import { entryNames, defineOpenAPIRouteHandler, makeModuleSpec } from '../../helper/index.js'
 import { mergeAppFile } from '../../merge/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
@@ -65,7 +65,10 @@ export function defineTemplate(
       { concurrency: 'unbounded' },
     )
     const existing = yield* readFile(target)
-    const merged = existing !== null ? mergeAppFile(existing, appCode) : appCode
+    const merged =
+      existing !== null
+        ? mergeAppFile(existing, appCode, entryNames(appGroups(openAPI, false, undefined, split)))
+        : appCode
     // A merge can produce source oxfmt rejects; the unformatted merge is still the
     // right file to write.
     const appContent = yield* fmt(merged).pipe(Effect.orElseSucceed(() => merged))

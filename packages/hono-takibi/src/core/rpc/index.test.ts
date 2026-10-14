@@ -1228,8 +1228,8 @@ describe('rpc (groups of a split application)', () => {
     paths: { '/books': { get: { responses: ok } }, '/items': { get: { responses: ok } } },
   } as OpenAPI
 
-  // The root and /api/status belong to no group and are called through client. Under the base path the root is the client itself.
-  // ルートパスと /api/status はどのグループにも属さず、client を通して呼び出される。ベースパスの下では、ルートパスはクライアントそのものである。
+  // The __root is the group __root, called through __rootClient; /api/status is the group api, called through apiClient. Under the base path the __root is the client itself.
+  // ルートパスは __root グループで、__rootClient を通して呼び出される。/api/status は api グループで、apiClient を通して呼び出される。ベースパスの下では、ルートパスはクライアントそのものである。
   it('calls each operation through the client of its group', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rpc-groups-'))
     const out = path.join(dir, 'rpc.ts')
@@ -1238,10 +1238,10 @@ describe('rpc (groups of a split application)', () => {
     )
     expect(fs.readFileSync(out, 'utf8'))
       .toBe(`import type { ClientRequestOptions } from 'hono/client'
-import { client, booksClient, v2PublicClient } from './client'
+import { __rootClient, booksClient, v2PublicClient, apiClient } from './client'
 
 export async function get(options?: ClientRequestOptions) {
-  return await client.$get(undefined, options)
+  return await __rootClient.$get(undefined, options)
 }
 
 export async function getBooks(options?: ClientRequestOptions) {
@@ -1261,7 +1261,7 @@ export async function getV2PublicPing(options?: ClientRequestOptions) {
 }
 
 export async function getApiStatus(options?: ClientRequestOptions) {
-  return await client.api.status.$get(undefined, options)
+  return await apiClient.api.status.$get(undefined, options)
 }
 `)
   })
@@ -1274,10 +1274,10 @@ export async function getApiStatus(options?: ClientRequestOptions) {
     await runGenerator(rpc(spec, out, './client', 'client', false, '/api', false, handlerGroupOf))
     expect(fs.readFileSync(out, 'utf8'))
       .toBe(`import type { ClientRequestOptions } from 'hono/client'
-import { client, libraryClient, booksClient, v2PublicClient } from './client'
+import { __rootClient, libraryClient, booksClient, v2PublicClient, apiClient } from './client'
 
 export async function get(options?: ClientRequestOptions) {
-  return await client.$get(undefined, options)
+  return await __rootClient.$get(undefined, options)
 }
 
 export async function getBooks(options?: ClientRequestOptions) {
@@ -1297,7 +1297,7 @@ export async function getV2PublicPing(options?: ClientRequestOptions) {
 }
 
 export async function getApiStatus(options?: ClientRequestOptions) {
-  return await client.api.status.$get(undefined, options)
+  return await apiClient.api.status.$get(undefined, options)
 }
 `)
   })

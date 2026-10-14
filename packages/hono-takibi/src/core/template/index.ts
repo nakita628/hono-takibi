@@ -2,9 +2,10 @@ import { Effect } from 'effect'
 
 import { readFile, writeFile } from '../../file/index.js'
 import { fmt } from '../../format/index.js'
-import { app } from '../../generator/zod-openapi-hono/app/index.js'
+import { app, appGroups } from '../../generator/zod-openapi-hono/app/index.js'
 import {
   appEntryFile,
+  entryNames,
   resolveInlineHandlerFileNames,
   zodOpenAPIHonoHandler,
 } from '../../helper/index.js'
@@ -55,7 +56,14 @@ export function template(
       ),
     )
     const existing = yield* readFile(target)
-    const merged = existing !== null ? mergeAppFile(existing, appCode) : appCode
+    const merged =
+      existing !== null
+        ? mergeAppFile(
+            existing,
+            appCode,
+            entryNames(appGroups(openAPI, !routeHandler, inlineFiles, split)),
+          )
+        : appCode
     // A merge can produce source oxfmt rejects; the unformatted merge is still the
     // right file to write.
     const appContent = yield* fmt(merged).pipe(Effect.orElseSucceed(() => merged))

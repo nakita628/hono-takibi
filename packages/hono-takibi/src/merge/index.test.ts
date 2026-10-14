@@ -1217,6 +1217,54 @@ export const deleteUserRouteHandler: RouteHandler<typeof deleteUserRoute> = asyn
     })
   })
 
+  describe('mergeAppFile (the name a group took)', () => {
+    // /app is a group, so the entry binds app2; the merge is told, and replaces __root and
+    // app in place, keeping what the user added.
+    // /app はグループなので、エントリは app2 を束縛する。マージはそれを知らされ、__root と
+    // app をその場で置き換え、ユーザーが足したものは残す。
+    it('replaces the statements under the name the entry binds', () => {
+      const header = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getApiRoute, getAppRoute, getRootRoute } from './routes'
+import { getApiRouteHandler, getAppRouteHandler, getRootRouteHandler } from './handlers'
+`
+      const existing = `${header}
+const app2 = new OpenAPIHono()
+
+app2.use(logger())
+
+export const __root = app2.openapi(getRootRoute, getRootRouteHandler)
+
+export const app = app2.openapi(getAppRoute, getAppRouteHandler)
+
+export default app2
+`
+      const generated = `${header}
+const app2 = new OpenAPIHono()
+
+export const __root = app2.openapi(getRootRoute, getRootRouteHandler).openapi(getPingRoute, getPingRouteHandler)
+
+export const app = app2.openapi(getAppRoute, getAppRouteHandler)
+
+export const api = app2.openapi(getApiRoute, getApiRouteHandler)
+
+export default app2
+`
+      expect(mergeAppFile(existing, generated, { app: 'app2' })).toBe(`${header}
+const app2 = new OpenAPIHono()
+
+app2.use(logger())
+
+export const __root = app2.openapi(getRootRoute, getRootRouteHandler).openapi(getPingRoute, getPingRouteHandler)
+
+export const app = app2.openapi(getAppRoute, getAppRouteHandler)
+
+export const api = app2.openapi(getApiRoute, getApiRouteHandler)
+
+export default app2
+`)
+    })
+  })
+
   describe('mergeAppFile (split app)', () => {
     const header = `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getBooksRoute, getItemsRoute } from './routes'

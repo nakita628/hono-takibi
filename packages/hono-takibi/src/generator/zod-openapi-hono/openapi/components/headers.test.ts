@@ -102,7 +102,7 @@ export type XCustomHeader=z.infer<typeof XCustomHeaderSchema>`,
       },
     }
     const result = headersCode(components, true, false, true)
-    expect(result).toBe('export const XCustomHeaderSchema=XRateLimitHeaderSchema.readonly()')
+    expect(result).toBe('export const XCustomHeaderSchema=XRateLimitHeaderSchema')
   })
 
   it('should handle header with content', () => {
@@ -154,9 +154,7 @@ export type XMetaHeader=z.infer<typeof XMetaHeaderSchema>`,
       },
     }
     const result = headersCode(components, true, false, true)
-    expect(result).toBe(
-      `export const XMetaHeaderSchema={'application/json':{schema:z.string()}}.readonly()`,
-    )
+    expect(result).toBe(`export const XMetaHeaderSchema={'application/json':{schema:z.string()}}`)
   })
 
   it('should generate header with schema and readonly', () => {
@@ -169,7 +167,23 @@ export type XMetaHeader=z.infer<typeof XMetaHeaderSchema>`,
     }
     const result = headersCode(components, true, false, true)
     expect(result).toBe(
-      'export const XRequestIdHeaderSchema=z.string().exactOptional().openapi({param:{required:false}}).readonly()',
+      'export const XRequestIdHeaderSchema=z.string().exactOptional().openapi({param:{required:false}})',
+    )
+  })
+
+  // `.readonly()` belongs to the container: an array header is still immutable.
+  // `.readonly()` は入れ物に付く。array のヘッダーは変わらず不変である。
+  it('puts readonly on an array header', () => {
+    const components: Components = {
+      headers: {
+        XTags: {
+          schema: { type: 'array', items: { type: 'string' } },
+        },
+      },
+    }
+    const result = headersCode(components, true, false, true)
+    expect(result).toBe(
+      'export const XTagsHeaderSchema=z.array(z.string()).readonly().exactOptional().openapi({param:{required:false}})',
     )
   })
 

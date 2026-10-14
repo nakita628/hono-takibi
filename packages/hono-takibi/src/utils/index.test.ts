@@ -452,30 +452,21 @@ export * from './user'
       const expected = `const TestSchema=z.object({test:z.string()}).openapi('Test')`
       expect(result).toBe(expected)
     })
-    // #5: readonly=true, exportSchema=true, exportType=true
-    it.concurrent('zodToOpenAPISchema with readonly modifier', () => {
+    // #5: a schema that is readonly already arrives so; the wrapper adds nothing around it
+    it.concurrent('zodToOpenAPISchema writes a readonly schema as it is', () => {
       const result = zodToOpenAPISchema(
         'TestSchema',
-        'z.object({test:z.string()})',
+        'z.object({test:z.string()}).readonly()',
         true,
-        true,
-        false,
         true,
       )
       const expected = `export const TestSchema=z.object({test:z.string()}).readonly().openapi('Test')\n\nexport type Test=z.infer<typeof TestSchema>`
       expect(result).toBe(expected)
     })
-    // #6: readonly=true, exportSchema=false, exportType=false
-    it.concurrent('zodToOpenAPISchema with readonly and no exports', () => {
-      const result = zodToOpenAPISchema(
-        'TestSchema',
-        'z.object({test:z.string()})',
-        false,
-        false,
-        false,
-        true,
-      )
-      const expected = `const TestSchema=z.object({test:z.string()}).readonly().openapi('Test')`
+    // #6: no `.readonly()` is put around a scalar: a branded one would lose its primitive
+    it.concurrent('zodToOpenAPISchema wraps no scalar in readonly', () => {
+      const result = zodToOpenAPISchema('SkipSchema', 'z.number().brand<"Skip">()', false, false)
+      const expected = `const SkipSchema=z.number().brand<"Skip">().openapi('Skip')`
       expect(result).toBe(expected)
     })
     // #7: notComponentSchema=true (no .openapi() suffix)
@@ -503,14 +494,13 @@ export * from './user'
         'export const IdParamsSchema=z.object({id:z.string()})\n\nexport type IdParams=z.infer<typeof IdParamsSchema>'
       expect(result).toBe(expected)
     })
-    // #9: notComponentSchema=true with readonly
-    it.concurrent('zodToOpenAPISchema with notComponentSchema and readonly', () => {
+    // #9: notComponentSchema=true with a readonly schema
+    it.concurrent('zodToOpenAPISchema with notComponentSchema keeps a readonly schema', () => {
       const result = zodToOpenAPISchema(
         'HeaderSchema',
-        'z.object({auth:z.string()})',
+        'z.object({auth:z.string()}).readonly()',
         true,
         false,
-        true,
         true,
       )
       const expected = 'export const HeaderSchema=z.object({auth:z.string()}).readonly()'

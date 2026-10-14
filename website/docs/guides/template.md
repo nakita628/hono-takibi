@@ -130,7 +130,7 @@ In this mode `output` is the app entry (default `./src/index.ts`, must be an `in
 
 ## Splitting the app
 
-`split: true` exports one group per first path segment. See [Client](/docs/guides/client#larger-applications).
+`split: true` exports one group per first path segment, the root `/` as `__root`. See [Client](/docs/guides/client#larger-applications).
 
 ```ts
 export default defineConfig({
@@ -144,7 +144,7 @@ export default defineConfig({
 // src/index.ts
 const app = new OpenAPIHono()
 
-export const api = app.openapi(getRoute, getRouteHandler)
+export const __root = app.openapi(getRoute, getRouteHandler)
 
 export const books = app
   .openapi(getBooksRoute, getBooksRouteHandler)

@@ -8990,8 +8990,8 @@ async function generateGrouped(document: OpenAPI, options: Parameters<typeof hoo
 
 describe('hooks: the groups of a split application', () => {
   const ok = { '200': { description: 'OK' } }
-  // `/` names no group, and is the route of client.
-  // `/` はグループ名にならず、client のルートになる。
+  // `/` is the group __root.
+  // `/` は __root グループである。
   const spec = {
     openapi: '3.1.0',
     info: { title: 'Library', version: '1.0.0' },
@@ -9016,28 +9016,1243 @@ describe('hooks: the groups of a split application', () => {
       grouping: (route) => handlerGroupOf(route),
       basePath: '/api',
     })
-    expect(code).toContain("import { client, booksClient, v2PublicClient } from './client'")
-    expect(code).toContain('booksClient.books.$get(undefined, {')
-    expect(code).toContain('booksClient.books.$post(undefined, options)')
-    expect(code).toContain("v2PublicClient['v2-public'].ping.$get(undefined, {")
+    expect(code).toBe(`import {
+  useQuery,
+  useSuspenseQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  UseSuspenseQueryOptions,
+  UseMutationOptions,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/react-query'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { __rootClient, booksClient, v2PublicClient } from './client'
+
+export function getBooksKey() {
+  return ['books'] as const
+}
+
+export function getV2PublicKey() {
+  return ['v2-public'] as const
+}
+
+export function getQueryKey() {
+  return ['', '/'] as const
+}
+
+export function getQueryOptions<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getQueryKey>
+  >({
+    queryKey: getQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        __rootClient.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function use<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspense<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function getBooksQueryKey() {
+  return ['books', '/books'] as const
+}
+
+export function getBooksQueryOptions<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>
+  >,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getBooksQueryKey>
+  >({
+    queryKey: getBooksQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        booksClient.books.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function useBooks<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getBooksQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getBooksQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspenseBooks<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getBooksQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getBooksQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function getPostBooksMutationKey() {
+  return ['books', '/books', 'POST'] as const
+}
+
+export function getPostBooksMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$post>>>>>,
+    TError,
+    void,
+    TOnMutateResult
+  >({
+    mutationKey: getPostBooksMutationKey(),
+    async mutationFn() {
+      return parseResponse(booksClient.books.$post(undefined, options))
+    },
+  })
+}
+
+export function usePostBooks<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$post>>>>
+        >,
+        TError,
+        void,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  const mutationDefaults = getPostBooksMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
+}
+
+export function getV2PublicPingQueryKey() {
+  return ['v2-public', '/v2-public/ping'] as const
+}
+
+export function getV2PublicPingQueryOptions<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+        >
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getV2PublicPingQueryKey>
+  >({
+    queryKey: getV2PublicPingQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        v2PublicClient['v2-public'].ping.$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
+export function useV2PublicPing<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getV2PublicPingQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getV2PublicPingQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspenseV2PublicPing<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getV2PublicPingQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getV2PublicPingQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+`)
   })
 
   // GET /books is tagged Library, which a grouping by tag goes by.
   // GET /books には Library タグが付いており、タグによるグループ分けではこれに従う。
   it('groups by the first tag where the grouping looks at tags', async () => {
     const code = await generateGrouped(spec, { grouping: handlerGroupOf, basePath: '/api' })
-    expect(code).toContain(
-      "import { client, libraryClient, booksClient, v2PublicClient } from './client'",
-    )
-    expect(code).toContain('libraryClient.books.$get(undefined, {')
-    expect(code).toContain('booksClient.books.$post(undefined, options)')
+    expect(code).toBe(`import {
+  useQuery,
+  useSuspenseQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  UseSuspenseQueryOptions,
+  UseMutationOptions,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/react-query'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { __rootClient, libraryClient, booksClient, v2PublicClient } from './client'
+
+export function getBooksKey() {
+  return ['books'] as const
+}
+
+export function getV2PublicKey() {
+  return ['v2-public'] as const
+}
+
+export function getQueryKey() {
+  return ['', '/'] as const
+}
+
+export function getQueryOptions<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getQueryKey>
+  >({
+    queryKey: getQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        __rootClient.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function use<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspense<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function getBooksQueryKey() {
+  return ['books', '/books'] as const
+}
+
+export function getBooksQueryOptions<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof libraryClient.books.$get>>>>
+  >,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof libraryClient.books.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getBooksQueryKey>
+  >({
+    queryKey: getBooksQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        libraryClient.books.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function useBooks<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof libraryClient.books.$get>>>>
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof libraryClient.books.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getBooksQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getBooksQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspenseBooks<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof libraryClient.books.$get>>>>
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof libraryClient.books.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getBooksQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getBooksQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function getPostBooksMutationKey() {
+  return ['books', '/books', 'POST'] as const
+}
+
+export function getPostBooksMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$post>>>>>,
+    TError,
+    void,
+    TOnMutateResult
+  >({
+    mutationKey: getPostBooksMutationKey(),
+    async mutationFn() {
+      return parseResponse(booksClient.books.$post(undefined, options))
+    },
+  })
+}
+
+export function usePostBooks<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$post>>>>
+        >,
+        TError,
+        void,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  const mutationDefaults = getPostBooksMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
+}
+
+export function getV2PublicPingQueryKey() {
+  return ['v2-public', '/v2-public/ping'] as const
+}
+
+export function getV2PublicPingQueryOptions<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+        >
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getV2PublicPingQueryKey>
+  >({
+    queryKey: getV2PublicPingQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        v2PublicClient['v2-public'].ping.$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
+export function useV2PublicPing<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getV2PublicPingQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getV2PublicPingQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspenseV2PublicPing<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getV2PublicPingQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getV2PublicPingQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+`)
+  })
+
+  // The shape of a studio API, with a group named client: its hooks call clientClient, the
+  // client of the group, and not client, the client of the routes of no group.
+  // client という名前のグループを持つスタジオ API の形。そのフックはグループのクライアント
+  // clientClient を呼び出す。どのグループにも属さないルート用の client ではない。
+  it('calls clientClient from the hooks of the group client', async () => {
+    const studio = {
+      openapi: '3.1.0',
+      info: { title: 'Studio', version: '1.0.0' },
+      paths: {
+        '/schema': { get: { tags: ['schema'], responses: ok } },
+        '/db/counts': { get: { tags: ['db'], responses: ok } },
+        '/client': { get: { tags: ['client'], responses: ok } },
+        '/client/run': { post: { tags: ['client'], responses: ok } },
+      },
+    } as OpenAPI
+    const code = await generateGrouped(studio, {
+      grouping: (route) => handlerGroupOf(route),
+      basePath: '/api',
+    })
+    expect(code).toBe(`import {
+  useQuery,
+  useSuspenseQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  UseSuspenseQueryOptions,
+  UseMutationOptions,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/react-query'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { schemaClient, dbClient, clientClient } from './client'
+
+export function getClientKey() {
+  return ['client'] as const
+}
+
+export function getDbKey() {
+  return ['db'] as const
+}
+
+export function getSchemaKey() {
+  return ['schema'] as const
+}
+
+export function getSchemaQueryKey() {
+  return ['schema', '/schema'] as const
+}
+
+export function getSchemaQueryOptions<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof schemaClient.schema.$get>>>>
+  >,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof schemaClient.schema.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getSchemaQueryKey>
+  >({
+    queryKey: getSchemaQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        schemaClient.schema.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function useSchema<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof schemaClient.schema.$get>>>>
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof schemaClient.schema.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getSchemaQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getSchemaQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspenseSchema<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof schemaClient.schema.$get>>>>
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof schemaClient.schema.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getSchemaQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getSchemaQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function getDbCountsQueryKey() {
+  return ['db', '/db/counts'] as const
+}
+
+export function getDbCountsQueryOptions<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof dbClient.db.counts.$get>>>>
+  >,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof dbClient.db.counts.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getDbCountsQueryKey>
+  >({
+    queryKey: getDbCountsQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        dbClient.db.counts.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function useDbCounts<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof dbClient.db.counts.$get>>>>
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof dbClient.db.counts.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getDbCountsQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getDbCountsQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspenseDbCounts<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof dbClient.db.counts.$get>>>>
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof dbClient.db.counts.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getDbCountsQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getDbCountsQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function getClientQueryKey() {
+  return ['client', '/client'] as const
+}
+
+export function getClientQueryOptions<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof clientClient.client.$get>>>>
+  >,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof clientClient.client.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getClientQueryKey>
+  >({
+    queryKey: getClientQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        clientClient.client.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function useClient<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof clientClient.client.$get>>>>
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof clientClient.client.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getClientQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getClientQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspenseClient<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof clientClient.client.$get>>>>
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof clientClient.client.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getClientQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getClientQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function getPostClientRunMutationKey() {
+  return ['client', '/client/run', 'POST'] as const
+}
+
+export function getPostClientRunMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof clientClient.client.run.$post>>>>
+    >,
+    TError,
+    void,
+    TOnMutateResult
+  >({
+    mutationKey: getPostClientRunMutationKey(),
+    async mutationFn() {
+      return parseResponse(clientClient.client.run.$post(undefined, options))
+    },
+  })
+}
+
+export function usePostClientRun<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<typeof clientClient.client.run.$post>>>
+          >
+        >,
+        TError,
+        void,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  const mutationDefaults = getPostClientRunMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
+}
+`)
   })
 
   // An import that nothing uses would be an error in a strict project.
   // どこからも使われない import は、厳格な設定のプロジェクトではエラーになる。
-  it('does not import client when every hook belongs to a group', async () => {
+  it('does not import __rootClient when no hook belongs to __root', async () => {
     const code = await generateGrouped(grouped, { grouping: (route) => handlerGroupOf(route) })
-    expect(code).toContain("import { booksClient, itemsClient } from './client'")
+    expect(code)
+      .toBe(`import { useQuery, useSuspenseQuery, queryOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  UseSuspenseQueryOptions,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/react-query'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { booksClient, itemsClient } from './client'
+
+export function getBooksKey() {
+  return ['books'] as const
+}
+
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+export function getBooksQueryKey() {
+  return ['books', '/books'] as const
+}
+
+export function getBooksQueryOptions<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>
+  >,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getBooksQueryKey>
+  >({
+    queryKey: getBooksQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        booksClient.books.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function useBooks<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getBooksQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getBooksQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspenseBooks<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getBooksQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getBooksQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function getItemsQueryKey() {
+  return ['items', '/items'] as const
+}
+
+export function getItemsQueryOptions<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof itemsClient.items.$get>>>>
+  >,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof itemsClient.items.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getItemsQueryKey>
+  >({
+    queryKey: getItemsQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        itemsClient.items.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function useItems<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof itemsClient.items.$get>>>>
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof itemsClient.items.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getItemsQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getItemsQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspenseItems<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof itemsClient.items.$get>>>>
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof itemsClient.items.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getItemsQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getItemsQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+`)
   })
 
   // Without a grouping every hook calls client.
@@ -9049,15 +10264,359 @@ describe('hooks: the groups of a split application', () => {
     expect(code).toContain('client.items.$get(undefined, {')
   })
 
-  // The name the config gives stands for client, and the groups keep theirs.
-  // 設定で指定された名前は client の代わりになり、グループの名前は変わらない。
-  it('calls the client of the rest under the name the config gives', async () => {
+  // The name the config gives is that of the client of the whole application; a split one
+  // has a client for each group, __root included, and none of that name.
+  // 設定で指定された名前はアプリケーション全体のクライアントのものである。分割された
+  // アプリケーションには __root を含むグループごとのクライアントがあり、その名前のものはない。
+  it('ignores the name the config gives when every hook belongs to a group', async () => {
     const code = await generateGrouped(spec, {
       clientName: 'http',
       grouping: (route) => handlerGroupOf(route),
       basePath: '/api',
     })
-    expect(code).toContain("import { http, booksClient, v2PublicClient } from './client'")
+    expect(code).toBe(`import {
+  useQuery,
+  useSuspenseQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  UseSuspenseQueryOptions,
+  UseMutationOptions,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/react-query'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { __rootClient, booksClient, v2PublicClient } from './client'
+
+export function getBooksKey() {
+  return ['books'] as const
+}
+
+export function getV2PublicKey() {
+  return ['v2-public'] as const
+}
+
+export function getQueryKey() {
+  return ['', '/'] as const
+}
+
+export function getQueryOptions<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getQueryKey>
+  >({
+    queryKey: getQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        __rootClient.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function use<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspense<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof __rootClient.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function getBooksQueryKey() {
+  return ['books', '/books'] as const
+}
+
+export function getBooksQueryOptions<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>
+  >,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getBooksQueryKey>
+  >({
+    queryKey: getBooksQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        booksClient.books.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function useBooks<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getBooksQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getBooksQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspenseBooks<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getBooksQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getBooksQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function getPostBooksMutationKey() {
+  return ['books', '/books', 'POST'] as const
+}
+
+export function getPostBooksMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$post>>>>>,
+    TError,
+    void,
+    TOnMutateResult
+  >({
+    mutationKey: getPostBooksMutationKey(),
+    async mutationFn() {
+      return parseResponse(booksClient.books.$post(undefined, options))
+    },
+  })
+}
+
+export function usePostBooks<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof booksClient.books.$post>>>>
+        >,
+        TError,
+        void,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  const mutationDefaults = getPostBooksMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
+}
+
+export function getV2PublicPingQueryKey() {
+  return ['v2-public', '/v2-public/ping'] as const
+}
+
+export function getV2PublicPingQueryOptions<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+        >
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getV2PublicPingQueryKey>
+  >({
+    queryKey: getV2PublicPingQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        v2PublicClient['v2-public'].ping.$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
+export function useV2PublicPing<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getV2PublicPingQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getV2PublicPingQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspenseV2PublicPing<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof v2PublicClient)['v2-public']['ping']['$get']>>
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getV2PublicPingQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getV2PublicPingQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+`)
   })
 })
 

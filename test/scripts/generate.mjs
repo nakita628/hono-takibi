@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process'
-import { cpSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { cpSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -44,6 +44,20 @@ const fillStubs = (dir) => {
 
 const generateCase = ({ name, dir }) =>
   new Promise((resolve) => {
+    // Every case is generated afresh: what a previous run left would be merged into, and a
+    // merge orders imports differently from a first generation, so the output would depend
+    // on whether the suite had run before. A nested case writes to __generated__/<name>, a
+    // self-contained one to its own __generated__.
+    // すべてのケースは毎回新しく生成する。前回の出力が残っているとそこにマージされ、マージは
+    // 初回生成と import の並びが異なるため、出力がスイートの実行履歴に依存してしまう。
+    // cases/ 配下のケースは __generated__/<name> に、自己完結のケースは自身の __generated__ に
+    // 書き出す。
+    for (const output of [
+      path.join(testRoot, '__generated__', name),
+      path.join(dir, '__generated__'),
+    ]) {
+      rmSync(output, { recursive: true, force: true })
+    }
     // A seed/ dir holds what must be there before the generator runs — a package.json
     // that makes an output directory a package of its own, for `client.package`.
     // seed/ には、生成器の実行前に存在していなければならないものを置く。出力ディレクトリを

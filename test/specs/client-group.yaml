@@ -1,0 +1,106 @@
+# An application in the shape of a studio API, for `template.split` and `client`: every
+# route is tagged after its first segment, `schema`, `db` and `client`, under the base path
+# `/api`. `client` is a group like the others. Its export is `client`, its typed client is
+# `clientClient`, and the hooks of its routes call `clientClient`: the name `client` of the
+# client of the routes that belong to no group takes nothing from it.
+#
+# スタジオ API の形をしたアプリケーション。`template.split` と `client` の検証に使う。すべての
+# ルートが先頭セグメントと同名のタグ `schema`・`db`・`client` を持ち、ベースパスは `/api` で
+# ある。`client` は他と同じグループである。その export は `client`、型付きクライアントは
+# `clientClient` で、そのルートのフックは `clientClient` を呼び出す。どのグループにも属さない
+# ルート用のクライアントの名前 `client` は、このグループから何も奪わない。
+openapi: 3.1.0
+info: { title: Studio, version: 0.0.0 }
+tags:
+  - { name: schema }
+  - { name: db }
+  - { name: client }
+paths:
+  /schema:
+    get:
+      tags: [schema]
+      responses:
+        '200':
+          {
+            description: ok,
+            content:
+              {
+                application/json:
+                  {
+                    schema:
+                      {
+                        type: object,
+                        required: [models],
+                        properties: { models: { type: integer } },
+                      },
+                  },
+              },
+          }
+  /db/counts:
+    get:
+      tags: [db]
+      responses:
+        '200':
+          {
+            description: ok,
+            content:
+              {
+                application/json:
+                  {
+                    schema:
+                      { type: object, required: [rows], properties: { rows: { type: integer } } },
+                  },
+              },
+          }
+  /client:
+    get:
+      tags: [client]
+      responses:
+        '200':
+          {
+            description: ok,
+            content:
+              {
+                application/json:
+                  {
+                    schema:
+                      {
+                        type: object,
+                        required: [models],
+                        properties: { models: { type: array, items: { type: string } } },
+                      },
+                  },
+              },
+          }
+  /client/run:
+    post:
+      tags: [client]
+      requestBody:
+        {
+          required: true,
+          content:
+            {
+              application/json:
+                {
+                  schema:
+                    { type: object, required: [code], properties: { code: { type: string } } },
+                },
+            },
+        }
+      responses:
+        '200':
+          {
+            description: ok,
+            content:
+              {
+                application/json:
+                  {
+                    schema:
+                      {
+                        type: object,
+                        required: [result],
+                        properties: { result: { type: string } },
+                      },
+                  },
+              },
+          }

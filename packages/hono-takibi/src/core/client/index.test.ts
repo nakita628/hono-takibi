@@ -11,11 +11,10 @@ import { client } from './index.js'
 
 const ok = { '200': { description: 'OK' } }
 
-// `/` and `/api/status` name no group: the root names nothing, and `api` is the name the
-// generated app has taken. `/books` is tagged once, which only a grouping by tag looks at.
-// `/` と `/api/status` はグループ名にならない。ルートパスは何も指さず、`api` は生成される
-// アプリがすでに使っている名前である。`/books` には1つだけタグが付いており、これを見るのは
-// タグによるグループ分けだけである。
+// `/` is the group `__root`, and `/api/status` the group `api`. `/books` is tagged once,
+// which only a grouping by tag looks at.
+// `/` は `__root` グループ、`/api/status` は `api` グループになる。`/books` には1つだけタグが
+// 付いており、これを見るのはタグによるグループ分けだけである。
 const spec = {
   openapi: '3.1.0',
   info: { title: 'Library', version: '1.0.0' },
@@ -208,19 +207,20 @@ export const client = hcWithType('/')['my-api']
 })
 
 describe('client: the groups of a split application', () => {
-  // books and v2Public are groups; the root and /api/status belong to none, and are the routes of client.
-  // books と v2Public はグループである。ルートパスと /api/status はどのグループにも属さず、client のルートになる。
+  // __root, books, v2Public and api are groups, each with a client of its own.
+  // __root、books、v2Public、api はグループであり、それぞれ自身のクライアントを持つ。
   it('writes a client for each group, in the order of the document', async () => {
     const file = path.join(makeDir(), 'client.ts')
     await runGenerator(client(spec, file, './index', '/', '/api', (route) => handlerGroupOf(route)))
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
-import type { api, books, v2Public } from './index'
+import type { __root, books, v2Public, api } from './index'
 
-type Client = ReturnType<typeof hc<typeof api>>
+type __RootClient = ReturnType<typeof hc<typeof __root>>
 
-const hcWithType = (...args: Parameters<typeof hc>): Client => hc<typeof api>(...args)
+const hc__RootWithType = (...args: Parameters<typeof hc>): __RootClient =>
+  hc<typeof __root>(...args)
 
-export const client = hcWithType('/').api
+export const __rootClient = hc__RootWithType('/').api
 
 type BooksClient = ReturnType<typeof hc<typeof books>>
 
@@ -234,6 +234,12 @@ const hcV2PublicWithType = (...args: Parameters<typeof hc>): V2PublicClient =>
   hc<typeof v2Public>(...args)
 
 export const v2PublicClient = hcV2PublicWithType('/').api
+
+type ApiClient = ReturnType<typeof hc<typeof api>>
+
+const hcApiWithType = (...args: Parameters<typeof hc>): ApiClient => hc<typeof api>(...args)
+
+export const apiClient = hcApiWithType('/').api
 `)
   })
 
@@ -243,13 +249,14 @@ export const v2PublicClient = hcV2PublicWithType('/').api
     const file = path.join(makeDir(), 'client.ts')
     await runGenerator(client(spec, file, './index', '/', '/api', handlerGroupOf))
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
-import type { api, library, books, v2Public } from './index'
+import type { __root, library, books, v2Public, api } from './index'
 
-type Client = ReturnType<typeof hc<typeof api>>
+type __RootClient = ReturnType<typeof hc<typeof __root>>
 
-const hcWithType = (...args: Parameters<typeof hc>): Client => hc<typeof api>(...args)
+const hc__RootWithType = (...args: Parameters<typeof hc>): __RootClient =>
+  hc<typeof __root>(...args)
 
-export const client = hcWithType('/').api
+export const __rootClient = hc__RootWithType('/').api
 
 type LibraryClient = ReturnType<typeof hc<typeof library>>
 
@@ -270,12 +277,148 @@ const hcV2PublicWithType = (...args: Parameters<typeof hc>): V2PublicClient =>
   hc<typeof v2Public>(...args)
 
 export const v2PublicClient = hcV2PublicWithType('/').api
+
+type ApiClient = ReturnType<typeof hc<typeof api>>
+
+const hcApiWithType = (...args: Parameters<typeof hc>): ApiClient => hc<typeof api>(...args)
+
+export const apiClient = hcApiWithType('/').api
 `)
   })
 
-  // There is no route for client to reach.
-  // client が到達するルートが存在しない。
-  it('writes no client for the rest when every route belongs to a group', async () => {
+  // The group client is exported as client and its client is clientClient.
+  // client グループは client として export され、そのクライアントは clientClient になる。
+  it('writes clientClient for the group client', async () => {
+    const file = path.join(makeDir(), 'client.ts')
+    const studio = {
+      openapi: '3.1.0',
+      info: { title: 'Studio', version: '1.0.0' },
+      paths: { '/client': { get: { responses: ok } }, '/db': { get: { responses: ok } } },
+    } as OpenAPI
+    await runGenerator(
+      client(studio, file, './index', '/', '/api', (route) => handlerGroupOf(route)),
+    )
+    expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
+import type { client, db } from './index'
+
+type ClientClient = ReturnType<typeof hc<typeof client>>
+
+const hcClientWithType = (...args: Parameters<typeof hc>): ClientClient =>
+  hc<typeof client>(...args)
+
+export const clientClient = hcClientWithType('/').api
+
+type DbClient = ReturnType<typeof hc<typeof db>>
+
+const hcDbWithType = (...args: Parameters<typeof hc>): DbClient => hc<typeof db>(...args)
+
+export const dbClient = hcDbWithType('/').api
+`)
+  })
+
+  // There is no client of the rest to take the name: beside __root, client is a group like any
+  // other, and its app is imported under its own name.
+  // 名前を奪う受け皿用のクライアントはない。__root の隣でも client は他と同じグループであり、
+  // そのアプリは自身の名前で import される。
+  it('imports the group client under its name beside __root', async () => {
+    const file = path.join(makeDir(), 'client.ts')
+    const studio = {
+      openapi: '3.1.0',
+      info: { title: 'Studio', version: '1.0.0' },
+      paths: { '/': { get: { responses: ok } }, '/client': { get: { responses: ok } } },
+    } as OpenAPI
+    await runGenerator(client(studio, file, './index', '/', '/', (route) => handlerGroupOf(route)))
+    expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
+import type { __root, client } from './index'
+
+type __RootClient = ReturnType<typeof hc<typeof __root>>
+
+const hc__RootWithType = (...args: Parameters<typeof hc>): __RootClient =>
+  hc<typeof __root>(...args)
+
+export const __rootClient = hc__RootWithType('/')
+
+type ClientClient = ReturnType<typeof hc<typeof client>>
+
+const hcClientWithType = (...args: Parameters<typeof hc>): ClientClient =>
+  hc<typeof client>(...args)
+
+export const clientClient = hcClientWithType('/')
+`)
+  })
+
+  // The file imports hc from hono/client, so the app of the group hc is imported as hcApp.
+  // このファイルは hono/client から hc を import するので、グループ hc のアプリは hcApp として
+  // import される。
+  it('imports the group hc as hcApp beside the hc of hono', async () => {
+    const file = path.join(makeDir(), 'client.ts')
+    const hcSpec = {
+      openapi: '3.1.0',
+      info: { title: 'Hc', version: '1.0.0' },
+      paths: { '/hc': { get: { responses: ok } } },
+    } as OpenAPI
+    await runGenerator(client(hcSpec, file, './index', '/', '/', (route) => handlerGroupOf(route)))
+    expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
+import type { hc as hcApp } from './index'
+
+type HcClient = ReturnType<typeof hc<typeof hcApp>>
+
+const hcHcWithType = (...args: Parameters<typeof hc>): HcClient => hc<typeof hcApp>(...args)
+
+export const hcClient = hcHcWithType('/')
+`)
+  })
+
+  // The shape of a studio API: every route is tagged after its first segment, one of which
+  // is client, under the base path /api. The group client keeps its name, its client is
+  // clientClient, and no client is written for the rest, which has no route.
+  // スタジオ API の形。すべてのルートが先頭セグメントと同名のタグを持ち、その1つが client
+  // で、ベースパスは /api である。client グループはその名前を保ち、そのクライアントは
+  // clientClient になる。残りのルートはないので、そのクライアントは書かれない。
+  it('writes clientClient beside the other groups of a studio API', async () => {
+    const file = path.join(makeDir(), 'client.ts')
+    const studio = {
+      openapi: '3.1.0',
+      info: { title: 'Studio', version: '1.0.0' },
+      paths: {
+        '/schema': { get: { tags: ['schema'], responses: ok } },
+        '/db/counts': { get: { tags: ['db'], responses: ok } },
+        '/client': { get: { tags: ['client'], responses: ok } },
+        '/client/run': { post: { tags: ['client'], responses: ok } },
+      },
+    } as OpenAPI
+    await runGenerator(
+      client(studio, file, '../../server/index', '/', '/api', (route) => handlerGroupOf(route)),
+    )
+    const code = fs.readFileSync(file, 'utf8')
+    expect(code).toBe(`import { hc } from 'hono/client'
+import type { schema, db, client } from '../../server/index'
+
+type SchemaClient = ReturnType<typeof hc<typeof schema>>
+
+const hcSchemaWithType = (...args: Parameters<typeof hc>): SchemaClient =>
+  hc<typeof schema>(...args)
+
+export const schemaClient = hcSchemaWithType('/').api
+
+type DbClient = ReturnType<typeof hc<typeof db>>
+
+const hcDbWithType = (...args: Parameters<typeof hc>): DbClient => hc<typeof db>(...args)
+
+export const dbClient = hcDbWithType('/').api
+
+type ClientClient = ReturnType<typeof hc<typeof client>>
+
+const hcClientWithType = (...args: Parameters<typeof hc>): ClientClient =>
+  hc<typeof client>(...args)
+
+export const clientClient = hcClientWithType('/').api
+`)
+  })
+
+  // There is no route of __root, so there is no __rootClient.
+  // __root のルートはないので、__rootClient もない。
+  it('writes no __rootClient when no route belongs to __root', async () => {
     const file = path.join(makeDir(), 'client.ts')
     await runGenerator(client(grouped, file, './index', '/', '/', (route) => handlerGroupOf(route)))
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'

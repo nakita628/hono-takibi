@@ -109,7 +109,7 @@ export default defineConfig({
 // src/index.ts
 const app = new OpenAPIHono().basePath('/api')
 
-export const api = app.openapi(getRoute, getRouteHandler)
+export const __root = app.openapi(getRoute, getRouteHandler)
 
 export const vaults = app
   .openapi(getVaultsRoute, getVaultsRouteHandler)
@@ -120,7 +120,7 @@ export default app
 
 ```ts
 // src/lib/client.ts
-export const client = hcWithType('/').api
+export const __rootClient = hc__RootWithType('/').api
 
 export const vaultsClient = hcVaultsWithType('/').api
 ```
@@ -129,7 +129,9 @@ export const vaultsClient = hcVaultsWithType('/').api
 | ------------------------- | ---------- | ---------------- |
 | `/vaults`, `/vaults/{id}` | `vaults`   | `vaultsClient`   |
 | `/v2-public/ping`         | `v2Public` | `v2PublicClient` |
-| `/`                       | `api`      | `client`         |
+| `/`                       | `__root`   | `__rootClient`   |
+
+Every route belongs to a group, named after its handler file: the first tag, or else the first path segment. The root `/` is written to `__root.ts` and is the group `__root`; a segment that cannot be an export, a word of the language like `/delete`, is prefixed the same way, `__delete`. A resource is named with letters and digits alone, so a name that starts with `__` never collides with one, and `/root` is the group `root` beside `__root`. Any other identifier is a group under its own name, `client` and `api` included: the entry and the file of clients bind nothing that can take it. The two names they keep for themselves, the `app` the routes are registered on and the `OpenAPIHono` import, yield to a group of the same name as `app2` and `OpenAPIHono2`.
 
 ## RPC
 
