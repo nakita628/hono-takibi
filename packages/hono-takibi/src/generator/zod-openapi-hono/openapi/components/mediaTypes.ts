@@ -34,23 +34,18 @@ export function mediaTypesCode(
   if (entries.length === 0) return ''
   // Same shapes as the split generator (core/components/mediaTypes.ts): an alias names its
   // target's constant and an entry without a body `schema` is `z.unknown()`, so every
-  // `#/components/mediaTypes/*` reference has a constant to bind.
+  // `#/components/mediaTypes/*` reference has a constant to bind. `readonly` reaches the
+  // schema, where it is put on the objects and arrays alone.
+  const options = readonly === true ? { readonly: true } : undefined
   return entries
     .map(([k, v]) => {
       const name = toIdentifierPascalCase(ensureSuffix(k, 'MediaTypeSchema'))
       const zodCode = isRefObject(v)
         ? makeRef(v.$ref)
         : isMedia(v)
-          ? zodToOpenAPI(v.schema)
+          ? zodToOpenAPI(v.schema, undefined, options)
           : 'z.unknown()'
-      return zodToOpenAPISchema(
-        name,
-        zodCode,
-        exportMediaTypes,
-        exportMediaTypesTypes,
-        true,
-        readonly,
-      )
+      return zodToOpenAPISchema(name, zodCode, exportMediaTypes, exportMediaTypesTypes, true)
     })
     .join('\n\n')
 }

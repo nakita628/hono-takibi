@@ -22,7 +22,7 @@ import {
   vaultsClient,
 } from '../__generated__/client-split-define/src/client'
 import app, {
-  api,
+  __root,
   health,
   items,
   v2Public,
@@ -50,8 +50,8 @@ const options = {
 describe('groups: every group is the one app', () => {
   // A group is what registering its routes on the app returns, which is the app.
   // グループは、アプリにルートを登録した結果として返される値であり、それはアプリ自身である。
-  it('api and the groups are the app', () => {
-    expect(api).toBe(app)
+  it('__root and the groups are the app', () => {
+    expect(__root).toBe(app)
     expect(health).toBe(app)
     expect(items).toBe(app)
     expect(vaults).toBe(app)

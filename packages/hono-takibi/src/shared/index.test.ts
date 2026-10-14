@@ -1634,8 +1634,6 @@ export const users = app.openapi(getUsersIdRoute, getUsersIdRouteHandler)
 
 export const health = app.openapi(getHealthRoute, getHealthRouteHandler)
 
-export const api = app
-
 export default app
 `)
     expect(read('src/client.ts')).toContain("import type { users, health } from './index'")
@@ -1657,8 +1655,6 @@ export default app
 export const users = app.openapiRoutes([getUsersIdRoute] as const)
 
 export const health = app.openapiRoutes([getHealthRoute] as const)
-
-export const api = app
 
 export default app
 `)
@@ -1683,8 +1679,6 @@ export default app
 export const users = app.route('/', usersHandler)
 
 export const health = app.route('/', healthHandler)
-
-export const api = app
 
 export default app
 `)
@@ -1776,8 +1770,6 @@ export const users = app.openapi(getUsersIdRoute, getUsersIdRouteHandler)
 
 export const health = app.openapi(getHealthRoute, getHealthRouteHandler)
 
-export const api = app
-
 export default app
 `)
     expect(read('src/lib/client.ts')).toContain(
@@ -1797,8 +1789,6 @@ export default app
     expect(read('src/index.ts')).toContain(`const app = new OpenAPIHono()
 
 export const users = app.openapi(getUsersIdRoute, getUsersIdRouteHandler)
-
-export const api = app
 
 export default app
 `)
@@ -1836,8 +1826,6 @@ export default app
 export const users = app.openapi(getUsersIdRoute, getUsersIdRouteHandler)
 
 export const health = app.openapi(getHealthRoute, getHealthRouteHandler)
-
-export const api = app
 
 export default app
 `)

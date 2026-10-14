@@ -66,7 +66,7 @@ describe('mediaTypesCode', () => {
     }
     const result = mediaTypesCode(components, true, false, true)
     expect(result).toBe(
-      'export const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()}).openapi({"required":[]}).readonly()',
+      'export const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()}).readonly().openapi({"required":[]})',
     )
   })
 

@@ -6,12 +6,16 @@ import { emit } from '../../emit/index.js'
 import { GenerateError } from '../../error/index.js'
 import { readFile } from '../../file/index.js'
 import { isHttpMethod, isOpenAPIPaths, isOperation, isValidIdent } from '../../guard/index.js'
-import { groupClientName } from '../../helper/index.js'
+import { freeName, groupClientName, operationTags } from '../../helper/index.js'
 import type { Grouping } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
+// `books` to `Books`, and `__root` to `__Root`: the letter is what is capitalized.
 function capitalizeFirst(name: string) {
-  return `${name.charAt(0).toUpperCase()}${name.slice(1)}`
+  return name.replace(
+    /^([_$]*)(.)/u,
+    (_, lead: string, first: string) => `${lead}${first.toUpperCase()}`,
+  )
 }
 
 // A client is typed by the routes of its app, base path included, and is handed out from
@@ -60,19 +64,51 @@ function makeBaseUrl(baseUrl: BaseUrl) {
  * declared once, so that it is worked out when this file is compiled and not again by every
  * file that calls `hc`.
  */
-function makeClient(name: string, app: string, url: string, access = '') {
+function makeClient(
+  name: string,
+  app: string,
+  url: string,
+  access = '',
+  imported = app,
+  whole = false,
+) {
   const typeName = capitalizeFirst(name)
-  const factory = app === 'api' ? 'hcWithType' : `hc${capitalizeFirst(app)}WithType`
+  const factory = whole ? 'hcWithType' : `hc${capitalizeFirst(app)}WithType`
   return [
-    `type ${typeName}=ReturnType<typeof hc<typeof ${app}>>`,
-    `const ${factory}=(...args:Parameters<typeof hc>):${typeName}=>hc<typeof ${app}>(...args)`,
+    `type ${typeName}=ReturnType<typeof hc<typeof ${imported}>>`,
+    `const ${factory}=(...args:Parameters<typeof hc>):${typeName}=>hc<typeof ${imported}>(...args)`,
     `export const ${name}=${factory}(${url})${access}`,
   ].join('\n\n')
 }
 
+// The names the client file binds for itself: `hc`, the base URL, and for each app its client,
+// the type of it and its factory (`client`, `Client`, `hcWithType` for the whole application;
+// `booksClient`, `BooksClient`, `hcBooksWithType` for the group `books`).
+function ownNames(apps: readonly string[], environment: readonly string[], whole: boolean) {
+  return [
+    'hc',
+    ...environment,
+    ...apps.flatMap((app) =>
+      whole
+        ? ['client', 'Client', 'hcWithType']
+        : [
+            groupClientName(app),
+            capitalizeFirst(groupClientName(app)),
+            `hc${capitalizeFirst(app)}WithType`,
+          ],
+    ),
+  ]
+}
+
+// The app of a group is imported under its own name, unless the client file binds that name
+// itself: a group `hc`, beside the `hc` of Hono. The app is then imported as `hcApp`.
+function importedName(app: string, apps: readonly string[], own: readonly string[]) {
+  return own.includes(app) ? freeName(`${app}App`, [...own, ...apps]) : app
+}
+
 /**
- * Generates the file of typed clients: `client` for the application, and one client for
- * each group of a split application, `booksClient` for `books`.
+ * Generates the file of typed clients: `client` for the application, or one client for
+ * each group of a split application, `booksClient` for `books` and `__rootClient` for `__root`.
  */
 export function client(
   openAPI: OpenAPI,
@@ -89,34 +125,49 @@ export function client(
     if (!isOpenAPIPaths(paths)) {
       return yield* new GenerateError({ message: 'Invalid OpenAPI paths' })
     }
-    // The clients are written in the order their first route stands in the document. Of a
-    // split application `api` holds the routes that belong to no group, and there is a
-    // client of it when there are any.
-    const apps =
-      grouping === undefined
-        ? ['api']
-        : [
-            ...new Set(
-              Object.entries(paths).flatMap(([route, pathItem]) =>
-                Object.entries(pathItem).flatMap(([method, operation]) =>
-                  isHttpMethod(method) && isOperation(operation)
-                    ? [grouping(route, operation.tags) ?? 'api']
-                    : [],
-                ),
+    // The whole application is `api`. The groups of a split one are written in the order
+    // their first route stands in the document.
+    const whole = grouping === undefined
+    const apps = whole
+      ? ['api']
+      : [
+          ...new Set(
+            Object.entries(paths).flatMap(([route, pathItem]) =>
+              Object.entries(pathItem).flatMap(([method, operation]) =>
+                isHttpMethod(method) && isOperation(operation)
+                  ? [grouping(route, operationTags(operation))]
+                  : [],
               ),
             ),
-          ]
+          ),
+        ]
     const { imports: environment, declaration, url } = makeBaseUrl(baseUrl)
+    const own = ownNames(
+      apps,
+      typeof baseUrl === 'string' ? [] : 'import' in baseUrl ? [baseUrl.name] : ['baseUrl'],
+      whole,
+    )
+    const specifiers = apps.map((name) => {
+      const imported = importedName(name, apps, own)
+      return imported === name ? name : `${name} as ${imported}`
+    })
     const imports = [
       "import{hc}from'hono/client'",
-      `import type{${apps.join(',')}}from'${importPath}'`,
+      `import type{${specifiers.join(',')}}from'${importPath}'`,
       ...environment,
     ].join('\n')
     const access = makeBasePathAccess(basePath)
     const clients = [
       ...declaration,
       ...apps.map((name) =>
-        makeClient(name === 'api' ? 'client' : groupClientName(name), name, url, access),
+        makeClient(
+          whole ? 'client' : groupClientName(name),
+          name,
+          url,
+          access,
+          importedName(name, apps, own),
+          whole,
+        ),
       ),
     ]
     const code = `${imports}\n\n${clients.join('\n\n')}\n`

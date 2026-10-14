@@ -35,6 +35,8 @@ export function mediaTypes(
     const keys = Object.keys(mediaTypes)
     if (keys.length === 0) return 'No mediaTypes found'
     const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
+    // `readonly` reaches the schema, where it is put on the objects and arrays alone.
+    const options = readonly === true ? { readonly: true } : undefined
     if (split) {
       const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
       yield* Effect.all(
@@ -54,8 +56,8 @@ export function mediaTypes(
               )
             }
             if (typeof v === 'object' && v !== null && 'schema' in v) {
-              const zodCode = zodToOpenAPI(v.schema)
-              const schemaCode = zodToOpenAPISchema(name, zodCode, true, false, true, readonly)
+              const zodCode = zodToOpenAPI(v.schema, undefined, options)
+              const schemaCode = zodToOpenAPISchema(name, zodCode, true, false, true)
               return emit(
                 makeImports(schemaCode, filePath, components, split),
                 path.dirname(filePath),
@@ -89,8 +91,8 @@ export function mediaTypes(
           return `export const ${name} = ${refName}`
         }
         if (typeof v === 'object' && v !== null && 'schema' in v) {
-          const zodCode = zodToOpenAPI(v.schema)
-          return zodToOpenAPISchema(name, zodCode, true, false, true, readonly)
+          const zodCode = zodToOpenAPI(v.schema, undefined, options)
+          return zodToOpenAPISchema(name, zodCode, true, false, true)
         }
         return `export const ${name} = z.unknown()`
       })

@@ -305,9 +305,9 @@ export function ensureSuffix(text: string, suffix: string) {
  * zodToOpenAPISchema('User', 'z.object({name: z.string()})', true, true)
  * // → 'export const UserSchema = z.object({name: z.string()}).openapi("User")\n\nexport type User = z.infer<typeof UserSchema>'
  *
- * @example
- * zodToOpenAPISchema('User', 'z.object({name: z.string()})', true, true, false, true)
- * // → 'export const UserSchema = z.object({name: z.string()}).readonly().openapi("User")\n\nexport type User = z.infer<typeof UserSchema>'
+ * `.readonly()` is no concern of this function: `zodToOpenAPI` puts it on the objects and
+ * arrays of a schema when asked, and a scalar never takes it. `Readonly<number>` is `number`,
+ * but on a branded scalar `.readonly()` wraps the brand and loses the primitive.
  */
 export function zodToOpenAPISchema(
   schemaName: string,
@@ -315,16 +315,14 @@ export function zodToOpenAPISchema(
   exportSchema: boolean,
   exportType: boolean,
   notComponentSchema?: boolean,
-  readonly?: boolean,
 ) {
-  const readonlyModifier = readonly ? '.readonly()' : ''
   const schemaCode = exportSchema
-    ? (`export const ${schemaName}=${zodSchema}${readonlyModifier}` as const)
-    : (`const ${schemaName}=${zodSchema}${readonlyModifier}` as const)
+    ? (`export const ${schemaName}=${zodSchema}` as const)
+    : (`const ${schemaName}=${zodSchema}` as const)
   const typeName = schemaName.replace(/Schema$/u, '')
   const componentSchemaCode = exportSchema
-    ? (`export const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${typeName}')` as const)
-    : (`const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${typeName}')` as const)
+    ? (`export const ${schemaName}=${zodSchema}.openapi('${typeName}')` as const)
+    : (`const ${schemaName}=${zodSchema}.openapi('${typeName}')` as const)
   const zodInferCode = exportType
     ? (`\n\nexport type ${typeName}=z.infer<typeof ${schemaName}>` as const)
     : ('' as const)

@@ -22,23 +22,28 @@ describe('handlerGroupOf', () => {
     expect(handlerGroupOf('/user.profile/me')).toBe('userProfile')
   })
 
-  // The root names nothing.
-  // ルートパスは、何も指さない。
-  it.concurrent('is undefined for the root', () => {
-    expect(handlerGroupOf('/')).toBeUndefined()
+  // The root goes by its handler file, __root, which no resource can be named.
+  // ルートはハンドラーファイルと同じ __root になる。資源にはこの名前を付けられない。
+  it.concurrent('is __root for the root', () => {
+    expect(handlerGroupOf('/')).toBe('__root')
   })
 
-  // /api/status would be exported as api.
-  // /api/status は、api として export されてしまう。
-  it.concurrent('is undefined for a segment the generated app has taken', () => {
-    expect(handlerGroupOf('/api/status')).toBeUndefined()
-    expect(handlerGroupOf('/client/me')).toBeUndefined()
+  // /api/status is the group api: the entry then names the routes of no group api_.
+  // /api/status は api グループになる。その場合、どのグループにも属さないルートは api_ になる。
+  it.concurrent('is api for /api', () => {
+    expect(handlerGroupOf('/api/status')).toBe('api')
   })
 
-  // /delete cannot be declared.
-  // /delete は、変数として宣言できない。
-  it.concurrent('is undefined for a segment that is a word of the language', () => {
-    expect(handlerGroupOf('/delete')).toBeUndefined()
+  // /client is a group of its own: its typed client is clientClient.
+  // /client は独立したグループである。その型付きクライアントは clientClient になる。
+  it.concurrent('is client for /client', () => {
+    expect(handlerGroupOf('/client/me')).toBe('client')
+  })
+
+  // /delete cannot be declared, and is prefixed like the root.
+  // /delete は変数として宣言できないため、ルートと同じ接頭辞が付く。
+  it.concurrent('is __delete for a segment that is a word of the language', () => {
+    expect(handlerGroupOf('/delete')).toBe('__delete')
   })
 
   // A handler file goes by the first tag.
@@ -59,9 +64,9 @@ describe('handlerGroupOf', () => {
     expect(handlerGroupOf('/books', [])).toBe('books')
   })
 
-  // A tag API would be exported as api.
-  // API というタグは、api として export されてしまう。
-  it.concurrent('is undefined for a tag the generated app has taken', () => {
-    expect(handlerGroupOf('/status', ['API'])).toBeUndefined()
+  // A tag API is the group api, like the segment.
+  // API というタグは、セグメントと同じく api グループになる。
+  it.concurrent('is api for a tag API', () => {
+    expect(handlerGroupOf('/status', ['API'])).toBe('api')
   })
 })

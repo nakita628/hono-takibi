@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { groupClientName, isGroupName, operationTags } from './group.js'
+import {
+  entryNames,
+  freeName,
+  groupClientName,
+  groupNameOf,
+  isGroupName,
+  operationTags,
+} from './group.js'
 
 describe('isGroupName', () => {
   // A group is exported under its name.
@@ -22,22 +29,24 @@ describe('isGroupName', () => {
     expect(isGroupName('_internal')).toBe(true)
   })
 
-  // api is the export that holds the routes of no group.
-  // api は、どのグループにも属さないルートを持つ export である。
-  it.concurrent('is false for api', () => {
-    expect(isGroupName('api')).toBe(false)
+  // api is the export that holds the routes of no group: a group of that name joins them.
+  // api は、どのグループにも属さないルートを持つ export であり、その名のグループはそこに加わる。
+  it.concurrent('is true for api', () => {
+    expect(isGroupName('api')).toBe(true)
   })
 
-  // app is the variable the routes are registered on.
-  // app は、ルートが登録される変数である。
-  it.concurrent('is false for app', () => {
-    expect(isGroupName('app')).toBe(false)
+  // The variable the routes are registered on yields its name to the group, and is app_.
+  // ルートが登録される変数は、その名前をグループに譲って app_ になる。
+  it.concurrent('is true for app', () => {
+    expect(isGroupName('app')).toBe(true)
   })
 
-  // Its client would be clientClient, beside the client of the rest.
-  // そのクライアントは clientClient となり、残りのルート用の client と紛らわしい。
-  it.concurrent('is false for client', () => {
-    expect(isGroupName('client')).toBe(false)
+  // /client is a group like any other: it is exported as client, and its typed client is
+  // clientClient, beside the client of the rest.
+  // /client も他と同じグループである。client として export され、その型付きクライアントは
+  // clientClient となり、残りのルート用の client と並ぶ。
+  it.concurrent('is true for client', () => {
+    expect(isGroupName('client')).toBe(true)
   })
 
   // delete and class cannot be declared.
@@ -47,10 +56,21 @@ describe('isGroupName', () => {
     expect(isGroupName('class')).toBe(false)
   })
 
-  // __root is the file the routes of / are written to, and names no group.
-  // __root は / のルートが書き出されるファイルであり、グループ名にはならない。
-  it.concurrent('is false for the handler file of the root', () => {
-    expect(isGroupName('__root')).toBe(false)
+  // A module is strict, where package and interface are words too, and arguments and eval
+  // cannot be bound.
+  // モジュールは strict であり、そこでは package や interface も予約語で、arguments と eval は
+  // 束縛できない。
+  it.concurrent('is false for a word of strict mode', () => {
+    expect(isGroupName('package')).toBe(false)
+    expect(isGroupName('interface')).toBe(false)
+    expect(isGroupName('arguments')).toBe(false)
+    expect(isGroupName('eval')).toBe(false)
+  })
+
+  // __root is the file the routes of / are written to, and the group of them.
+  // __root は / のルートが書き出されるファイルであり、そのグループでもある。
+  it.concurrent('is true for the handler file of the root', () => {
+    expect(isGroupName('__root')).toBe(true)
   })
 
   // The app entry imports getBooksRoute and booksHandler under these names.
@@ -77,6 +97,21 @@ describe('isGroupName', () => {
   it.concurrent('is false for the empty string and for undefined', () => {
     expect(isGroupName('')).toBe(false)
     expect(isGroupName(undefined)).toBe(false)
+  })
+})
+
+describe('freeName', () => {
+  // Nothing has the name, so it is kept.
+  // その名前は使われていないので、そのまま使う。
+  it.concurrent('is the base when nothing has taken it', () => {
+    expect(freeName('app', ['books'])).toBe('app')
+  })
+
+  // A number from 2 on, the first that no one has.
+  // 2 から数えて、誰も使っていない最初の数字を付ける。
+  it.concurrent('counts up until the name is free', () => {
+    expect(freeName('app', ['app'])).toBe('app2')
+    expect(freeName('app', ['app', 'app2'])).toBe('app3')
   })
 })
 
@@ -112,5 +147,39 @@ describe('operationTags', () => {
   // グループの名前になれるのは文字列だけである。
   it.concurrent('keeps only the string tags', () => {
     expect(operationTags({ tags: ['books', 1, null, 'admin'] })).toStrictEqual(['books', 'admin'])
+  })
+})
+
+describe('entryNames', () => {
+  // The entry binds app and OpenAPIHono when no group has them.
+  // どのグループにも取られていなければ、エントリは app と OpenAPIHono を束縛する。
+  it.concurrent('is app and OpenAPIHono beside other groups', () => {
+    expect(entryNames(['books', 'api', '__root'])).toStrictEqual({
+      app: 'app',
+      hono: 'OpenAPIHono',
+    })
+  })
+
+  // A group keeps its name; the entry's binding counts up.
+  // グループは自分の名前を保ち、エントリ側の束縛が数字を足す。
+  it.concurrent('yields each name to a group of it', () => {
+    expect(entryNames(['app', 'OpenAPIHono'])).toStrictEqual({ app: 'app2', hono: 'OpenAPIHono2' })
+  })
+})
+
+describe('groupNameOf', () => {
+  // A file that can be an export is a group under its name.
+  // export にできるファイルは、その名前のグループになる。
+  it.concurrent('is the name of a file that can be an export', () => {
+    expect(groupNameOf('books')).toBe('books')
+    expect(groupNameOf('api')).toBe('api')
+    expect(groupNameOf('client')).toBe('client')
+  })
+
+  // The file of the root is its own group; a word of the language is prefixed the same way.
+  // ルートのファイルはそのままグループになる。言語の予約語には同じ接頭辞が付く。
+  it.concurrent('is __root for the root and __delete for a word of the language', () => {
+    expect(groupNameOf('__root')).toBe('__root')
+    expect(groupNameOf('delete')).toBe('__delete')
   })
 })

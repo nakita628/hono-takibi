@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../../openapi/index.js'
-import { app } from './index.js'
+import { app, appGroups } from './index.js'
 
 const openapi = {
   openapi: '3.1.0',
@@ -312,10 +312,8 @@ export default app`
 
 describe('app (split)', () => {
   const ok = { '200': { description: 'OK' } }
-  // `/` and `/api/status` name no group: the root names nothing, and `api` is the name the
-  // generated app has taken.
-  // `/` と `/api/status` はグループ名にならない。ルートパスは何も指さず、`api` は生成される
-  // アプリがすでに使っている名前である。
+  // `/` is the group `__root`, and `/api/status` the group `api`.
+  // `/` は `__root` グループ、`/api/status` は `api` グループになる。
   const spec = {
     openapi: '3.1.0',
     info: { title: 'Library', version: '1.0.0' },
@@ -335,8 +333,8 @@ describe('app (split)', () => {
     paths: { '/books': { get: { responses: ok } }, '/items': { get: { responses: ok } } },
   } as OpenAPI
 
-  // Every group is the app registering its routes; api holds the routes of no group and stands where the first of them does.
-  // すべてのグループは、アプリが自身のルートを登録したものである。api はどのグループにも属さないルートを持ち、その最初のルートの位置に置かれる。
+  // Every group is the app registering its routes, in the order their first route stands in the document.
+  // すべてのグループは、アプリが自身のルートを登録したものであり、最初のルートが文書に現れる順に並ぶ。
   it('registers each group on the app with routeHandler', () => {
     expect(
       app(
@@ -357,14 +355,15 @@ import{getRouteHandler,getBooksRouteHandler,postBooksRouteHandler,getBooksIdRout
 
 const app=new OpenAPIHono().basePath('/api')
 
-export const api=app.openapi(getRoute,getRouteHandler)
-.openapi(getApiStatusRoute,getApiStatusRouteHandler)
+export const __root=app.openapi(getRoute,getRouteHandler)
 
 export const books=app.openapi(getBooksRoute,getBooksRouteHandler)
 .openapi(postBooksRoute,postBooksRouteHandler)
 .openapi(getBooksIdRoute,getBooksIdRouteHandler)
 
 export const v2Public=app.openapi(getV2PublicPingRoute,getV2PublicPingRouteHandler)
+
+export const api=app.openapi(getApiStatusRoute,getApiStatusRouteHandler)
 
 export default app`)
   })
@@ -390,17 +389,19 @@ import{getRoute,getBooksRoute,postBooksRoute,getBooksIdRoute,getV2PublicPingRout
 
 const app=new OpenAPIHono().basePath('/api')
 
-export const api=app.openapiRoutes([getRoute,getApiStatusRoute] as const)
+export const __root=app.openapiRoutes([getRoute] as const)
 
 export const books=app.openapiRoutes([getBooksRoute,postBooksRoute,getBooksIdRoute] as const)
 
 export const v2Public=app.openapiRoutes([getV2PublicPingRoute] as const)
 
+export const api=app.openapiRoutes([getApiStatusRoute] as const)
+
 export default app`)
   })
 
-  // A handler file goes by the first tag, so GET /books is mounted as library. __root and api name no group and are mounted as api.
-  // ハンドラーファイルは最初のタグで決まるため、GET /books は library としてマウントされる。__root と api はグループ名にならず、api としてマウントされる。
+  // A handler file goes by the first tag, so GET /books is mounted as library. __root is mounted as __root, api.ts as api.
+  // ハンドラーファイルは最初のタグで決まるため、GET /books は library としてマウントされる。__root.ts は __root、api.ts は api としてマウントされる。
   it('mounts each handler file as a group where the handlers register their routes', () => {
     expect(
       app(
@@ -420,13 +421,15 @@ import{__rootHandler,libraryHandler,booksHandler,v2PublicHandler,apiHandler}from
 
 const app=new OpenAPIHono().basePath('/api')
 
-export const api=app.route('/',__rootHandler).route('/',apiHandler)
+export const __root=app.route('/',__rootHandler)
 
 export const library=app.route('/',libraryHandler)
 
 export const books=app.route('/',booksHandler)
 
 export const v2Public=app.route('/',v2PublicHandler)
+
+export const api=app.route('/',apiHandler)
 
 export default app`)
   })
@@ -454,16 +457,16 @@ const app=new OpenAPIHono()
 
 export const books=app.route('/',booksHandler)
 
-export const api=app.route('/',__rootHandler)
+export const __root=app.route('/',__rootHandler)
 
 export const admin=app.route('/',adminHandler)
 
 export default app`)
   })
 
-  // api is the app as it stands: there is no route for it to register.
-  // api は、そのままのアプリである。登録するルートがない。
-  it('writes api last when every route belongs to a group', () => {
+  // There is no route of __root, so there is no __root.
+  // ルートのパスはないので、__root もない。
+  it('writes the groups alone when no route belongs to __root', () => {
     expect(
       app(
         grouped,
@@ -487,14 +490,12 @@ export const books=app.openapi(getBooksRoute,getBooksRouteHandler)
 
 export const items=app.openapi(getItemsRoute,getItemsRouteHandler)
 
-export const api=app
-
 export default app`)
   })
 
   // The same with define.
   // define でも同様である。
-  it('writes api last with define when every route belongs to a group', () => {
+  it('writes the groups alone with define when no route belongs to __root', () => {
     expect(
       app(
         grouped,
@@ -516,8 +517,6 @@ const app=new OpenAPIHono()
 export const books=app.openapiRoutes([getBooksRoute] as const)
 
 export const items=app.openapiRoutes([getItemsRoute] as const)
-
-export const api=app
 
 export default app`)
   })
@@ -548,5 +547,143 @@ export const api=app.openapi(getBooksRoute,getBooksRouteHandler)
 .openapi(getItemsRoute,getItemsRouteHandler)
 
 export default app`)
+  })
+
+  // The shape of a studio API: /client is a group like /schema and /db, exported as client.
+  // スタジオ API の形。/client は /schema や /db と同じグループであり、client として export される。
+  it('exports the group client of a studio API under its name', () => {
+    const studio = {
+      openapi: '3.1.0',
+      info: { title: 'Studio', version: '1.0.0' },
+      paths: {
+        '/schema': { get: { tags: ['schema'], responses: ok } },
+        '/db/counts': { get: { tags: ['db'], responses: ok } },
+        '/client': { get: { tags: ['client'], responses: ok } },
+        '/client/run': { post: { tags: ['client'], responses: ok } },
+      },
+    } as OpenAPI
+    expect(
+      app(
+        studio,
+        'src/routes.ts',
+        '/api',
+        undefined,
+        undefined,
+        true,
+        false,
+        undefined,
+        undefined,
+        true,
+      ),
+    ).toBe(`import{OpenAPIHono}from'@hono/zod-openapi'
+import{getSchemaRoute,getDbCountsRoute,getClientRoute,postClientRunRoute}from'./routes'
+import{getSchemaRouteHandler,getDbCountsRouteHandler,getClientRouteHandler,postClientRunRouteHandler}from'./handlers'
+
+const app=new OpenAPIHono().basePath('/api')
+
+export const schema=app.openapi(getSchemaRoute,getSchemaRouteHandler)
+
+export const db=app.openapi(getDbCountsRoute,getDbCountsRouteHandler)
+
+export const client=app.openapi(getClientRoute,getClientRouteHandler)
+.openapi(postClientRunRoute,postClientRunRouteHandler)
+
+export default app`)
+  })
+
+  // The entry binds app and OpenAPIHono for itself; a group of one of these names keeps it, and the binding counts up. api is a group like any other.
+  // エントリは app と OpenAPIHono を自分で束縛する。その名前のグループはそれを保ち、束縛側が数字を足す。api は他と同じグループである。
+  it('yields app and OpenAPIHono to the groups of those names', () => {
+    const taken = {
+      openapi: '3.1.0',
+      info: { title: 'Taken', version: '1.0.0' },
+      paths: {
+        '/': { get: { responses: ok } },
+        '/app/x': { get: { responses: ok } },
+        '/api/x': { get: { responses: ok } },
+        '/OpenAPIHono/x': { get: { responses: ok } },
+      },
+    } as OpenAPI
+    expect(
+      app(
+        taken,
+        'src/routes.ts',
+        '/',
+        undefined,
+        undefined,
+        true,
+        false,
+        undefined,
+        undefined,
+        true,
+      ),
+    ).toBe(`import{OpenAPIHono as OpenAPIHono2}from'@hono/zod-openapi'
+import{getRoute,getAppXRoute,getApiXRoute,getOpenAPIHonoXRoute}from'./routes'
+import{getRouteHandler,getAppXRouteHandler,getApiXRouteHandler,getOpenAPIHonoXRouteHandler}from'./handlers'
+
+const app2=new OpenAPIHono2()
+
+export const __root=app2.openapi(getRoute,getRouteHandler)
+
+export const app=app2.openapi(getAppXRoute,getAppXRouteHandler)
+
+export const api=app2.openapi(getApiXRoute,getApiXRouteHandler)
+
+export const OpenAPIHono=app2.openapi(getOpenAPIHonoXRoute,getOpenAPIHonoXRouteHandler)
+
+export default app2`)
+  })
+
+  // The same names, where the handler files register their routes.
+  // ハンドラーファイルがルートを登録する形でも、同じ名前になる。
+  it('yields app to a handler file of that name', () => {
+    expect(
+      app(
+        grouped,
+        'src/routes.ts',
+        '/',
+        undefined,
+        undefined,
+        false,
+        false,
+        undefined,
+        ['__root.ts', 'app.ts', 'api.ts'],
+        true,
+      ),
+    ).toBe(`import{OpenAPIHono}from'@hono/zod-openapi'
+import{__rootHandler,appHandler,apiHandler}from'./handlers'
+
+const app2=new OpenAPIHono()
+
+export const __root=app2.route('/',__rootHandler)
+
+export const app=app2.route('/',appHandler)
+
+export const api=app2.route('/',apiHandler)
+
+export default app2`)
+  })
+
+  // The groups, as the merge of the entry asks for them: by path, or by handler file.
+  // エントリのマージが求める形のグループ。パスによるものと、ハンドラーファイルによるもの。
+  it('lists the groups of a split app', () => {
+    expect(appGroups(spec, false, undefined, true)).toStrictEqual([
+      '__root',
+      'books',
+      'v2Public',
+      'api',
+    ])
+    expect(appGroups(spec, true, undefined, true)).toStrictEqual([
+      '__root',
+      'library',
+      'books',
+      'v2Public',
+      'api',
+    ])
+    expect(appGroups(spec, true, ['books.ts', '__root.ts'], true)).toStrictEqual([
+      'books',
+      '__root',
+    ])
+    expect(appGroups(spec, false, undefined, false)).toStrictEqual([])
   })
 })

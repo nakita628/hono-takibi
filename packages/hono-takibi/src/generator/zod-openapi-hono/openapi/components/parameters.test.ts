@@ -99,7 +99,11 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     )
   })
 
-  it('should add readonly modifier when readonly option is true', () => {
+  // `Readonly<string>` is `string`, and on a branded scalar `.readonly()` would wrap the brand
+  // and lose the primitive: the scalar is written as it is.
+  // `Readonly<string>` は `string` のままであり、brand 付きスカラーでは `.readonly()` が brand を
+  // 包んでプリミティブを失わせる。スカラーはそのまま書き出される。
+  it('wraps no scalar parameter in readonly', () => {
     const components: Components = {
       parameters: {
         userId: {
@@ -112,7 +116,48 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false, true)
     expect(result).toBe(
-      `export const UserIdParamsSchema=z.string().openapi({param:{"name":"userId","in":"path","required":true,"schema":{"type":"string"}}}).readonly()`,
+      `export const UserIdParamsSchema=z.string().openapi({param:{"name":"userId","in":"path","required":true,"schema":{"type":"string"}}})`,
+    )
+  })
+
+  // A parameter that refers to a branded schema keeps `number & $brand<'Skip'>`: the handler
+  // hands it to a use case as it came in.
+  // brand 付きスキーマを参照するパラメータは `number & $brand<'Skip'>` を保つ。ハンドラーは
+  // 受け取ったままユースケースに渡せる。
+  it('keeps the brand of a parameter that refers to a branded scalar', () => {
+    const components: Components = {
+      schemas: { Skip: { type: 'integer', minimum: 0, 'x-brand': 'Skip' } },
+      parameters: {
+        skip: {
+          name: 'skip',
+          in: 'query',
+          required: true,
+          schema: { $ref: '#/components/schemas/Skip' },
+        },
+      },
+    }
+    const result = parametersCode(components, true, false, true)
+    expect(result).toBe(
+      String.raw`export const SkipParamsSchema=z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),SkipSchema.openapi({param:{"name":"skip","in":"query","required":true,"schema":{"$ref":"#/components/schemas/Skip"}}}))`,
+    )
+  })
+
+  // `.readonly()` belongs to the container: an object parameter is still immutable.
+  // `.readonly()` は入れ物に付く。object のパラメータは変わらず不変である。
+  it('puts readonly on an object parameter', () => {
+    const components: Components = {
+      parameters: {
+        filter: {
+          name: 'filter',
+          in: 'query',
+          required: true,
+          schema: { type: 'object', properties: { name: { type: 'string' } } },
+        },
+      },
+    }
+    const result = parametersCode(components, true, false, true)
+    expect(result).toBe(
+      `export const FilterParamsSchema=z.object({name:z.string().exactOptional()}).readonly().openapi({param:{"name":"filter","in":"query","required":true,"schema":{"type":"object","properties":{"name":{"type":"string"}}}},"required":[]})`,
     )
   })
 })
