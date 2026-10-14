@@ -82,11 +82,11 @@ describe('clients: the client of the group client is clientClient', () => {
   // エントリはこのグループを client として export し、クライアントのファイルはそれで型付けされる。
   it('the entry and the file of clients are written as follows', () => {
     expect(source('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
-import { getClientRoute, getDbCountsRoute, getSchemaRoute, postClientRunRoute } from './routes'
+import { getSchemaRoute, getDbCountsRoute, getClientRoute, postClientRunRoute } from './routes'
 import {
-  getClientRouteHandler,
-  getDbCountsRouteHandler,
   getSchemaRouteHandler,
+  getDbCountsRouteHandler,
+  getClientRouteHandler,
   postClientRunRouteHandler,
 } from './handlers'
 
