@@ -158,7 +158,7 @@ export function makeHandlerFileName(path: string, tags?: readonly string[]): `${
   const tagName = uncapitalizeWord(sanitizeHandlerSegment(tags?.[0] ?? ''))
   const pathName = sanitizeHandlerSegment(path.replace(/^\/+/u, '').split('/')[0] ?? '')
   const name = tagName !== '' ? tagName : pathName !== '' ? pathName : '__root'
-  return `${name}.ts`
+  return `${name}.ts` as const
 }
 
 /**

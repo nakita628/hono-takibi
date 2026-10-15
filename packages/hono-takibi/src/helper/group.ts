@@ -109,7 +109,8 @@ export function operationTags(operation: object): readonly string[] | undefined 
 export function freeName(base: string, taken: Iterable<string>) {
   const names = new Set(taken)
   if (!names.has(base)) return base
-  const free = (n: number): string => (names.has(`${base}${n}`) ? free(n + 1) : `${base}${n}`)
+  const free = (n: number): string =>
+    names.has(`${base}${n}`) ? free(n + 1) : (`${base}${n}` as const)
   return free(2)
 }
 
@@ -126,10 +127,10 @@ export function freeName(base: string, taken: Iterable<string>) {
  */
 export function entryNames(groups: Iterable<string>) {
   const taken = [...groups]
-  return { app: freeName('app', taken), hono: freeName('OpenAPIHono', taken) }
+  return { app: freeName('app', taken), hono: freeName('OpenAPIHono', taken) } as const
 }
 
 /** The export a group's client is reached by: `books` through `booksClient`. */
 export function groupClientName(group: string) {
-  return `${group}Client`
+  return `${group}Client` as const
 }

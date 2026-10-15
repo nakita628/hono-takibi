@@ -37,7 +37,7 @@ export function methodPath(method: string, path: string) {
     .map((str) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
     .join('')
   const suffix = hasTrailingSlash ? 'Index' : ''
-  return apiPath ? `${method}${apiPath}${suffix}` : method
+  return apiPath ? (`${method}${apiPath}${suffix}` as const) : method
 }
 
 /**
@@ -121,7 +121,7 @@ export function makeStringLiteral(value: string) {
     .replaceAll('\n', '\\n')
     .replaceAll('\r', '\\r')
     .replaceAll('	', '\\t')
-  return `'${escaped}'`
+  return `'${escaped}'` as const
 }
 
 const REGEX_LINE_TERMINATOR_ESCAPES: { readonly [k: string]: string } = {
@@ -223,12 +223,12 @@ export function toIdentifierPascalCase(text: string) {
   if (!result || /^_+$/u.test(result)) {
     // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
     const hash = [...text].reduce((acc, c) => acc + c.charCodeAt(0), 0)
-    return `Unnamed${String(hash)}`
+    return `Unnamed${String(hash)}` as const
   }
   if (hasNonAscii) {
     // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
     const hash = [...text].reduce((acc, c) => acc + c.charCodeAt(0), 0)
-    return `${result}${String(hash)}`
+    return `${result}${String(hash)}` as const
   }
   return result
 }
@@ -239,7 +239,7 @@ export function toIdentifierPascalCase(text: string) {
  */
 export function renderNamedImport(names: readonly string[], spec: string) {
   const unique = [...new Set(names)]
-  return unique.length > 0 ? `import{${unique.join(',')}}from'${spec}'` : ''
+  return unique.length > 0 ? (`import{${unique.join(',')}}from'${spec}'` as const) : ('' as const)
 }
 
 /**
@@ -294,7 +294,7 @@ export function capitalize(text: string) {
  * ```
  */
 export function ensureSuffix(text: string, suffix: string) {
-  return `${text}${suffix}`
+  return `${text}${suffix}` as const
 }
 
 /**
@@ -374,7 +374,7 @@ export function error(message: string) {
  * `{ error: (issue) => issue.input === undefined ? required : type }`.
  */
 export function baseError(typeMessage: string | undefined, requiredMessage: string | undefined) {
-  if (requiredMessage === undefined && typeMessage === undefined) return ''
+  if (requiredMessage === undefined && typeMessage === undefined) return '' as const
   if (requiredMessage === undefined && typeMessage !== undefined) return error(typeMessage)
   if (requiredMessage !== undefined && typeMessage === undefined) {
     return `{error:(issue)=>issue.input===undefined?${JSON.stringify(requiredMessage)}:undefined}` as const

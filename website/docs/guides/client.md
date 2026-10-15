@@ -196,3 +196,5 @@ const { mutate } = usePostUsers()
 ```
 
 Add `x-pagination: true` to a GET operation to get an infinite query hook.
+
+Every hook has a key factory, `getUsersQueryKey(args)` for TanStack Query and `getGetUsersKey(args)` for SWR, and the key is `['users', '/users/:id', args]`: the first segment of the path, the route, and the arguments, so that `['users']` invalidates every query under `/users` and `['users', '/users/:id', { param: { id: '1' } }]` every query of one user. A `header` or `cookie` argument is left out of the key: it says who asks, not what is asked for, and a persisted cache or the devtools would otherwise show the token.

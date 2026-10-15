@@ -26,8 +26,8 @@ function makeBasePathAccess(basePath: string) {
     .filter((segment) => segment !== '')
     .map((segment) =>
       isValidIdent(segment)
-        ? `.${segment}`
-        : `['${segment.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}']`,
+        ? (`.${segment}` as const)
+        : (`['${segment.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}']` as const),
     )
     .join('')
 }
@@ -43,20 +43,20 @@ type BaseUrl =
 // that property, which the module answers for.
 function makeBaseUrl(baseUrl: BaseUrl) {
   if (typeof baseUrl === 'string') {
-    return { imports: [], declaration: [], url: JSON.stringify(baseUrl) }
+    return { imports: [] as const, declaration: [] as const, url: JSON.stringify(baseUrl) } as const
   }
   if ('import' in baseUrl) {
     return {
-      imports: [`import{${baseUrl.name}}from'${baseUrl.import}'`],
-      declaration: [],
-      url: `${baseUrl.name}.${baseUrl.env}`,
-    }
+      imports: [`import{${baseUrl.name}}from'${baseUrl.import}'` as const] as const,
+      declaration: [] as const,
+      url: `${baseUrl.name}.${baseUrl.env}` as const,
+    } as const
   }
   return {
-    imports: [],
-    declaration: [`const baseUrl=${baseUrl.source}.${baseUrl.env}!`],
-    url: 'baseUrl',
-  }
+    imports: [] as const,
+    declaration: [`const baseUrl=${baseUrl.source}.${baseUrl.env}!` as const] as const,
+    url: 'baseUrl' as const,
+  } as const
 }
 
 export type Credentials = 'include' | 'same-origin' | 'omit'
@@ -64,7 +64,9 @@ export type Credentials = 'include' | 'same-origin' | 'omit'
 // The second argument of `hc`: `credentials` is written into the file as the one `init` it
 // stands for, and nothing is written without it.
 function makeOptions(credentials: Credentials | undefined) {
-  return credentials === undefined ? '' : `,{init:{credentials:${JSON.stringify(credentials)}}}`
+  return credentials === undefined
+    ? ('' as const)
+    : (`,{init:{credentials:${JSON.stringify(credentials)}}}` as const)
 }
 
 /**
@@ -82,11 +84,11 @@ function makeClient(
   options = '',
 ) {
   const typeName = capitalizeFirst(name)
-  const factory = whole ? 'hcWithType' : `hc${capitalizeFirst(app)}WithType`
+  const factory = whole ? 'hcWithType' : (`hc${capitalizeFirst(app)}WithType` as const)
   return [
-    `type ${typeName}=ReturnType<typeof hc<typeof ${imported}>>`,
-    `const ${factory}=(...args:Parameters<typeof hc>):${typeName}=>hc<typeof ${imported}>(...args)`,
-    `export const ${name}=${factory}(${url}${options})${access}`,
+    `type ${typeName}=ReturnType<typeof hc<typeof ${imported}>>` as const,
+    `const ${factory}=(...args:Parameters<typeof hc>):${typeName}=>hc<typeof ${imported}>(...args)` as const,
+    `export const ${name}=${factory}(${url}${options})${access}` as const,
   ].join('\n\n')
 }
 
@@ -99,20 +101,20 @@ function ownNames(apps: readonly string[], environment: readonly string[], whole
     ...environment,
     ...apps.flatMap((app) =>
       whole
-        ? ['client', 'Client', 'hcWithType']
-        : [
+        ? (['client', 'Client', 'hcWithType'] as const)
+        : ([
             groupClientName(app),
             capitalizeFirst(groupClientName(app)),
-            `hc${capitalizeFirst(app)}WithType`,
-          ],
+            `hc${capitalizeFirst(app)}WithType` as const,
+          ] as const),
     ),
-  ]
+  ] as const
 }
 
 // The app of a group is imported under its own name, unless the client file binds that name
 // itself: a group `hc`, beside the `hc` of Hono. The app is then imported as `hcApp`.
 function importedName(app: string, apps: readonly string[], own: readonly string[]) {
-  return own.includes(app) ? freeName(`${app}App`, [...own, ...apps]) : app
+  return own.includes(app) ? freeName(`${app}App` as const, [...own, ...apps] as const) : app
 }
 
 /**
@@ -140,28 +142,32 @@ export function client(
     // their first route stands in the document.
     const whole = grouping === undefined
     const apps = whole
-      ? ['api']
-      : [
+      ? (['api'] as const)
+      : ([
           ...new Set(
             Object.entries(paths).flatMap(([route, pathItem]) =>
               Object.entries(pathItem).flatMap(([method, operation]) =>
                 isHttpMethod(method) && isOperation(operation)
-                  ? [grouping(route, operationTags(operation))]
-                  : [],
+                  ? ([grouping(route, operationTags(operation))] as const)
+                  : ([] as const),
               ),
             ),
           ),
-        ]
+        ] as const)
     const { imports: environment, declaration, url } = makeBaseUrl(baseUrl)
     const options = makeOptions(credentials)
     const own = ownNames(
       apps,
-      typeof baseUrl === 'string' ? [] : 'import' in baseUrl ? [baseUrl.name] : ['baseUrl'],
+      typeof baseUrl === 'string'
+        ? []
+        : 'import' in baseUrl
+          ? ([baseUrl.name] as const)
+          : (['baseUrl'] as const),
       whole,
     )
     const specifiers = apps.map((name) => {
       const imported = importedName(name, apps, own)
-      return imported === name ? name : `${name} as ${imported}`
+      return imported === name ? name : (`${name} as ${imported}` as const)
     })
     const imports = [
       "import{hc}from'hono/client'",
@@ -173,7 +179,7 @@ export function client(
       ...declaration,
       ...apps.map((name) =>
         makeClient(
-          whole ? 'client' : groupClientName(name),
+          whole ? ('client' as const) : groupClientName(name),
           name,
           url,
           access,
@@ -182,18 +188,18 @@ export function client(
           options,
         ),
       ),
-    ]
-    const code = `${imports}\n\n${clients.join('\n\n')}\n`
+    ] as const
+    const code = `${imports}\n\n${clients.join('\n\n')}\n` as const
     yield* emit(code, path.dirname(output), output)
     if (barrel !== undefined) {
       // A barrel that is there already keeps what it exports and gains the client.
-      const line = `export * from './${path.basename(output, '.ts')}'`
+      const line = `export * from './${path.basename(output, '.ts')}'` as const
       const existing = (yield* readFile(barrel)) ?? ''
       const lines = existing.split('\n').map((text) => text.trim().replace(/;$/u, ''))
       if (!lines.some((text) => text.replaceAll('"', "'") === line)) {
         yield* emit(`${existing.trimEnd()}\n${line}\n`, path.dirname(barrel), barrel)
       }
     }
-    return `Generated client code written to ${output}`
+    return `Generated client code written to ${output}` as const
   })
 }
