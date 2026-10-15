@@ -333,12 +333,12 @@ describe('helper/zod', () => {
 
   describe('makeUnevaluatedProperties', () => {
     it('returns empty string when unevaluatedProperties is undefined', () => {
-      expect(makeUnevaluatedProperties({ type: 'object' }, 'err', recurse)).toBe('')
+      expect(makeUnevaluatedProperties({ type: 'object' }, recurse)).toBe('')
     })
 
     it('returns empty string when unevaluatedProperties is true', () => {
       expect(
-        makeUnevaluatedProperties({ type: 'object', unevaluatedProperties: true }, 'err', recurse),
+        makeUnevaluatedProperties({ type: 'object', unevaluatedProperties: true }, recurse),
       ).toBe('')
     })
 
@@ -349,7 +349,6 @@ describe('helper/zod', () => {
             properties: { a: { type: 'string' } },
             unevaluatedProperties: false,
           },
-          'err',
           recurse,
         ),
       ).toBe(
@@ -364,7 +363,6 @@ describe('helper/zod', () => {
             properties: { a: { type: 'string' } },
             unevaluatedProperties: { type: 'number' },
           },
-          'err',
           recurse,
         ),
       ).toBe(
@@ -381,7 +379,6 @@ describe('helper/zod', () => {
             allOf: [{ properties: { b: { type: 'string' } } }],
             unevaluatedProperties: false,
           },
-          'err',
           recurse,
         ),
       ).toBe(
@@ -401,7 +398,6 @@ describe('helper/zod', () => {
             dependentSchemas: { e: { type: 'object', properties: { f: { type: 'string' } } } },
             unevaluatedProperties: false,
           },
-          'err',
           recurse,
         ),
       ).toBe(
@@ -420,7 +416,6 @@ describe('helper/zod', () => {
             anyOf: [{ type: 'object' }],
             unevaluatedProperties: false,
           },
-          'err',
           recurse,
         ),
       ).toBe(
@@ -440,7 +435,6 @@ describe('helper/zod', () => {
             else: { type: 'object', properties: { c: { type: 'string' } } },
             unevaluatedProperties: false,
           },
-          'err',
           recurse,
         ),
       ).toBe(
@@ -456,7 +450,6 @@ describe('helper/zod', () => {
             unevaluatedProperties: false,
             'x-unevaluatedProperties-message': 'unevaluated',
           },
-          'err',
           recurse,
           'override',
         ),
@@ -472,7 +465,6 @@ describe('helper/zod', () => {
             properties: { a: { type: 'string' } },
             unevaluatedProperties: false,
           },
-          'err',
           recurse,
           'override',
         ),

@@ -11,7 +11,6 @@ export function object(schema: Schema, options?: { readonly?: boolean }) {
     return zodToOpenAPI(schema, undefined, options)
   }
   const errorMessage = schema['x-error-message']
-  const errorArg = errorMessage ? `,${error(errorMessage)}` : ''
   // minProperties / maxProperties / patternProperties each have a dedicated
   // message slot, falling back to x-error-message when unset.
   const minPropertiesMessage = schema['x-minProperties-message'] ?? errorMessage
@@ -208,11 +207,6 @@ export function object(schema: Schema, options?: { readonly?: boolean }) {
   // Delegated to makeUnevaluatedProperties (see helper/zod.ts).
   // JSON Schema 2020-12 §11.2: anyOf/oneOf/if-then-else contribute evaluated
   // keys only for branches that ACTUALLY succeeded at runtime.
-  const unevaluatedProperties = makeUnevaluatedProperties(
-    schema,
-    errorArg,
-    zodToOpenAPI,
-    errorMessage,
-  )
+  const unevaluatedProperties = makeUnevaluatedProperties(schema, zodToOpenAPI, errorMessage)
   return `${base}${minProperties}${maxProperties}${propertyNames}${patternProperties}${dependentRequired}${dependentSchemas}${ifThenElse}${unevaluatedProperties}${readonly ? '.readonly()' : ''}`
 }
