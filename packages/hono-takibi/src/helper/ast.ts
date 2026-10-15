@@ -210,7 +210,7 @@ function parseStatements(sourceFile: ts.SourceFile) {
     .filter((d) => d !== undefined)
 }
 
-function makeKey(kind: 'variable' | 'type' | 'interface', name: string): string {
+function makeKey(kind: 'variable' | 'type' | 'interface', name: string) {
   return `${kind}:${name}`
 }
 

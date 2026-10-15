@@ -491,7 +491,7 @@ function mergeImports(
   existingFile: SourceFile,
   generatedFile: SourceFile,
   dropStaleAutoNames = true,
-): string[] {
+) {
   const existingImports = parseImportDeclarations(existingFile)
   const generatedImports = parseImportDeclarations(generatedFile)
   const generatedIndex = makeGeneratedImportIndex(generatedImports)

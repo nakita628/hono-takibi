@@ -7,7 +7,7 @@ export function pathItemsCode(
   components: Components,
   exportPathItems: boolean,
   readonly?: boolean,
-): string {
+) {
   const pathItemsEntries = (): readonly { readonly name: string; readonly code: string }[] => {
     const { pathItems } = components
     if (!pathItems) return []

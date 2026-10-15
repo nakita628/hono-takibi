@@ -208,7 +208,7 @@ function firstAlternative(source: string) {
   return bar === -1 ? source : source.slice(0, bar)
 }
 
-function expandGroups(source: string): string {
+function expandGroups(source: string) {
   let open = -1
   const close = scanPattern(source, (char, index) => {
     if (char === '(') open = index
@@ -492,7 +492,7 @@ export function mockFunctionSignature(refName: string, isRecursive: boolean) {
 // Resolves a `$ref` against the component schema map. Returns the schema
 // unchanged when it has no `$ref` or the target is unknown (so callers can
 // treat unresolved refs conservatively).
-function resolveRef(schema: Schema, schemas: { readonly [k: string]: Schema } | undefined): Schema {
+function resolveRef(schema: Schema, schemas: { readonly [k: string]: Schema } | undefined) {
   if (!schema.$ref) return schema
   const name = schema.$ref.split('/').at(-1)
   const resolved = name ? schemas?.[name] : undefined

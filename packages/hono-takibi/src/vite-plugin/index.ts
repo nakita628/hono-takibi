@@ -214,7 +214,7 @@ function snapshotOutputs(outputPaths: readonly string[]) {
 function sameOutputSnapshot(
   before: ReadonlyMap<string, number>,
   after: ReadonlyMap<string, number>,
-): boolean {
+) {
   return (
     before.size === after.size &&
     [...before].every(([file, mtimeMs]) => after.get(file) === mtimeMs)
@@ -272,7 +272,7 @@ function runAllGenerationTasks(config: Config) {
  * Watches the input file and related files (.yaml, .json, .tsp) in the
  * same directory for changes.
  */
-function addInputGlobsToWatcher(server: ViteDevServer, absoluteInputPath: string): string {
+function addInputGlobsToWatcher(server: ViteDevServer, absoluteInputPath: string) {
   const inputDirectory = path.dirname(absoluteInputPath)
   const watchPatterns: string[] = [
     absoluteInputPath,

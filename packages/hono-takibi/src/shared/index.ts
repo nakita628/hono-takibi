@@ -238,7 +238,7 @@ function refKinds(node: unknown, found = new Set<string>()): ReadonlySet<string>
  * are generated from `paths`, webhooks from `webhooks`, and each component kind from its
  * own section.
  */
-export function referencedKinds(openAPI: OpenAPI): ReadonlyMap<string, ReadonlySet<string>> {
+export function referencedKinds(openAPI: OpenAPI) {
   return new Map([
     ['routes', refKinds(openAPI.paths)],
     ['webhooks', refKinds(openAPI.webhooks)],

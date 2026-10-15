@@ -167,7 +167,7 @@ export function makeHandlerFileName(path: string, tags?: readonly string[]): `${
  * root `/` as `__root`. A segment that is a word of the language is prefixed the same way,
  * `/delete` as `__delete`.
  */
-export function handlerGroupOf(path: string, tags?: readonly string[]): string {
+export function handlerGroupOf(path: string, tags?: readonly string[]) {
   return groupNameOf(makeHandlerFileName(path, tags).replace(/\.ts$/u, ''))
 }
 
@@ -506,7 +506,7 @@ function makeMockFileContent(
     : `${importStatements}\n\n${handler.contents.join('\n\n')}`
 }
 
-function makeBarrelContent(fileNames: readonly string[]): string {
+function makeBarrelContent(fileNames: readonly string[]) {
   return fileNames.map((h) => `export * from './${basename(h, '.ts')}'`).join('\n')
 }
 

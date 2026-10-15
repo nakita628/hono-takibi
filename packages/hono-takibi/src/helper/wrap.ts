@@ -147,7 +147,7 @@ const decorationProps = new Set([
  * around it. It is what a schema emitted inside another one is made from — a branch of a
  * type list, the base of a `not` — so that the decoration is written once, outside.
  */
-export function undecorated(schema: Schema): Schema {
+export function undecorated(schema: Schema) {
   return Object.entries(schema).reduce<Schema>(
     (kept, [key, value]) =>
       zodExpressedProps.has(key) && !decorationProps.has(key)
@@ -157,7 +157,7 @@ export function undecorated(schema: Schema): Schema {
   )
 }
 
-function makeSerializedParam(param: Parameter): string {
+function makeSerializedParam(param: Parameter) {
   // Skip keys whose value is `undefined` so the emitted object never contains a
   // bare `undefined`.
   const entries = Object.entries(param)

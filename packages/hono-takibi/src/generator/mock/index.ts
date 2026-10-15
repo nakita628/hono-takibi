@@ -135,7 +135,7 @@ function detectCircularSchemas(schemas: { readonly [k: string]: Schema }) {
 // is used instead of the schema-shaped `collectRefs` so no reference position
 // is missed: under-collection would drop a const a route references (TS2304),
 // whereas over-collection only risks a harmless unused-var.
-function collectSchemaRefs(node: unknown, refs: Set<string>): Set<string> {
+function collectSchemaRefs(node: unknown, refs: Set<string>) {
   if (Array.isArray(node)) {
     for (const item of node) collectSchemaRefs(item, refs)
     return refs
@@ -291,7 +291,7 @@ function filterToJsonContentTypes(openapi: OpenAPI) {
 function resolveResponse(
   response: Responses | undefined,
   componentResponses: { readonly [k: string]: Responses } | undefined,
-): Responses | undefined {
+) {
   if (!response) return undefined
   if (isRefObject(response) && response.$ref) {
     const refName = response.$ref.split('/').at(-1)
@@ -377,7 +377,7 @@ function makeAuthCheck(
 function exampleEntryValue(
   entry: NonNullable<Media['examples']>[string],
   components: Components | undefined,
-): unknown {
+) {
   if ('$ref' in entry && typeof entry.$ref === 'string') {
     const name = entry.$ref.split('/').at(-1)
     const resolved = name ? components?.examples?.[name] : undefined
@@ -389,7 +389,7 @@ function exampleEntryValue(
 // Reads a media object's representative example. Mirrors the docs generator's
 // `extractMediaExample`: `example` (singular) wins, otherwise the first entry of
 // `examples`, so the handler falls back to faker when that entry has no value.
-function extractMediaExample(media: Media, components: Components | undefined): unknown {
+function extractMediaExample(media: Media, components: Components | undefined) {
   if (media.example !== undefined) return media.example
   const first = Object.values(media.examples ?? {})[0]
   return first ? exampleEntryValue(first, components) : undefined
@@ -492,7 +492,7 @@ function resolveMedia(
   media: Media | Reference | undefined,
   components: Components | undefined,
   seen = new Set<string>(),
-): Media | undefined {
+) {
   if (media === undefined) return undefined
   if (isInlineMedia(media)) return media
   const name = media.$ref?.split('/').at(-1)
@@ -505,7 +505,7 @@ function describeResponse(
   response: Responses,
   components: Components | undefined,
   useExamples: boolean,
-): MockResponse {
+) {
   const jsonType = jsonMediaType(response.content)
   const jsonMedia = resolveMedia(jsonType ? response.content?.[jsonType] : undefined, components)
   const textMedia = resolveMedia(response.content?.[TEXT_MEDIA_TYPE], components)

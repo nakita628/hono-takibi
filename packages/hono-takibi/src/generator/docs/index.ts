@@ -142,7 +142,7 @@ function pointerSegments(ref: string): readonly string[] | undefined {
  * Resolves a `$ref` against the document itself, so references into `paths`
  * (as a bundler emits them) resolve as well as those into `components`.
  */
-function resolveRef(ref: string, doc: OpenAPI): unknown {
+function resolveRef(ref: string, doc: OpenAPI) {
   const segments = pointerSegments(ref)
   if (!segments) return undefined
   return segments.reduce<unknown>((node, segment) => {
@@ -156,7 +156,7 @@ function resolveRef(ref: string, doc: OpenAPI): unknown {
  * Follows a Reference Object until it reaches a value. Schemas go through
  * `derefSchema` instead, which also tracks cycles.
  */
-function resolveRefDeep(value: unknown, doc: OpenAPI, hops = 0): unknown {
+function resolveRefDeep(value: unknown, doc: OpenAPI, hops = 0) {
   if (!isRefObject(value)) return value
   if (hops >= MAX_REF_HOPS) return undefined
   return resolveRefDeep(resolveRef(value.$ref, doc), doc, hops + 1)
@@ -229,7 +229,7 @@ function hasPayload(media: MediaLike) {
  * Picks the JSON media of a content map: `application/json` first, then any
  * JSON-flavoured type such as `application/problem+json`.
  */
-function pickJsonMedia(content: unknown, doc: OpenAPI): PickedMedia | undefined {
+function pickJsonMedia(content: unknown, doc: OpenAPI) {
   const all = listMedia(content, doc).filter(({ media }) => hasPayload(media))
   return (
     all.find(({ mediaType }) => baseMediaType(mediaType) === JSON_MEDIA_TYPE) ??
@@ -241,7 +241,7 @@ function pickJsonMedia(content: unknown, doc: OpenAPI): PickedMedia | undefined 
  * Picks the media that documents a body: JSON, then the two form encodings,
  * then whatever comes first.
  */
-function pickMedia(content: unknown, doc: OpenAPI): PickedMedia | undefined {
+function pickMedia(content: unknown, doc: OpenAPI) {
   const all = listMedia(content, doc)
   return (
     pickJsonMedia(content, doc) ??
@@ -274,7 +274,7 @@ function makeFence(content: string, language: string): readonly string[] {
  * `visited` holds the `$ref`s on the current path only, so a schema referenced
  * by two sibling properties is expanded for both while a cycle still stops.
  */
-function withRef(visited: ReadonlySet<string>, ref: string): ReadonlySet<string> {
+function withRef(visited: ReadonlySet<string>, ref: string) {
   return new Set([...visited, ref])
 }
 
@@ -282,11 +282,7 @@ function withRef(visited: ReadonlySet<string>, ref: string): ReadonlySet<string>
  * Follows `$ref` to the schema it names. Returns `undefined` when the
  * reference is unknown or already on the current path.
  */
-function derefSchema(
-  schema: Schema,
-  doc: OpenAPI,
-  visited: ReadonlySet<string>,
-): { readonly schema: Schema; readonly visited: ReadonlySet<string> } | undefined {
+function derefSchema(schema: Schema, doc: OpenAPI, visited: ReadonlySet<string>) {
   if (!schema.$ref) return { schema, visited }
   if (visited.has(schema.$ref)) return undefined
   const resolved = resolveRef(schema.$ref, doc)
@@ -528,7 +524,7 @@ function makeNumberExample(schema: Schema, integer: boolean) {
   return Number(fitted.toPrecision(12))
 }
 
-function makeDefaultValue(schema: Schema): unknown {
+function makeDefaultValue(schema: Schema) {
   // oxlint-disable-next-line typescript/switch-exhaustiveness-check -- the default branch covers every other type
   switch (primaryType(schema)) {
     case 'string':
@@ -651,12 +647,12 @@ function makeExampleFromSchema(
   return makeDefaultValue(schema)
 }
 
-function extractMediaExample(media: MediaLike, doc: OpenAPI): unknown {
+function extractMediaExample(media: MediaLike, doc: OpenAPI) {
   if (media.example !== undefined) return media.example
   return firstExampleValue(media.examples, doc)
 }
 
-function makeMediaExample(media: MediaLike, doc: OpenAPI, direction: Direction): unknown {
+function makeMediaExample(media: MediaLike, doc: OpenAPI, direction: Direction) {
   const mediaExample = extractMediaExample(media, doc)
   if (mediaExample !== undefined) return mediaExample
   return media.schema ? makeExampleFromSchema(media.schema, doc, direction) : undefined
@@ -870,7 +866,7 @@ function parameterSchema(parameter: Parameter, doc: OpenAPI) {
   return listMedia(parameter.content, doc)[0]?.media.schema
 }
 
-function makeParameterExample(parameter: Parameter, doc: OpenAPI): unknown {
+function makeParameterExample(parameter: Parameter, doc: OpenAPI) {
   if (parameter.example !== undefined) return parameter.example
   const listed = firstExampleValue(parameter.examples, doc)
   if (listed !== undefined) return listed
@@ -1925,7 +1921,7 @@ export function makeDocs(
   basePath = '/',
   curl = false,
   baseUrl?: string,
-): string {
+) {
   const title = toText(openAPI.info?.title) ?? 'API'
   const version = toText(openAPI.info?.version) ?? ''
   // A version that already reads `v1` must not become `vv1`.
