@@ -972,12 +972,21 @@ const ConfigSchema = Schema.Struct({
           examples: ['@packages/client'],
         }),
       ),
+      credentials: Schema.optionalKey(
+        Schema.Literals(['include', 'same-origin', 'omit']).annotate({
+          title: 'Credentials',
+          description:
+            'The `credentials` of every request the client sends, written as `hc(baseUrl, { init: { credentials } })`: the `RequestCredentials` of `fetch`. `include` sends the cookies to any origin, which a client of an API on another origin needs for a session cookie (the server answers with `Access-Control-Allow-Credentials: true`); `same-origin`, the default of the browser, sends them to the origin of the page alone; `omit` sends none. Left out, nothing is written and the browser decides.',
+          examples: ['include'],
+        }),
+      ),
     }).annotate({
       title: 'Typed client',
       description:
         'The Hono client of the scaffolded app, with its type declared once so that it is worked out when the file is compiled. With `template.split`, one client for each group, `booksClient` for `books`, and `client` for the routes that belong to none. `rpc` and the hooks import from it: relatively, or by `package` from another package. Needs `template`.',
       examples: [
         { output: './src/client.ts', baseUrl: '/' },
+        { output: './src/client.ts', baseUrl: '/', credentials: 'include' },
         {
           output: '../client/src/client.ts',
           baseUrl: '/',

@@ -49,14 +49,14 @@ const ALL_SCALARS: readonly WireKind[] = ['number', 'truth', 'string']
 export const WIRE_NULL = "(val)=>(val==='null'?null:val)"
 
 /** Looks a `#/components/schemas/<name>` reference up; anything else is not resolved. */
-export function resolveSchemaRef(ref: string, schemas: Schemas | undefined): Schema | undefined {
+export function resolveSchemaRef(ref: string, schemas: Schemas | undefined) {
   if (!ref.startsWith(COMPONENT_REF_PREFIX.schemas)) return undefined
   const name = ref.slice(COMPONENT_REF_PREFIX.schemas.length)
   if (name.includes('/')) return undefined
   return schemas?.[decodeURIComponent(name)]
 }
 
-function primitiveKind(value: unknown): WireKind | undefined | null {
+function primitiveKind(value: unknown) {
   if (value === null) return null
   if (typeof value === 'string') return 'string'
   if (typeof value === 'boolean') return 'boolean'
@@ -64,7 +64,7 @@ function primitiveKind(value: unknown): WireKind | undefined | null {
   return undefined
 }
 
-function typeKind(type: string, format: string | undefined): WireKind | undefined | null {
+function typeKind(type: string, format: string | undefined) {
   if (type === 'null') return null
   if (type === 'string') return 'string'
   if (type === 'boolean') return 'boolean'
@@ -351,10 +351,7 @@ function wireReaders(kinds: readonly WireKind[]): readonly string[] {
  * `keep` lists the text that is a valid value as it stands (the string members of a mixed
  * `enum`), which is therefore never converted.
  */
-export function wireConverter(
-  kinds: readonly WireKind[],
-  keep: readonly string[] = [],
-): string | undefined {
+export function makeWireConverter(kinds: readonly WireKind[], keep: readonly string[] = []) {
   const readers = wireReaders(kinds)
   const [only] = readers
   if (only === undefined) return undefined
@@ -371,13 +368,13 @@ export function wireConverter(
  * tried as each in turn, and the first reading the schema accepts is the value. The schema
  * is returned as it is when its kinds need no conversion.
  */
-export function wrapWire(
+export function makeWrappedWire(
   zod: string,
   kinds: readonly WireKind[],
   component = false,
   // The text `null` is tried as the value after every other reading.
   nullLast = false,
-): string {
+) {
   const readers = wireReaders(kinds)
   const [only] = readers
   if (only === undefined) return zod
@@ -435,7 +432,7 @@ export const WIRE_JSON =
  * a value of the parameter: it is read as `undefined`, which the schema rejects. `empty` is
  * how the style spells a value that holds nothing, `;id` beside `;id=5`.
  */
-function unprefixed(prefix: string, empty?: string, separator?: string) {
+function makeUnprefixed(prefix: string, empty?: string, separator?: string) {
   const held = `val.startsWith(${JSON.stringify(prefix)})?val.slice(${prefix.length}):undefined`
   const rest = empty === undefined ? held : `val===${JSON.stringify(empty)}?'':${held}`
   // An array is what is left, split on what stands between its elements.
@@ -444,7 +441,7 @@ function unprefixed(prefix: string, empty?: string, separator?: string) {
 }
 
 /** Splits one piece of text, or each piece of a repeated parameter, on a separator. */
-function splitOn(separator: string, trim = false) {
+function makeSplitOn(separator: string, trim = false) {
   return `(val)=>(val===undefined?val:(Array.isArray(val)?val:[val]).flatMap((item)=>(typeof item==='string'?item.split(${JSON.stringify(separator)})${trim ? '.map((part)=>part.trim())' : ''}:[item])))`
 }
 
@@ -458,7 +455,7 @@ function splitOn(separator: string, trim = false) {
  * `1,2`, a header `1, 2`. A `label` or `matrix` path segment carries a prefix as well
  * (`.5`, `;id=5`), on a scalar as much as on an array.
  */
-export function wireStyle(parameter: Parameter, isArray: boolean): string | undefined {
+export function wireStyle(parameter: Parameter, isArray: boolean) {
   // A `content` parameter is one encoded document, not a serialised list.
   if (parameter.content !== undefined) return undefined
   // A one-element array is serialised as a single `?ids=1`, which arrives as a bare string.
@@ -466,31 +463,31 @@ export function wireStyle(parameter: Parameter, isArray: boolean): string | unde
   if (parameter.in === 'cookie') {
     // A cookie name appears once, so the only way a cookie carries several values is one
     // value holding them comma-separated, whatever `explode` says.
-    return isArray ? splitOn(',') : undefined
+    return isArray ? makeSplitOn(',') : undefined
   }
   if (parameter.in === 'query') {
     if (!isArray) return undefined
     const style = parameter.style ?? 'form'
     const explode = parameter.explode ?? style === 'form'
     if (explode) return bothArities
-    if (style === 'pipeDelimited') return splitOn('|')
-    if (style === 'spaceDelimited') return splitOn(' ')
-    if (style === 'form') return splitOn(',')
+    if (style === 'pipeDelimited') return makeSplitOn('|')
+    if (style === 'spaceDelimited') return makeSplitOn(' ')
+    if (style === 'form') return makeSplitOn(',')
     return bothArities
   }
   if (parameter.in === 'header') {
     // Optional whitespace may follow each comma, and a header sent several times reaches
     // the handler joined by ", ".
-    return isArray ? splitOn(',', true) : undefined
+    return isArray ? makeSplitOn(',', true) : undefined
   }
   const style = parameter.style ?? 'simple'
   const explode = parameter.explode ?? false
   if (style === 'label') {
-    return unprefixed('.', undefined, isArray ? (explode ? '.' : ',') : undefined)
+    return makeUnprefixed('.', undefined, isArray ? (explode ? '.' : ',') : undefined)
   }
   if (style === 'matrix') {
     const assigned = `;${parameter.name}=`
-    return unprefixed(
+    return makeUnprefixed(
       assigned,
       `;${parameter.name}`,
       isArray ? (explode ? assigned : ',') : undefined,
@@ -511,7 +508,7 @@ export function wireStyle(parameter: Parameter, isArray: boolean): string | unde
  * An object is `open` when it declares `additionalProperties`: it takes keys it does not
  * name.
  */
-export type WireObject = {
+type WireObject = {
   readonly name: string
   readonly how: 'deep' | 'spread' | 'value'
   readonly properties: readonly string[]
@@ -532,11 +529,6 @@ function resolveObject(
   return normalizeTypes(schema.type).includes('object') || schema.properties !== undefined
     ? schema
     : undefined
-}
-
-/** Whether a parameter is an object, whatever its location and style. */
-export function isObjectParameter(parameter: Parameter, schemas: Schemas | undefined) {
-  return parameter.schema !== undefined && resolveObject(parameter.schema, schemas) !== undefined
 }
 
 /**
@@ -629,10 +621,7 @@ const DEEP_OBJECT_DEPTH = 16
  *
  * The objects are built without a prototype, so a key such as `__proto__` stays a key.
  */
-export function wireGather(
-  objects: readonly WireObject[],
-  taken: readonly string[],
-): string | undefined {
+export function makeWireGather(objects: readonly WireObject[], taken: readonly string[]) {
   const deep = objects.filter((object) => object.how === 'deep').map((object) => object.name)
   const exploded = objects.filter((object) => object.how === 'spread')
   const declared = [
@@ -727,7 +716,7 @@ function mayTakeNull(
 
 // Whether a schema takes any text as the string it is, which leaves nothing for a second
 // reading of the text to be tried for.
-function takesEveryText(schema: Schema | boolean): boolean {
+function takesEveryText(schema: Schema | boolean) {
   if (typeof schema === 'boolean') return schema
   // A schema that names no type and constrains nothing takes text like a string does.
   const types = normalizeTypes(schema.type)
@@ -757,10 +746,7 @@ function takesEveryText(schema: Schema | boolean): boolean {
  * - `last`: the schema takes strings, so the text is the value only when it is not valid as
  *   the string: `not: { type: string }`, a string `enum` beside `null`.
  */
-export function nullReading(
-  schema: Schema | boolean,
-  schemas: Schemas | undefined,
-): 'first' | 'last' | undefined {
+export function nullReading(schema: Schema | boolean, schemas: Schemas | undefined) {
   const kinds = wireKinds(schema, schemas)
   if (kinds === undefined) {
     // An array whose elements are no strings has no element the text `null` could be.

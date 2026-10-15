@@ -4,7 +4,7 @@ import { readFile, writeFile } from '../../file/index.js'
 import { fmt } from '../../format/index.js'
 import { app, appGroups } from '../../generator/zod-openapi-hono/app/index.js'
 import {
-  appEntryFile,
+  makeAppEntryFile,
   entryNames,
   resolveInlineHandlerFileNames,
   zodOpenAPIHonoHandler,
@@ -25,7 +25,7 @@ export function template(
   split = false,
 ) {
   return Effect.gen(function* () {
-    const target = appEntryFile(output, false)
+    const target = makeAppEntryFile(output, false)
     yield* zodOpenAPIHonoHandler(
       openAPI,
       output,

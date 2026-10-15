@@ -10660,3 +10660,102 @@ describe('hooks: the root of an application under a base path', () => {
     expect(code).toContain('client.index.$get(undefined, {')
   })
 })
+
+describe('hooks: a cookie parameter is left out of the key, as a header is', () => {
+  // A header and a cookie say who asks, not what is asked for, and a token in the key would
+  // be written out by a persisted cache. In the browser a cookie argument is not even sent.
+  // ヘッダーとクッキーは「誰が求めるか」であって「何を求めるか」ではなく、キーに入った
+  // トークンは永続化されたキャッシュに書き出される。ブラウザではクッキー引数は送信すらされない。
+  const spec = {
+    openapi: '3.1.0',
+    info: { title: 'T', version: '1.0.0' },
+    paths: {
+      '/users': {
+        get: {
+          'x-pagination': true,
+          parameters: [
+            { name: 'limit', in: 'query', schema: { type: 'integer' } },
+            { name: 'x-tenant', in: 'header', schema: { type: 'string' }, required: true },
+            { name: 'session', in: 'cookie', schema: { type: 'string' }, required: true },
+          ],
+          responses: { '200': { description: 'OK' } },
+        },
+      },
+      '/items': {
+        get: {
+          parameters: [
+            { name: 'limit', in: 'query', schema: { type: 'integer' } },
+            { name: 'session', in: 'cookie', schema: { type: 'string' }, required: true },
+          ],
+          responses: { '200': { description: 'OK' } },
+        },
+      },
+    },
+  } as OpenAPI
+
+  async function generate(library: Parameters<typeof hooks>[3]) {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-cookie-key-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      await runGenerator(hooks(spec, out, '../client', library))
+      return fs.readFileSync(out, 'utf-8')
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  }
+
+  // Both are destructured away, in the query key and the infinite key alike.
+  // query key と infinite key のどちらでも、両方が分割代入で取り除かれる。
+  it('leaves header and cookie out of the TanStack Query keys', async () => {
+    const code = await generate('tanstack-query')
+    expect(code)
+      .toContain(`export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  const { header: _, cookie: __, ...keyArgs } = args
+  return ['users', '/users', keyArgs] as const
+}`)
+    expect(code)
+      .toContain(`export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  const { header: _, cookie: __, ...keyArgs } = args
+  return ['users', '/users', 'infinite', keyArgs] as const
+}`)
+  })
+
+  // A cookie alone is left out the same way.
+  // クッキーだけの場合も、同じように取り除かれる。
+  it('leaves a cookie alone out of the TanStack Query key', async () => {
+    const code = await generate('tanstack-query')
+    expect(code)
+      .toContain(`export function getItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
+  const { cookie: _, ...keyArgs } = args
+  return ['items', '/items', keyArgs] as const
+}`)
+  })
+
+  // The same for SWR, whose keys are built the same way.
+  // キーの作り方が同じ SWR でも同様である。
+  it('leaves header and cookie out of the SWR keys', async () => {
+    const code = await generate('swr')
+    expect(code)
+      .toContain(`export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
+  const { header: _, cookie: __, ...keyArgs } = args
+  return ['users', '/users', keyArgs] as const
+}`)
+    expect(code)
+      .toContain(`export function getGetItemsKey(args: InferRequestType<typeof client.items.$get>) {
+  const { cookie: _, ...keyArgs } = args
+  return ['items', '/items', keyArgs] as const
+}`)
+  })
+
+  // Vue reads the arguments through toValue first.
+  // Vue は先に toValue で引数を読む。
+  it('leaves header and cookie out of the Vue Query keys', async () => {
+    const code = await generate('vue-query')
+    expect(code).toContain(`export function getUsersQueryKey(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+) {
+  const { header: _, cookie: __, ...keyArgs } = toValue(args)
+  return ['users', '/users', keyArgs] as const
+}`)
+  })
+})

@@ -19,7 +19,7 @@ export function zodType(
   typeName: string,
   cyclicGroup?: ReadonlySet<string>,
   readonly?: boolean,
-): string {
+) {
   const typeIsObject = Array.isArray(schema.type)
     ? schema.type.includes('object')
     : schema.type === 'object'

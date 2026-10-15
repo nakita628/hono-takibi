@@ -169,23 +169,6 @@ export function parsePathItem(rawItem: { readonly [k: string]: unknown }): {
   } as const
 }
 
-export function makeParseResponseType(
-  clientName: string,
-  pathResult: {
-    readonly runtimePath: string
-    readonly typeofPrefix: string
-    readonly bracketSuffix: string
-    readonly hasBracket: boolean
-  },
-  method: (typeof HTTP_METHODS)[number],
-) {
-  const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
-  const clientMethodType = hasBracket
-    ? `typeof ${clientName}${typeofPrefix}${bracketSuffix}['$${method}']`
-    : `typeof ${clientName}${runtimePath}.$${method}`
-  return `Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<${clientMethodType}>>>>>`
-}
-
 export function makeOperationDeps(
   clientName: string,
   componentsParameters: { readonly [k: string]: unknown },

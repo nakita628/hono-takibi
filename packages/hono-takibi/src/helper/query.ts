@@ -8,7 +8,7 @@ import { GenerateError } from '../error/index.js'
 import { hasNoContentResponse, isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
 import { capitalize, methodPath, toIdentifierPascalCase } from '../utils/index.js'
-import { groupClientName, operationTags } from './group.js'
+import { makeGroupClientName, operationTags } from './group.js'
 import type { Grouping } from './group.js'
 import { formatPath, makeOperationDeps, operationHasArgs, parsePathItem } from './rpc.js'
 
@@ -25,7 +25,9 @@ type HookTail = {
 }
 
 function makeHookTail(tail: HookTail | undefined, kind: 'query' | 'infinite' | 'mutation') {
-  return tail ? { sig: `,${tail.name}?:${tail[kind]}`, arg: `,${tail.name}` } : { sig: '', arg: '' }
+  return tail
+    ? ({ sig: `,${tail.name}?:${tail[kind]}` as const, arg: `,${tail.name}` as const } as const)
+    : ({ sig: '' as const, arg: '' as const } as const)
 }
 
 // Solid Query types its option objects as `Accessor<...>` (a thunk), because `createQuery`
@@ -33,22 +35,22 @@ function makeHookTail(tail: HookTail | undefined, kind: 'query' | 'infinite' | '
 // *unwrapped* object: spreading an accessor copies a function's (empty) own properties, so the
 // caller's options are silently dropped at runtime and TError never reaches the result.
 // `ReturnType<...>` is the same unwrapping Solid itself uses to declare `queryOptions()`.
-function wrapOptionsType(optionsType: string, unwrapAccessor?: boolean) {
-  return unwrapAccessor ? `ReturnType<${optionsType}>` : optionsType
+function makeOptionsType(optionsType: string, unwrapAccessor?: boolean) {
+  return unwrapAccessor ? (`ReturnType<${optionsType}>` as const) : optionsType
 }
 
 // The hook supplies these itself, so `options.query` leaves them out — the shape
 // openapi-react-query uses. The libraries type `queryKey` as required, which otherwise forces the
 // caller to pass a key the hook then overwrites, and leaves `select` unable to bind TData.
-const QUERY_OMIT_KEYS = `'queryKey'|'queryFn'`
+const QUERY_OMIT_KEYS = `'queryKey'|'queryFn'` as const
 // Infinite hooks with the helper also supply both page-param functions, from `pagination`.
-const INFINITE_OMIT_KEYS = `'queryKey'|'queryFn'|'initialPageParam'|'getNextPageParam'`
+const INFINITE_OMIT_KEYS = `'queryKey'|'queryFn'|'initialPageParam'|'getNextPageParam'` as const
 // Mutation hooks supply `mutationFn` — the operation contract that types `data` — so the slot
 // leaves it out. `mutationKey` stays: mutations are not cached, so the key is metadata rather
 // than identity (`useIsMutating` / `useMutationState` filter on it, `setMutationDefaults`
 // registers against it), and the hook honours the caller's key over the factory's, the way the
 // SWR mutation hook already honours `swrKey`.
-const MUTATION_OMIT_KEYS = `'mutationFn'`
+const MUTATION_OMIT_KEYS = `'mutationFn'` as const
 
 // Vue's option types are unions — `MaybeRef<{...}>` (`Ref | ComputedRef | object`), plus a getter
 // for mutations — and a plain `Omit` over a union keeps only the keys every member shares: none.
@@ -56,16 +58,16 @@ const MUTATION_OMIT_KEYS = `'mutationFn'`
 // that member. For queries it is the only one with the required `queryKey`. Mutation options are
 // all optional, so the probe is a weak type: a `Ref` (only `value`) and a getter (no properties)
 // share nothing with it and drop out, while the plain object matches.
-const VUE_QUERY_MEMBER = `{queryKey:unknown}`
-const VUE_MUTATION_MEMBER = `{mutationFn?:unknown}`
-function omitInjectedKeys(optionsType: string, keys: string, vueMember?: string) {
-  const objectType = vueMember ? `Extract<${optionsType},${vueMember}>` : optionsType
-  return `Omit<${objectType},${keys}>`
+const VUE_QUERY_MEMBER = `{queryKey:unknown}` as const
+const VUE_MUTATION_MEMBER = `{mutationFn?:unknown}` as const
+function makeOmitInjectedKeys(optionsType: string, keys: string, vueMember?: string) {
+  const objectType = vueMember ? (`Extract<${optionsType},${vueMember}>` as const) : optionsType
+  return `Omit<${objectType},${keys}>` as const
 }
 
 function makeHookName(method: string, pathStr: string, prefix: string) {
   const funcName = methodPath(method, pathStr)
-  return `${prefix}${capitalize(funcName)}`
+  return `${prefix}${capitalize(funcName)}` as const
 }
 
 // e.g. ('client','get','/users/{id}') → "client.users[':id'].$get"
@@ -84,8 +86,8 @@ function makeRuntimeAccess(
 function makeTypeAccess(clientName: string, method: string, pathStr: string, hasBasePath = false) {
   const pathResult = formatPath(pathStr, hasBasePath)
   return pathResult.hasBracket
-    ? `typeof ${clientName}${pathResult.typeofPrefix}${pathResult.bracketSuffix}['$${method}']`
-    : `typeof ${clientName}${pathResult.runtimePath}.$${method}`
+    ? (`typeof ${clientName}${pathResult.typeofPrefix}${pathResult.bracketSuffix}['$${method}']` as const)
+    : (`typeof ${clientName}${pathResult.runtimePath}.$${method}` as const)
 }
 
 // Chains Awaited/ReturnType/typeof parseResponse to derive parsed JSON shape.
@@ -95,11 +97,11 @@ function makeResponseTypeFromClient(
   pathStr: string,
   hasBasePath = false,
 ) {
-  return `Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<${makeTypeAccess(clientName, method, pathStr, hasBasePath)}>>>>>`
+  return `Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<${makeTypeAccess(clientName, method, pathStr, hasBasePath)}>>>>>` as const
 }
 
 function makeArgsType(clientName: string, method: string, pathStr: string, hasBasePath = false) {
-  return `InferRequestType<${makeTypeAccess(clientName, method, pathStr, hasBasePath)}>`
+  return `InferRequestType<${makeTypeAccess(clientName, method, pathStr, hasBasePath)}>` as const
 }
 
 // GET is the resource's default read, so its query-side names carry only the path (`useUsers`,
@@ -113,9 +115,9 @@ function queryNameMethod(method: string) {
 
 function makeQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean) {
   if (isSWR) {
-    return `get${capitalize(methodPath(method, pathStr))}Key`
+    return `get${capitalize(methodPath(method, pathStr))}Key` as const
   }
-  return `get${capitalize(methodPath(queryNameMethod(method), pathStr))}QueryKey`
+  return `get${capitalize(methodPath(queryNameMethod(method), pathStr))}QueryKey` as const
 }
 
 // Mutations keep the method in their key — several methods share a path — and, like the query
@@ -144,8 +146,24 @@ function makeInfiniteQueryKeyGetterName(method: string, pathStr: string, isSWR?:
 // unwraps once at setup and freezes the key, and a changed `Ref` would never refetch. `computed`
 // keeps it live — Vue Query unwraps `MaybeRefDeep` keys itself. The key getters stay plain
 // arrays, which is what invalidation and cache lookups want.
-function vueReactiveKey(keyCall: string) {
-  return `computed(()=>${keyCall})`
+function makeVueReactiveKey(keyCall: string) {
+  return `computed(()=>${keyCall})` as const
+}
+
+// The parts of the arguments a key leaves out. A header and a cookie say who asks, not what
+// is asked for: the same resource under another token is the same cache entry, and a token
+// in the key would be written out by a persisted cache and shown by the devtools. In the
+// browser a `cookie` argument is not even sent, `Cookie` being a forbidden header.
+const KEY_EXCLUDED_ARGS = ['header', 'cookie'] as const
+
+type KeyExcludedArg = (typeof KEY_EXCLUDED_ARGS)[number]
+
+// What stands for the arguments in a key: the arguments as they are, or the rest of them
+// after the excluded parts are destructured away, `const{header:_,cookie:__,...keyArgs}=args`.
+function makeKeyArgs(excluded: readonly KeyExcludedArg[], args: string) {
+  if (excluded.length === 0) return { declaration: '', value: args } as const
+  const picks = excluded.map((name, i) => `${name}:${'_'.repeat(i + 1)}`).join(',')
+  return { declaration: `const{${picks},...keyArgs}=${args};`, value: 'keyArgs' } as const
 }
 
 // Structured key pattern: ['prefix','/full/path',args?] enables both per-prefix
@@ -162,26 +180,21 @@ function makeQueryKeyGetterCode(
     readonly isVueQuery?: boolean
     readonly isSWR?: boolean
   },
-  hasHeader = false,
+  excluded: readonly KeyExcludedArg[] = [],
   method = 'get',
 ) {
   // First path segment, e.g. '/pet/findByStatus' → 'pet'
   const prefix = honoPath.replace(/^\//u, '').split('/')[0]
   const methodKey = method === 'get' ? '' : `,'${method.toUpperCase()}'`
-  if (config.isVueQuery) {
-    if (hasArgs) {
-      return `export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','${honoPath}'${methodKey},${hasHeader ? 'keyArgs' : 'toValue(args)'}]as const}`
-    }
+  if (!hasArgs) {
     return `export function ${keyGetterName}(){return['${prefix}','${honoPath}'${methodKey}]as const}`
   }
-  if (hasArgs) {
-    // REST: headers are metadata, not resource identifiers — excluded from key.
-    const body = hasHeader
-      ? `const{header:_,...keyArgs}=args;return['${prefix}','${honoPath}'${methodKey},keyArgs]as const`
-      : `return['${prefix}','${honoPath}'${methodKey},args]as const`
-    return `export function ${keyGetterName}(args:${argsType}){${body}}`
+  if (config.isVueQuery) {
+    const { declaration, value } = makeKeyArgs(excluded, 'toValue(args)')
+    return `export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${declaration}return['${prefix}','${honoPath}'${methodKey},${value}]as const}`
   }
-  return `export function ${keyGetterName}(){return['${prefix}','${honoPath}'${methodKey}]as const}`
+  const { declaration, value } = makeKeyArgs(excluded, 'args')
+  return `export function ${keyGetterName}(args:${argsType}){${declaration}return['${prefix}','${honoPath}'${methodKey},${value}]as const}`
 }
 
 // Same as makeQueryKeyGetterCode with an 'infinite' segment after the path and before the args:
@@ -194,25 +207,20 @@ function makeInfiniteQueryKeyGetterCode(
   argsType: string,
   honoPath: string,
   config: { readonly frameworkName: string; readonly isVueQuery?: boolean },
-  hasHeader = false,
+  excluded: readonly KeyExcludedArg[] = [],
   method = 'get',
 ) {
   const prefix = honoPath.replace(/^\//u, '').split('/')[0]
   const methodKey = method === 'get' ? '' : `,'${method.toUpperCase()}'`
-
+  if (!hasArgs) {
+    return `export function ${keyGetterName}(){return['${prefix}','${honoPath}'${methodKey},'infinite']as const}` as const
+  }
   if (config.isVueQuery) {
-    if (hasArgs) {
-      return `export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','${honoPath}'${methodKey},'infinite',${hasHeader ? 'keyArgs' : 'toValue(args)'}]as const}`
-    }
-    return `export function ${keyGetterName}(){return['${prefix}','${honoPath}'${methodKey},'infinite']as const}`
+    const { declaration, value } = makeKeyArgs(excluded, 'toValue(args)')
+    return `export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${declaration}return['${prefix}','${honoPath}'${methodKey},'infinite',${value}]as const}` as const
   }
-  if (hasArgs) {
-    const infBody = hasHeader
-      ? `const{header:_,...keyArgs}=args;return['${prefix}','${honoPath}'${methodKey},'infinite',keyArgs]as const`
-      : `return['${prefix}','${honoPath}'${methodKey},'infinite',args]as const`
-    return `export function ${keyGetterName}(args:${argsType}){${infBody}}`
-  }
-  return `export function ${keyGetterName}(){return['${prefix}','${honoPath}'${methodKey},'infinite']as const}`
+  const { declaration, value } = makeKeyArgs(excluded, 'args')
+  return `export function ${keyGetterName}(args:${argsType}){${declaration}return['${prefix}','${honoPath}'${methodKey},'infinite',${value}]as const}` as const
 }
 
 /**
@@ -244,36 +252,43 @@ function makeQueryOptionsGetterCode(
     readonly errorType?: string
   },
 ) {
-  const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
+  const queryKeyCall = hasArgs
+    ? (`${keyGetterName}(args)` as const)
+    : (`${keyGetterName}()` as const)
   // With `queryOptions(...)` helper, `signal` is contextually typed; without, annotate explicitly.
-  const queryFnSig = config.hasQueryOptionsHelper ? '{signal}' : '{signal}:QueryFunctionContext'
+  const queryFnSig = config.hasQueryOptionsHelper
+    ? ('{signal}' as const)
+    : ('{signal}:QueryFunctionContext' as const)
   if (config.isVueQuery && hasArgs) {
-    const fetcherCall = `parseResponse(${runtimeAccess}(toValue(args),{...options,init:{...options?.init,signal}}))`
-    const bodyContent = `queryKey:${vueReactiveKey(queryKeyCall)},queryFn(${queryFnSig}){return ${fetcherCall}}`
+    const fetcherCall =
+      `parseResponse(${runtimeAccess}(toValue(args),{...options,init:{...options?.init,signal}}))` as const
+    const bodyContent =
+      `queryKey:${makeVueReactiveKey(queryKeyCall)},queryFn(${queryFnSig}){return ${fetcherCall}}` as const
     const returnExpr = config.hasQueryOptionsHelper
-      ? `queryOptions({${bodyContent}})`
-      : `{${bodyContent}}`
-    return `export function ${optionsGetterName}(args:MaybeRefOrGetter<${argsType}>,options?:ClientRequestOptions){return ${returnExpr}}`
+      ? (`queryOptions({${bodyContent}})` as const)
+      : (`{${bodyContent}}` as const)
+    return `export function ${optionsGetterName}(args:MaybeRefOrGetter<${argsType}>,options?:ClientRequestOptions){return ${returnExpr}}` as const
   }
   const fetcherCall = hasArgs
-    ? `parseResponse(${runtimeAccess}(args,{...options,init:{...options?.init,signal}}))`
-    : `parseResponse(${runtimeAccess}(undefined,{...options,init:{...options?.init,signal}}))`
-  const bodyContent = `queryKey:${queryKeyCall},queryFn(${queryFnSig}){return ${fetcherCall}}`
+    ? (`parseResponse(${runtimeAccess}(args,{...options,init:{...options?.init,signal}}))` as const)
+    : (`parseResponse(${runtimeAccess}(undefined,{...options,init:{...options?.init,signal}}))` as const)
+  const bodyContent =
+    `queryKey:${queryKeyCall},queryFn(${queryFnSig}){return ${fetcherCall}}` as const
   // Vue keeps the plain `queryOptions({...})` form: its hooks do not spread the factory
   // (see `makeQueryHookCode`), so the generics would be dead weight there.
   const carriesHookGenerics = config.hasQueryOptionsHelper === true && !config.isVueQuery
   const generics = carriesHookGenerics
-    ? `<TData=${responseType},TError=${config.errorType ?? 'unknown'}>`
-    : ''
+    ? (`<TData=${responseType},TError=${config.errorType ?? 'unknown'}>` as const)
+    : ('' as const)
   const returnExpr = carriesHookGenerics
-    ? `queryOptions<${responseType},TError,TData,ReturnType<typeof ${keyGetterName}>>({${bodyContent}})`
+    ? (`queryOptions<${responseType},TError,TData,ReturnType<typeof ${keyGetterName}>>({${bodyContent}})` as const)
     : config.hasQueryOptionsHelper
-      ? `queryOptions({${bodyContent}})`
-      : `{${bodyContent}}`
+      ? (`queryOptions({${bodyContent}})` as const)
+      : (`{${bodyContent}}` as const)
   if (hasArgs) {
-    return `export function ${optionsGetterName}${generics}(args:${argsType},options?:ClientRequestOptions){return ${returnExpr}}`
+    return `export function ${optionsGetterName}${generics}(args:${argsType},options?:ClientRequestOptions){return ${returnExpr}}` as const
   }
-  return `export function ${optionsGetterName}${generics}(options?:ClientRequestOptions){return ${returnExpr}}`
+  return `export function ${optionsGetterName}${generics}(options?:ClientRequestOptions){return ${returnExpr}}` as const
 }
 
 // `getRequestArgs` maps `pageParam` into the request. The mapper is supplied by the caller
@@ -285,21 +300,21 @@ function makeQueryOptionsGetterCode(
 // `TPageParam` parameter here cannot be fed without `as`. The caller narrows it (e.g. String()).
 function makeGetRequestArgsField(hasArgs: boolean, argsType: string) {
   return hasArgs
-    ? `getRequestArgs:(args:${argsType},pageParam:unknown)=>${argsType}`
-    : `getRequestArgs:(pageParam:unknown)=>${argsType}`
+    ? (`getRequestArgs:(args:${argsType},pageParam:unknown)=>${argsType}` as const)
+    : (`getRequestArgs:(pageParam:unknown)=>${argsType}` as const)
 }
 
 function makeRequestArgsCall(hasArgs: boolean) {
   return (argsExpr: string) =>
     hasArgs
-      ? `pagination.getRequestArgs(${argsExpr},pageParam)`
-      : `pagination.getRequestArgs(pageParam)`
+      ? (`pagination.getRequestArgs(${argsExpr},pageParam)` as const)
+      : (`pagination.getRequestArgs(pageParam)` as const)
 }
 
 // `getNextPageParam` mirrors TanStack's GetNextPageParamFunction arity, `allPageParams` included.
 // @see https://tanstack.com/query/latest/docs/framework/react/reference/useInfiniteQuery
 function makePaginationParam(hasArgs: boolean, argsType: string, responseType: string) {
-  return `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam,allPageParams:TPageParam[])=>TPageParam|undefined|null;${makeGetRequestArgsField(hasArgs, argsType)}}`
+  return `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam,allPageParams:TPageParam[])=>TPageParam|undefined|null;${makeGetRequestArgsField(hasArgs, argsType)}}` as const
 }
 
 // With helper: wraps `infiniteQueryOptions({...})` + required `pagination` arg. Like the
@@ -319,45 +334,57 @@ function makeInfiniteQueryOptionsGetterCode(
     readonly errorType?: string
   },
 ) {
-  const queryKeyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
-  const queryKeyType = `ReturnType<typeof ${infiniteKeyGetterName}>`
+  const queryKeyCall = hasArgs
+    ? `${infiniteKeyGetterName}(args)`
+    : (`${infiniteKeyGetterName}()` as const)
+  const queryKeyType = `ReturnType<typeof ${infiniteKeyGetterName}>` as const
   // Vue: the factory's key is a `ComputedRef`, and Vue Query cannot infer TQueryKey through
   // `MaybeRefDeep<ComputedRef<...>>`, so a context pinned to the exact tuple stops the factory
   // from spreading into `useInfiniteQuery`. The queryFn never reads `queryKey`, so keep it wide.
   const queryFnSig = config.isVueQuery
-    ? '{pageParam,signal}:QueryFunctionContext<readonly unknown[],TPageParam>'
-    : `{pageParam,signal}:QueryFunctionContext<${queryKeyType},TPageParam>`
+    ? ('{pageParam,signal}:QueryFunctionContext<readonly unknown[],TPageParam>' as const)
+    : (`{pageParam,signal}:QueryFunctionContext<${queryKeyType},TPageParam>` as const)
   const requestArgsCall = makeRequestArgsCall(hasArgs)
   if (config.hasInfiniteQueryOptionsHelper) {
     const paginationParam = makePaginationParam(hasArgs, argsType, responseType)
     if (config.isVueQuery && hasArgs) {
-      const fetcherCall = `parseResponse(${runtimeAccess}(${requestArgsCall('toValue(args)')},{...options,init:{...options?.init,signal}}))`
-      const body = `queryKey:${vueReactiveKey(queryKeyCall)},queryFn(${queryFnSig}){return ${fetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
-      return `export function ${optionsGetterName}<TPageParam=unknown>(args:MaybeRefOrGetter<${argsType}>,${paginationParam},options?:ClientRequestOptions){return infiniteQueryOptions({${body}})}`
+      const fetcherCall =
+        `parseResponse(${runtimeAccess}(${requestArgsCall('toValue(args)')},{...options,init:{...options?.init,signal}}))` as const
+      const body =
+        `queryKey:${makeVueReactiveKey(queryKeyCall)},queryFn(${queryFnSig}){return ${fetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam` as const
+      return `export function ${optionsGetterName}<TPageParam=unknown>(args:MaybeRefOrGetter<${argsType}>,${paginationParam},options?:ClientRequestOptions){return infiniteQueryOptions({${body}})}` as const
     }
-    const fetcherCall = `parseResponse(${runtimeAccess}(${requestArgsCall('args')},{...options,init:{...options?.init,signal}}))`
-    const body = `queryKey:${queryKeyCall},queryFn(${queryFnSig}){return ${fetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
-    const generics = `<TData=InfiniteData<${responseType}>,TError=${config.errorType ?? 'unknown'},TPageParam=unknown>`
-    const helperCall = `infiniteQueryOptions<${responseType},TError,TData,${queryKeyType},TPageParam>({${body}})`
+    const fetcherCall =
+      `parseResponse(${runtimeAccess}(${requestArgsCall('args')},{...options,init:{...options?.init,signal}}))` as const
+    const body =
+      `queryKey:${queryKeyCall},queryFn(${queryFnSig}){return ${fetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam` as const
+    const generics =
+      `<TData=InfiniteData<${responseType}>,TError=${config.errorType ?? 'unknown'},TPageParam=unknown>` as const
+    const helperCall =
+      `infiniteQueryOptions<${responseType},TError,TData,${queryKeyType},TPageParam>({${body}})` as const
     if (hasArgs) {
-      return `export function ${optionsGetterName}${generics}(args:${argsType},${paginationParam},options?:ClientRequestOptions){return ${helperCall}}`
+      return `export function ${optionsGetterName}${generics}(args:${argsType},${paginationParam},options?:ClientRequestOptions){return ${helperCall}}` as const
     }
-    return `export function ${optionsGetterName}${generics}(${paginationParam},options?:ClientRequestOptions){return ${helperCall}}`
+    return `export function ${optionsGetterName}${generics}(${paginationParam},options?:ClientRequestOptions){return ${helperCall}}` as const
   }
   // Branch 2: plain object (no helper). `pagination` carries only `getRequestArgs`; the caller
   // supplies initialPageParam/getNextPageParam via the spread-in options at the hook site.
   const vuePaginationParam = `pagination:{${makeGetRequestArgsField(hasArgs, argsType)}}`
   if (config.isVueQuery && hasArgs) {
-    const fetcherCall = `parseResponse(${runtimeAccess}(${requestArgsCall('toValue(args)')},{...options,init:{...options?.init,signal}}))`
-    const bodyContent = `queryKey:${vueReactiveKey(queryKeyCall)},queryFn(${queryFnSig}){return ${fetcherCall}}`
-    return `export function ${optionsGetterName}<TPageParam=unknown>(args:MaybeRefOrGetter<${argsType}>,${vuePaginationParam},options?:ClientRequestOptions){return {${bodyContent}}}`
+    const fetcherCall =
+      `parseResponse(${runtimeAccess}(${requestArgsCall('toValue(args)')},{...options,init:{...options?.init,signal}}))` as const
+    const bodyContent =
+      `queryKey:${makeVueReactiveKey(queryKeyCall)},queryFn(${queryFnSig}){return ${fetcherCall}}` as const
+    return `export function ${optionsGetterName}<TPageParam=unknown>(args:MaybeRefOrGetter<${argsType}>,${vuePaginationParam},options?:ClientRequestOptions){return {${bodyContent}}}` as const
   }
-  const fetcherCall = `parseResponse(${runtimeAccess}(${requestArgsCall('args')},{...options,init:{...options?.init,signal}}))`
-  const bodyContent = `queryKey:${queryKeyCall},queryFn(${queryFnSig}){return ${fetcherCall}}`
+  const fetcherCall =
+    `parseResponse(${runtimeAccess}(${requestArgsCall('args')},{...options,init:{...options?.init,signal}}))` as const
+  const bodyContent =
+    `queryKey:${queryKeyCall},queryFn(${queryFnSig}){return ${fetcherCall}}` as const
   if (hasArgs) {
-    return `export function ${optionsGetterName}<TPageParam=unknown>(args:${argsType},${vuePaginationParam},options?:ClientRequestOptions){return {${bodyContent}}}`
+    return `export function ${optionsGetterName}<TPageParam=unknown>(args:${argsType},${vuePaginationParam},options?:ClientRequestOptions){return {${bodyContent}}}` as const
   }
-  return `export function ${optionsGetterName}<TPageParam=unknown>(${vuePaginationParam},options?:ClientRequestOptions){return {${bodyContent}}}`
+  return `export function ${optionsGetterName}<TPageParam=unknown>(${vuePaginationParam},options?:ClientRequestOptions){return {${bodyContent}}}` as const
 }
 
 function makeMutationOptionsGetterCode(
@@ -374,28 +401,30 @@ function makeMutationOptionsGetterCode(
     readonly hookTail?: HookTail
   },
 ) {
-  const inlineKey = `${keyGetterName}()`
-  const errorType = config.errorType ?? 'unknown'
+  const inlineKey = `${keyGetterName}()` as const
+  const errorType = config.errorType ?? ('unknown' as const)
   // TError/TOnMutateResult are only useful when wrapped by `mutationOptions<...>`.
   // TOnMutateResult carries `onMutate`'s return value through to onError/onSuccess/onSettled.
   const tErrorGeneric = config.hasMutationOptionsHelper
-    ? `<TError=${errorType},TOnMutateResult=unknown>`
-    : ''
+    ? (`<TError=${errorType},TOnMutateResult=unknown>` as const)
+    : ('' as const)
   const dataType = hasNoContent ? `${responseType}|undefined` : responseType
-  const variablesType = hasArgs ? argsType : 'void'
-  const typeArgs = `<${dataType},TError,${variablesType},TOnMutateResult>`
+  const variablesType = hasArgs ? argsType : ('void' as const)
+  const typeArgs = `<${dataType},TError,${variablesType},TOnMutateResult>` as const
   if (hasArgs) {
-    const bodyContent = `mutationKey:${inlineKey},async mutationFn(args:${argsType}){return parseResponse(${runtimeAccess}(args,options))}`
+    const bodyContent =
+      `mutationKey:${inlineKey},async mutationFn(args:${argsType}){return parseResponse(${runtimeAccess}(args,options))}` as const
     const returnExpr = config.hasMutationOptionsHelper
-      ? `mutationOptions${typeArgs}({${bodyContent}})`
-      : `{${bodyContent}}`
-    return `export function ${optionsGetterName}${tErrorGeneric}(options?:ClientRequestOptions){return ${returnExpr}}`
+      ? (`mutationOptions${typeArgs}({${bodyContent}})` as const)
+      : (`{${bodyContent}}` as const)
+    return `export function ${optionsGetterName}${tErrorGeneric}(options?:ClientRequestOptions){return ${returnExpr}}` as const
   }
-  const bodyContent = `mutationKey:${inlineKey},async mutationFn(){return parseResponse(${runtimeAccess}(undefined,options))}`
+  const bodyContent =
+    `mutationKey:${inlineKey},async mutationFn(){return parseResponse(${runtimeAccess}(undefined,options))}` as const
   const returnExpr = config.hasMutationOptionsHelper
-    ? `mutationOptions${typeArgs}({${bodyContent}})`
-    : `{${bodyContent}}`
-  return `export function ${optionsGetterName}${tErrorGeneric}(options?:ClientRequestOptions){return ${returnExpr}}`
+    ? (`mutationOptions${typeArgs}({${bodyContent}})` as const)
+    : (`{${bodyContent}}` as const)
+  return `export function ${optionsGetterName}${tErrorGeneric}(options?:ClientRequestOptions){return ${returnExpr}}` as const
 }
 
 /**
@@ -417,19 +446,20 @@ function makeSWRQueryHookCode(
   queryFn = 'useSWR',
   errorType = 'unknown',
 ) {
-  const argsSig = hasArgs ? `args:${argsType},` : ''
+  const argsSig = hasArgs ? (`args:${argsType},` as const) : ('' as const)
   // Bare `SWRConfiguration` defaults Data/Error to `any`, leaking `any` into `fallbackData`,
   // `onSuccess`, `onError` and `compare` at the call site. Pin them to the operation's types.
-  const tErrorGeneric = `<TError=${errorType}>`
-  const swrConfigType = `SWRConfiguration<${responseType},TError>&{swrKey?:Key;enabled?:boolean}`
-  const optionsSig = `options?:{swr?:${swrConfigType};options?:ClientRequestOptions}`
-  const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
+  const tErrorGeneric = `<TError=${errorType}>` as const
+  const swrConfigType =
+    `SWRConfiguration<${responseType},TError>&{swrKey?:Key;enabled?:boolean}` as const
+  const optionsSig = `options?:{swr?:${swrConfigType};options?:ClientRequestOptions}` as const
+  const keyCall = hasArgs ? `${keyGetterName}(args)` : (`${keyGetterName}()` as const)
   const fetcherCall = hasArgs
-    ? `parseResponse(${runtimeAccess}(args,clientOptions))`
-    : `parseResponse(${runtimeAccess}(undefined,clientOptions))`
+    ? (`parseResponse(${runtimeAccess}(args,clientOptions))` as const)
+    : (`parseResponse(${runtimeAccess}(undefined,clientOptions))` as const)
   // `useSWR` cannot infer Error from the config alone and falls back to `any` (unlike the
   // mutation/infinite variants). Pass the type arguments so TError reaches the returned `error`.
-  return `export function ${hookName}${tErrorGeneric}(${argsSig}${optionsSig}){const{swr:swrOptions,options:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const swrKey=enabled!==false?(customKey===undefined?${keyCall}:customKey):null;return{swrKey,...${queryFn}<${responseType},TError>(swrKey,async()=>${fetcherCall},restSwrOptions)}}`
+  return `export function ${hookName}${tErrorGeneric}(${argsSig}${optionsSig}){const{swr:swrOptions,options:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const swrKey=enabled!==false?(customKey===undefined?${keyCall}:customKey):null;return{swrKey,...${queryFn}<${responseType},TError>(swrKey,async()=>${fetcherCall},restSwrOptions)}}` as const
 }
 
 /**
@@ -451,28 +481,32 @@ function makeSWRInfiniteHookCode(
   errorType = 'unknown',
   method = 'get',
 ) {
-  const argsSig = hasArgs ? `args:${argsType},` : ''
+  const argsSig = hasArgs ? (`args:${argsType},` as const) : ('' as const)
   // TError generic enables custom error types: useInfiniteUsers<APIError>(...)
-  const tErrorGeneric = `<TError=${errorType}>`
-  const keyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
+  const tErrorGeneric = `<TError=${errorType}>` as const
+  const keyCall = hasArgs
+    ? (`${infiniteKeyGetterName}(args)` as const)
+    : (`${infiniteKeyGetterName}()` as const)
   // SWR passes the keyLoader's return value to the fetcher as a single argument
   // (SWRInfiniteFetcher = (args: ReturnType<KeyLoader>) => ...). The default keyLoader appends
   // the page `index`, which the fetcher reads back and hands to the caller's `getRequestArgs`.
   // `swrKey` is narrowed to the same index-loader shape so the fetcher's index stays typed.
-  const keyType = `ReturnType<typeof ${infiniteKeyGetterName}>`
-  const loaderKeyType = `readonly[...${keyType},number]`
-  const swrConfigType = `SWRInfiniteConfiguration<${responseType},TError>&{swrKey?:(index:number,previousPageData:${responseType}|null)=>${loaderKeyType}|null;enabled?:boolean}`
+  const keyType = `ReturnType<typeof ${infiniteKeyGetterName}>` as const
+  const loaderKeyType = `readonly[...${keyType},number]` as const
+  const swrConfigType =
+    `SWRInfiniteConfiguration<${responseType},TError>&{swrKey?:(index:number,previousPageData:${responseType}|null)=>${loaderKeyType}|null;enabled?:boolean}` as const
   const getRequestArgsField = hasArgs
-    ? `getRequestArgs:(args:${argsType},index:number)=>${argsType}`
-    : `getRequestArgs:(index:number)=>${argsType}`
-  const optionsSig = `options:{swr?:${swrConfigType};options?:ClientRequestOptions;pagination:{${getRequestArgsField}}}`
+    ? (`getRequestArgs:(args:${argsType},index:number)=>${argsType}` as const)
+    : (`getRequestArgs:(index:number)=>${argsType}` as const)
+  const optionsSig =
+    `options:{swr?:${swrConfigType};options?:ClientRequestOptions;pagination:{${getRequestArgsField}}}` as const
   // The page index sits after prefix, path, the method segment (non-GET only), 'infinite' and args.
   const leadingKeyParts = (hasArgs ? 4 : 3) + (method === 'get' ? 0 : 1)
-  const indexDestructure = `[${','.repeat(leadingKeyParts)}index]:${loaderKeyType}`
+  const indexDestructure = `[${','.repeat(leadingKeyParts)}index]:${loaderKeyType}` as const
   const requestArgs = hasArgs
-    ? `pagination.getRequestArgs(args,index)`
-    : `pagination.getRequestArgs(index)`
-  return `export function ${hookName}${tErrorGeneric}(${argsSig}${optionsSig}){const{swr:swrOptions,options:clientOptions,pagination}=options;const{swrKey:customKeyLoader,enabled,...restSwrOptions}=swrOptions??{};const keyLoader=enabled!==false?(customKeyLoader??((index:number)=>[...${keyCall},index]as const)):()=>null;return useSWRInfinite(keyLoader,(${indexDestructure})=>parseResponse(${runtimeAccess}(${requestArgs},clientOptions)),restSwrOptions)}`
+    ? (`pagination.getRequestArgs(args,index)` as const)
+    : (`pagination.getRequestArgs(index)` as const)
+  return `export function ${hookName}${tErrorGeneric}(${argsSig}${optionsSig}){const{swr:swrOptions,options:clientOptions,pagination}=options;const{swrKey:customKeyLoader,enabled,...restSwrOptions}=swrOptions??{};const keyLoader=enabled!==false?(customKeyLoader??((index:number)=>[...${keyCall},index]as const)):()=>null;return useSWRInfinite(keyLoader,(${indexDestructure})=>parseResponse(${runtimeAccess}(${requestArgs},clientOptions)),restSwrOptions)}` as const
 }
 
 /**
@@ -519,61 +553,63 @@ function makeQueryHookCode(
   const errorType = config.errorType ?? 'unknown'
   // TData first so callers can override `select`'s output type without naming TError:
   //   useUsers<string[]>(args, { query: { select: (data) => data.map(u => u.name) } })
-  const generics = `<TData=${responseType},TError=${errorType}>`
+  const generics = `<TData=${responseType},TError=${errorType}>` as const
   const useFactory = config.hasQueryOptionsHelper === true && !config.isVueQuery
   // Vue spells out TQueryKey (via its 5-parameter form): left at the `QueryKey` default, the
   // options' key-typed members (`persister`, …) clash with the narrow key the hook supplies.
   // Hooks that spread the factory pin it too, to the factory's own key tuple.
   const optionsTypeArgs = config.isVueQuery
-    ? `${responseType},TError,TData,${responseType},ReturnType<typeof ${keyGetterName}>`
+    ? (`${responseType},TError,TData,${responseType},ReturnType<typeof ${keyGetterName}>` as const)
     : useFactory
-      ? `${responseType},TError,TData,ReturnType<typeof ${keyGetterName}>`
-      : `${responseType},TError,TData`
-  const queryOptionsType = omitInjectedKeys(
-    wrapOptionsType(
-      `${config.useQueryOptionsType}<${optionsTypeArgs}>`,
+      ? (`${responseType},TError,TData,ReturnType<typeof ${keyGetterName}>` as const)
+      : (`${responseType},TError,TData` as const)
+  const queryOptionsType = makeOmitInjectedKeys(
+    makeOptionsType(
+      `${config.useQueryOptionsType}<${optionsTypeArgs}>` as const,
       config.unwrapOptionsAccessor,
     ),
     QUERY_OMIT_KEYS,
     config.isVueQuery ? VUE_QUERY_MEMBER : undefined,
   )
-  const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
-  const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
+  const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}` as const
+  const keyCall = hasArgs ? (`${keyGetterName}(args)` as const) : (`${keyGetterName}()` as const)
   const tail = makeHookTail(config.hookTail, 'query')
   // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
     if (useFactory) {
       const factoryCall = hasArgs
-        ? `${optionsGetterName}<TData,TError>(args(),clientOptions)`
-        : `${optionsGetterName}<TData,TError>(clientOptions)`
-      return `export function ${hookName}${generics}(${argsSig}options?:()=>${optionsType}${tail.sig}){return ${config.queryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...${factoryCall},...query}}${tail.arg})}`
+        ? (`${optionsGetterName}<TData,TError>(args(),clientOptions)` as const)
+        : (`${optionsGetterName}<TData,TError>(clientOptions)` as const)
+      return `export function ${hookName}${generics}(${argsSig}options?:()=>${optionsType}${tail.sig}){return ${config.queryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...${factoryCall},...query}}${tail.arg})}` as const
     }
-    const svelteKeyCall = hasArgs ? `${keyGetterName}(args())` : `${keyGetterName}()`
+    const svelteKeyCall = hasArgs
+      ? (`${keyGetterName}(args())` as const)
+      : (`${keyGetterName}()` as const)
     const fetcherCall = hasArgs
-      ? `parseResponse(${runtimeAccess}(args(),{...clientOptions,init:{...clientOptions?.init,signal}}))`
-      : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-    return `export function ${hookName}${generics}(${argsSig}options?:()=>${optionsType}${tail.sig}){return ${config.queryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}}${tail.arg})}`
+      ? (`parseResponse(${runtimeAccess}(args(),{...clientOptions,init:{...clientOptions?.init,signal}}))` as const)
+      : (`parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))` as const)
+    return `export function ${hookName}${generics}(${argsSig}options?:()=>${optionsType}${tail.sig}){return ${config.queryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}}${tail.arg})}` as const
   }
   if (config.isVueQuery) {
-    const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
+    const argsSig = hasArgs ? (`args:MaybeRefOrGetter<${argsType}>,` as const) : ('' as const)
     const fetcherCall = hasArgs
-      ? `parseResponse(${runtimeAccess}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}}))`
-      : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-    const vueKeyCall = hasArgs ? vueReactiveKey(keyCall) : keyCall
-    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${vueKeyCall},queryFn({signal}){return ${fetcherCall}}}${tail.arg})}`
+      ? (`parseResponse(${runtimeAccess}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}}))` as const)
+      : (`parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))` as const)
+    const vueKeyCall = hasArgs ? makeVueReactiveKey(keyCall) : keyCall
+    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${vueKeyCall},queryFn({signal}){return ${fetcherCall}}}${tail.arg})}` as const
   }
-  const argsSig = hasArgs ? `args:${argsType},` : ''
+  const argsSig = hasArgs ? (`args:${argsType},` as const) : ('' as const)
   if (useFactory) {
     const factoryCall = hasArgs
-      ? `${optionsGetterName}<TData,TError>(args,clientOptions)`
-      : `${optionsGetterName}<TData,TError>(clientOptions)`
-    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...${factoryCall},...queryOptions}${tail.arg})}`
+      ? (`${optionsGetterName}<TData,TError>(args,clientOptions)` as const)
+      : (`${optionsGetterName}<TData,TError>(clientOptions)` as const)
+    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...${factoryCall},...queryOptions}${tail.arg})}` as const
   }
   const fetcherCall = hasArgs
-    ? `parseResponse(${runtimeAccess}(args,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-    : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-  return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}${tail.arg})}`
+    ? (`parseResponse(${runtimeAccess}(args,{...clientOptions,init:{...clientOptions?.init,signal}}))` as const)
+    : (`parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))` as const)
+  return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}${tail.arg})}` as const
 }
 
 /**
@@ -598,11 +634,11 @@ function makeInfiniteHookBody(
   // The annotation keeps the queryFn assignable to the framework; Vue omits it (annotating breaks
   // Vue Query's per-call queryKey inference — see HOOK_CONFIGS vue-query notes).
   const queryFnSig = isVueQuery
-    ? '{pageParam,signal}'
-    : `{pageParam,signal}:QueryFunctionContext<${queryKeyType},TPageParam>`
-  const base = `queryKey:${keyCall},queryFn(${queryFnSig}){return ${fetcherCall}}`
+    ? ('{pageParam,signal}' as const)
+    : (`{pageParam,signal}:QueryFunctionContext<${queryKeyType},TPageParam>` as const)
+  const base = `queryKey:${keyCall},queryFn(${queryFnSig}){return ${fetcherCall}}` as const
   return useHelper
-    ? `${base},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
+    ? (`${base},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam` as const)
     : base
 }
 
@@ -625,7 +661,7 @@ function makeInfiniteQueryHookCode(
     readonly unwrapOptionsAccessor?: boolean
   },
 ) {
-  const errorType = config.errorType ?? 'unknown'
+  const errorType = config.errorType ?? ('unknown' as const)
   // TData defaults to `InfiniteData<...>` (v5 semantics) with or without the helper — `data` is
   // the pages container either way. With the helper, pagination is a separate required arg so
   // options.query becomes optional; without it, users supply pagination via options.query.
@@ -633,77 +669,88 @@ function makeInfiniteQueryHookCode(
   // Spread the generic factory wherever the helper is in play (Vue's helper branch below is
   // the exception: its factory keeps `<TPageParam>` only, so the hook spreads it un-typed).
   const useFactory = useHelper && !config.isVueQuery
-  const tDataDefault = `InfiniteData<${responseType}>`
-  const generics = `<TData=${tDataDefault},TError=${errorType},TPageParam=unknown>`
-  const queryKeyType = `ReturnType<typeof ${infiniteKeyGetterName}>`
+  const tDataDefault = `InfiniteData<${responseType}>` as const
+  const generics = `<TData=${tDataDefault},TError=${errorType},TPageParam=unknown>` as const
+  const queryKeyType = `ReturnType<typeof ${infiniteKeyGetterName}>` as const
   // Without the helper (Vue) the page-param functions travel in `options.query`, so they stay.
-  const queryOptionsType = omitInjectedKeys(
-    wrapOptionsType(
-      `${config.useInfiniteQueryOptionsType}<${responseType},TError,TData,${queryKeyType},TPageParam>`,
+  const queryOptionsType = makeOmitInjectedKeys(
+    makeOptionsType(
+      `${config.useInfiniteQueryOptionsType}<${responseType},TError,TData,${queryKeyType},TPageParam>` as const,
       config.unwrapOptionsAccessor,
     ),
     useHelper ? INFINITE_OMIT_KEYS : QUERY_OMIT_KEYS,
     config.isVueQuery ? VUE_QUERY_MEMBER : undefined,
   )
   const optionsType = useHelper
-    ? `{query?:${queryOptionsType};options?:ClientRequestOptions}`
-    : `{query:${queryOptionsType};options?:ClientRequestOptions}`
+    ? (`{query?:${queryOptionsType};options?:ClientRequestOptions}` as const)
+    : (`{query:${queryOptionsType};options?:ClientRequestOptions}` as const)
   const requestArgsCall = makeRequestArgsCall(hasArgs)
   const paginationParam = makePaginationParam(hasArgs, argsType, responseType)
-  const paginationSig = useHelper ? `${paginationParam},` : ''
+  const paginationSig = useHelper ? (`${paginationParam},` as const) : ('' as const)
   // Non-helper frameworks (Vue) take pagination's page logic via `options.query`, but
   // `getRequestArgs` is not part of the framework option type — carry it on its own param.
-  const vuePaginationParam = `pagination:{${makeGetRequestArgsField(hasArgs, argsType)}}`
+  const vuePaginationParam = `pagination:{${makeGetRequestArgsField(hasArgs, argsType)}}` as const
   const tail = makeHookTail(config.hookTail, 'infinite')
 
   // Vue Query: spread factory. Inline `initialPageParam: TPageParam` doesn't satisfy
   // `useInfiniteQuery`'s `MaybeRefDeep<TPageParam>` constraint, but `infiniteQueryOptions(...)`
   // brands the result so the spread is accepted.
   if (config.isVueQuery && useHelper) {
-    const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
+    const argsSig = hasArgs ? (`args:MaybeRefOrGetter<${argsType}>,` as const) : ('' as const)
     const optionsCall = hasArgs
-      ? `${infiniteOptionsGetterName}(args,pagination,clientOptions)`
-      : `${infiniteOptionsGetterName}(pagination,clientOptions)`
-    return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.infiniteQueryFn}({...queryOptions,...${optionsCall}}${tail.arg})}`
+      ? (`${infiniteOptionsGetterName}(args,pagination,clientOptions)` as const)
+      : (`${infiniteOptionsGetterName}(pagination,clientOptions)` as const)
+    return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.infiniteQueryFn}({...queryOptions,...${optionsCall}}${tail.arg})}` as const
   }
 
   if (config.useThunk) {
-    const argsSig = hasArgs ? `args:()=>${argsType},` : ''
+    const argsSig = hasArgs ? (`args:()=>${argsType},` as const) : ('' as const)
     if (useFactory) {
       const factoryCall = hasArgs
-        ? `${infiniteOptionsGetterName}<TData,TError,TPageParam>(args(),pagination,clientOptions)`
-        : `${infiniteOptionsGetterName}<TData,TError,TPageParam>(pagination,clientOptions)`
-      return `export function ${hookName}${generics}(${argsSig}${paginationSig}options?:()=>${optionsType}${tail.sig}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...${factoryCall},...query}}${tail.arg})}`
+        ? (`${infiniteOptionsGetterName}<TData,TError,TPageParam>(args(),pagination,clientOptions)` as const)
+        : (`${infiniteOptionsGetterName}<TData,TError,TPageParam>(pagination,clientOptions)` as const)
+      return `export function ${hookName}${generics}(${argsSig}${paginationSig}options?:()=>${optionsType}${tail.sig}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...${factoryCall},...query}}${tail.arg})}` as const
     }
-    const keyCall = hasArgs ? `${infiniteKeyGetterName}(args())` : `${infiniteKeyGetterName}()`
-    const fetcherCall = `parseResponse(${runtimeAccess}(${requestArgsCall('args()')},{...clientOptions,init:{...clientOptions?.init,signal}}))`
+    const keyCall = hasArgs
+      ? (`${infiniteKeyGetterName}(args())` as const)
+      : (`${infiniteKeyGetterName}()` as const)
+    const fetcherCall =
+      `parseResponse(${runtimeAccess}(${requestArgsCall('args()')},{...clientOptions,init:{...clientOptions?.init,signal}}))` as const
     const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper, queryKeyType)
-    const optionsTypeSig = useHelper ? `options?:()=>${optionsType}` : `options:()=>${optionsType}`
-    const destructure = useHelper ? `options?.()??{}` : 'options()'
-    return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}${tail.sig}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=${destructure};return{...query,${body}}}${tail.arg})}`
+    const optionsTypeSig = useHelper
+      ? (`options?:()=>${optionsType}` as const)
+      : (`options:()=>${optionsType}` as const)
+    const destructure = useHelper ? (`options?.()??{}` as const) : ('options()' as const)
+    return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}${tail.sig}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=${destructure};return{...query,${body}}}${tail.arg})}` as const
   }
   if (config.isVueQuery) {
-    const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
+    const argsSig = hasArgs ? (`args:MaybeRefOrGetter<${argsType}>,` as const) : ('' as const)
     const keyCall = hasArgs
-      ? vueReactiveKey(`${infiniteKeyGetterName}(args)`)
-      : `${infiniteKeyGetterName}()`
-    const fetcherCall = `parseResponse(${runtimeAccess}(${requestArgsCall('toValue(args)')},{...clientOptions,init:{...clientOptions?.init,signal}}))`
+      ? makeVueReactiveKey(`${infiniteKeyGetterName}(args)` as const)
+      : (`${infiniteKeyGetterName}()` as const)
+    const fetcherCall =
+      `parseResponse(${runtimeAccess}(${requestArgsCall('toValue(args)' as const)},{...clientOptions,init:{...clientOptions?.init,signal}}))` as const
     const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper, queryKeyType, true)
-    return `export function ${hookName}${generics}(${argsSig}${vuePaginationParam},options:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...queryOptions,${body}}${tail.arg})}`
+    return `export function ${hookName}${generics}(${argsSig}${vuePaginationParam},options:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...queryOptions,${body}}${tail.arg})}` as const
   }
-  const argsSig = hasArgs ? `args:${argsType},` : ''
+  const argsSig = hasArgs ? (`args:${argsType},` as const) : ('' as const)
   if (useFactory) {
     const factoryCall = hasArgs
-      ? `${infiniteOptionsGetterName}<TData,TError,TPageParam>(args,pagination,clientOptions)`
-      : `${infiniteOptionsGetterName}<TData,TError,TPageParam>(pagination,clientOptions)`
-    return `export function ${hookName}${generics}(${argsSig}${paginationSig}options?:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.infiniteQueryFn}({...${factoryCall},...queryOptions}${tail.arg})}`
+      ? (`${infiniteOptionsGetterName}<TData,TError,TPageParam>(args,pagination,clientOptions)` as const)
+      : (`${infiniteOptionsGetterName}<TData,TError,TPageParam>(pagination,clientOptions)` as const)
+    return `export function ${hookName}${generics}(${argsSig}${paginationSig}options?:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.infiniteQueryFn}({...${factoryCall},...queryOptions}${tail.arg})}` as const
   }
-  const keyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
-  const fetcherCall = `parseResponse(${runtimeAccess}(${requestArgsCall('args')},{...clientOptions,init:{...clientOptions?.init,signal}}))`
+  const keyCall = hasArgs
+    ? (`${infiniteKeyGetterName}(args)` as const)
+    : (`${infiniteKeyGetterName}()` as const)
+  const fetcherCall =
+    `parseResponse(${runtimeAccess}(${requestArgsCall('args')},{...clientOptions,init:{...clientOptions?.init,signal}}))` as const
   const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper, queryKeyType)
-  const optionsTypeSig = useHelper ? `options?:${optionsType}` : `options:${optionsType}`
-  const destructure = useHelper ? 'options??{}' : 'options'
-  return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}${tail.sig}){const{query:queryOptions,options:clientOptions}=${destructure};return ${config.infiniteQueryFn}({...queryOptions,${body}}${tail.arg})}`
+  const optionsTypeSig = useHelper
+    ? (`options?:${optionsType}` as const)
+    : (`options:${optionsType}` as const)
+  const destructure = useHelper ? ('options??{}' as const) : ('options' as const)
+  return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}${tail.sig}){const{query:queryOptions,options:clientOptions}=${destructure};return ${config.infiniteQueryFn}({...queryOptions,${body}}${tail.arg})}` as const
 }
 
 /**
@@ -717,8 +764,8 @@ function makeInfiniteQueryHookCode(
  * @see https://tkdodo.eu/blog/effective-react-query-keys
  */
 function makePrefixKeyCode(prefix: string) {
-  const funcName = `get${toIdentifierPascalCase(prefix)}Key`
-  return `export function ${funcName}(){return['${prefix}']as const}`
+  const funcName = `get${toIdentifierPascalCase(prefix)}Key` as const
+  return `export function ${funcName}(){return['${prefix}']as const}` as const
 }
 
 /**
@@ -748,23 +795,23 @@ function makeSWRHeader(
   // SWR imports - Key is needed for both query and mutation
   if (hasQuery) {
     lines.push(
-      "import useSWR from'swr'",
-      "import useSWRImmutable from'swr/immutable'",
-      "import type{Key,SWRConfiguration}from'swr'",
+      "import useSWR from'swr'" as const,
+      "import useSWRImmutable from'swr/immutable'" as const,
+      "import type{Key,SWRConfiguration}from'swr'" as const,
     )
     if (hasInfiniteQuery) {
       lines.push(
-        "import useSWRInfinite from'swr/infinite'",
-        "import type{SWRInfiniteConfiguration}from'swr/infinite'",
+        "import useSWRInfinite from'swr/infinite'" as const,
+        "import type{SWRInfiniteConfiguration}from'swr/infinite'" as const,
       )
     }
   } else if (hasMutation) {
-    lines.push("import type{Key}from'swr'")
+    lines.push("import type{Key}from'swr'" as const)
   }
   if (hasMutation) {
     lines.push(
-      "import useSWRMutation from'swr/mutation'",
-      "import type{SWRMutationConfiguration}from'swr/mutation'",
+      "import useSWRMutation from'swr/mutation'" as const,
+      "import type{SWRMutationConfiguration}from'swr/mutation'" as const,
     )
   }
   // Hono client imports. Infinite (x-pagination) hooks reference InferRequestType in
@@ -772,15 +819,15 @@ function makeSWRHeader(
   // import must follow hasInfiniteQuery too (a document whose only paginated operation
   // takes no args has hasAnyArgs=false).
   const honoTypeImports = [
-    'ClientRequestOptions',
-    ...(hasAnyArgs || hasInfiniteQuery ? ['InferRequestType'] : []),
+    'ClientRequestOptions' as const,
+    ...(hasAnyArgs || hasInfiniteQuery ? (['InferRequestType'] as const) : ([] as const)),
   ]
   lines.push(
-    `import type{${honoTypeImports.join(',')}}from'hono/client'`,
-    "import{parseResponse}from'hono/client'",
-    `import{${clientName}}from'${importPath}'`,
+    `import type{${honoTypeImports.join(',')}}from'hono/client'` as const,
+    "import{parseResponse}from'hono/client'" as const,
+    `import{${clientName}}from'${importPath}'` as const,
   )
-  return `${lines.join('\n')}\n\n`
+  return `${lines.join('\n')}\n\n` as const
 }
 
 /**
@@ -801,16 +848,20 @@ function makeSWRMutationHookCode(
   hasNoContent: boolean,
   errorType = 'unknown',
 ) {
-  const variablesType = hasArgs ? argsType : 'undefined'
-  const responseTypeWithUndefined = hasNoContent ? `${responseType}|undefined` : responseType
+  const variablesType = hasArgs ? argsType : ('undefined' as const)
+  const responseTypeWithUndefined = hasNoContent
+    ? (`${responseType}|undefined` as const)
+    : responseType
   // TError generic enables custom error types: usePostUsers<APIError>(...)
-  const tErrorGeneric = `<TError=${errorType}>`
-  const mutationConfigType = `SWRMutationConfiguration<${responseTypeWithUndefined},TError,Key,${variablesType}>`
-  const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key;throwOnError?:boolean};options?:ClientRequestOptions}`
+  const tErrorGeneric = `<TError=${errorType}>` as const
+  const mutationConfigType =
+    `SWRMutationConfiguration<${responseTypeWithUndefined},TError,Key,${variablesType}>` as const
+  const optionsSig =
+    `options?:{mutation?:${mutationConfigType}&{swrKey?:Key;throwOnError?:boolean};options?:ClientRequestOptions}` as const
   if (hasArgs) {
-    return `export function ${hookName}${tErrorGeneric}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyCall};return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${argsType}})=>parseResponse(${runtimeAccess}(arg,clientOptions)),restMutationOptions)}}`
+    return `export function ${hookName}${tErrorGeneric}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyCall};return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${argsType}})=>parseResponse(${runtimeAccess}(arg,clientOptions)),restMutationOptions)}}` as const
   }
-  return `export function ${hookName}${tErrorGeneric}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyCall};return{swrKey,...useSWRMutation(swrKey,async()=>parseResponse(${runtimeAccess}(undefined,clientOptions)),restMutationOptions)}}`
+  return `export function ${hookName}${tErrorGeneric}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyCall};return{swrKey,...useSWRMutation(swrKey,async()=>parseResponse(${runtimeAccess}(undefined,clientOptions)),restMutationOptions)}}` as const
 }
 
 function makeMutationHookCode(
@@ -831,36 +882,38 @@ function makeMutationHookCode(
   },
   hasNoContent: boolean,
 ) {
-  const variablesType = hasArgs ? argsType : 'void'
-  const errorType = config.errorType ?? 'unknown'
-  const tErrorGeneric = `<TError=${errorType},TOnMutateResult=unknown>`
+  const variablesType = hasArgs ? argsType : ('void' as const)
+  const errorType = config.errorType ?? ('unknown' as const)
+  const tErrorGeneric = `<TError=${errorType},TOnMutateResult=unknown>` as const
   // For 204/205 responses, parseResponse returns undefined
   const dataType = hasNoContent ? `${responseType}|undefined` : responseType
-  const fullOptionsType = wrapOptionsType(
-    `${config.useMutationOptionsType}<${dataType},TError,${variablesType},TOnMutateResult>`,
+  const fullOptionsType = makeOptionsType(
+    `${config.useMutationOptionsType}<${dataType},TError,${variablesType},TOnMutateResult>` as const,
     config.unwrapOptionsAccessor,
   )
   // Only forward the type parameters to the factory when it actually accepts them
   // (i.e. wraps with `mutationOptions<...>` helper). Otherwise the factory has no generics.
-  const factoryTypeArg = config.hasMutationOptionsHelper ? '<TError,TOnMutateResult>' : ''
-  const factoryCall = `${optionsGetterName}${factoryTypeArg}(clientOptions)`
+  const factoryTypeArg = config.hasMutationOptionsHelper
+    ? ('<TError,TOnMutateResult>' as const)
+    : ('' as const)
+  const factoryCall = `${optionsGetterName}${factoryTypeArg}(clientOptions)` as const
   const tail = makeHookTail(config.hookTail, 'mutation')
   // Vue's members may still be `Ref`s (`MaybeRefDeep`); `useMutation` unwraps them deeply, so a
   // caller's `Ref` key passes through `mutationKey` below as-is.
-  const mutationOptionsType = omitInjectedKeys(
+  const mutationOptionsType = makeOmitInjectedKeys(
     fullOptionsType,
     MUTATION_OMIT_KEYS,
     config.isVueQuery ? VUE_MUTATION_MEMBER : undefined,
   )
-  const optionsType = `{mutation?:${mutationOptionsType};options?:ClientRequestOptions}`
+  const optionsType = `{mutation?:${mutationOptionsType};options?:ClientRequestOptions}` as const
   // Spread user options first, then the factory so the operation contract wins — `Omit` only
   // rejects a fresh object literal, so the spread order is the last line of defence against a
   // `mutationFn` smuggled in through a variable. `mutationKey` is then restored from the caller.
   // Svelte Query v5+ requires thunk pattern: createMutation(() => options)
   if (config.useThunk) {
-    return `export function ${hookName}${tErrorGeneric}(options?:()=>${optionsType}${tail.sig}){return ${config.mutationFn}(()=>{const{mutation,options:clientOptions}=options?.()??{};const mutationDefaults=${factoryCall};return{...mutation,...mutationDefaults,mutationKey:mutation?.mutationKey??mutationDefaults.mutationKey}}${tail.arg})}`
+    return `export function ${hookName}${tErrorGeneric}(options?:()=>${optionsType}${tail.sig}){return ${config.mutationFn}(()=>{const{mutation,options:clientOptions}=options?.()??{};const mutationDefaults=${factoryCall};return{...mutation,...mutationDefaults,mutationKey:mutation?.mutationKey??mutationDefaults.mutationKey}}${tail.arg})}` as const
   }
-  return `export function ${hookName}${tErrorGeneric}(options?:${optionsType}${tail.sig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const mutationDefaults=${factoryCall};return ${config.mutationFn}({...mutationOptions,...mutationDefaults,mutationKey:mutationOptions?.mutationKey??mutationDefaults.mutationKey}${tail.arg})}`
+  return `export function ${hookName}${tErrorGeneric}(options?:${optionsType}${tail.sig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const mutationDefaults=${factoryCall};return ${config.mutationFn}({...mutationOptions,...mutationDefaults,mutationKey:mutationOptions?.mutationKey??mutationDefaults.mutationKey}${tail.arg})}` as const
 }
 
 function makeHookCode(
@@ -907,10 +960,12 @@ function makeHookCode(
   // Infinite hooks are emitted only when the operation declares `x-pagination: true`.
   // Generating Infinite for non-paginated GETs creates unusable code (no getNextPageParam).
   const hasPagination = op['x-pagination'] === true
-  // Detect header parameters for key exclusion (REST: headers are metadata, not resource identifiers)
-  const pathLevelParams = deps.toParameterLikes(item.parameters)
-  const opParams = deps.toParameterLikes(op.parameters)
-  const hasHeaderArgs = [...pathLevelParams, ...opParams].some((p) => p.in === 'header')
+  // The parts of the arguments the key leaves out, when the operation takes them.
+  const params = [
+    ...deps.toParameterLikes(item.parameters),
+    ...deps.toParameterLikes(op.parameters),
+  ]
+  const excludedArgs = KEY_EXCLUDED_ARGS.filter((kind) => params.some((p) => p.in === kind))
   // Operation file naming uses methodPath (e.g. `getHealth`) — same convention as before
   // even though the corresponding fetcher function is no longer emitted.
   const operationFileName = methodPath(method, pathStr)
@@ -931,7 +986,7 @@ function makeHookCode(
         argsType,
         honoPath,
         config,
-        hasHeaderArgs,
+        excludedArgs,
         method,
       )
       const hookCode = makeSWRQueryHookCode(
@@ -945,7 +1000,8 @@ function makeHookCode(
         config.errorType,
       )
       // Immutable hook (useSWRImmutable) - generated by default as best practice
-      const immutableHookName = `${config.hookPrefix}Immutable${capitalize(operationFileName)}`
+      const immutableHookName =
+        `${config.hookPrefix}Immutable${capitalize(operationFileName)}` as const
       const immutableHookCode = config.immutableQueryFn
         ? makeSWRQueryHookCode(
             immutableHookName,
@@ -967,11 +1023,12 @@ function makeHookCode(
             argsType,
             honoPath,
             config,
-            hasHeaderArgs,
+            excludedArgs,
             method,
           )
         : null
-      const infiniteHookName = `${config.hookPrefix}Infinite${capitalize(operationFileName)}`
+      const infiniteHookName =
+        `${config.hookPrefix}Infinite${capitalize(operationFileName)}` as const
       const infiniteHookCode = hasPagination
         ? makeSWRInfiniteHookCode(
             infiniteHookName,
@@ -1005,7 +1062,7 @@ function makeHookCode(
     const mutationKeyGetterCode = makeMutationKeyGetterCode(mutationKeyGetterName, method, honoPath)
     const hookCode = makeSWRMutationHookCode(
       hookName,
-      `${mutationKeyGetterName}()`,
+      `${mutationKeyGetterName}()` as const,
       hasArgs,
       argsType,
       responseType,
@@ -1014,7 +1071,7 @@ function makeHookCode(
       config.errorType,
     )
     return {
-      code: `${mutationKeyGetterCode}\n\n${hookCode}`,
+      code: `${mutationKeyGetterCode}\n\n${hookCode}` as const,
       isQuery: false,
       hasArgs,
       hasInfinite: false,
@@ -1034,7 +1091,7 @@ function makeHookCode(
       argsType,
       honoPath,
       config,
-      hasHeaderArgs,
+      excludedArgs,
       method,
     )
     const optionsGetterCode = makeQueryOptionsGetterCode(
@@ -1059,7 +1116,7 @@ function makeHookCode(
     // Generate infinite query key getter (only when infinite query hooks are enabled
     // AND endpoint declares `x-pagination: true`)
     const infiniteKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr)
-    const infiniteOptionsGetterName = `get${capitalize(pathFuncName)}InfiniteQueryOptions`
+    const infiniteOptionsGetterName = `get${capitalize(pathFuncName)}InfiniteQueryOptions` as const
     const { infiniteQueryFn, useInfiniteQueryOptionsType } = config
     const hasInfinite = !!(infiniteQueryFn && useInfiniteQueryOptionsType) && hasPagination
     const infiniteKeyGetterCode = hasInfinite
@@ -1069,7 +1126,7 @@ function makeHookCode(
           argsType,
           honoPath,
           config,
-          hasHeaderArgs,
+          excludedArgs,
           method,
         )
       : null
@@ -1082,15 +1139,15 @@ function makeHookCode(
           runtimeAccess,
           responseType,
           {
-            ...(config.isVueQuery ? { isVueQuery: true } : {}),
+            ...(config.isVueQuery ? ({ isVueQuery: true } as const) : ({} as const)),
             ...(config.hasInfiniteQueryOptionsHelper
-              ? { hasInfiniteQueryOptionsHelper: true }
-              : {}),
-            ...(config.errorType ? { errorType: config.errorType } : {}),
+              ? ({ hasInfiniteQueryOptionsHelper: true } as const)
+              : ({} as const)),
+            ...(config.errorType ? ({ errorType: config.errorType } as const) : ({} as const)),
           },
         )
       : null
-    const suspenseHookName = `${config.hookPrefix}Suspense${capitalize(pathFuncName)}`
+    const suspenseHookName = `${config.hookPrefix}Suspense${capitalize(pathFuncName)}` as const
     const suspenseHookCode =
       config.suspenseQueryFn && config.useSuspenseQueryOptionsType
         ? makeQueryHookCode(
@@ -1104,16 +1161,20 @@ function makeHookCode(
             {
               queryFn: config.suspenseQueryFn,
               useQueryOptionsType: config.useSuspenseQueryOptionsType,
-              ...(config.useThunk ? { useThunk: true } : {}),
-              ...(config.isVueQuery ? { isVueQuery: true } : {}),
-              ...(config.hasQueryOptionsHelper ? { hasQueryOptionsHelper: true } : {}),
-              ...(config.errorType ? { errorType: config.errorType } : {}),
-              ...(config.hookTail ? { hookTail: config.hookTail } : {}),
-              ...(config.unwrapOptionsAccessor ? { unwrapOptionsAccessor: true } : {}),
+              ...(config.useThunk ? ({ useThunk: true } as const) : ({} as const)),
+              ...(config.isVueQuery ? ({ isVueQuery: true } as const) : ({} as const)),
+              ...(config.hasQueryOptionsHelper
+                ? ({ hasQueryOptionsHelper: true } as const)
+                : ({} as const)),
+              ...(config.errorType ? ({ errorType: config.errorType } as const) : ({} as const)),
+              ...(config.hookTail ? ({ hookTail: config.hookTail } as const) : ({} as const)),
+              ...(config.unwrapOptionsAccessor
+                ? ({ unwrapOptionsAccessor: true } as const)
+                : ({} as const)),
             },
           )
         : null
-    const infiniteHookName = `${config.hookPrefix}Infinite${capitalize(pathFuncName)}`
+    const infiniteHookName = `${config.hookPrefix}Infinite${capitalize(pathFuncName)}` as const
     const infiniteHookCode = hasInfinite
       ? makeInfiniteQueryHookCode(
           infiniteHookName,
@@ -1126,18 +1187,21 @@ function makeHookCode(
           {
             infiniteQueryFn,
             useInfiniteQueryOptionsType,
-            ...(config.useThunk ? { useThunk: true } : {}),
-            ...(config.isVueQuery ? { isVueQuery: true } : {}),
+            ...(config.useThunk ? ({ useThunk: true } as const) : ({} as const)),
+            ...(config.isVueQuery ? ({ isVueQuery: true } as const) : ({} as const)),
             ...(config.hasInfiniteQueryOptionsHelper
-              ? { hasInfiniteQueryOptionsHelper: true }
-              : {}),
-            ...(config.errorType ? { errorType: config.errorType } : {}),
-            ...(config.hookTail ? { hookTail: config.hookTail } : {}),
-            ...(config.unwrapOptionsAccessor ? { unwrapOptionsAccessor: true } : {}),
-          },
+              ? ({ hasInfiniteQueryOptionsHelper: true } as const)
+              : ({} as const)),
+            ...(config.errorType ? ({ errorType: config.errorType } as const) : ({} as const)),
+            ...(config.hookTail ? ({ hookTail: config.hookTail } as const) : ({} as const)),
+            ...(config.unwrapOptionsAccessor
+              ? ({ unwrapOptionsAccessor: true } as const)
+              : ({} as const)),
+          } as const,
         )
       : null
-    const suspenseInfiniteHookName = `${config.hookPrefix}SuspenseInfinite${capitalize(pathFuncName)}`
+    const suspenseInfiniteHookName =
+      `${config.hookPrefix}SuspenseInfinite${capitalize(pathFuncName)}` as const
     const suspenseInfiniteHookCode =
       hasInfinite && config.suspenseInfiniteQueryFn && config.useSuspenseInfiniteQueryOptionsType
         ? makeInfiniteQueryHookCode(
@@ -1151,15 +1215,17 @@ function makeHookCode(
             {
               infiniteQueryFn: config.suspenseInfiniteQueryFn,
               useInfiniteQueryOptionsType: config.useSuspenseInfiniteQueryOptionsType,
-              ...(config.useThunk ? { useThunk: true } : {}),
-              ...(config.isVueQuery ? { isVueQuery: true } : {}),
-              ...(config.hookTail ? { hookTail: config.hookTail } : {}),
+              ...(config.useThunk ? ({ useThunk: true } as const) : ({} as const)),
+              ...(config.isVueQuery ? ({ isVueQuery: true } as const) : ({} as const)),
+              ...(config.hookTail ? ({ hookTail: config.hookTail } as const) : ({} as const)),
               ...(config.hasInfiniteQueryOptionsHelper
-                ? { hasInfiniteQueryOptionsHelper: true }
-                : {}),
-              ...(config.errorType ? { errorType: config.errorType } : {}),
-              ...(config.unwrapOptionsAccessor ? { unwrapOptionsAccessor: true } : {}),
-            },
+                ? ({ hasInfiniteQueryOptionsHelper: true } as const)
+                : ({} as const)),
+              ...(config.errorType ? ({ errorType: config.errorType } as const) : ({} as const)),
+              ...(config.unwrapOptionsAccessor
+                ? ({ unwrapOptionsAccessor: true } as const)
+                : ({} as const)),
+            } as const,
           )
         : null
     // Order: key → factory → hook → suspenseHook → infiniteKey → infiniteFactory → infiniteHook → suspenseInfiniteHook
@@ -1182,7 +1248,7 @@ function makeHookCode(
     } as const
   }
   // Mutation: emit factory + hook
-  const optionsGetterName = `get${capitalize(methodPath(method, pathStr))}MutationOptions`
+  const optionsGetterName = `get${capitalize(methodPath(method, pathStr))}MutationOptions` as const
   const mutationKeyGetterName = makeMutationKeyGetterName(method, pathStr)
   const mutationKeyGetterCode = makeMutationKeyGetterCode(mutationKeyGetterName, method, honoPath)
   const optionsGetterCode = makeMutationOptionsGetterCode(
@@ -1210,7 +1276,7 @@ function makeHookCode(
     hasArgs,
     hasInfinite: false,
     operationFileName,
-  }
+  } as const
 }
 
 function makeHookCodes(
@@ -1329,7 +1395,7 @@ function makeHeader(
   },
   hasQueryWithArgs = false,
   hasInfiniteQuery = false,
-): string {
+) {
   if (config.isSWR) {
     return makeSWRHeader(
       importPath,
@@ -1341,18 +1407,26 @@ function makeHeader(
     )
   }
   const queryImports = [
-    ...(hasQuery ? [config.queryFn] : []),
-    ...(hasQuery && config.suspenseQueryFn ? [config.suspenseQueryFn] : []),
-    ...(hasInfiniteQuery && config.infiniteQueryFn ? [config.infiniteQueryFn] : []),
-    ...(hasInfiniteQuery && config.suspenseInfiniteQueryFn ? [config.suspenseInfiniteQueryFn] : []),
-    ...(hasMutation ? [config.mutationFn] : []),
+    ...(hasQuery ? ([config.queryFn] as const) : ([] as const)),
+    ...(hasQuery && config.suspenseQueryFn ? ([config.suspenseQueryFn] as const) : ([] as const)),
+    ...(hasInfiniteQuery && config.infiniteQueryFn
+      ? ([config.infiniteQueryFn] as const)
+      : ([] as const)),
+    ...(hasInfiniteQuery && config.suspenseInfiniteQueryFn
+      ? ([config.suspenseInfiniteQueryFn] as const)
+      : ([] as const)),
+    ...(hasMutation ? ([config.mutationFn] as const) : ([] as const)),
     // Framework option-factory helpers — emitted only when the lib config opts in.
     // queryOptions/infiniteQueryOptions enable DataTag branding for queryClient.getQueryData;
     // mutationOptions provides type-safe defaults for setMutationDefaults / reusable factories.
-    ...(hasQuery && config.hasQueryOptionsHelper ? ['queryOptions'] : []),
-    ...(hasInfiniteQuery && config.hasInfiniteQueryOptionsHelper ? ['infiniteQueryOptions'] : []),
-    ...(hasMutation && config.hasMutationOptionsHelper ? ['mutationOptions'] : []),
-  ]
+    ...(hasQuery && config.hasQueryOptionsHelper ? (['queryOptions'] as const) : ([] as const)),
+    ...(hasInfiniteQuery && config.hasInfiniteQueryOptionsHelper
+      ? (['infiniteQueryOptions'] as const)
+      : ([] as const)),
+    ...(hasMutation && config.hasMutationOptionsHelper
+      ? (['mutationOptions'] as const)
+      : ([] as const)),
+  ] as const
   // Type imports for options - UseQueryOptions, UseMutationOptions, QueryFunctionContext
   // QueryFunctionContext is emitted only when at least one generated `queryFn` carries the
   // explicit `:QueryFunctionContext` annotation: plain-object query factories (no helper — a
@@ -1362,23 +1436,25 @@ function makeHeader(
   // `queryOptions(...)`, and the hooks that spread them carry no `queryFn` of their own.
   const needsQueryFnContext = (hasQuery && !config.hasQueryOptionsHelper) || hasInfiniteQuery
   const typeImports = [
-    ...(hasQuery ? [config.useQueryOptionsType] : []),
-    ...(needsQueryFnContext ? ['QueryFunctionContext'] : []),
-    ...(hasQuery && config.useSuspenseQueryOptionsType ? [config.useSuspenseQueryOptionsType] : []),
+    ...(hasQuery ? ([config.useQueryOptionsType] as const) : ([] as const)),
+    ...(needsQueryFnContext ? (['QueryFunctionContext'] as const) : ([] as const)),
+    ...(hasQuery && config.useSuspenseQueryOptionsType
+      ? ([config.useSuspenseQueryOptionsType] as const)
+      : ([] as const)),
     ...(hasInfiniteQuery && config.useInfiniteQueryOptionsType
-      ? [config.useInfiniteQueryOptionsType]
-      : []),
+      ? ([config.useInfiniteQueryOptionsType] as const)
+      : ([] as const)),
     ...(hasInfiniteQuery && config.useSuspenseInfiniteQueryOptionsType
-      ? [config.useSuspenseInfiniteQueryOptionsType]
-      : []),
+      ? ([config.useSuspenseInfiniteQueryOptionsType] as const)
+      : ([] as const)),
     // InfiniteData: the infinite hooks' TData default, helper or not
-    ...(hasInfiniteQuery ? ['InfiniteData'] : []),
-    ...(hasMutation ? [config.useMutationOptionsType] : []),
+    ...(hasInfiniteQuery ? (['InfiniteData'] as const) : ([] as const)),
+    ...(hasMutation ? ([config.useMutationOptionsType] as const) : ([] as const)),
     // The hooks' TError default (e.g. `DefaultError`, which honours `Register`) and the
     // trailing-argument types come from the framework package as well.
-    ...(config.errorType ? [config.errorType] : []),
-    ...(config.hookTail?.imports ?? []),
-  ]
+    ...(config.errorType ? ([config.errorType] as const) : ([] as const)),
+    ...(config.hookTail?.imports ?? ([] as const)),
+  ] as const
   // Vue Query needs MaybeRefOrGetter type and toValue from 'vue' only when query has args
   // (used in makeQueryKeyGetterCode for args:MaybeRefOrGetter<...> and toValue(args))
   const needsVueImports = config.isVueQuery && hasQueryWithArgs
@@ -1388,24 +1464,29 @@ function makeHeader(
   // takes no args has hasAnyArgs=false).
   const honoTypeImports = [
     'ClientRequestOptions',
-    ...(hasAnyArgs || hasInfiniteQuery ? ['InferRequestType'] : []),
-  ]
+    ...(hasAnyArgs || hasInfiniteQuery ? (['InferRequestType'] as const) : ([] as const)),
+  ] as const
   const lines = [
     ...(queryImports.length > 0
-      ? [`import{${queryImports.join(',')}}from'${config.packageName}'`]
-      : []),
+      ? [`import{${queryImports.join(',')}}from'${config.packageName}'` as const]
+      : ([] as const)),
     ...(typeImports.length > 0
-      ? [`import type{${[...new Set(typeImports)].join(',')}}from'${config.packageName}'`]
-      : []),
+      ? ([
+          `import type{${[...new Set(typeImports)].join(',')}}from'${config.packageName}'` as const,
+        ] as const)
+      : ([] as const)),
     // Vue Query needs MaybeRefOrGetter type and toValue from 'vue' for queryKey generation (only when query has args)
     ...(needsVueImports
-      ? ["import{computed,toValue}from'vue'", "import type{MaybeRefOrGetter}from'vue'"]
-      : []),
-    `import type{${honoTypeImports.join(',')}}from'hono/client'`,
-    `import{parseResponse}from'hono/client'`,
-    `import{${clientName}}from'${importPath}'`,
-  ]
-  return `${lines.join('\n')}\n\n`
+      ? ([
+          "import{computed,toValue}from'vue'" as const,
+          "import type{MaybeRefOrGetter}from'vue'" as const,
+        ] as const)
+      : ([] as const)),
+    `import type{${honoTypeImports.join(',')}}from'hono/client'` as const,
+    `import{parseResponse}from'hono/client'` as const,
+    `import{${clientName}}from'${importPath}'` as const,
+  ] as const
+  return `${lines.join('\n')}\n\n` as const
 }
 
 /**
@@ -1458,7 +1539,7 @@ export function makeQueryHooks(
     // through the client of the application when it belongs to none.
     const clientOf = (route: string, tags: readonly string[] | undefined) => {
       const group = grouping?.(route, tags)
-      return group === undefined ? clientName : groupClientName(group)
+      return group === undefined ? clientName : makeGroupClientName(group)
     }
     const hookCodes = makeHookCodes(
       pathsMaybe,
@@ -1487,8 +1568,9 @@ export function makeQueryHooks(
       hasQueryWithArgs,
       hasInfiniteQuery,
     )
-    const code = `${header}${body}${hookCodes.length > 0 ? '\n' : ''}`
+    const code =
+      `${header}${body}${hookCodes.length > 0 ? ('\n' as const) : ('' as const)}` as const
     yield* emit(code, path.dirname(output), output)
-    return `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${output}`
+    return `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${output}` as const
   })
 }

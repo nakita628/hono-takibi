@@ -844,6 +844,11 @@ export default {}`,
       `output: './routes.ts', template: {}, client: { output: './lib/client.ts', baseUrl: 'http://localhost:3000' }`,
       'client.baseUrl: a fixed URL was removed',
     ],
+    [
+      'client.credentials',
+      `output: './routes.ts', template: {}, client: { output: './lib/client.ts', credentials: 'always' }`,
+      'client.credentials',
+    ],
   ])('rejects a config whose %s cannot be generated from', async (_field, body, expected) => {
     const dir = useTmpDir('cli-config-field-')
     fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
@@ -948,6 +953,30 @@ export default {}`,
     expect(client).toContain(line)
     expect(client).toContain('hcWithType(baseUrl)')
     expect(client).not.toContain("?? '/'")
+  })
+
+  // The cookies go with every request: `credentials` is written as the `init` of `hc`, and
+  // nothing else is, so the file stays the one the guide shows.
+  // クッキーはすべてのリクエストに付く。`credentials` は `hc` の `init` として書かれ、それ以外は
+  // 書かれないので、ファイルはガイドの示す形のままである。
+  it('creates the client with the credentials of the config', async () => {
+    const dir = useTmpDir('cli-config-credentials-')
+    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default {
+        input: './openapi.json',
+        output: './routes.ts',
+        template: {},
+        client: { output: './lib/client.ts', credentials: 'include' },
+      }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(true)
+    const client = fs.readFileSync(path.join(dir, 'lib/client.ts'), 'utf-8')
+    expect(client).toContain("hcWithType('/', { init: { credentials: 'include' } })")
   })
 
   // The single components file in a package of its own: the routes import it by name.

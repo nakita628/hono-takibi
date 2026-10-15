@@ -17,10 +17,10 @@ import {
   nullReading,
   needsWireConversion,
   resolveSchemaRef,
-  wireConverter,
+  makeWireConverter,
   wireKeep,
   wireKinds,
-  wrapWire,
+  makeWrappedWire,
 } from '../../helper/wire.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { undecorated, wrap } from '../../helper/wrap.js'
@@ -92,11 +92,11 @@ export function zodToOpenAPI(
     const form = options.form === true
     // `z.stringbool()` is the boolean schema itself; it takes the text as it is.
     if (!form && isBooleanLeaf && kinds.length === 1 && kinds[0] === 'boolean') return undefined
-    return wrapWire('', kinds) === ''
+    return makeWrappedWire('', kinds) === ''
       ? undefined
       : // `z.stringbool()` takes text alone: a `null` read before it is handed to a converter.
         (zod: string, component = false, nullLast = false) =>
-          wrapWire(zod, kinds, component || form || nullRead !== undefined, nullLast)
+          makeWrappedWire(zod, kinds, component || form || nullRead !== undefined, nullLast)
   })()
   // Tried as several readings, the component is handed to each of them: what describes the
   // parameter then belongs around them, not on the component.
@@ -337,8 +337,8 @@ export function zodToOpenAPI(
     // alone (branches that never declare the discriminating property): under strict
     // oneOf every branch accepts the same payload, so "exactly one" never holds and
     // the generated `z.xor` rejects everything. That is the faithful reading of the
-    // schema, not a bug; the `console.warn` below points the author at the fix
-    // (declare the literal per branch, or switch to anyOf).
+    // schema, not a bug: the fix is the author's (declare the literal per branch, or
+    // switch to anyOf), and the document is taken as it is.
     const literalsPerBranch = branches.map((branch) => {
       if (discriminator === undefined || branch === undefined) return undefined
       if (!isDiscriminableBranch(branch, discriminator)) return undefined
@@ -352,25 +352,6 @@ export function zodToOpenAPI(
       branches.length >= 2 &&
       literalsPerBranch.every((values) => values !== undefined) &&
       new Set(literals).size === literals.length
-    const alwaysMatching = branches.filter(
-      (branch) =>
-        branch !== undefined &&
-        branch.allOf === undefined &&
-        branch.anyOf === undefined &&
-        branch.oneOf === undefined &&
-        branch.not === undefined &&
-        branch['x-refine'] === undefined &&
-        branch['x-superRefine'] === undefined &&
-        branch.type === 'object' &&
-        !(Array.isArray(branch.required) && branch.required.length > 0) &&
-        !(typeof branch.minProperties === 'number' && branch.minProperties > 0),
-    )
-    if (!isDiscriminated && alwaysMatching.length >= 2) {
-      // oxlint-disable-next-line no-console -- the emitted validator would reject every payload
-      console.warn(
-        `oneOf rejects every payload: ${alwaysMatching.length} branches accept {}, so no input matches exactly one. Add a discriminator (a required literal property per branch plus \`discriminator\`), or use anyOf if the branches are meant to overlap.`,
-      )
-    }
     const z = isDiscriminated
       ? `z.discriminatedUnion(${makeStringLiteral(discriminator)},[${oneOfSchemas.join(',')}]${oneOfErrorArg})`
       : `z.xor([${oneOfSchemas.join(',')}]${oneOfErrorArg})`
@@ -675,7 +656,7 @@ export function zodToOpenAPI(
         const read = (s: Schema) => {
           const kinds = wireKinds(s, childOptions.schemas)
           if (kinds === undefined) return undefined
-          const converter = wireConverter(kinds, wireKeep(s, childOptions.schemas))
+          const converter = makeWireConverter(kinds, wireKeep(s, childOptions.schemas))
           return converter === undefined
             ? '(val:unknown)=>val'
             : converter.replace('(val)=>', '(val:unknown)=>')
@@ -787,7 +768,5 @@ export function zodToOpenAPI(
       schema,
     )
   }
-  // oxlint-disable-next-line no-console -- warns the user that a schema fell back to z.any()
-  console.warn(`fallback to z.any(): schema=${JSON.stringify(schema)}`)
   return done('z.any()', schema)
 }

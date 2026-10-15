@@ -142,7 +142,7 @@ function pointerSegments(ref: string): readonly string[] | undefined {
  * Resolves a `$ref` against the document itself, so references into `paths`
  * (as a bundler emits them) resolve as well as those into `components`.
  */
-function resolveRef(ref: string, doc: OpenAPI): unknown {
+function resolveRef(ref: string, doc: OpenAPI) {
   const segments = pointerSegments(ref)
   if (!segments) return undefined
   return segments.reduce<unknown>((node, segment) => {
@@ -156,7 +156,7 @@ function resolveRef(ref: string, doc: OpenAPI): unknown {
  * Follows a Reference Object until it reaches a value. Schemas go through
  * `derefSchema` instead, which also tracks cycles.
  */
-function resolveRefDeep(value: unknown, doc: OpenAPI, hops = 0): unknown {
+function resolveRefDeep(value: unknown, doc: OpenAPI, hops = 0) {
   if (!isRefObject(value)) return value
   if (hops >= MAX_REF_HOPS) return undefined
   return resolveRefDeep(resolveRef(value.$ref, doc), doc, hops + 1)
@@ -187,7 +187,7 @@ function schemaAnchor(name: string, doc: OpenAPI) {
   return index > 0 ? `${lower}-${index}` : lower
 }
 
-function schemaLink(name: string, doc: OpenAPI) {
+function makeSchemaLink(name: string, doc: OpenAPI) {
   return `[${name}](#schema${schemaAnchor(name, doc)})`
 }
 
@@ -229,7 +229,7 @@ function hasPayload(media: MediaLike) {
  * Picks the JSON media of a content map: `application/json` first, then any
  * JSON-flavoured type such as `application/problem+json`.
  */
-function pickJsonMedia(content: unknown, doc: OpenAPI): PickedMedia | undefined {
+function pickJsonMedia(content: unknown, doc: OpenAPI) {
   const all = listMedia(content, doc).filter(({ media }) => hasPayload(media))
   return (
     all.find(({ mediaType }) => baseMediaType(mediaType) === JSON_MEDIA_TYPE) ??
@@ -241,7 +241,7 @@ function pickJsonMedia(content: unknown, doc: OpenAPI): PickedMedia | undefined 
  * Picks the media that documents a body: JSON, then the two form encodings,
  * then whatever comes first.
  */
-function pickMedia(content: unknown, doc: OpenAPI): PickedMedia | undefined {
+function pickMedia(content: unknown, doc: OpenAPI) {
   const all = listMedia(content, doc)
   return (
     pickJsonMedia(content, doc) ??
@@ -274,7 +274,7 @@ function makeFence(content: string, language: string): readonly string[] {
  * `visited` holds the `$ref`s on the current path only, so a schema referenced
  * by two sibling properties is expanded for both while a cycle still stops.
  */
-function withRef(visited: ReadonlySet<string>, ref: string): ReadonlySet<string> {
+function withRef(visited: ReadonlySet<string>, ref: string) {
   return new Set([...visited, ref])
 }
 
@@ -282,11 +282,7 @@ function withRef(visited: ReadonlySet<string>, ref: string): ReadonlySet<string>
  * Follows `$ref` to the schema it names. Returns `undefined` when the
  * reference is unknown or already on the current path.
  */
-function derefSchema(
-  schema: Schema,
-  doc: OpenAPI,
-  visited: ReadonlySet<string>,
-): { readonly schema: Schema; readonly visited: ReadonlySet<string> } | undefined {
+function derefSchema(schema: Schema, doc: OpenAPI, visited: ReadonlySet<string>) {
   if (!schema.$ref) return { schema, visited }
   if (visited.has(schema.$ref)) return undefined
   const resolved = resolveRef(schema.$ref, doc)
@@ -423,7 +419,7 @@ function formatSchemaType(
   if (!isSchemaLike(schema) || depth > MAX_SCHEMA_DEPTH) return 'object'
   if (schema.$ref) {
     const name = componentSchemaName(schema.$ref)
-    if (name) return schemaLink(name, doc)
+    if (name) return makeSchemaLink(name, doc)
     // A reference outside `components.schemas` has no anchor: describe its target.
     const target = derefSchema(schema, doc, visited)
     return target ? formatSchemaType(target.schema, doc, target.visited, depth + 1) : 'object'
@@ -528,7 +524,7 @@ function makeNumberExample(schema: Schema, integer: boolean) {
   return Number(fitted.toPrecision(12))
 }
 
-function makeDefaultValue(schema: Schema): unknown {
+function makeDefaultValue(schema: Schema) {
   // oxlint-disable-next-line typescript/switch-exhaustiveness-check -- the default branch covers every other type
   switch (primaryType(schema)) {
     case 'string':
@@ -651,12 +647,12 @@ function makeExampleFromSchema(
   return makeDefaultValue(schema)
 }
 
-function extractMediaExample(media: MediaLike, doc: OpenAPI): unknown {
+function extractMediaExample(media: MediaLike, doc: OpenAPI) {
   if (media.example !== undefined) return media.example
   return firstExampleValue(media.examples, doc)
 }
 
-function makeMediaExample(media: MediaLike, doc: OpenAPI, direction: Direction): unknown {
+function makeMediaExample(media: MediaLike, doc: OpenAPI, direction: Direction) {
   const mediaExample = extractMediaExample(media, doc)
   if (mediaExample !== undefined) return mediaExample
   return media.schema ? makeExampleFromSchema(media.schema, doc, direction) : undefined
@@ -793,7 +789,7 @@ function makeAsideAuth(operation: Operation, doc: OpenAPI): readonly string[] {
   ]
 }
 
-function shellQuote(value: string) {
+function makeShellQuote(value: string) {
   // A single quote would close the shell string the value is wrapped in.
   return `'${value.replaceAll("'", "'\\''")}'`
 }
@@ -802,7 +798,7 @@ function shellQuote(value: string) {
  * Double-quotes a value that carries `${VAR}` placeholders the shell must
  * expand, escaping everything else the shell would interpret.
  */
-function shellQuoteWithVars(value: string) {
+function makeShellQuoteWithVars(value: string) {
   const escaped = value
     .replaceAll(/[\\"`]/gu, (c) => `\\${c}`)
     .replaceAll(/\$(?!\{[A-Z_]+\})/gu, '\\$')
@@ -813,7 +809,7 @@ function shellQuoteWithVars(value: string) {
  * ANSI-C quoting (`$'...'`), the one shell string that can carry the CRLF a
  * multipart body is framed with.
  */
-function shellQuoteAnsi(value: string) {
+function makeShellQuoteAnsi(value: string) {
   const escaped = value
     .replaceAll('\\', '\\\\')
     .replaceAll("'", "\\'")
@@ -823,9 +819,9 @@ function shellQuoteAnsi(value: string) {
 }
 
 function shellArg(value: string, quoteBraces: boolean) {
-  if (SHELL_VARIABLE_PATTERN.test(value)) return shellQuoteWithVars(value)
+  if (SHELL_VARIABLE_PATTERN.test(value)) return makeShellQuoteWithVars(value)
   const safe = /^[\w\-./:~%=@+,{}]+$/u.test(value) && !(quoteBraces && value.includes('{'))
-  return safe ? value : shellQuote(value)
+  return safe ? value : makeShellQuote(value)
 }
 
 function toParamString(value: unknown) {
@@ -870,7 +866,7 @@ function parameterSchema(parameter: Parameter, doc: OpenAPI) {
   return listMedia(parameter.content, doc)[0]?.media.schema
 }
 
-function makeParameterExample(parameter: Parameter, doc: OpenAPI): unknown {
+function makeParameterExample(parameter: Parameter, doc: OpenAPI) {
   if (parameter.example !== undefined) return parameter.example
   const listed = firstExampleValue(parameter.examples, doc)
   if (listed !== undefined) return listed
@@ -878,7 +874,7 @@ function makeParameterExample(parameter: Parameter, doc: OpenAPI): unknown {
   return schema ? makeExampleFromSchema(schema, doc, 'request') : 'string'
 }
 
-function encodePair(name: string, value: unknown) {
+function makeEncodedPair(name: string, value: unknown) {
   return `${encodeURIComponent(name)}=${encodeURIComponent(toParamString(value))}`
 }
 
@@ -890,27 +886,29 @@ function serializeQueryParameter(parameter: Parameter, value: unknown): readonly
   const style = parameter.style ?? 'form'
   const explode = parameter.explode ?? style === 'form'
   if (parameter.content !== undefined && parameter.schema === undefined) {
-    return [encodePair(parameter.name, value)]
+    return [makeEncodedPair(parameter.name, value)]
   }
   if (Array.isArray(value)) {
-    if (explode) return value.map((item) => encodePair(parameter.name, item))
+    if (explode) return value.map((item) => makeEncodedPair(parameter.name, item))
     const separator = style === 'spaceDelimited' ? ' ' : style === 'pipeDelimited' ? '|' : ','
-    return [encodePair(parameter.name, value.map((item) => toParamString(item)).join(separator))]
+    return [
+      makeEncodedPair(parameter.name, value.map((item) => toParamString(item)).join(separator)),
+    ]
   }
   if (isRecord(value)) {
     const entries = Object.entries(value)
     if (style === 'deepObject') {
-      return entries.map(([key, item]) => encodePair(`${parameter.name}[${key}]`, item))
+      return entries.map(([key, item]) => makeEncodedPair(`${parameter.name}[${key}]`, item))
     }
-    if (explode) return entries.map(([key, item]) => encodePair(key, item))
+    if (explode) return entries.map(([key, item]) => makeEncodedPair(key, item))
     return [
-      encodePair(
+      makeEncodedPair(
         parameter.name,
         entries.flatMap(([key, item]) => [key, toParamString(item)]).join(','),
       ),
     ]
   }
-  return [encodePair(parameter.name, value)]
+  return [makeEncodedPair(parameter.name, value)]
 }
 
 function serializeHeaderValue(value: unknown, explode = false) {
@@ -945,7 +943,7 @@ function encodePathValue(item: unknown) {
  * (OpenAPI §4.8.12.2.1: `simple` with `explode: false` is the default). A `label` value
  * follows a ".", a `matrix` value ";" and the name of the parameter.
  */
-function serializePathParameter(parameter: Parameter, value: unknown) {
+function makePathParameterText(parameter: Parameter, value: unknown) {
   const style = parameter.style ?? 'simple'
   const explode = parameter.explode ?? false
   const name = encodeURIComponent(parameter.name)
@@ -1057,12 +1055,12 @@ function makeSampleBodyArgs(
   const example = makeMediaExample(media, doc, 'request')
   if (isJsonMediaType(mediaType)) {
     if (example === undefined) return []
-    return [`-d ${shellQuote(indentJsonBody(JSON.stringify(example, null, 2)))}`]
+    return [`-d ${makeShellQuote(indentJsonBody(JSON.stringify(example, null, 2)))}`]
   }
   if (mediaType === FORM_URLENCODED_MEDIA_TYPE) {
     if (!isRecord(example)) return []
-    const pairs = Object.entries(example).map(([key, value]) => encodePair(key, value))
-    return pairs.length > 0 ? [`-d ${shellQuote(pairs.join('&'))}`] : []
+    const pairs = Object.entries(example).map(([key, value]) => makeEncodedPair(key, value))
+    return pairs.length > 0 ? [`-d ${makeShellQuote(pairs.join('&'))}`] : []
   }
   if (mediaType === MULTIPART_MEDIA_TYPE) {
     if (!isRecord(example)) return []
@@ -1072,8 +1070,8 @@ function makeSampleBodyArgs(
     if (curl) {
       return entries.map(([key, value]) =>
         isBinarySchema(properties[key], doc)
-          ? `-F ${shellQuote(`${key}=@/path/to/file`)}`
-          : `-F ${shellQuote(`${key}=${toParamString(value)}`)}`,
+          ? `-F ${makeShellQuote(`${key}=@/path/to/file`)}`
+          : `-F ${makeShellQuote(`${key}=${toParamString(value)}`)}`,
       )
     }
     if (entries.length === 0) return []
@@ -1083,13 +1081,13 @@ function makeSampleBodyArgs(
         ? `--${MULTIPART_BOUNDARY}\r\nContent-Disposition: form-data; name="${key}"; filename="${key}"\r\nContent-Type: application/octet-stream\r\n\r\nfile contents\r\n`
         : `--${MULTIPART_BOUNDARY}\r\nContent-Disposition: form-data; name="${key}"\r\n\r\n${toParamString(value)}\r\n`,
     )
-    return [`-d ${shellQuoteAnsi(`${parts.join('')}--${MULTIPART_BOUNDARY}--\r\n`)}`]
+    return [`-d ${makeShellQuoteAnsi(`${parts.join('')}--${MULTIPART_BOUNDARY}--\r\n`)}`]
   }
   if (isBinarySchema(media.schema, doc) && extractMediaExample(media, doc) === undefined) {
-    return curl ? [`--data-binary ${shellQuote('@/path/to/file')}`] : []
+    return curl ? [`--data-binary ${makeShellQuote('@/path/to/file')}`] : []
   }
   if (example === undefined || example === null) return []
-  return [`-d ${shellQuote(typeof example === 'string' ? example : JSON.stringify(example))}`]
+  return [`-d ${makeShellQuote(typeof example === 'string' ? example : JSON.stringify(example))}`]
 }
 
 function acceptedMediaType(operation: Operation, doc: OpenAPI) {
@@ -1151,8 +1149,8 @@ function makeCodeSample(
     ...(cookies.length > 0 ? [`Cookie: ${cookies.join('; ')}`] : []),
   ].map((header) =>
     SHELL_VARIABLE_PATTERN.test(header)
-      ? `-H ${shellQuoteWithVars(header)}`
-      : `-H ${shellQuote(header)}`,
+      ? `-H ${makeShellQuoteWithVars(header)}`
+      : `-H ${makeShellQuote(header)}`,
   )
 
   const query = [
@@ -1168,7 +1166,7 @@ function makeCodeSample(
     (placeholder: string, name: string) => {
       const parameter = allParams.find((p) => p.in === 'path' && p.name === name)
       if (!parameter) return placeholder
-      const value = serializePathParameter(parameter, makeParameterExample(parameter, doc))
+      const value = makePathParameterText(parameter, makeParameterExample(parameter, doc))
       return value === '' ? placeholder : value
     },
   )
@@ -1567,7 +1565,7 @@ function makeResponsesTable(
   const rows = resolvedResponses(operation, doc).map(({ statusCode, response }) => {
     const schema = pickMedia(response.content, doc)?.media.schema
     const name = schema?.$ref ? componentSchemaName(schema.$ref) : undefined
-    const schemaStr = schema ? (name ? schemaLink(name, doc) : 'Inline') : 'None'
+    const schemaStr = schema ? (name ? makeSchemaLink(name, doc) : 'Inline') : 'None'
     const description = toText(response.description) ?? ''
     return `|${escapeCell(statusCode)}|${statusMeaning(statusCode)}|${escapeCell(description)}|${schemaStr}|`
   })
@@ -1833,7 +1831,7 @@ function makeOperationSection(
       ? [`<a id="opId${escapeHtml(operation.operationId ?? '')}"></a>`, '']
       : []),
     ...(sample ? [...makeCodeSample(endpoint, doc, sample), ''] : []),
-    inlineCode(`${method.toUpperCase()} ${pathStr}`),
+    makeInlineCode(`${method.toUpperCase()} ${pathStr}`),
     '',
     ...(operation.deprecated === true
       ? ['<aside class="warning">', 'This operation is deprecated', '</aside>', '']
@@ -1856,7 +1854,7 @@ function makeOperationSection(
 /**
  * Inline code whose delimiter is longer than any backtick run in the content.
  */
-function inlineCode(content: string) {
+function makeInlineCode(content: string) {
   const longest = Math.max(0, ...(content.match(/`+/gu) ?? []).map((run) => run.length))
   if (longest === 0) return `\`${content}\``
   const fence = '`'.repeat(longest + 1)
@@ -1923,7 +1921,7 @@ export function makeDocs(
   basePath = '/',
   curl = false,
   baseUrl?: string,
-): string {
+) {
   const title = toText(openAPI.info?.title) ?? 'API'
   const version = toText(openAPI.info?.version) ?? ''
   // A version that already reads `v1` must not become `vv1`.

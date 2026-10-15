@@ -61,7 +61,7 @@ const RESERVED = new Set([
  */
 export function isGroupName(name: string): boolean
 export function isGroupName(name: string | undefined): name is string
-export function isGroupName(name: string | undefined): boolean {
+export function isGroupName(name: string | undefined) {
   return (
     name !== undefined &&
     isValidIdent(name) &&
@@ -84,7 +84,7 @@ export type Grouping = (path: string, tags: readonly string[] | undefined) => st
  * `__root` already: a resource is named with letters and digits alone, so a name that
  * starts with `__` is never one, and never in its way.
  */
-export function groupNameOf(file: string): string {
+export function groupNameOf(file: string) {
   return isGroupName(file) ? file : `__${file}`
 }
 
@@ -109,7 +109,8 @@ export function operationTags(operation: object): readonly string[] | undefined 
 export function freeName(base: string, taken: Iterable<string>) {
   const names = new Set(taken)
   if (!names.has(base)) return base
-  const free = (n: number): string => (names.has(`${base}${n}`) ? free(n + 1) : `${base}${n}`)
+  const free = (n: number): string =>
+    names.has(`${base}${n}`) ? free(n + 1) : (`${base}${n}` as const)
   return free(2)
 }
 
@@ -126,10 +127,10 @@ export function freeName(base: string, taken: Iterable<string>) {
  */
 export function entryNames(groups: Iterable<string>) {
   const taken = [...groups]
-  return { app: freeName('app', taken), hono: freeName('OpenAPIHono', taken) }
+  return { app: freeName('app', taken), hono: freeName('OpenAPIHono', taken) } as const
 }
 
 /** The export a group's client is reached by: `books` through `booksClient`. */
-export function groupClientName(group: string) {
-  return `${group}Client`
+export function makeGroupClientName(group: string) {
+  return `${group}Client` as const
 }

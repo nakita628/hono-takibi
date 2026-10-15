@@ -38,11 +38,11 @@ import { GenerateError } from '../error/index.js'
 import type { FormatError } from '../error/index.js'
 import { exists, readdir, unlink } from '../file/index.js'
 import {
-  appEntryFile,
-  appEntryImport,
+  makeAppEntryFile,
+  makeAppEntryImport,
   appEntryOutput,
   handlerGroupOf,
-  generatedImport,
+  makeGeneratedImport,
   isInsideDirectory,
 } from '../helper/index.js'
 import type { Grouping } from '../helper/index.js'
@@ -238,7 +238,7 @@ function refKinds(node: unknown, found = new Set<string>()): ReadonlySet<string>
  * are generated from `paths`, webhooks from `webhooks`, and each component kind from its
  * own section.
  */
-export function referencedKinds(openAPI: OpenAPI): ReadonlyMap<string, ReadonlySet<string>> {
+export function referencedKinds(openAPI: OpenAPI) {
   return new Map([
     ['routes', refKinds(openAPI.paths)],
     ['webhooks', refKinds(openAPI.webhooks)],
@@ -315,7 +315,7 @@ export function packageRoots(openAPI: OpenAPI, config: Config) {
     const targets = importTargets(config)
     const appOutput = appEntryOutput(config)
     const defineOn = config.template?.define === true
-    const appEntry = appOutput === undefined ? undefined : appEntryFile(appOutput, defineOn)
+    const appEntry = appOutput === undefined ? undefined : makeAppEntryFile(appOutput, defineOn)
     // The directories generated files are written into: a split output is a directory of
     // its own, every other output is a file in one.
     const splitDirectory = (target: Target | undefined) =>
@@ -394,6 +394,24 @@ export function packageRoots(openAPI: OpenAPI, config: Config) {
             ),
           ]),
     ]
+    // A routes or webhooks file imports every component kind its operations refer to, from
+    // the output that holds it. A kind no output holds would be imported from a file that is
+    // never written: the single `output` inlines what it refers to, `routes` does not.
+    const held = (name: string) =>
+      targets.components.some(([target]) => target === 'components.output' || target === name)
+    const unheld = (['routes', 'webhooks'] as const).flatMap((from) => {
+      if (config[from] === undefined) return []
+      const kinds = [...(referenced.get(from) ?? [])]
+        .filter((kind) => !held(`components.${kind}`))
+        .map((kind) => `components.${kind}`)
+      return kinds.length === 0 ? [] : [[from, kinds] as const]
+    })[0]
+    if (unheld !== undefined) {
+      const [from, kinds] = unheld
+      return yield* new GenerateError({
+        message: `${from} imports ${kinds.join(' and ')}, which no output holds: set components.output, or ${kinds.join(' and ')}, so that the files it imports are written.`,
+      })
+    }
     const missing = edges.find(
       ([, importer, , target]) =>
         packageRoot(importer.output) !== packageRoot(target.output) && target.package === undefined,
@@ -446,7 +464,7 @@ export function makeJob(
     if (output === undefined || path.basename(output) === 'index.ts') return undefined
     const barrel = path.join(path.dirname(output), 'index.ts')
     const written = [
-      appOutput === undefined ? undefined : appEntryFile(appOutput, defineOn),
+      appOutput === undefined ? undefined : makeAppEntryFile(appOutput, defineOn),
       config.output,
       config.routes?.output,
       config.webhooks?.output,
@@ -477,7 +495,7 @@ export function makeJob(
       const sameRoot = packageRoot(from) === packageRoot(target.output)
       return !sameRoot && target.package !== undefined
         ? target.package
-        : generatedImport(
+        : makeGeneratedImport(
             from,
             target.output,
             appOutput,
@@ -509,7 +527,7 @@ export function makeJob(
   const routeImport =
     routesTarget?.package !== undefined &&
     appOutput !== undefined &&
-    packageRoot(appEntryFile(appOutput, defineOn)) !== packageRoot(routesTarget.output)
+    packageRoot(makeAppEntryFile(appOutput, defineOn)) !== packageRoot(routesTarget.output)
       ? routesTarget.package
       : undefined
   const componentsOutput =
@@ -800,11 +818,12 @@ export function makeJob(
               openAPI,
               output,
               generatedClient.import ??
-                appEntryImport(output, appOutput, aliasFor(output), defineOn),
+                makeAppEntryImport(output, appOutput, aliasFor(output), defineOn),
               generatedClient.baseUrl,
               config.basePath,
               grouping,
               clientBarrel === undefined ? undefined : path.join(path.dirname(output), 'index.ts'),
+              generatedClient.credentials,
             ),
         }
       : undefined,

@@ -8,7 +8,7 @@ import { GenerateError } from '../../error/index.js'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../../guard/index.js'
 import {
   formatPath,
-  groupClientName,
+  makeGroupClientName,
   makeOperationDeps,
   operationHasArgs,
   operationTags,
@@ -59,7 +59,7 @@ function makeOperationCode(
   // An operation of a split application is called through the client of its group, and
   // through the client of the application when it belongs to none.
   const group = grouping?.(path, operationTags(operation))
-  const deps = group === undefined ? base : { ...base, client: groupClientName(group) }
+  const deps = group === undefined ? base : { ...base, client: makeGroupClientName(group) }
   const funcName = methodPath(method, path)
   const pathResult = formatPath(path, hasBasePath)
   const hasArgs = operationHasArgs(item, operation, deps)

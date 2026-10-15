@@ -113,7 +113,7 @@ function makeSingleTypeString(
   return 'unknown'
 }
 
-function wrapForArrayElement(type: string): string {
+function wrapForArrayElement(type: string) {
   return type.startsWith('readonly ') ? `(${type})` : type
 }
 

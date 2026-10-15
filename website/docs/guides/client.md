@@ -39,13 +39,14 @@ const hcWithType = (...args: Parameters<typeof hc>): Client => hc<typeof api>(..
 export const client = hcWithType('/').api
 ```
 
-| Option           | Sets              | Meaning                                                  |
-| ---------------- | ----------------- | -------------------------------------------------------- |
-| `client.output`  | the file          | `rpc` and the hooks import it from there.                |
-| `client.baseUrl` | `hcWithType('/')` | `'/'` (default) or an environment variable, see below.   |
-| `basePath`       | `.api`            | Calls are `client.users.$get()`, not `client.api.users`. |
-| `client.import`  | `from '../index'` | Where the app's type comes from. Only across packages.   |
-| `client.package` | imports elsewhere | What other packages import the client by.                |
+| Option               | Sets                        | Meaning                                                  |
+| -------------------- | --------------------------- | -------------------------------------------------------- |
+| `client.output`      | the file                    | `rpc` and the hooks import it from there.                |
+| `client.baseUrl`     | `hcWithType('/')`           | `'/'` (default) or an environment variable, see below.   |
+| `basePath`           | `.api`                      | Calls are `client.users.$get()`, not `client.api.users`. |
+| `client.import`      | `from '../index'`           | Where the app's type comes from. Only across packages.   |
+| `client.package`     | imports elsewhere           | What other packages import the client by.                |
+| `client.credentials` | `{ init: { credentials } }` | Send cookies with every request, see below.              |
 
 Only the type of the app is imported, so no server code reaches the browser. The file is overwritten on every run.
 
@@ -72,6 +73,28 @@ With `import`, the export is `env` unless `name` says otherwise:
 ```ts
 baseUrl: { env: 'API_URL', import: '../config', name: 'config' } // config.API_URL
 ```
+
+### Cookies
+
+A client of an API on another origin needs `credentials: 'include'` to send its cookies, as the [Hono guide](https://hono.dev/docs/guides/rpc#cookies) shows. `client.credentials` writes it as the `init` of `hc`:
+
+```ts
+client: { output: './src/lib/client.ts', credentials: 'include' }
+```
+
+```ts
+export const client = hcWithType('/', { init: { credentials: 'include' } }).api
+```
+
+It is the `credentials` of `fetch`, one of three, and nothing is written when it is left out:
+
+| `credentials`   | Cookies are sent                                                                 |
+| --------------- | -------------------------------------------------------------------------------- |
+| `'include'`     | to any origin. The server answers with `Access-Control-Allow-Credentials: true`. |
+| `'same-origin'` | to the origin of the page alone: what the browser does when nothing is written.  |
+| `'omit'`        | never, the same origin included.                                                 |
+
+Per-request options still apply beside it: `fetch`, `headers` and the rest of a call's last argument. Anything else the client is created with is a per-request option, passed to the functions and hooks as above.
 
 ### Monorepo
 
@@ -173,3 +196,5 @@ const { mutate } = usePostUsers()
 ```
 
 Add `x-pagination: true` to a GET operation to get an infinite query hook.
+
+Every hook has a key factory, `getUsersQueryKey(args)` for TanStack Query and `getGetUsersKey(args)` for SWR, and the key is `['users', '/users/:id', args]`: the first segment of the path, the route, and the arguments, so that `['users']` invalidates every query under `/users` and `['users', '/users/:id', { param: { id: '1' } }]` every query of one user. A `header` or `cookie` argument is left out of the key: it says who asks, not what is asked for, and a persisted cache or the devtools would otherwise show the token.

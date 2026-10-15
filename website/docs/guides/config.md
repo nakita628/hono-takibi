@@ -66,6 +66,7 @@ Prefer a Vite dev server? Use the [Vite plugin](/docs/guides/vite-plugin) instea
 
 - Every generator needs its own `output`. Two generators writing to one file is an error.
 - `output` (single file) and `routes` (split) are mutually exclusive. Same for `components.output` and the per-type `components.*` sections.
+- `output` inlines the components its routes refer to. `routes` and `webhooks` import them instead, so every component kind the operations refer to needs an output that holds it: `components.output`, or `components.<kind>`. Without one, generation fails naming the kind, rather than writing an import of a file that does not exist.
 - A `split` directory belongs to the generator: its `.ts` files are removed before each run. Keep hand-written code elsewhere.
 - `basePath` must start with `/`. `client.import` and every `package` must be module specifiers.
 - Generated files import one another relatively, under `pathAlias` when the target is in the directory of the app entry, and by the target's `package` from another package. A target in another package without a `package` is an error.
@@ -204,6 +205,7 @@ export default defineConfig({
   client: {
     output: './src/lib/client.ts',
     baseUrl: '/', // same origin (default); from the environment: { env: 'VITE_API_URL' }, { env: 'API_URL', source: 'process.env' }, { env: 'API_URL', import: '@/env' }
+    // credentials: 'include', // send cookies to any origin: hc('/', { init: { credentials: 'include' } })
     // import: '@packages/server', // monorepo: where the app's type comes from
     // package: '@packages/client', // monorepo: what other packages import the client by
   },
