@@ -245,32 +245,6 @@ export function makeLinkOrReference(linkOrReference: Link | Reference) {
   return `{${result}}`
 }
 
-export function makeOperationCallbacks(
-  callbacks: Operation['callbacks'] | { readonly [k: string]: unknown } | undefined,
-) {
-  if (!callbacks) return undefined
-  const result = Object.entries(callbacks)
-    .map(([callbackName, callbackRef]) => {
-      if (!isRecord(callbackRef)) return undefined
-      if (isRefObject(callbackRef)) {
-        return `${JSON.stringify(callbackName)}:${makeRef(callbackRef.$ref)}`
-      }
-      const summary = callbackRef.summary
-      const description = callbackRef.description
-      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
-      const result = [
-        typeof summary === 'string' ? `summary:${JSON.stringify(summary)}` : undefined,
-        typeof description === 'string' ? `description:${JSON.stringify(description)}` : undefined,
-      ]
-        .filter((v) => v !== undefined)
-        .join(',')
-      return `${JSON.stringify(callbackName)}:{${result}}`
-    })
-    .filter((v) => v !== undefined)
-    .join(',')
-  return `{${result}}`
-}
-
 export function makeCallback(callback: Callbacks) {
   return Object.entries(callback)
     .map(([callbackKey, pathItem]) => {

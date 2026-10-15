@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import {
-  formatPath,
-  makeOperationDeps,
-  makeParseResponseType,
-  operationHasArgs,
-  parsePathItem,
-} from './rpc.js'
+import { formatPath, makeOperationDeps, operationHasArgs, parsePathItem } from './rpc.js'
 
 /* ═══════════════════════════════════ formatPath ═══════════════════════════════════ */
 
@@ -133,46 +127,6 @@ describe('parsePathItem', () => {
     })
     expect(result.get).toBe(undefined)
     expect(result.post).toBe(undefined)
-  })
-})
-
-/* ═══════════════════════════════════ makeParseResponseType ═══════════════════════════════════ */
-
-describe('makeParseResponseType', () => {
-  it.concurrent('generates type for simple path', () => {
-    const pathResult = {
-      runtimePath: '.users',
-      typeofPrefix: '.users',
-      bracketSuffix: '',
-      hasBracket: false,
-    }
-    expect(makeParseResponseType('client', pathResult, 'get')).toBe(
-      'Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>',
-    )
-  })
-
-  it.concurrent('generates type for bracket path', () => {
-    const pathResult = {
-      runtimePath: ".users[':id']",
-      typeofPrefix: '.users',
-      bracketSuffix: "[':id']",
-      hasBracket: true,
-    }
-    expect(makeParseResponseType('api', pathResult, 'get')).toBe(
-      "Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof api.users[':id']['$get']>>>>>",
-    )
-  })
-
-  it.concurrent('generates type for post method', () => {
-    const pathResult = {
-      runtimePath: '.users',
-      typeofPrefix: '.users',
-      bracketSuffix: '',
-      hasBracket: false,
-    }
-    expect(makeParseResponseType('client', pathResult, 'post')).toBe(
-      'Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>',
-    )
   })
 })
 
@@ -398,22 +352,6 @@ describe('Use Case: REST API CRUD patterns', () => {
       bracketSuffix: "[':userId']['posts'][':postId']['comments']",
       hasBracket: true,
     })
-  })
-
-  it.concurrent('generates correct response types for various methods', () => {
-    const pathResult = formatPath('/api/v1/users/{id}')
-
-    expect(makeParseResponseType('client', pathResult, 'get')).toBe(
-      "Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.api.v1.users[':id']['$get']>>>>>",
-    )
-
-    expect(makeParseResponseType('client', pathResult, 'put')).toBe(
-      "Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.api.v1.users[':id']['$put']>>>>>",
-    )
-
-    expect(makeParseResponseType('client', pathResult, 'delete')).toBe(
-      "Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.api.v1.users[':id']['$delete']>>>>>",
-    )
   })
 
   it.concurrent('detects CRUD operations with bodies vs without', () => {

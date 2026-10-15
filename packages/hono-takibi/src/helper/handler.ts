@@ -8,13 +8,7 @@ import { fmt } from '../format/index.js'
 // Test code generation is deprecated: hono-takibi no longer generates test files.
 // import { makeHandlerTestCode, makeHandlerTestContext } from '../generator/test/index.js'
 import { defineEntries } from '../generator/zod-openapi-hono/openapi/define/index.js'
-import {
-  isHttpMethod,
-  isOperation,
-  isOperationWithResponses,
-  isSchemaArray,
-  isSchemaObject,
-} from '../guard/index.js'
+import { isHttpMethod, isOperation } from '../guard/index.js'
 import {
   collectExportedNames,
   collectInlineRouteNames,
@@ -23,123 +17,12 @@ import {
   mergeHandlerFile,
   // mergeTestFile,
 } from '../merge/index.js'
-import type { OpenAPI, Operation, Schema } from '../openapi/index.js'
-import { cyclicNodes, methodPath, uncapitalizeWord } from '../utils/index.js'
+import type { OpenAPI, Operation } from '../openapi/index.js'
+import { methodPath, uncapitalizeWord } from '../utils/index.js'
 // import { makeImports, makeModuleSpec } from './code.js'
 import { makeImports, makeModuleSpec } from './code.js'
-import { mockFunctionSignature, schemaToFaker } from './faker.js'
 import { groupNameOf } from './group.js'
 import { appEntryDirectory } from './path.js'
-
-function makeRefs(schema: Schema, refs = new Set<string>()) {
-  if (schema.$ref) {
-    const refName = schema.$ref.split('/').pop()
-    if (refName) refs.add(refName)
-  }
-  if (schema.items) {
-    const items = isSchemaArray(schema.items) ? schema.items : [schema.items]
-    for (const item of items) {
-      if (isSchemaObject(item)) makeRefs(item, refs)
-    }
-  }
-  if (schema.prefixItems) {
-    for (const item of schema.prefixItems) {
-      makeRefs(item, refs)
-    }
-  }
-  if (schema.properties) {
-    for (const prop of Object.values(schema.properties)) {
-      makeRefs(prop, refs)
-    }
-  }
-  if (isSchemaObject(schema.additionalProperties)) {
-    makeRefs(schema.additionalProperties, refs)
-  }
-  if (schema.allOf) {
-    for (const s of schema.allOf) {
-      makeRefs(s, refs)
-    }
-  }
-  if (schema.oneOf) {
-    for (const s of schema.oneOf) {
-      makeRefs(s, refs)
-    }
-  }
-  if (schema.anyOf) {
-    for (const s of schema.anyOf) {
-      makeRefs(s, refs)
-    }
-  }
-  return refs
-}
-
-function makeMockFunctions(
-  usedRefs: ReadonlySet<string>,
-  schemas: { readonly [k: string]: Schema },
-) {
-  const reachable = new Set<string>()
-  const visit = (refName: string) => {
-    const schema = schemas[refName]
-    if (reachable.has(refName) || !schema) return
-    reachable.add(refName)
-    for (const dep of makeRefs(schema)) visit(dep)
-  }
-  for (const refName of usedRefs) visit(refName)
-  const circular = cyclicNodes(
-    new Map(Object.entries(schemas).map(([name, schema]) => [name, [...makeRefs(schema)]])),
-  )
-  return [...reachable]
-    .map((refName) => {
-      const isCircular = circular.has(refName)
-      const mockBody = schemaToFaker(schemas[refName], undefined, {
-        schemas,
-        ...(isCircular ? { recursive: circular } : {}),
-      })
-      return `${mockFunctionSignature(refName, isCircular)} {\n  return ${mockBody}\n}`
-    })
-    .join('\n\n')
-}
-
-function makeResponseInfo(operation: Operation) {
-  if (!isOperationWithResponses(operation)) {
-    return { schema: undefined, statusCode: 200 } as const
-  }
-  const responses = operation.responses
-  const successResponse = responses['200'] ?? responses['201'] ?? responses['204']
-  const responseSchema = successResponse?.content?.['application/json']?.schema
-  const statusCode = responses['200'] ? 200 : responses['201'] ? 201 : responses['204'] ? 204 : 200
-  return { schema: responseSchema, statusCode } as const
-}
-
-function makeMockHandlerCode(
-  routeId: string,
-  operation: Operation,
-  schemas: { readonly [k: string]: Schema },
-): {
-  readonly content: string
-  readonly needsFaker: boolean
-  readonly usedRefs: ReadonlySet<string>
-} {
-  const { schema: responseSchema, statusCode } = makeResponseInfo(operation)
-  if (responseSchema) {
-    const usedRefs = makeRefs(responseSchema)
-    const mockData = schemaToFaker(responseSchema, undefined, { schemas })
-    return {
-      content: `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(c)=>{
-  return c.json(${mockData}, ${statusCode})
-}` as const,
-      needsFaker: true,
-      usedRefs,
-    } as const
-  }
-  return {
-    content: `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(_c)=>{
-  return new Response(null, { status: 204 })
-}` as const,
-    needsFaker: false,
-    usedRefs: new Set(),
-  } as const
-}
 
 function sanitizeHandlerSegment(segment: string) {
   return segment
@@ -254,8 +137,6 @@ function makeOrphanHandlers(
       // testFileName: makeTestFileName(fileName),
       contents: [],
       routeNames: [],
-      needsFaker: false,
-      usedRefs: new Set<string>(),
     }))
 }
 
@@ -280,32 +161,6 @@ function makePaths(output: string, pathAlias: string | undefined, routeImport?: 
   return { handlerPath, importFrom } as const
 }
 
-function makeInlineMockContent(
-  routeId: string,
-  operation: Operation,
-  schemas: { readonly [k: string]: Schema },
-): {
-  readonly content: string
-  readonly needsFaker: boolean
-  readonly usedRefs: ReadonlySet<string>
-} {
-  const { schema: responseSchema, statusCode } = makeResponseInfo(operation)
-  if (responseSchema) {
-    const usedRefs = makeRefs(responseSchema)
-    const mockData = schemaToFaker(responseSchema, undefined, { schemas })
-    return {
-      content: `.openapi(${routeId}Route,async(c)=>{return c.json(${mockData},${statusCode})})`,
-      needsFaker: true,
-      usedRefs,
-    } as const
-  }
-  return {
-    content: `.openapi(${routeId}Route,async(_c)=>{return new Response(null,{status:204})})`,
-    needsFaker: false,
-    usedRefs: new Set(),
-  } as const
-}
-
 // What the handler of one operation is: the file it goes to, resolved against the existing
 // files by the member that file exports for the route (`getUsersRoute` inline,
 // `getUsersRouteHandler` in a file of its own), and the code of that member.
@@ -318,11 +173,7 @@ function makeHandlerInfo(
     readonly locations: ReadonlyMap<string, `${string}.ts`>
   },
   member: 'Route' | 'RouteHandler',
-  body: (routeId: string) => {
-    readonly content: string
-    readonly needsFaker: boolean
-    readonly usedRefs: ReadonlySet<string>
-  },
+  body: (routeId: string) => string,
 ) {
   const routeId = methodPath(method, path)
   const fileName = resolveHandlerFileName(
@@ -330,13 +181,10 @@ function makeHandlerInfo(
     `${routeId}${member}`,
     existing,
   )
-  const result = body(routeId)
   return {
     fileName,
-    contents: [result.content],
+    contents: [body(routeId)],
     routeNames: [`${routeId}Route`],
-    needsFaker: result.needsFaker,
-    usedRefs: result.usedRefs,
   } as const
 }
 
@@ -349,25 +197,13 @@ function makeInlineStubHandlerInfo(
     readonly locations: ReadonlyMap<string, `${string}.ts`>
   },
 ) {
-  return makeHandlerInfo(path, method, operation, existing, 'Route', (routeId) => ({
-    content: `.openapi(${routeId}Route,(c)=>{})`,
-    needsFaker: false,
-    usedRefs: new Set(),
-  }))
-}
-
-function makeInlineMockHandlerInfo(
-  path: string,
-  method: string,
-  operation: Operation,
-  schemas: { readonly [k: string]: Schema },
-  existing: {
-    readonly fileNames: readonly `${string}.ts`[]
-    readonly locations: ReadonlyMap<string, `${string}.ts`>
-  },
-) {
-  return makeHandlerInfo(path, method, operation, existing, 'Route', (routeId) =>
-    makeInlineMockContent(routeId, operation, schemas),
+  return makeHandlerInfo(
+    path,
+    method,
+    operation,
+    existing,
+    'Route',
+    (routeId) => `.openapi(${routeId}Route,(c)=>{})`,
   )
 }
 
@@ -387,31 +223,6 @@ function makeInlineStubFileContent(
   return `${importStatements}\n\nconst app = new OpenAPIHono()\n\nexport const ${exportName} = app\n${chain}`
 }
 
-function makeInlineMockFileContent(
-  handler: {
-    readonly fileName: `${string}.ts`
-    readonly contents: readonly string[]
-    readonly routeNames: readonly string[]
-    readonly needsFaker: boolean
-    readonly usedRefs: ReadonlySet<string>
-  },
-  importFrom: string,
-  schemas: { readonly [k: string]: Schema },
-) {
-  const exportName = `${basename(handler.fileName, '.ts')}Handler`
-  const routeImports = [...new Set(handler.routeNames)].join(', ')
-  const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
-  const fakerImport = handler.needsFaker ? "import { faker } from '@faker-js/faker'\n" : ''
-  const importStatements = `import { OpenAPIHono } from '@hono/zod-openapi'\n${fakerImport}${importRoutes}`
-  const mockFunctions = makeMockFunctions(handler.usedRefs, schemas)
-  const appDecl = 'const app = new OpenAPIHono()'
-  const chain = handler.contents.join('\n')
-  const body = `export const ${exportName} = app\n${chain}`
-  return mockFunctions
-    ? `${importStatements}\n\n${appDecl}\n\n${mockFunctions}\n\n${body}`
-    : `${importStatements}\n\n${appDecl}\n\n${body}`
-}
-
 function makeStubHandlerInfo(
   path: string,
   method: string,
@@ -421,25 +232,14 @@ function makeStubHandlerInfo(
     readonly locations: ReadonlyMap<string, `${string}.ts`>
   },
 ) {
-  return makeHandlerInfo(path, method, operation, existing, 'RouteHandler', (routeId) => ({
-    content: `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(c)=>{}`,
-    needsFaker: false,
-    usedRefs: new Set(),
-  }))
-}
-
-function makeMockHandlerInfo(
-  path: string,
-  method: string,
-  operation: Operation,
-  schemas: { readonly [k: string]: Schema },
-  existing: {
-    readonly fileNames: readonly `${string}.ts`[]
-    readonly locations: ReadonlyMap<string, `${string}.ts`>
-  },
-) {
-  return makeHandlerInfo(path, method, operation, existing, 'RouteHandler', (routeId) =>
-    makeMockHandlerCode(routeId, operation, schemas),
+  return makeHandlerInfo(
+    path,
+    method,
+    operation,
+    existing,
+    'RouteHandler',
+    (routeId) =>
+      `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(c)=>{}`,
   )
 }
 
@@ -449,8 +249,6 @@ function makeMergedHandlers<
     // readonly testFileName: `${string}.ts`
     readonly contents: readonly string[]
     readonly routeNames: readonly string[]
-    readonly needsFaker: boolean
-    readonly usedRefs: ReadonlySet<string>
   },
 >(handlers: readonly T[]): readonly T[] {
   const handlerMap = new Map<string, T>()
@@ -462,8 +260,6 @@ function makeMergedHandlers<
         ...handler,
         contents: [...existing.contents, ...handler.contents],
         routeNames: [...new Set([...existing.routeNames, ...handler.routeNames])],
-        needsFaker: existing.needsFaker || handler.needsFaker,
-        usedRefs: new Set([...existing.usedRefs, ...handler.usedRefs]),
       })
     } else {
       handlerMap.set(handler.fileName, handler)
@@ -484,26 +280,6 @@ function makeStubFileContent(
   const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${importFrom}';` : ''
   const importStatements = `import type { RouteHandler } from '@hono/zod-openapi'\n${importRouteTypes}`
   return `${importStatements}\n\n${handler.contents.join('\n\n')}`
-}
-
-function makeMockFileContent(
-  handler: {
-    readonly contents: readonly string[]
-    readonly routeNames: readonly string[]
-    readonly needsFaker: boolean
-    readonly usedRefs: ReadonlySet<string>
-  },
-  importFrom: string,
-  schemas: { readonly [k: string]: Schema },
-) {
-  const routeTypes = [...new Set(handler.routeNames)].join(', ')
-  const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${importFrom}';` : ''
-  const fakerImport = handler.needsFaker ? "import { faker } from '@faker-js/faker'\n" : ''
-  const importStatements = `import type { RouteHandler } from '@hono/zod-openapi'\n${fakerImport}${importRouteTypes}`
-  const mockFunctions = makeMockFunctions(handler.usedRefs, schemas)
-  return mockFunctions
-    ? `${importStatements}\n\n${mockFunctions}\n\n${handler.contents.join('\n\n')}`
-    : `${importStatements}\n\n${handler.contents.join('\n\n')}`
 }
 
 function makeBarrelContent(fileNames: readonly string[]) {
@@ -799,78 +575,6 @@ export function defineOpenAPIRouteHandler(
         writeBarrel(
           handlerPath,
           handlerList.map((h) => h.fileName),
-        ),
-      ],
-      { concurrency: 'unbounded' },
-    )
-  })
-}
-
-/**
- * Generates mock handler files with faker.js responses for a Hono app.
- */
-export function mockZodOpenAPIHonoHandler(
-  openapi: OpenAPI,
-  output: string,
-  // Test code generation is deprecated: hono-takibi no longer generates test files.
-  // test: boolean,
-  pathAlias?: string,
-  routeImport?: string,
-  routeHandler = false,
-  // basePath = '/',
-  // testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
-) {
-  return Effect.gen(function* () {
-    const paths = openapi.paths
-    const schemas = openapi.components?.schemas ?? {}
-    const { handlerPath, importFrom } = makePaths(output, pathAlias, routeImport)
-    const existing = yield* scanExistingHandlerFiles(
-      handlerPath,
-      routeHandler ? (code) => collectExportedNames(code, 'RouteHandler') : collectInlineRouteNames,
-    )
-    const specHandlers = makeMergedHandlers(
-      Object.entries(paths).flatMap(([path, pathItem]) =>
-        Object.entries(pathItem)
-          .filter(
-            (entry): entry is [string, Operation] =>
-              isHttpMethod(entry[0]) && isOperation(entry[1]),
-          )
-          .map(([method, operation]) =>
-            routeHandler
-              ? makeMockHandlerInfo(path, method, operation, schemas, existing)
-              : makeInlineMockHandlerInfo(path, method, operation, schemas, existing),
-          ),
-      ),
-    )
-    const handlers = [
-      ...specHandlers,
-      ...makeOrphanHandlers(
-        existing,
-        specHandlers.map((h) => h.fileName),
-      ),
-    ]
-    // const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
-    yield* mkdir(handlerPath)
-    yield* Effect.all(
-      [
-        ...handlers.map((handler) =>
-          writeHandler({
-            // openapi,
-            handlerPath,
-            handler,
-            fileContent: routeHandler
-              ? makeMockFileContent(handler, importFrom, schemas)
-              : makeInlineMockFileContent(handler, importFrom, schemas),
-            merge: mergeHandlerFile,
-            // testImportFrom,
-            // basePath,
-            // testFramework,
-            // testContext: handlerTestContext,
-          }),
-        ),
-        writeBarrel(
-          handlerPath,
-          handlers.map((h) => h.fileName),
         ),
       ],
       { concurrency: 'unbounded' },

@@ -204,13 +204,6 @@ export function isRequestBody(v: unknown): v is RequestBody {
   )
 }
 
-export function isRequestBodyOrRef(
-  v: unknown,
-): v is { readonly content?: unknown; readonly required?: boolean } | { readonly $ref: string } {
-  if (typeof v !== 'object' || v === null || Array.isArray(v)) return false
-  return '$ref' in v || 'content' in v
-}
-
 export function isContentBody(
   v: unknown,
 ): v is { readonly content?: { readonly [k: string]: { readonly schema?: Schema } } } {
@@ -235,15 +228,6 @@ export function isSecurityArray(
 export function isResponses(v: unknown): v is Responses {
   if (typeof v !== 'object' || v === null || Array.isArray(v)) return false
   return '$ref' in v || 'description' in v || 'content' in v || 'headers' in v || 'links' in v
-}
-
-export function isOAuthFlowValue(v: unknown): v is {
-  readonly authorizationUrl?: string
-  readonly tokenUrl?: string
-  readonly scopes?: { readonly [k: string]: string }
-} {
-  if (typeof v !== 'object' || v === null || Array.isArray(v)) return false
-  return 'authorizationUrl' in v || 'tokenUrl' in v || 'scopes' in v
 }
 
 // JSON Schema 2020-12 typeless keywords. Emit `z.unknown().superRefine(...)`

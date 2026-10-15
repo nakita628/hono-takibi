@@ -4,7 +4,6 @@ import type { Schema } from '../openapi/index.js'
 import {
   inlineWireRefs,
   isEmptyAbsent,
-  isObjectParameter,
   needsWireConversion,
   nullReading,
   resolveSchemaRef,
@@ -1086,42 +1085,6 @@ describe('wireObject', () => {
     expect(
       wireObject({ name: 'size', in: 'query', schema: { type: 'integer' } }, schemas),
     ).toBeUndefined()
-  })
-})
-
-describe('isObjectParameter', () => {
-  // Whatever its location, the parameter is an object.
-  // 場所にかかわらず、このパラメータはオブジェクトである。
-  it.concurrent('is true for an object in a header', () => {
-    expect(
-      isObjectParameter({ name: 'x-opts', in: 'header', schema: { type: 'object' } }, schemas),
-    ).toBe(true)
-  })
-
-  // An array is not an object.
-  // 配列はオブジェクトではない。
-  it.concurrent('is false for an array', () => {
-    expect(
-      isObjectParameter(
-        { name: 'ids', in: 'query', schema: { type: 'array', items: { type: 'integer' } } },
-        schemas,
-      ),
-    ).toBe(false)
-  })
-
-  // A parameter declared with `content` has no schema of its own.
-  // `content` で宣言されたパラメータは、自身の schema を持たない。
-  it.concurrent('is false for a content parameter', () => {
-    expect(
-      isObjectParameter(
-        {
-          name: 'opts',
-          in: 'query',
-          content: { 'application/json': { schema: { type: 'object' } } },
-        },
-        schemas,
-      ),
-    ).toBe(false)
   })
 })
 

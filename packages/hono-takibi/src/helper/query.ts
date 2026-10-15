@@ -154,9 +154,9 @@ function makeVueReactiveKey(keyCall: string) {
 // is asked for: the same resource under another token is the same cache entry, and a token
 // in the key would be written out by a persisted cache and shown by the devtools. In the
 // browser a `cookie` argument is not even sent, `Cookie` being a forbidden header.
-export const KEY_EXCLUDED_ARGS = ['header', 'cookie'] as const
+const KEY_EXCLUDED_ARGS = ['header', 'cookie'] as const
 
-export type KeyExcludedArg = (typeof KEY_EXCLUDED_ARGS)[number]
+type KeyExcludedArg = (typeof KEY_EXCLUDED_ARGS)[number]
 
 // What stands for the arguments in a key: the arguments as they are, or the rest of them
 // after the excluded parts are destructured away, `const{header:_,cookie:__,...keyArgs}=args`.

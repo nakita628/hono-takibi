@@ -15,7 +15,6 @@ import {
   isInlineMedia,
   isMedia,
   isMediaWithSchema,
-  isOAuthFlowValue,
   isOffsetTime,
   isOpenAPIPaths,
   isOperation,
@@ -27,7 +26,6 @@ import {
   isRecord,
   isRefObject,
   isRequestBody,
-  isRequestBodyOrRef,
   isResponses,
   isSchemaArray,
   isSchemaProperty,
@@ -484,28 +482,6 @@ describe('isRequestBody', () => {
   })
 })
 
-describe('isRequestBodyOrRef', () => {
-  it.concurrent('returns true for $ref', () => {
-    expect(isRequestBodyOrRef({ $ref: '#/components/requestBodies/UserBody' })).toBe(true)
-  })
-
-  it.concurrent('returns true for content body', () => {
-    expect(isRequestBodyOrRef({ content: { 'application/json': {} } })).toBe(true)
-  })
-
-  it.concurrent('returns false for null', () => {
-    expect(isRequestBodyOrRef(null)).toBe(false)
-  })
-
-  it.concurrent('returns false for array', () => {
-    expect(isRequestBodyOrRef([])).toBe(false)
-  })
-
-  it.concurrent('returns false for empty object', () => {
-    expect(isRequestBodyOrRef({})).toBe(false)
-  })
-})
-
 describe('isContentBody', () => {
   it.concurrent('returns true for content body without $ref', () => {
     expect(isContentBody({ content: { 'application/json': { schema: { type: 'object' } } } })).toBe(
@@ -636,56 +612,6 @@ describe('isResponses', () => {
 
   it.concurrent('returns false for object without response keys', () => {
     expect(isResponses({ summary: 'test', type: 'object' })).toBe(false)
-  })
-})
-
-/* ═══════════════════════════════════ OAuth Flow Guards ═══════════════════════════════════ */
-
-describe('isOAuthFlowValue', () => {
-  it.concurrent('returns true for flow with authorizationUrl', () => {
-    expect(isOAuthFlowValue({ authorizationUrl: 'https://example.com/auth' })).toBe(true)
-  })
-
-  it.concurrent('returns true for flow with tokenUrl', () => {
-    expect(isOAuthFlowValue({ tokenUrl: 'https://example.com/token' })).toBe(true)
-  })
-
-  it.concurrent('returns true for flow with scopes', () => {
-    expect(isOAuthFlowValue({ scopes: { 'read:users': 'Read users' } })).toBe(true)
-  })
-
-  it.concurrent('returns true for complete OAuth flow', () => {
-    expect(
-      isOAuthFlowValue({
-        authorizationUrl: 'https://example.com/auth',
-        tokenUrl: 'https://example.com/token',
-        scopes: { 'read:users': 'Read users', 'write:users': 'Write users' },
-      }),
-    ).toBe(true)
-  })
-
-  it.concurrent('returns false for null', () => {
-    expect(isOAuthFlowValue(null)).toBe(false)
-  })
-
-  it.concurrent('returns false for array', () => {
-    expect(isOAuthFlowValue([])).toBe(false)
-  })
-
-  it.concurrent('returns false for string', () => {
-    expect(isOAuthFlowValue('oauth')).toBe(false)
-  })
-
-  it.concurrent('returns false for empty object', () => {
-    expect(isOAuthFlowValue({})).toBe(false)
-  })
-
-  it.concurrent('returns false for object without OAuth keys', () => {
-    expect(isOAuthFlowValue({ type: 'oauth2', scheme: 'bearer' })).toBe(false)
-  })
-
-  it.concurrent('returns false for undefined', () => {
-    expect(isOAuthFlowValue(undefined)).toBe(false)
   })
 })
 

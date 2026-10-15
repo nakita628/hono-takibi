@@ -508,7 +508,7 @@ export function wireStyle(parameter: Parameter, isArray: boolean) {
  * An object is `open` when it declares `additionalProperties`: it takes keys it does not
  * name.
  */
-export type WireObject = {
+type WireObject = {
   readonly name: string
   readonly how: 'deep' | 'spread' | 'value'
   readonly properties: readonly string[]
@@ -529,11 +529,6 @@ function resolveObject(
   return normalizeTypes(schema.type).includes('object') || schema.properties !== undefined
     ? schema
     : undefined
-}
-
-/** Whether a parameter is an object, whatever its location and style. */
-export function isObjectParameter(parameter: Parameter, schemas: Schemas | undefined) {
-  return parameter.schema !== undefined && resolveObject(parameter.schema, schemas) !== undefined
 }
 
 /**

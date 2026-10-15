@@ -12,7 +12,6 @@ import {
   makeLinkOrReference,
   makeMedia,
   makeOperation,
-  makeOperationCallbacks,
   makeOperationResponses,
   makeParameterSchema,
   makeParameters,
@@ -1213,44 +1212,6 @@ describe('openapi helper', () => {
         onError: { $ref: '#/components/callbacks/ErrorCallback' },
       })
       expect(result).toBe('"onSuccess":SuccessCallbackCallback,"onError":ErrorCallbackCallback')
-    })
-  })
-
-  describe('makeOperationCallbacks', () => {
-    it.concurrent('returns undefined for undefined callbacks', () => {
-      const result = makeOperationCallbacks(undefined)
-      expect(result).toBeUndefined()
-    })
-    it.concurrent('generates operation callback with $ref', () => {
-      const result = makeOperationCallbacks({
-        onEvent: { $ref: '#/components/callbacks/EventCallback' },
-      })
-      expect(result).toBe('{"onEvent":EventCallbackCallback}')
-    })
-    it.concurrent('generates operation callback with summary and description', () => {
-      const result = makeOperationCallbacks({
-        onEvent: { summary: 'Event callback', description: 'Handles events' },
-      })
-      expect(result).toBe('{"onEvent":{summary:"Event callback",description:"Handles events"}}')
-    })
-    it.concurrent('generates operation callback with summary only', () => {
-      const result = makeOperationCallbacks({
-        onEvent: { summary: 'Event summary' },
-      })
-      expect(result).toBe('{"onEvent":{summary:"Event summary"}}')
-    })
-    it.concurrent('generates operation callback with description only', () => {
-      const result = makeOperationCallbacks({
-        onEvent: { description: 'Event description' },
-      })
-      expect(result).toBe('{"onEvent":{description:"Event description"}}')
-    })
-    it.concurrent('generates multiple operation callbacks', () => {
-      const result = makeOperationCallbacks({
-        onSuccess: { summary: 'Success' },
-        onError: { summary: 'Error' },
-      })
-      expect(result).toBe('{"onSuccess":{summary:"Success"},"onError":{summary:"Error"}}')
     })
   })
 
