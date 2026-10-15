@@ -394,6 +394,24 @@ export function packageRoots(openAPI: OpenAPI, config: Config) {
             ),
           ]),
     ]
+    // A routes or webhooks file imports every component kind its operations refer to, from
+    // the output that holds it. A kind no output holds would be imported from a file that is
+    // never written: the single `output` inlines what it refers to, `routes` does not.
+    const held = (name: string) =>
+      targets.components.some(([target]) => target === 'components.output' || target === name)
+    const unheld = (['routes', 'webhooks'] as const).flatMap((from) => {
+      if (config[from] === undefined) return []
+      const kinds = [...(referenced.get(from) ?? [])]
+        .filter((kind) => !held(`components.${kind}`))
+        .map((kind) => `components.${kind}`)
+      return kinds.length === 0 ? [] : [[from, kinds] as const]
+    })[0]
+    if (unheld !== undefined) {
+      const [from, kinds] = unheld
+      return yield* new GenerateError({
+        message: `${from} imports ${kinds.join(' and ')}, which no output holds: set components.output, or ${kinds.join(' and ')}, so that the files it imports are written.`,
+      })
+    }
     const missing = edges.find(
       ([, importer, , target]) =>
         packageRoot(importer.output) !== packageRoot(target.output) && target.package === undefined,

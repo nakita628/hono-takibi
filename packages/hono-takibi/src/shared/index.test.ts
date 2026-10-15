@@ -1405,6 +1405,70 @@ describe('packageRoots: the package of every output', () => {
     )
   })
 
+  // A routes file imports the components its operations refer to. With no output to hold
+  // them, the import would name a file that is never written, so the generator says so
+  // instead of writing it.
+  // routes ファイルは、操作が参照する components を import する。それを保持する出力が
+  // なければ、import は書き出されないファイルを指すことになるため、生成器はそれを書かずに
+  // 報告する。
+  it('fails when routes refer to a component kind no output holds', async () => {
+    const cfg = await runGenerator(
+      parseConfig({ input: 'openapi.yaml', routes: { output: './src/routes.ts' } }),
+    )
+    const error = await runGeneratorError(packageRoots(openAPI, cfg))
+    expect(error.message).toBe(
+      'routes imports components.schemas, which no output holds: set components.output, or components.schemas, so that the files it imports are written.',
+    )
+  })
+
+  // The same for a split routes directory: each file imports what its route refers to.
+  // 分割された routes ディレクトリでも同じである。各ファイルは、そのルートが参照するものを
+  // import する。
+  it('fails when split routes refer to a component kind no output holds', async () => {
+    const cfg = await runGenerator(
+      parseConfig({ input: 'openapi.yaml', routes: { output: './src/routes', split: true } }),
+    )
+    const error = await runGeneratorError(packageRoots(openAPI, cfg))
+    expect(error.message).toBe(
+      'routes imports components.schemas, which no output holds: set components.output, or components.schemas, so that the files it imports are written.',
+    )
+  })
+
+  // One components file holds every kind.
+  // 1つの components ファイルがすべての種類を保持する。
+  it('passes when a single components output holds what the routes refer to', async () => {
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: './src/routes.ts' },
+        components: { output: './src/components.ts' },
+      }),
+    )
+    await expect(runGenerator(packageRoots(openAPI, cfg))).resolves.toBeDefined()
+  })
+
+  // The output of the kind referred to is enough.
+  // 参照される種類の出力があれば足りる。
+  it('passes when the output of the kind referred to is set', async () => {
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: './src/routes.ts' },
+        components: { schemas: { output: './src/schemas.ts' } },
+      }),
+    )
+    await expect(runGenerator(packageRoots(openAPI, cfg))).resolves.toBeDefined()
+  })
+
+  // The single `output` inlines what it refers to, so it needs no components output.
+  // 単一の `output` は参照するものを inline 展開するため、components の出力を必要としない。
+  it('passes for the single output, which inlines what it refers to', async () => {
+    const cfg = await runGenerator(
+      parseConfig({ input: 'openapi.yaml', output: './src/routes.ts' }),
+    )
+    await expect(runGenerator(packageRoots(openAPI, cfg))).resolves.toBeDefined()
+  })
+
   // The scaffold imports routes in another package by their package: the handlers and the
   // app entry alike.
   // scaffold は、別パッケージの routes をその package で import する。ハンドラも app entry も同様。
@@ -1417,6 +1481,8 @@ describe('packageRoots: the package of every output', () => {
       parseConfig({
         input: 'openapi.yaml',
         routes: { output: `${tmpDir}/src/routes`, split: true, package: '@packages/routes' },
+        // The routes refer to a schema, which an output of the app's package holds.
+        components: { output: `${tmpDir}/src/components.ts`, package: 'app' },
         template: { routeHandler: true },
       }),
     )
