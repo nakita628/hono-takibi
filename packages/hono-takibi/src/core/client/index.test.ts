@@ -505,6 +505,88 @@ describe('client: the barrel beside it', () => {
   })
 })
 
+describe('client: the credentials', () => {
+  // `credentials` is the one `init` the file writes: the cookies go with every request,
+  // to any origin, as the cookies guide of Hono has it.
+  // `credentials` は、ファイルが書く唯一の `init` である。Hono の cookies ガイドの通り、
+  // クッキーはどのオリジンへのリクエストにも付く。
+  it('writes credentials as the init of hc', async () => {
+    const file = path.join(makeDir(), 'client.ts')
+    await runGenerator(client(spec, file, './index', '/', '/api', undefined, undefined, 'include'))
+    expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
+import type { api } from './index'
+
+type Client = ReturnType<typeof hc<typeof api>>
+
+const hcWithType = (...args: Parameters<typeof hc>): Client => hc<typeof api>(...args)
+
+export const client = hcWithType('/', { init: { credentials: 'include' } }).api
+`)
+  })
+
+  // The base URL from the environment and the credentials stand side by side.
+  // 環境から読むベース URL と credentials は、並んで書かれる。
+  it('writes credentials after a base URL read from the environment', async () => {
+    const file = path.join(makeDir(), 'client.ts')
+    await runGenerator(
+      client(
+        spec,
+        file,
+        './index',
+        { env: 'VITE_API_URL', source: 'import.meta.env' },
+        '/',
+        undefined,
+        undefined,
+        'same-origin',
+      ),
+    )
+    expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
+import type { api } from './index'
+
+const baseUrl = import.meta.env.VITE_API_URL!
+
+type Client = ReturnType<typeof hc<typeof api>>
+
+const hcWithType = (...args: Parameters<typeof hc>): Client => hc<typeof api>(...args)
+
+export const client = hcWithType(baseUrl, { init: { credentials: 'same-origin' } })
+`)
+  })
+
+  // Every client of a split application is created with the same credentials.
+  // 分割されたアプリケーションのすべてのクライアントが、同じ credentials で作られる。
+  it('creates the client of every group with the credentials', async () => {
+    const file = path.join(makeDir(), 'client.ts')
+    await runGenerator(
+      client(
+        grouped,
+        file,
+        './index',
+        '/',
+        '/',
+        (route) => handlerGroupOf(route),
+        undefined,
+        'omit',
+      ),
+    )
+    expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
+import type { books, items } from './index'
+
+type BooksClient = ReturnType<typeof hc<typeof books>>
+
+const hcBooksWithType = (...args: Parameters<typeof hc>): BooksClient => hc<typeof books>(...args)
+
+export const booksClient = hcBooksWithType('/', { init: { credentials: 'omit' } })
+
+type ItemsClient = ReturnType<typeof hc<typeof items>>
+
+const hcItemsWithType = (...args: Parameters<typeof hc>): ItemsClient => hc<typeof items>(...args)
+
+export const itemsClient = hcItemsWithType('/', { init: { credentials: 'omit' } })
+`)
+  })
+})
+
 describe('client: a document without paths', () => {
   // There is nothing to type a client by.
   // クライアントを型付けするものがない。

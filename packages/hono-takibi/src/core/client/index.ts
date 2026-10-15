@@ -59,6 +59,14 @@ function makeBaseUrl(baseUrl: BaseUrl) {
   }
 }
 
+export type Credentials = 'include' | 'same-origin' | 'omit'
+
+// The second argument of `hc`: `credentials` is written into the file as the one `init` it
+// stands for, and nothing is written without it.
+function makeOptions(credentials: Credentials | undefined) {
+  return credentials === undefined ? '' : `,{init:{credentials:${JSON.stringify(credentials)}}}`
+}
+
 /**
  * The typed client, as the `hcWithType` of the Hono guide: the type of the client is
  * declared once, so that it is worked out when this file is compiled and not again by every
@@ -71,13 +79,14 @@ function makeClient(
   access = '',
   imported = app,
   whole = false,
+  options = '',
 ) {
   const typeName = capitalizeFirst(name)
   const factory = whole ? 'hcWithType' : `hc${capitalizeFirst(app)}WithType`
   return [
     `type ${typeName}=ReturnType<typeof hc<typeof ${imported}>>`,
     `const ${factory}=(...args:Parameters<typeof hc>):${typeName}=>hc<typeof ${imported}>(...args)`,
-    `export const ${name}=${factory}(${url})${access}`,
+    `export const ${name}=${factory}(${url}${options})${access}`,
   ].join('\n\n')
 }
 
@@ -119,6 +128,8 @@ export function client(
   grouping: Grouping | undefined,
   // The `index.ts` beside the client, which re-exports it, when the client has one.
   barrel?: string,
+  // The `credentials` of every request the client sends, when the config says.
+  credentials?: Credentials,
 ) {
   return Effect.gen(function* () {
     const paths = openAPI.paths
@@ -142,6 +153,7 @@ export function client(
           ),
         ]
     const { imports: environment, declaration, url } = makeBaseUrl(baseUrl)
+    const options = makeOptions(credentials)
     const own = ownNames(
       apps,
       typeof baseUrl === 'string' ? [] : 'import' in baseUrl ? [baseUrl.name] : ['baseUrl'],
@@ -167,6 +179,7 @@ export function client(
           access,
           importedName(name, apps, own),
           whole,
+          options,
         ),
       ),
     ]

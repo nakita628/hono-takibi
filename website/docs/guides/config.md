@@ -204,6 +204,7 @@ export default defineConfig({
   client: {
     output: './src/lib/client.ts',
     baseUrl: '/', // same origin (default); from the environment: { env: 'VITE_API_URL' }, { env: 'API_URL', source: 'process.env' }, { env: 'API_URL', import: '@/env' }
+    // credentials: 'include', // send cookies to any origin: hc('/', { init: { credentials: 'include' } })
     // import: '@packages/server', // monorepo: where the app's type comes from
     // package: '@packages/client', // monorepo: what other packages import the client by
   },

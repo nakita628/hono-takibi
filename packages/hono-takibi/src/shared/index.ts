@@ -805,6 +805,7 @@ export function makeJob(
               config.basePath,
               grouping,
               clientBarrel === undefined ? undefined : path.join(path.dirname(output), 'index.ts'),
+              generatedClient.credentials,
             ),
         }
       : undefined,
