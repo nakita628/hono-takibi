@@ -2,19 +2,11 @@ import { basename, dirname, join } from 'node:path'
 
 import { Effect } from 'effect'
 
-import { HTTP_METHODS } from '../../constants/index.js'
 import { emit } from '../../emit/index.js'
 import { GenerateError } from '../../error/index.js'
-import { isParameterRef, isPathItemEntry, isPathItemRef } from '../../guard/index.js'
-import {
-  makeCallbacks,
-  makeImports,
-  makeOperationResponses,
-  makeRequest,
-  warnUnroutablePath,
-} from '../../helper/index.js'
-import type { OpenAPI, Operation, Parameter, PathItem } from '../../openapi/index.js'
-import { makeBarrel, methodPath } from '../../utils/index.js'
+import { makeImports, makeRouteEntries } from '../../helper/index.js'
+import type { OpenAPI } from '../../openapi/index.js'
+import { makeBarrel } from '../../utils/index.js'
 
 export function route(
   openAPI: OpenAPI,
@@ -34,86 +26,7 @@ export function route(
   return Effect.gen(function* () {
     if (!routes?.output) return yield* new GenerateError({ message: 'routes.output is required' })
     const { output, split = false } = routes
-    const makeEntry = (path: string, method: string, operation: Operation) => {
-      warnUnroutablePath(path)
-      const properties = [
-        `method:${JSON.stringify(method)}`,
-        `path:${JSON.stringify(path)}`,
-        operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
-        operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
-        operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
-        operation.externalDocs
-          ? `externalDocs:${JSON.stringify(operation.externalDocs)}`
-          : undefined,
-        operation.operationId ? `operationId:${JSON.stringify(operation.operationId)}` : undefined,
-        makeRequest(
-          operation.parameters,
-          operation.requestBody,
-          readonly,
-          openAPI.components?.schemas,
-        )
-          ? `request:${makeRequest(
-              operation.parameters,
-              operation.requestBody,
-              readonly,
-              openAPI.components?.schemas,
-            )}`
-          : undefined,
-        operation.responses
-          ? `responses:${makeOperationResponses(operation.responses, readonly)}`
-          : undefined,
-        operation.callbacks
-          ? `callbacks:{${makeCallbacks(operation.callbacks, readonly)}}`
-          : undefined,
-        operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
-        operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
-        operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
-      ]
-        .filter((v) => v !== undefined)
-        .join(',')
-      const asConst = readonly ? ' as const' : ''
-      const entryName = methodPath(method, path)
-      return {
-        name: entryName,
-        code: `export const ${entryName}Route=createRoute({${properties}}${asConst})`,
-      }
-    }
-    const resolveParameter = (parameter: Parameter | { readonly $ref?: string }) => {
-      if ('name' in parameter && 'in' in parameter) return parameter
-      const ref = '$ref' in parameter ? parameter.$ref : undefined
-      if (!ref || !isParameterRef(ref)) return undefined
-      const resolved = openAPI.components?.parameters?.[ref.slice(ref.lastIndexOf('/') + 1)]
-      if (!resolved) return undefined
-      return { ...resolved, $ref: ref } as const
-    }
-    const resolvePathItem = (pathItem: PathItem): PathItem => {
-      if (pathItem.$ref && isPathItemRef(pathItem.$ref)) {
-        const name = pathItem.$ref.slice(pathItem.$ref.lastIndexOf('/') + 1)
-        const resolved = openAPI.components?.pathItems?.[name]
-        if (resolved) {
-          const { $ref: _, ...siblings } = pathItem
-          return { ...resolved, ...siblings } as const
-        }
-      }
-      return pathItem
-    }
-    const entries = Object.entries(openAPI.paths).flatMap(([path, pathItem]) => {
-      if (!isPathItemEntry(pathItem)) return [] as const
-      const resolved = resolvePathItem(pathItem)
-      return HTTP_METHODS.flatMap((method) => {
-        const operation = resolved[method]
-        if (!operation?.responses) return []
-        const parameters = [
-          ...(resolved.parameters ?? ([] as const)),
-          ...(operation.parameters ?? ([] as const)),
-        ]
-          .map(resolveParameter)
-          .filter((p) => p !== undefined)
-        return [
-          makeEntry(path, method, parameters.length > 0 ? { ...operation, parameters } : operation),
-        ]
-      })
-    })
+    const entries = makeRouteEntries(openAPI, readonly)
     if (!split || entries.length === 0) {
       const code = makeImports(entries.map((entry) => entry.code).join('\n\n'), output, components)
       yield* emit(code, dirname(output), output)

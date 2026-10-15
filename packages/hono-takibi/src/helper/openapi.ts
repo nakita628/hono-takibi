@@ -6,6 +6,9 @@ import {
   isMedia,
   isOperation,
   isParameter,
+  isParameterRef,
+  isPathItemEntry,
+  isPathItemRef,
   isRecord,
   isRefObject,
   isResponses,
@@ -17,6 +20,7 @@ import type {
   Header,
   Link,
   Media,
+  OpenAPI,
   Operation,
   Parameter,
   PathItem,
@@ -28,17 +32,11 @@ import type {
 import {
   ensureSuffix,
   makeSafeKey,
+  methodPath,
   requestParamsArray,
   toIdentifierPascalCase,
 } from '../utils/index.js'
-import {
-  inlineWireRefs,
-  isEmptyAbsent,
-  isObjectParameter,
-  WIRE_FORM,
-  wireGather,
-  wireObject,
-} from './wire.js'
+import { inlineWireRefs, isEmptyAbsent, WIRE_FORM, wireGather, wireObject } from './wire.js'
 
 export function makeRef($ref: string) {
   const COMPONENT_SUFFIX_MAP: readonly {
@@ -476,22 +474,6 @@ export function makeRequest(
 }
 
 /**
- * Says so when a path cannot be routed. A path template may hold several parameters in one
- * segment (`/files/{name}.{ext}`) or a parameter beside text (`/v{version}`), and Hono reads
- * a parameter as a whole segment: the route is registered and never matches.
- */
-export function warnUnroutablePath(path: string): void {
-  const segments = path
-    .split('/')
-    .filter((segment) => segment.includes('{') && !/^\{[^{}]+\}$/u.test(segment))
-  if (segments.length === 0) return
-  // oxlint-disable-next-line no-console -- warns the user that the route never matches
-  console.warn(
-    `path "${path}" never matches a request: ${segments.map((segment) => `"${segment}"`).join(', ')} holds a parameter that is not a whole segment, which Hono does not route. Give each parameter a segment of its own.`,
-  )
-}
-
-/**
  * The Zod schema for one parameter's value. A path, query, header or cookie value reaches
  * the handler as text, so whatever is not a string is read from text before it validates
  * (the emitter's `coerce` option); only a request body arrives already typed.
@@ -526,15 +508,10 @@ export function makeParameterSchema(
     )
   }
   // An object is spread over the request in a way that depends on where it is sent, and
-  // the generated schema gathers it. What it cannot gather, it says so, instead of emitting
-  // a schema that silently never sees the parameter.
+  // the generated schema gathers it. One that declares no properties cannot be gathered,
+  // since its keys cannot be told from those of other parameters: the document is taken as
+  // it is, and the schema reads what it declares.
   const object = wireObject(param, schemas)
-  if (object === undefined && isObjectParameter(param, schemas)) {
-    // oxlint-disable-next-line no-console -- warns the user that the parameter is never read
-    console.warn(
-      `parameter "${param.name}" (in: ${param.in}) is an object the generated schema does not read: it declares no properties, so its keys cannot be told from those of other parameters. Declare each property as a parameter of its own, or send the object as \`content: application/json\`.`,
-    )
-  }
   const readers = object?.reader === undefined ? [] : [object.reader]
   return zodToOpenAPI(
     param.schema,
@@ -564,12 +541,6 @@ export function makeParameters(
   return parameters.reduce((acc: { [section: string]: { [k: string]: string } }, param) => {
     if (!('in' in param)) return acc
     if (!acc[param.in]) acc[param.in] = {}
-    if (param.name === '__proto__') {
-      // oxlint-disable-next-line no-console -- warns the user that the parameter is never read
-      console.warn(
-        `parameter "__proto__" (in: ${param.in}) is never read: Zod leaves a key of that name out of every object it parses, so that a request cannot reach the prototype. Give the parameter another name.`,
-      )
-    }
     acc[param.in][makeSafeKey(param.name)] = param.$ref
       ? makeRef(param.$ref)
       : makeParameterSchema(param, readonly, schemas)
@@ -717,4 +688,154 @@ export function makePathItem(pathItem: PathItem) {
     .filter((v) => v !== undefined)
     .join(',')
   return `{${results}}`
+}
+
+/**
+ * The properties of a `createRoute({...})` call, `key:value` pairs joined by commas, in the
+ * order the `Operation` declares them: `method` and `path` lead, and `request` merges the
+ * parameters with the request body. The route, webhook and define generators share it.
+ */
+export function makeRouteProperties(
+  path: string,
+  method: string,
+  operation: Operation,
+  readonly: boolean | undefined,
+  schemas: Parameters<typeof makeRequest>[3],
+) {
+  const request = makeRequest(operation.parameters, operation.requestBody, readonly, schemas)
+  return [
+    `method:${JSON.stringify(method)}`,
+    `path:${JSON.stringify(path)}`,
+    operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
+    operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
+    operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
+    operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
+    operation.operationId ? `operationId:${JSON.stringify(operation.operationId)}` : undefined,
+    request ? `request:${request}` : undefined,
+    operation.responses
+      ? `responses:${makeOperationResponses(operation.responses, readonly)}`
+      : undefined,
+    operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks, readonly)}}` : undefined,
+    operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
+    operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
+    operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join(',')
+}
+
+/**
+ * Resolves a parameter of the document: one written in place is itself, and a `$ref` into
+ * `components.parameters` is the component it names, with the `$ref` kept beside it. A `$ref`
+ * that names nothing is dropped.
+ */
+export function resolveParameter(openapi: OpenAPI) {
+  return (parameter: Parameter | { readonly $ref?: string }): Parameter | undefined => {
+    if ('name' in parameter && 'in' in parameter) return parameter
+    const ref = '$ref' in parameter ? parameter.$ref : undefined
+    if (!ref || !isParameterRef(ref)) return undefined
+    const resolved = openapi.components?.parameters?.[ref.slice(ref.lastIndexOf('/') + 1)]
+    if (!resolved) return undefined
+    return { ...resolved, $ref: ref }
+  }
+}
+
+/**
+ * Resolves a path item that is a `$ref` into `components.pathItems`: the component it names,
+ * under what the item says beside the `$ref`. Any other item is itself.
+ */
+export function resolvePathItem(openapi: OpenAPI) {
+  return (pathItem: PathItem): PathItem => {
+    if (pathItem.$ref && isPathItemRef(pathItem.$ref)) {
+      const name = pathItem.$ref.slice(pathItem.$ref.lastIndexOf('/') + 1)
+      const resolved = openapi.components?.pathItems?.[name]
+      if (resolved) {
+        const { $ref: _, ...siblings } = pathItem
+        return { ...resolved, ...siblings }
+      }
+    }
+    return pathItem
+  }
+}
+
+/**
+ * One `createRoute` entry per operation of the document, `getUsersRoute` for `GET /users`,
+ * in the order the paths and then the methods stand. The parameters of the path item are
+ * merged into those of the operation, `$ref`s resolved; an operation declares `responses`
+ * or is skipped.
+ */
+export function makeRouteEntries(
+  openapi: OpenAPI,
+  readonly?: boolean,
+): readonly { readonly name: string; readonly code: string }[] {
+  const resolve = resolveParameter(openapi)
+  const resolveItem = resolvePathItem(openapi)
+  return Object.entries(openapi.paths).flatMap(([path, pathItem]) => {
+    if (!isPathItemEntry(pathItem)) return []
+    const resolved = resolveItem(pathItem)
+    return HTTP_METHODS.flatMap((method) => {
+      const operation = resolved[method]
+      if (!operation?.responses) return []
+      const parameters = [...(resolved.parameters ?? []), ...(operation.parameters ?? [])]
+        .map(resolve)
+        .filter((p) => p !== undefined)
+      const effective = parameters.length > 0 ? { ...operation, parameters } : operation
+      const properties = makeRouteProperties(
+        path,
+        method,
+        effective,
+        readonly,
+        openapi.components?.schemas,
+      )
+      const asConst = readonly ? ' as const' : ''
+      const entryName = methodPath(method, path)
+      return [
+        {
+          name: entryName,
+          code: `export const ${entryName}Route=createRoute({${properties}}${asConst})`,
+        },
+      ]
+    })
+  })
+}
+
+/**
+ * One route object per operation of the webhooks, `orderCreatedPost` for the `post` of
+ * `orderCreated`, at the path `/orderCreated`. The parameters of the webhook are merged into
+ * those of the operation, `$ref`s resolved; an operation declares `responses` or is skipped.
+ */
+export function makeWebhookEntries(
+  openapi: OpenAPI,
+  readonly?: boolean,
+): readonly { readonly name: string; readonly code: string }[] {
+  if (!openapi.webhooks) return []
+  const resolve = resolveParameter(openapi)
+  return Object.entries(openapi.webhooks).flatMap(([name, pathItem]) =>
+    pathItem
+      ? HTTP_METHODS.filter((m) => pathItem[m]?.responses).flatMap((method) => {
+          const operation = pathItem[method]
+          if (!operation) return []
+          const sourceParams = [...(pathItem.parameters ?? []), ...(operation.parameters ?? [])]
+          const params = sourceParams.map(resolve).filter((p) => p !== undefined)
+          const effective =
+            sourceParams.length > 0 ? { ...operation, parameters: params } : operation
+          const properties = makeRouteProperties(
+            `/${name}`,
+            method,
+            effective,
+            readonly,
+            openapi.components?.schemas,
+          )
+          const asConst = readonly ? ' as const' : ''
+          const pascalName = toIdentifierPascalCase(name)
+          const entryName = `${pascalName.charAt(0).toLowerCase() + pascalName.slice(1)}${method.charAt(0).toUpperCase()}${method.slice(1)}`
+          return [
+            {
+              name: entryName,
+              code: `export const ${entryName}Webhook={${properties}}${asConst}`,
+            },
+          ]
+        })
+      : [],
+  )
 }

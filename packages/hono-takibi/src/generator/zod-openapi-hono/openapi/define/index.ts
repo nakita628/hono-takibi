@@ -1,7 +1,11 @@
 import { HTTP_METHODS } from '../../../../constants/index.js'
-import { isParameterRef, isPathItemEntry, isPathItemRef } from '../../../../guard/index.js'
-import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/openapi.js'
-import type { OpenAPI, Operation, Parameter, PathItem } from '../../../../openapi/index.js'
+import { isPathItemEntry } from '../../../../guard/index.js'
+import {
+  makeRouteProperties,
+  resolveParameter,
+  resolvePathItem,
+} from '../../../../helper/openapi.js'
+import type { OpenAPI } from '../../../../openapi/index.js'
 import { methodPath } from '../../../../utils/index.js'
 
 /**
@@ -26,84 +30,34 @@ export function defineEntries(
   readonly tags?: readonly string[]
   readonly code: string
 }[] {
-  const makeEntry = (path: string, method: string, operation: Operation) => {
-    // Properties follow `openapi/index.ts` `Operation` declaration order (method/path are
-    // createRoute-specific and lead; request merges parameters + requestBody).
-    const properties = [
-      `method:${JSON.stringify(method)}`,
-      `path:${JSON.stringify(path)}`,
-      operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
-      operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
-      operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
-      operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
-      operation.operationId ? `operationId:${JSON.stringify(operation.operationId)}` : undefined,
-      makeRequest(
-        operation.parameters,
-        operation.requestBody,
-        readonly,
-        openapi.components?.schemas,
-      )
-        ? `request:${makeRequest(
-            operation.parameters,
-            operation.requestBody,
-            readonly,
-            openapi.components?.schemas,
-          )}`
-        : undefined,
-      operation.responses
-        ? `responses:${makeOperationResponses(operation.responses, readonly)}`
-        : undefined,
-      operation.callbacks
-        ? `callbacks:{${makeCallbacks(operation.callbacks, readonly)}}`
-        : undefined,
-      operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
-      operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
-      operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
-    ]
-      .filter((v) => v !== undefined)
-      .join(',')
-    const asConst = readonly ? ' as const' : ''
-    const entryName = methodPath(method, path)
-    return {
-      name: entryName,
-      path,
-      ...(operation.tags ? { tags: operation.tags } : {}),
-      code: `export const ${entryName}Route=defineOpenAPIRoute({route:createRoute({${properties}}${asConst}),handler:async(c)=>{},addRoute:true})`,
-    }
-  }
-  const resolveParameter = (parameter: Parameter | { readonly $ref?: string }) => {
-    if ('name' in parameter && 'in' in parameter) return parameter
-    const ref = '$ref' in parameter ? parameter.$ref : undefined
-    if (!ref || !isParameterRef(ref)) return undefined
-    const resolved = openapi.components?.parameters?.[ref.slice(ref.lastIndexOf('/') + 1)]
-    if (!resolved) return undefined
-    return { ...resolved, $ref: ref } as const
-  }
-  const resolvePathItem = (pathItem: PathItem): PathItem => {
-    if (pathItem.$ref && isPathItemRef(pathItem.$ref)) {
-      const name = pathItem.$ref.slice(pathItem.$ref.lastIndexOf('/') + 1)
-      const resolved = openapi.components?.pathItems?.[name]
-      if (resolved) {
-        const { $ref: _, ...siblings } = pathItem
-        return { ...resolved, ...siblings } as const
-      }
-    }
-    return pathItem
-  }
+  const resolve = resolveParameter(openapi)
+  const resolveItem = resolvePathItem(openapi)
   return Object.entries(openapi.paths).flatMap(([path, pathItem]) => {
-    if (!isPathItemEntry(pathItem)) return [] as const
-    const resolved = resolvePathItem(pathItem)
+    if (!isPathItemEntry(pathItem)) return []
+    const resolved = resolveItem(pathItem)
     return HTTP_METHODS.flatMap((method) => {
       const operation = resolved[method]
       if (!operation?.responses) return []
-      const parameters = [
-        ...(resolved.parameters ?? ([] as const)),
-        ...(operation.parameters ?? ([] as const)),
-      ]
-        .map(resolveParameter)
+      const parameters = [...(resolved.parameters ?? []), ...(operation.parameters ?? [])]
+        .map(resolve)
         .filter((p) => p !== undefined)
+      const effective = parameters.length > 0 ? { ...operation, parameters } : operation
+      const properties = makeRouteProperties(
+        path,
+        method,
+        effective,
+        readonly,
+        openapi.components?.schemas,
+      )
+      const asConst = readonly ? ' as const' : ''
+      const entryName = methodPath(method, path)
       return [
-        makeEntry(path, method, parameters.length > 0 ? { ...operation, parameters } : operation),
+        {
+          name: entryName,
+          path,
+          ...(effective.tags ? { tags: effective.tags } : {}),
+          code: `export const ${entryName}Route=defineOpenAPIRoute({route:createRoute({${properties}}${asConst}),handler:async(c)=>{},addRoute:true})`,
+        },
       ]
     })
   })
