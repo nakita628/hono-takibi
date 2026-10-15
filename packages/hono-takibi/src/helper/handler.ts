@@ -306,6 +306,40 @@ function makeInlineMockContent(
   } as const
 }
 
+// What the handler of one operation is: the file it goes to, resolved against the existing
+// files by the member that file exports for the route (`getUsersRoute` inline,
+// `getUsersRouteHandler` in a file of its own), and the code of that member.
+function makeHandlerInfo(
+  path: string,
+  method: string,
+  operation: Operation,
+  existing: {
+    readonly fileNames: readonly `${string}.ts`[]
+    readonly locations: ReadonlyMap<string, `${string}.ts`>
+  },
+  member: 'Route' | 'RouteHandler',
+  body: (routeId: string) => {
+    readonly content: string
+    readonly needsFaker: boolean
+    readonly usedRefs: ReadonlySet<string>
+  },
+) {
+  const routeId = methodPath(method, path)
+  const fileName = resolveHandlerFileName(
+    makeHandlerFileName(path, operation.tags),
+    `${routeId}${member}`,
+    existing,
+  )
+  const result = body(routeId)
+  return {
+    fileName,
+    contents: [result.content],
+    routeNames: [`${routeId}Route`],
+    needsFaker: result.needsFaker,
+    usedRefs: result.usedRefs,
+  } as const
+}
+
 function makeInlineStubHandlerInfo(
   path: string,
   method: string,
@@ -314,28 +348,12 @@ function makeInlineStubHandlerInfo(
     readonly fileNames: readonly `${string}.ts`[]
     readonly locations: ReadonlyMap<string, `${string}.ts`>
   },
-): {
-  readonly fileName: `${string}.ts`
-  // readonly testFileName: `${string}.ts`
-  readonly contents: readonly string[]
-  readonly routeNames: readonly string[]
-  readonly needsFaker: false
-  readonly usedRefs: ReadonlySet<string>
-} {
-  const routeId = methodPath(method, path)
-  const fileName = resolveHandlerFileName(
-    makeHandlerFileName(path, operation.tags),
-    `${routeId}Route`,
-    existing,
-  )
-  return {
-    fileName,
-    // testFileName: makeTestFileName(fileName),
-    contents: [`.openapi(${routeId}Route,(c)=>{})`],
-    routeNames: [`${routeId}Route`],
+) {
+  return makeHandlerInfo(path, method, operation, existing, 'Route', (routeId) => ({
+    content: `.openapi(${routeId}Route,(c)=>{})`,
     needsFaker: false,
     usedRefs: new Set(),
-  } as const
+  }))
 }
 
 function makeInlineMockHandlerInfo(
@@ -347,29 +365,10 @@ function makeInlineMockHandlerInfo(
     readonly fileNames: readonly `${string}.ts`[]
     readonly locations: ReadonlyMap<string, `${string}.ts`>
   },
-): {
-  readonly fileName: `${string}.ts`
-  // readonly testFileName: `${string}.ts`
-  readonly contents: readonly string[]
-  readonly routeNames: readonly string[]
-  readonly needsFaker: boolean
-  readonly usedRefs: ReadonlySet<string>
-} {
-  const routeId = methodPath(method, path)
-  const fileName = resolveHandlerFileName(
-    makeHandlerFileName(path, operation.tags),
-    `${routeId}Route`,
-    existing,
+) {
+  return makeHandlerInfo(path, method, operation, existing, 'Route', (routeId) =>
+    makeInlineMockContent(routeId, operation, schemas),
   )
-  const result = makeInlineMockContent(routeId, operation, schemas)
-  return {
-    fileName,
-    // testFileName: makeTestFileName(fileName),
-    contents: [result.content],
-    routeNames: [`${routeId}Route`],
-    needsFaker: result.needsFaker,
-    usedRefs: result.usedRefs,
-  }
 }
 
 function makeInlineStubFileContent(
@@ -421,30 +420,12 @@ function makeStubHandlerInfo(
     readonly fileNames: readonly `${string}.ts`[]
     readonly locations: ReadonlyMap<string, `${string}.ts`>
   },
-): {
-  readonly fileName: `${string}.ts`
-  // readonly testFileName: `${string}.ts`
-  readonly contents: readonly string[]
-  readonly routeNames: readonly string[]
-  readonly needsFaker: false
-  readonly usedRefs: ReadonlySet<string>
-} {
-  const routeId = methodPath(method, path)
-  const fileName = resolveHandlerFileName(
-    makeHandlerFileName(path, operation.tags),
-    `${routeId}RouteHandler`,
-    existing,
-  )
-  return {
-    fileName,
-    // testFileName: makeTestFileName(fileName),
-    contents: [
-      `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(c)=>{}`,
-    ],
-    routeNames: [`${routeId}Route`],
+) {
+  return makeHandlerInfo(path, method, operation, existing, 'RouteHandler', (routeId) => ({
+    content: `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(c)=>{}`,
     needsFaker: false,
     usedRefs: new Set(),
-  } as const
+  }))
 }
 
 function makeMockHandlerInfo(
@@ -457,21 +438,9 @@ function makeMockHandlerInfo(
     readonly locations: ReadonlyMap<string, `${string}.ts`>
   },
 ) {
-  const routeId = methodPath(method, path)
-  const fileName = resolveHandlerFileName(
-    makeHandlerFileName(path, operation.tags),
-    `${routeId}RouteHandler`,
-    existing,
+  return makeHandlerInfo(path, method, operation, existing, 'RouteHandler', (routeId) =>
+    makeMockHandlerCode(routeId, operation, schemas),
   )
-  const result = makeMockHandlerCode(routeId, operation, schemas)
-  return {
-    fileName,
-    // testFileName: makeTestFileName(fileName),
-    contents: [result.content],
-    routeNames: [`${routeId}Route`],
-    needsFaker: result.needsFaker,
-    usedRefs: result.usedRefs,
-  } as const
 }
 
 function makeMergedHandlers<

@@ -8,13 +8,13 @@ import {
   needsWireConversion,
   nullReading,
   resolveSchemaRef,
-  wireConverter,
-  wireGather,
+  makeWireConverter,
+  makeWireGather,
   wireKeep,
   wireKinds,
   wireObject,
   wireStyle,
-  wrapWire,
+  makeWrappedWire,
 } from './wire.js'
 
 // The component schemas the references below point at.
@@ -458,14 +458,14 @@ describe('needsWireConversion', () => {
   })
 })
 
-describe('wireConverter', () => {
+describe('makeWireConverter', () => {
   // An optional minus sign and digits, and nothing else: no "+", no whitespace, no "0x10",
   // no "1e3", no empty text. An integer beyond 2^53 is left as text, because a number cannot
   // hold it.
   // 任意のマイナス記号と数字だけを受け付ける。"+"・空白・"0x10"・"1e3"・空文字列は
   // 受け付けない。2^53 を超える整数は number で保持できないため、文字列のまま残される。
   it.concurrent('reads an integer with a decimal grammar', () => {
-    expect(wireConverter(['integer'])).toBe(
+    expect(makeWireConverter(['integer'])).toBe(
       String.raw`(val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val)`,
     )
   })
@@ -475,7 +475,7 @@ describe('wireConverter', () => {
   // number は、小数点の片側の数字を省略でき、指数部を持てる。整数の文字列には、
   // integer と同じく安全な整数の範囲が適用される。
   it.concurrent('reads a number with a decimal grammar', () => {
-    expect(wireConverter(['number'])).toBe(
+    expect(makeWireConverter(['number'])).toBe(
       String.raw`(val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val)`,
     )
   })
@@ -483,7 +483,7 @@ describe('wireConverter', () => {
   // A bigint holds every digit, so there is no range to check.
   // bigint はすべての桁を保持できるため、範囲の確認は不要である。
   it.concurrent('reads a bigint with the integer grammar', () => {
-    expect(wireConverter(['bigint'])).toBe(
+    expect(makeWireConverter(['bigint'])).toBe(
       String.raw`(val)=>{if(typeof val!=='string'||!/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val))return val;if(/^-?\d+$/.test(val))return BigInt(val);const num=Number(val);return Number.isSafeInteger(num)?BigInt(num):val}`,
     )
   })
@@ -491,13 +491,13 @@ describe('wireConverter', () => {
   // A string is the text itself.
   // string は、文字列そのものである。
   it.concurrent('has nothing to convert for a string', () => {
-    expect(wireConverter(['string'])).toBeUndefined()
+    expect(makeWireConverter(['string'])).toBeUndefined()
   })
 
   // No kinds at all.
   // 種別が1つもない場合。
   it.concurrent('has nothing to convert for no kinds', () => {
-    expect(wireConverter([])).toBeUndefined()
+    expect(makeWireConverter([])).toBeUndefined()
   })
 
   // What spells a boolean is Zod's to say. `z.stringbool()` is built once, when the schema
@@ -505,7 +505,7 @@ describe('wireConverter', () => {
   // 何が boolean の表記であるかは、Zod が決める。`z.stringbool()` はスキーマの生成時に
   // 1度だけ作られ、値ごとに問い合わせを受ける。読み取れない文字列は、そのまま渡される。
   it.concurrent('reads a boolean with z.stringbool()', () => {
-    expect(wireConverter(['boolean'])).toBe(
+    expect(makeWireConverter(['boolean'])).toBe(
       '((read)=>(val:unknown)=>{const result=read.safeParse(val);return result.success?result.data:val})(z.stringbool())',
     )
   })
@@ -513,7 +513,7 @@ describe('wireConverter', () => {
   // Beside a string the number is read the same way; what is not a number stays text.
   // string と並ぶ場合も、number は同じ方法で読み取られる。数値でないものは文字列のままである。
   it.concurrent('reads an integer beside a string', () => {
-    expect(wireConverter(['integer', 'string'])).toBe(
+    expect(makeWireConverter(['integer', 'string'])).toBe(
       String.raw`(val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val)`,
     )
   })
@@ -523,7 +523,7 @@ describe('wireConverter', () => {
   // "1" と "0" は、number と boolean の両方の表記である。number が先に試されるため、
   // これらは number になる。単語は boolean になる。
   it.concurrent('tries the number before the boolean', () => {
-    expect(wireConverter(['integer', 'boolean'])).toBe(
+    expect(makeWireConverter(['integer', 'boolean'])).toBe(
       String.raw`((readers)=>(val:unknown)=>{for(const read of readers){const result=read(val);if(result!==val)return result}return val})([(val:unknown)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),((read)=>(val:unknown)=>{const result=read.safeParse(val);return result.success?result.data:val})(z.stringbool())])`,
     )
   })
@@ -531,17 +531,17 @@ describe('wireConverter', () => {
   // Text that is a member as it stands is handed on before anything is read.
   // そのままでメンバーである文字列は、読み取りの前にそのまま渡される。
   it.concurrent('hands kept text on unchanged', () => {
-    expect(wireConverter(['integer', 'string'], ['2'])).toBe(
+    expect(makeWireConverter(['integer', 'string'], ['2'])).toBe(
       String.raw`((readers)=>(val:unknown)=>{if(["2"].includes(val))return val;for(const read of readers){const result=read(val);if(result!==val)return result}return val})([(val:unknown)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val)])`,
     )
   })
 })
 
-describe('wrapWire', () => {
+describe('makeWrappedWire', () => {
   // The converter goes around the schema, which is written for a typed value.
   // 変換関数は、型付きの値を前提に書かれたスキーマの外側に置かれる。
   it.concurrent('wraps a schema in a converting preprocess', () => {
-    expect(wrapWire('CountSchema', ['integer'])).toBe(
+    expect(makeWrappedWire('CountSchema', ['integer'])).toBe(
       String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),CountSchema)`,
     )
   })
@@ -549,7 +549,9 @@ describe('wrapWire', () => {
   // An inline schema that only takes booleans is read by `z.stringbool()`.
   // boolean だけを受理するインラインのスキーマは、`z.stringbool()` で読み取られる。
   it.concurrent('pipes an inline boolean schema through z.stringbool()', () => {
-    expect(wrapWire('z.literal(true)', ['boolean'])).toBe('z.stringbool().pipe(z.literal(true))')
+    expect(makeWrappedWire('z.literal(true)', ['boolean'])).toBe(
+      'z.stringbool().pipe(z.literal(true))',
+    )
   })
 
   // `z.stringbool()` is a pipe of its own, and the document reads a pipe by its input. A
@@ -557,7 +559,7 @@ describe('wrapWire', () => {
   // `z.stringbool()` はそれ自体が pipe であり、ドキュメントは pipe を入力側で読む。
   // コンポーネントは代わりに変換関数で読み取られ、ドキュメントはその先を参照できる。
   it.concurrent('reads a boolean component with a converter', () => {
-    expect(wrapWire('FlagSchema', ['boolean'], true)).toBe(
+    expect(makeWrappedWire('FlagSchema', ['boolean'], true)).toBe(
       'z.preprocess(((read)=>(val:unknown)=>{const result=read.safeParse(val);return result.success?result.data:val})(z.stringbool()),FlagSchema)',
     )
   })
@@ -565,7 +567,7 @@ describe('wrapWire', () => {
   // Nothing to convert, nothing to wrap.
   // 変換するものがなければ、包むものもない。
   it.concurrent('leaves a string schema as it is', () => {
-    expect(wrapWire('NameSchema', ['string'])).toBe('NameSchema')
+    expect(makeWrappedWire('NameSchema', ['string'])).toBe('NameSchema')
   })
 })
 
@@ -1123,25 +1125,28 @@ describe('isObjectParameter', () => {
   })
 })
 
-describe('wireGather', () => {
+describe('makeWireGather', () => {
   // Nothing is spread over several keys.
   // 複数のキーに分散しているものがない場合。
   it.concurrent('has nothing to gather without objects', () => {
-    expect(wireGather([], ['page'])).toBeUndefined()
+    expect(makeWireGather([], ['page'])).toBeUndefined()
   })
 
   // An object that is one value is one key of the request.
   // 1つの値であるオブジェクトは、リクエストの1つのキーである。
   it.concurrent('has nothing to gather for an object that is one value', () => {
     expect(
-      wireGather([{ name: 'opts', how: 'value', properties: ['size'], reader: '(val)=>val' }], []),
+      makeWireGather(
+        [{ name: 'opts', how: 'value', properties: ['size'], reader: '(val)=>val' }],
+        [],
+      ),
     ).toBeUndefined()
   })
 
   // A key is matched as `name[property]`, with the name one of the deepObject parameters.
   // キーは `name[property]` の形で照合され、name は deepObject パラメータのいずれかである。
   it.concurrent('gathers the keys of a deepObject parameter', () => {
-    expect(wireGather([{ name: 'filter', how: 'deep', properties: ['size'] }], [])).toBe(
+    expect(makeWireGather([{ name: 'filter', how: 'deep', properties: ['size'] }], [])).toBe(
       String.raw`(val)=>{const rest:[string,unknown][]=[];const groups=new Map<string,Record<string,unknown>>();const group=(name:string)=>{const found=groups.get(name);if(found!==undefined)return found;const made:Record<string,unknown>=Object.create(null);groups.set(name,made);return made};const isGroup=(item:unknown):item is Record<string,unknown>=>typeof item==='object'&&item!==null&&!Array.isArray(item);const lists=new WeakSet<object>();const isIndex=(part:string|undefined)=>part!==undefined&&/^\d*$/.test(part);const child=(target:Record<string,unknown>,key:string,asList:boolean)=>{const held=target[key];if(isGroup(held))return held;const made:Record<string,unknown>=Object.create(null);if(asList)lists.add(made);target[key]=made;return made};const set=(target:Record<string,unknown>,path:readonly string[],item:unknown):void=>{const [head,...tail]=path;if(head===undefined)return;const [next]=tail;if(head===''){for(const one of Array.isArray(item)?item:[item]){const size=Object.keys(target).length;if(next===undefined){target[String(size)]=one;continue}const free=next===''?-1:Object.values(target).findIndex((held)=>isGroup(held)&&!(next in held));set(child(target,String(free<0?size:free),isIndex(next)),tail,one)}return}if(next===undefined){target[head]=item;return}set(child(target,head,isIndex(next)),tail,item)};const settle=(item:unknown):unknown=>{if(!isGroup(item))return item;const held=Object.entries(item).map(([key,inner])=>[key,settle(inner)] as const);return lists.has(item)?[...held].sort((a,b)=>Number(a[0])-Number(b[0])).map(([,inner])=>inner):Object.assign(Object.create(null),Object.fromEntries(held))};const deep:string[]=["filter"];for(const [key,item] of Object.entries(val)){const match=/^([^\[\]]+)((?:\[[^\[\]]*\])+)$/.exec(key);const name=match?.[1];const path=match?.[2];if(name!==undefined&&path!==undefined&&deep.includes(name)){const parts=path.slice(1,-1).split('][');if(parts.length<=16){set(group(name),parts,item);continue}};rest.push([key,item])};return Object.fromEntries([...rest,...[...groups].map(([name,held])=>[name,settle(held)] as const)])}`,
     )
   })
@@ -1149,7 +1154,9 @@ describe('wireGather', () => {
   // A key is looked up among the declared properties, each of which names its owner.
   // キーは宣言済みのプロパティから検索され、各プロパティはその所有者を示す。
   it.concurrent('gathers the properties of an exploded form object', () => {
-    expect(wireGather([{ name: 'opts', how: 'spread', properties: ['sort', 'size'] }], [])).toBe(
+    expect(
+      makeWireGather([{ name: 'opts', how: 'spread', properties: ['sort', 'size'] }], []),
+    ).toBe(
       `(val)=>{const rest:[string,unknown][]=[];const groups=new Map<string,Record<string,unknown>>();const group=(name:string)=>{const found=groups.get(name);if(found!==undefined)return found;const made:Record<string,unknown>=Object.create(null);groups.set(name,made);return made};const spread=new Map<string,string[]>([["sort",["opts"]],["size",["opts"]]]);for(const [key,item] of Object.entries(val)){const owners=spread.get(key);if(owners!==undefined){for(const owner of owners){group(owner)[key]=item}continue};rest.push([key,item])};return Object.fromEntries([...rest,...groups])}`,
     )
   })
@@ -1158,7 +1165,7 @@ describe('wireGather', () => {
   // 独立したパラメータであるキーは、オブジェクトのプロパティとして読み取られることはない。
   it.concurrent('leaves out a property that another parameter takes', () => {
     expect(
-      wireGather([{ name: 'opts', how: 'spread', properties: ['sort', 'page'] }], ['page']),
+      makeWireGather([{ name: 'opts', how: 'spread', properties: ['sort', 'page'] }], ['page']),
     ).toContain('const spread=new Map<string,string[]>([["sort",["opts"]]]);')
   })
 
@@ -1166,7 +1173,7 @@ describe('wireGather', () => {
   // すべてのプロパティが他のパラメータに使われているため、まとめるものが残らない。
   it.concurrent('has nothing to gather when every property is taken', () => {
     expect(
-      wireGather([{ name: 'opts', how: 'spread', properties: ['page'] }], ['page']),
+      makeWireGather([{ name: 'opts', how: 'spread', properties: ['page'] }], ['page']),
     ).toBeUndefined()
   })
 })
@@ -1409,12 +1416,12 @@ describe('wireObject: an object that takes additional properties', () => {
   })
 })
 
-describe('wireGather: keys that several objects share, and keys nothing declares', () => {
+describe('makeWireGather: keys that several objects share, and keys nothing declares', () => {
   // name is a property of both objects, so the key is handed to each.
   // name は両方のオブジェクトのプロパティであるため、このキーはそれぞれに渡される。
   it.concurrent('hands a key two objects declare to both', () => {
     expect(
-      wireGather(
+      makeWireGather(
         [
           { name: 'filter', how: 'spread', properties: ['name', 'age'] },
           { name: 'sort', how: 'spread', properties: ['name'] },
@@ -1429,7 +1436,7 @@ describe('wireGather: keys that several objects share, and keys nothing declares
   // page is a parameter of its own, so it is no property of the open object.
   // page は独立したパラメータであるため、open なオブジェクトのプロパティにはならない。
   it.concurrent('keeps the names of other parameters from an open object', () => {
-    const gather = wireGather(
+    const gather = makeWireGather(
       [{ name: 'bag', how: 'spread', properties: [], open: true }],
       ['page'],
     )
@@ -1442,15 +1449,15 @@ describe('wireGather: keys that several objects share, and keys nothing declares
   // Without an open object there is nothing to hand an undeclared key to.
   // open なオブジェクトがなければ、宣言されていないキーを渡す先がない。
   it.concurrent('does not look for undeclared keys without an open object', () => {
-    expect(wireGather([{ name: 'opts', how: 'spread', properties: ['size'] }], [])).not.toContain(
-      'const open',
-    )
+    expect(
+      makeWireGather([{ name: 'opts', how: 'spread', properties: ['size'] }], []),
+    ).not.toContain('const open')
   })
 
   // A key that reaches deeper than sixteen pairs of brackets is left unread.
   // 角括弧が16組より深いキーは、読み取られない。
   it.concurrent('reads a deepObject key of sixteen pairs of brackets at most', () => {
-    expect(wireGather([{ name: 'filter', how: 'deep', properties: [] }], [])).toContain(
+    expect(makeWireGather([{ name: 'filter', how: 'deep', properties: [] }], [])).toContain(
       'if(parts.length<=16){set(group(name),parts,item);continue}',
     )
   })

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vite-plus/test'
 import {
   entryNames,
   freeName,
-  groupClientName,
+  makeGroupClientName,
   groupNameOf,
   isGroupName,
   operationTags,
@@ -115,12 +115,12 @@ describe('freeName', () => {
   })
 })
 
-describe('groupClientName', () => {
+describe('makeGroupClientName', () => {
   // books is reached through booksClient.
   // books には、booksClient を通して到達する。
   it.concurrent('is the name of the group followed by Client', () => {
-    expect(groupClientName('books')).toBe('booksClient')
-    expect(groupClientName('v2Public')).toBe('v2PublicClient')
+    expect(makeGroupClientName('books')).toBe('booksClient')
+    expect(makeGroupClientName('v2Public')).toBe('v2PublicClient')
   })
 })
 

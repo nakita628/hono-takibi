@@ -6,7 +6,7 @@ import { emit } from '../../emit/index.js'
 import { GenerateError } from '../../error/index.js'
 import { readFile } from '../../file/index.js'
 import { isHttpMethod, isOpenAPIPaths, isOperation, isValidIdent } from '../../guard/index.js'
-import { freeName, groupClientName, operationTags } from '../../helper/index.js'
+import { freeName, makeGroupClientName, operationTags } from '../../helper/index.js'
 import type { Grouping } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
@@ -103,8 +103,8 @@ function ownNames(apps: readonly string[], environment: readonly string[], whole
       whole
         ? (['client', 'Client', 'hcWithType'] as const)
         : ([
-            groupClientName(app),
-            capitalizeFirst(groupClientName(app)),
+            makeGroupClientName(app),
+            capitalizeFirst(makeGroupClientName(app)),
             `hc${capitalizeFirst(app)}WithType` as const,
           ] as const),
     ),
@@ -179,7 +179,7 @@ export function client(
       ...declaration,
       ...apps.map((name) =>
         makeClient(
-          whole ? ('client' as const) : groupClientName(name),
+          whole ? ('client' as const) : makeGroupClientName(name),
           name,
           url,
           access,

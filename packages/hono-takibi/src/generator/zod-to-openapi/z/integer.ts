@@ -1,4 +1,5 @@
 import { JSON_BIGINT } from '../../../helper/wire.js'
+import { makeBoundErrorArgs } from '../../../helper/zod.js'
 import type { Schema } from '../../../openapi/index.js'
 import { baseError, error } from '../../../utils/index.js'
 
@@ -49,12 +50,12 @@ export function integer(
   // Per-keyword precedence (openapi/index.ts): `x-<keyword>-message` >
   // `x-error-message` > Zod default. `baseErrorArg` covers invalid-type only,
   // so each numeric bound needs an explicit fallback to honor the contract.
-  const minimumMessage = schema['x-minimum-message'] ?? errorMessage
-  const exclusiveMinMessage = schema['x-exclusiveMinimum-message'] ?? errorMessage
-  const minErrorArg = minimumMessage ? error(minimumMessage) : ''
-  const minErrorPart = minErrorArg ? `,${minErrorArg}` : ''
-  const exMinErrorArg = exclusiveMinMessage ? error(exclusiveMinMessage) : ''
-  const exMinErrorPart = exMinErrorArg ? `,${exMinErrorArg}` : ''
+  const {
+    arg: minErrorArg,
+    part: minErrorPart,
+    exclusiveArg: exMinErrorArg,
+    exclusivePart: exMinErrorPart,
+  } = makeBoundErrorArgs(schema, 'minimum', errorMessage)
   const minimum = (() => {
     if (schema.minimum === undefined && schema.exclusiveMinimum === undefined) {
       return undefined
@@ -77,12 +78,12 @@ export function integer(
     }
     return undefined
   })()
-  const maximumMessage = schema['x-maximum-message'] ?? errorMessage
-  const exclusiveMaxMessage = schema['x-exclusiveMaximum-message'] ?? errorMessage
-  const maxErrorArg = maximumMessage ? error(maximumMessage) : ''
-  const maxErrorPart = maxErrorArg ? `,${maxErrorArg}` : ''
-  const exMaxErrorArg = exclusiveMaxMessage ? error(exclusiveMaxMessage) : ''
-  const exMaxErrorPart = exMaxErrorArg ? `,${exMaxErrorArg}` : ''
+  const {
+    arg: maxErrorArg,
+    part: maxErrorPart,
+    exclusiveArg: exMaxErrorArg,
+    exclusivePart: exMaxErrorPart,
+  } = makeBoundErrorArgs(schema, 'maximum', errorMessage)
   const maximum = (() => {
     if (schema.maximum === undefined && schema.exclusiveMaximum === undefined) {
       return undefined

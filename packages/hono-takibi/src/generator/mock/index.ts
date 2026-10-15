@@ -685,7 +685,7 @@ type FakerOptions = {
 // byte-identical to a mock without a delay. The middleware is cross-cutting (not
 // woven into handler bodies) so the response generators stay pure; `setTimeout`
 // is a WHATWG global, so the mock runs unchanged on Node, Bun, Deno and Workers.
-function delayMiddlewareCode(delay: MockOptions['delay']) {
+function makeDelayMiddlewareCode(delay: MockOptions['delay']) {
   const ms =
     typeof delay === 'number'
       ? `${delay}`
@@ -977,7 +977,7 @@ ${fakerImport}${needsCookieImport ? `\nimport { getCookie } from 'hono/cookie'` 
       ? `\nimport { HTTPException } from 'hono/http-exception'\nimport type { ContentfulStatusCode } from 'hono/utils/http-status'`
       : ''
   }`
-  const delayMiddleware = delayMiddlewareCode(delay)
+  const delayMiddleware = makeDelayMiddlewareCode(delay)
   const appCode = `const app = new OpenAPIHono()${basePath !== '/' ? `.basePath('${basePath}')` : ''}${delayMiddleware}
 
 export const api = app${appSetup}

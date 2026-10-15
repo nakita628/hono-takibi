@@ -351,7 +351,7 @@ function wireReaders(kinds: readonly WireKind[]): readonly string[] {
  * `keep` lists the text that is a valid value as it stands (the string members of a mixed
  * `enum`), which is therefore never converted.
  */
-export function wireConverter(
+export function makeWireConverter(
   kinds: readonly WireKind[],
   keep: readonly string[] = [],
 ): string | undefined {
@@ -371,7 +371,7 @@ export function wireConverter(
  * tried as each in turn, and the first reading the schema accepts is the value. The schema
  * is returned as it is when its kinds need no conversion.
  */
-export function wrapWire(
+export function makeWrappedWire(
   zod: string,
   kinds: readonly WireKind[],
   component = false,
@@ -435,7 +435,7 @@ export const WIRE_JSON =
  * a value of the parameter: it is read as `undefined`, which the schema rejects. `empty` is
  * how the style spells a value that holds nothing, `;id` beside `;id=5`.
  */
-function unprefixed(prefix: string, empty?: string, separator?: string) {
+function makeUnprefixed(prefix: string, empty?: string, separator?: string) {
   const held = `val.startsWith(${JSON.stringify(prefix)})?val.slice(${prefix.length}):undefined`
   const rest = empty === undefined ? held : `val===${JSON.stringify(empty)}?'':${held}`
   // An array is what is left, split on what stands between its elements.
@@ -444,7 +444,7 @@ function unprefixed(prefix: string, empty?: string, separator?: string) {
 }
 
 /** Splits one piece of text, or each piece of a repeated parameter, on a separator. */
-function splitOn(separator: string, trim = false) {
+function makeSplitOn(separator: string, trim = false) {
   return `(val)=>(val===undefined?val:(Array.isArray(val)?val:[val]).flatMap((item)=>(typeof item==='string'?item.split(${JSON.stringify(separator)})${trim ? '.map((part)=>part.trim())' : ''}:[item])))`
 }
 
@@ -466,31 +466,31 @@ export function wireStyle(parameter: Parameter, isArray: boolean): string | unde
   if (parameter.in === 'cookie') {
     // A cookie name appears once, so the only way a cookie carries several values is one
     // value holding them comma-separated, whatever `explode` says.
-    return isArray ? splitOn(',') : undefined
+    return isArray ? makeSplitOn(',') : undefined
   }
   if (parameter.in === 'query') {
     if (!isArray) return undefined
     const style = parameter.style ?? 'form'
     const explode = parameter.explode ?? style === 'form'
     if (explode) return bothArities
-    if (style === 'pipeDelimited') return splitOn('|')
-    if (style === 'spaceDelimited') return splitOn(' ')
-    if (style === 'form') return splitOn(',')
+    if (style === 'pipeDelimited') return makeSplitOn('|')
+    if (style === 'spaceDelimited') return makeSplitOn(' ')
+    if (style === 'form') return makeSplitOn(',')
     return bothArities
   }
   if (parameter.in === 'header') {
     // Optional whitespace may follow each comma, and a header sent several times reaches
     // the handler joined by ", ".
-    return isArray ? splitOn(',', true) : undefined
+    return isArray ? makeSplitOn(',', true) : undefined
   }
   const style = parameter.style ?? 'simple'
   const explode = parameter.explode ?? false
   if (style === 'label') {
-    return unprefixed('.', undefined, isArray ? (explode ? '.' : ',') : undefined)
+    return makeUnprefixed('.', undefined, isArray ? (explode ? '.' : ',') : undefined)
   }
   if (style === 'matrix') {
     const assigned = `;${parameter.name}=`
-    return unprefixed(
+    return makeUnprefixed(
       assigned,
       `;${parameter.name}`,
       isArray ? (explode ? assigned : ',') : undefined,
@@ -629,7 +629,7 @@ const DEEP_OBJECT_DEPTH = 16
  *
  * The objects are built without a prototype, so a key such as `__proto__` stays a key.
  */
-export function wireGather(
+export function makeWireGather(
   objects: readonly WireObject[],
   taken: readonly string[],
 ): string | undefined {

@@ -8,7 +8,7 @@ import { GenerateError } from '../error/index.js'
 import { hasNoContentResponse, isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
 import { capitalize, methodPath, toIdentifierPascalCase } from '../utils/index.js'
-import { groupClientName, operationTags } from './group.js'
+import { makeGroupClientName, operationTags } from './group.js'
 import type { Grouping } from './group.js'
 import { formatPath, makeOperationDeps, operationHasArgs, parsePathItem } from './rpc.js'
 
@@ -35,7 +35,7 @@ function makeHookTail(tail: HookTail | undefined, kind: 'query' | 'infinite' | '
 // *unwrapped* object: spreading an accessor copies a function's (empty) own properties, so the
 // caller's options are silently dropped at runtime and TError never reaches the result.
 // `ReturnType<...>` is the same unwrapping Solid itself uses to declare `queryOptions()`.
-function wrapOptionsType(optionsType: string, unwrapAccessor?: boolean) {
+function makeOptionsType(optionsType: string, unwrapAccessor?: boolean) {
   return unwrapAccessor ? (`ReturnType<${optionsType}>` as const) : optionsType
 }
 
@@ -60,7 +60,7 @@ const MUTATION_OMIT_KEYS = `'mutationFn'` as const
 // share nothing with it and drop out, while the plain object matches.
 const VUE_QUERY_MEMBER = `{queryKey:unknown}` as const
 const VUE_MUTATION_MEMBER = `{mutationFn?:unknown}` as const
-function omitInjectedKeys(optionsType: string, keys: string, vueMember?: string) {
+function makeOmitInjectedKeys(optionsType: string, keys: string, vueMember?: string) {
   const objectType = vueMember ? (`Extract<${optionsType},${vueMember}>` as const) : optionsType
   return `Omit<${objectType},${keys}>` as const
 }
@@ -146,7 +146,7 @@ function makeInfiniteQueryKeyGetterName(method: string, pathStr: string, isSWR?:
 // unwraps once at setup and freezes the key, and a changed `Ref` would never refetch. `computed`
 // keeps it live — Vue Query unwraps `MaybeRefDeep` keys itself. The key getters stay plain
 // arrays, which is what invalidation and cache lookups want.
-function vueReactiveKey(keyCall: string) {
+function makeVueReactiveKey(keyCall: string) {
   return `computed(()=>${keyCall})` as const
 }
 
@@ -263,7 +263,7 @@ function makeQueryOptionsGetterCode(
     const fetcherCall =
       `parseResponse(${runtimeAccess}(toValue(args),{...options,init:{...options?.init,signal}}))` as const
     const bodyContent =
-      `queryKey:${vueReactiveKey(queryKeyCall)},queryFn(${queryFnSig}){return ${fetcherCall}}` as const
+      `queryKey:${makeVueReactiveKey(queryKeyCall)},queryFn(${queryFnSig}){return ${fetcherCall}}` as const
     const returnExpr = config.hasQueryOptionsHelper
       ? (`queryOptions({${bodyContent}})` as const)
       : (`{${bodyContent}}` as const)
@@ -351,7 +351,7 @@ function makeInfiniteQueryOptionsGetterCode(
       const fetcherCall =
         `parseResponse(${runtimeAccess}(${requestArgsCall('toValue(args)')},{...options,init:{...options?.init,signal}}))` as const
       const body =
-        `queryKey:${vueReactiveKey(queryKeyCall)},queryFn(${queryFnSig}){return ${fetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam` as const
+        `queryKey:${makeVueReactiveKey(queryKeyCall)},queryFn(${queryFnSig}){return ${fetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam` as const
       return `export function ${optionsGetterName}<TPageParam=unknown>(args:MaybeRefOrGetter<${argsType}>,${paginationParam},options?:ClientRequestOptions){return infiniteQueryOptions({${body}})}` as const
     }
     const fetcherCall =
@@ -374,7 +374,7 @@ function makeInfiniteQueryOptionsGetterCode(
     const fetcherCall =
       `parseResponse(${runtimeAccess}(${requestArgsCall('toValue(args)')},{...options,init:{...options?.init,signal}}))` as const
     const bodyContent =
-      `queryKey:${vueReactiveKey(queryKeyCall)},queryFn(${queryFnSig}){return ${fetcherCall}}` as const
+      `queryKey:${makeVueReactiveKey(queryKeyCall)},queryFn(${queryFnSig}){return ${fetcherCall}}` as const
     return `export function ${optionsGetterName}<TPageParam=unknown>(args:MaybeRefOrGetter<${argsType}>,${vuePaginationParam},options?:ClientRequestOptions){return {${bodyContent}}}` as const
   }
   const fetcherCall =
@@ -563,8 +563,8 @@ function makeQueryHookCode(
     : useFactory
       ? (`${responseType},TError,TData,ReturnType<typeof ${keyGetterName}>` as const)
       : (`${responseType},TError,TData` as const)
-  const queryOptionsType = omitInjectedKeys(
-    wrapOptionsType(
+  const queryOptionsType = makeOmitInjectedKeys(
+    makeOptionsType(
       `${config.useQueryOptionsType}<${optionsTypeArgs}>` as const,
       config.unwrapOptionsAccessor,
     ),
@@ -596,7 +596,7 @@ function makeQueryHookCode(
     const fetcherCall = hasArgs
       ? (`parseResponse(${runtimeAccess}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}}))` as const)
       : (`parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))` as const)
-    const vueKeyCall = hasArgs ? vueReactiveKey(keyCall) : keyCall
+    const vueKeyCall = hasArgs ? makeVueReactiveKey(keyCall) : keyCall
     return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${vueKeyCall},queryFn({signal}){return ${fetcherCall}}}${tail.arg})}` as const
   }
   const argsSig = hasArgs ? (`args:${argsType},` as const) : ('' as const)
@@ -673,8 +673,8 @@ function makeInfiniteQueryHookCode(
   const generics = `<TData=${tDataDefault},TError=${errorType},TPageParam=unknown>` as const
   const queryKeyType = `ReturnType<typeof ${infiniteKeyGetterName}>` as const
   // Without the helper (Vue) the page-param functions travel in `options.query`, so they stay.
-  const queryOptionsType = omitInjectedKeys(
-    wrapOptionsType(
+  const queryOptionsType = makeOmitInjectedKeys(
+    makeOptionsType(
       `${config.useInfiniteQueryOptionsType}<${responseType},TError,TData,${queryKeyType},TPageParam>` as const,
       config.unwrapOptionsAccessor,
     ),
@@ -726,7 +726,7 @@ function makeInfiniteQueryHookCode(
   if (config.isVueQuery) {
     const argsSig = hasArgs ? (`args:MaybeRefOrGetter<${argsType}>,` as const) : ('' as const)
     const keyCall = hasArgs
-      ? vueReactiveKey(`${infiniteKeyGetterName}(args)` as const)
+      ? makeVueReactiveKey(`${infiniteKeyGetterName}(args)` as const)
       : (`${infiniteKeyGetterName}()` as const)
     const fetcherCall =
       `parseResponse(${runtimeAccess}(${requestArgsCall('toValue(args)' as const)},{...clientOptions,init:{...clientOptions?.init,signal}}))` as const
@@ -887,7 +887,7 @@ function makeMutationHookCode(
   const tErrorGeneric = `<TError=${errorType},TOnMutateResult=unknown>` as const
   // For 204/205 responses, parseResponse returns undefined
   const dataType = hasNoContent ? `${responseType}|undefined` : responseType
-  const fullOptionsType = wrapOptionsType(
+  const fullOptionsType = makeOptionsType(
     `${config.useMutationOptionsType}<${dataType},TError,${variablesType},TOnMutateResult>` as const,
     config.unwrapOptionsAccessor,
   )
@@ -900,7 +900,7 @@ function makeMutationHookCode(
   const tail = makeHookTail(config.hookTail, 'mutation')
   // Vue's members may still be `Ref`s (`MaybeRefDeep`); `useMutation` unwraps them deeply, so a
   // caller's `Ref` key passes through `mutationKey` below as-is.
-  const mutationOptionsType = omitInjectedKeys(
+  const mutationOptionsType = makeOmitInjectedKeys(
     fullOptionsType,
     MUTATION_OMIT_KEYS,
     config.isVueQuery ? VUE_MUTATION_MEMBER : undefined,
@@ -1539,7 +1539,7 @@ export function makeQueryHooks(
     // through the client of the application when it belongs to none.
     const clientOf = (route: string, tags: readonly string[] | undefined) => {
       const group = grouping?.(route, tags)
-      return group === undefined ? clientName : groupClientName(group)
+      return group === undefined ? clientName : makeGroupClientName(group)
     }
     const hookCodes = makeHookCodes(
       pathsMaybe,

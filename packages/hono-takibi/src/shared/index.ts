@@ -38,11 +38,11 @@ import { GenerateError } from '../error/index.js'
 import type { FormatError } from '../error/index.js'
 import { exists, readdir, unlink } from '../file/index.js'
 import {
-  appEntryFile,
-  appEntryImport,
+  makeAppEntryFile,
+  makeAppEntryImport,
   appEntryOutput,
   handlerGroupOf,
-  generatedImport,
+  makeGeneratedImport,
   isInsideDirectory,
 } from '../helper/index.js'
 import type { Grouping } from '../helper/index.js'
@@ -315,7 +315,7 @@ export function packageRoots(openAPI: OpenAPI, config: Config) {
     const targets = importTargets(config)
     const appOutput = appEntryOutput(config)
     const defineOn = config.template?.define === true
-    const appEntry = appOutput === undefined ? undefined : appEntryFile(appOutput, defineOn)
+    const appEntry = appOutput === undefined ? undefined : makeAppEntryFile(appOutput, defineOn)
     // The directories generated files are written into: a split output is a directory of
     // its own, every other output is a file in one.
     const splitDirectory = (target: Target | undefined) =>
@@ -446,7 +446,7 @@ export function makeJob(
     if (output === undefined || path.basename(output) === 'index.ts') return undefined
     const barrel = path.join(path.dirname(output), 'index.ts')
     const written = [
-      appOutput === undefined ? undefined : appEntryFile(appOutput, defineOn),
+      appOutput === undefined ? undefined : makeAppEntryFile(appOutput, defineOn),
       config.output,
       config.routes?.output,
       config.webhooks?.output,
@@ -477,7 +477,7 @@ export function makeJob(
       const sameRoot = packageRoot(from) === packageRoot(target.output)
       return !sameRoot && target.package !== undefined
         ? target.package
-        : generatedImport(
+        : makeGeneratedImport(
             from,
             target.output,
             appOutput,
@@ -509,7 +509,7 @@ export function makeJob(
   const routeImport =
     routesTarget?.package !== undefined &&
     appOutput !== undefined &&
-    packageRoot(appEntryFile(appOutput, defineOn)) !== packageRoot(routesTarget.output)
+    packageRoot(makeAppEntryFile(appOutput, defineOn)) !== packageRoot(routesTarget.output)
       ? routesTarget.package
       : undefined
   const componentsOutput =
@@ -800,7 +800,7 @@ export function makeJob(
               openAPI,
               output,
               generatedClient.import ??
-                appEntryImport(output, appOutput, aliasFor(output), defineOn),
+                makeAppEntryImport(output, appOutput, aliasFor(output), defineOn),
               generatedClient.baseUrl,
               config.basePath,
               grouping,

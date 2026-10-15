@@ -157,7 +157,7 @@ export function undecorated(schema: Schema): Schema {
   )
 }
 
-function serializeParam(param: Parameter): string {
+function makeSerializedParam(param: Parameter): string {
   // Skip keys whose value is `undefined` so the emitted object never contains a
   // bare `undefined`.
   const entries = Object.entries(param)
@@ -485,11 +485,13 @@ export function wrap(
     schema['x-pipe'] !== undefined ||
     schema['x-codec'] !== undefined
   if (options?.component === true && parameter !== undefined && !isDecorated) {
-    const inside = absent(build(around(`${zod}.openapi({param:${serializeParam(parameter)}})`)))
+    const inside = absent(
+      build(around(`${zod}.openapi({param:${makeSerializedParam(parameter)}})`)),
+    )
     return parameter.required === true ? inside : `${inside}.exactOptional()`
   }
   const result = [
-    parameter ? `param:${serializeParam(parameter)}` : undefined,
+    parameter ? `param:${makeSerializedParam(parameter)}` : undefined,
     ...headerMetaProps,
     meta?.headers && meta.headers.required !== true ? 'param:{required:false}' : undefined,
     ...fileMetaProps,

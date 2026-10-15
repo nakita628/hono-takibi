@@ -25,7 +25,7 @@ export function appEntryDirectory(appOutput: string, define: boolean) {
 }
 
 /** The file the app entry is, whichever output the config names. */
-export function appEntryFile(appOutput: string, define: boolean) {
+export function makeAppEntryFile(appOutput: string, define: boolean) {
   return path.join(appEntryDirectory(appOutput, define), 'index.ts')
 }
 
@@ -39,7 +39,7 @@ function relativeSpecifier(from: string, to: string) {
  * the path alias, which stands for the directory the app entry is in. An alias that names a
  * directory, `@/api`, is the entry as it stands; one that names a root, `@/`, takes `index`.
  */
-export function appEntryImport(
+export function makeAppEntryImport(
   from: string,
   appOutput: string,
   pathAlias: string | undefined,
@@ -56,7 +56,7 @@ export function appEntryImport(
  * The module specifier a generated file is imported by from `from`: under the path alias
  * when the file is in the directory the alias stands for, and relative to `from` otherwise.
  */
-export function generatedImport(
+export function makeGeneratedImport(
   from: string,
   file: string,
   appOutput: string | undefined,

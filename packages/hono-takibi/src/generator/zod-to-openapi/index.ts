@@ -17,10 +17,10 @@ import {
   nullReading,
   needsWireConversion,
   resolveSchemaRef,
-  wireConverter,
+  makeWireConverter,
   wireKeep,
   wireKinds,
-  wrapWire,
+  makeWrappedWire,
 } from '../../helper/wire.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { undecorated, wrap } from '../../helper/wrap.js'
@@ -92,11 +92,11 @@ export function zodToOpenAPI(
     const form = options.form === true
     // `z.stringbool()` is the boolean schema itself; it takes the text as it is.
     if (!form && isBooleanLeaf && kinds.length === 1 && kinds[0] === 'boolean') return undefined
-    return wrapWire('', kinds) === ''
+    return makeWrappedWire('', kinds) === ''
       ? undefined
       : // `z.stringbool()` takes text alone: a `null` read before it is handed to a converter.
         (zod: string, component = false, nullLast = false) =>
-          wrapWire(zod, kinds, component || form || nullRead !== undefined, nullLast)
+          makeWrappedWire(zod, kinds, component || form || nullRead !== undefined, nullLast)
   })()
   // Tried as several readings, the component is handed to each of them: what describes the
   // parameter then belongs around them, not on the component.
@@ -656,7 +656,7 @@ export function zodToOpenAPI(
         const read = (s: Schema) => {
           const kinds = wireKinds(s, childOptions.schemas)
           if (kinds === undefined) return undefined
-          const converter = wireConverter(kinds, wireKeep(s, childOptions.schemas))
+          const converter = makeWireConverter(kinds, wireKeep(s, childOptions.schemas))
           return converter === undefined
             ? '(val:unknown)=>val'
             : converter.replace('(val)=>', '(val:unknown)=>')

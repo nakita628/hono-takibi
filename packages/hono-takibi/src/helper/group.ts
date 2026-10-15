@@ -131,6 +131,6 @@ export function entryNames(groups: Iterable<string>) {
 }
 
 /** The export a group's client is reached by: `books` through `booksClient`. */
-export function groupClientName(group: string) {
+export function makeGroupClientName(group: string) {
   return `${group}Client` as const
 }

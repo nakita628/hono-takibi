@@ -36,7 +36,7 @@ import {
   requestParamsArray,
   toIdentifierPascalCase,
 } from '../utils/index.js'
-import { inlineWireRefs, isEmptyAbsent, WIRE_FORM, wireGather, wireObject } from './wire.js'
+import { inlineWireRefs, isEmptyAbsent, WIRE_FORM, makeWireGather, wireObject } from './wire.js'
 
 export function makeRef($ref: string) {
   const COMPONENT_SUFFIX_MAP: readonly {
@@ -563,7 +563,7 @@ export function makeRequestParams(
     const objects = declared
       .map((param) => ('in' in param ? wireObject(param, schemas) : undefined))
       .filter((object) => object !== undefined)
-    return wireGather(
+    return makeWireGather(
       objects,
       declared.flatMap((param) =>
         'name' in param && !objects.some((object) => object.name === param.name)
@@ -581,16 +581,16 @@ export function makeRequestParams(
   return paramsArray.length > 0 ? paramsArray.join(',') : undefined
 }
 
-function serializeValue(value: unknown): string {
+function makeSerializedValue(value: unknown): string {
   if (value === null) return 'null'
   if (value === undefined) return 'undefined'
   if (typeof value === 'string') return JSON.stringify(value)
   if (typeof value === 'number' || typeof value === 'boolean') return String(value)
-  if (Array.isArray(value)) return `[${value.map(serializeValue).join(',')}]`
+  if (Array.isArray(value)) return `[${value.map(makeSerializedValue).join(',')}]`
   if (isRefObject(value)) return makeRef(value.$ref)
   if (isRecord(value)) {
     const entries = Object.entries(value)
-      .map(([k, v]) => `${JSON.stringify(k)}:${serializeValue(v)}`)
+      .map(([k, v]) => `${JSON.stringify(k)}:${makeSerializedValue(v)}`)
       .join(',')
     return `{${entries}}`
   }
@@ -602,7 +602,7 @@ export function makePathParameters(parameters: readonly (Parameter | Reference)[
     if (isRefObject(param)) {
       return makeRef(param.$ref)
     }
-    return serializeValue(param)
+    return makeSerializedValue(param)
   })
   return `[${items.join(',')}]`
 }

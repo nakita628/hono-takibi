@@ -247,7 +247,7 @@ function fakerPattern(pattern: string) {
     )
 }
 
-function boundedPattern(
+function makeBoundedPattern(
   pattern: string,
   minLength: number | undefined,
   maxLength: number | undefined,
@@ -294,7 +294,7 @@ const BOUNDED_FORMATS: {
   ],
 }
 
-function boundedFormat(schema: Schema) {
+function makeBoundedFormat(schema: Schema) {
   const { format, minLength, maxLength } = schema
   if (format === undefined || (minLength === undefined && maxLength === undefined)) {
     return undefined
@@ -329,7 +329,7 @@ function schemaExample(schema: Schema): unknown {
 // the schema's type. Object and array examples are not used as a whole: their
 // literal would widen enum members to `string` and cannot express `bigint`, so
 // they are built from their members instead (whose own examples still apply).
-function exampleLiteral(schema: Schema) {
+function makeExampleLiteral(schema: Schema) {
   const example = schemaExample(schema)
   if (example === undefined) return undefined
   const types = normalizeTypes(schema.type)
@@ -545,7 +545,7 @@ function lookupBytes(alg: string | undefined) {
   return alg !== undefined && Object.hasOwn(HASH_BYTES, alg) ? HASH_BYTES[alg] : undefined
 }
 
-function vendorFormat(schema: Schema) {
+function makeVendorFormat(schema: Schema) {
   const hash = hashFaker(schema)
   if (hash !== undefined) return hash
   const { format } = schema
@@ -572,7 +572,7 @@ function vendorFormat(schema: Schema) {
   return undefined
 }
 
-function withAffixes(schema: Schema, value: string) {
+function makeAffixedValue(schema: Schema, value: string) {
   const parts = [
     ...(schema['x-startsWith'] === undefined ? [] : [makeStringLiteral(schema['x-startsWith'])]),
     value,
@@ -690,7 +690,7 @@ export function schemaToFaker(
     schema.const === undefined &&
     schema.enum === undefined &&
     !value.startsWith('"')
-  return isGeneratedString ? withAffixes(schema, value) : value
+  return isGeneratedString ? makeAffixedValue(schema, value) : value
 }
 
 function schemaValue(
@@ -708,7 +708,7 @@ function schemaValue(
     return `${JSON.stringify(schema.const)} as const`
   }
   if (options.useExamples) {
-    const example = exampleLiteral(schema)
+    const example = makeExampleLiteral(schema)
     if (example !== undefined) return example
   }
   if (schema.enum && schema.enum.length > 0) {
@@ -897,7 +897,7 @@ function schemaValue(
   }
   const boundedHint =
     type === 'string' || type === undefined
-      ? (vendorFormat(schema) ?? boundedFormat(schema))
+      ? (makeVendorFormat(schema) ?? makeBoundedFormat(schema))
       : undefined
   const formatHint =
     boundedHint ?? (schema.format ? lookup(FORMAT_TO_FAKER, schema.format) : undefined)
@@ -921,7 +921,7 @@ function schemaValue(
   }
   if (type === 'string') {
     if (schema.pattern) {
-      const pattern = boundedPattern(
+      const pattern = makeBoundedPattern(
         fakerPattern(schema.pattern),
         schema.minLength,
         schema.maxLength,

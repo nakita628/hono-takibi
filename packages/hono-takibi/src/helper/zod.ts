@@ -1,5 +1,6 @@
 import { isSchemaObject, isSingleSchema } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
+import { error } from '../utils/index.js'
 
 // Returns the slot value JSON-encoded for splicing into generated code, or
 // undefined when the slot is absent / non-string (callers omit `message`).
@@ -365,12 +366,12 @@ export function emitTypelessRefine(schema: Schema, recurse: (s: Schema) => strin
 
 // `.refine()` for `unevaluatedProperties` per JSON Schema 2020-12 §11.2.
 // Precedence: x-unevaluatedProperties-message > messageOverride > Zod default.
-function ownPropsStmt(sub: Schema) {
+function makeOwnPropsStmt(sub: Schema) {
   const keys = sub.properties ? Object.keys(sub.properties) : []
   return keys.length > 0 ? `for(const k of ${JSON.stringify(keys)}){e.add(k)}` : undefined
 }
 
-function patternPropsStmt(sub: Schema) {
+function makePatternPropsStmt(sub: Schema) {
   if (!sub.patternProperties) {
     return undefined
   }
@@ -381,8 +382,8 @@ function patternPropsStmt(sub: Schema) {
 function collectAllOfStmts(list: readonly Schema[]): readonly string[] {
   return list.flatMap((sub) =>
     [
-      ownPropsStmt(sub),
-      patternPropsStmt(sub),
+      makeOwnPropsStmt(sub),
+      makePatternPropsStmt(sub),
       ...(sub.allOf ? collectAllOfStmts(sub.allOf) : []),
     ].filter((s): s is string => s !== undefined),
   )
@@ -392,7 +393,7 @@ function conditionalBranchStmt(sub: Schema, recurse: (s: Schema) => string) {
   if (!sub.properties && !sub.patternProperties) {
     return undefined
   }
-  const ifBody = [ownPropsStmt(sub), patternPropsStmt(sub)]
+  const ifBody = [makeOwnPropsStmt(sub), makePatternPropsStmt(sub)]
     .filter((s): s is string => s !== undefined)
     .join(';')
   return ifBody ? `if(${recurse(sub)}.safeParse(o).success){${ifBody}}` : undefined
@@ -402,7 +403,7 @@ function conditionalBranchStmt(sub: Schema, recurse: (s: Schema) => string) {
 // properties and pattern properties, those of every `allOf` member, those of each `anyOf`
 // and `oneOf` branch that matches, the `if` / `then` / `else` properties the condition
 // selects, and those of each `dependentSchemas` entry whose key is present.
-function unevaluatedEvaluationStmts(schema: Schema, recurse: (s: Schema) => string) {
+function makeUnevaluatedEvaluationStmts(schema: Schema, recurse: (s: Schema) => string) {
   const branchStmts = (branches: readonly Schema[] | undefined) =>
     branches
       ? branches
@@ -442,8 +443,8 @@ function unevaluatedEvaluationStmts(schema: Schema, recurse: (s: Schema) => stri
     : []
   return [
     'const e=new Set()',
-    ownPropsStmt(schema),
-    patternPropsStmt(schema),
+    makeOwnPropsStmt(schema),
+    makePatternPropsStmt(schema),
     ...(schema.allOf ? collectAllOfStmts(schema.allOf) : []),
     ...branchStmts(schema.anyOf),
     ...branchStmts(schema.oneOf),
@@ -456,7 +457,7 @@ function unevaluatedEvaluationStmts(schema: Schema, recurse: (s: Schema) => stri
 // Precedence: slot-message > caller override > undefined (omitted so that Zod uses its
 // default). The literal uses double-quoted `"custom"` to match the quoting convention of
 // the statements here; emitTypelessRefine uses single quotes (see `issueObj`).
-function unevaluatedMessageField(schema: Schema, messageOverride: string | undefined) {
+function makeUnevaluatedMessageField(schema: Schema, messageOverride: string | undefined) {
   const slotMessage = messageFor(schema, 'unevaluatedProperties')
   const overrideMessage =
     messageOverride !== undefined ? JSON.stringify(messageOverride) : undefined
@@ -473,12 +474,12 @@ export function makeUnevaluatedProperties(
   if (up === undefined || up === true) {
     return ''
   }
-  const messageField = unevaluatedMessageField(schema, messageOverride)
+  const messageField = makeUnevaluatedMessageField(schema, messageOverride)
   const finalStmt =
     up === false
       ? `for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]${messageField}})}}`
       : `const Schema=${recurse(up)};for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}`
-  return `.superRefine((o,ctx)=>{${[...unevaluatedEvaluationStmts(schema, recurse), finalStmt].join(';')}})`
+  return `.superRefine((o,ctx)=>{${[...makeUnevaluatedEvaluationStmts(schema, recurse), finalStmt].join(';')}})`
 }
 
 // Variant for `z.unknown().check((ctx)=>{...})` (operates on `ctx.value`).
@@ -493,10 +494,32 @@ export function makeUnevaluatedPropertiesCheck(
   if (up === undefined || up === true) {
     return ''
   }
-  const messageField = unevaluatedMessageField(schema, messageOverride)
+  const messageField = makeUnevaluatedMessageField(schema, messageOverride)
   const finalStmt =
     up === false
       ? `for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o${messageField}})}}`
       : `const Schema=${recurse(up)};for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}}}`
-  return `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;${[...unevaluatedEvaluationStmts(schema, recurse), finalStmt].join(';')}}`
+  return `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;${[...makeUnevaluatedEvaluationStmts(schema, recurse), finalStmt].join(';')}}`
+}
+
+// The error arguments of a numeric bound, as Zod v4 `{error:"..."}` parameters: for the
+// bound and for its exclusive form, each alone (`.positive(arg)`) and after a value
+// (`.min(5,arg)`). Precedence: `x-<bound>-message` > `x-error-message` > none.
+export function makeBoundErrorArgs(
+  schema: Schema,
+  bound: 'minimum' | 'maximum',
+  errorMessage: string | undefined,
+) {
+  const message = schema[`x-${bound}-message`] ?? errorMessage
+  const exclusiveMessage =
+    schema[bound === 'minimum' ? 'x-exclusiveMinimum-message' : 'x-exclusiveMaximum-message'] ??
+    errorMessage
+  const arg = message ? error(message) : ''
+  const exclusiveArg = exclusiveMessage ? error(exclusiveMessage) : ''
+  return {
+    arg,
+    part: arg ? `,${arg}` : '',
+    exclusiveArg,
+    exclusivePart: exclusiveArg ? `,${exclusiveArg}` : '',
+  } as const
 }
