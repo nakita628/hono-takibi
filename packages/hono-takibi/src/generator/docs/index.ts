@@ -59,8 +59,14 @@ const MAX_EXAMPLE_ITEMS = 10
 
 /**
  * How many `$ref`s one table or one example may expand in total.
+ *
+ * The bound on the size of the document: every table and example of every operation
+ * expands what it refers to, so a document whose schemas all reach each other writes
+ * this many schemas into each of them. At 1000, 500 such schemas and 600 operations
+ * made a document too large for a string; a table or example that expands 50 schemas
+ * is past what anyone reads, and past that the schema is still named and linked.
  */
-const MAX_REF_EXPANSIONS = 1000
+const MAX_REF_EXPANSIONS = 50
 
 /**
  * How many times one table or one example expands the same recursive schema.
