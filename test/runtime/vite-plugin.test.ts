@@ -39,9 +39,17 @@ afterAll(() => {
 
 // The output directory is removed first, so the file that appears can only have been written by
 // the plugin. The generated file has to hold the route of the TypeSpec input, not merely exist.
+//
+// The wait is on the content, not on the path: `fs.writeFile` opens the file before it
+// writes, so for a moment the file exists and is empty. A wait on `existsSync` alone can
+// end inside that moment and read ''.
 // 最初に出力ディレクトリを削除するため、その後に現れるファイルは、
 // プラグインが書き出したものに限られる。生成されたファイルは、存在するだけでなく、
 // TypeSpec 入力のルートを含んでいなければならない。
+//
+// 待機条件はパスではなく内容にする。`fs.writeFile` は書き込みの前にファイルを open するため、
+// 一瞬だけ「存在するが空」の状態になる。`existsSync` だけを待つと、その瞬間に抜けて
+// '' を読んでしまうことがある。
 it('the vite plugin generates from the .tsp input when the dev server starts', async () => {
   process.chdir(caseDir)
   rmSync(path.dirname(routesFile), { recursive: true, force: true })
@@ -56,6 +64,7 @@ it('the vite plugin generates from the .tsp input when the dev server starts', a
   await vi.waitFor(
     () => {
       expect(existsSync(routesFile)).toBe(true)
+      expect(readFileSync(routesFile, 'utf8')).toContain("path: '/health'")
     },
     { timeout: 30_000 },
   )

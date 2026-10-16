@@ -1,6 +1,6 @@
 {
   "name": "hono-takibi",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "description": "Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi",
   "keywords": [
     "hono",
@@ -66,8 +66,8 @@
     "@typespec/compiler": "catalog:",
     "@typespec/openapi3": "catalog:",
     "effect": "4.0.0",
-    "oxfmt": "^0.71.0",
-    "ts-morph": "^28.0.0"
+    "oxc-parser": "catalog:",
+    "oxfmt": "^0.71.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",

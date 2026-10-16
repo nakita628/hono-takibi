@@ -42,7 +42,72 @@ describe('type', () => {
       expect(fs.existsSync(out)).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
-        "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/test': {\n      $post: { input: { json: { test: string } }; output: {}; outputFormat: string; status: 200 }\n    }\n  },\n  '/'\n>\nexport default routes\n",
+        "type Test = { test: string }\ndeclare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  { '/test': { $post: { input: { json: Test }; output: {}; outputFormat: string; status: 200 } } },\n  '/'\n>\nexport default routes\n",
+      )
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('names a referenced component schema once, itself included', { timeout: 10_000 }, async () => {
+    // `Node` is referred to from two operations and from its own `children`, and is written
+    // once; `File` would shadow the global `File` its binary string is, so it takes another name.
+    const openapi = {
+      openapi: '3.0.0',
+      info: { title: 'Refs', version: '1.0.0' },
+      components: {
+        schemas: {
+          Node: {
+            type: 'object',
+            required: ['value'],
+            properties: {
+              value: { type: 'string' },
+              children: { type: 'array', items: { $ref: '#/components/schemas/Node' } },
+            },
+          },
+          File: {
+            type: 'object',
+            required: ['data'],
+            properties: { data: { type: 'string', format: 'binary' } },
+          },
+        },
+      },
+      paths: {
+        '/tree': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/Node' } },
+                },
+              },
+            },
+          },
+        },
+        '/upload': {
+          post: {
+            requestBody: {
+              content: { 'multipart/form-data': { schema: { $ref: '#/components/schemas/File' } } },
+            },
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/Node' } },
+                },
+              },
+            },
+          },
+        },
+      },
+    } as OpenAPI
+    const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
+    try {
+      const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
+      await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
+      expect(fs.readFileSync(out, 'utf-8')).toBe(
+        "type Node = { value: string; children?: Node[] | undefined }\ntype File2 = { data: File }\ndeclare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  { '/tree': { $get: { input: {}; output: Node; outputFormat: 'json'; status: 200 } } } & {\n    '/upload': {\n      $post: { input: { form: File2 }; output: Node; outputFormat: 'json'; status: 200 }\n    }\n  },\n  '/'\n>\nexport default routes\n",
       )
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })

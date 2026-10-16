@@ -49,7 +49,7 @@ const fileExists = async (filePath: string) => Boolean(await fsp.stat(filePath).
  * `vi.waitFor` with a budget that matches what these tests actually wait for.
  *
  * Its default is one second, and every wait here sits behind the plugin's 200ms debounce
- * and then a real generation pass — oxfmt and ts-morph over real files — while eighty
+ * and then a real generation pass — oxfmt and oxc-parser over real files — while eighty
  * other test files run the same work across eight workers. One second is contention, not
  * a verdict; the allowance below is only paid when the plugin is genuinely broken.
  */

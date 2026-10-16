@@ -2259,6 +2259,88 @@ export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) 
     })
   })
 
+  describe('an existing file that does not parse', () => {
+    // The parser recovers nothing past a syntax error, so a merge into a file an edit broke
+    // would find every handler, route and import missing and write the generated file over
+    // the edit in progress. The file is left exactly as it is until it parses again.
+    const broken = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../index'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  return c.json({ oops:
+`
+
+    it('mergeHandlerFile leaves it untouched', () => {
+      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute, getPostRoute } from '../index'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {}
+
+export const getPostRouteHandler: RouteHandler<typeof getPostRoute> = async (c) => {}
+`
+      expect(mergeHandlerFile(broken, generated)).toBe(broken)
+    })
+
+    it('mergeDefineFile leaves it untouched', () => {
+      const brokenDefine = `import { defineOpenAPIRoute } from 'hono-takibi'
+
+export const getUserRoute = defineOpenAPIRoute({
+  method: 'get',
+`
+      const generated = `import { defineOpenAPIRoute } from 'hono-takibi'
+
+export const getUserRoute = defineOpenAPIRoute({ method: 'get', path: '/users' })
+`
+      expect(mergeDefineFile(brokenDefine, generated)).toBe(brokenDefine)
+    })
+
+    it('mergeAppFile leaves it untouched', () => {
+      const brokenApp = `import { OpenAPIHono } from '@hono/zod-openapi'
+
+const app = new OpenAPIHono(
+
+export const api = app.openapi(getUserRoute, getUserRouteHandler)
+`
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUserRoute } from './routes'
+import { getUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getUserRoute, getUserRouteHandler)
+
+export default app
+`
+      expect(mergeAppFile(brokenApp, generated)).toBe(brokenApp)
+    })
+
+    it('mergeBarrelFile leaves it untouched', () => {
+      const brokenBarrel = `export * from './users'\nexport * from\n`
+      const generated = `export * from './users'\nexport * from './posts'\n`
+      expect(mergeBarrelFile(brokenBarrel, generated)).toBe(brokenBarrel)
+    })
+
+    it('merges again once the file parses', () => {
+      const fixed = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../index'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  return c.json({ oops: 'ok' }, 200)
+}
+`
+      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute, getPostRoute } from '../index'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {}
+
+export const getPostRouteHandler: RouteHandler<typeof getPostRoute> = async (c) => {}
+`
+      const merged = mergeHandlerFile(fixed, generated)
+      expect(merged).toContain("return c.json({ oops: 'ok' }, 200)")
+      expect(merged).toContain('export const getPostRouteHandler')
+    })
+  })
+
   describe('edge cases: both empty strings', () => {
     it('mergeHandlerFile returns newline for both empty', () => {
       expect(mergeHandlerFile('', '')).toBe('\n')

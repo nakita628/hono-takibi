@@ -59,8 +59,14 @@ const MAX_EXAMPLE_ITEMS = 10
 
 /**
  * How many `$ref`s one table or one example may expand in total.
+ *
+ * The bound on the size of the document: every table and example of every operation
+ * expands what it refers to, so a document whose schemas all reach each other writes
+ * this many schemas into each of them. At 1000, 500 such schemas and 600 operations
+ * made a document too large for a string; a table or example that expands 50 schemas
+ * is past what anyone reads, and past that the schema is still named and linked.
  */
-const MAX_REF_EXPANSIONS = 1000
+const MAX_REF_EXPANSIONS = 50
 
 /**
  * How many times one table or one example expands the same recursive schema.
@@ -71,6 +77,36 @@ const MAX_REF_EXPANSIONS = 1000
 const MAX_EXPANSIONS_PER_RECURSIVE_REF = 2
 
 type Budget = { readonly take: (ref: string) => boolean }
+
+/**
+ * What is asked of a document over and over while its docs are made: what a `$ref`
+ * resolves to, which `$ref`s the value it names holds, whether that schema can reach
+ * itself again, and the anchor of a schema. Every operation asks the same questions of
+ * the same refs, and the document is only read in the meantime, so each answer is kept.
+ * Keyed by the document, so that docs made from several documents in one process do
+ * not see each other's answers.
+ */
+type DocumentCache = {
+  readonly resolved: Map<string, unknown>
+  readonly outgoing: Map<string, ReadonlySet<string>>
+  readonly recursive: Map<string, boolean>
+  readonly anchors: Map<string, string>
+}
+
+const documentCaches = new WeakMap<OpenAPI, DocumentCache>()
+
+function cacheOf(doc: OpenAPI): DocumentCache {
+  const found = documentCaches.get(doc)
+  if (found) return found
+  const made: DocumentCache = {
+    resolved: new Map(),
+    outgoing: new Map(),
+    recursive: new Map(),
+    anchors: new Map(),
+  }
+  documentCaches.set(doc, made)
+  return made
+}
 
 /** A `${NAME}` placeholder a curl example leaves for the shell to expand. */
 const SHELL_VARIABLE_PATTERN = /\$\{[A-Z_]+\}/u
@@ -143,13 +179,19 @@ function pointerSegments(ref: string): readonly string[] | undefined {
  * (as a bundler emits them) resolve as well as those into `components`.
  */
 function resolveRef(ref: string, doc: OpenAPI) {
+  const { resolved } = cacheOf(doc)
+  if (resolved.has(ref)) return resolved.get(ref)
   const segments = pointerSegments(ref)
-  if (!segments) return undefined
-  return segments.reduce<unknown>((node, segment) => {
-    if (Array.isArray(node)) return node[Number(segment)]
-    if (isRecord(node)) return Object.hasOwn(node, segment) ? node[segment] : undefined
-    return undefined
-  }, doc)
+  const value =
+    segments === undefined
+      ? undefined
+      : segments.reduce<unknown>((node, segment) => {
+          if (Array.isArray(node)) return node[Number(segment)]
+          if (isRecord(node)) return Object.hasOwn(node, segment) ? node[segment] : undefined
+          return undefined
+        }, doc)
+  resolved.set(ref, value)
+  return value
 }
 
 /**
@@ -178,13 +220,18 @@ function componentSchemaName(ref: string) {
  * share it, so every one after the first gets a numeric suffix.
  */
 function schemaAnchor(name: string, doc: OpenAPI) {
+  const { anchors } = cacheOf(doc)
+  const known = anchors.get(name)
+  if (known !== undefined) return known
   const lower = name.toLowerCase()
   const schemas: unknown = doc.components?.schemas
   const twins = isRecord(schemas)
     ? Object.keys(schemas).filter((key) => key.toLowerCase() === lower)
     : []
   const index = twins.indexOf(name)
-  return index > 0 ? `${lower}-${index}` : lower
+  const anchor = index > 0 ? `${lower}-${index}` : lower
+  anchors.set(name, anchor)
+  return anchor
 }
 
 function makeSchemaLink(name: string, doc: OpenAPI) {
@@ -303,25 +350,44 @@ function collectRefs(node: unknown, found: Set<string> = new Set<string>()): Rea
 /**
  * Whether the schema a `$ref` names can reach itself again through `$ref`s.
  */
+/** The `$ref`s held by the value a `$ref` names, walked once per document. */
+function outgoingRefs(ref: string, doc: OpenAPI) {
+  const { outgoing } = cacheOf(doc)
+  const known = outgoing.get(ref)
+  if (known !== undefined) return known
+  const refs = collectRefs(resolveRef(ref, doc))
+  outgoing.set(ref, refs)
+  return refs
+}
+
+/**
+ * Whether the schema a `$ref` names can reach itself again through `$ref`s.
+ *
+ * Answered once per document: the walk covers everything the schema reaches, and
+ * every table and example of every operation asks it of the same schemas.
+ */
 function isRecursiveRef(ref: string, doc: OpenAPI) {
+  const { recursive } = cacheOf(doc)
+  const known = recursive.get(ref)
+  if (known !== undefined) return known
   const seen = new Set<string>()
   const reaches = (current: string): boolean => {
     if (seen.has(current)) return false
     seen.add(current)
-    return [...collectRefs(resolveRef(current, doc))].some((next) => next === ref || reaches(next))
+    return [...outgoingRefs(current, doc)].some((next) => next === ref || reaches(next))
   }
-  return reaches(ref)
+  const result = reaches(ref)
+  recursive.set(ref, result)
+  return result
 }
 
 function makeBudget(doc: OpenAPI): Budget {
   const counts = new Map<string, number>()
-  const recursive = new Map<string, boolean>()
   const state = { left: MAX_REF_EXPANSIONS }
   return {
     take: (ref) => {
       const count = counts.get(ref) ?? 0
-      const isRecursive = recursive.get(ref) ?? isRecursiveRef(ref, doc)
-      recursive.set(ref, isRecursive)
+      const isRecursive = isRecursiveRef(ref, doc)
       if (state.left <= 0) return false
       if (isRecursive && count >= MAX_EXPANSIONS_PER_RECURSIVE_REF) return false
       state.left -= 1
