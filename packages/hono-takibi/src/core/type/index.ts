@@ -25,7 +25,7 @@ import type {
   Responses,
   Schema,
 } from '../../openapi/index.js'
-import { makeSafeKey, statusCodeToNumber } from '../../utils/index.js'
+import { makeSafeKey, statusCodeToNumber, toIdentifierPascalCase } from '../../utils/index.js'
 
 /**
  * DeepReadonly utility type that recursively makes all properties readonly.
@@ -34,21 +34,82 @@ const DEEP_READONLY_TYPE =
   'type DeepReadonly<T>=T extends(infer R)[]?readonly DeepReadonly<R>[]:T extends object?{readonly[K in keyof T]:DeepReadonly<T[K]>}:T;'
 
 /**
+ * The type names the declaration file uses for itself and for what it refers to; a
+ * component schema that would take one of them is given another name.
+ */
+const RESERVED_TYPE_NAMES: ReadonlySet<string> = new Set(['DeepReadonly', 'File'])
+
+/**
+ * The component schemas an operation refers to, each as one named type.
+ *
+ * A `$ref` into `components.schemas` is written as the name of the type alias that
+ * stands for the schema, and the alias is written once, however many operations and
+ * properties refer to it. Inlining the schema instead grew the file with every
+ * reference: a schema referred to from many places, or one that refers to others,
+ * was written out again at each of them. A schema that reaches itself is simply an
+ * alias that names itself, which is what a type of a recursive value is.
+ *
+ * `bodies` is filled in the order the schemas are first reached, and a schema whose
+ * alias is still being written is already named, so a cycle ends at its name.
+ */
+type Aliases = {
+  readonly components: Components | undefined
+  readonly names: Map<string, string>
+  readonly bodies: Map<string, string>
+  readonly taken: Set<string>
+}
+
+/**
  * Generates TypeScript type declarations from OpenAPI specification.
  */
 export function type(openAPI: OpenAPI, output: `${string}.ts`, readonly?: boolean) {
-  const schemaType = makeHonoSchemaType(openAPI)
+  const aliases: Aliases = {
+    components: openAPI.components,
+    names: new Map(),
+    bodies: new Map(),
+    taken: new Set(RESERVED_TYPE_NAMES),
+  }
+  const schemaType = makeHonoSchemaType(openAPI, aliases)
   const wrappedType = readonly ? `DeepReadonly<${schemaType}>` : schemaType
   const typeDecl = readonly ? DEEP_READONLY_TYPE : ''
-  const dts = `${typeDecl}declare const routes:import('@hono/zod-openapi').OpenAPIHono<import('hono/types').Env,${wrappedType},'/'>\nexport default routes\n`
+  const aliasDecls = [...aliases.bodies].map(([name, body]) => `type ${name}=${body};`).join('')
+  const dts = `${typeDecl}${aliasDecls}declare const routes:import('@hono/zod-openapi').OpenAPIHono<import('hono/types').Env,${wrappedType},'/'>\nexport default routes\n`
   return Effect.gen(function* () {
     yield* emit(dts, path.dirname(output), output)
     return `Generated type code written to ${output}`
   })
 }
 
-function makeHonoSchemaType(openAPI: OpenAPI) {
-  const { components } = openAPI
+/**
+ * The alias that stands for the component schema `schemaName`, written when it is not
+ * yet. The name is claimed before the body is written, so that a schema reaching
+ * itself finds its own name.
+ */
+function aliasOf(schemaName: string, schema: Schema, aliases: Aliases) {
+  const known = aliases.names.get(schemaName)
+  if (known !== undefined) return known
+  const base = toIdentifierPascalCase(schemaName)
+  const name = aliases.taken.has(base)
+    ? (() => {
+        let index = 2
+        while (aliases.taken.has(`${base}${String(index)}`)) index += 1
+        return `${base}${String(index)}`
+      })()
+    : base
+  aliases.taken.add(name)
+  aliases.names.set(schemaName, name)
+  // The body is written as if the schema were inlined at its first use, with its own
+  // `$ref` on the path: an `allOf` that comes back to it merges no properties twice.
+  const body = makeSchemaTypeString(
+    schema,
+    aliases,
+    new Set([`#/components/schemas/${schemaName}`]),
+  )
+  aliases.bodies.set(name, body)
+  return name
+}
+
+function makeHonoSchemaType(openAPI: OpenAPI, aliases: Aliases) {
   const paths: OpenAPIPaths = isOpenAPIPaths(openAPI.paths) ? openAPI.paths : {}
   const pathEntries = Object.entries(paths).flatMap(([openApiPath, pathItem]) => {
     const honoPath = makeHonoPath(openApiPath)
@@ -60,7 +121,7 @@ function makeHonoSchemaType(openAPI: OpenAPI) {
       })
       .map(([method, operation]) => ({
         method: `$${method}`,
-        type: makeMethodType(operation, openApiPath, components, pathLevelParams),
+        type: makeMethodType(operation, openApiPath, aliases, pathLevelParams),
       }))
     return methods.length > 0
       ? [{ path: honoPath, methods: methods.map((m) => `${m.method}:${m.type}`).join(';') }]
@@ -78,11 +139,11 @@ function makeHonoPath(openApiPath: string) {
 function makeMethodType(
   operation: Operation,
   openApiPath: string,
-  components: Components | undefined,
+  aliases: Aliases,
   pathLevelParams: readonly (Parameter | Reference)[],
 ) {
-  const inputType = makeInputType(operation, openApiPath, components, pathLevelParams)
-  const outputTypes = makeOutputTypes(operation.responses, components, inputType)
+  const inputType = makeInputType(operation, openApiPath, aliases, pathLevelParams)
+  const outputTypes = makeOutputTypes(operation.responses, aliases, inputType)
   return outputTypes.length === 0
     ? `{input:${inputType};output:{};outputFormat:string;status:200}`
     : outputTypes.length === 1
@@ -93,9 +154,10 @@ function makeMethodType(
 function makeInputType(
   operation: Operation,
   openApiPath: string,
-  components: Components | undefined,
+  aliases: Aliases,
   pathLevelParams: readonly (Parameter | Reference)[],
 ) {
+  const { components } = aliases
   const pathLevelResolved = pathLevelParams
     .map((p) => makeResolvedParameter(p, components))
     .filter((p): p is Parameter => p !== undefined)
@@ -112,22 +174,22 @@ function makeInputType(
     pathParams.length > 0
       ? makeParamPart(
           resolvedParams.filter((p) => p.in === 'path'),
-          components,
+          aliases,
         )
       : undefined
   const queryPart = makeQueryPart(
     resolvedParams.filter((p) => p.in === 'query'),
-    components,
+    aliases,
   )
   const headerPart = makeHeaderPart(
     resolvedParams.filter((p) => p.in === 'header'),
-    components,
+    aliases,
   )
   const cookiePart = makeCookiePart(
     resolvedParams.filter((p) => p.in === 'cookie'),
-    components,
+    aliases,
   )
-  const bodyParts = makeBodyParts(operation.requestBody, components)
+  const bodyParts = makeBodyParts(operation.requestBody, aliases)
   const parts = [paramPart, queryPart, headerPart, cookiePart, ...bodyParts].filter(
     (p): p is string => p !== undefined,
   )
@@ -138,46 +200,45 @@ function makePathParams(openApiPath: string): readonly string[] {
   return [...openApiPath.matchAll(/\{([^}]+)\}/gu)].map((m) => m[1])
 }
 
-function makeParamPart(params: readonly Parameter[], components: Components | undefined) {
+function makeParamPart(params: readonly Parameter[], aliases: Aliases) {
   const props = params.map((p) => {
     const safeKey = makeSafeKey(p.name)
-    return `${safeKey}:${makeSchemaTypeString(makeParameterSchema(p), components, new Set())}`
+    return `${safeKey}:${makeSchemaTypeString(makeParameterSchema(p), aliases, new Set())}`
   })
   return props.length > 0 ? `{param:{${props.join(';')}}}` : undefined
 }
 
-function makeQueryPart(params: readonly Parameter[], components: Components | undefined) {
+function makeQueryPart(params: readonly Parameter[], aliases: Aliases) {
   const props = params.map((p) => {
-    const typeStr = makeSchemaTypeString(makeParameterSchema(p), components, new Set())
+    const typeStr = makeSchemaTypeString(makeParameterSchema(p), aliases, new Set())
     const safeKey = makeSafeKey(p.name)
     return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}|undefined`
   })
   return props.length > 0 ? `{query:{${props.join(';')}}}` : undefined
 }
 
-function makeHeaderPart(params: readonly Parameter[], components: Components | undefined) {
+function makeHeaderPart(params: readonly Parameter[], aliases: Aliases) {
   const props = params.map((p) => {
-    const typeStr = makeSchemaTypeString(makeParameterSchema(p), components, new Set())
+    const typeStr = makeSchemaTypeString(makeParameterSchema(p), aliases, new Set())
     const safeKey = makeSafeKey(p.name)
     return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}|undefined`
   })
   return props.length > 0 ? `{header:{${props.join(';')}}}` : undefined
 }
 
-function makeCookiePart(params: readonly Parameter[], components: Components | undefined) {
+function makeCookiePart(params: readonly Parameter[], aliases: Aliases) {
   const props = params.map((p) => {
-    const typeStr = makeSchemaTypeString(makeParameterSchema(p), components, new Set())
+    const typeStr = makeSchemaTypeString(makeParameterSchema(p), aliases, new Set())
     const safeKey = makeSafeKey(p.name)
     return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}|undefined`
   })
   return props.length > 0 ? `{cookie:{${props.join(';')}}}` : undefined
 }
 
-function makeBodyParts(
-  requestBody: Operation['requestBody'],
-  components: Components | undefined,
-): readonly string[] {
-  const resolved = requestBody ? makeResolvedRequestBody(requestBody, components) : undefined
+function makeBodyParts(requestBody: Operation['requestBody'], aliases: Aliases): readonly string[] {
+  const resolved = requestBody
+    ? makeResolvedRequestBody(requestBody, aliases.components)
+    : undefined
   if (!resolved?.content) return []
   const mediaEntries = Object.entries(resolved.content).filter(
     (entry): entry is [string, { schema: Schema }] => isMediaWithSchema(entry[1]),
@@ -191,14 +252,14 @@ function makeBodyParts(
             mediaType.startsWith('application/') ||
             mediaType.startsWith('text/'),
         )
-        .map(([, media]) => makeSchemaTypeString(media.schema, components, new Set())),
+        .map(([, media]) => makeSchemaTypeString(media.schema, aliases, new Set())),
     ),
   ]
   const formTypes = [
     ...new Set(
       mediaEntries
         .filter(([mediaType]) => mediaType.includes('form'))
-        .map(([, media]) => makeSchemaTypeString(media.schema, components, new Set())),
+        .map(([, media]) => makeSchemaTypeString(media.schema, aliases, new Set())),
     ),
   ]
   const classified = { jsonTypes, formTypes }
@@ -215,11 +276,11 @@ function makeBodyParts(
 
 function makeOutputTypes(
   responses: Operation['responses'],
-  components: Components | undefined,
+  aliases: Aliases,
   inputType: string,
 ): readonly string[] {
   return Object.entries(responses).flatMap(([statusCode, response]) => {
-    const resolvedResponse = makeResolvedResponse(response, components)
+    const resolvedResponse = makeResolvedResponse(response, aliases.components)
     const status = statusCodeToNumber(statusCode)
     if (!resolvedResponse.content) {
       return [`{input:${inputType};output:{};outputFormat:string;status:${status}}`]
@@ -227,7 +288,7 @@ function makeOutputTypes(
     return Object.entries(resolvedResponse.content)
       .filter((entry): entry is [string, { schema: Schema }] => isMediaWithSchema(entry[1]))
       .map(([mediaType, media]) => {
-        const outputType = makeSchemaTypeString(media.schema, components, new Set())
+        const outputType = makeSchemaTypeString(media.schema, aliases, new Set())
         const outputFormat = isJsonMediaType(mediaType) ? "'json'" : "'text'"
         return `{input:${inputType};output:${outputType};outputFormat:${outputFormat};status:${status}}`
       })
@@ -291,25 +352,17 @@ function makeParameterSchema(parameter: Parameter) {
   return parameter.schema ?? {}
 }
 
-function makeSchemaTypeString(
-  schema: Schema,
-  components: Components | undefined,
-  visited: Set<string>,
-): string {
+function makeSchemaTypeString(schema: Schema, aliases: Aliases, visited: Set<string>): string {
   if (!schema) return 'unknown'
-  if (schema.$ref) {
-    return visited.has(schema.$ref)
-      ? 'unknown'
-      : makeRefTypeString(schema.$ref, components, new Set([...visited, schema.$ref]))
-  }
+  if (schema.$ref) return makeRefTypeString(schema.$ref, aliases)
   if (schema.oneOf && schema.oneOf.length > 0) {
-    return schema.oneOf.map((s) => makeSchemaTypeString(s, components, visited)).join('|')
+    return schema.oneOf.map((s) => makeSchemaTypeString(s, aliases, visited)).join('|')
   }
   if (schema.anyOf && schema.anyOf.length > 0) {
-    return schema.anyOf.map((s) => makeSchemaTypeString(s, components, visited)).join('|')
+    return schema.anyOf.map((s) => makeSchemaTypeString(s, aliases, visited)).join('|')
   }
   if (schema.allOf && schema.allOf.length > 0) {
-    return makeAllOfTypeString(schema.allOf, components, visited)
+    return makeAllOfTypeString(schema.allOf, aliases, visited)
   }
   // An int64 is a bigint in the generated schema, and so are the literals of its enum.
   const isBigintLiteral = (value: unknown): value is number =>
@@ -341,7 +394,7 @@ function makeSchemaTypeString(
   const types = makeNormalizedTypes(schema)
   const isNullable = schema.nullable === true || types.includes('null')
   const nonNullTypes = types.filter((t) => t !== 'null')
-  const baseType = makeBaseTypeString(schema, nonNullTypes, components, visited)
+  const baseType = makeBaseTypeString(schema, nonNullTypes, aliases, visited)
   return isNullable ? `(${baseType}|null)` : baseType
 }
 
@@ -352,12 +405,12 @@ function makeNormalizedTypes(schema: Schema): readonly string[] {
 function makeBaseTypeString(
   schema: Schema,
   types: readonly string[],
-  components: Components | undefined,
+  aliases: Aliases,
   visited: Set<string>,
 ) {
   return types.length > 1
-    ? types.map((t) => makeSingleTypeString(schema, t, components, visited)).join('|')
-    : makeSingleTypeString(schema, types[0] ?? 'object', components, visited)
+    ? types.map((t) => makeSingleTypeString(schema, t, aliases, visited)).join('|')
+    : makeSingleTypeString(schema, types[0] ?? 'object', aliases, visited)
 }
 
 const PRIMITIVE_TYPE_MAP: { readonly [k: string]: string } = {
@@ -369,7 +422,7 @@ function makeSingleTypeString(
   schema: Schema,
   // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
   type: string,
-  components: Components | undefined,
+  aliases: Aliases,
   visited: Set<string>,
 ) {
   if (type === 'string') return schema.format === 'binary' ? 'File' : 'string'
@@ -378,12 +431,17 @@ function makeSingleTypeString(
       schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint'
     return isBigintFormat ? 'bigint' : 'number'
   }
-  if (type === 'array') return makeArrayTypeString(schema, components, visited)
-  if (type === 'object') return makeObjectTypeString(schema, components, visited)
+  if (type === 'array') return makeArrayTypeString(schema, aliases, visited)
+  if (type === 'object') return makeObjectTypeString(schema, aliases, visited)
   return PRIMITIVE_TYPE_MAP[type] ?? 'unknown'
 }
 
-function makeRefTypeString(ref: string, components: Components | undefined, visited: Set<string>) {
+/**
+ * A `$ref` into `components.schemas` is the name of the alias that stands for the
+ * schema; any other reference, or one to a schema that is not there, is `unknown`.
+ */
+function makeRefTypeString(ref: string, aliases: Aliases) {
+  const { components } = aliases
   if (!components) return 'unknown'
   const parts = ref.split('/')
   const componentType = parts[2]
@@ -391,18 +449,14 @@ function makeRefTypeString(ref: string, components: Components | undefined, visi
   if (!refName) return 'unknown'
   if (componentType === 'schemas' && components.schemas) {
     const schema = components.schemas[refName]
-    return schema ? makeSchemaTypeString(schema, components, visited) : 'unknown'
+    return schema ? aliasOf(refName, schema, aliases) : 'unknown'
   }
   return 'unknown'
 }
 
-function makeAllOfTypeString(
-  allOf: readonly Schema[],
-  components: Components | undefined,
-  visited: Set<string>,
-) {
+function makeAllOfTypeString(allOf: readonly Schema[], aliases: Aliases, visited: Set<string>) {
   const mergedProps = allOf.reduce((acc, subSchema) => {
-    const newProps = makePropertyMap(subSchema, components, visited)
+    const newProps = makePropertyMap(subSchema, aliases, visited)
     const result = new Map(acc)
     for (const [key, value] of newProps) {
       const existing = result.get(key)
@@ -425,7 +479,7 @@ function makeAllOfTypeString(
 
 function makePropertyMap(
   schema: Schema,
-  components: Components | undefined,
+  aliases: Aliases,
   visited: Set<string>,
 ): ReadonlyMap<string, { readonly type: string; readonly required: boolean }> {
   // Break cycles: when allOf members reference back to an ancestor schema (e.g.
@@ -434,11 +488,11 @@ function makePropertyMap(
     return new Map()
   }
   const nextVisited = schema.$ref ? new Set([...visited, schema.$ref]) : visited
-  const resolved = makeResolvedSchema(schema, components)
+  const resolved = makeResolvedSchema(schema, aliases.components)
   const fromAllOf = new Map<string, { type: string; required: boolean }>(
     resolved.allOf && resolved.allOf.length > 0
       ? resolved.allOf.flatMap((subSchema) => [
-          ...makePropertyMap(subSchema, components, nextVisited).entries(),
+          ...makePropertyMap(subSchema, aliases, nextVisited).entries(),
         ])
       : [],
   )
@@ -448,7 +502,7 @@ function makePropertyMap(
   const requiredSet = new Set(Array.isArray(resolved.required) ? resolved.required : [])
   const currentProps = new Map(
     Object.entries(resolved.properties).map(([key, propSchema]) => {
-      const propType = makeSchemaTypeString(propSchema, components, nextVisited)
+      const propType = makeSchemaTypeString(propSchema, aliases, nextVisited)
       const existing = fromAllOf.get(key)
       const isRequired = requiredSet.has(key) || (existing?.required ?? false)
       return [key, { type: propType, required: isRequired }] as const
@@ -457,11 +511,7 @@ function makePropertyMap(
   return new Map([...fromAllOf, ...currentProps])
 }
 
-function makeArrayTypeString(
-  schema: Schema,
-  components: Components | undefined,
-  visited: Set<string>,
-) {
+function makeArrayTypeString(schema: Schema, aliases: Aliases, visited: Set<string>) {
   if (!schema.items) return 'unknown[]'
   const items = schema.items
   // JSON Schema 2020-12 §10.3.1.2 boolean items:
@@ -473,34 +523,30 @@ function makeArrayTypeString(
   }
   if (isSchemaArray(items)) {
     return items.length > 1
-      ? `[${items.map((item) => makeSchemaTypeString(item, components, visited)).join(',')}]`
+      ? `[${items.map((item) => makeSchemaTypeString(item, aliases, visited)).join(',')}]`
       : items[0]
-        ? makeWrappedArrayType(makeSchemaTypeString(items[0], components, visited))
+        ? makeWrappedArrayType(makeSchemaTypeString(items[0], aliases, visited))
         : 'unknown[]'
   }
-  return makeWrappedArrayType(makeSchemaTypeString(items, components, visited))
+  return makeWrappedArrayType(makeSchemaTypeString(items, aliases, visited))
 }
 
 function makeWrappedArrayType(typeStr: string) {
   return typeStr.includes('|') ? `(${typeStr})[]` : `${typeStr}[]`
 }
 
-function makeObjectTypeString(
-  schema: Schema,
-  components: Components | undefined,
-  visited: Set<string>,
-) {
+function makeObjectTypeString(schema: Schema, aliases: Aliases, visited: Set<string>) {
   const { properties, additionalProperties, required } = schema
   if (!properties || Object.keys(properties).length === 0) {
     if (additionalProperties === false) return '{}'
     if (typeof additionalProperties === 'object') {
-      return `{[x:string]:${makeSchemaTypeString(additionalProperties, components, visited)}}`
+      return `{[x:string]:${makeSchemaTypeString(additionalProperties, aliases, visited)}}`
     }
     return '{[x:string]:unknown}'
   }
   const requiredSet = new Set(Array.isArray(required) ? required : [])
   const propertyStrings = Object.entries(properties).map(([key, propSchema]) => {
-    const propType = makeSchemaTypeString(propSchema, components, visited)
+    const propType = makeSchemaTypeString(propSchema, aliases, visited)
     const safeKey = makeSafeKey(key)
     return requiredSet.has(key) ? `${safeKey}:${propType}` : `${safeKey}?:${propType}|undefined`
   })

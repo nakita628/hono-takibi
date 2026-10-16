@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+  },
+  "include": [
+    "../../__generated__/type-ref/**/*",
+    "../../types/type-ref.ts",
+    "../../types/assert.ts"
+  ]
+}

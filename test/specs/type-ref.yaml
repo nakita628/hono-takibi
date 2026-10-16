@@ -1,0 +1,218 @@
+openapi: 3.1.0
+info:
+  title: Type Ref
+  version: 1.0.0
+# Component schemas referred to from more than one place, from each other, and from
+# themselves: the declaration file names each one once and refers to it by that name.
+paths:
+  /users/{id}:
+    get:
+      operationId: getUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    put:
+      operationId: putUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /tree:
+    get:
+      operationId: getTree
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Node'
+  /pair:
+    get:
+      operationId: getPair
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Left'
+  /shape:
+    get:
+      operationId: getShape
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Circle'
+                  - $ref: '#/components/schemas/Square'
+  /derived:
+    get:
+      operationId: getDerived
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Derived'
+  /upload:
+    post:
+      operationId: upload
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/File'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user-profile'
+components:
+  schemas:
+    Address:
+      type: object
+      required:
+        - street
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+    User:
+      type: object
+      required:
+        - id
+        - home
+      properties:
+        id:
+          type: string
+        home:
+          $ref: '#/components/schemas/Address'
+        billing:
+          $ref: '#/components/schemas/Address'
+        manager:
+          $ref: '#/components/schemas/User'
+    Node:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/Node'
+    Left:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        right:
+          $ref: '#/components/schemas/Right'
+    Right:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        left:
+          $ref: '#/components/schemas/Left'
+    Circle:
+      type: object
+      required:
+        - kind
+        - radius
+      properties:
+        kind:
+          type: string
+          const: circle
+        radius:
+          type: number
+    Square:
+      type: object
+      required:
+        - kind
+        - side
+      properties:
+        kind:
+          type: string
+          const: square
+        side:
+          type: number
+    Base:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+        child:
+          $ref: '#/components/schemas/Derived'
+    Derived:
+      allOf:
+        - $ref: '#/components/schemas/Base'
+        - type: object
+          required:
+            - extra
+          properties:
+            extra:
+              type: string
+    # Named like the global `File` the binary string below becomes: the alias takes another name.
+    File:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: string
+          format: binary
+        label:
+          type: string
+    user-profile:
+      type: object
+      required:
+        - user
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
