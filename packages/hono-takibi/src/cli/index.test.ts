@@ -377,7 +377,7 @@ describe('hono-takibi invariants', () => {
   /**
    * The generator pipeline is loaded through `import()` inside the handler, so `--help`,
    * `--version`, `--completions` and every rejected command line do not pay for the
-   * TypeSpec compiler, the OpenAPI parser and ts-morph. Measured at the time: `--help`
+   * TypeSpec compiler, the OpenAPI parser and the generators. Measured at the time: `--help`
    * takes ~190ms this way and ~1100ms with the imports hoisted to module scope.
    *
    * A refactor that tidies them into ordinary imports changes no behaviour and no output,
@@ -1249,7 +1249,7 @@ function startCli(argv: readonly string[]) {
  * Polls until `condition` holds, so a test waits on the watcher rather than on a clock.
  *
  * The budget is a starvation allowance, not an expectation. Each of these tests waits on
- * two real generation passes — oxfmt and ts-morph over real files — while eighty other
+ * two real generation passes — oxfmt and oxc-parser over real files — while eighty other
  * test files do the same across eight workers. Alone the whole file finishes in three
  * seconds; under the full suite a single pass has been measured at 38s. So the number is
  * large on purpose, and the cost is only paid when the watcher is genuinely broken.

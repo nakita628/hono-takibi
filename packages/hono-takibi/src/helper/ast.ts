@@ -1,35 +1,41 @@
-import { ts } from 'ts-morph'
+import type { Node, Program, Statement } from 'oxc-parser'
 
 import { COMPONENT_REF_PREFIX } from '../constants/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { isDiscriminableBranch, isRefOnly } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { cyclicNodes, ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
+import { declarationOf, identifierNames, parseModule, textOf } from './syntax.js'
 
-function makeSourceFile(code: string) {
-  return ts.createSourceFile('temp.ts', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+type DeclarationKind = 'variable' | 'type' | 'interface'
+
+/** A top-level declaration the sort places: what it is named, what it is, and its statement. */
+type Declared = {
+  readonly name: string
+  readonly kind: DeclarationKind
+  readonly statement: Statement
+  readonly initializer: Node | undefined
 }
 
-function getChildren(node: ts.Node): readonly ts.Node[] {
-  const syntaxChildren = node.getChildren()
-  if (syntaxChildren.length > 0) return syntaxChildren
-  const semanticChildren: ts.Node[] = [] as const
-  ts.forEachChild(node, (child) => {
-    semanticChildren[semanticChildren.length] = child
-  })
-  return semanticChildren
-}
-
-function collectIdentifiers(node: ts.Node): readonly string[] {
-  const identifiers: string[] = []
-  const visit = (n: ts.Node): void => {
-    if (ts.isIdentifier(n)) identifiers.push(n.text)
-    for (const child of getChildren(n)) {
-      visit(child)
+function declaredOf(statement: Statement): Declared | undefined {
+  const { node } = declarationOf(statement)
+  if (node.type === 'VariableDeclaration') {
+    const [declaration] = node.declarations
+    if (declaration?.id.type !== 'Identifier') return undefined
+    return {
+      name: declaration.id.name,
+      kind: 'variable',
+      statement,
+      initializer: declaration.init ?? undefined,
     }
   }
-  visit(node)
-  return identifiers
+  if (node.type === 'TSTypeAliasDeclaration') {
+    return { name: node.id.name, kind: 'type', statement, initializer: undefined }
+  }
+  if (node.type === 'TSInterfaceDeclaration') {
+    return { name: node.id.name, kind: 'interface', statement, initializer: undefined }
+  }
+  return undefined
 }
 
 function findCyclicSchemas(names: readonly string[], deps: ReadonlyMap<string, readonly string[]>) {
@@ -85,7 +91,7 @@ export function analyzeCircularSchemas(
       }),
     ]),
   )
-  const batchedSource = makeSourceFile(
+  const batched = parseModule(
     schemaNames
       .map(
         (n) => `const ${toIdentifierPascalCase(ensureSuffix(n, 'Schema'))} = ${zSchemaMap.get(n)}`,
@@ -93,11 +99,10 @@ export function analyzeCircularSchemas(
       .join('\n'),
   )
   const initializerIdentifiers = new Map(
-    batchedSource.statements.flatMap((statement) => {
-      if (!ts.isVariableStatement(statement)) return []
-      const declaration = statement.declarationList.declarations[0]
-      if (!(declaration && ts.isIdentifier(declaration.name) && declaration.initializer)) return []
-      return [[declaration.name.text, collectIdentifiers(declaration.initializer)] as const]
+    batched.body.flatMap((statement) => {
+      const declared = declaredOf(statement)
+      if (declared?.kind !== 'variable' || declared.initializer === undefined) return []
+      return [[declared.name, identifierNames(declared.initializer)] as const]
     }),
   )
   const depsMap = new Map(
@@ -132,7 +137,7 @@ function createDeclaration(
   name: string,
   fullText: string,
   refs: readonly string[],
-  kind: 'variable' | 'type' | 'interface',
+  kind: DeclarationKind,
 ) {
   return {
     name,
@@ -142,43 +147,20 @@ function createDeclaration(
   } as const
 }
 
-function getDeclarationName(statement: ts.Statement) {
-  if (ts.isVariableStatement(statement)) {
-    const declaration = statement.declarationList.declarations[0]
-    return declaration && ts.isIdentifier(declaration.name) ? declaration.name.text : undefined
-  }
-  if (ts.isTypeAliasDeclaration(statement)) {
-    return statement.name.text
-  }
-  if (ts.isInterfaceDeclaration(statement)) {
-    return statement.name.text
-  }
-  return undefined
-}
-
-function getDeclarationKind(statement: ts.Statement) {
-  if (ts.isVariableStatement(statement)) return 'variable'
-  if (ts.isTypeAliasDeclaration(statement)) return 'type'
-  if (ts.isInterfaceDeclaration(statement)) return 'interface'
-  return undefined
-}
-
-function isLazySchema(statement: ts.Statement) {
-  if (!ts.isVariableStatement(statement)) return false
-  const declaration = statement.declarationList.declarations[0]
-  if (!declaration?.initializer) return false
-  const initText = declaration.initializer.getText()
-  return /^z\.lazy\s*\(/u.test(initText)
+function isLazySchema(code: string, declared: Declared) {
+  if (declared.initializer === undefined) return false
+  return /^z\.lazy\s*\(/u.test(textOf(code, declared.initializer))
 }
 
 function getStatementReferences(
-  statement: ts.Statement,
+  code: string,
+  declared: Declared,
   declNames: ReadonlySet<string>,
   selfName: string,
-  selfKind: 'variable' | 'type' | 'interface',
+  selfKind: DeclarationKind,
 ) {
-  if (isLazySchema(statement)) return [] as const
-  const identifiers = collectIdentifiers(statement)
+  if (isLazySchema(code, declared)) return [] as const
+  const identifiers = identifierNames(declared.statement)
   return [
     ...new Set(
       identifiers.filter((id) => {
@@ -192,25 +174,20 @@ function getStatementReferences(
   ] as const
 }
 
-function parseStatements(sourceFile: ts.SourceFile) {
-  const statements = sourceFile.statements.filter(
-    (s) =>
-      ts.isVariableStatement(s) || ts.isTypeAliasDeclaration(s) || ts.isInterfaceDeclaration(s),
+function parseStatements(code: string, program: Program) {
+  const declared = program.body.map(declaredOf).filter((d) => d !== undefined)
+  const declNames = new Set(declared.map((d) => d.name))
+  return declared.map((d) =>
+    createDeclaration(
+      d.name,
+      textOf(code, d.statement),
+      getStatementReferences(code, d, declNames, d.name, d.kind),
+      d.kind,
+    ),
   )
-  const declNames = new Set(statements.map(getDeclarationName).filter((n) => n !== undefined))
-  return statements
-    .map((statement): ReturnType<typeof createDeclaration> | undefined => {
-      const name = getDeclarationName(statement)
-      const kind = getDeclarationKind(statement)
-      if (!(name && kind)) return undefined
-      const fullText = statement.getText(sourceFile)
-      const refs = getStatementReferences(statement, declNames, name, kind)
-      return createDeclaration(name, fullText, refs, kind)
-    })
-    .filter((d) => d !== undefined)
 }
 
-function makeKey(kind: 'variable' | 'type' | 'interface', name: string) {
+function makeKey(kind: DeclarationKind, name: string) {
   return `${kind}:${name}`
 }
 
@@ -219,7 +196,7 @@ function topoSort(
     readonly name: string
     readonly fullText: string
     readonly refs: readonly string[]
-    readonly kind: 'variable' | 'type' | 'interface'
+    readonly kind: DeclarationKind
   }[],
 ) {
   const map = new Map(decls.map((d) => [makeKey(d.kind, d.name), d]))
@@ -250,8 +227,7 @@ function topoSort(
 }
 
 export function ast(code: string) {
-  const sourceFile = makeSourceFile(code)
-  const decls = parseStatements(sourceFile)
+  const decls = parseStatements(code, parseModule(code))
   if (decls.length === 0) return code
   return topoSort(decls)
     .map((d) => d.fullText)
