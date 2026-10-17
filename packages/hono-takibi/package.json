@@ -62,7 +62,7 @@
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^13.0.0",
-    "@effect/platform-node": "4.0.0",
+    "@effect/platform-node": "4.0.2",
     "@typespec/compiler": "catalog:",
     "@typespec/openapi3": "catalog:",
     "effect": "4.0.0",
