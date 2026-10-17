@@ -16,7 +16,7 @@
     "@guolao/vue-monaco-editor": "^1.6.0",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.3.3",
-    "@types/node": "^26.6.3",
+    "@types/node": "^26.6.4",
     "@typespec/bundler": "catalog:",
     "@typespec/compiler": "catalog:",
     "@typespec/events": "catalog:",
