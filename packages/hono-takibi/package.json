@@ -67,7 +67,7 @@
     "@typespec/openapi3": "catalog:",
     "effect": "4.0.0",
     "oxc-parser": "catalog:",
-    "oxfmt": "^0.71.0"
+    "oxfmt": "^0.72.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
