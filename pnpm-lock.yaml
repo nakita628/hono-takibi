@@ -287,7 +287,7 @@ importers:
         version: 13.1.0(openapi-types@12.1.3)
       '@effect/platform-node':
         specifier: 4.0.2
-        version: 4.0.2(effect@4.0.0)(redis@6.3.0)
+        version: 4.0.2(effect@4.0.2)(redis@6.3.0)
       '@typespec/compiler':
         specifier: 'catalog:'
         version: 1.17.0(@types/node@26.6.4)
@@ -295,8 +295,8 @@ importers:
         specifier: 'catalog:'
         version: 1.17.0(52e89613ffba97ecc7bfc8841b9af838)
       effect:
-        specifier: 4.0.0
-        version: 4.0.0
+        specifier: 4.0.2
+        version: 4.0.2
       oxc-parser:
         specifier: 'catalog:'
         version: 0.154.0
@@ -3641,8 +3641,8 @@ packages:
   dompurify@3.4.8:
     resolution: {integrity: sha512-yb1cEmaOum7wFvOCSQxyfgVlv5D47Rc30iZWoMpbDIWTnJ6grDDQyu2KFJzB2k7u0pMuJcQ1zphH//fFnw2tjQ==}
 
-  effect@4.0.0:
-    resolution: {integrity: sha512-ooc1TG5t+FfzgYnFz2ff6BBKyZ7EwBRVXC7c4RhQUAD6/TZ2gTXXMeb4WX7a19ozQo4J73/QW+S00YAIresoMQ==}
+  effect@4.0.2:
+    resolution: {integrity: sha512-YeYnLqSFrL4+tCOXRrfNP03w8FILoF/wDl+ukraJAGzXrjcS383W7LAAvGBbLatEyktmLxRq+9xJinx7QzXW5A==}
 
   embla-carousel-autoplay@8.6.0:
     resolution: {integrity: sha512-OBu5G3nwaSXkZCo1A6LTaFMZ8EpkYbwIaH+bPqdBnDGQ2fh4+NbzjXjs2SktoPNKCtflfVMc75njaDHOYXcrsA==}
@@ -4909,19 +4909,19 @@ snapshots:
 
   '@docsearch/sidepanel-js@4.7.1': {}
 
-  '@effect/platform-node-shared@4.0.2(effect@4.0.0)':
+  '@effect/platform-node-shared@4.0.2(effect@4.0.2)':
     dependencies:
       '@types/ws': 8.18.2
-      effect: 4.0.0
+      effect: 4.0.2
       ws: 8.22.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@effect/platform-node@4.0.2(effect@4.0.0)(redis@6.3.0)':
+  '@effect/platform-node@4.0.2(effect@4.0.2)(redis@6.3.0)':
     dependencies:
-      '@effect/platform-node-shared': 4.0.2(effect@4.0.0)
-      effect: 4.0.0
+      '@effect/platform-node-shared': 4.0.2(effect@4.0.2)
+      effect: 4.0.2
       redis: 6.3.0
       undici: 8.11.2
     transitivePeerDependencies:
@@ -7874,7 +7874,7 @@ snapshots:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
 
-  effect@4.0.0: {}
+  effect@4.0.2: {}
 
   embla-carousel-autoplay@8.6.0(embla-carousel@8.6.0):
     dependencies:
