@@ -408,23 +408,24 @@ function numericRange(
 }
 
 // Build a faker numeric expression from a resolved range, filling each unset side
-// with the format/type default. `faker.number.float` rejects `multipleOf` and
-// `fractionDigits` together, so `multipleOf` drops `fractionDigits`.
-const OPEN_RANGE_SPAN = 1000
-
+// with the format/type default. A side the default cannot fill, a minimum past the
+// default maximum or a maximum below zero, opens a range as wide as the default one.
+// `faker.number.float` rejects `multipleOf` and `fractionDigits` together, so
+// `multipleOf` drops `fractionDigits`.
 function closedRange(
   range: { readonly min?: number; readonly max?: number },
   defaultMin: number,
   defaultMax: number,
 ) {
+  const span = defaultMax - defaultMin
   const min =
     range.min ??
     (range.max === undefined || range.max > defaultMin
       ? defaultMin
       : range.max > 0
         ? 0
-        : range.max - OPEN_RANGE_SPAN)
-  const max = range.max ?? (min < defaultMax ? defaultMax : min + OPEN_RANGE_SPAN)
+        : range.max - span)
+  const max = range.max ?? (min < defaultMax ? defaultMax : min + span)
   return { min, max }
 }
 
@@ -468,8 +469,11 @@ function numericFaker(
   return `faker.number.float({ ${parts.join(', ')} })`
 }
 
+// How many times mock data nests a recursive schema before it takes the way out: the
+// empty array, the absent property, the variant that does not recurse. A required
+// property that recurses has no way out, and no finite value satisfies it, so it stops
+// at the same depth as `undefined`.
 const MAX_RECURSION_DEPTH = 2
-const MAX_REQUIRED_RECURSION_DEPTH = 16
 
 function containsRecursion(value: string) {
   return value.includes('(depth + 1)')
@@ -717,7 +721,7 @@ function schemaValue(
   }
   if (schema.$ref) {
     const call = recursiveCall(schema, options.recursive)
-    if (call !== undefined) return `(depth < ${MAX_REQUIRED_RECURSION_DEPTH} ? ${call} : undefined)`
+    if (call !== undefined) return `(depth < ${MAX_RECURSION_DEPTH} ? ${call} : undefined)`
     // oxlint-disable-next-line typescript/prefer-nullish-coalescing -- an empty trailing segment falls back too
     const refName = schema.$ref.split('/').pop() || 'unknown'
     return `${mockFunctionName(refName)}()`

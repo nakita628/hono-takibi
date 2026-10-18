@@ -5839,15 +5839,18 @@ describe('objects: a parameter spread over the query', () => {
     })
   })
 
-  // A key is the client's to write, and is read one pair of brackets at a time. One that
-  // reaches deeper than sixteen pairs is left as a key nothing declares, and the request is
-  // answered like any other.
-  // キーはクライアントが自由に書けるものであり、角括弧1組ずつ読み取られる。16組より深い
-  // キーは、どこにも宣言されていないキーとして残され、リクエストは通常どおり処理される。
-  it('deep leaves a key that reaches too deep unread', async () => {
+  // A key is the client's to write, and is read one pair of brackets at a time, however
+  // many there are: the pairs are walked with a work list rather than by recursion, so a
+  // key of any depth is read without running out of stack. What it names is then the
+  // schema's to judge: `a` is a property nothing declares, so `deep` keeps none of it.
+  // キーはクライアントが自由に書けるものであり、角括弧を何組重ねても1組ずつ読み取られる。
+  // 再帰ではなく作業リストで辿るため、どれほど深いキーでもスタックを使い切らない。その中身の
+  // 扱いはスキーマ次第で、`a` は宣言のないプロパティなので `deep` には何も残らない。
+  it('deep reads a key of any depth without running out of stack', async () => {
     const res = await queryParamsApp.request(`/objects?deep${'[a]'.repeat(5000)}=1&limit=3`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
+      deep: {},
       limit: { valueType: 'number', valueText: '3' },
     })
   })

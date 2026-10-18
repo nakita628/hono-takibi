@@ -30,6 +30,7 @@ export default defineConfig({
 ```ts
 // src/lib/client.ts
 import { hc } from 'hono/client'
+
 import type { api } from '../index'
 
 type Client = ReturnType<typeof hc<typeof api>>

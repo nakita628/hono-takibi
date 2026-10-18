@@ -815,13 +815,13 @@ describe('schemaToFaker', () => {
   describe('one-sided bounds', () => {
     it.concurrent('keeps max above an integer minimum beyond the default max', () => {
       expect(schemaToFaker({ type: 'integer', minimum: 5000 })).toBe(
-        'faker.number.int({ min: 5000, max: 6000 })',
+        'faker.number.int({ min: 5000, max: 5999 })',
       )
     })
 
     it.concurrent('keeps min below an integer maximum beneath the default min', () => {
       expect(schemaToFaker({ type: 'integer', maximum: 0 })).toBe(
-        'faker.number.int({ min: -1000, max: 0 })',
+        'faker.number.int({ min: -999, max: 0 })',
       )
     })
 
@@ -833,7 +833,7 @@ describe('schemaToFaker', () => {
 
     it.concurrent('keeps min below a negative int64 maximum', () => {
       expect(schemaToFaker({ type: 'integer', format: 'int64', maximum: -5 })).toBe(
-        'faker.number.bigInt({ min: -1005n, max: -5n })',
+        'faker.number.bigInt({ min: -9007199254740996n, max: -5n })',
       )
     })
 
@@ -1122,7 +1122,7 @@ describe('schemaToFaker', () => {
           { recursive: new Set(['Node']) },
         ),
       ).toBe(
-        '{ next: depth < 2 ? faker.helpers.arrayElement([(depth < 16 ? mockNode(depth + 1) : undefined), undefined]) : undefined }',
+        '{ next: depth < 2 ? faker.helpers.arrayElement([(depth < 2 ? mockNode(depth + 1) : undefined), undefined]) : undefined }',
       )
     })
   })
@@ -1133,7 +1133,7 @@ describe('schemaToFaker', () => {
         schemaToFaker({ $ref: '#/components/schemas/Node' }, undefined, {
           recursive: new Set(['Node']),
         }),
-      ).toBe('(depth < 16 ? mockNode(depth + 1) : undefined)')
+      ).toBe('(depth < 2 ? mockNode(depth + 1) : undefined)')
     })
 
     it.concurrent('ends an array of recursive items with an empty array', () => {

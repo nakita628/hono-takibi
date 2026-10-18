@@ -12,11 +12,12 @@
     "deploy": "pnpm build && wrangler deploy"
   },
   "devDependencies": {
-    "@apidevtools/swagger-parser": "^13.0.0",
+    "@apidevtools/swagger-parser": "^13.1.0",
     "@guolao/vue-monaco-editor": "^1.6.0",
-    "@playwright/test": "^1.63.0",
+    "@oxc-parser/binding-wasm32-wasip1": "catalog:",
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/vite": "^4.3.3",
-    "@types/node": "^26.6.3",
+    "@types/node": "^26.6.5",
     "@typespec/bundler": "catalog:",
     "@typespec/compiler": "catalog:",
     "@typespec/events": "catalog:",
@@ -31,15 +32,15 @@
     "@typespec/versioning": "catalog:",
     "@typespec/xml": "catalog:",
     "hono-takibi": "workspace:*",
-    "js-yaml": "^5.4.2",
+    "js-yaml": "^5.5.0",
     "monaco-editor": "0.57.0",
     "pathe": "^2.0.3",
-    "prettier": "^3.9.8",
+    "prettier": "^3.9.10",
     "tailwindcss": "^4.3.3",
-    "vite": "^8.3.0",
+    "vite": "^8.3.4",
     "vitepress": "2.0.0-alpha.20",
-    "vitepress-plugin-group-icons": "^1.7.6",
-    "vue": "^3.5.43",
+    "vitepress-plugin-group-icons": "^1.8.1",
+    "vue": "^3.5.44",
     "wrangler": "catalog:"
   }
 }

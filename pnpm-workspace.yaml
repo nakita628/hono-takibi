@@ -9,21 +9,24 @@ packages:
 catalogMode: strict
 catalog:
   '@typespec/bundler': ^0.6.1
-  '@typespec/compiler': ^1.16.0
-  '@typespec/events': ^0.86.0
-  '@typespec/http': ^1.16.0
-  '@typespec/json-schema': ^1.16.0
-  '@typespec/openapi': ^1.16.0
-  '@typespec/openapi3': ^1.16.0
-  '@typespec/playground': ^0.17.1
-  '@typespec/rest': ^0.86.0
-  '@typespec/sse': ^0.86.0
-  '@typespec/streams': ^0.86.0
-  '@typespec/versioning': ^0.86.0
-  '@typespec/xml': ^0.86.0
-  cf: 1.0.0-beta.14
+  '@typespec/compiler': ^1.17.0
+  '@typespec/events': ^0.87.0
+  '@typespec/http': ^1.17.0
+  '@typespec/json-schema': ^1.17.0
+  '@typespec/openapi': ^1.17.0
+  '@typespec/openapi3': ^1.17.0
+  '@typespec/playground': ^0.18.0
+  '@typespec/rest': ^0.87.0
+  '@typespec/sse': ^0.87.0
+  '@typespec/streams': ^0.87.0
+  '@typespec/versioning': ^0.87.0
+  '@typespec/xml': ^0.87.0
+  cf: 1.0.0-beta.18
   oxc-parser: ^0.154.0
-  wrangler: ^4.144.0
+  # The browser build of oxc-parser imports this binding and oxc-parser does not list it
+  # itself; the website's playground needs it, at the version of oxc-parser.
+  '@oxc-parser/binding-wasm32-wasip1': ^0.154.0
+  wrangler: ^4.151.1
 allowBuilds:
   # Telemetry postinstall pulled in through @typespec/playground -> swagger-ui-dist;
   # nothing to build, so it never runs.
@@ -33,6 +36,6 @@ allowBuilds:
   vue-demi: true
   workerd: true
 minimumReleaseAgeExclude:
-  - '@effect/platform-node-shared@4.0.0'
-  - '@effect/platform-node@4.0.0'
-  - effect@4.0.0
+  - '@effect/platform-node-shared@4.0.5'
+  - '@effect/platform-node@4.0.5'
+  - effect@4.0.5
