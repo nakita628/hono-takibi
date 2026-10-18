@@ -26,7 +26,13 @@ import {
 import { undecorated, wrap } from '../../helper/wrap.js'
 import { emitTypelessRefine, makeUnevaluatedPropertiesCheck } from '../../helper/zod.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
-import { baseError, error, makeStringLiteral, normalizeTypes } from '../../utils/index.js'
+import {
+  baseError,
+  decodePercent,
+  error,
+  makeStringLiteral,
+  normalizeTypes,
+} from '../../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
 import { _enum, integer, number, object, string } from './z/index.js'
 
@@ -65,7 +71,6 @@ export function zodToOpenAPI(
     schemas?: { readonly [k: string]: Schema }
   },
 ): string {
-  if (schema === undefined) throw new Error('Schema is undefined')
   if (schema === true) return wrap('z.any()', {}, meta, options)
   if (schema === false) return wrap('z.never()', {}, meta, options)
   // A scalar is read from text once, around the whole schema, and everything inside is
@@ -312,9 +317,7 @@ export function zodToOpenAPI(
       s.$ref === undefined
         ? s
         : isRefOnly(s) && s.$ref.startsWith(COMPONENT_REF_PREFIX.schemas)
-          ? options?.schemas?.[
-              decodeURIComponent(s.$ref.slice(COMPONENT_REF_PREFIX.schemas.length))
-            ]
+          ? options?.schemas?.[decodePercent(s.$ref.slice(COMPONENT_REF_PREFIX.schemas.length))]
           : undefined,
     )
     // Semantic contract. `oneOf` is JSON Schema: "exactly one branch matches"
@@ -528,15 +531,11 @@ export function zodToOpenAPI(
   if (t.includes('boolean')) {
     const errorMessage = schema['x-error-message']
     const requiredMessage = schema['x-required-message']
-    const xCoerce = schema['x-coerce'] === true
     const xStringbool = schema['x-stringbool']
-    if (xCoerce && xStringbool !== undefined) {
-      throw new Error(
-        'x-coerce and x-stringbool are mutually exclusive on a boolean schema. Remove one.',
-      )
-    }
-    const arg = baseError(errorMessage, xCoerce ? undefined : requiredMessage)
+    // `z.stringbool()` reads the text itself, which is all `x-coerce` would ask for: beside
+    // it, `x-coerce` has nothing left to do, so the more specific extension is what counts.
     if (xStringbool !== undefined) {
+      const arg = baseError(errorMessage, requiredMessage)
       const opts = xStringbool === true ? null : xStringbool
       const optsObj = opts
         ? {
@@ -551,6 +550,9 @@ export function zodToOpenAPI(
       const base = combinedArg ? `z.stringbool(${combinedArg})` : 'z.stringbool()'
       return done(base, schema)
     }
+    const xCoerce = schema['x-coerce'] === true
+    // `z.coerce.boolean()` reads nothing as `false`, so a required message would never show.
+    const arg = baseError(errorMessage, xCoerce ? undefined : requiredMessage)
     const baseFn = xCoerce ? 'z.coerce.boolean' : effective?.coerce ? 'z.stringbool' : 'z.boolean'
     const base = arg ? `${baseFn}(${arg})` : `${baseFn}()`
     return done(base, schema)

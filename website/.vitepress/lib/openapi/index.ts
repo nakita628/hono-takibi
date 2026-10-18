@@ -15,16 +15,26 @@ function isOpenAPIDocument(value: unknown): value is { readonly [key: string]: u
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+// Reading the source is the one step that throws: `JSON.parse` and the YAML loader
+// reject malformed text, and the TypeSpec runtime is a chunk that may fail to load.
 async function parseDocument(source: string, mode: (typeof MODES)[number]) {
-  if (mode === 'typespec') {
-    return compileTypeSpec(source, await loadTypeSpecContext())
-  }
-  const document: unknown = mode === 'json' ? JSON.parse(source) : load(source)
   const markers: readonly TypeSpecMarker[] = []
-  if (!isOpenAPIDocument(document)) {
-    return { ok: false, error: 'Input must be an OpenAPI document (object)', markers } as const
+  try {
+    if (mode === 'typespec') {
+      return await compileTypeSpec(source, await loadTypeSpecContext())
+    }
+    const document: unknown = mode === 'json' ? JSON.parse(source) : load(source)
+    if (!isOpenAPIDocument(document)) {
+      return { ok: false, error: 'Input must be an OpenAPI document (object)', markers } as const
+    }
+    return { ok: true, value: document, markers } as const
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : String(error),
+      markers,
+    } as const
   }
-  return { ok: true, value: document, markers } as const
 }
 
 // Single entry point for $ref resolution, shared by every input mode so the
@@ -82,30 +92,23 @@ export async function generate(
   mode: (typeof MODES)[number],
   options: Parameters<(typeof ZodOpenAPIHono)['zodOpenAPIHono']>[1],
 ) {
-  const noMarkers: readonly TypeSpecMarker[] = []
-  try {
-    const parsed = await parseDocument(source, mode)
-    const { markers } = parsed
-    if (!parsed.ok) {
-      return { ok: false, error: parsed.error, markers } as const
-    }
-    if (!isOpenAPIDocument(parsed.value)) {
-      return { ok: false, error: 'Input did not produce an OpenAPI document', markers } as const
-    }
-    const bundled = await bundleDocument(parsed.value)
-    if (!bundled.ok) {
-      return { ok: false, error: bundled.error, markers } as const
-    }
-    const { zodOpenAPIHono } = await import('hono-takibi/zod-openapi-hono')
-    const formatted = await formatCode(zodOpenAPIHono(bundled.value as OpenAPI, options))
-    return formatted.ok
-      ? ({ ok: true, value: formatted.value, markers } as const)
-      : ({ ok: false, error: formatted.error, markers } as const)
-  } catch (e) {
-    return {
-      ok: false,
-      error: e instanceof Error ? e.message : String(e),
-      markers: noMarkers,
-    } as const
+  const parsed = await parseDocument(source, mode)
+  const { markers } = parsed
+  if (!parsed.ok) {
+    return { ok: false, error: parsed.error, markers } as const
   }
+  if (!isOpenAPIDocument(parsed.value)) {
+    return { ok: false, error: 'Input did not produce an OpenAPI document', markers } as const
+  }
+  const bundled = await bundleDocument(parsed.value)
+  if (!bundled.ok) {
+    return { ok: false, error: bundled.error, markers } as const
+  }
+  // Every step that can fail answers with `ok: false`; the generator itself is a total
+  // function, so there is nothing left to catch around it.
+  const { zodOpenAPIHono } = await import('hono-takibi/zod-openapi-hono')
+  const formatted = await formatCode(zodOpenAPIHono(bundled.value as OpenAPI, options))
+  return formatted.ok
+    ? ({ ok: true, value: formatted.value, markers } as const)
+    : ({ ok: false, error: formatted.error, markers } as const)
 }

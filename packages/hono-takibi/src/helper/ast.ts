@@ -4,7 +4,7 @@ import { COMPONENT_REF_PREFIX } from '../constants/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { isDiscriminableBranch, isRefOnly } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
-import { cyclicNodes, ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
+import { cyclicNodes, decodePercent, ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
 import { declarationOf, identifierNames, parseModule, textOf } from './syntax.js'
 
 type DeclarationKind = 'variable' | 'type' | 'interface'
@@ -63,7 +63,7 @@ function findDiscriminatedBranches(
       if (discriminator === undefined || schema?.oneOf === undefined) return []
       return schema.oneOf.flatMap((branch) => {
         if (!(isRefOnly(branch) && branch.$ref?.startsWith(COMPONENT_REF_PREFIX.schemas))) return []
-        const name = decodeURIComponent(branch.$ref.slice(COMPONENT_REF_PREFIX.schemas.length))
+        const name = decodePercent(branch.$ref.slice(COMPONENT_REF_PREFIX.schemas.length))
         const target = schemas[name]
         return target && isDiscriminableBranch(target, discriminator) ? [name] : []
       })

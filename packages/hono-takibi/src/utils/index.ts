@@ -298,6 +298,19 @@ export function ensureSuffix(text: string, suffix: string) {
 }
 
 /**
+ * Undoes the percent-encoding of one `$ref` segment. A segment that is not valid
+ * percent-encoding (`Foo%ZZ`) is kept as it is: no `$ref` makes the generator throw, it
+ * just names a component that is not there.
+ */
+export function decodePercent(value: string) {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
+}
+
+/**
  * Generates a Zod schema constant and optional inferred type alias.
  *
  *

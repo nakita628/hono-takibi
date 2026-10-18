@@ -1,6 +1,6 @@
 import { isSchemaArray, isValidIdent } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
-import { makeStringLiteral, toIdentifierPascalCase } from '../utils/index.js'
+import { decodePercent, makeStringLiteral, toIdentifierPascalCase } from '../utils/index.js'
 
 export function makeTypeString(
   schema: Schema,
@@ -45,14 +45,14 @@ export function makeTypeString(
 function makeRefTypeString(ref: string, selfTypeName: string) {
   const propertiesMatch = ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//u)
   if (propertiesMatch) {
-    const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
+    const parentName = toIdentifierPascalCase(decodePercent(propertiesMatch[1]))
     if (parentName === selfTypeName) {
       return `${parentName}Type`
     }
     return `z.infer<typeof ${parentName}Schema>`
   }
   const rawRef = ref.split('/').at(-1) ?? ''
-  const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
+  const refName = toIdentifierPascalCase(decodePercent(rawRef))
   if (refName === selfTypeName) {
     return `${refName}Type`
   }
@@ -150,14 +150,14 @@ function makeArrayTypeString(
   if (items.$ref) {
     const propertiesMatch = items.$ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//u)
     if (propertiesMatch) {
-      const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
+      const parentName = toIdentifierPascalCase(decodePercent(propertiesMatch[1]))
       if (parentName === selfTypeName) {
         return `${prefix}${parentName}Type[]`
       }
       return `${prefix}z.infer<typeof ${parentName}Schema>[]`
     }
     const rawRef = items.$ref.split('/').at(-1) ?? ''
-    const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
+    const refName = toIdentifierPascalCase(decodePercent(rawRef))
     if (refName === selfTypeName) {
       return `${prefix}${refName}Type[]`
     }
