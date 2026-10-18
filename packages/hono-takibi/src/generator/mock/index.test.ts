@@ -967,7 +967,7 @@ function mockNode(depth = 0): any {
     id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]),
     next:
       depth < 2
-        ? faker.helpers.arrayElement([depth < 16 ? mockNode(depth + 1) : undefined, undefined])
+        ? faker.helpers.arrayElement([depth < 2 ? mockNode(depth + 1) : undefined, undefined])
         : undefined,
   }
 }
@@ -1328,7 +1328,7 @@ function mockChild(depth = 0): any {
     id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]),
     parent:
       depth < 2
-        ? faker.helpers.arrayElement([depth < 16 ? mockParent(depth + 1) : undefined, undefined])
+        ? faker.helpers.arrayElement([depth < 2 ? mockParent(depth + 1) : undefined, undefined])
         : undefined,
   }
 }
@@ -1338,7 +1338,7 @@ function mockParent(depth = 0): any {
     id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]),
     child:
       depth < 2
-        ? faker.helpers.arrayElement([depth < 16 ? mockChild(depth + 1) : undefined, undefined])
+        ? faker.helpers.arrayElement([depth < 2 ? mockChild(depth + 1) : undefined, undefined])
         : undefined,
   }
 }

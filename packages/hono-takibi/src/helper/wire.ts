@@ -600,11 +600,6 @@ export function wireObject(
   return value(objectReader(',', explode))
 }
 
-// How deep a `deepObject` key may reach. A key is read by a function that calls itself
-// once for each pair of brackets, and the key is the client's to write: one that reaches
-// deeper than any schema does is left as a key of the query, which nothing declares.
-const DEEP_OBJECT_DEPTH = 16
-
 /**
  * The function that gathers the keys of a query, or of the cookies, into the object
  * parameters among them, as source, or `undefined` when none is spread over several keys.
@@ -651,9 +646,12 @@ export function makeWireGather(objects: readonly WireObject[], taken: readonly s
           "const isGroup=(item:unknown):item is Record<string,unknown>=>typeof item==='object'&&item!==null&&!Array.isArray(item)",
           'const lists=new WeakSet<object>()',
           String.raw`const isIndex=(part:string|undefined)=>part!==undefined&&/^\d*$/.test(part)`,
+          // A `deepObject` key is the client's to write, and may hold any number of bracket
+          // pairs. `set` and `settle` walk the pairs with a work list rather than by calling
+          // themselves, so no key is deep enough to run out of stack, and no depth is capped.
           'const child=(target:Record<string,unknown>,key:string,asList:boolean)=>{const held=target[key];if(isGroup(held))return held;const made:Record<string,unknown>=Object.create(null);if(asList)lists.add(made);target[key]=made;return made}',
-          "const set=(target:Record<string,unknown>,path:readonly string[],item:unknown):void=>{const [head,...tail]=path;if(head===undefined)return;const [next]=tail;if(head===''){for(const one of Array.isArray(item)?item:[item]){const size=Object.keys(target).length;if(next===undefined){target[String(size)]=one;continue}const free=next===''?-1:Object.values(target).findIndex((held)=>isGroup(held)&&!(next in held));set(child(target,String(free<0?size:free),isIndex(next)),tail,one)}return}if(next===undefined){target[head]=item;return}set(child(target,head,isIndex(next)),tail,item)}",
-          'const settle=(item:unknown):unknown=>{if(!isGroup(item))return item;const held=Object.entries(item).map(([key,inner])=>[key,settle(inner)] as const);return lists.has(item)?[...held].sort((a,b)=>Number(a[0])-Number(b[0])).map(([,inner])=>inner):Object.assign(Object.create(null),Object.fromEntries(held))}',
+          "const set=(root:Record<string,unknown>,path:readonly string[],item:unknown):void=>{const work:[Record<string,unknown>,number,unknown,boolean][]=[[root,0,item,false]];for(let job=work.pop();job!==undefined;job=work.pop()){const [target,at,value,split]=job;const head=path[at];if(head===undefined)continue;const next=path[at+1];if(head===''){if(!split&&Array.isArray(value)){for(let i=value.length-1;i>=0;i-=1)work.push([target,at,value[i],true]);continue}const size=Object.keys(target).length;if(next===undefined){target[String(size)]=value;continue}const free=next===''?-1:Object.values(target).findIndex((held)=>isGroup(held)&&!(next in held));work.push([child(target,String(free<0?size:free),isIndex(next)),at+1,value,false]);continue}if(next===undefined){target[head]=value;continue}work.push([child(target,head,isIndex(next)),at+1,value,false])}}",
+          'const settle=(root:unknown):unknown=>{if(!isGroup(root))return root;const found:[Record<string,unknown>,string,Record<string,unknown>][]=[];const queue:Record<string,unknown>[]=[root];for(const node of queue){for(const [key,inner] of Object.entries(node)){if(isGroup(inner)){found.push([node,key,inner]);queue.push(inner)}}}const finish=(group:Record<string,unknown>):unknown=>lists.has(group)?Object.entries(group).sort((a,b)=>Number(a[0])-Number(b[0])).map(([,inner])=>inner):Object.assign(Object.create(null),group);for(const [parent,key,group] of found.reverse()){parent[key]=finish(group)}return finish(root)}',
           `const deep:string[]=${JSON.stringify(deep)}`,
         ]
       : []),
@@ -669,7 +667,7 @@ export function makeWireGather(objects: readonly WireObject[], taken: readonly s
     `for(const [key,item] of Object.entries(val)){${[
       ...(deep.length > 0
         ? [
-            String.raw`const match=/^([^\[\]]+)((?:\[[^\[\]]*\])+)$/.exec(key);const name=match?.[1];const path=match?.[2];if(name!==undefined&&path!==undefined&&deep.includes(name)){const parts=path.slice(1,-1).split('][');if(parts.length<=${DEEP_OBJECT_DEPTH}){set(group(name),parts,item);continue}}`,
+            String.raw`const match=/^([^\[\]]+)((?:\[[^\[\]]*\])+)$/.exec(key);const name=match?.[1];const path=match?.[2];if(name!==undefined&&path!==undefined&&deep.includes(name)){const parts=path.slice(1,-1).split('][');set(group(name),parts,item);continue}`,
           ]
         : []),
       ...(spread.length > 0
