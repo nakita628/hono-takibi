@@ -52,25 +52,16 @@ type SampleOptions = {
 }
 
 /**
- * How many `$ref`s one table or one example may expand in total.
+ * Whether a table or an example is inside the expansion of a schema that reaches itself.
  *
- * The bound on the size of the document: every table and example of every operation
- * expands what it refers to, so a document whose schemas all reach each other writes
- * this many schemas into each of them. At 1000, 500 such schemas and 600 operations
- * made a document too large for a string; a table or example that expands 50 schemas
- * is past what anyone reads, and past that the schema is still named and linked.
+ * Such a schema is expanded where it is used, like any other, but inside its expansion a
+ * schema that reaches itself is named and linked rather than expanded: that is where the
+ * walk would otherwise come back to where it started, by this schema or by one that
+ * reaches it. So no expansion nests another recursive one, and the size of a table or an
+ * example is that of the finite part of the schema. A schema that cannot reach itself is
+ * expanded wherever it is used: two properties of that type carry two copies of it.
  */
-const MAX_REF_EXPANSIONS = 50
-
-/**
- * How many times one table or one example expands the same recursive schema.
- * Cycle detection works per path, so schemas that reference each other would
- * otherwise be expanded once per path through them, which grows factorially.
- * Past the limit the schema is still named and linked, just not expanded.
- */
-const MAX_EXPANSIONS_PER_RECURSIVE_REF = 2
-
-type Budget = { readonly take: (ref: string) => boolean }
+type Inside = boolean
 
 /**
  * What is asked of a document over and over while its docs are made: what a `$ref`
@@ -380,30 +371,16 @@ function isRecursiveRef(ref: string, doc: OpenAPI) {
   return result
 }
 
-function makeBudget(doc: OpenAPI): Budget {
-  const counts = new Map<string, number>()
-  const state = { left: MAX_REF_EXPANSIONS }
-  return {
-    take: (ref) => {
-      const count = counts.get(ref) ?? 0
-      const isRecursive = isRecursiveRef(ref, doc)
-      if (state.left <= 0) return false
-      if (isRecursive && count >= MAX_EXPANSIONS_PER_RECURSIVE_REF) return false
-      state.left -= 1
-      counts.set(ref, count + 1)
-      return true
-    },
-  }
-}
-
 /**
- * `derefSchema` for a schema that is about to be expanded: following a `$ref`
- * spends the budget, and a reference past the budget is left unexpanded.
+ * `derefSchema` for a schema that is about to be expanded: a `$ref` to a schema that
+ * reaches itself is followed unless the walk is already inside such a schema, and what
+ * it opens is inside one.
  */
-function expandSchema(schema: Schema, doc: OpenAPI, visited: ReadonlySet<string>, budget: Budget) {
-  if (!schema.$ref) return derefSchema(schema, doc, visited)
-  if (visited.has(schema.$ref) || !budget.take(schema.$ref)) return undefined
-  return derefSchema(schema, doc, visited)
+function expandSchema(schema: Schema, doc: OpenAPI, inside: Inside) {
+  const recursive = schema.$ref !== undefined && isRecursiveRef(schema.$ref, doc)
+  if (recursive && inside) return undefined
+  const target = derefSchema(schema, doc, new Set<string>())
+  return target && { schema: target.schema, inside: inside || recursive }
 }
 
 function primaryType(schema: Schema) {
@@ -623,7 +600,7 @@ function isHiddenProperty(
   schema: Schema,
   doc: OpenAPI,
   direction: Direction,
-  visited: ReadonlySet<string>,
+  visited: ReadonlySet<string> = new Set<string>(),
 ) {
   if (!isSchemaLike(schema)) return false
   if (isHidden(schema, direction)) return true
@@ -639,17 +616,16 @@ function makeExampleFromSchema(
   schema: Schema,
   doc: OpenAPI,
   direction: Direction = 'schema',
-  visited: ReadonlySet<string> = new Set<string>(),
-  budget: Budget = makeBudget(doc),
+  inside: Inside = false,
 ): unknown {
   if (!isSchemaLike(schema)) return null
 
   if (schema.example !== undefined) return schema.example
 
   if (schema.$ref) {
-    const target = expandSchema(schema, doc, visited, budget)
+    const target = expandSchema(schema, doc, inside)
     if (!target) return {}
-    return makeExampleFromSchema(target.schema, doc, direction, target.visited, budget)
+    return makeExampleFromSchema(target.schema, doc, direction, target.inside)
   }
 
   const listed = firstExampleValue(schema.examples, doc)
@@ -672,15 +648,15 @@ function makeExampleFromSchema(
     const result: { [k: string]: unknown } = {}
     const parts = [...(schema.allOf ?? []), ...(variant ? [variant.schema] : [])]
     for (const part of parts) {
-      const example = makeExampleFromSchema(part, doc, direction, visited, budget)
+      const example = makeExampleFromSchema(part, doc, direction, inside)
       if (isRecord(example)) Object.assign(result, example)
     }
     for (const [key, propSchema] of Object.entries(schema.properties ?? {})) {
-      if (isHiddenProperty(propSchema, doc, direction, visited)) continue
-      result[key] = makeExampleFromSchema(propSchema, doc, direction, visited, budget)
+      if (isHiddenProperty(propSchema, doc, direction)) continue
+      result[key] = makeExampleFromSchema(propSchema, doc, direction, inside)
     }
     if (isSchemaLike(extra)) {
-      const value = makeExampleFromSchema(extra, doc, direction, visited, budget)
+      const value = makeExampleFromSchema(extra, doc, direction, inside)
       result.property1 = value
       result.property2 = value
     }
@@ -691,17 +667,17 @@ function makeExampleFromSchema(
     if (schema.maxItems === 0) return []
     const item = arrayItemSchema(schema)
     if (item) {
-      const value = makeExampleFromSchema(item, doc, direction, visited, budget)
+      const value = makeExampleFromSchema(item, doc, direction, inside)
       const count = Math.max(schema.minItems ?? 1, 1)
       return Array.from({ length: count }, () => value)
     }
     return (schema.prefixItems ?? []).map((entry) =>
-      makeExampleFromSchema(entry, doc, direction, visited, budget),
+      makeExampleFromSchema(entry, doc, direction, inside),
     )
   }
 
   if (variant) {
-    return makeExampleFromSchema(variant.schema, doc, direction, visited, budget)
+    return makeExampleFromSchema(variant.schema, doc, direction, inside)
   }
 
   return makeDefaultValue(schema)
@@ -1341,7 +1317,7 @@ function describe(description: unknown, deprecated: unknown) {
 function collectRequired(
   schema: Schema,
   doc: OpenAPI,
-  visited: ReadonlySet<string>,
+  visited: ReadonlySet<string> = new Set<string>(),
 ): readonly string[] {
   if (!isSchemaLike(schema)) return []
   const target = derefSchema(schema, doc, visited)
@@ -1365,66 +1341,57 @@ function flattenFields(
   doc: OpenAPI,
   prefix: string,
   options: FlattenOptions,
-  visited: ReadonlySet<string> = new Set<string>(),
   inheritedRequired: readonly string[] = [],
-  budget: Budget = makeBudget(doc),
+  inside: Inside = false,
 ): readonly FieldRow[] {
   if (!isSchemaLike(schema)) return []
-  const target = expandSchema(schema, doc, visited, budget)
+  const target = expandSchema(schema, doc, inside)
   if (!target) return []
   const current = target.schema
-  const seen = target.visited
+  const within = target.inside
   const nestedPrefix = prefix ? `${prefix} »` : '»'
   const named = (name: string) => (prefix ? `${prefix} ${name}` : name)
-  const required = [...inheritedRequired, ...collectRequired(current, doc, seen)]
+  const required = [...inheritedRequired, ...collectRequired(current, doc)]
   const requiredSet = new Set(required)
 
   const nestedRows = (propSchema: Schema): readonly FieldRow[] => {
     if (!options.deep) return []
-    const prop = expandSchema(propSchema, doc, seen, budget)
+    const prop = expandSchema(propSchema, doc, within)
     if (!prop) return []
     if (hasFields(prop.schema)) {
-      return flattenFields(prop.schema, doc, nestedPrefix, options, prop.visited, [], budget)
+      return flattenFields(prop.schema, doc, nestedPrefix, options, [], prop.inside)
     }
     const item = isArraySchema(prop.schema) ? arrayItemSchema(prop.schema) : undefined
-    const resolvedItem = item ? expandSchema(item, doc, prop.visited, budget) : undefined
+    const resolvedItem = item ? expandSchema(item, doc, prop.inside) : undefined
     if (resolvedItem && hasFields(resolvedItem.schema)) {
-      return flattenFields(
-        resolvedItem.schema,
-        doc,
-        nestedPrefix,
-        options,
-        resolvedItem.visited,
-        [],
-        budget,
-      )
+      return flattenFields(resolvedItem.schema, doc, nestedPrefix, options, [], resolvedItem.inside)
     }
     return []
   }
 
   const makeRow = (name: string, propSchema: Schema, isRequired: boolean): FieldRow => {
-    const resolved = derefSchema(propSchema, doc, seen)?.schema
+    const resolved = derefSchema(propSchema, doc, new Set<string>())?.schema
     return {
       name: named(name),
-      type: formatSchemaType(propSchema, doc, seen),
+      type: formatSchemaType(propSchema, doc),
       required: isRequired,
       restrictions: restrictionsOf(resolved ?? propSchema),
       description: describe(
         propSchema.description ?? resolved?.description,
         propSchema.deprecated ?? resolved?.deprecated,
       ),
-      enums: enumValuesOf(propSchema, doc, seen),
+      enums: enumValuesOf(propSchema, doc),
     }
   }
 
   const inherited = (current.allOf ?? []).flatMap((part) =>
-    flattenFields(part, doc, prefix, options, seen, required, budget),
+    flattenFields(part, doc, prefix, options, required, within),
   )
   const own = isObjectSchema(current)
     ? Object.entries(current.properties)
         .filter(
           ([, propSchema]) =>
-            isSchemaLike(propSchema) && !isHiddenProperty(propSchema, doc, options.direction, seen),
+            isSchemaLike(propSchema) && !isHiddenProperty(propSchema, doc, options.direction),
         )
         // oxlint-disable-next-line oxc/no-map-spread -- flatMap fans out each entry into its lines
         .flatMap(([key, propSchema]) => [
@@ -1441,7 +1408,7 @@ function flattenFields(
   // oxlint-disable-next-line oxc/no-map-spread -- flatMap fans out each entry into its lines
   const variants = variantsOf(current).flatMap((variant) => [
     makeRow(`*${variant.keyword}*`, variant.schema, false),
-    ...flattenFields(variant.schema, doc, prefix, options, seen, required, budget),
+    ...flattenFields(variant.schema, doc, prefix, options, required, within),
   ])
   const rows = [...inherited, ...own, ...extra, ...variants]
   if (rows.length > 0 || !options.deep || !isArraySchema(current)) return rows
@@ -1452,7 +1419,7 @@ function flattenFields(
     ? [
         {
           name: '*anonymous*',
-          type: `[${formatSchemaType(item, doc, seen)}]`,
+          type: `[${formatSchemaType(item, doc)}]`,
           required: false,
           restrictions: 'none',
           description: 'none',
@@ -1460,7 +1427,7 @@ function flattenFields(
         },
       ]
     : []
-  const resolvedItem = expandSchema(item, doc, seen, budget)
+  const resolvedItem = expandSchema(item, doc, within)
   if (!(resolvedItem && hasFields(resolvedItem.schema))) return anonymous
   return [
     ...anonymous,
@@ -1469,9 +1436,8 @@ function flattenFields(
       doc,
       '»',
       { ...options, anonymous: false },
-      resolvedItem.visited,
       [],
-      budget,
+      resolvedItem.inside,
     ),
   ]
 }

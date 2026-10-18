@@ -1940,10 +1940,7 @@ hono request \\
   {
     "name": "string",
     "posts": [
-      {
-        "title": "string",
-        "author": {}
-      }
+      {}
     ]
   }
 ]
@@ -1964,8 +1961,6 @@ Status Code **200**
 |*anonymous*|[[Author](#schemaauthor)]|false|none|none|
 |» name|string|false|none|none|
 |» posts|[[Post](#schemapost)]|false|none|none|
-|» » title|string|false|none|none|
-|» » author|[Author](#schemaauthor)|false|none|none|
 
 <aside class="success">
 This operation does not require authentication
@@ -1986,12 +1981,7 @@ This operation does not require authentication
   "posts": [
     {
       "title": "string",
-      "author": {
-        "name": "string",
-        "posts": [
-          {}
-        ]
-      }
+      "author": {}
     }
   ]
 }
@@ -2017,10 +2007,7 @@ This operation does not require authentication
   "author": {
     "name": "string",
     "posts": [
-      {
-        "title": "string",
-        "author": {}
-      }
+      {}
     ]
   }
 }
@@ -10581,13 +10568,14 @@ This operation does not require authentication
     expect(makeDocs(spec)).toBe(expected)
   })
 
-  // `Node` references itself. Expansion of such a schema is limited so that schemas
-  // referencing each other cannot multiply the output. `c` is still named and
-  // linked; its fields are under Schemas.
-  // `Node` は自分自身を参照する。相互に参照するスキーマが出力を膨れ上がらせないよう、
-  // このようなスキーマの展開回数は制限される。`c` は名前とリンクが残り、
-  // フィールドは Schemas にある。
-  it('expands a recursive schema at most twice per table and example', () => {
+  // `Node` reaches itself. Such a schema is expanded wherever it is used, but inside its
+  // expansion a schema that reaches itself is named and linked, not expanded: that is where
+  // the walk would come back on itself. So `a`, `b` and `c` each show their fields, and
+  // `next` under each is a link.
+  // `Node` は自分自身に到達する。そのようなスキーマは使われる場所ごとに展開されるが、その
+  // 展開の内側では自己到達するスキーマは展開せず名前とリンクだけにする。歩みが元に戻るのは
+  // そこだからである。`a`、`b`、`c` はそれぞれフィールドを示し、その下の `next` はリンクになる。
+  it('expands a recursive schema wherever it is used and nothing recursive inside it', () => {
     const spec = {
       openapi: '3.1.0',
       info: {
@@ -10676,7 +10664,10 @@ hono request \\
     "value": "string",
     "next": {}
   },
-  "c": {}
+  "c": {
+    "value": "string",
+    "next": {}
+  }
 }
 \`\`\`
 
@@ -10699,6 +10690,8 @@ Status Code **200**
 |» value|string|false|none|none|
 |» next|[Node](#schemanode)|false|none|none|
 |c|[Node](#schemanode)|false|none|none|
+|» value|string|false|none|none|
+|» next|[Node](#schemanode)|false|none|none|
 
 <aside class="success">
 This operation does not require authentication
