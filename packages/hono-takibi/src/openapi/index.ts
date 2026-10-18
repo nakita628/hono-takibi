@@ -574,8 +574,8 @@ export type Schema = {
   readonly 'x-coerce'?: boolean
   /**
    * Opt into `z.stringbool()` for boolean schemas. Use `true` for the default
-   * truthy/falsy lists, or pass an object to customize. Mutually exclusive
-   * with `x-coerce: true` on the same schema (build error).
+   * truthy/falsy lists, or pass an object to customize. Beside it, `x-coerce`
+   * has nothing left to read: `z.stringbool()` is what the schema emits.
    * @see https://zod.dev/api?id=stringbool
    */
   readonly 'x-stringbool'?:

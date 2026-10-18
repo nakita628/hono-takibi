@@ -8,7 +8,7 @@ import {
 } from '../../constants/index.js'
 import { isRecord, isRefObject, isSchemaArray } from '../../guard/index.js'
 import type { OpenAPI, Operation, Parameter, PathItem, Schema } from '../../openapi/index.js'
-import { escapeHtml } from '../../utils/index.js'
+import { decodePercent, escapeHtml } from '../../utils/index.js'
 
 type Endpoint = {
   readonly method: string
@@ -133,14 +133,6 @@ function toText(value: unknown) {
 
 function toSingleLine(value: string) {
   return value.replaceAll(/\s+/gu, ' ').trim()
-}
-
-function decodePercent(value: string) {
-  try {
-    return decodeURIComponent(value)
-  } catch {
-    return value
-  }
 }
 
 /**

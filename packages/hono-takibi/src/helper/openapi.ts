@@ -30,6 +30,7 @@ import type {
   Schema,
 } from '../openapi/index.js'
 import {
+  decodePercent,
   ensureSuffix,
   makeSafeKey,
   methodPath,
@@ -58,13 +59,13 @@ export function makeRef($ref: string) {
   const propertiesMatch = $ref.match(/^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/u)
   if (propertiesMatch) {
     const parentSchema = toIdentifierPascalCase(
-      ensureSuffix(decodeURIComponent(propertiesMatch[1]), 'Schema'),
+      ensureSuffix(decodePercent(propertiesMatch[1]), 'Schema'),
     )
     return `z.lazy(()=>${parentSchema})`
   }
   const rawRef = $ref.split('/').at(-1)
   if (!rawRef) return 'Schema'
-  const decodedRef = decodeURIComponent(rawRef)
+  const decodedRef = decodePercent(rawRef)
   const match = COMPONENT_SUFFIX_MAP.find(({ prefix }) => $ref.startsWith(prefix))
   return toIdentifierPascalCase(ensureSuffix(decodedRef, match?.suffix ?? 'Schema'))
 }

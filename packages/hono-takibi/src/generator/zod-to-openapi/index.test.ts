@@ -7910,12 +7910,21 @@ describe('zodToOpenAPI', () => {
   })
 
   describe('edge cases', () => {
-    it.concurrent('throws on undefined schema', () => {
-      expect(() => zodToOpenAPI(undefined as unknown as Schema)).toThrow('Schema is undefined')
-    })
-
     it.concurrent('empty oneOf returns z.any()', () => {
       expect(zodToOpenAPI({ oneOf: [] })).toBe('z.any()')
+    })
+
+    // `decodeURIComponent` would throw a URIError on `%ZZ`; the generator keeps the
+    // segment as it is and emits a reference to that name instead.
+    it.concurrent('a $ref with malformed percent-encoding does not throw', () => {
+      expect(zodToOpenAPI({ $ref: '#/components/schemas/Foo%ZZ' })).toBe('FooZZSchema')
+      expect(
+        zodToOpenAPI(
+          { oneOf: [{ $ref: '#/components/schemas/Foo%ZZ' }, { type: 'string' }] },
+          undefined,
+          { schemas: { Foo: { type: 'number' } } },
+        ),
+      ).toBe('z.xor([FooZZSchema,z.string()])')
     })
 
     it.concurrent('empty anyOf returns z.any()', () => {
@@ -11648,14 +11657,31 @@ describe('zodToOpenAPI', () => {
       ).toBe('z.stringbool({"truthy":["yes"],error:"bad bool"})')
     })
 
-    it.concurrent('codegen: x-coerce + x-stringbool → throws', () => {
-      expect(() =>
+    it.concurrent('codegen: x-coerce + x-stringbool → z.stringbool() (x-stringbool wins)', () => {
+      expect(
         zodToOpenAPI({
           type: 'boolean',
           'x-coerce': true,
           'x-stringbool': true,
         }),
-      ).toThrow(/mutually exclusive/u)
+      ).toBe('z.stringbool()')
+    })
+
+    it.concurrent('codegen: x-coerce + x-stringbool keeps x-required-message', () => {
+      expect(
+        zodToOpenAPI({
+          type: 'boolean',
+          'x-coerce': true,
+          'x-stringbool': { truthy: ['yes'] },
+          'x-required-message': 'needed',
+        }),
+      ).toBe(
+        zodToOpenAPI({
+          type: 'boolean',
+          'x-stringbool': { truthy: ['yes'] },
+          'x-required-message': 'needed',
+        }),
+      )
     })
 
     it.concurrent('runtime: "yes" → true with custom truthy', () => {

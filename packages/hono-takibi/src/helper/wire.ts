@@ -1,7 +1,7 @@
 import { COMPONENT_REF_PREFIX } from '../constants/index.js'
 import { isSchemaArray } from '../guard/index.js'
 import type { Parameter, Schema } from '../openapi/index.js'
-import { normalizeTypes } from '../utils/index.js'
+import { decodePercent, normalizeTypes } from '../utils/index.js'
 
 /**
  * What a parameter value can turn into once it leaves the wire. A path, query, header or
@@ -53,7 +53,7 @@ export function resolveSchemaRef(ref: string, schemas: Schemas | undefined) {
   if (!ref.startsWith(COMPONENT_REF_PREFIX.schemas)) return undefined
   const name = ref.slice(COMPONENT_REF_PREFIX.schemas.length)
   if (name.includes('/')) return undefined
-  return schemas?.[decodeURIComponent(name)]
+  return schemas?.[decodePercent(name)]
 }
 
 function primitiveKind(value: unknown) {
