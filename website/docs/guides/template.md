@@ -45,6 +45,7 @@ Each handler file creates its own sub-router. The app mounts them with `.route()
 ```ts
 // src/handlers/health.ts
 import { OpenAPIHono } from '@hono/zod-openapi'
+
 import { getHealthRoute } from '@/routes'
 
 const app = new OpenAPIHono()
@@ -55,6 +56,7 @@ export const healthHandler = app.openapi(getHealthRoute, (c) => {})
 ```ts
 // src/index.ts
 import { OpenAPIHono } from '@hono/zod-openapi'
+
 import { healthHandler } from './handlers'
 
 const app = new OpenAPIHono()
@@ -77,6 +79,7 @@ Handlers export typed `RouteHandler` functions. Route registration lives in `ind
 ```ts
 // src/handlers/health.ts
 import type { RouteHandler } from '@hono/zod-openapi'
+
 import type { getHealthRoute } from '../routes'
 
 export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {}
@@ -85,8 +88,9 @@ export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async 
 ```ts
 // src/index.ts
 import { OpenAPIHono } from '@hono/zod-openapi'
-import { getHealthRoute } from './routes'
+
 import { getHealthRouteHandler } from './handlers'
+import { getHealthRoute } from './routes'
 
 const app = new OpenAPIHono()
 
