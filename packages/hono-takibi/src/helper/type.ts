@@ -9,6 +9,8 @@ export function makeTypeString(
   readonly?: boolean,
 ) {
   if (!schema) return 'unknown'
+  // `{}` and `true` constrain nothing: the value is `unknown`, not an object (#379).
+  if (Object.keys(schema).length === 0) return 'unknown'
   const types = normalizeType(schema)
   // `| null` is decided here, once, for every shape: a reference, a union or an enum that
   // is `nullable` (3.0), lists `null` among its types (3.1), or defaults to `null` (which

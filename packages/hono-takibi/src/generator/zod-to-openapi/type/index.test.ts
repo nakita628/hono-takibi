@@ -234,8 +234,27 @@ describe('zodType', () => {
         'Metadata',
         cyclicGroup,
       )
-      // additionalProperties: true → isRecordLike, valueSchema falls back to {} → {[key:string]:unknown}
-      expect(result).toBe('type MetadataType = {[key:string]:{[key:string]:unknown}}')
+      // additionalProperties: true → a record whose values are unknown (#379)
+      expect(result).toBe('type MetadataType = {[key:string]:unknown}')
+    })
+
+    // #379: the component itself is nullable
+    it.concurrent('adds | null to a nullable record-like in a cyclic group', () => {
+      const cyclicGroup = new Set(['Container'])
+      expect(
+        zodType(
+          { type: 'object', nullable: true, additionalProperties: true },
+          'Container',
+          cyclicGroup,
+        ),
+      ).toBe('type ContainerType = {[key:string]:unknown}|null')
+      expect(
+        zodType(
+          { type: ['object', 'null'], additionalProperties: { type: 'string' } },
+          'Container',
+          cyclicGroup,
+        ),
+      ).toBe('type ContainerType = {[key:string]:string}|null')
     })
 
     it.concurrent('generates readonly record-like in cyclic group', () => {

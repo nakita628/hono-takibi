@@ -888,19 +888,19 @@ describe('wrap', () => {
     it.concurrent('should handle header with style property', () => {
       const testHeader = { description: 'Styled header', required: true, style: 'simple' }
       const result = wrap('z.string()', { type: 'string' }, { headers: testHeader })
-      expect(result).toBe('z.string().openapi({description:"Styled header",style:"simple"})')
+      expect(result).toBe('z.string().openapi({description:"Styled header"})')
     })
 
     it.concurrent('should handle header with explode property', () => {
       const testHeader = { description: 'Exploded header', required: true, explode: true }
       const result = wrap('z.string()', { type: 'string' }, { headers: testHeader })
-      expect(result).toBe('z.string().openapi({description:"Exploded header",explode:true})')
+      expect(result).toBe('z.string().openapi({description:"Exploded header"})')
     })
 
     it.concurrent('should handle header with allowReserved property', () => {
       const testHeader = { description: 'Reserved header', required: true, allowReserved: true }
       const result = wrap('z.string()', { type: 'string' }, { headers: testHeader })
-      expect(result).toBe('z.string().openapi({description:"Reserved header",allowReserved:true})')
+      expect(result).toBe('z.string().openapi({description:"Reserved header"})')
     })
   })
 
@@ -1133,17 +1133,29 @@ describe('filterUnsupportedProps (required coercion + nested boolean schemas)', 
     expect(
       wrap('z.object({})', {
         type: 'object',
-        $defs: { Foo: { type: 'array', items: true } },
-      }),
-    ).toBe('z.object({}).openapi({"$defs":{"Foo":{"type":"array"}}})')
+        'x-defs': { Foo: { type: 'array', items: true } },
+      } as unknown as Schema),
+    ).toBe('z.object({}).openapi({"x-defs":{"Foo":{"type":"array"}}})')
   })
 
   it.concurrent('drops nested `not` whose value is a boolean schema', () => {
     expect(
       wrap('z.object({})', {
         type: 'object',
-        $defs: { Foo: { not: { not: true } } },
+        'x-defs': { Foo: { not: { not: true } } },
       } as unknown as Schema),
-    ).toBe('z.object({}).openapi({"$defs":{"Foo":{}}})')
+    ).toBe('z.object({}).openapi({"x-defs":{"Foo":{}}})')
+  })
+
+  // #377: `$defs` holds schemas, which `.openapi()` cannot take as they are
+  it.concurrent('leaves $defs and definitions out of the metadata', () => {
+    expect(
+      wrap('z.object({})', {
+        type: 'object',
+        title: 'T',
+        $defs: { Foo: { type: 'string', enum: ['a'] } },
+        definitions: { Bar: { type: 'string' } },
+      } as unknown as Schema),
+    ).toBe('z.object({}).openapi({"title":"T"})')
   })
 })

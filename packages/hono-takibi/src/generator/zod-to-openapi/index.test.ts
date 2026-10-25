@@ -5578,15 +5578,13 @@ describe('zodToOpenAPI', () => {
           )
           // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
         })
-        // ----- $defs pass-through -----
-        it.concurrent('string: $defs pass-through', () => {
+        // ----- $defs: schemas, not metadata (#377) -----
+        it.concurrent('string: $defs is not written into the metadata', () => {
           const generated = zodToOpenAPI({
             type: 'string',
             $defs: { Email: { type: 'string', format: 'email' } },
           })
-          expect(generated).toBe(
-            'z.string().openapi({"$defs":{"Email":{"type":"string","format":"email"}}})',
-          )
+          expect(generated).toBe('z.string()')
           // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
         })
         // ----- contentEncoding additional variants -----
