@@ -1,10 +1,11 @@
+import { inlinePointerRefs } from '../../../helper/pointer.js'
 import type { OpenAPI } from '../../../openapi/index.js'
 import { componentsCode } from './components/index.js'
 import { routeCode } from './routes/index.js'
 import { webhookCode } from './webhooks/index.js'
 
 export function zodOpenAPIHono(
-  openapi: OpenAPI,
+  document: OpenAPI,
   options: {
     readonly readonly?: boolean
     readonly exportSchemas?: boolean
@@ -24,6 +25,9 @@ export function zodOpenAPIHono(
     readonly exportMediaTypesTypes?: boolean
   } = {},
 ) {
+  // A `$ref` into `paths` (or anywhere but a component) names no declaration: it is written
+  // out where it stands.
+  const openapi = inlinePointerRefs(document)
   const components = openapi.components ? componentsCode(openapi.components, options) : ''
   const routes = routeCode(openapi, options.readonly)
   const webhooks = webhookCode(openapi, options.readonly)

@@ -10,11 +10,13 @@ import path from 'node:path'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import { Data, Effect } from 'effect'
 
+import type { InputPath } from '../constants/index.js'
+
 class OpenAPIError extends Data.TaggedError('OpenAPIError')<{
   readonly message: string
 }> {}
 
-export function parseOpenAPI(input: `${string}.yaml` | `${string}.json` | `${string}.tsp`) {
+export function parseOpenAPI(input: InputPath) {
   return Effect.tryPromise({
     try: async () => {
       if (!input.endsWith('.tsp')) return (await SwaggerParser.bundle(input)) as OpenAPI

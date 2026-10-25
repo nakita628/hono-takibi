@@ -11,7 +11,7 @@ const DEFAULT_CONFIG_FILE = 'hono-takibi.config.ts'
 const DocumentPathSchema = Schema.String.pipe(
   Schema.refine(
     Schema.is(Schema.TemplateLiteral([Schema.String, Schema.Literals(INPUT_EXTENSIONS)])),
-    { message: 'an OpenAPI (.yaml, .json) or TypeSpec (.tsp) document' },
+    { message: 'an OpenAPI (.yaml, .yml, .json) or TypeSpec (.tsp) document' },
   ),
 ).annotate({
   title: 'Input document',
@@ -32,8 +32,10 @@ const TypeScriptPathSchema = Schema.String.pipe(
 const commandLine = {
   input: Argument.File('input', { mustExist: true }).pipe(
     Argument.withSchema(DocumentPathSchema),
-    Argument.withDescription('OpenAPI (.yaml, .json) or TypeSpec (.tsp) document to generate from'),
-    Argument.withMetavar('input.{yaml,json,tsp}'),
+    Argument.withDescription(
+      'OpenAPI (.yaml, .yml, .json) or TypeSpec (.tsp) document to generate from',
+    ),
+    Argument.withMetavar('input.{yaml,yml,json,tsp}'),
     Argument.optional,
   ),
   output: Flag.String('output').pipe(

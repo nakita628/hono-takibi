@@ -404,7 +404,7 @@ describe('hono-takibi argument validation', () => {
     const result = await runCli([input, '-o', path.join(dir, 'out.ts')])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('an OpenAPI (.yaml, .json) or TypeSpec (.tsp) document')
+    expect(result.stderr).toContain('an OpenAPI (.yaml, .yml, .json) or TypeSpec (.tsp) document')
   })
 
   it('rejects an input file that does not exist', async () => {

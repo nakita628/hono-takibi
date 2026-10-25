@@ -1959,8 +1959,6 @@ Status Code **200**
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
 |*anonymous*|[[Author](#schemaauthor)]|false|none|none|
-|» name|string|false|none|none|
-|» posts|[[Post](#schemapost)]|false|none|none|
 
 <aside class="success">
 This operation does not require authentication
@@ -2208,8 +2206,6 @@ hono request \\
 |body|body|object|false|none|
 |» name|body|string|false|none|
 |» address|body|[Address](#schemaaddress)|false|none|
-|» » street|body|string|false|none|
-|» » city|body|string|false|none|
 
 <h3 id="createuser-responses">Responses</h3>
 
@@ -3447,7 +3443,6 @@ Status Code **200**
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
 |*anonymous*|[[Item](#schemaitem)]|false|none|none|
-|» name|string|false|none|none|
 
 <aside class="success">
 This operation does not require authentication
@@ -3475,7 +3470,7 @@ This operation does not require authentication
 |name|string|false|none|none|
 `
 
-    it('expands array-of-$ref response schema as anonymous + property rows', () => {
+    it('writes an array-of-$ref response schema as an anonymous row linking the item', () => {
       expect(makeDocs(spec)).toBe(expected)
     })
   })
@@ -3771,8 +3766,6 @@ hono request \\
 |---|---|---|---|---|
 |body|body|[Outer](#schemaouter)|false|none|
 |» inner|body|[Inner](#schemainner)|true|none|
-|» » id|body|integer|true|none|
-|» » name|body|string|false|none|
 |» note|body|string|false|A note|
 
 <h3 id="pp-responses">Responses</h3>
@@ -3928,8 +3921,6 @@ Status Code **200**
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
 |items|[[Item](#schemaitem)]|false|none|none|
-|» id|integer|false|none|none|
-|» tags|[string]|false|none|none|
 
 <aside class="success">
 This operation does not require authentication
@@ -3961,7 +3952,7 @@ This operation does not require authentication
 |tags|[string]|false|none|none|
 `
 
-    it('expands array-of-$ref via resolveArrayItem into nested property rows', () => {
+    it('links the item of an array-of-$ref property without its rows', () => {
       expect(makeDocs(spec)).toBe(expected)
     })
   })
@@ -4679,8 +4670,6 @@ Patch operation desc
 |» arr|body|[integer]|false|none|
 |» flag|body|boolean|true|none|
 |» anyRef|body|[Nested](#schemanested)|false|none|
-|» » id|body|integer|false|none|
-|» » child|body|[Nested](#schemanested)|false|none|
 |» enumPropNumeric|body|integer|false|none|
 
 #### Enumerated Values
@@ -4723,8 +4712,6 @@ Status Code **200**
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
 |items|[[Nested](#schemanested)]|false|none|none|
-|» id|integer|false|none|none|
-|» child|[Nested](#schemanested)|false|none|none|
 |count|integer|false|none|none|
 
 <aside class="success">
@@ -4801,11 +4788,11 @@ describe('HTML escaping of free-form spec values', () => {
 })
 
 describe('regressions', () => {
-  // `author` and `editor` both point at `User`. Only a reference already on the current
-  // path is a cycle, so the second sibling must be expanded just like the first.
-  // `author` と `editor` はどちらも `User` を参照する。循環とみなすのは現在の経路上に
-  // ある参照だけなので、2 つ目の兄弟も 1 つ目と同じように展開されなければならない。
-  it('expands a schema referenced by two sibling properties for both of them', () => {
+  // `author` and `editor` both point at `User`. Each is a link to it and nothing more: the
+  // rows of `User` are under Schemas, once, not under every property that refers to it (#364).
+  // `author` と `editor` はどちらも `User` を参照する。どちらもリンクだけになり、`User` の
+  // 行は Schemas に一度だけ置かれ、参照するプロパティごとには繰り返されない (#364)。
+  it('links a schema referenced by two sibling properties without repeating its rows', () => {
     const spec = {
       openapi: '3.1.0',
       info: {
@@ -4906,9 +4893,7 @@ hono request \\
 |---|---|---|---|---|
 |body|body|[Post](#schemapost)|false|none|
 |» author|body|[User](#schemauser)|false|none|
-|» » name|body|string|false|none|
 |» editor|body|[User](#schemauser)|false|none|
-|» » name|body|string|false|none|
 
 <h3 id="createpost-responses">Responses</h3>
 
@@ -8658,8 +8643,6 @@ Status Code **200**
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
 |user|[User](#schemauser)|false|none|none|
-|» id|integer|false|read-only|none|
-|» name|string|false|none|none|
 
 <aside class="success">
 This operation does not require authentication
@@ -8796,9 +8779,7 @@ Status Code **200**
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
 |owner|[User](#schemauser)|false|none|A user|
-|» name|string|false|none|none|
 |editor|[User](#schemauser)|false|none|Last editor|
-|» name|string|false|none|none|
 
 <aside class="success">
 This operation does not require authentication
@@ -10419,11 +10400,11 @@ This operation does not require authentication
     expect(makeDocs(spec)).toBe(expected)
   })
 
-  // `User` references nothing, so it cannot multiply the output however often it
-  // is used. All four properties are expanded.
-  // `User` は何も参照しないので、何度使われても出力を膨れ上がらせることはない。
-  // 4 つのプロパティすべてが展開される。
-  it('expands a schema that is not recursive for every property that uses it', () => {
+  // `User` is referred to by four properties. Each is a link; the table grows with the
+  // operation's own properties, not with the number of references (#364).
+  // `User` は 4 つのプロパティから参照される。それぞれリンクになり、テーブルは参照の数では
+  // なく操作自身のプロパティの数に比例する (#364)。
+  it('links a schema for every property that uses it without repeating its rows', () => {
     const spec = {
       openapi: '3.1.0',
       info: {
@@ -10532,13 +10513,9 @@ Status Code **200**
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
 |a|[User](#schemauser)|false|none|none|
-|» name|string|false|none|none|
 |b|[User](#schemauser)|false|none|none|
-|» name|string|false|none|none|
 |c|[User](#schemauser)|false|none|none|
-|» name|string|false|none|none|
 |d|[User](#schemauser)|false|none|none|
-|» name|string|false|none|none|
 
 <aside class="success">
 This operation does not require authentication
@@ -10568,14 +10545,13 @@ This operation does not require authentication
     expect(makeDocs(spec)).toBe(expected)
   })
 
-  // `Node` reaches itself. Such a schema is expanded wherever it is used, but inside its
-  // expansion a schema that reaches itself is named and linked, not expanded: that is where
-  // the walk would come back on itself. So `a`, `b` and `c` each show their fields, and
-  // `next` under each is a link.
-  // `Node` は自分自身に到達する。そのようなスキーマは使われる場所ごとに展開されるが、その
-  // 展開の内側では自己到達するスキーマは展開せず名前とリンクだけにする。歩みが元に戻るのは
-  // そこだからである。`a`、`b`、`c` はそれぞれフィールドを示し、その下の `next` はリンクになる。
-  it('expands a recursive schema wherever it is used and nothing recursive inside it', () => {
+  // `Node` reaches itself. Like any component, it is linked where a property refers to it,
+  // so `a`, `b` and `c` are three links and its fields (with `next`, a link again) are
+  // listed once under Schemas.
+  // `Node` は自分自身に到達する。他のコンポーネントと同じく、参照するプロパティではリンクに
+  // なるので、`a`、`b`、`c` は 3 つのリンクになり、そのフィールド (`next` もまたリンク) は
+  // Schemas に一度だけ並ぶ。
+  it('links a recursive schema wherever it is used', () => {
     const spec = {
       openapi: '3.1.0',
       info: {
@@ -10684,14 +10660,8 @@ Status Code **200**
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
 |a|[Node](#schemanode)|false|none|none|
-|» value|string|false|none|none|
-|» next|[Node](#schemanode)|false|none|none|
 |b|[Node](#schemanode)|false|none|none|
-|» value|string|false|none|none|
-|» next|[Node](#schemanode)|false|none|none|
 |c|[Node](#schemanode)|false|none|none|
-|» value|string|false|none|none|
-|» next|[Node](#schemanode)|false|none|none|
 
 <aside class="success">
 This operation does not require authentication
@@ -10952,5 +10922,102 @@ describe('makeDocs: parameters as they travel', () => {
         wireSpecOf('/items', [{ name: 'ids', in: 'cookie', required: true, schema: list }]),
       ),
     ).toStrictEqual(['-P /items', "-H 'Cookie: ids=1,2'"])
+  })
+})
+
+// #364: a component referred to from many properties is linked, not copied, so a table is
+// proportional to the operation and not to the number of references (Figma: 50,000 rows).
+describe('response schema table and referenced components (#364)', () => {
+  it('links a referenced component and stops at the link, in a property and in an array item', () => {
+    const alias = { $ref: '#/components/schemas/VariableAlias' } as const
+    const spec = {
+      openapi: '3.1.0',
+      info: { title: 'Figma', version: '1.0.0' },
+      paths: {
+        '/nodes': {
+          get: {
+            operationId: 'getNodes',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      required: ['nodes'],
+                      properties: {
+                        nodes: { type: 'array', items: { $ref: '#/components/schemas/Node' } },
+                        // an inline object is still walked into
+                        meta: {
+                          type: 'object',
+                          properties: {
+                            bound: { $ref: '#/components/schemas/BoundVariables' },
+                            count: { type: 'integer' },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Node: {
+            type: 'object',
+            required: ['id'],
+            properties: {
+              id: { type: 'string' },
+              boundVariables: { $ref: '#/components/schemas/BoundVariables' },
+              fills: { type: 'array', items: { $ref: '#/components/schemas/Paint' } },
+            },
+          },
+          BoundVariables: {
+            type: 'object',
+            description: 'A mapping of field to the variable bound to it.',
+            properties: { x: alias, y: alias, width: alias, height: alias },
+          },
+          VariableAlias: {
+            type: 'object',
+            required: ['type', 'id'],
+            properties: {
+              type: { type: 'string', enum: ['VARIABLE_ALIAS'] },
+              id: { type: 'string' },
+            },
+          },
+          Paint: {
+            type: 'object',
+            required: ['type'],
+            properties: {
+              type: { type: 'string' },
+              boundVariables: { $ref: '#/components/schemas/BoundVariables' },
+            },
+          },
+        },
+      },
+    } as OpenAPI
+    const md = makeDocs(spec)
+    const table = md.slice(
+      md.indexOf('<h3 id="getnodes-responseschema">'),
+      md.indexOf('<aside', md.indexOf('<h3 id="getnodes-responseschema">')),
+    )
+    expect(table).toBe(`<h3 id="getnodes-responseschema">Response Schema</h3>
+
+Status Code **200**
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|nodes|[[Node](#schemanode)]|true|none|none|
+|meta|object|false|none|none|
+|» bound|[BoundVariables](#schemaboundvariables)|false|none|A mapping of field to the variable bound to it.|
+|» count|integer|false|none|none|
+
+`)
+    // Each component is described once, under Schemas.
+    expect(md.match(/^\|x\|\[VariableAlias\]\(#schemavariablealias\)\|/gmu)).toHaveLength(1)
+    expect(md.match(/^\|type\|string\|true\|none\|none\|$/gmu)).toHaveLength(2)
   })
 })

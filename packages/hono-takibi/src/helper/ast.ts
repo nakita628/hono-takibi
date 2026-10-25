@@ -1,10 +1,9 @@
 import type { Node, Program, Statement } from 'oxc-parser'
 
-import { COMPONENT_REF_PREFIX } from '../constants/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import { isDiscriminableBranch, isRefOnly } from '../guard/index.js'
+import { discriminatedBranches, isSchemaArray } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
-import { cyclicNodes, decodePercent, ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
+import { cyclicNodes, ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
 import { declarationOf, identifierNames, parseModule, textOf } from './syntax.js'
 
 type DeclarationKind = 'variable' | 'type' | 'interface'
@@ -49,25 +48,38 @@ function findCyclicSchemas(names: readonly string[], deps: ReadonlyMap<string, r
   return cyclicNodes(nameDeps)
 }
 
+/** Every schema under `schema`, itself first: the shapes a schema nests another in. */
+function nestedSchemas(schema: Schema | boolean | undefined): readonly Schema[] {
+  if (schema === undefined || typeof schema === 'boolean') return []
+  const items = isSchemaArray(schema.items) ? schema.items : [schema.items]
+  const children: readonly (Schema | boolean | undefined)[] = [
+    ...Object.values(schema.properties ?? {}),
+    ...Object.values(schema.patternProperties ?? {}),
+    ...(schema.prefixItems ?? []),
+    ...items,
+    schema.additionalProperties,
+    ...(schema.allOf ?? []),
+    ...(schema.anyOf ?? []),
+    ...(schema.oneOf ?? []),
+    schema.not,
+  ]
+  return [schema, ...children.flatMap(nestedSchemas)]
+}
+
 // A branch of a `z.discriminatedUnion` has to stay discriminable at the type level.
 // A recursive branch is declared as `z.ZodType<XType>`, which erases `_zod.propValues`,
 // so it also needs the `$ZodTypeDiscriminable` half of its annotation to stay a member.
+// The union may sit anywhere in a component (`CompoundFilter.filters.items`), so every
+// nested schema is looked at, and the same test decides as the one that emits the union.
 function findDiscriminatedBranches(
   schemas: { readonly [k: string]: Schema },
   schemaNames: readonly string[],
 ) {
   return new Set(
-    schemaNames.flatMap((n) => {
-      const schema = schemas[n]
-      const discriminator = schema?.discriminator?.propertyName
-      if (discriminator === undefined || schema?.oneOf === undefined) return []
-      return schema.oneOf.flatMap((branch) => {
-        if (!(isRefOnly(branch) && branch.$ref?.startsWith(COMPONENT_REF_PREFIX.schemas))) return []
-        const name = decodePercent(branch.$ref.slice(COMPONENT_REF_PREFIX.schemas.length))
-        const target = schemas[name]
-        return target && isDiscriminableBranch(target, discriminator) ? [name] : []
-      })
-    }),
+    schemaNames
+      .flatMap((n) => nestedSchemas(schemas[n]))
+      .flatMap((schema) => discriminatedBranches(schema, schemas) ?? [])
+      .flatMap(({ name }) => (name === undefined ? [] : [name])),
   )
 }
 

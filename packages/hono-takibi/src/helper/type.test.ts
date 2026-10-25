@@ -34,6 +34,79 @@ describe('makeTypeString', () => {
     it('should handle type array with null', () => {
       expect(makeTypeString({ type: ['string', 'null'] }, 'Test')).toBe('(string|null)')
     })
+
+    // #354: a reference that is nullable keeps `| null`, as the schema does with `.nullable()`
+    it('should keep | null on a nullable $ref', () => {
+      expect(makeTypeString({ $ref: '#/components/schemas/Profile', nullable: true }, 'Test')).toBe(
+        '(z.infer<typeof ProfileSchema>|null)',
+      )
+    })
+
+    it('should keep | null on a nullable anyOf of one $ref (OpenAPI 3.0 style)', () => {
+      expect(
+        makeTypeString(
+          { anyOf: [{ $ref: '#/components/schemas/Profile' }], nullable: true },
+          'Account',
+        ),
+      ).toBe('(z.infer<typeof ProfileSchema>|null)')
+    })
+
+    it('should keep | null on a oneOf whose type lists null (OpenAPI 3.1 style)', () => {
+      expect(
+        makeTypeString(
+          { type: ['object', 'null'], oneOf: [{ type: 'string' }, { type: 'number' }] },
+          'Test',
+        ),
+      ).toBe('((string|number)|null)')
+    })
+
+    it('should keep | null on a nullable enum', () => {
+      expect(makeTypeString({ type: 'string', enum: ['a', 'b'], nullable: true }, 'Test')).toBe(
+        "('a'|'b'|null)",
+      )
+    })
+
+    it('should write null once for an enum that lists null', () => {
+      expect(makeTypeString({ type: ['string', 'null'], enum: ['a', null] }, 'Test')).toBe(
+        "('a'|null)",
+      )
+    })
+
+    // #357: `default: null` makes the schema `.nullable()`, so the type says so too
+    it('should add | null when the default is null', () => {
+      expect(
+        makeTypeString(
+          { default: null, oneOf: [{ type: 'string' }, { $ref: '#/components/schemas/Ref' }] },
+          'Test',
+        ),
+      ).toBe('((string|z.infer<typeof RefSchema>)|null)')
+    })
+  })
+
+  // #353: `z.int64()` / `z.uint64()` / `z.bigint()` output a bigint
+  describe('bigint formats', () => {
+    it('should type int64 as bigint', () => {
+      expect(makeTypeString({ type: 'integer', format: 'int64' }, 'Test')).toBe('bigint')
+    })
+
+    it('should type uint64 as bigint', () => {
+      expect(makeTypeString({ type: 'integer', format: 'uint64' }, 'Test')).toBe('bigint')
+    })
+
+    it('should type format bigint as bigint', () => {
+      expect(makeTypeString({ type: 'integer', format: 'bigint' }, 'Test')).toBe('bigint')
+    })
+
+    it('should keep int32 and a plain integer as number', () => {
+      expect(makeTypeString({ type: 'integer', format: 'int32' }, 'Test')).toBe('number')
+      expect(makeTypeString({ type: 'integer' }, 'Test')).toBe('number')
+    })
+
+    it('should type a nullable int64 as (bigint|null)', () => {
+      expect(makeTypeString({ type: ['integer', 'null'], format: 'int64' }, 'Test')).toBe(
+        '(bigint|null)',
+      )
+    })
   })
 
   describe('$ref types', () => {

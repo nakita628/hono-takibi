@@ -216,6 +216,11 @@ function schemaAnchor(name: string, doc: OpenAPI) {
   return anchor
 }
 
+/** A `$ref` to a schema under `components.schemas`: linked in a table, listed under Schemas. */
+function isComponentRef(schema: Schema) {
+  return schema.$ref !== undefined && componentSchemaName(schema.$ref) !== undefined
+}
+
 function makeSchemaLink(name: string, doc: OpenAPI) {
   return `[${name}](#schema${schemaAnchor(name, doc)})`
 }
@@ -1346,14 +1351,19 @@ function flattenFields(
   const required = [...inheritedRequired, ...collectRequired(current, doc)]
   const requiredSet = new Set(required)
 
+  // A property that refers to a component is a link to it, and stops there: the
+  // component's own rows are under Schemas, once. Repeated under every reference, a small
+  // component referred to from many properties made a table grow with the references (the
+  // Figma document: 50,000 rows for one operation) rather than with the operation.
   const nestedRows = (propSchema: Schema): readonly FieldRow[] => {
-    if (!options.deep) return []
+    if (!options.deep || isComponentRef(propSchema)) return []
     const prop = expandSchema(propSchema, doc, within)
     if (!prop) return []
     if (hasFields(prop.schema)) {
       return flattenFields(prop.schema, doc, nestedPrefix, options, [], prop.inside)
     }
     const item = isArraySchema(prop.schema) ? arrayItemSchema(prop.schema) : undefined
+    if (item && isComponentRef(item)) return []
     const resolvedItem = item ? expandSchema(item, doc, prop.inside) : undefined
     if (resolvedItem && hasFields(resolvedItem.schema)) {
       return flattenFields(resolvedItem.schema, doc, nestedPrefix, options, [], resolvedItem.inside)
@@ -1400,7 +1410,9 @@ function flattenFields(
   // oxlint-disable-next-line oxc/no-map-spread -- flatMap fans out each entry into its lines
   const variants = variantsOf(current).flatMap((variant) => [
     makeRow(`*${variant.keyword}*`, variant.schema, false),
-    ...flattenFields(variant.schema, doc, prefix, options, required, within),
+    ...(isComponentRef(variant.schema)
+      ? []
+      : flattenFields(variant.schema, doc, prefix, options, required, within)),
   ])
   const rows = [...inherited, ...own, ...extra, ...variants]
   if (rows.length > 0 || !options.deep || !isArraySchema(current)) return rows
@@ -1419,6 +1431,7 @@ function flattenFields(
         },
       ]
     : []
+  if (isComponentRef(item)) return anonymous
   const resolvedItem = expandSchema(item, doc, within)
   if (!(resolvedItem && hasFields(resolvedItem.schema))) return anonymous
   return [

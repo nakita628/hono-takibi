@@ -1,7 +1,7 @@
-import { ARROW_FUNCTION_PATTERN, COMPONENT_REF_PREFIX } from '../../constants/index.js'
+import { ARROW_FUNCTION_PATTERN } from '../../constants/index.js'
 import {
+  discriminatedBranches,
   hasTypelessConstraint,
-  isDiscriminableBranch,
   isRefOnly,
   isSchemaArray,
   isSingleSchema,
@@ -26,13 +26,7 @@ import {
 import { undecorated, wrap } from '../../helper/wrap.js'
 import { emitTypelessRefine, makeUnevaluatedPropertiesCheck } from '../../helper/zod.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
-import {
-  baseError,
-  decodePercent,
-  error,
-  makeStringLiteral,
-  normalizeTypes,
-} from '../../utils/index.js'
+import { baseError, error, makeStringLiteral, normalizeTypes } from '../../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
 import { _enum, integer, number, object, string } from './z/index.js'
 
@@ -313,20 +307,13 @@ export function zodToOpenAPI(
     const discriminator = schema.discriminator?.propertyName
     const oneOfMessage = schema['x-oneOf-message'] ?? schema['x-error-message']
     const oneOfErrorArg = oneOfMessage ? `,${error(oneOfMessage)}` : ''
-    const branches = schema.oneOf.map((s) =>
-      s.$ref === undefined
-        ? s
-        : isRefOnly(s) && s.$ref.startsWith(COMPONENT_REF_PREFIX.schemas)
-          ? options?.schemas?.[decodePercent(s.$ref.slice(COMPONENT_REF_PREFIX.schemas.length))]
-          : undefined,
-    )
     // Semantic contract. `oneOf` is JSON Schema: "exactly one branch matches"
     // (§10.2.1.3), which `z.xor` implements literally. `discriminator` is an
     // OpenAPI-only hint and MUST NOT change the validation outcome (3.1.1 §4.8.25 /
     // 3.2 §4.25). `z.discriminatedUnion` is therefore only an optimization, and it is
     // emitted solely when it is provably equivalent to the xor: every branch is a
     // plain object that `required`s the discriminator and pins it to string literals
-    // (see `isDiscriminableBranch`), and no two branches share a literal. In that
+    // (see `discriminatedBranches`), and no two branches share a literal. In that
     // case routing by key and "exactly one matches" accept and reject the same
     // payloads; only the issue shape differs. Anything else falls back to `z.xor`
     // so the meaning of the document is preserved rather than guessed.
@@ -342,19 +329,8 @@ export function zodToOpenAPI(
     // the generated `z.xor` rejects everything. That is the faithful reading of the
     // schema, not a bug: the fix is the author's (declare the literal per branch, or
     // switch to anyOf), and the document is taken as it is.
-    const literalsPerBranch = branches.map((branch) => {
-      if (discriminator === undefined || branch === undefined) return undefined
-      if (!isDiscriminableBranch(branch, discriminator)) return undefined
-      const property = branch.properties?.[discriminator]
-      if (property === undefined || typeof property === 'boolean') return undefined
-      return typeof property.const === 'string' ? [property.const] : (property.enum ?? [])
-    })
-    const literals = literalsPerBranch.flatMap((values) => values ?? [])
     const isDiscriminated =
-      discriminator !== undefined &&
-      branches.length >= 2 &&
-      literalsPerBranch.every((values) => values !== undefined) &&
-      new Set(literals).size === literals.length
+      discriminator !== undefined && discriminatedBranches(schema, options?.schemas) !== undefined
     const z = isDiscriminated
       ? `z.discriminatedUnion(${makeStringLiteral(discriminator)},[${oneOfSchemas.join(',')}]${oneOfErrorArg})`
       : `z.xor([${oneOfSchemas.join(',')}]${oneOfErrorArg})`

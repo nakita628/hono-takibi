@@ -497,13 +497,22 @@ describe('parseConfig()', () => {
       )
     })
 
-    it.concurrent('fails when input is not .yaml, .json, or .tsp', async () => {
+    it.concurrent('fails when input is not .yaml, .yml, .json, or .tsp', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.txt' as `${string}.yaml`,
         }),
       )
-      expect(result.message).toBe('Invalid config: input: must be .yaml | .json | .tsp')
+      expect(result.message).toBe('Invalid config: input: must be .yaml | .yml | .json | .tsp')
+    })
+
+    // #362: `.yml` is the extension many published documents use (LINE's, for one).
+    it.concurrent('accepts a .yml document, local or by URL', async () => {
+      const local = await runGenerator(parseConfig({ input: 'openapi.yml' }))
+      expect(local.input).toBe('openapi.yml')
+      const url = 'https://raw.githubusercontent.com/line/line-openapi/main/shop.yml'
+      const remote = await runGenerator(parseConfig({ input: url }))
+      expect(remote.input).toBe(url)
     })
 
     // rpc and the hooks call the client the client block generates: they no longer name

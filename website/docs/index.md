@@ -45,7 +45,7 @@ bun add -D hono-takibi
 
 ## Usage
 
-Pass an OpenAPI (`.yaml`, `.json`) or TypeSpec (`.tsp`) document and an output file:
+Pass an OpenAPI (`.yaml`, `.yml`, `.json`) or TypeSpec (`.tsp`) document and an output file:
 
 ::: code-group
 
@@ -139,7 +139,7 @@ USAGE
   hono-takibi [flags] [<input>]
 
 ARGUMENTS
-  input input.{yaml,json,tsp} OpenAPI (.yaml, .json) or TypeSpec (.tsp) document to generate from (optional)
+  input input.{yaml,yml,json,tsp} OpenAPI (.yaml, .yml, .json) or TypeSpec (.tsp) document to generate from (optional)
 
 FLAGS
   --output, -o output.ts    TypeScript file the generated routes are written to

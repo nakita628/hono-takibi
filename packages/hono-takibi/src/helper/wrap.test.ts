@@ -4,6 +4,40 @@ import type { Header, Parameter, Schema } from '../openapi/index.js'
 import { wrap } from './wrap.js'
 
 describe('wrap', () => {
+  // #357: `default: null` on a schema that does not declare `null` otherwise
+  describe('default null', () => {
+    it.concurrent('makes a oneOf nullable before .default(null)', () => {
+      expect(
+        wrap('z.xor([z.string(),RefSchema])', {
+          default: null,
+          oneOf: [{ type: 'string' }, { $ref: '#/components/schemas/Ref' }],
+        }),
+      ).toBe('z.xor([z.string(),RefSchema]).nullable().default(null)')
+    })
+
+    it.concurrent('makes a reference nullable before .default(null)', () => {
+      expect(wrap('RefSchema', { $ref: '#/components/schemas/Ref', default: null })).toBe(
+        'RefSchema.nullable().default(null)',
+      )
+    })
+
+    it.concurrent('makes a string nullable before .default(null)', () => {
+      expect(wrap('z.string()', { type: 'string', default: null })).toBe(
+        'z.string().nullable().default(null)',
+      )
+    })
+
+    it.concurrent('adds .nullable() once when the schema is nullable already', () => {
+      expect(wrap('z.string()', { type: ['string', 'null'], default: null })).toBe(
+        'z.string().nullable().default(null)',
+      )
+    })
+
+    it.concurrent('leaves a default that is not null alone', () => {
+      expect(wrap('z.string()', { type: 'string', default: 'a' })).toBe('z.string().default("a")')
+    })
+  })
+
   describe('string', () => {
     it.concurrent('adds .default and .nullable for z.string() when default and nullable=true', () => {
       expect(
