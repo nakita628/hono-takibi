@@ -11,6 +11,12 @@ import { regexLiteral } from '../utils/index.js'
 import { makeExamples } from './openapi.js'
 import { WIRE_EMPTY, WIRE_INHERITED, WIRE_NULL, wireStyle } from './wire.js'
 
+// `$defs` / `definitions` hold schemas, not metadata: written into `.openapi()` as they are,
+// they do not type-check as Schema Objects (#377). An entry a `$ref` reaches is inlined
+// before generation, so nothing is lost. The core keywords that are strings (`$schema`,
+// `$id`, `$anchor`, `$comment`) are passed through as before.
+const structuralProps = new Set(['$defs', 'definitions'])
+
 // Drop-list: keys already expressed in the zod method chain.
 const zodExpressedProps = new Set([
   'type',
@@ -493,6 +499,7 @@ export function wrap(
       ([k, v]) =>
         !(
           zodExpressedProps.has(k) ||
+          structuralProps.has(k) ||
           (k === 'required' && typeof v === 'boolean') ||
           headerDupKeys.has(k)
         ),
@@ -505,6 +512,12 @@ export function wrap(
       : []),
   ])
   const args = filterUnsupportedProps(baseArgs)
+  // What a response header says about itself that is also schema metadata. `style`,
+  // `explode` and `allowReserved` describe its serialisation and `content` its media type:
+  // they belong to the Header Object in the document, not to `.openapi()`, which has no
+  // such keys (#376). `param: {required: false}` stays: `.exactOptional()` fails the
+  // `safeParse(undefined)` probe the document derives `required` from, so an optional
+  // header has to say so itself.
   const headerMetaProps = meta?.headers
     ? [
         meta.headers.description
@@ -515,12 +528,6 @@ export function wrap(
           : undefined,
         meta.headers.example ? `example:${JSON.stringify(meta.headers.example)}` : undefined,
         meta.headers.examples ? `examples:${makeExamples(meta.headers.examples)}` : undefined,
-        meta.headers.style ? `style:${JSON.stringify(meta.headers.style)}` : undefined,
-        meta.headers.explode ? `explode:${JSON.stringify(meta.headers.explode)}` : undefined,
-        meta.headers.allowReserved
-          ? `allowReserved:${JSON.stringify(meta.headers.allowReserved)}`
-          : undefined,
-        meta.headers.content ? `content:${JSON.stringify(meta.headers.content)}` : undefined,
       ].filter((v) => v !== undefined)
     : []
   const openapiSchema = args ? JSON.stringify(args) : undefined

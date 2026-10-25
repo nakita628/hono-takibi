@@ -30,10 +30,17 @@ export function zodType(
   // Use inline index signature for record-like types in cyclic groups to avoid TS2456
   // TypeScript doesn't allow Record<string,T> in cyclic type references
   if (cyclicGroup && cyclicGroup.size > 0 && isRecordLike) {
+    // `additionalProperties: true` (or `{}`) is a value of `unknown`; a record of records
+    // would say the values are objects (#379).
     const valueSchema =
       typeof schema.additionalProperties === 'object' ? schema.additionalProperties : {}
     const valueType = makeTypeString(valueSchema, typeName, cyclicGroup, readonly)
-    return `type ${typeName}Type = {[key:string]:${valueType}}`
+    const record = `{[key:string]:${valueType}}`
+    // The component itself may be nullable (`nullable: true`, `type: [.., 'null']`): what
+    // `.nullable()` outputs is `| null` (#379).
+    const isNullable =
+      schema.nullable === true || (Array.isArray(schema.type) && schema.type.includes('null'))
+    return `type ${typeName}Type = ${isNullable ? `${record}|null` : record}`
   }
   return `type ${typeName}Type=${makeTypeString(schema, typeName, cyclicGroup, readonly)}`
 }

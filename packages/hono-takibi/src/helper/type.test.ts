@@ -601,8 +601,12 @@ describe('makeTypeString', () => {
       expect(makeTypeString(undefined as never, 'Test')).toBe('unknown')
     })
 
-    it('should handle schema without type', () => {
-      expect(makeTypeString({}, 'Test')).toBe('{[key:string]:unknown}')
+    // #379: `{}` constrains nothing, so the value is `unknown`, not an object
+    it('should type an empty schema as unknown', () => {
+      expect(makeTypeString({}, 'Test')).toBe('unknown')
+      expect(makeTypeString({ type: 'object', additionalProperties: {} }, 'Test')).toBe(
+        '{[key:string]:unknown}',
+      )
     })
 
     it('should handle multiple types', () => {

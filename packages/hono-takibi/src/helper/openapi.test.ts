@@ -964,7 +964,7 @@ describe('openapi helper', () => {
         style: 'simple',
       })
       expect(result).toBe(
-        '{style:"simple",schema:z.array(z.string()).exactOptional().openapi({style:"simple",param:{required:false}})}',
+        '{style:"simple",schema:z.array(z.string()).exactOptional().openapi({param:{required:false}})}',
       )
     })
     it.concurrent('generates header with explode', () => {
@@ -973,7 +973,7 @@ describe('openapi helper', () => {
         explode: true,
       })
       expect(result).toBe(
-        '{explode:true,schema:z.array(z.string()).exactOptional().openapi({explode:true,param:{required:false}})}',
+        '{explode:true,schema:z.array(z.string()).exactOptional().openapi({param:{required:false}})}',
       )
     })
     it.concurrent('generates header with content', () => {

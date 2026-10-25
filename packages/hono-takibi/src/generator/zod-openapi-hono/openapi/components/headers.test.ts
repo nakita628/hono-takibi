@@ -240,3 +240,28 @@ export type XRateLimitHeader=z.infer<typeof XRateLimitHeaderSchema>`,
     )
   })
 })
+
+// #376: `style` / `explode` describe serialisation, not the schema
+describe('headersCode header component with style and explode', () => {
+  it.concurrent('writes the description and the optionality alone into .openapi()', () => {
+    expect(
+      headersCode(
+        {
+          headers: {
+            'Idempotency-Key': {
+              description: 'The idempotency key used for processing the request.',
+              required: false,
+              style: 'simple',
+              explode: false,
+              schema: { type: 'string' },
+            },
+          },
+        },
+        false,
+        false,
+      ),
+    ).toBe(
+      'const IdempotencyKeyHeaderSchema=z.string().exactOptional().openapi({description:"The idempotency key used for processing the request.",param:{required:false}})',
+    )
+  })
+})
