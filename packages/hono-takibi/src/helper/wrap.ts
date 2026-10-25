@@ -1,5 +1,11 @@
-import { hasNotProperty, hasNoUserChain, isExamplesInput, isRecord } from '../guard/index.js'
-import type { Header, Parameter, Schema } from '../openapi/index.js'
+import {
+  hasNotProperty,
+  hasNoUserChain,
+  isExamplesInput,
+  isRecord,
+  isSchemaArray,
+} from '../guard/index.js'
+import type { Header, Parameter, Schema, Type } from '../openapi/index.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { makeExamples } from './openapi.js'
 import { WIRE_EMPTY, WIRE_INHERITED, WIRE_NULL, wireStyle } from './wire.js'
@@ -190,6 +196,87 @@ function makeSerializedParam(param: Parameter) {
   return `{${entries.join(',')}}`
 }
 
+/**
+ * The default as a value of its schema, or that it is not one. A string that spells a
+ * boolean (`'true'`) or a number (`'10'`) for a schema of that type is read as the value
+ * (YAML and query strings arrive as text); a number for a string is written as text. An
+ * enum or const takes only what it lists; an array takes an array whose every item
+ * conforms. A schema with no type of its own (a reference, a `oneOf`) is not checked.
+ */
+export function conformDefault(
+  schema: Schema,
+  value: unknown,
+): { readonly ok: true; readonly value: unknown } | { readonly ok: false } {
+  if (value === undefined) return { ok: false }
+  if (value === null) return { ok: true, value }
+  if (schema.enum !== undefined) {
+    return schema.enum.some((member) => member === value) ? { ok: true, value } : { ok: false }
+  }
+  if (schema.const !== undefined) {
+    return JSON.stringify(schema.const) === JSON.stringify(value)
+      ? { ok: true, value }
+      : { ok: false }
+  }
+  const types = (Array.isArray(schema.type) ? schema.type : [schema.type]).filter(
+    (t) => t !== undefined && t !== 'null',
+  )
+  if (types.length === 0) return { ok: true, value }
+  const read = (type: Type): { readonly ok: true; readonly value: unknown } | undefined => {
+    if (type === 'boolean') {
+      if (typeof value === 'boolean') return { ok: true, value }
+      if (value === 'true' || value === 'false') return { ok: true, value: value === 'true' }
+      return undefined
+    }
+    if (type === 'number' || type === 'integer') {
+      const number =
+        typeof value === 'number'
+          ? value
+          : typeof value === 'string' && value.trim() !== '' && Number.isFinite(Number(value))
+            ? Number(value)
+            : undefined
+      if (number === undefined) return undefined
+      if (type === 'integer' && !Number.isInteger(number)) return undefined
+      return { ok: true, value: number }
+    }
+    if (type === 'string') {
+      if (typeof value === 'string') return { ok: true, value }
+      if (typeof value === 'number' || typeof value === 'boolean') {
+        return { ok: true, value: String(value) }
+      }
+      return undefined
+    }
+    if (type === 'array') {
+      if (!Array.isArray(value)) return undefined
+      const items = schema.items
+      if (items === undefined || typeof items === 'boolean' || isSchemaArray(items)) {
+        return { ok: true, value }
+      }
+      const readItems = value.map((item) => conformDefault(items, item))
+      return readItems.every((item) => item.ok)
+        ? { ok: true, value: readItems.map((item) => (item.ok ? item.value : undefined)) }
+        : undefined
+    }
+    if (type === 'object') return isRecord(value) ? { ok: true, value } : undefined
+    // `date`, or a type the generator does not know: taken as written.
+    return { ok: true, value }
+  }
+  // The type the value already is comes first, so `['string', 'boolean']` keeps `'true'`.
+  const asIs = types.find((type) => typeOf(value) === type)
+  return (
+    (asIs === undefined ? undefined : read(asIs)) ??
+    types.map(read).find((result) => result !== undefined) ?? { ok: false }
+  )
+}
+
+function typeOf(value: unknown) {
+  if (typeof value === 'boolean') return 'boolean'
+  if (typeof value === 'number') return Number.isInteger(value) ? 'integer' : 'number'
+  if (typeof value === 'string') return 'string'
+  if (Array.isArray(value)) return 'array'
+  if (isRecord(value)) return 'object'
+  return undefined
+}
+
 export function wrap(
   zod: string,
   schema: Schema,
@@ -301,11 +388,18 @@ export function wrap(
   const readers = [...(options?.readers ?? []), ...(style === undefined ? [] : [style])]
   const acceptBothArities = (inner: string) =>
     readers.reduceRight((read, reader) => `z.preprocess(${reader},${read})`, inner)
+  // A default that is not a value of its schema (`default: type` beside `enum: [name]`,
+  // `['true']` for an array of booleans) is written only where it reads as one: a string
+  // that spells a boolean or a number is read as that value, and what cannot be read is
+  // left to the document (`.openapi({default})`) rather than written as `.default()`, which
+  // would not type-check.
+  const conformed = conformDefault(schema, schema.default)
+  const defaultValue = conformed.ok ? conformed.value : undefined
+  const droppedDefault = schema.default !== undefined && !conformed.ok
   // A schema that declares `null` nowhere but in `default: null` (a `oneOf`, a reference, a
   // string) still has to accept it: `.default(null)` on a non-nullable schema does not
   // type-check, and the default makes `null` a value the schema answers with.
-  const isNullable =
-    schema.nullable === true || typeList.includes('null') || schema.default === null
+  const isNullable = schema.nullable === true || typeList.includes('null') || defaultValue === null
   // `.nullable()` must precede `.default()` so `.default(null)` validates.
   const build = (core: string) => {
     const typed = isNullable ? `${acceptBothArities(core)}.nullable()` : acceptBothArities(core)
@@ -318,7 +412,7 @@ export function wrap(
           ? `((schema)=>z.union([schema,z.preprocess(${WIRE_NULL},schema)]))(${typed})`
           : typed
     // `!== undefined` (not truthy): `default: 0` is valid.
-    const d = schema.default !== undefined ? `${n}.default(${formatLiteral(schema.default)})` : n
+    const d = defaultValue !== undefined ? `${n}.default(${formatLiteral(defaultValue)})` : n
     const pf =
       schema['x-prefault'] !== undefined
         ? `${d}.prefault(${formatLiteral(schema['x-prefault'])})`
@@ -354,8 +448,8 @@ export function wrap(
     if (absentReaders.length === 0) return chain
     const read = (inner: string) =>
       absentReaders.reduceRight((inside, reader) => `z.preprocess(${reader},${inside})`, inner)
-    if (schema.default !== undefined) {
-      return `${read(chain)}.default(${formatLiteral(schema.default)})`
+    if (defaultValue !== undefined) {
+      return `${read(chain)}.default(${formatLiteral(defaultValue)})`
     }
     const isRequired =
       parameter === undefined ? options?.isOptional !== true : parameter.required === true
@@ -372,8 +466,8 @@ export function wrap(
           .map(([k]) => k)
       : [],
   )
-  const baseArgs = Object.fromEntries(
-    Object.entries(schema).filter(
+  const baseArgs = Object.fromEntries([
+    ...Object.entries(schema).filter(
       ([k, v]) =>
         !(
           zodExpressedProps.has(k) ||
@@ -381,7 +475,9 @@ export function wrap(
           headerDupKeys.has(k)
         ),
     ),
-  )
+    // A default that `.default()` could not take still belongs to the document.
+    ...(droppedDefault ? [['default', schema.default] as const] : []),
+  ])
   const args = filterUnsupportedProps(baseArgs)
   const headerMetaProps = meta?.headers
     ? [

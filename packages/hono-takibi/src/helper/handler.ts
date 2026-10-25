@@ -18,7 +18,7 @@ import {
   // mergeTestFile,
 } from '../merge/index.js'
 import type { OpenAPI, Operation } from '../openapi/index.js'
-import { methodPath, uncapitalizeWord } from '../utils/index.js'
+import { routeName, uncapitalizeWord } from '../utils/index.js'
 // import { makeImports, makeModuleSpec } from './code.js'
 import { makeImports, makeModuleSpec } from './code.js'
 import { groupNameOf } from './group.js'
@@ -165,6 +165,7 @@ function makePaths(output: string, pathAlias: string | undefined, routeImport?: 
 // files by the member that file exports for the route (`getUsersRoute` inline,
 // `getUsersRouteHandler` in a file of its own), and the code of that member.
 function makeHandlerInfo(
+  paths: { readonly [k: string]: unknown },
   path: string,
   method: string,
   operation: Operation,
@@ -175,7 +176,7 @@ function makeHandlerInfo(
   member: 'Route' | 'RouteHandler',
   body: (routeId: string) => string,
 ) {
-  const routeId = methodPath(method, path)
+  const routeId = routeName(method, path, paths)
   const fileName = resolveHandlerFileName(
     makeHandlerFileName(path, operation.tags),
     `${routeId}${member}`,
@@ -189,6 +190,7 @@ function makeHandlerInfo(
 }
 
 function makeInlineStubHandlerInfo(
+  paths: { readonly [k: string]: unknown },
   path: string,
   method: string,
   operation: Operation,
@@ -198,6 +200,7 @@ function makeInlineStubHandlerInfo(
   },
 ) {
   return makeHandlerInfo(
+    paths,
     path,
     method,
     operation,
@@ -224,6 +227,7 @@ function makeInlineStubFileContent(
 }
 
 function makeStubHandlerInfo(
+  paths: { readonly [k: string]: unknown },
   path: string,
   method: string,
   operation: Operation,
@@ -233,6 +237,7 @@ function makeStubHandlerInfo(
   },
 ) {
   return makeHandlerInfo(
+    paths,
     path,
     method,
     operation,
@@ -401,8 +406,8 @@ export function zodOpenAPIHonoHandler(
           )
           .map(([method, operation]) =>
             routeHandler
-              ? makeStubHandlerInfo(path, method, operation, existing)
-              : makeInlineStubHandlerInfo(path, method, operation, existing),
+              ? makeStubHandlerInfo(paths, path, method, operation, existing)
+              : makeInlineStubHandlerInfo(paths, path, method, operation, existing),
           ),
       ),
     )
@@ -464,7 +469,7 @@ export function resolveInlineHandlerFileNames(
         .map(([method, operation]) =>
           resolveHandlerFileName(
             makeHandlerFileName(path, operation.tags),
-            `${methodPath(method, path)}Route`,
+            `${routeName(method, path, openapi.paths)}Route`,
             existing,
           ),
         ),

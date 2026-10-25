@@ -1,4 +1,10 @@
-import { COMPONENT_REF_PREFIX, FORM_MEDIA_TYPES, HTTP_METHODS } from '../constants/index.js'
+import {
+  COMPONENT_NAMES,
+  COMPONENT_REF_PREFIX,
+  COMPONENT_SUFFIXES,
+  FORM_MEDIA_TYPES,
+  HTTP_METHODS,
+} from '../constants/index.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import {
@@ -33,29 +39,13 @@ import {
   decodePercent,
   ensureSuffix,
   makeSafeKey,
-  methodPath,
+  routeName,
   requestParamsArray,
   toIdentifierPascalCase,
 } from '../utils/index.js'
 import { inlineWireRefs, isEmptyAbsent, WIRE_FORM, makeWireGather, wireObject } from './wire.js'
 
 export function makeRef($ref: string) {
-  const COMPONENT_SUFFIX_MAP: readonly {
-    readonly prefix: string
-    readonly suffix: string
-  }[] = [
-    { prefix: COMPONENT_REF_PREFIX.schemas, suffix: 'Schema' },
-    { prefix: COMPONENT_REF_PREFIX.parameters, suffix: 'ParamsSchema' },
-    { prefix: COMPONENT_REF_PREFIX.headers, suffix: 'HeaderSchema' },
-    { prefix: COMPONENT_REF_PREFIX.securitySchemes, suffix: 'SecurityScheme' },
-    { prefix: COMPONENT_REF_PREFIX.requestBodies, suffix: 'RequestBody' },
-    { prefix: COMPONENT_REF_PREFIX.responses, suffix: 'Response' },
-    { prefix: COMPONENT_REF_PREFIX.examples, suffix: 'Example' },
-    { prefix: COMPONENT_REF_PREFIX.links, suffix: 'Link' },
-    { prefix: COMPONENT_REF_PREFIX.callbacks, suffix: 'Callback' },
-    { prefix: COMPONENT_REF_PREFIX.pathItems, suffix: 'PathItem' },
-    { prefix: COMPONENT_REF_PREFIX.mediaTypes, suffix: 'MediaTypeSchema' },
-  ]
   const propertiesMatch = $ref.match(/^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/u)
   if (propertiesMatch) {
     const parentSchema = toIdentifierPascalCase(
@@ -66,8 +56,9 @@ export function makeRef($ref: string) {
   const rawRef = $ref.split('/').at(-1)
   if (!rawRef) return 'Schema'
   const decodedRef = decodePercent(rawRef)
-  const match = COMPONENT_SUFFIX_MAP.find(({ prefix }) => $ref.startsWith(prefix))
-  return toIdentifierPascalCase(ensureSuffix(decodedRef, match?.suffix ?? 'Schema'))
+  const section = COMPONENT_NAMES.find((name) => $ref.startsWith(COMPONENT_REF_PREFIX[name]))
+  const suffix = section === undefined ? 'Schema' : COMPONENT_SUFFIXES[section]
+  return toIdentifierPascalCase(ensureSuffix(decodedRef, suffix))
 }
 
 export function makeExamples(examples: {
@@ -763,7 +754,7 @@ export function makeRouteEntries(
         openapi.components?.schemas,
       )
       const asConst = readonly ? ' as const' : ''
-      const entryName = methodPath(method, path)
+      const entryName = routeName(method, path, openapi.paths)
       return [
         {
           name: entryName,

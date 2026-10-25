@@ -1,9 +1,95 @@
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { Header, Parameter, Schema } from '../openapi/index.js'
-import { wrap } from './wrap.js'
+import { conformDefault, wrap } from './wrap.js'
+
+// #369: a default that is not a value of its schema
+describe('conformDefault', () => {
+  it.concurrent('takes a value the enum lists and refuses one it does not', () => {
+    expect(conformDefault({ type: 'string', enum: ['name', 'created_on'] }, 'name')).toStrictEqual({
+      ok: true,
+      value: 'name',
+    })
+    expect(conformDefault({ type: 'string', enum: ['name', 'created_on'] }, 'type')).toStrictEqual({
+      ok: false,
+    })
+  })
+
+  it.concurrent('reads a string that spells a boolean or a number as the value', () => {
+    expect(conformDefault({ type: 'boolean' }, 'true')).toStrictEqual({ ok: true, value: true })
+    expect(conformDefault({ type: 'integer' }, '10')).toStrictEqual({ ok: true, value: 10 })
+    expect(conformDefault({ type: 'number' }, '1.5')).toStrictEqual({ ok: true, value: 1.5 })
+    expect(conformDefault({ type: 'integer' }, '1.5')).toStrictEqual({ ok: false })
+    expect(conformDefault({ type: 'boolean' }, 'yes')).toStrictEqual({ ok: false })
+  })
+
+  it.concurrent('writes a number or a boolean for a string as text', () => {
+    expect(conformDefault({ type: 'string' }, 1)).toStrictEqual({ ok: true, value: '1' })
+    expect(conformDefault({ type: 'string' }, false)).toStrictEqual({ ok: true, value: 'false' })
+  })
+
+  it.concurrent('reads every item of an array, and refuses one item that cannot be read', () => {
+    expect(
+      conformDefault({ type: 'array', items: { type: 'boolean' } }, ['true', 'false']),
+    ).toStrictEqual({ ok: true, value: [true, false] })
+    expect(conformDefault({ type: 'array', items: { type: 'boolean' } }, ['maybe'])).toStrictEqual({
+      ok: false,
+    })
+    expect(conformDefault({ type: 'array', items: { type: 'string' } }, 'a')).toStrictEqual({
+      ok: false,
+    })
+  })
+
+  it.concurrent('keeps the type the value already is among several', () => {
+    expect(conformDefault({ type: ['string', 'boolean'] }, 'true')).toStrictEqual({
+      ok: true,
+      value: 'true',
+    })
+    expect(conformDefault({ type: ['integer', 'string'] }, '10')).toStrictEqual({
+      ok: true,
+      value: '10',
+    })
+  })
+
+  it.concurrent('does not check a schema with no type of its own, and takes null', () => {
+    expect(conformDefault({ $ref: '#/components/schemas/A' }, { any: 1 })).toStrictEqual({
+      ok: true,
+      value: { any: 1 },
+    })
+    expect(conformDefault({ type: 'string' }, null)).toStrictEqual({ ok: true, value: null })
+    expect(conformDefault({ type: 'string', const: 'a' }, 'b')).toStrictEqual({ ok: false })
+  })
+})
 
 describe('wrap', () => {
+  // #369
+  describe('default that is not a value of the schema', () => {
+    it.concurrent('leaves an enum default the enum does not list to the document', () => {
+      expect(
+        wrap("z.enum(['name','created_on'])", {
+          type: 'string',
+          enum: ['name', 'created_on'],
+          default: 'type',
+        }),
+      ).toBe(`z.enum(['name','created_on']).openapi({"default":"type"})`)
+    })
+
+    it.concurrent('reads strings that spell booleans for an array of booleans', () => {
+      expect(
+        wrap('z.array(z.boolean())', {
+          type: 'array',
+          items: { type: 'boolean' },
+          default: ['true', 'false'],
+        }),
+      ).toBe('z.array(z.boolean()).default([true,false])')
+    })
+
+    it.concurrent('reads a numeric string for an integer, and writes a number as text for a string', () => {
+      expect(wrap('z.int()', { type: 'integer', default: '10' })).toBe('z.int().default(10)')
+      expect(wrap('z.string()', { type: 'string', default: 1 })).toBe('z.string().default("1")')
+    })
+  })
+
   // #357: `default: null` on a schema that does not declare `null` otherwise
   describe('default null', () => {
     it.concurrent('makes a oneOf nullable before .default(null)', () => {

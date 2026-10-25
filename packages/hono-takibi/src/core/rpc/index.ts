@@ -16,7 +16,7 @@ import {
 } from '../../helper/index.js'
 import type { Grouping } from '../../helper/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../../openapi/index.js'
-import { makeInferRequestType, methodPath } from '../../utils/index.js'
+import { makeInferRequestType, routeName } from '../../utils/index.js'
 
 /**
  * Builds a JSDoc block from operation `summary` / `description` plus the HTTP route line.
@@ -45,6 +45,7 @@ function makeJsDoc(
 }
 
 function makeOperationCode(
+  paths: OpenAPIPaths,
   path: string,
   method: (typeof HTTP_METHODS)[number],
   item: ReturnType<typeof parsePathItem>,
@@ -60,7 +61,7 @@ function makeOperationCode(
   // through the client of the application when it belongs to none.
   const group = grouping?.(path, operationTags(operation))
   const deps = group === undefined ? base : { ...base, client: makeGroupClientName(group) }
-  const funcName = methodPath(method, path)
+  const funcName = routeName(method, path, paths)
   const pathResult = formatPath(path, hasBasePath)
   const hasArgs = operationHasArgs(item, operation, deps)
   const inferType = makeInferRequestType(deps.client, pathResult, method)
@@ -92,6 +93,7 @@ function makeOperationCodes(
       return methods
         .map((method) =>
           makeOperationCode(
+            paths,
             p,
             method,
             pathItem,
