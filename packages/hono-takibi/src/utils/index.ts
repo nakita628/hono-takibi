@@ -223,6 +223,33 @@ const REGEX_LINE_TERMINATOR_ESCAPES: { readonly [k: string]: string } = {
  * escapeRegexLiteral('a\nb')       // → 'a\\nb'
  * ```
  */
+/**
+ * A `pattern` as a JavaScript regex literal: its source and flags, or `undefined` when no
+ * literal can stand for it. A leading inline flag group, `(?i)` / `(?s)` / `(?m)` (PCRE,
+ * which JavaScript has not), becomes the flag; `\p{..}` asks for `u`. What is left is
+ * compiled once here: a pattern JavaScript rejects (`(?x)`, a possessive quantifier) would
+ * otherwise be written into a literal that keeps the whole file from parsing (#370).
+ *
+ * @example
+ * regexLiteral('(?i)^(pay|details)$') // { source: '^(pay|details)$', flags: 'i' }
+ * regexLiteral('a++') // undefined
+ */
+export function regexLiteral(pattern: string) {
+  const inline = pattern.match(/^\(\?([a-z]+)\)/u)
+  const letters = inline?.[1] ?? ''
+  // `x` (ignore whitespace) and the rest have no JavaScript flag: no literal says the same.
+  if (letters.split('').some((letter) => !'ims'.includes(letter))) return undefined
+  const source = inline === null ? pattern : pattern.slice(inline[0].length)
+  const flags = [
+    ...new Set([...letters.split(''), ...(/\\[pP]\{/u.test(source) ? ['u'] : [])]),
+  ].join('')
+  try {
+    return { source, flags: new RegExp(source, flags).flags } as const
+  } catch {
+    return undefined
+  }
+}
+
 export function escapeRegexLiteral(source: string) {
   return source.replaceAll(
     /\\([\s\S]?)|[/\n\r\u2028\u2029]/gu,

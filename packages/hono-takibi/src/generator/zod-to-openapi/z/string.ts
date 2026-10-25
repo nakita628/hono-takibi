@@ -1,7 +1,7 @@
 import { OCTET_STREAM_MEDIA_TYPE } from '../../../constants/index.js'
 import { isOffsetTime } from '../../../guard/index.js'
 import type { Schema } from '../../../openapi/index.js'
-import { baseError, error, escapeRegexLiteral } from '../../../utils/index.js'
+import { baseError, error, escapeRegexLiteral, regexLiteral } from '../../../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
 import { zodToOpenAPI } from '../index.js'
 
@@ -311,10 +311,12 @@ export function string(
   // `baseErrorArg`, but Zod scopes that to invalid-type errors only — `.min/.max/...`
   // need an explicit fallback to honor the contract in openapi/index.ts.
   const patternMessage = schema['x-pattern-message'] ?? errorMessage
-  const hasUnicodeProperty = schema.pattern && /\\[pP]\{/u.test(schema.pattern)
   const patternMessagePart = patternMessage ? `,${error(patternMessage)}` : ''
-  const pattern = schema.pattern
-    ? `.regex(/${escapeRegexLiteral(schema.pattern)}/${hasUnicodeProperty ? 'u' : ''}${patternMessagePart})`
+  // A pattern no JavaScript literal can stand for is left to the document (`wrap` keeps it
+  // in `.openapi({pattern})`) rather than written into one that does not parse.
+  const literal = schema.pattern === undefined ? undefined : regexLiteral(schema.pattern)
+  const pattern = literal
+    ? `.regex(/${escapeRegexLiteral(literal.source)}/${literal.flags}${patternMessagePart})`
     : undefined
   const lengthMessage = schema['x-length-message'] ?? errorMessage
   const lengthMessagePart = lengthMessage ? `,${error(lengthMessage)}` : ''

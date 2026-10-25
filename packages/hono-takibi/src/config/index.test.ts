@@ -503,7 +503,19 @@ describe('parseConfig()', () => {
           input: 'openapi.txt' as `${string}.yaml`,
         }),
       )
-      expect(result.message).toBe('Invalid config: input: must be .yaml | .yml | .json | .tsp')
+      expect(result.message).toBe(
+        'Invalid config: input: must be .yaml | .yml | .json | .tsp, or an http(s) URL',
+      )
+    })
+
+    // #373: a document served without an extension is OpenAPI by content.
+    it.concurrent('accepts an http(s) URL whatever its path looks like', async () => {
+      const url = 'https://openapi.vercel.sh/'
+      const withSlash = await runGenerator(parseConfig({ input: url }))
+      expect(withSlash.input).toBe(url)
+      const plain = 'http://localhost:3000/openapi'
+      const withoutExtension = await runGenerator(parseConfig({ input: plain }))
+      expect(withoutExtension.input).toBe(plain)
     })
 
     // #362: `.yml` is the extension many published documents use (LINE's, for one).

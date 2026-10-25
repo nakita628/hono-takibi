@@ -31,7 +31,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"a")).success){ctx.addIssue({code:'custom'})}};for(const k of Object.keys(val)){if(!["a"].includes(k)&&![].some((p)=>new RegExp(p).test(k))){ctx.addIssue({code:'custom'})}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"a")).success){ctx.addIssue({code:'custom'})}};for(const k of Object.keys(val)){if(!["a"].includes(k)){ctx.addIssue({code:'custom'})}}}})`,
       )
     })
 
@@ -45,7 +45,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"a")).success){ctx.addIssue({code:'custom'})}};{const Schema=z.number();for(const k of Object.keys(val)){if(!["a"].includes(k)&&![].some((p)=>new RegExp(p).test(k))){if(!Schema.safeParse(Reflect.get(val,k)).success){ctx.addIssue({code:'custom'})}}}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"a")).success){ctx.addIssue({code:'custom'})}};{const Schema=z.number();for(const k of Object.keys(val)){if(!["a"].includes(k)){if(!Schema.safeParse(Reflect.get(val,k)).success){ctx.addIssue({code:'custom'})}}}}}})`,
       )
     })
 

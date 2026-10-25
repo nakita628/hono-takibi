@@ -72,8 +72,20 @@ function issueObj(messageExpr: string | undefined, pathExpr?: string) {
 }
 
 function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): readonly string[] {
-  const ownKeysJson = JSON.stringify(Object.keys(schema.properties ?? {}))
-  const patternsJson = JSON.stringify(Object.keys(schema.patternProperties ?? {}))
+  const ownKeys = Object.keys(schema.properties ?? {})
+  const patterns = Object.keys(schema.patternProperties ?? {})
+  // The keys the schema declares, which `additionalProperties` and `unevaluatedProperties`
+  // do not apply to. A list that is empty is not written: `[]` is a `never[]` to
+  // TypeScript, so `[].includes(k)` does not type-check (#375), and the guard it was in is
+  // always true.
+  const declared = [
+    ...(ownKeys.length > 0 ? [`!${JSON.stringify(ownKeys)}.includes(k)`] : []),
+    ...(patterns.length > 0
+      ? [`!${JSON.stringify(patterns)}.some((p)=>new RegExp(p).test(k))`]
+      : []),
+  ]
+  const forUndeclaredKeys = (body: string) =>
+    `for(const k of Object.keys(val)){${declared.length === 0 ? body : `if(${declared.join('&&')}){${body}}`}}`
 
   const requiredMessage = messageFor(schema, 'required')
   const requiredChecks = Array.isArray(schema.required)
@@ -101,11 +113,11 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
   const additionalPropertiesMessage = messageFor(schema, 'additionalProperties')
   const additionalPropertiesCheck = (() => {
     if (schema.additionalProperties === false) {
-      return `for(const k of Object.keys(val)){if(!${ownKeysJson}.includes(k)&&!${patternsJson}.some((p)=>new RegExp(p).test(k))){ctx.addIssue(${issueObj(additionalPropertiesMessage)})}}`
+      return forUndeclaredKeys(`ctx.addIssue(${issueObj(additionalPropertiesMessage)})`)
     }
     if (isSchemaObject(schema.additionalProperties)) {
       const subZod = recurse(schema.additionalProperties)
-      return `{const Schema=${subZod};for(const k of Object.keys(val)){if(!${ownKeysJson}.includes(k)&&!${patternsJson}.some((p)=>new RegExp(p).test(k))){if(!Schema.safeParse(Reflect.get(val,k)).success){ctx.addIssue(${issueObj(additionalPropertiesMessage)})}}}}`
+      return `{const Schema=${subZod};${forUndeclaredKeys(`if(!Schema.safeParse(Reflect.get(val,k)).success){ctx.addIssue(${issueObj(additionalPropertiesMessage)})}`)}}`
     }
     return undefined
   })()
@@ -145,7 +157,7 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
     : []
   const unevaluatedPropertiesCheck =
     schema.unevaluatedProperties === false
-      ? `for(const k of Object.keys(val)){if(!${ownKeysJson}.includes(k)&&!${patternsJson}.some((p)=>new RegExp(p).test(k))){ctx.addIssue(${issueObj(messageFor(schema, 'unevaluatedProperties'))})}}`
+      ? forUndeclaredKeys(`ctx.addIssue(${issueObj(messageFor(schema, 'unevaluatedProperties'))})`)
       : undefined
 
   return [

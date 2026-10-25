@@ -13150,3 +13150,21 @@ describe('zodToOpenAPI: a list of types', () => {
     )
   })
 })
+
+// #375: an allOf member of `additionalProperties` alone declares no key, so there is no list to guard by
+describe('allOf member with only additionalProperties', () => {
+  it('walks every key without an empty includes()', () => {
+    const code = zodToOpenAPI({
+      type: 'object',
+      allOf: [
+        { properties: { $id: { type: 'string' } } },
+        { additionalProperties: { type: 'string' } },
+      ],
+    })
+    expect(code).not.toContain('[].includes(k)')
+    expect(code).not.toContain('[].some(')
+    expect(code).toContain(
+      "{const Schema=z.string();for(const k of Object.keys(val)){if(!Schema.safeParse(Reflect.get(val,k)).success){ctx.addIssue({code:'custom'})}}}",
+    )
+  })
+})

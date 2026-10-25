@@ -13,6 +13,7 @@ import {
   makeSafeKey,
   makeStringLiteral,
   methodPath,
+  regexLiteral,
   routeName,
   normalizeTypes,
   renderNamedImport,
@@ -150,6 +151,36 @@ describe('utils', () => {
       ['get', '/-/', 'getDashIndex'],
     ])(`methodPath('%s', '%s') -> '%s'`, (method, path, expected) => {
       expect(methodPath(method, path)).toBe(expected)
+    })
+  })
+  // regexLiteral (#370): a PCRE inline flag group becomes the flag; what does not compile is not written
+  describe('regexLiteral', () => {
+    it.concurrent('moves a leading inline flag group into the flags', () => {
+      expect(regexLiteral('(?i)^(pay|details)$')).toStrictEqual({
+        source: '^(pay|details)$',
+        flags: 'i',
+      })
+      expect(regexLiteral('(?ims)a')).toStrictEqual({ source: 'a', flags: 'ims' })
+      expect(regexLiteral('(?ii)a')).toStrictEqual({ source: 'a', flags: 'i' })
+    })
+
+    it.concurrent('asks for u where a Unicode property escape is used', () => {
+      expect(regexLiteral('\\p{L}+')).toStrictEqual({ source: '\\p{L}+', flags: 'u' })
+      expect(regexLiteral('(?i)\\p{L}+')).toStrictEqual({ source: '\\p{L}+', flags: 'iu' })
+    })
+
+    it.concurrent('answers undefined for what JavaScript cannot compile', () => {
+      expect(regexLiteral('(?x)^a b$')).toBeUndefined()
+      expect(regexLiteral('a++')).toBeUndefined()
+      expect(regexLiteral('(?i)^(pay|details$')).toBeUndefined()
+      expect(regexLiteral('[')).toBeUndefined()
+    })
+
+    it.concurrent('leaves a plain pattern as it is, with no flags', () => {
+      expect(regexLiteral('^[0-9A-Z_]+$')).toStrictEqual({ source: '^[0-9A-Z_]+$', flags: '' })
+      // a group that is not an inline flag group is part of the pattern
+      expect(regexLiteral('(?:a|b)c')).toStrictEqual({ source: '(?:a|b)c', flags: '' })
+      expect(regexLiteral('(?<name>a)')).toStrictEqual({ source: '(?<name>a)', flags: '' })
     })
   })
   // routeName (#368): two paths that make one name are told apart by their place
