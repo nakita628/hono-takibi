@@ -53,7 +53,7 @@ const ConfigSchema = Schema.Struct({
       'openapi.yaml',
       './spec/openapi.json',
       './spec/main.tsp',
-      'https://openapi.vercel.sh/',
+      'https://example.com/openapi',
     ],
   }),
   output: Schema.optionalKey(

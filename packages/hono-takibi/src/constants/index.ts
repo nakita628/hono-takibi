@@ -36,7 +36,7 @@ export const INPUT_EXTENSIONS = ['.yaml', '.yml', '.json', '.tsp'] as const
 
 /**
  * An input document: a path by its extension, or an `http(s)` URL whatever its path (a
- * document served without an extension, `https://openapi.vercel.sh/`, is OpenAPI by content).
+ * document served without an extension is OpenAPI by content).
  */
 export type InputPath =
   | `${string}${(typeof INPUT_EXTENSIONS)[number]}`

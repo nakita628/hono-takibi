@@ -510,7 +510,7 @@ describe('parseConfig()', () => {
 
     // #373: a document served without an extension is OpenAPI by content.
     it.concurrent('accepts an http(s) URL whatever its path looks like', async () => {
-      const url = 'https://openapi.vercel.sh/'
+      const url = 'https://example.com/openapi/'
       const withSlash = await runGenerator(parseConfig({ input: url }))
       expect(withSlash.input).toBe(url)
       const plain = 'http://localhost:3000/openapi'
