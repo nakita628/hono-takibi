@@ -31,13 +31,44 @@ export function normalizeTypes(
 export function methodPath(method: string, path: string) {
   const hasTrailingSlash = path !== '/' && path.endsWith('/')
   const apiPath = path
-    .replaceAll(/[^A-Za-z0-9]/gu, ' ')
+    .split('/')
+    .filter((segment) => segment !== '')
+    .map((segment) =>
+      // A segment with no letter or digit (GitLab's `/-/`) would otherwise contribute
+      // nothing, and `/groups/{id}/epics` and `/groups/{id}/-/epics` would share a name.
+      /[A-Za-z0-9]/u.test(segment)
+        ? segment.replaceAll(/[^A-Za-z0-9]/gu, ' ')
+        : Array.from(segment, symbolWord).join(' '),
+    )
+    .join(' ')
     .trim()
     .split(/\s+/u)
     .map((str) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
     .join('')
   const suffix = hasTrailingSlash ? 'Index' : ''
   return apiPath ? (`${method}${apiPath}${suffix}` as const) : method
+}
+
+const SYMBOL_WORDS: { readonly [k: string]: string } = {
+  '-': 'Dash',
+  _: 'Underscore',
+  '.': 'Dot',
+  '~': 'Tilde',
+  '@': 'At',
+  $: 'Dollar',
+  '!': 'Bang',
+  '*': 'Star',
+  '+': 'Plus',
+  ',': 'Comma',
+  ';': 'Semicolon',
+  '=': 'Equals',
+  ':': 'Colon',
+  '%': 'Percent',
+}
+
+/** The word a path segment of punctuation alone is named by, one per character. */
+function symbolWord(char: string) {
+  return SYMBOL_WORDS[char] ?? `U${(char.codePointAt(0) ?? 0).toString(16).toUpperCase()}`
 }
 
 /**

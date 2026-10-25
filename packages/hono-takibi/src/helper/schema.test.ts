@@ -371,7 +371,97 @@ describe('makeSplitSchemaFile', () => {
   })
 })
 
+describe('makeSchemaCode nested discriminated union', () => {
+  // #356: the union sits in a property of the circular schema, not at the top of a component
+  it.concurrent('should keep a circular member of a nested discriminatedUnion discriminable', () => {
+    const schemas = {
+      Leaf: {
+        type: 'object',
+        required: ['type', 'key'],
+        properties: { type: { type: 'string', enum: ['eq'] }, key: { type: 'string' } },
+      },
+      Group: {
+        type: 'object',
+        required: ['type', 'filters'],
+        properties: {
+          type: { type: 'string', enum: ['and', 'or'] },
+          filters: {
+            type: 'array',
+            items: {
+              oneOf: [
+                { $ref: '#/components/schemas/Leaf' },
+                { $ref: '#/components/schemas/Group' },
+              ],
+              discriminator: { propertyName: 'type' },
+            },
+          },
+        },
+      },
+    } as const
+    const analysis = analyzeCircularSchemas(schemas, ['Leaf', 'Group'])
+    const options = { exportKeyword: '', exportType: false } as const
+    expect(analysis.discriminatedBranches).toStrictEqual(new Set(['Leaf', 'Group']))
+    expect(makeSchemaCode(makeSchemaInfo('Group', schemas.Group, analysis), options)).toBe(
+      'const GroupSchema:z.ZodType<GroupType>&z.core.$ZodTypeDiscriminable=z.lazy(()=>z.object({type:z.enum(["and","or"]),filters:z.array(z.discriminatedUnion(\'type\',[LeafSchema,GroupSchema]).openapi({"discriminator":{"propertyName":"type"}}))}).openapi({"required":["type","filters"]})).openapi(\'Group\')',
+    )
+    // Leaf is not circular: no annotation, so nothing to add to it.
+    expect(makeSchemaCode(makeSchemaInfo('Leaf', schemas.Leaf, analysis), options)).toBe(
+      'const LeafSchema=z.object({type:z.literal(\'eq\'),key:z.string()}).openapi({"required":["type","key"]}).openapi(\'Leaf\')',
+    )
+  })
+})
+
 describe('makeTypeDefinition', () => {
+  // #353
+  it.concurrent('should type an int64 property of a circular schema as bigint', () => {
+    const schemas = {
+      Comment: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'integer', format: 'int64' },
+          replies: { type: 'array', items: { $ref: '#/components/schemas/Comment' } },
+        },
+      },
+    } as const
+    const analysis = analyzeCircularSchemas(schemas, ['Comment'])
+    const info = makeSchemaInfo('Comment', schemas.Comment, analysis)
+    expect(makeTypeDefinition(info, analysis.cyclicGroupPascal)).toBe(
+      'type CommentType={id:bigint;replies?:CommentType[]}',
+    )
+  })
+
+  // #354
+  it.concurrent('should keep | null on a nullable $ref property of a circular schema', () => {
+    const schemas = {
+      Account: {
+        type: 'object',
+        properties: {
+          profile: { anyOf: [{ $ref: '#/components/schemas/Profile' }], nullable: true },
+        },
+      },
+      Profile: {
+        type: 'object',
+        properties: {
+          account: { anyOf: [{ $ref: '#/components/schemas/Account' }], nullable: true },
+        },
+      },
+    } as const
+    const analysis = analyzeCircularSchemas(schemas, ['Account', 'Profile'])
+    expect(
+      makeTypeDefinition(
+        makeSchemaInfo('Account', schemas.Account, analysis),
+        analysis.cyclicGroupPascal,
+      ),
+    ).toBe('type AccountType={profile?:(z.infer<typeof ProfileSchema>|null)}')
+    expect(
+      makeTypeDefinition(
+        makeSchemaInfo('Profile', schemas.Profile, analysis),
+        analysis.cyclicGroupPascal,
+      ),
+    ).toBe('type ProfileType={account?:(z.infer<typeof AccountSchema>|null)}')
+  })
+
   const schemas = {
     Event: {
       type: 'object',

@@ -301,9 +301,11 @@ export function wrap(
   const readers = [...(options?.readers ?? []), ...(style === undefined ? [] : [style])]
   const acceptBothArities = (inner: string) =>
     readers.reduceRight((read, reader) => `z.preprocess(${reader},${read})`, inner)
+  // A schema that declares `null` nowhere but in `default: null` (a `oneOf`, a reference, a
+  // string) still has to accept it: `.default(null)` on a non-nullable schema does not
+  // type-check, and the default makes `null` a value the schema answers with.
   const isNullable =
-    schema.nullable === true ||
-    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
+    schema.nullable === true || typeList.includes('null') || schema.default === null
   // `.nullable()` must precede `.default()` so `.default(null)` validates.
   const build = (core: string) => {
     const typed = isNullable ? `${acceptBothArities(core)}.nullable()` : acceptBothArities(core)

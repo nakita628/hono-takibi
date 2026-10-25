@@ -10,6 +10,7 @@ import {
   IDENTIFIER_PATTERN,
   INPUT_EXTENSIONS,
 } from '../constants/index.js'
+import type { InputPath } from '../constants/index.js'
 
 // Test code generation is deprecated: hono-takibi no longer generates test files.
 // export const TestSchema = Schema.Struct({
@@ -42,9 +43,9 @@ import {
 // })
 
 const ConfigSchema = Schema.Struct({
-  input: Schema.declare<`${string}.yaml` | `${string}.json` | `${string}.tsp`>(
+  input: Schema.declare<InputPath>(
     Schema.is(Schema.TemplateLiteral([Schema.String, Schema.Literals(INPUT_EXTENSIONS)])),
-    { message: 'must be .yaml | .json | .tsp' },
+    { message: 'must be .yaml | .yml | .json | .tsp' },
   ).annotate({
     title: 'Input document',
     description: 'OpenAPI or TypeSpec entry document that every generator reads.',

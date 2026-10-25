@@ -75,6 +75,49 @@ export function isDiscriminableBranch(branch: Schema, discriminator: string) {
   )
 }
 
+/**
+ * The branches of a discriminated `oneOf`, resolved, when `z.discriminatedUnion` stands for
+ * it; `undefined` when the `oneOf` is emitted as `z.xor`. The two are equivalent only when
+ * every branch is a plain object that `required`s the discriminator and pins it to string
+ * literals (see `isDiscriminableBranch`), and no two branches share a literal.
+ */
+// A malformed percent-encoding in a `$ref` is kept as written rather than thrown on.
+function decodePercentRef(value: string) {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
+}
+
+export function discriminatedBranches(
+  schema: Schema,
+  schemas?: { readonly [k: string]: Schema },
+): readonly { readonly branch: Schema; readonly name: string | undefined }[] | undefined {
+  const discriminator = schema.discriminator?.propertyName
+  if (discriminator === undefined || schema.oneOf === undefined || schema.oneOf.length < 2) {
+    return undefined
+  }
+  const resolved = schema.oneOf.map((s) => {
+    if (s.$ref === undefined) return { branch: s, name: undefined }
+    if (!(isRefOnly(s) && s.$ref.startsWith(COMPONENT_REF_PREFIX.schemas))) return undefined
+    const name = decodePercentRef(s.$ref.slice(COMPONENT_REF_PREFIX.schemas.length))
+    const branch = schemas?.[name]
+    return branch === undefined ? undefined : { branch, name }
+  })
+  const literalsPerBranch = resolved.map((entry) => {
+    if (entry === undefined || !isDiscriminableBranch(entry.branch, discriminator)) return undefined
+    const property = entry.branch.properties?.[discriminator]
+    if (property === undefined || typeof property === 'boolean') return undefined
+    return typeof property.const === 'string' ? [property.const] : (property.enum ?? [])
+  })
+  const literals = literalsPerBranch.flatMap((values) => values ?? [])
+  const isDiscriminated =
+    literalsPerBranch.every((values) => values !== undefined) &&
+    new Set(literals).size === literals.length
+  return isDiscriminated ? resolved.filter((entry) => entry !== undefined) : undefined
+}
+
 export function isParameterRef(ref: string): ref is `#/components/parameters/${string}` {
   return ref.startsWith(COMPONENT_REF_PREFIX.parameters)
 }

@@ -269,7 +269,7 @@ function runAllGenerationTasks(config: Config) {
 /**
  * Adds glob patterns to the Vite file watcher.
  *
- * Watches the input file and related files (.yaml, .json, .tsp) in the
+ * Watches the input file and related files (.yaml, .yml, .json, .tsp) in the
  * same directory for changes.
  */
 function addInputGlobsToWatcher(server: ViteDevServer, absoluteInputPath: string) {

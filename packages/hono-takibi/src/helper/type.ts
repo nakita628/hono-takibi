@@ -9,6 +9,28 @@ export function makeTypeString(
   readonly?: boolean,
 ) {
   if (!schema) return 'unknown'
+  const types = normalizeType(schema)
+  // `| null` is decided here, once, for every shape: a reference, a union or an enum that
+  // is `nullable` (3.0), lists `null` among its types (3.1), or defaults to `null` (which
+  // the schema writer answers with `.nullable()` so that `.default(null)` type-checks).
+  const isNullable =
+    schema.nullable === true ||
+    types.includes('null') ||
+    schema.default === null ||
+    (schema.enum?.includes(null) ?? false)
+  const nonNullTypes = types.filter((t) => t !== 'null')
+  const baseType = makeNonNullTypeString(schema, nonNullTypes, selfTypeName, cyclicGroup, readonly)
+  if (!isNullable || baseType === 'null') return baseType
+  return `(${baseType}|null)`
+}
+
+function makeNonNullTypeString(
+  schema: Schema,
+  types: readonly string[],
+  selfTypeName: string,
+  cyclicGroup?: ReadonlySet<string>,
+  readonly?: boolean,
+) {
   if (schema.$ref) {
     return makeRefTypeString(schema.$ref, selfTypeName)
   }
@@ -22,9 +44,9 @@ export function makeTypeString(
     return makeUnionTypeString(schema.allOf, selfTypeName, cyclicGroup, '&', readonly)
   }
   if (schema.enum && schema.enum.length > 0) {
-    return schema.enum
-      .map((v) => (typeof v === 'string' ? makeStringLiteral(v) : String(v)))
-      .join('|')
+    const values = schema.enum.filter((v) => v !== null)
+    if (values.length === 0) return 'null'
+    return values.map((v) => (typeof v === 'string' ? makeStringLiteral(v) : String(v))).join('|')
   }
   if (schema.const !== undefined) {
     if (typeof schema.const === 'string') {
@@ -35,11 +57,7 @@ export function makeTypeString(
     }
     return JSON.stringify(schema.const)
   }
-  const types = normalizeType(schema)
-  const isNullable = schema.nullable === true || types.includes('null')
-  const nonNullTypes = types.filter((t) => t !== 'null')
-  const baseType = makeBaseTypeString(schema, nonNullTypes, selfTypeName, cyclicGroup, readonly)
-  return isNullable ? `(${baseType}|null)` : baseType
+  return makeBaseTypeString(schema, types, selfTypeName, cyclicGroup, readonly)
 }
 
 function makeRefTypeString(ref: string, selfTypeName: string) {
@@ -105,12 +123,18 @@ function makeSingleTypeString(
 ) {
   if (type === 'string') return 'string'
   if (type === 'number') return 'number'
-  if (type === 'integer') return 'number'
+  if (type === 'integer') return isBigintFormat(schema) ? 'bigint' : 'number'
   if (type === 'boolean') return 'boolean'
   if (type === 'null') return 'null'
   if (type === 'array') return makeArrayTypeString(schema, selfTypeName, cyclicGroup, readonly)
   if (type === 'object') return makeObjectTypeString(schema, selfTypeName, cyclicGroup, readonly)
   return 'unknown'
+}
+
+// `z.int64()` / `z.uint64()` / `z.bigint()` output a bigint (see `z/integer.ts`), unless the
+// value is read from text with `x-coerce`, where `z.coerce.bigint()` does the same.
+function isBigintFormat(schema: Schema) {
+  return schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint'
 }
 
 function wrapForArrayElement(type: string) {
@@ -148,22 +172,6 @@ function makeArrayTypeString(
       return `${prefix}${wrapForArrayElement(innerType)}[]`
     }
     return `${prefix}unknown[]`
-  }
-  if (items.$ref) {
-    const propertiesMatch = items.$ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//u)
-    if (propertiesMatch) {
-      const parentName = toIdentifierPascalCase(decodePercent(propertiesMatch[1]))
-      if (parentName === selfTypeName) {
-        return `${prefix}${parentName}Type[]`
-      }
-      return `${prefix}z.infer<typeof ${parentName}Schema>[]`
-    }
-    const rawRef = items.$ref.split('/').at(-1) ?? ''
-    const refName = toIdentifierPascalCase(decodePercent(rawRef))
-    if (refName === selfTypeName) {
-      return `${prefix}${refName}Type[]`
-    }
-    return `${prefix}z.infer<typeof ${refName}Schema>[]`
   }
   const innerType = makeTypeString(items, selfTypeName, cyclicGroup, readonly)
   return `${prefix}${wrapForArrayElement(innerType)}[]`

@@ -135,6 +135,18 @@ describe('utils', () => {
       ['post', '/api/', 'postApiIndex'],
       ['get', '/api/reverseChiban/', 'getApiReverseChibanIndex'],
       ['get', '/users/{id}/', 'getUsersIdIndex'],
+      // a segment with no letter or digit is named, so it tells two paths apart (#358)
+      ['get', '/groups/{id}/epics', 'getGroupsIdEpics'],
+      ['get', '/groups/{id}/-/epics', 'getGroupsIdDashEpics'],
+      ['get', '/-/health', 'getDashHealth'],
+      ['get', '/a/--/b', 'getADashDashB'],
+      ['get', '/a/_/b', 'getAUnderscoreB'],
+      ['get', '/a/./b', 'getADotB'],
+      ['get', '/a/~/b', 'getATildeB'],
+      ['get', '/a/@/b', 'getAAtB'],
+      ['get', '/a/%7C/b', 'getA7CB'],
+      ['get', '/a/|/b', 'getAU7CB'],
+      ['get', '/-/', 'getDashIndex'],
     ])(`methodPath('%s', '%s') -> '%s'`, (method, path, expected) => {
       expect(methodPath(method, path)).toBe(expected)
     })

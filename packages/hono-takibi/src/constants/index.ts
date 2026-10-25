@@ -13,8 +13,11 @@ export const COMPONENT_NAMES = [
   'mediaTypes',
 ] as const
 
-/** The extensions of an input document: OpenAPI as YAML or JSON, or a TypeSpec entry. */
-export const INPUT_EXTENSIONS = ['.yaml', '.json', '.tsp'] as const
+/** The extensions of an input document: OpenAPI as YAML (`.yaml` or `.yml`) or JSON, or a TypeSpec entry. */
+export const INPUT_EXTENSIONS = ['.yaml', '.yml', '.json', '.tsp'] as const
+
+/** A path or URL of an input document, by its extension. */
+export type InputPath = `${string}${(typeof INPUT_EXTENSIONS)[number]}`
 
 /** A JavaScript identifier that can be written bare: as a binding, or a key or member access. */
 export const IDENTIFIER_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/u
