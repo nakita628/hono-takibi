@@ -1,3 +1,4 @@
+import { uniqueComponentNames } from '../../../helper/names.js'
 import { inlinePointerRefs } from '../../../helper/pointer.js'
 import type { OpenAPI } from '../../../openapi/index.js'
 import { componentsCode } from './components/index.js'
@@ -26,8 +27,8 @@ export function zodOpenAPIHono(
   } = {},
 ) {
   // A `$ref` into `paths` (or anywhere but a component) names no declaration: it is written
-  // out where it stands.
-  const openapi = inlinePointerRefs(document)
+  // out where it stands. Two components whose names would make one identifier are told apart.
+  const openapi = uniqueComponentNames(inlinePointerRefs(document))
   const components = openapi.components ? componentsCode(openapi.components, options) : ''
   const routes = routeCode(openapi, options.readonly)
   const webhooks = webhookCode(openapi, options.readonly)

@@ -6,7 +6,7 @@ import {
   resolvePathItem,
 } from '../../../../helper/openapi.js'
 import type { OpenAPI } from '../../../../openapi/index.js'
-import { methodPath } from '../../../../utils/index.js'
+import { routeName } from '../../../../utils/index.js'
 
 /**
  * Builds `defineOpenAPIRoute({ route: createRoute({...}), handler })` entries.
@@ -50,7 +50,7 @@ export function defineEntries(
         openapi.components?.schemas,
       )
       const asConst = readonly ? ' as const' : ''
-      const entryName = methodPath(method, path)
+      const entryName = routeName(method, path, openapi.paths)
       return [
         {
           name: entryName,

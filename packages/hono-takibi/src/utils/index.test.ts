@@ -13,6 +13,7 @@ import {
   makeSafeKey,
   makeStringLiteral,
   methodPath,
+  routeName,
   normalizeTypes,
   renderNamedImport,
   requestParamsArray,
@@ -149,6 +150,39 @@ describe('utils', () => {
       ['get', '/-/', 'getDashIndex'],
     ])(`methodPath('%s', '%s') -> '%s'`, (method, path, expected) => {
       expect(methodPath(method, path)).toBe(expected)
+    })
+  })
+  // routeName (#368): two paths that make one name are told apart by their place
+  describe('routeName', () => {
+    const paths = {
+      '/accounts/{account_id}/billable-usage': {},
+      '/accounts/{account_id}/billable/usage': {},
+      '/events/indicator-types': {},
+      '/events/indicatorTypes': {},
+      '/events/indicator_types': {},
+      '/users': {},
+    } as const
+
+    it.concurrent('keeps the name of the first path and numbers the later ones', () => {
+      expect(routeName('get', '/accounts/{account_id}/billable-usage', paths)).toBe(
+        'getAccountsAccountIdBillableUsage',
+      )
+      expect(routeName('get', '/accounts/{account_id}/billable/usage', paths)).toBe(
+        'getAccountsAccountIdBillableUsage2',
+      )
+      expect(routeName('get', '/events/indicator-types', paths)).toBe('getEventsIndicatorTypes')
+      expect(routeName('get', '/events/indicatorTypes', paths)).toBe('getEventsIndicatorTypes2')
+      expect(routeName('get', '/events/indicator_types', paths)).toBe('getEventsIndicatorTypes3')
+    })
+
+    it.concurrent('numbers by the path, so every method and an empty method agree', () => {
+      expect(routeName('post', '/events/indicatorTypes', paths)).toBe('postEventsIndicatorTypes2')
+      expect(routeName('', '/events/indicatorTypes', paths)).toBe('EventsIndicatorTypes2')
+    })
+
+    it.concurrent('is methodPath for a path that shares its name with none', () => {
+      expect(routeName('get', '/users', paths)).toBe(methodPath('get', '/users'))
+      expect(routeName('get', '/not/in/the/document', paths)).toBe('getNotInTheDocument')
     })
   })
   // requestParamsArray

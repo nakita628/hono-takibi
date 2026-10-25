@@ -8,7 +8,7 @@ import {
   makeHandlerFileName,
 } from '../../../helper/index.js'
 import type { OpenAPI } from '../../../openapi/index.js'
-import { methodPath } from '../../../utils/index.js'
+import { routeName as makeRouteName } from '../../../utils/index.js'
 
 /** The handler files the operations of a document are written to, in document order. */
 function handlerFilesOf(openapi: OpenAPI) {
@@ -81,8 +81,8 @@ export function app(
       Object.entries(pathItem).flatMap(([method]) => {
         if (!isHttpMethod(method)) return [] as const
         return {
-          routeName: `${methodPath(method, path)}Route`,
-          handlerName: `${methodPath(method, path)}RouteHandler`,
+          routeName: `${makeRouteName(method, path, paths)}Route`,
+          handlerName: `${makeRouteName(method, path, paths)}RouteHandler`,
           path,
         } as const
       }),

@@ -13,6 +13,24 @@ export const COMPONENT_NAMES = [
   'mediaTypes',
 ] as const
 
+/**
+ * What the identifier of a component is suffixed with, by section: `#/components/schemas/User`
+ * is `UserSchema`. A security scheme is named by `security` requirements, not by `$ref`.
+ */
+export const COMPONENT_SUFFIXES = {
+  schemas: 'Schema',
+  parameters: 'ParamsSchema',
+  headers: 'HeaderSchema',
+  securitySchemes: 'SecurityScheme',
+  requestBodies: 'RequestBody',
+  responses: 'Response',
+  examples: 'Example',
+  links: 'Link',
+  callbacks: 'Callback',
+  pathItems: 'PathItem',
+  mediaTypes: 'MediaTypeSchema',
+} as const satisfies { readonly [k in (typeof COMPONENT_NAMES)[number]]: string }
+
 /** The extensions of an input document: OpenAPI as YAML (`.yaml` or `.yml`) or JSON, or a TypeSpec entry. */
 export const INPUT_EXTENSIONS = ['.yaml', '.yml', '.json', '.tsp'] as const
 

@@ -7,7 +7,7 @@ import { emit } from '../emit/index.js'
 import { GenerateError } from '../error/index.js'
 import { hasNoContentResponse, isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
-import { capitalize, methodPath, toIdentifierPascalCase } from '../utils/index.js'
+import { capitalize, routeName, toIdentifierPascalCase } from '../utils/index.js'
 import { makeGroupClientName, operationTags } from './group.js'
 import type { Grouping } from './group.js'
 import { formatPath, makeOperationDeps, operationHasArgs, parsePathItem } from './rpc.js'
@@ -65,8 +65,8 @@ function makeOmitInjectedKeys(optionsType: string, keys: string, vueMember?: str
   return `Omit<${objectType},${keys}>` as const
 }
 
-function makeHookName(method: string, pathStr: string, prefix: string) {
-  const funcName = methodPath(method, pathStr)
+function makeHookName(method: string, pathStr: string, prefix: string, paths: OpenAPIPaths) {
+  const funcName = routeName(method, pathStr, paths)
   return `${prefix}${capitalize(funcName)}` as const
 }
 
@@ -113,21 +113,31 @@ function queryNameMethod(method: string) {
   return method === 'get' ? '' : method
 }
 
-function makeQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean) {
+function makeQueryKeyGetterName(
+  method: string,
+  pathStr: string,
+  paths: OpenAPIPaths,
+  isSWR?: boolean,
+) {
   if (isSWR) {
-    return `get${capitalize(methodPath(method, pathStr))}Key` as const
+    return `get${capitalize(routeName(method, pathStr, paths))}Key` as const
   }
-  return `get${capitalize(methodPath(queryNameMethod(method), pathStr))}QueryKey` as const
+  return `get${capitalize(routeName(queryNameMethod(method), pathStr, paths))}QueryKey` as const
 }
 
 // Mutations keep the method in their key — several methods share a path — and, like the query
 // side, expose the key through a getter so `useIsMutating` / `setMutationDefaults` callers do not
 // have to reach into the options factory for it.
-function makeMutationKeyGetterName(method: string, pathStr: string, isSWR?: boolean) {
+function makeMutationKeyGetterName(
+  method: string,
+  pathStr: string,
+  paths: OpenAPIPaths,
+  isSWR?: boolean,
+) {
   if (isSWR) {
-    return `get${capitalize(methodPath(method, pathStr))}Key`
+    return `get${capitalize(routeName(method, pathStr, paths))}Key`
   }
-  return `get${capitalize(methodPath(method, pathStr))}MutationKey`
+  return `get${capitalize(routeName(method, pathStr, paths))}MutationKey`
 }
 
 function makeMutationKeyGetterCode(keyGetterName: string, method: string, honoPath: string) {
@@ -135,11 +145,16 @@ function makeMutationKeyGetterCode(keyGetterName: string, method: string, honoPa
   return `export function ${keyGetterName}(){return['${prefix}','${honoPath}','${method.toUpperCase()}']as const}`
 }
 
-function makeInfiniteQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean) {
+function makeInfiniteQueryKeyGetterName(
+  method: string,
+  pathStr: string,
+  paths: OpenAPIPaths,
+  isSWR?: boolean,
+) {
   if (isSWR) {
-    return `get${capitalize(methodPath(method, pathStr))}InfiniteKey`
+    return `get${capitalize(routeName(method, pathStr, paths))}InfiniteKey`
   }
-  return `get${capitalize(methodPath(queryNameMethod(method), pathStr))}InfiniteQueryKey`
+  return `get${capitalize(routeName(queryNameMethod(method), pathStr, paths))}InfiniteQueryKey`
 }
 
 // Vue hooks take `args` as `MaybeRefOrGetter`, so the key has to follow it: a plain getter call
@@ -917,6 +932,7 @@ function makeMutationHookCode(
 }
 
 function makeHookCode(
+  paths: OpenAPIPaths,
   pathStr: string,
   method: (typeof HTTP_METHODS)[number],
   item: ReturnType<typeof parsePathItem>,
@@ -952,7 +968,7 @@ function makeHookCode(
 ) {
   const op = item[method]
   if (!isOperationLike(op)) return null
-  const hookName = makeHookName(method, pathStr, config.hookPrefix)
+  const hookName = makeHookName(method, pathStr, config.hookPrefix, paths)
   const hasArgs = operationHasArgs(item, op, deps)
   // QUERY is safe and idempotent like GET (a read that carries its parameters in the body),
   // so it yields query hooks, not mutations; everything else mutates.
@@ -968,7 +984,7 @@ function makeHookCode(
   const excludedArgs = KEY_EXCLUDED_ARGS.filter((kind) => params.some((p) => p.in === kind))
   // Operation file naming uses methodPath (e.g. `getHealth`) — same convention as before
   // even though the corresponding fetcher function is no longer emitted.
-  const operationFileName = methodPath(method, pathStr)
+  const operationFileName = routeName(method, pathStr, paths)
   const argsType = makeArgsType(clientName, method, pathStr, hasBasePath)
   const runtimeAccess = makeRuntimeAccess(clientName, method, pathStr, hasBasePath)
   const responseType = makeResponseTypeFromClient(clientName, method, pathStr, hasBasePath)
@@ -979,7 +995,7 @@ function makeHookCode(
   // SWR: simpler pattern without options getter
   if (config.isSWR) {
     if (isQuery) {
-      const keyGetterName = makeQueryKeyGetterName(method, pathStr, true)
+      const keyGetterName = makeQueryKeyGetterName(method, pathStr, paths, true)
       const keyGetterCode = makeQueryKeyGetterCode(
         keyGetterName,
         hasArgs,
@@ -1015,7 +1031,7 @@ function makeHookCode(
           )
         : null
       // Infinite query support (only when x-pagination: true)
-      const infiniteKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr, true)
+      const infiniteKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr, paths, true)
       const infiniteKeyGetterCode = hasPagination
         ? makeInfiniteQueryKeyGetterCode(
             infiniteKeyGetterName,
@@ -1058,7 +1074,7 @@ function makeHookCode(
       } as const
     }
     // SWR mutation
-    const mutationKeyGetterName = makeMutationKeyGetterName(method, pathStr, true)
+    const mutationKeyGetterName = makeMutationKeyGetterName(method, pathStr, paths, true)
     const mutationKeyGetterCode = makeMutationKeyGetterCode(mutationKeyGetterName, method, honoPath)
     const hookCode = makeSWRMutationHookCode(
       hookName,
@@ -1081,9 +1097,9 @@ function makeHookCode(
   // TanStack Query / Vue Query / Svelte Query
   if (isQuery) {
     // For queries, use path-only naming (no HTTP method prefix)
-    const queryHookName = makeHookName(queryNameMethod(method), pathStr, config.hookPrefix)
-    const pathFuncName = methodPath(queryNameMethod(method), pathStr)
-    const keyGetterName = makeQueryKeyGetterName(method, pathStr)
+    const queryHookName = makeHookName(queryNameMethod(method), pathStr, config.hookPrefix, paths)
+    const pathFuncName = routeName(queryNameMethod(method), pathStr, paths)
+    const keyGetterName = makeQueryKeyGetterName(method, pathStr, paths)
     const optionsGetterName = `get${capitalize(pathFuncName)}QueryOptions`
     const keyGetterCode = makeQueryKeyGetterCode(
       keyGetterName,
@@ -1115,7 +1131,7 @@ function makeHookCode(
     )
     // Generate infinite query key getter (only when infinite query hooks are enabled
     // AND endpoint declares `x-pagination: true`)
-    const infiniteKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr)
+    const infiniteKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr, paths)
     const infiniteOptionsGetterName = `get${capitalize(pathFuncName)}InfiniteQueryOptions` as const
     const { infiniteQueryFn, useInfiniteQueryOptionsType } = config
     const hasInfinite = !!(infiniteQueryFn && useInfiniteQueryOptionsType) && hasPagination
@@ -1248,8 +1264,9 @@ function makeHookCode(
     } as const
   }
   // Mutation: emit factory + hook
-  const optionsGetterName = `get${capitalize(methodPath(method, pathStr))}MutationOptions` as const
-  const mutationKeyGetterName = makeMutationKeyGetterName(method, pathStr)
+  const optionsGetterName =
+    `get${capitalize(routeName(method, pathStr, paths))}MutationOptions` as const
+  const mutationKeyGetterName = makeMutationKeyGetterName(method, pathStr, paths)
   const mutationKeyGetterCode = makeMutationKeyGetterCode(mutationKeyGetterName, method, honoPath)
   const optionsGetterCode = makeMutationOptionsGetterCode(
     optionsGetterName,
@@ -1328,10 +1345,10 @@ function makeHookCodes(
             p,
             isOperationLike(operation) ? operationTags(operation) : undefined,
           )
-          const result = makeHookCode(p, method, pathItem, deps, config, client, hasBasePath)
+          const result = makeHookCode(paths, p, method, pathItem, deps, config, client, hasBasePath)
           return result
             ? {
-                hookName: makeHookName(method, p, config.hookPrefix),
+                hookName: makeHookName(method, p, config.hookPrefix, paths),
                 client,
                 code: result.code,
                 isQuery: result.isQuery,

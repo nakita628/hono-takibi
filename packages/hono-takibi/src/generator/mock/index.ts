@@ -33,7 +33,7 @@ import {
   cyclicNodes,
   ensureSuffix,
   makeStringLiteral,
-  methodPath,
+  routeName,
   normalizeTypes,
   statusCodeToNumber,
   toIdentifierPascalCase,
@@ -744,7 +744,7 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
   const processed = Object.entries(paths).flatMap(([p, pathItem]) =>
     Object.entries(pathItem).flatMap(([method, operation]) => {
       if (!(isHttpMethod(method) && isOperation(operation))) return []
-      const routeId = methodPath(method, p)
+      const routeId = routeName(method, p, paths)
       const security = extractSecurityInfo(
         isSecurityArray(operation.security) ? operation.security : undefined,
         isSecurityArray(openapi.security) ? openapi.security : undefined,

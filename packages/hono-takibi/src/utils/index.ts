@@ -49,6 +49,43 @@ export function methodPath(method: string, path: string) {
   return apiPath ? (`${method}${apiPath}${suffix}` as const) : method
 }
 
+/**
+ * `methodPath`, made unique within a document. Two paths that differ only in separators
+ * or case (`/billable-usage` and `/billable/usage`, `/indicator-types` and
+ * `/indicatorTypes`) share a name; the first in document order keeps it, and every later
+ * one is numbered (`getEventsIndicatorTypes2`). The number comes from the path alone, so
+ * every method of the same path, and every generator that names a route, a handler, a
+ * client function or a hook after it, agrees.
+ *
+ * @example
+ * routeName('get', '/events/indicatorTypes', { '/events/indicator-types': {}, '/events/indicatorTypes': {} })
+ * // 'getEventsIndicatorTypes2'
+ */
+export function routeName(method: string, path: string, paths: { readonly [k: string]: unknown }) {
+  const ordinal = pathOrdinals(paths).get(path) ?? 0
+  const name = methodPath(method, path)
+  return ordinal === 0 ? name : `${name}${ordinal + 1}`
+}
+
+// Answered once per document: the paths are read in order and each is given its place among
+// those it shares a name with. Keyed on the object itself, so the same document reads the same.
+const PATH_ORDINALS = new WeakMap<object, ReadonlyMap<string, number>>()
+
+function pathOrdinals(paths: { readonly [k: string]: unknown }) {
+  const known = PATH_ORDINALS.get(paths)
+  if (known !== undefined) return known
+  const seen = new Map<string, number>()
+  const ordinals = new Map<string, number>()
+  for (const path of Object.keys(paths)) {
+    const name = methodPath('', path)
+    const count = seen.get(name) ?? 0
+    seen.set(name, count + 1)
+    ordinals.set(path, count)
+  }
+  PATH_ORDINALS.set(paths, ordinals)
+  return ordinals
+}
+
 const SYMBOL_WORDS: { readonly [k: string]: string } = {
   '-': 'Dash',
   _: 'Underscore',

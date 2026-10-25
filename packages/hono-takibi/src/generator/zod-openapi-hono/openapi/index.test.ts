@@ -515,3 +515,50 @@ export const getOrdersRoute=createRoute({method:"get",path:"/orders",operationId
 export const orderStatusChangedPostWebhook={method:"post",path:"/orderStatusChanged",operationId:"onOrderStatusChanged",responses:{200:{description:"Webhook received"}}}`)
   })
 })
+
+// #368: two schemas whose names make one identifier
+describe('zodOpenAPIHono component names that collide', () => {
+  it('declares both schemas and refers to the right one', () => {
+    const spec = {
+      openapi: '3.0.3',
+      info: { title: 'collide', version: '1.0.0' },
+      paths: {
+        '/sinkholes': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/api_response_common_failure' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          'api-response-common-failure': {
+            type: 'object',
+            required: ['success'],
+            properties: { success: { type: 'boolean' } },
+          },
+          api_response_common_failure: {
+            allOf: [{ $ref: '#/components/schemas/api-response-common-failure' }],
+          },
+        },
+      },
+    } as OpenAPI
+    const code = zodOpenAPIHono(spec)
+    expect(code).toContain(
+      'const ApiResponseCommonFailureSchema=z.object({success:z.boolean()}).openapi({"required":["success"]}).openapi(\'ApiResponseCommonFailure\')',
+    )
+    expect(code).toContain(
+      "const ApiResponseCommonFailure2Schema=ApiResponseCommonFailureSchema.openapi('ApiResponseCommonFailure2')",
+    )
+    expect(code).toContain('schema:ApiResponseCommonFailure2Schema')
+    expect(code).not.toContain('Type=')
+  })
+})
