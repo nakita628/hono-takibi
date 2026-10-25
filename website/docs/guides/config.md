@@ -23,6 +23,8 @@ export default defineConfig({
 })
 ```
 
+`input` is a local document named by its extension (`.yaml`, `.yml`, `.json`, or `.tsp` for TypeSpec), or an `http(s)` URL with or without one (`https://openapi.vercel.sh/`): a remote document is read by its content.
+
 ::: code-group
 
 ```sh [npm]
