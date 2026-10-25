@@ -38,7 +38,7 @@ export default defineConfig({
 })
 ```
 
-`input` also takes an `http(s)` URL, with or without a file extension (`https://openapi.vercel.sh/`): a remote document is read by its content.
+`input` also takes an `http(s)` URL, with or without a file extension: a remote document is read by its content.
 
 ```bash
 npx hono-takibi
