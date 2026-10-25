@@ -36,8 +36,17 @@ export function parseOpenAPI(input: `${string}.yaml` | `${string}.json` | `${str
       if (!document) throw new Error(`TypeSpec emitted no OpenAPI document: ${input}`)
       return document as OpenAPI
     },
-    catch: (error) =>
-      new OpenAPIError({ message: error instanceof Error ? error.message : String(error) }),
+    catch: (error) => {
+      if (!(error instanceof Error)) return new OpenAPIError({ message: String(error) })
+      const code = 'ioErrorCode' in error ? error.ioErrorCode : undefined
+      const missingReason = !error.message.trim() || error.message.trimEnd().endsWith(':')
+      return new OpenAPIError({
+        message:
+          missingReason && typeof code === 'string' && code
+            ? `${error.message}${code}`
+            : error.message,
+      })
+    },
   })
 }
 

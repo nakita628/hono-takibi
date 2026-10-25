@@ -2,12 +2,41 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
+import SwaggerParser from '@apidevtools/swagger-parser'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { runGenerator, runGeneratorError } from '../testing/index.js'
 import { parseOpenAPI } from './index.js'
 
 describe('parseOpenAPI', () => {
+  it('includes the resolver error code when a download has no reason text', async () => {
+    const url = 'https://example.com:81/openapi.yaml'
+    const failure = Object.assign(new Error(`Error downloading ${url}: `), {
+      ioErrorCode: 'ETIMEDOUT',
+    })
+    const bundle = vi.spyOn(SwaggerParser, 'bundle').mockRejectedValueOnce(failure)
+    try {
+      const error = await runGeneratorError(parseOpenAPI(url))
+      expect(error.message).toBe(`Error downloading ${url}: ETIMEDOUT`)
+    } finally {
+      bundle.mockRestore()
+    }
+  })
+
+  it('preserves an existing download reason without duplicating its code', async () => {
+    const url = 'https://example.com/openapi.yaml'
+    const message = `Error downloading ${url}: getaddrinfo ENOTFOUND example.com`
+    const bundle = vi
+      .spyOn(SwaggerParser, 'bundle')
+      .mockRejectedValueOnce(Object.assign(new Error(message), { ioErrorCode: 'ENOTFOUND' }))
+    try {
+      const error = await runGeneratorError(parseOpenAPI(url))
+      expect(error.message).toBe(message)
+    } finally {
+      bundle.mockRestore()
+    }
+  })
+
   it.concurrent('should return ok for a valid OpenAPI JSON file', async () => {
     const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-openapi-'))
     const input = `${directory}/openapi.json` as const
