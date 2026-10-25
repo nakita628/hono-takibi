@@ -114,7 +114,9 @@ function makeSingleTypeString(
 }
 
 function wrapForArrayElement(type: string) {
-  return type.startsWith('readonly ') ? `(${type})` : type
+  return type.startsWith('readonly ') || (type.includes('|') && !type.startsWith('('))
+    ? `(${type})`
+    : type
 }
 
 function makeArrayTypeString(

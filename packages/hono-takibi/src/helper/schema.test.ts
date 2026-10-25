@@ -413,6 +413,28 @@ describe('makeTypeDefinition', () => {
     expect(typeDef).toBe('type NodeType={value?:string;children?:NodeType[]}')
   })
 
+  it.concurrent('should group enum array elements in a circular type definition', () => {
+    const nodeSchemas = {
+      Node: {
+        type: 'object',
+        properties: {
+          tags: {
+            type: 'array',
+            items: { type: 'string', enum: ['alpha', 'beta'] },
+            nullable: true,
+          },
+          children: { type: 'array', items: { $ref: '#/components/schemas/Node' } },
+        },
+      },
+    } as const
+    const analysis = analyzeCircularSchemas(nodeSchemas, Object.keys(nodeSchemas))
+    const info = makeSchemaInfo('Node', nodeSchemas.Node, analysis)
+
+    expect(makeTypeDefinition(info, analysis.cyclicGroupPascal)).toBe(
+      "type NodeType={tags?:(('alpha'|'beta')[]|null);children?:NodeType[]}",
+    )
+  })
+
   it.concurrent('should generate readonly type definition', () => {
     const selfRefSchemas = {
       Node: {

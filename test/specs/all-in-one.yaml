@@ -164,6 +164,12 @@ components:
       properties:
         name:
           type: string
+        tags:
+          type: array
+          items:
+            type: string
+            enum: [alpha, beta]
+          nullable: true
         children:
           type: array
           items:
