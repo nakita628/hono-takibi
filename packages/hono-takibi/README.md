@@ -21,7 +21,7 @@ From one document it can generate:
 npm install -D hono-takibi
 ```
 
-Pass an OpenAPI (`.yaml`, `.json`) or TypeSpec (`.tsp`) document and an output file:
+Pass an OpenAPI (`.yaml`, `.yml`, `.json`) or TypeSpec (`.tsp`) document and an output file:
 
 ```bash
 npx hono-takibi openapi.yaml -o src/routes.ts
@@ -37,6 +37,8 @@ export default defineConfig({
   output: './src/routes.ts',
 })
 ```
+
+`input` also takes an `http(s)` URL, with or without a file extension (`https://openapi.vercel.sh/`): a remote document is read by its content.
 
 ```bash
 npx hono-takibi
