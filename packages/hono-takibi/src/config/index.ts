@@ -8,7 +8,7 @@ import {
   COMPONENT_NAMES,
   HOOK_LIBRARIES,
   IDENTIFIER_PATTERN,
-  INPUT_EXTENSIONS,
+  isInputPath,
 } from '../constants/index.js'
 import type { InputPath } from '../constants/index.js'
 
@@ -43,13 +43,18 @@ import type { InputPath } from '../constants/index.js'
 // })
 
 const ConfigSchema = Schema.Struct({
-  input: Schema.declare<InputPath>(
-    Schema.is(Schema.TemplateLiteral([Schema.String, Schema.Literals(INPUT_EXTENSIONS)])),
-    { message: 'must be .yaml | .yml | .json | .tsp' },
-  ).annotate({
+  input: Schema.declare<InputPath>(isInputPath, {
+    message: 'must be .yaml | .yml | .json | .tsp, or an http(s) URL',
+  }).annotate({
     title: 'Input document',
-    description: 'OpenAPI or TypeSpec entry document that every generator reads.',
-    examples: ['openapi.yaml', './spec/openapi.json', './spec/main.tsp'],
+    description:
+      'OpenAPI or TypeSpec entry document that every generator reads: a file by its extension, or an http(s) URL.',
+    examples: [
+      'openapi.yaml',
+      './spec/openapi.json',
+      './spec/main.tsp',
+      'https://openapi.vercel.sh/',
+    ],
   }),
   output: Schema.optionalKey(
     Schema.declare<`${string}.ts`>(Schema.is(Schema.TemplateLiteral([Schema.String, '.ts'])), {

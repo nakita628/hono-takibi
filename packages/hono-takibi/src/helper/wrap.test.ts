@@ -62,6 +62,37 @@ describe('conformDefault', () => {
 })
 
 describe('wrap', () => {
+  // #371: a Parameter Object has no `enum`; a Swagger 2.0 leftover beside `schema` is not written
+  describe('param keys outside the Parameter Object', () => {
+    it.concurrent('writes only the keys of a Parameter Object and x- extensions', () => {
+      const parameters = {
+        name: 'dispute_state',
+        in: 'query',
+        description: 'Filters the disputes in the response by a state.',
+        'x-enumDescriptions': [{ value: 'RESOLVED', description: 'Resolved disputes.' }],
+        schema: { type: 'string' },
+        enum: ['REQUIRED_ACTION', 'RESOLVED'],
+        type: 'string',
+        required: false,
+      } as unknown as Parameter
+      expect(wrap('z.string()', { type: 'string' }, { parameters })).toBe(
+        'z.string().exactOptional().openapi({param:{"name":"dispute_state","in":"query","description":"Filters the disputes in the response by a state.","x-enumDescriptions":[{"value":"RESOLVED","description":"Resolved disputes."}],"schema":{"type":"string"},"required":false}})',
+      )
+    })
+  })
+
+  // #370: a pattern no JavaScript literal can stand for stays in the document
+  describe('pattern that is not a JavaScript regex', () => {
+    it.concurrent('keeps the pattern in .openapi() when .regex() cannot take it', () => {
+      expect(wrap('z.string()', { type: 'string', pattern: 'a++' })).toBe(
+        'z.string().openapi({"pattern":"a++"})',
+      )
+      expect(wrap('z.string().regex(/^a$/i)', { type: 'string', pattern: '(?i)^a$' })).toBe(
+        'z.string().regex(/^a$/i)',
+      )
+    })
+  })
+
   // #369
   describe('default that is not a value of the schema', () => {
     it.concurrent('leaves an enum default the enum does not list to the document', () => {

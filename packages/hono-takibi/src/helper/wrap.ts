@@ -6,6 +6,7 @@ import {
   isSchemaArray,
 } from '../guard/index.js'
 import type { Header, Parameter, Schema, Type } from '../openapi/index.js'
+import { regexLiteral } from '../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { makeExamples } from './openapi.js'
 import { WIRE_EMPTY, WIRE_INHERITED, WIRE_NULL, wireStyle } from './wire.js'
@@ -163,11 +164,32 @@ export function undecorated(schema: Schema) {
   )
 }
 
+/** The keys of a Parameter Object (OpenAPI 3.1 §4.8.12); a document may carry others. */
+const PARAMETER_KEYS = new Set([
+  'name',
+  'in',
+  'description',
+  'required',
+  'deprecated',
+  'allowEmptyValue',
+  'style',
+  'explode',
+  'allowReserved',
+  'schema',
+  'content',
+  'example',
+  'examples',
+])
+
 function makeSerializedParam(param: Parameter) {
   // Skip keys whose value is `undefined` so the emitted object never contains a
-  // bare `undefined`.
+  // bare `undefined`. Only what a Parameter Object has, and `x-` extensions, is written: a
+  // Swagger 2.0 leftover beside `schema` (`enum`, `type`) would make `.openapi({param})`
+  // miss `ParameterObject` and fail to type-check (#371).
   const entries = Object.entries(param)
-    .filter(([, value]) => value !== undefined)
+    .filter(
+      ([key, value]) => value !== undefined && (PARAMETER_KEYS.has(key) || key.startsWith('x-')),
+    )
     .map(([key, value]) => {
       if (key === 'examples' && isExamplesInput(value)) {
         return `"examples":${makeExamples(value)}`
@@ -475,8 +497,12 @@ export function wrap(
           headerDupKeys.has(k)
         ),
     ),
-    // A default that `.default()` could not take still belongs to the document.
+    // A default that `.default()` could not take still belongs to the document, as does a
+    // pattern that no JavaScript regex literal can stand for (#370).
     ...(droppedDefault ? [['default', schema.default] as const] : []),
+    ...(typeof schema.pattern === 'string' && regexLiteral(schema.pattern) === undefined
+      ? [['pattern', schema.pattern] as const]
+      : []),
   ])
   const args = filterUnsupportedProps(baseArgs)
   const headerMetaProps = meta?.headers

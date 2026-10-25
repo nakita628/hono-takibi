@@ -2,17 +2,16 @@ import { Console, Effect, FileSystem, Option, Path, Ref, Schema, Stream } from '
 import { Argument, CliError, Command, Flag } from 'effect/cli'
 
 import manifest from '../../package.json' with { type: 'json' }
-import { INPUT_EXTENSIONS } from '../constants/index.js'
+import { INPUT_EXTENSIONS, isInputPath } from '../constants/index.js'
 
 const COMMAND_NAME = 'hono-takibi'
 
 const DEFAULT_CONFIG_FILE = 'hono-takibi.config.ts'
 
 const DocumentPathSchema = Schema.String.pipe(
-  Schema.refine(
-    Schema.is(Schema.TemplateLiteral([Schema.String, Schema.Literals(INPUT_EXTENSIONS)])),
-    { message: 'an OpenAPI (.yaml, .yml, .json) or TypeSpec (.tsp) document' },
-  ),
+  Schema.refine(isInputPath, {
+    message: 'an OpenAPI (.yaml, .yml, .json) or TypeSpec (.tsp) document',
+  }),
 ).annotate({
   title: 'Input document',
   description: 'OpenAPI or TypeSpec document the one-shot mode generates from.',
@@ -67,15 +66,18 @@ function loadConfig(configPath: string, reload: boolean) {
 
 function runJobs(config: Effect.Success<ReturnType<typeof loadConfig>>) {
   return Effect.gen(function* () {
-    const [{ parseOpenAPI }, { FormatOptions }, { cleanSplitOutputs, makeJob, packageRoots }] =
-      yield* Effect.promise(() =>
-        Promise.all([
-          import('../openapi/index.js'),
-          import('../format/index.js'),
-          import('../shared/index.js'),
-        ]),
-      )
-    const openAPI = yield* parseOpenAPI(config.input)
+    const [
+      { parseOpenAPI },
+      { FormatOptions },
+      { cleanSplitOutputs, makeJob, openAPI3, packageRoots },
+    ] = yield* Effect.promise(() =>
+      Promise.all([
+        import('../openapi/index.js'),
+        import('../format/index.js'),
+        import('../shared/index.js'),
+      ]),
+    )
+    const openAPI = yield* openAPI3(yield* parseOpenAPI(config.input), config.input)
     const jobs = makeJob(openAPI, config, yield* packageRoots(openAPI, config))
     yield* cleanSplitOutputs(jobs.filter((job) => job.split).map((job) => job.output))
     const messages = yield* Effect.forEach(jobs, (job) => job.run(job.output), {
@@ -333,10 +335,15 @@ function generate(args: Command.Command.Config.Infer<typeof commandLine>) {
       })
     }
     if (input !== undefined && output !== undefined) {
-      const [{ parseOpenAPI }, { takibi }] = yield* Effect.promise(() =>
-        Promise.all([import('../openapi/index.js'), import('../core/index.js')]),
+      const [{ parseOpenAPI }, { takibi }, { openAPI3 }] = yield* Effect.promise(() =>
+        Promise.all([
+          import('../openapi/index.js'),
+          import('../core/index.js'),
+          import('../shared/index.js'),
+        ]),
       )
-      return yield* Console.log(yield* takibi(yield* parseOpenAPI(input), output))
+      const document = yield* openAPI3(yield* parseOpenAPI(input), input)
+      return yield* Console.log(yield* takibi(document, output))
     }
     const resolvedConfig = configPath ?? DEFAULT_CONFIG_FILE
     if (args.watch) {

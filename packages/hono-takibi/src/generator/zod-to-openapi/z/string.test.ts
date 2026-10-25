@@ -876,6 +876,21 @@ describe('string', () => {
     })
   })
 
+  // #370: a PCRE inline flag group becomes the flag; what JavaScript cannot compile is not written
+  describe('pattern as a JavaScript regex literal', () => {
+    it.concurrent.each<[Schema, string]>([
+      [{ type: 'string', pattern: '(?i)^(pay|details)$' }, 'z.string().regex(/^(pay|details)$/i)'],
+      [{ type: 'string', pattern: '(?im)^a$' }, 'z.string().regex(/^a$/im)'],
+      [{ type: 'string', pattern: '(?i)\\p{L}+' }, 'z.string().regex(/\\p{L}+/iu)'],
+      // `(?x)` has no flag, and a possessive quantifier no JavaScript reading
+      [{ type: 'string', pattern: '(?x)^a b$' }, 'z.string()'],
+      [{ type: 'string', pattern: 'a++' }, 'z.string()'],
+      [{ type: 'string', pattern: '(?i)^(pay|details$' }, 'z.string()'],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
   describe('regex-literal injection hardening (x-* values escaped)', () => {
     it.concurrent.each<[Schema, string]>([
       [{ type: 'string', format: 'email', 'x-emailRegex': 'a/b' }, 'z.email({pattern:/a\\/b/})'],
@@ -883,8 +898,8 @@ describe('string', () => {
       [{ type: 'string', format: 'uri', 'x-urlHostname': 'a/b' }, 'z.url({hostname:/a\\/b/})'],
       // A slash after an escaped backslash is unescaped; the look-behind used to miss it.
       [
-        { type: 'string', pattern: '\\p{L}\\\\/);globalThis.pwned=true;(2' },
-        'z.string().regex(/\\p{L}\\\\\\/);globalThis.pwned=true;(2/u)',
+        { type: 'string', pattern: '(\\p{L}\\\\/);globalThis.pwned=true;(2)' },
+        'z.string().regex(/(\\p{L}\\\\\\/);globalThis.pwned=true;(2)/u)',
       ],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)

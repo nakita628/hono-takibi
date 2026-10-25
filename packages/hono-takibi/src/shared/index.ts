@@ -309,6 +309,25 @@ function importTargets(config: Config) {
  * Fails when a file would import another package that names no `package`: the import
  * could not be written.
  */
+/**
+ * The document, when it is OpenAPI 3; a Swagger 2.0 document fails instead. 2.0 keeps a
+ * parameter's type on the parameter, a body in `in: formData` / `in: body` parameters and a
+ * response schema in `responses.<code>.schema`, none of which the reader of OpenAPI 3 looks
+ * at: it would generate `z.any()` for every parameter and no response schema, and look
+ * complete (#374).
+ */
+export function openAPI3(document: OpenAPI, input: string) {
+  const swagger: unknown = Reflect.get(document, 'swagger')
+  if (document.openapi === undefined && typeof swagger === 'string') {
+    return Effect.fail(
+      new GenerateError({
+        message: `${input} is a Swagger ${swagger} document; hono-takibi reads OpenAPI 3.x. Convert it first (npx swagger2openapi ${input} -o openapi3.json).`,
+      }),
+    )
+  }
+  return Effect.succeed(document)
+}
+
 export function packageRoots(openAPI: OpenAPI, config: Config) {
   return Effect.gen(function* () {
     const referenced = referencedKinds(openAPI)

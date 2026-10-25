@@ -10,6 +10,7 @@ import { runGenerator, runGeneratorError } from '../testing/index.js'
 import {
   cleanSplitOutputs,
   makeJob,
+  openAPI3,
   outsideSources,
   packageRoots,
   referencedKinds,
@@ -2050,5 +2051,24 @@ describe('referencedKinds covers every import the generators write', () => {
         [name]: [],
       })
     }
+  })
+})
+
+// #374: a Swagger 2.0 document keeps types, bodies and response schemas where OpenAPI 3 does not
+describe('openAPI3', () => {
+  it.concurrent('fails for a Swagger 2.0 document, naming the file and the way out', async () => {
+    const swagger = { swagger: '2.0', info: { title: 'A', version: '1' }, paths: {} } as OpenAPI
+    const error = await runGeneratorError(openAPI3(swagger, 'openapi.json'))
+    expect(error.message).toBe(
+      'openapi.json is a Swagger 2.0 document; hono-takibi reads OpenAPI 3.x. Convert it first (npx swagger2openapi openapi.json -o openapi3.json).',
+    )
+  })
+
+  it.concurrent('answers an OpenAPI 3 document itself', async () => {
+    const document = { openapi: '3.0.3', info: { title: 'A', version: '1' }, paths: {} } as OpenAPI
+    expect(await runGenerator(openAPI3(document, 'openapi.yaml'))).toBe(document)
+    // a document that states no version is taken as OpenAPI 3, as before
+    const bare = { paths: {} } as OpenAPI
+    expect(await runGenerator(openAPI3(bare, 'openapi.yaml'))).toBe(bare)
   })
 })

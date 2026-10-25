@@ -12,7 +12,13 @@ import { FormatOptions } from '../format/index.js'
 import { isRecord } from '../guard/index.js'
 import { appEntryOutput, isInsideDirectory } from '../helper/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { cleanSplitOutputs, makeJob, outsideSources, packageRoots } from '../shared/index.js'
+import {
+  cleanSplitOutputs,
+  makeJob,
+  openAPI3,
+  outsideSources,
+  packageRoots,
+} from '../shared/index.js'
 
 type ViteDevServer = {
   watcher: {
@@ -230,7 +236,11 @@ function sameOutputSnapshot(
  */
 function runAllGenerationTasks(config: Config) {
   return Effect.gen(function* () {
-    const openAPIResult = yield* Effect.result(parseOpenAPI(config.input))
+    const parsed = yield* Effect.result(parseOpenAPI(config.input))
+    if (Result.isFailure(parsed)) {
+      return { logs: [`❌ parseOpenAPI: ${parsed.failure.message}`], changed: false }
+    }
+    const openAPIResult = yield* Effect.result(openAPI3(parsed.success, config.input))
     if (Result.isFailure(openAPIResult)) {
       return { logs: [`❌ parseOpenAPI: ${openAPIResult.failure.message}`], changed: false }
     }
