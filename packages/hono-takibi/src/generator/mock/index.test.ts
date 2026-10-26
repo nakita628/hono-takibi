@@ -159,7 +159,7 @@ export const getAuthMeRoute = createRoute({
   },
 })
 
-function mockAuthUser() {
+function mockAuthUser(): z.infer<typeof AuthUserSchema> {
   return { name: faker.person.fullName() }
 }
 
@@ -1394,7 +1394,7 @@ export const getUserRoute = createRoute({
   },
 })
 
-function mockUserId() {
+function mockUserId(): z.infer<typeof UserIdSchema> {
   return faker.string.alpha({ length: { min: 5, max: 20 } }) as z.infer<typeof UserIdSchema>
 }
 
@@ -1778,15 +1778,15 @@ export const getNRoute = createRoute({
   },
 })
 
-function mockuserId() {
+function mockuserId(): z.infer<typeof UserIdSchema> {
   return faker.string.alpha({ length: { min: 5, max: 20 } }) as z.infer<typeof UserIdSchema>
 }
 
-function mocknotificationType() {
+function mocknotificationType(): z.infer<typeof NotificationTypeSchema> {
   return faker.helpers.arrayElement(['follow', 'like'] as const)
 }
 
-function mockNotification() {
+function mockNotification(): z.infer<typeof NotificationSchema> {
   return { id: mockuserId(), type: mocknotificationType() }
 }
 
@@ -2322,7 +2322,7 @@ export const getPostsRoute = createRoute({
   },
 })
 
-function mockPost() {
+function mockPost(): z.infer<typeof PostSchema> {
   return { id: faker.number.int({ min: 1, max: 99999 }) }
 }
 
@@ -2783,7 +2783,7 @@ export const getCounterRoute = createRoute({
   },
 })
 
-function mockCounter() {
+function mockCounter(): z.infer<typeof CounterSchema> {
   return { total: faker.number.bigInt({ min: 0n, max: 9007199254740991n }) }
 }
 
@@ -3107,7 +3107,7 @@ export const getProfilesProfileIdRoute = createRoute({
   },
 })
 
-function mockUserProfile() {
+function mockUserProfile(): z.infer<typeof UserProfileSchema> {
   return {
     'first-name': faker.person.firstName(),
     role: faker.helpers.arrayElement(['admin', 'member'] as const),
@@ -3181,7 +3181,7 @@ export const getProfilesProfileIdRoute = createRoute({
   },
 })
 
-function mockUserProfile() {
+function mockUserProfile(): z.infer<typeof UserProfileSchema> {
   return { 'first-name': faker.person.firstName(), role: 'admin' as const }
 }
 
@@ -3397,7 +3397,7 @@ export const getOrdersOrderIdRoute = createRoute({
   },
 })
 
-function mockProblem() {
+function mockProblem(): z.infer<typeof ProblemSchema> {
   return { title: faker.lorem.sentence() }
 }
 

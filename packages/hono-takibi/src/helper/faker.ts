@@ -2,6 +2,7 @@ import { COMPONENT_REF_PREFIX } from '../constants/index.js'
 import { hasNumericConstraint, isSchemaArray, isSchemaObject } from '../guard/index.js'
 import type { Schema, Type } from '../openapi/index.js'
 import {
+  ensureSuffix,
   makeSafeKey,
   makeStringLiteral,
   normalizeTypes,
@@ -487,10 +488,17 @@ function recursiveCall(schema: Schema, recursive: ReadonlySet<string> | undefine
     : undefined
 }
 
+/**
+ * The head of the function that mocks a component schema. It answers the type the schema
+ * infers, so that a value that does not fit is reported there, once, and the handlers that
+ * answer with it type-check against the route (a nested object that takes any key, read
+ * through Hono's own mapping of the response, would otherwise not). A recursive schema's
+ * function answers `any`: its depth guard answers `undefined` where the schema does not.
+ */
 export function mockFunctionSignature(refName: string, isRecursive: boolean) {
   return isRecursive
     ? `function ${mockFunctionName(refName)}(depth = 0): any`
-    : `function ${mockFunctionName(refName)}()`
+    : `function ${mockFunctionName(refName)}(): z.infer<typeof ${toIdentifierPascalCase(ensureSuffix(refName, 'Schema'))}>`
 }
 
 // Resolves a `$ref` against the component schema map. Returns the schema
