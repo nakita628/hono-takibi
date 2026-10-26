@@ -1,12 +1,12 @@
 import { ARROW_FUNCTION_PATTERN } from '../../constants/index.js'
 import {
-  discriminatedBranches,
   hasTypelessConstraint,
   isRefOnly,
   isSchemaArray,
   isSingleSchema,
   isUntypedObject,
 } from '../../guard/index.js'
+import { discriminatedBranches } from '../../helper/discriminator.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { makeRef } from '../../helper/openapi.js'
 import {
