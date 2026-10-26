@@ -786,28 +786,38 @@ function schemaValue(
         // A `type: [..., 'null']` member already yields `null` from its own value.
         const isNullable = v.nullable === true || normalizeTypes(v.type).includes('null')
         // An optional property may be absent and a nullable one may be null, so
-        // the mock exercises both — staying faithful to what the spec allows.
+        // the mock exercises both — staying faithful to what the spec allows. An absent
+        // property is left out of the object, not written as `undefined`: with
+        // `exactOptionalPropertyTypes` an optional property does not take `undefined`, and
+        // an object that takes any key (`additionalProperties: true`) takes no `undefined`
+        // among its values.
         if (value === 'undefined') {
-          return requiredSet.has(k) ? `${key}: null` : `${key}: undefined`
+          return requiredSet.has(k) ? `${key}: null` : undefined
         }
         if (!(requiredSet.has(k) || isNullable)) {
-          const optional = `faker.helpers.arrayElement([${value}, undefined])`
-          return containsRecursion(value)
-            ? `${key}: depth < ${MAX_RECURSION_DEPTH} ? ${optional} : undefined`
-            : `${key}: ${optional}`
+          if (!containsRecursion(value)) {
+            return `...(faker.datatype.boolean() ? { ${key}: ${value} } : {})`
+          }
+          // The depth is checked once, with the draw: a recursive value guarded by it
+          // on its own (`depth < N ? mockX(depth + 1) : undefined`) is written unguarded.
+          const guarded = value.match(/^depth < \d+ \? ([\s\S]*) : undefined$/u)
+          const drawn = guarded?.[1] ?? value
+          return `...(depth < ${MAX_RECURSION_DEPTH} && faker.datatype.boolean() ? { ${key}: ${drawn} } : {})`
         }
         if (v.nullable) {
           return `${key}: faker.helpers.arrayElement([${value}, null])`
         }
         return `${key}: ${value}`
       })
+      .filter((entry) => entry !== undefined)
       .join(', ')
   }
   if (schema.type === 'object' && schema.properties) {
     const required = [...(schema.required ?? []), ...conditionalRequired(schema)]
     const optional = Object.keys(schema.properties).filter((k) => !required.includes(k))
     const missing = Math.max(0, (schema.minProperties ?? 0) - required.length)
-    return `{ ${renderProps(schema.properties, [...required, ...optional.slice(0, missing)])} }`
+    const props = renderProps(schema.properties, [...required, ...optional.slice(0, missing)])
+    return props === '' ? '{}' : `{ ${props} }`
   }
   if (schema.type === 'object' && !schema.properties && schema.additionalProperties) {
     // A map (`z.record(z.string(), X)`) gets a few entries so consumers see its
@@ -865,7 +875,8 @@ function schemaValue(
         .map(([k, v]) => renderProps({ [k]: v }, [k])),
     )
     const own = schema.properties ? [renderProps(schema.properties, required)] : []
-    return `{ ${[...spreads, ...promoted, ...own].join(', ')} }`
+    const entries = [...spreads, ...promoted, ...own].filter((entry) => entry !== '')
+    return entries.length === 0 ? '{}' : `{ ${entries.join(', ')} }`
   }
   const union =
     schema.oneOf && schema.oneOf.length > 0

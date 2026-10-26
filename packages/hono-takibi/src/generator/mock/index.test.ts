@@ -71,10 +71,9 @@ const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => 
   resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(
     {
-      status: faker.helpers.arrayElement([
-        faker.helpers.arrayElement(['active', 'inactive', 'pending']),
-        undefined,
-      ]),
+      ...(faker.datatype.boolean()
+        ? { status: faker.helpers.arrayElement(['active', 'inactive', 'pending']) }
+        : {}),
     },
     200,
   )
@@ -964,11 +963,10 @@ export const getTreeRoute = createRoute({
 
 function mockNode(depth = 0): any {
   return {
-    id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]),
-    next:
-      depth < 2
-        ? faker.helpers.arrayElement([depth < 2 ? mockNode(depth + 1) : undefined, undefined])
-        : undefined,
+    ...(faker.datatype.boolean() ? { id: faker.number.int({ min: 1, max: 99999 }) } : {}),
+    ...(depth < 2 && faker.datatype.boolean()
+      ? { next: depth < 2 ? mockNode(depth + 1) : undefined }
+      : {}),
   }
 }
 
@@ -1159,7 +1157,7 @@ const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
     return c.body(null, 401)
   }
   return c.json(
-    { id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]) },
+    { ...(faker.datatype.boolean() ? { id: faker.number.int({ min: 1, max: 99999 }) } : {}) },
     200,
   )
 }
@@ -1235,7 +1233,7 @@ const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
     return c.body(null, 401)
   }
   return c.json(
-    { id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]) },
+    { ...(faker.datatype.boolean() ? { id: faker.number.int({ min: 1, max: 99999 }) } : {}) },
     200,
   )
 }
@@ -1325,21 +1323,19 @@ export const getParentRoute = createRoute({
 
 function mockChild(depth = 0): any {
   return {
-    id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]),
-    parent:
-      depth < 2
-        ? faker.helpers.arrayElement([depth < 2 ? mockParent(depth + 1) : undefined, undefined])
-        : undefined,
+    ...(faker.datatype.boolean() ? { id: faker.number.int({ min: 1, max: 99999 }) } : {}),
+    ...(depth < 2 && faker.datatype.boolean()
+      ? { parent: depth < 2 ? mockParent(depth + 1) : undefined }
+      : {}),
   }
 }
 
 function mockParent(depth = 0): any {
   return {
-    id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]),
-    child:
-      depth < 2
-        ? faker.helpers.arrayElement([depth < 2 ? mockChild(depth + 1) : undefined, undefined])
-        : undefined,
+    ...(faker.datatype.boolean() ? { id: faker.number.int({ min: 1, max: 99999 }) } : {}),
+    ...(depth < 2 && faker.datatype.boolean()
+      ? { child: depth < 2 ? mockChild(depth + 1) : undefined }
+      : {}),
   }
 }
 
@@ -1471,20 +1467,18 @@ const postItemsRouteHandler: RouteHandler<typeof postItemsRoute> = async (c) => 
     return preferResponse(
       Number(prefer.code ?? 200),
       JSON.stringify({
-        id: faker.helpers.arrayElement([
-          faker.string.alpha({ length: { min: 5, max: 20 } }),
-          undefined,
-        ]),
+        ...(faker.datatype.boolean()
+          ? { id: faker.string.alpha({ length: { min: 5, max: 20 } }) }
+          : {}),
       }),
       'application/json',
     )
   }
   return c.json(
     {
-      id: faker.helpers.arrayElement([
-        faker.string.alpha({ length: { min: 5, max: 20 } }),
-        undefined,
-      ]),
+      ...(faker.datatype.boolean()
+        ? { id: faker.string.alpha({ length: { min: 5, max: 20 } }) }
+        : {}),
     },
     200,
   )
@@ -1698,20 +1692,18 @@ const getBothRouteHandler: RouteHandler<typeof getBothRoute> = async (c) => {
     return preferResponse(
       Number(prefer.code ?? 200),
       JSON.stringify({
-        b: faker.helpers.arrayElement([
-          faker.string.alpha({ length: { min: 5, max: 20 } }),
-          undefined,
-        ]),
+        ...(faker.datatype.boolean()
+          ? { b: faker.string.alpha({ length: { min: 5, max: 20 } }) }
+          : {}),
       }),
       'application/json',
     )
   }
   return c.json(
     {
-      a: faker.helpers.arrayElement([
-        faker.string.alpha({ length: { min: 5, max: 20 } }),
-        undefined,
-      ]),
+      ...(faker.datatype.boolean()
+        ? { a: faker.string.alpha({ length: { min: 5, max: 20 } }) }
+        : {}),
     },
     200,
   )
@@ -1874,7 +1866,7 @@ export const getMeRoute = createRoute({
 
 const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
   resolvePrefer(c.req, { '200': [] }, '200')
-  return c.json({ id: 1, name: 'Alice' } as z.infer<typeof UserSchema>, 200)
+  return c.json({ id: 1, name: 'Alice' } as unknown as z.infer<typeof UserSchema>, 200)
 }
 
 const app = new OpenAPIHono()
@@ -1956,9 +1948,9 @@ export const getMeRoute = createRoute({
 const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
   const prefer = resolvePrefer(c.req, { '200': ['first', 'second'] }, '200')
   if (prefer.key === '200' && prefer.example === 'second') {
-    return c.json({ id: 2, name: 'Bob' } as z.infer<typeof UserSchema>, 200)
+    return c.json({ id: 2, name: 'Bob' } as unknown as z.infer<typeof UserSchema>, 200)
   }
-  return c.json({ id: 1, name: 'Alice' } as z.infer<typeof UserSchema>, 200)
+  return c.json({ id: 1, name: 'Alice' } as unknown as z.infer<typeof UserSchema>, 200)
 }
 
 const app = new OpenAPIHono()
@@ -2033,7 +2025,7 @@ export const getMeRoute = createRoute({
 
 const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
   resolvePrefer(c.req, { '200': ['default'] }, '200')
-  return c.json({ id: 1, name: 'Alice' } as z.infer<typeof UserSchema>, 200)
+  return c.json({ id: 1, name: 'Alice' } as unknown as z.infer<typeof UserSchema>, 200)
 }
 
 const app = new OpenAPIHono()
@@ -2044,7 +2036,7 @@ export default app
 `)
     })
 
-    it('returns an inline-schema example verbatim without a cast', async () => {
+    it('casts an inline-schema example to the response type the route declares', async () => {
       const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
@@ -2094,7 +2086,12 @@ export const getVRoute = createRoute({
 
 const getVRouteHandler: RouteHandler<typeof getVRoute> = async (c) => {
   resolvePrefer(c.req, { '200': [] }, '200')
-  return c.json({ ok: true }, 200)
+  return c.json(
+    { ok: true } as unknown as z.infer<
+      (typeof getVRoute)['responses'][200]['content']['application/json']['schema']
+    >,
+    200,
+  )
 }
 
 const app = new OpenAPIHono()
@@ -2211,7 +2208,12 @@ export const getPostsRoute = createRoute({
 
 const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c) => {
   resolvePrefer(c.req, { '200': [] }, '200')
-  return c.json([{ id: 1 }, { id: 2 }], 200)
+  return c.json(
+    [{ id: 1 }, { id: 2 }] as unknown as z.infer<
+      (typeof getPostsRoute)['responses'][200]['content']['application/json']['schema']
+    >,
+    200,
+  )
 }
 
 const app = new OpenAPIHono()
@@ -2374,10 +2376,9 @@ const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => 
   resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(
     {
-      status: faker.helpers.arrayElement([
-        faker.helpers.arrayElement(['active', 'inactive', 'pending']),
-        undefined,
-      ]),
+      ...(faker.datatype.boolean()
+        ? { status: faker.helpers.arrayElement(['active', 'inactive', 'pending']) }
+        : {}),
     },
     200,
   )
@@ -2423,10 +2424,9 @@ const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => 
   resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(
     {
-      status: faker.helpers.arrayElement([
-        faker.helpers.arrayElement(['active', 'inactive', 'pending']),
-        undefined,
-      ]),
+      ...(faker.datatype.boolean()
+        ? { status: faker.helpers.arrayElement(['active', 'inactive', 'pending']) }
+        : {}),
     },
     200,
   )
@@ -2477,10 +2477,9 @@ const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => 
   resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(
     {
-      status: faker.helpers.arrayElement([
-        faker.helpers.arrayElement(['active', 'inactive', 'pending']),
-        undefined,
-      ]),
+      ...(faker.datatype.boolean()
+        ? { status: faker.helpers.arrayElement(['active', 'inactive', 'pending']) }
+        : {}),
     },
     200,
   )
@@ -2559,7 +2558,12 @@ export const getPingRoute = createRoute({
 
 const getPingRouteHandler: RouteHandler<typeof getPingRoute> = async (c) => {
   resolvePrefer(c.req, { '200': [] }, '200')
-  return c.json({ msg: 'pong' }, 200)
+  return c.json(
+    { msg: 'pong' } as unknown as z.infer<
+      (typeof getPingRoute)['responses'][200]['content']['application/json']['schema']
+    >,
+    200,
+  )
 }
 
 const app = new OpenAPIHono()
@@ -2601,10 +2605,9 @@ const getPingRouteHandler: RouteHandler<typeof getPingRoute> = async (c) => {
   resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(
     {
-      msg: faker.helpers.arrayElement([
-        faker.string.alpha({ length: { min: 5, max: 20 } }),
-        undefined,
-      ]),
+      ...(faker.datatype.boolean()
+        ? { msg: faker.string.alpha({ length: { min: 5, max: 20 } }) }
+        : {}),
     },
     200,
   )
@@ -2944,10 +2947,9 @@ const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => 
   resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(
     {
-      status: faker.helpers.arrayElement([
-        faker.helpers.arrayElement(['active', 'inactive', 'pending']),
-        undefined,
-      ]),
+      ...(faker.datatype.boolean()
+        ? { status: faker.helpers.arrayElement(['active', 'inactive', 'pending']) }
+        : {}),
     },
     200,
   )
@@ -2993,10 +2995,9 @@ const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => 
   resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(
     {
-      status: faker.helpers.arrayElement([
-        faker.helpers.arrayElement(['active', 'inactive', 'pending']),
-        undefined,
-      ]),
+      ...(faker.datatype.boolean()
+        ? { status: faker.helpers.arrayElement(['active', 'inactive', 'pending']) }
+        : {}),
     },
     200,
   )
@@ -3409,7 +3410,7 @@ const getOrdersOrderIdRouteHandler: RouteHandler<typeof getOrdersOrderIdRoute> =
     '200',
   )
   if (prefer.key === '200' && prefer.example === 'pending') {
-    return c.json({ id: 'o-2' } as z.infer<typeof OrderSchema>, 200)
+    return c.json({ id: 'o-2' } as unknown as z.infer<typeof OrderSchema>, 200)
   }
   if (prefer.key === '404') {
     return c.json(mockProblem(), 404, { 'Content-Type': 'application/problem+json' })
@@ -3434,7 +3435,7 @@ const getOrdersOrderIdRouteHandler: RouteHandler<typeof getOrdersOrderIdRoute> =
   if (prefer.key === undefined && c.req.param('orderId') === '__non_existent__') {
     return c.json(mockProblem(), 404, { 'Content-Type': 'application/problem+json' })
   }
-  return c.json({ id: 'o-1' } as z.infer<typeof OrderSchema>, 200)
+  return c.json({ id: 'o-1' } as unknown as z.infer<typeof OrderSchema>, 200)
 }
 
 const app = new OpenAPIHono()
