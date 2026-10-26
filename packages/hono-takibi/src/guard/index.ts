@@ -4,7 +4,6 @@ import {
   IDENTIFIER_PATTERN,
   INPUT_EXTENSIONS,
 } from '../constants/index.js'
-import type { InputPath } from '../constants/index.js'
 import type {
   Callbacks,
   Header,
@@ -31,8 +30,19 @@ export function isValidIdent(str: string) {
   return IDENTIFIER_PATTERN.test(str)
 }
 
-/** An input document by its extension, or an `http(s)` URL to one (see `InputPath`). */
-export function isInputPath(v: unknown): v is InputPath {
+/**
+ * An input document: a path by its extension, or an `http(s)` URL whatever its path (a
+ * document served without an extension is OpenAPI by content).
+ */
+export function isInputPath(
+  v: unknown,
+): v is
+  | `${string}.yaml`
+  | `${string}.yml`
+  | `${string}.json`
+  | `${string}.tsp`
+  | `http://${string}`
+  | `https://${string}` {
   return (
     typeof v === 'string' &&
     (INPUT_EXTENSIONS.some((extension) => v.endsWith(extension)) || /^https?:\/\//u.test(v))

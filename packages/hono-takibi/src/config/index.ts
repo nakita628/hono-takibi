@@ -5,7 +5,6 @@ import { Effect, FileSystem, Schema, SchemaIssue, SchemaTransformation } from 'e
 import type { FormatConfig } from 'oxfmt'
 
 import { COMPONENT_NAMES, HOOK_LIBRARIES, IDENTIFIER_PATTERN } from '../constants/index.js'
-import type { InputPath } from '../constants/index.js'
 import { isInputPath } from '../guard/index.js'
 
 // Test code generation is deprecated: hono-takibi no longer generates test files.
@@ -39,7 +38,7 @@ import { isInputPath } from '../guard/index.js'
 // })
 
 const ConfigSchema = Schema.Struct({
-  input: Schema.declare<InputPath>(isInputPath, {
+  input: Schema.declare(isInputPath, {
     message: 'must be .yaml | .yml | .json | .tsp, or an http(s) URL',
   }).annotate({
     title: 'Input document',

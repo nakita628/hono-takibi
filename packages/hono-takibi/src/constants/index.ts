@@ -34,18 +34,6 @@ export const COMPONENT_SUFFIXES = {
 /** The extensions of an input document: OpenAPI as YAML (`.yaml` or `.yml`) or JSON, or a TypeSpec entry. */
 export const INPUT_EXTENSIONS = ['.yaml', '.yml', '.json', '.tsp'] as const
 
-/**
- * An input document: a path by its extension, or an `http(s)` URL whatever its path (a
- * document served without an extension is OpenAPI by content).
- */
-export type InputPath =
-  | `${string}.yaml`
-  | `${string}.yml`
-  | `${string}.json`
-  | `${string}.tsp`
-  | `http://${string}`
-  | `https://${string}`
-
 /** A JavaScript identifier that can be written bare: as a binding, or a key or member access. */
 export const IDENTIFIER_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/u
 
