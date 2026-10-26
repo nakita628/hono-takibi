@@ -62,12 +62,12 @@
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^13.1.0",
-    "@effect/platform-node": "4.0.5",
+    "@effect/platform-node": "4.0.6",
     "@typespec/compiler": "catalog:",
     "@typespec/openapi3": "catalog:",
-    "effect": "4.0.5",
+    "effect": "4.0.6",
     "oxc-parser": "catalog:",
-    "oxfmt": "^0.73.0"
+    "oxfmt": "^0.74.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
