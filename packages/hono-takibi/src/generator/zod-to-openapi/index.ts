@@ -1,11 +1,12 @@
 import { ARROW_FUNCTION_PATTERN } from '../../constants/index.js'
 import {
-  discriminatedBranches,
   hasTypelessConstraint,
   isRefOnly,
   isSchemaArray,
   isSingleSchema,
+  isUntypedObject,
 } from '../../guard/index.js'
+import { discriminatedBranches } from '../../helper/discriminator.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { makeRef } from '../../helper/openapi.js'
 import {
@@ -158,6 +159,7 @@ export function zodToOpenAPI(
       ...(options?.emptyAbsent === true ? { emptyAbsent: true } : {}),
       ...(options?.inheritedAbsent === true ? { inheritedAbsent: true } : {}),
       ...(nullRead === undefined || nullInside ? {} : { nullRead }),
+      ...(options?.schemas === undefined ? {} : { schemas: options.schemas }),
     })
   }
   // A bare reference is emitted as its identifier — except on the wire, where the
@@ -466,20 +468,19 @@ export function zodToOpenAPI(
       schema,
     )
   }
-  if (
-    schema.properties !== undefined &&
-    schema.type === undefined &&
-    hasTypelessConstraint(schema)
-  ) {
+  // A schema with no `type` that has `properties` is an object (#385), unless a keyword of
+  // another kind stands beside them: then the value may be of any type, and each keyword
+  // checks a value of its own kind.
+  if (schema.properties !== undefined && schema.type === undefined && !isUntypedObject(schema)) {
     return done(
       emitTypelessRefine(schema, (s) => zodToOpenAPI(s, undefined, childOptions)),
       schema,
     )
   }
-  if (schema.properties !== undefined) {
+  if (schema.properties !== undefined || isUntypedObject(schema)) {
     const needsDefaultRequired =
       schema.required === undefined &&
-      Object.keys(schema.properties).length > 0 &&
+      Object.keys(schema.properties ?? {}).length > 0 &&
       typeof schema.additionalProperties !== 'object' &&
       schema.oneOf === undefined &&
       schema.anyOf === undefined &&

@@ -84,7 +84,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){const Schema=z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"b")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"b")).success){ctx.addIssue({code:'custom'})}}}});const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){const Schema=z.object({b:z.string().exactOptional()}).openapi({"required":[]});const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}}})`,
       )
     })
 

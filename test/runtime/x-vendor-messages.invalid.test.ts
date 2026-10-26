@@ -1329,8 +1329,10 @@ describe('payment: x-dependentRequired-message and x-dependentSchemas-message', 
     })
   })
 
-  // The schema that applies when credit_card is present. The pointer is the object itself.
-  // credit_card が存在する場合に適用されるスキーマ。pointer は、オブジェクト自身を指す。
+  // The schema that applies when credit_card is present: an object (#385), so the pointer
+  // names the property that failed.
+  // credit_card が存在する場合に適用されるスキーマ。オブジェクト(#385)なので、pointer は
+  // 失敗したプロパティを指す。
   it('x-dependentSchemas-message answers a credit card that is not 16 digits', async () => {
     const res = await app.request('/payment', {
       method: 'POST',
@@ -1343,7 +1345,7 @@ describe('payment: x-dependentRequired-message and x-dependentSchemas-message', 
       title: 'Unprocessable Content',
       status: 422,
       detail: 'Request validation failed',
-      errors: [{ pointer: '/', detail: 'credit_card must be 16 digits when provided' }],
+      errors: [{ pointer: '/credit_card', detail: 'credit_card must be 16 digits when provided' }],
     })
   })
 
@@ -1363,7 +1365,7 @@ describe('payment: x-dependentRequired-message and x-dependentSchemas-message', 
       detail: 'Request validation failed',
       errors: [
         { pointer: '/billing_zip', detail: 'billing_zip is required when credit_card is provided' },
-        { pointer: '/', detail: 'credit_card must be 16 digits when provided' },
+        { pointer: '/credit_card', detail: 'credit_card must be 16 digits when provided' },
       ],
     })
   })

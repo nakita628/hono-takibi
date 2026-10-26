@@ -2071,4 +2071,17 @@ describe('openAPI3', () => {
     const bare = { paths: {} } as OpenAPI
     expect(await runGenerator(openAPI3(bare, 'openapi.yaml'))).toBe(bare)
   })
+
+  // #384: a 3.1 document of webhooks alone has no `paths`, which every generator iterates
+  it.concurrent('gives a document without paths an empty one', async () => {
+    const webhooks = {
+      openapi: '3.1.1',
+      info: { title: 'A', version: '1' },
+      webhooks: { invoices: { post: { responses: { 200: { description: 'OK' } } } } },
+    } as unknown as OpenAPI
+    expect(await runGenerator(openAPI3(webhooks, 'openapi.yaml'))).toStrictEqual({
+      ...webhooks,
+      paths: {},
+    })
+  })
 })

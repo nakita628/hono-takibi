@@ -142,7 +142,7 @@ describe('schemaToFaker', () => {
         properties: { age: { type: 'integer' } },
       })
       expect(result).toBe(
-        '{ age: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 120 }), undefined]) }',
+        '{ ...(faker.datatype.boolean() ? { age: faker.number.int({ min: 1, max: 120 }) } : {}) }',
       )
     })
 
@@ -278,7 +278,7 @@ describe('schemaToFaker', () => {
           properties: { id: { type: 'integer', format: 'int64' } },
         }),
       ).toBe(
-        '{ id: faker.helpers.arrayElement([faker.number.bigInt({ min: 0n, max: 9007199254740991n }), undefined]) }',
+        '{ ...(faker.datatype.boolean() ? { id: faker.number.bigInt({ min: 0n, max: 9007199254740991n }) } : {}) }',
       )
     })
   })
@@ -430,7 +430,7 @@ describe('schemaToFaker', () => {
           properties: { note: { type: 'string' } },
         }),
       ).toBe(
-        '{ ...mockBase(), note: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]) }',
+        '{ ...mockBase(), ...(faker.datatype.boolean() ? { note: faker.string.alpha({ length: { min: 5, max: 20 } }) } : {}) }',
       )
     })
 
@@ -875,9 +875,7 @@ describe('schemaToFaker', () => {
     })
 
     it.concurrent('leaves the property out when it is optional', () => {
-      expect(schemaToFaker({ type: 'object', properties: { meta: {} } })).toBe(
-        '{ meta: undefined }',
-      )
+      expect(schemaToFaker({ type: 'object', properties: { meta: {} } })).toBe('{}')
     })
   })
 
@@ -948,7 +946,7 @@ describe('schemaToFaker', () => {
           properties: { theme: { type: 'boolean' }, locale: { type: 'boolean' } },
         }),
       ).toBe(
-        '{ theme: faker.datatype.boolean(), locale: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]) }',
+        '{ theme: faker.datatype.boolean(), ...(faker.datatype.boolean() ? { locale: faker.datatype.boolean() } : {}) }',
       )
     })
   })
@@ -1037,7 +1035,7 @@ describe('schemaToFaker', () => {
           then: { required: ['feature'] },
         }),
       ).toBe(
-        '{ kind: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]), feature: faker.datatype.boolean() }',
+        '{ ...(faker.datatype.boolean() ? { kind: faker.datatype.boolean() } : {}), feature: faker.datatype.boolean() }',
       )
     })
   })
@@ -1122,7 +1120,7 @@ describe('schemaToFaker', () => {
           { recursive: new Set(['Node']) },
         ),
       ).toBe(
-        '{ next: depth < 2 ? faker.helpers.arrayElement([(depth < 2 ? mockNode(depth + 1) : undefined), undefined]) : undefined }',
+        '{ ...(depth < 2 && faker.datatype.boolean() ? { next: (depth < 2 ? mockNode(depth + 1) : undefined) } : {}) }',
       )
     })
   })
@@ -1313,7 +1311,7 @@ describe('schemaToFaker', () => {
           required: ['b'],
         }),
       ).toBe(
-        '{ a: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]), b: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), null]) }',
+        '{ ...(faker.datatype.boolean() ? { a: faker.string.alpha({ length: { min: 5, max: 20 } }) } : {}), b: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), null]) }',
       )
     })
   })

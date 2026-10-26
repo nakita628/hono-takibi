@@ -5274,7 +5274,12 @@ export function useHono<
   queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery(
+  return useQuery<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getHonoQueryKey>
+  >(
     {
       ...queryOptions,
       queryKey: getHonoQueryKey(),
@@ -5400,7 +5405,12 @@ export function useUsers<
   queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery(
+  return useQuery<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getUsersQueryKey>
+  >(
     {
       ...queryOptions,
       queryKey: computed(() => getUsersQueryKey(args)),
@@ -5642,7 +5652,12 @@ export function useUsers<
   queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery(
+  return useQuery<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getUsersQueryKey>
+  >(
     {
       ...queryOptions,
       queryKey: getUsersQueryKey(),
@@ -5820,7 +5835,12 @@ export function usePing<
   queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery(
+  return useQuery<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getPingQueryKey>
+  >(
     {
       ...queryOptions,
       queryKey: getPingQueryKey(),
@@ -6042,7 +6062,14 @@ export function useHonoX<
   queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery(
+  return useQuery<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getHonoXQueryKey>
+  >(
     {
       ...queryOptions,
       queryKey: getHonoXQueryKey(),
@@ -6245,7 +6272,14 @@ export function useUsersId<
   queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery(
+  return useQuery<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getUsersIdQueryKey>
+  >(
     {
       ...queryOptions,
       queryKey: computed(() => getUsersIdQueryKey(args)),
@@ -6690,7 +6724,12 @@ export function useUsers<
   queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery(
+  return useQuery<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getUsersQueryKey>
+  >(
     {
       ...queryOptions,
       queryKey: computed(() => getUsersQueryKey(args)),

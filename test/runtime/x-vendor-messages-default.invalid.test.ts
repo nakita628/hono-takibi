@@ -1629,8 +1629,10 @@ describe('payment: x-dependentRequired-message and x-dependentSchemas-message', 
     ])
   })
 
-  // The schema that applies when credit_card is present. The pointer is the object itself.
-  // credit_card が存在する場合に適用されるスキーマ。pointer は、オブジェクト自身を指す。
+  // The schema that applies when credit_card is present: an object (#385), so the issue is
+  // the property's own, with the message of the extension.
+  // credit_card が存在する場合に適用されるスキーマ。オブジェクト(#385)なので、issue は
+  // プロパティ自身のもので、メッセージは拡張のものになる。
   it('x-dependentSchemas-message answers a credit card that is not 16 digits', async () => {
     const res = await app.request('/payment', {
       method: 'POST',
@@ -1642,7 +1644,14 @@ describe('payment: x-dependentRequired-message and x-dependentSchemas-message', 
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
     expect(JSON.parse(body.error.message)).toStrictEqual([
-      { code: 'custom', path: [], message: 'credit_card must be 16 digits when provided' },
+      {
+        code: 'invalid_format',
+        format: 'regex',
+        message: 'credit_card must be 16 digits when provided',
+        origin: 'string',
+        path: ['credit_card'],
+        pattern: '/^[0-9]{16}$/',
+      },
     ])
   })
 
@@ -1664,7 +1673,14 @@ describe('payment: x-dependentRequired-message and x-dependentSchemas-message', 
         message: 'billing_zip is required when credit_card is provided',
         path: ['billing_zip'],
       },
-      { code: 'custom', path: [], message: 'credit_card must be 16 digits when provided' },
+      {
+        code: 'invalid_format',
+        format: 'regex',
+        message: 'credit_card must be 16 digits when provided',
+        origin: 'string',
+        path: ['credit_card'],
+        pattern: '/^[0-9]{16}$/',
+      },
     ])
   })
 

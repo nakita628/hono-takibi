@@ -1,4 +1,9 @@
-import { COMPONENT_REF_PREFIX, HTTP_METHODS, IDENTIFIER_PATTERN } from '../constants/index.js'
+import {
+  COMPONENT_REF_PREFIX,
+  HTTP_METHODS,
+  IDENTIFIER_PATTERN,
+  INPUT_EXTENSIONS,
+} from '../constants/index.js'
 import type {
   Callbacks,
   Header,
@@ -23,6 +28,25 @@ export function isHttpMethod(method: string): method is (typeof HTTP_METHODS)[nu
 
 export function isValidIdent(str: string) {
   return IDENTIFIER_PATTERN.test(str)
+}
+
+/**
+ * An input document: a path by its extension, or an `http(s)` URL whatever its path (a
+ * document served without an extension is OpenAPI by content).
+ */
+export function isInputPath(
+  v: unknown,
+): v is
+  | `${string}.yaml`
+  | `${string}.yml`
+  | `${string}.json`
+  | `${string}.tsp`
+  | `http://${string}`
+  | `https://${string}` {
+  return (
+    typeof v === 'string' &&
+    (INPUT_EXTENSIONS.some((extension) => v.endsWith(extension)) || /^https?:\/\//u.test(v))
+  )
 }
 
 export function isOpenAPIPaths(v: unknown): v is OpenAPIPaths {
@@ -73,49 +97,6 @@ export function isDiscriminableBranch(branch: Schema, discriminator: string) {
     property.enum.length > 0 &&
     property.enum.every((v) => typeof v === 'string')
   )
-}
-
-/**
- * The branches of a discriminated `oneOf`, resolved, when `z.discriminatedUnion` stands for
- * it; `undefined` when the `oneOf` is emitted as `z.xor`. The two are equivalent only when
- * every branch is a plain object that `required`s the discriminator and pins it to string
- * literals (see `isDiscriminableBranch`), and no two branches share a literal.
- */
-// A malformed percent-encoding in a `$ref` is kept as written rather than thrown on.
-function decodePercentRef(value: string) {
-  try {
-    return decodeURIComponent(value)
-  } catch {
-    return value
-  }
-}
-
-export function discriminatedBranches(
-  schema: Schema,
-  schemas?: { readonly [k: string]: Schema },
-): readonly { readonly branch: Schema; readonly name: string | undefined }[] | undefined {
-  const discriminator = schema.discriminator?.propertyName
-  if (discriminator === undefined || schema.oneOf === undefined || schema.oneOf.length < 2) {
-    return undefined
-  }
-  const resolved = schema.oneOf.map((s) => {
-    if (s.$ref === undefined) return { branch: s, name: undefined }
-    if (!(isRefOnly(s) && s.$ref.startsWith(COMPONENT_REF_PREFIX.schemas))) return undefined
-    const name = decodePercentRef(s.$ref.slice(COMPONENT_REF_PREFIX.schemas.length))
-    const branch = schemas?.[name]
-    return branch === undefined ? undefined : { branch, name }
-  })
-  const literalsPerBranch = resolved.map((entry) => {
-    if (entry === undefined || !isDiscriminableBranch(entry.branch, discriminator)) return undefined
-    const property = entry.branch.properties?.[discriminator]
-    if (property === undefined || typeof property === 'boolean') return undefined
-    return typeof property.const === 'string' ? [property.const] : (property.enum ?? [])
-  })
-  const literals = literalsPerBranch.flatMap((values) => values ?? [])
-  const isDiscriminated =
-    literalsPerBranch.every((values) => values !== undefined) &&
-    new Set(literals).size === literals.length
-  return isDiscriminated ? resolved.filter((entry) => entry !== undefined) : undefined
 }
 
 export function isParameterRef(ref: string): ref is `#/components/parameters/${string}` {
@@ -316,6 +297,35 @@ const TYPELESS_KEYWORDS: readonly (keyof Schema)[] = [
 
 export function hasTypelessConstraint(schema: Schema) {
   return TYPELESS_KEYWORDS.some((k) => schema[k] !== undefined)
+}
+
+// The keywords that describe an object: what a schema with no `type` is read as an
+// object by.
+const OBJECT_KEYWORDS: ReadonlySet<keyof Schema> = new Set([
+  'required',
+  'properties',
+  'additionalProperties',
+  'patternProperties',
+  'propertyNames',
+  'minProperties',
+  'maxProperties',
+  'dependentRequired',
+  'dependentSchemas',
+  'unevaluatedProperties',
+])
+
+/**
+ * Whether a schema with no `type` is an object in all but name: it declares `properties`
+ * or `additionalProperties`, and no keyword of another kind (`minLength`, `items`). Such
+ * a schema is emitted as `z.object()` rather than checked by hand on `z.unknown()`, which
+ * is what the type writer already takes it for (#385).
+ */
+export function isUntypedObject(schema: Schema) {
+  return (
+    schema.type === undefined &&
+    (schema.properties !== undefined || schema.additionalProperties !== undefined) &&
+    TYPELESS_KEYWORDS.every((k) => schema[k] === undefined || OBJECT_KEYWORDS.has(k))
+  )
 }
 
 /**

@@ -1,9 +1,10 @@
 import type { Node, Program, Statement } from 'oxc-parser'
 
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import { discriminatedBranches, isSchemaArray } from '../guard/index.js'
+import { isSchemaArray } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { cyclicNodes, ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
+import { discriminatedBranches } from './discriminator.js'
 import { declarationOf, identifierNames, parseModule, textOf } from './syntax.js'
 
 type DeclarationKind = 'variable' | 'type' | 'interface'

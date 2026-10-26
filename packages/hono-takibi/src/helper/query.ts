@@ -612,7 +612,12 @@ function makeQueryHookCode(
       ? (`parseResponse(${runtimeAccess}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}}))` as const)
       : (`parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))` as const)
     const vueKeyCall = hasArgs ? makeVueReactiveKey(keyCall) : keyCall
-    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${vueKeyCall},queryFn({signal}){return ${fetcherCall}}}${tail.arg})}` as const
+    // The type arguments are spelled out: inferred from the options object, Vue Query's
+    // `MaybeRefDeep` walks the response type once per member it could be inferred from, which
+    // on a large response is more instantiation than TypeScript allows (TS2589).
+    const queryTypeArgs =
+      `${responseType},TError,TData,ReturnType<typeof ${keyGetterName}>` as const
+    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}<${queryTypeArgs}>({...queryOptions,queryKey:${vueKeyCall},queryFn({signal}){return ${fetcherCall}}}${tail.arg})}` as const
   }
   const argsSig = hasArgs ? (`args:${argsType},` as const) : ('' as const)
   if (useFactory) {

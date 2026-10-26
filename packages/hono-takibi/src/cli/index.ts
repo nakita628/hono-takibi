@@ -2,7 +2,8 @@ import { Console, Effect, FileSystem, Option, Path, Ref, Schema, Stream } from '
 import { Argument, CliError, Command, Flag } from 'effect/cli'
 
 import manifest from '../../package.json' with { type: 'json' }
-import { INPUT_EXTENSIONS, isInputPath } from '../constants/index.js'
+import { INPUT_EXTENSIONS } from '../constants/index.js'
+import { isInputPath } from '../guard/index.js'
 
 const COMMAND_NAME = 'hono-takibi'
 

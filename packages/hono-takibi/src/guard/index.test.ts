@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
 import {
-  discriminatedBranches,
   hasNoContentResponse,
   hasNotProperty,
   hasNoUserChain,
@@ -14,10 +13,12 @@ import {
   isHttpMethod,
   isInheritedName,
   isInlineMedia,
+  isInputPath,
   isMedia,
   isMediaWithSchema,
   isOffsetTime,
   isOpenAPIPaths,
+  isUntypedObject,
   isOperation,
   isOperationLike,
   isOperationWithResponses,
@@ -157,6 +158,28 @@ describe('isValidIdent', () => {
 })
 
 /* ═══════════════════════════════════ OpenAPI Guards ═══════════════════════════════════ */
+
+describe('isInputPath', () => {
+  it.concurrent('is true for a document by its extension or an http(s) URL', () => {
+    expect(isInputPath('openapi.yaml')).toBe(true)
+    expect(isInputPath('./spec/openapi.yml')).toBe(true)
+    expect(isInputPath('/abs/openapi.json')).toBe(true)
+    expect(isInputPath('main.tsp')).toBe(true)
+    expect(isInputPath('https://example.com/openapi')).toBe(true)
+    expect(isInputPath('http://localhost:3000/doc.json')).toBe(true)
+    // another scheme is taken by its extension alone
+    expect(isInputPath('ftp://example.com/openapi.yaml')).toBe(true)
+  })
+
+  it.concurrent('is false for another extension, a bare name, or a non-string', () => {
+    expect(isInputPath('openapi.txt')).toBe(false)
+    expect(isInputPath('openapi')).toBe(false)
+    expect(isInputPath('ftp://example.com/openapi')).toBe(false)
+    expect(isInputPath('file.yamlx')).toBe(false)
+    expect(isInputPath(1)).toBe(false)
+    expect(isInputPath(undefined)).toBe(false)
+  })
+})
 
 describe('isOpenAPIPaths', () => {
   it.concurrent('returns true for valid paths object', () => {
@@ -616,113 +639,6 @@ describe('isResponses', () => {
   })
 })
 
-describe('discriminatedBranches', () => {
-  const schemas = {
-    Circle: {
-      type: 'object',
-      required: ['kind'],
-      properties: { kind: { type: 'string', const: 'circle' } },
-    },
-    Square: {
-      type: 'object',
-      required: ['kind'],
-      properties: { kind: { type: 'string', enum: ['square'] } },
-    },
-    Loose: { type: 'object', properties: { kind: { type: 'string' } } },
-  } as const
-
-  it.concurrent('should resolve the branches of a oneOf that z.discriminatedUnion stands for', () => {
-    expect(
-      discriminatedBranches(
-        {
-          oneOf: [{ $ref: '#/components/schemas/Circle' }, { $ref: '#/components/schemas/Square' }],
-          discriminator: { propertyName: 'kind' },
-        },
-        schemas,
-      ),
-    ).toStrictEqual([
-      { branch: schemas.Circle, name: 'Circle' },
-      { branch: schemas.Square, name: 'Square' },
-    ])
-  })
-
-  it.concurrent('should name no inline branch', () => {
-    const inline = {
-      type: 'object',
-      required: ['kind'],
-      properties: { kind: { type: 'string', const: 'inline' } },
-    } as const
-    expect(
-      discriminatedBranches(
-        {
-          oneOf: [{ $ref: '#/components/schemas/Circle' }, inline],
-          discriminator: { propertyName: 'kind' },
-        },
-        schemas,
-      ),
-    ).toStrictEqual([
-      { branch: schemas.Circle, name: 'Circle' },
-      { branch: inline, name: undefined },
-    ])
-  })
-
-  it.concurrent('should answer undefined without a discriminator', () => {
-    expect(
-      discriminatedBranches(
-        {
-          oneOf: [{ $ref: '#/components/schemas/Circle' }, { $ref: '#/components/schemas/Square' }],
-        },
-        schemas,
-      ),
-    ).toBeUndefined()
-  })
-
-  it.concurrent('should answer undefined when a branch does not pin the discriminator', () => {
-    expect(
-      discriminatedBranches(
-        {
-          oneOf: [{ $ref: '#/components/schemas/Circle' }, { $ref: '#/components/schemas/Loose' }],
-          discriminator: { propertyName: 'kind' },
-        },
-        schemas,
-      ),
-    ).toBeUndefined()
-  })
-
-  it.concurrent('should answer undefined when two branches share a literal', () => {
-    expect(
-      discriminatedBranches(
-        {
-          oneOf: [{ $ref: '#/components/schemas/Circle' }, { $ref: '#/components/schemas/Circle' }],
-          discriminator: { propertyName: 'kind' },
-        },
-        schemas,
-      ),
-    ).toBeUndefined()
-  })
-
-  it.concurrent('should answer undefined for a single branch or an unknown reference', () => {
-    expect(
-      discriminatedBranches(
-        {
-          oneOf: [{ $ref: '#/components/schemas/Circle' }],
-          discriminator: { propertyName: 'kind' },
-        },
-        schemas,
-      ),
-    ).toBeUndefined()
-    expect(
-      discriminatedBranches(
-        {
-          oneOf: [{ $ref: '#/components/schemas/Circle' }, { $ref: '#/components/schemas/Nope' }],
-          discriminator: { propertyName: 'kind' },
-        },
-        schemas,
-      ),
-    ).toBeUndefined()
-  })
-})
-
 describe('isDiscriminableBranch', () => {
   it.concurrent('should accept a bare object head that pins the discriminator to a const', () => {
     expect(
@@ -810,6 +726,27 @@ describe('hasTypelessConstraint', () => {
 
   it.concurrent('returns true for schema with `contains`', () => {
     expect(hasTypelessConstraint({ contains: { type: 'string' } })).toBe(true)
+  })
+})
+
+// #385: a schema with `properties` and no `type` is an object
+describe('isUntypedObject', () => {
+  it.concurrent('is true for properties or additionalProperties without a type', () => {
+    expect(isUntypedObject({ properties: { a: { type: 'string' } } })).toBe(true)
+    expect(isUntypedObject({ properties: { a: { type: 'string' } }, required: ['a'] })).toBe(true)
+    expect(isUntypedObject({ additionalProperties: { type: 'string' } })).toBe(true)
+    expect(isUntypedObject({ additionalProperties: false, minProperties: 1 })).toBe(true)
+  })
+
+  it.concurrent('is false with a type, with no object keyword, or beside a keyword of another kind', () => {
+    expect(isUntypedObject({ type: 'object', properties: {} })).toBe(false)
+    expect(isUntypedObject({ type: 'string', properties: {} })).toBe(false)
+    expect(isUntypedObject({})).toBe(false)
+    expect(isUntypedObject({ required: ['a'] })).toBe(false)
+    expect(isUntypedObject({ minProperties: 1 })).toBe(false)
+    expect(isUntypedObject({ properties: { a: { type: 'string' } }, minLength: 1 })).toBe(false)
+    expect(isUntypedObject({ properties: { a: { type: 'string' } }, items: {} })).toBe(false)
+    expect(isUntypedObject({ properties: { a: { type: 'string' } }, enum: ['a'] })).toBe(false)
   })
 })
 

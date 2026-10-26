@@ -4,13 +4,8 @@ import { pathToFileURL } from 'node:url'
 import { Effect, FileSystem, Schema, SchemaIssue, SchemaTransformation } from 'effect'
 import type { FormatConfig } from 'oxfmt'
 
-import {
-  COMPONENT_NAMES,
-  HOOK_LIBRARIES,
-  IDENTIFIER_PATTERN,
-  isInputPath,
-} from '../constants/index.js'
-import type { InputPath } from '../constants/index.js'
+import { COMPONENT_NAMES, HOOK_LIBRARIES, IDENTIFIER_PATTERN } from '../constants/index.js'
+import { isInputPath } from '../guard/index.js'
 
 // Test code generation is deprecated: hono-takibi no longer generates test files.
 // export const TestSchema = Schema.Struct({
@@ -43,7 +38,7 @@ import type { InputPath } from '../constants/index.js'
 // })
 
 const ConfigSchema = Schema.Struct({
-  input: Schema.declare<InputPath>(isInputPath, {
+  input: Schema.declare(isInputPath, {
     message: 'must be .yaml | .yml | .json | .tsp, or an http(s) URL',
   }).annotate({
     title: 'Input document',
@@ -1539,16 +1534,13 @@ const ConfigSchema = Schema.Struct({
     Schema.makeFilter((v) => !(v.client !== undefined && v.template === undefined), {
       message: 'client needs template: the client is typed by the app the template scaffolds.',
     }),
-    Schema.makeFilter(
-      (v) => {
-        if (v.client !== undefined) return true
-        const missing = (['rpc', ...HOOK_LIBRARIES] as const).find((kind) => v[kind] !== undefined)
-        return missing === undefined
-          ? true
-          : `${missing} needs client: rpc and the hooks call the client the client block generates, with template.`
-      },
-      { message: 'a generator that calls the client needs the client block' },
-    ),
+    Schema.makeFilter((v) => {
+      if (v.client !== undefined) return true
+      const missing = (['rpc', ...HOOK_LIBRARIES] as const).find((kind) => v[kind] !== undefined)
+      return missing === undefined
+        ? true
+        : `${missing} needs client: rpc and the hooks call the client the client block generates, with template.`
+    }),
     Schema.makeFilter((v) => !(v.output && v.routes), {
       message:
         'output and routes are mutually exclusive. Use output for single-file mode, or routes for separate route output.',
@@ -1602,37 +1594,34 @@ const ConfigSchema = Schema.Struct({
           'with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
       },
     ),
-    Schema.makeFilter(
-      (v) => {
-        const declared: readonly (readonly [string, string | undefined])[] = [
-          ['output', v.output],
-          ['routes.output', v.routes?.output],
-          ['webhooks.output', v.webhooks?.output],
-          ['components.output', v.components?.output],
-          ...COMPONENT_NAMES.map(
-            (kind) => [`components.${kind}.output`, v.components?.[kind]?.output] as const,
-          ),
-          ['type.output', v.type?.output],
-          ['client.output', v.client?.output],
-          ['rpc.output', v.rpc?.output],
-          ...HOOK_LIBRARIES.map((kind) => [`${kind}.output`, v[kind]?.output] as const),
-          ['mock.output', v.mock?.output],
-          ['docs.output', v.docs?.output],
-        ]
-        const seen = new Map<string, string>()
-        for (const [field, output] of declared) {
-          if (output === undefined) continue
-          const key = posix.normalize(output).replace(/\/+$/u, '')
-          const first = seen.get(key)
-          if (first !== undefined) {
-            return `${field} and ${first} both write to ${output}. Give each generator its own output path.`
-          }
-          seen.set(key, field)
+    Schema.makeFilter((v) => {
+      const declared: readonly (readonly [string, string | undefined])[] = [
+        ['output', v.output],
+        ['routes.output', v.routes?.output],
+        ['webhooks.output', v.webhooks?.output],
+        ['components.output', v.components?.output],
+        ...COMPONENT_NAMES.map(
+          (kind) => [`components.${kind}.output`, v.components?.[kind]?.output] as const,
+        ),
+        ['type.output', v.type?.output],
+        ['client.output', v.client?.output],
+        ['rpc.output', v.rpc?.output],
+        ...HOOK_LIBRARIES.map((kind) => [`${kind}.output`, v[kind]?.output] as const),
+        ['mock.output', v.mock?.output],
+        ['docs.output', v.docs?.output],
+      ]
+      const seen = new Map<string, string>()
+      for (const [field, output] of declared) {
+        if (output === undefined) continue
+        const key = posix.normalize(output).replace(/\/+$/u, '')
+        const first = seen.get(key)
+        if (first !== undefined) {
+          return `${field} and ${first} both write to ${output}. Give each generator its own output path.`
         }
-        return true
-      },
-      { message: 'every generator needs its own output path' },
-    ),
+        seen.set(key, field)
+      }
+      return true
+    }),
   )
   .annotate({
     title: 'hono-takibi config',

@@ -21,12 +21,12 @@ catalog:
   '@typespec/streams': ^0.87.0
   '@typespec/versioning': ^0.87.0
   '@typespec/xml': ^0.87.0
-  cf: 1.0.0-beta.18
-  oxc-parser: ^0.154.0
+  cf: 1.0.0-beta.21
+  oxc-parser: ^0.155.0
   # The browser build of oxc-parser imports this binding and oxc-parser does not list it
   # itself; the website's playground needs it, at the version of oxc-parser.
-  '@oxc-parser/binding-wasm32-wasip1': ^0.154.0
-  wrangler: ^4.151.1
+  '@oxc-parser/binding-wasm32-wasip1': ^0.155.0
+  wrangler: ^4.152.0
 allowBuilds:
   # Telemetry postinstall pulled in through @typespec/playground -> swagger-ui-dist;
   # nothing to build, so it never runs.
@@ -36,6 +36,6 @@ allowBuilds:
   vue-demi: true
   workerd: true
 minimumReleaseAgeExclude:
-  - '@effect/platform-node-shared@4.0.5'
-  - '@effect/platform-node@4.0.5'
-  - effect@4.0.5
+  - '@effect/platform-node-shared@4.0.6'
+  - '@effect/platform-node@4.0.6'
+  - effect@4.0.6

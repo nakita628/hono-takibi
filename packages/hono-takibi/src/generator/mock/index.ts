@@ -321,7 +321,16 @@ function resolveSuccessResponse(
         !priority.includes(key) && statusCodeToNumber(key) >= 200 && statusCodeToNumber(key) < 300,
     )
     .toSorted((a, b) => statusCodeToNumber(a) - statusCodeToNumber(b))
-  const key = [...priority, ...others][0]
+  // An operation that declares no success answers an empty `200`, unless a response it
+  // does declare carries a body (a `410` alone, a deprecated endpoint): the route's types
+  // then take only a declared status, so the first such status is answered.
+  const key =
+    [...priority, ...others][0] ??
+    keys.find(
+      (candidate) =>
+        /^\d{3}$/u.test(candidate) &&
+        resolveResponse(responses[candidate], componentResponses)?.content !== undefined,
+    )
   if (!key) return undefined
   return {
     key,
@@ -482,7 +491,7 @@ type MockResponse = {
   readonly example: unknown
   /** The `examples` entries a `Prefer: example=<name>` can select. */
   readonly namedExamples: readonly (readonly [string, unknown])[]
-  /** The schema const an authored example is cast to (a named `$ref` schema). */
+  /** The type an authored example is cast to: that of the named `$ref` schema, else the one the route declares for the response. */
   readonly exampleCast: string | undefined
 }
 
@@ -505,11 +514,19 @@ function describeResponse(
   response: Responses,
   components: Components | undefined,
   useExamples: boolean,
+  routeId: string,
 ) {
   const jsonType = jsonMediaType(response.content)
   const jsonMedia = resolveMedia(jsonType ? response.content?.[jsonType] : undefined, components)
   const textMedia = resolveMedia(response.content?.[TEXT_MEDIA_TYPE], components)
   const jsonSchema = jsonMedia && isMediaWithSchema(jsonMedia) ? jsonMedia.schema : undefined
+  // An example of a schema written in place is pinned to the type the route declares for
+  // the response, read off the route (the status key as the route writes it: a number, or
+  // the text of `default` / `4XX`).
+  const inlineCast =
+    jsonSchema !== undefined && jsonType !== undefined
+      ? `z.infer<(typeof ${routeId}Route)['responses'][${/^\d+$/u.test(key) ? key : JSON.stringify(key)}]['content'][${JSON.stringify(jsonType)}]['schema']>`
+      : undefined
   return {
     key: /^[1-5]xx$/iu.test(key) ? key.toUpperCase() : key,
     jsonType,
@@ -521,8 +538,8 @@ function describeResponse(
       return value === undefined ? [] : [[name, value] as const]
     }),
     exampleCast: jsonSchema?.$ref
-      ? toIdentifierPascalCase(ensureSuffix(jsonSchema.$ref.split('/').at(-1) ?? '', 'Schema'))
-      : undefined,
+      ? `z.infer<typeof ${toIdentifierPascalCase(ensureSuffix(jsonSchema.$ref.split('/').at(-1) ?? '', 'Schema'))}>`
+      : inlineCast,
   }
 }
 
@@ -537,8 +554,10 @@ function responsePayload(
   if (example !== undefined) {
     // An authored literal can be widened (e.g. `string` vs an enum/branded
     // member), so it is pinned to the schema's inferred type when that schema
-    // is a named `$ref` — mirroring the `x-brand` handling.
-    const cast = response.exampleCast ? ` as z.infer<typeof ${response.exampleCast}>` : ''
+    // is a named `$ref` — mirroring the `x-brand` handling. Through `unknown`: an example
+    // that does not fit its schema (`bytes: null` for a number, `null` for an object) is
+    // the document's to fix, and the mock still answers with it rather than fail to compile.
+    const cast = response.exampleCast ? ` as unknown as ${response.exampleCast}` : ''
     const data = exampleCode(example, response.jsonSchema, schemas)
     return { kind: 'json', data: `${data}${cast}` } as const
   }
@@ -757,7 +776,7 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
       const responses = Object.entries(operation.responses ?? {}).flatMap(([key, raw]) => {
         const response = resolveResponse(raw, componentResponses)
         return response
-          ? [describeResponse(key, response, openapi.components, useExamples !== false)]
+          ? [describeResponse(key, response, openapi.components, useExamples !== false, routeId)]
           : []
       })
       const successResponse = responses.find((r) => r.key === successKey)

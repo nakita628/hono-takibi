@@ -257,7 +257,7 @@ describe('zodToOpenAPI', () => {
           nullable: true,
         }),
       ).toBe(
-        'z.xor([z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"kind")){ctx.addIssue({code:\'custom\'})};if(Object.hasOwn(val,"kind")){const Schema=z.literal("A");if(!Schema.safeParse(Reflect.get(val,"kind")).success){ctx.addIssue({code:\'custom\'})}}}}).openapi({"required":["kind"]}),z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"kind")){ctx.addIssue({code:\'custom\'})};if(Object.hasOwn(val,"kind")){const Schema=z.literal("B");if(!Schema.safeParse(Reflect.get(val,"kind")).success){ctx.addIssue({code:\'custom\'})}}}}).openapi({"required":["kind"]})]).nullable()',
+        'z.xor([z.object({kind:z.literal("A")}).openapi({"required":["kind"]}),z.object({kind:z.literal("B")}).openapi({"required":["kind"]})]).nullable()',
       )
     })
 
@@ -785,7 +785,7 @@ describe('zodToOpenAPI', () => {
           nullable: true,
         }
         const expected =
-          'z.union([z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"kind")){ctx.addIssue({code:\'custom\'})};if(Object.hasOwn(val,"kind")){const Schema=z.literal("A");if(!Schema.safeParse(Reflect.get(val,"kind")).success){ctx.addIssue({code:\'custom\'})}}}}).openapi({"required":["kind"]}),z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"kind")){ctx.addIssue({code:\'custom\'})};if(Object.hasOwn(val,"kind")){const Schema=z.literal("B");if(!Schema.safeParse(Reflect.get(val,"kind")).success){ctx.addIssue({code:\'custom\'})}}}}).openapi({"required":["kind"]})]).nullable()'
+          'z.union([z.object({kind:z.literal("A")}).openapi({"required":["kind"]}),z.object({kind:z.literal("B")}).openapi({"required":["kind"]})]).nullable()'
         expect(zodToOpenAPI(input)).toBe(expected)
         // runtime skipped: generated code uses `.openapi(...)` (zod-openapi extension), not callable on bare z
       })
@@ -5447,7 +5447,7 @@ describe('zodToOpenAPI', () => {
             },
           })
           expect(generated).toBe(
-            'z.object({creditCard:z.string().exactOptional()}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"creditCard")){return}const Schema=z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"billingAddress")){ctx.addIssue({code:\'custom\'})};if(Object.hasOwn(val,"billingAddress")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"billingAddress")).success){ctx.addIssue({code:\'custom\'})}}}}).openapi({"required":["billingAddress"]});const result=Schema.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}).openapi({"required":[]})',
+            'z.object({creditCard:z.string().exactOptional()}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"creditCard")){return}const Schema=z.object({billingAddress:z.string()}).openapi({"required":["billingAddress"]});const result=Schema.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}).openapi({"required":[]})',
           )
           // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
         })
@@ -5462,7 +5462,7 @@ describe('zodToOpenAPI', () => {
             else: { required: ['basicFeature'] },
           })
           expect(generated).toBe(
-            'z.object({}).superRefine((o,ctx)=>{const If=z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"type")){ctx.addIssue({code:\'custom\'})};if(Object.hasOwn(val,"type")){const Schema=z.literal("premium");if(!Schema.safeParse(Reflect.get(val,"type")).success){ctx.addIssue({code:\'custom\'})}}}}).openapi({"required":["type"]});const ifOk=If.safeParse(o).success;const Branch=ifOk?z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"premiumFeature")){ctx.addIssue({code:\'custom\'})}}}).openapi({"required":["premiumFeature"]}):z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"basicFeature")){ctx.addIssue({code:\'custom\'})}}}).openapi({"required":["basicFeature"]});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})',
+            'z.object({}).superRefine((o,ctx)=>{const If=z.object({type:z.literal("premium")}).openapi({"required":["type"]});const ifOk=If.safeParse(o).success;const Branch=ifOk?z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"premiumFeature")){ctx.addIssue({code:\'custom\'})}}}).openapi({"required":["premiumFeature"]}):z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"basicFeature")){ctx.addIssue({code:\'custom\'})}}}).openapi({"required":["basicFeature"]});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})',
           )
           // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
         })
@@ -12717,7 +12717,7 @@ describe('zodToOpenAPI', () => {
           },
         }),
       ).toBe(
-        'z.object({name:z.string().exactOptional()}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"name")){return}const Schema=z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"age")){ctx.addIssue({code:\'custom\'})};if(Object.hasOwn(val,"age")){const Schema=z.int();if(!Schema.safeParse(Reflect.get(val,"age")).success){ctx.addIssue({code:\'custom\'})}}}}).openapi({"required":["age"]});const result=Schema.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}).openapi({"required":[]})',
+        'z.object({name:z.string().exactOptional()}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"name")){return}const Schema=z.object({age:z.int()}).openapi({"required":["age"]});const result=Schema.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}).openapi({"required":[]})',
       )
     })
     it.concurrent('runtime: {} PASSES (no name → dep skipped)', () => {
@@ -12795,7 +12795,7 @@ describe('zodToOpenAPI', () => {
           else: { properties: { postalCode: { type: 'string', minLength: 1 } } },
         }),
       ).toBe(
-        'z.object({country:z.string(),postalCode:z.string().exactOptional()}).superRefine((o,ctx)=>{const If=z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"country")){const Schema=z.literal("JP");if(!Schema.safeParse(Reflect.get(val,"country")).success){ctx.addIssue({code:\'custom\'})}}}});const ifOk=If.safeParse(o).success;const Branch=ifOk?z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"postalCode")){const Schema=z.string().regex(/^\\d{3}-\\d{4}$/);if(!Schema.safeParse(Reflect.get(val,"postalCode")).success){ctx.addIssue({code:\'custom\'})}}}}):z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"postalCode")){const Schema=z.string().min(1);if(!Schema.safeParse(Reflect.get(val,"postalCode")).success){ctx.addIssue({code:\'custom\'})}}}});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}).openapi({"required":["country"]})',
+        'z.object({country:z.string(),postalCode:z.string().exactOptional()}).superRefine((o,ctx)=>{const If=z.object({country:z.literal("JP").exactOptional()}).openapi({"required":[]});const ifOk=If.safeParse(o).success;const Branch=ifOk?z.object({postalCode:z.string().regex(/^\\d{3}-\\d{4}$/).exactOptional()}).openapi({"required":[]}):z.object({postalCode:z.string().min(1).exactOptional()}).openapi({"required":[]});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}).openapi({"required":["country"]})',
       )
     })
     it.concurrent('runtime: {country:"JP", postalCode:"123-4567"} PASSES', () => {
@@ -13151,7 +13151,7 @@ describe('zodToOpenAPI: a list of types', () => {
 
 // #375: an allOf member of `additionalProperties` alone declares no key, so there is no list to guard by
 describe('allOf member with only additionalProperties', () => {
-  it('walks every key without an empty includes()', () => {
+  it('holds every key to the value schema without an empty includes()', () => {
     const code = zodToOpenAPI({
       type: 'object',
       allOf: [
@@ -13161,8 +13161,113 @@ describe('allOf member with only additionalProperties', () => {
     })
     expect(code).not.toContain('[].includes(k)')
     expect(code).not.toContain('[].some(')
-    expect(code).toContain(
-      "{const Schema=z.string();for(const k of Object.keys(val)){if(!Schema.safeParse(Reflect.get(val,k)).success){ctx.addIssue({code:'custom'})}}}",
+    // the member is an object in all but name (#385): a record of its value schema
+    expect(code).toBe(
+      'z.object({$id:z.string().exactOptional()}).openapi({"required":[]}).and(z.record(z.string(),z.string()))',
+    )
+  })
+})
+
+// #385: a schema with `properties` and no `type` is an object, as the type writer takes it
+describe('untyped object', () => {
+  it.concurrent('emits z.object() for properties without a type', () => {
+    expect(
+      zodToOpenAPI({
+        description: 'Bank details',
+        properties: {
+          BankAccountNumber: { type: 'string' },
+          Code: { type: 'string', maxLength: 12 },
+        },
+      }),
+    ).toBe(
+      'z.object({BankAccountNumber:z.string().exactOptional(),Code:z.string().max(12).exactOptional()}).openapi({"description":"Bank details","required":[]})',
+    )
+    expect(zodToOpenAPI({ properties: { id: { type: 'integer' } }, required: ['id'] })).toBe(
+      'z.object({id:z.int()}).openapi({"required":["id"]})',
+    )
+  })
+
+  it.concurrent('emits a record for additionalProperties without a type', () => {
+    expect(zodToOpenAPI({ additionalProperties: { type: 'string' } })).toBe(
+      'z.record(z.string(),z.string())',
+    )
+    expect(
+      zodToOpenAPI({ properties: { a: { type: 'string' } }, additionalProperties: false }),
+    ).toBe('z.strictObject({a:z.string().exactOptional()}).openapi({"required":[]})')
+  })
+
+  it.concurrent('keeps the hand-written checks where a keyword of another kind stands beside', () => {
+    expect(zodToOpenAPI({ properties: { a: { type: 'string' } }, minLength: 1 })).toBe(
+      "z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,\"a\")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,\"a\")).success){ctx.addIssue({code:'custom'})}}};if(typeof val==='string'){if([...val].length<1){ctx.addIssue({code:'custom'})}}})",
+    )
+    // `required` alone declares no key to type: it stays a check on any value
+    expect(zodToOpenAPI({ required: ['a'] })).toBe(
+      'z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"a")){ctx.addIssue({code:\'custom\'})}}}).openapi({"required":["a"]})',
+    )
+  })
+})
+
+// #387: an object default keeps the keys its schema declares
+describe('object default', () => {
+  it.concurrent('drops the keys the schema does not declare', () => {
+    expect(
+      zodToOpenAPI({
+        type: 'object',
+        properties: { a: { type: 'string' } },
+        default: { a: 'x', b: 1 },
+      }),
+    ).toBe('z.object({a:z.string().exactOptional()}).default({"a":"x"}).openapi({"required":[]})')
+    // a loose object takes any key
+    expect(
+      zodToOpenAPI({
+        type: 'object',
+        properties: { a: { type: 'string' } },
+        additionalProperties: true,
+        default: { a: 'x', b: 1 },
+      }),
+    ).toBe(
+      'z.looseObject({a:z.string().exactOptional()}).default({"a":"x","b":1}).openapi({"required":[]})',
+    )
+  })
+
+  it.concurrent('leaves to the document a default that misses a required key', () => {
+    expect(
+      zodToOpenAPI({
+        type: 'object',
+        properties: { a: { type: 'string' } },
+        required: ['a'],
+        default: { b: 1 },
+      }),
+    ).toBe('z.object({a:z.string()}).openapi({"required":["a"],"default":{"b":1}})')
+  })
+
+  it.concurrent('reads a default on a reference against the component it names', () => {
+    const schemas = {
+      Filters: {
+        type: 'object',
+        properties: { active: { type: 'boolean' }, secrets: { type: 'boolean' } },
+      },
+    } as const
+    expect(
+      zodToOpenAPI(
+        {
+          type: 'object',
+          properties: {
+            filters: {
+              $ref: '#/components/schemas/Filters',
+              default: { secrets: 'false', other: 1 },
+            },
+          },
+        },
+        undefined,
+        { schemas },
+      ),
+    ).toBe(
+      'z.object({filters:FiltersSchema.default({"secrets":false}).exactOptional()}).openapi({"required":[]})',
+    )
+    // without the components the default is written as it is, as before
+    expect(zodToOpenAPI({ $ref: '#/components/schemas/Filters', default: { other: 1 } })).toBe(
+      'FiltersSchema.default({"other":1})',
     )
   })
 })

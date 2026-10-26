@@ -199,21 +199,25 @@ function componentSchemaName(ref: string) {
 
 /**
  * Lower-cased anchor suffix of a schema. Names that differ only in case would
- * share it, so every one after the first gets a numeric suffix.
+ * share it, so every one after the first gets a numeric suffix. The anchors of every
+ * schema are given in one pass over the names, the first time one is asked for: asked
+ * one at a time, each would read every name again, which on a document of thousands of
+ * schemas took longer than the rest of the docs.
  */
 function schemaAnchor(name: string, doc: OpenAPI) {
   const { anchors } = cacheOf(doc)
-  const known = anchors.get(name)
-  if (known !== undefined) return known
-  const lower = name.toLowerCase()
-  const schemas: unknown = doc.components?.schemas
-  const twins = isRecord(schemas)
-    ? Object.keys(schemas).filter((key) => key.toLowerCase() === lower)
-    : []
-  const index = twins.indexOf(name)
-  const anchor = index > 0 ? `${lower}-${index}` : lower
-  anchors.set(name, anchor)
-  return anchor
+  if (anchors.size === 0) {
+    const schemas: unknown = doc.components?.schemas
+    const seen = new Map<string, number>()
+    for (const key of isRecord(schemas) ? Object.keys(schemas) : []) {
+      const lower = key.toLowerCase()
+      const index = seen.get(lower) ?? 0
+      seen.set(lower, index + 1)
+      anchors.set(key, index > 0 ? `${lower}-${index}` : lower)
+    }
+  }
+  // A name that is not a schema of the document anchors to its lower case alone.
+  return anchors.get(name) ?? name.toLowerCase()
 }
 
 /** A `$ref` to a schema under `components.schemas`: linked in a table, listed under Schemas. */
