@@ -325,6 +325,10 @@ export function escapeHtml(source: string) {
     .replaceAll('"', '&quot;')
 }
 
+// The same component names are turned into identifiers over and over, once per reference
+// and once per analysis pass; a name reads the same every time.
+const PASCAL_CASE_IDENTIFIERS = new Map<string, string>()
+
 /**
  * Converts a string to a valid PascalCase TypeScript identifier.
  *
@@ -341,6 +345,14 @@ export function escapeHtml(source: string) {
  * ```
  */
 export function toIdentifierPascalCase(text: string) {
+  const known = PASCAL_CASE_IDENTIFIERS.get(text)
+  if (known !== undefined) return known
+  const identifier = pascalCaseIdentifier(text)
+  PASCAL_CASE_IDENTIFIERS.set(text, identifier)
+  return identifier
+}
+
+function pascalCaseIdentifier(text: string) {
   // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
   const hasNonAscii = [...text].some((c) => c.charCodeAt(0) > 127)
   const result = text

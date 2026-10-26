@@ -16,6 +16,9 @@ import { decodePercent } from '../utils/index.js'
  * names nothing, or that comes back to itself, is left as written.
  */
 export function inlinePointerRefs(document: OpenAPI): OpenAPI {
+  // Most documents have no such pointer: they are read once, and come back as they are,
+  // rather than rebuilt node by node.
+  if (!hasInlinePointer(document)) return document
   const inline = (node: unknown, inlining: ReadonlySet<string>): unknown => {
     if (Array.isArray(node)) return node.map((item) => inline(item, inlining))
     if (!isRecord(node)) return node
@@ -40,6 +43,15 @@ export function inlinePointerRefs(document: OpenAPI): OpenAPI {
       Object.entries(document).map(([key, value]) => [key, inline(value, new Set())]),
     ),
   }
+}
+
+/** Whether any `$ref` under `node` is an inline pointer. */
+function hasInlinePointer(node: unknown): boolean {
+  if (Array.isArray(node)) return node.some(hasInlinePointer)
+  if (!isRecord(node)) return false
+  const { $ref } = node
+  if (typeof $ref === 'string' && isInlinePointer($ref)) return true
+  return Object.values(node).some(hasInlinePointer)
 }
 
 /** A local pointer that does not name a component, nor a property of a component schema. */

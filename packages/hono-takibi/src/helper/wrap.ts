@@ -237,18 +237,22 @@ export function conformDefault(
   schema: Schema,
   value: unknown,
   schemas?: { readonly [k: string]: Schema },
+  // The references already being read: a cycle through a component ends at the reference,
+  // as written.
+  reading: ReadonlySet<string> = new Set(),
 ): { readonly ok: true; readonly value: unknown } | { readonly ok: false } {
   if (value === undefined) return { ok: false }
   if (value === null) return { ok: true, value }
   if (schema.$ref !== undefined) {
-    const target = resolveSchemaRef(schema.$ref, schemas)
+    const target = reading.has(schema.$ref) ? undefined : resolveSchemaRef(schema.$ref, schemas)
     if (target === undefined) return { ok: true, value }
     const { $ref: _ref, default: _default, ...beside } = schema
-    // The component is read once: a cycle through it ends at the reference, as written.
-    const rest = Object.fromEntries(
-      Object.entries(schemas ?? {}).filter(([, component]) => component !== target),
+    return conformDefault(
+      { ...target, ...beside },
+      value,
+      schemas,
+      new Set([...reading, schema.$ref]),
     )
-    return conformDefault({ ...target, ...beside }, value, rest)
   }
   if (schema.enum !== undefined) {
     return schema.enum.some((member) => member === value) ? { ok: true, value } : { ok: false }
@@ -292,7 +296,7 @@ export function conformDefault(
       if (items === undefined || typeof items === 'boolean' || isSchemaArray(items)) {
         return { ok: true, value }
       }
-      const readItems = value.map((item) => conformDefault(items, item, schemas))
+      const readItems = value.map((item) => conformDefault(items, item, schemas, reading))
       return readItems.every((item) => item.ok)
         ? { ok: true, value: readItems.map((item) => (item.ok ? item.value : undefined)) }
         : undefined
@@ -318,7 +322,7 @@ export function conformDefault(
         const property = properties[key]
         return property === undefined
           ? []
-          : [[key, conformDefault(property, item, schemas)] as const]
+          : [[key, conformDefault(property, item, schemas, reading)] as const]
       })
       return members.every(([, item]) => item.ok)
         ? {

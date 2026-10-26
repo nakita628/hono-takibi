@@ -1,5 +1,15 @@
-import { parseSync, visitorKeys } from 'oxc-parser'
+import { parseSync, rawTransferSupported, visitorKeys } from 'oxc-parser'
 import type { Declaration, Node, Program, Span, Statement } from 'oxc-parser'
+
+// The tree is handed over as one buffer and read into objects here, rather than written out
+// as JSON and parsed back: several times faster on the module of a large document. The
+// option is not among the parser's declared ones yet, and not every runtime takes it (a
+// 32-bit one, Node before 22), so it is asked for only where it is supported.
+const PARSER_OPTIONS = {
+  lang: 'ts',
+  sourceType: 'module',
+  ...(rawTransferSupported() ? { experimentalRawTransfer: true } : {}),
+} as const
 
 /**
  * Parses a TypeScript module for reading. What a caller takes from the tree is a position,
@@ -14,7 +24,7 @@ export function parseSource(code: string): {
   readonly program: Program
   readonly errors: readonly string[]
 } {
-  const { program, errors } = parseSync('module.ts', code, { lang: 'ts', sourceType: 'module' })
+  const { program, errors } = parseSync('module.ts', code, PARSER_OPTIONS)
   return { program, errors: errors.map((error) => error.message) }
 }
 
