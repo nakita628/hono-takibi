@@ -14,6 +14,7 @@ import {
   isHttpMethod,
   isInheritedName,
   isInlineMedia,
+  isInputPath,
   isMedia,
   isMediaWithSchema,
   isOffsetTime,
@@ -158,6 +159,28 @@ describe('isValidIdent', () => {
 })
 
 /* ═══════════════════════════════════ OpenAPI Guards ═══════════════════════════════════ */
+
+describe('isInputPath', () => {
+  it.concurrent('is true for a document by its extension or an http(s) URL', () => {
+    expect(isInputPath('openapi.yaml')).toBe(true)
+    expect(isInputPath('./spec/openapi.yml')).toBe(true)
+    expect(isInputPath('/abs/openapi.json')).toBe(true)
+    expect(isInputPath('main.tsp')).toBe(true)
+    expect(isInputPath('https://example.com/openapi')).toBe(true)
+    expect(isInputPath('http://localhost:3000/doc.json')).toBe(true)
+    // another scheme is taken by its extension alone
+    expect(isInputPath('ftp://example.com/openapi.yaml')).toBe(true)
+  })
+
+  it.concurrent('is false for another extension, a bare name, or a non-string', () => {
+    expect(isInputPath('openapi.txt')).toBe(false)
+    expect(isInputPath('openapi')).toBe(false)
+    expect(isInputPath('ftp://example.com/openapi')).toBe(false)
+    expect(isInputPath('file.yamlx')).toBe(false)
+    expect(isInputPath(1)).toBe(false)
+    expect(isInputPath(undefined)).toBe(false)
+  })
+})
 
 describe('isOpenAPIPaths', () => {
   it.concurrent('returns true for valid paths object', () => {

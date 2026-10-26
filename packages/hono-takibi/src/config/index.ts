@@ -4,13 +4,9 @@ import { pathToFileURL } from 'node:url'
 import { Effect, FileSystem, Schema, SchemaIssue, SchemaTransformation } from 'effect'
 import type { FormatConfig } from 'oxfmt'
 
-import {
-  COMPONENT_NAMES,
-  HOOK_LIBRARIES,
-  IDENTIFIER_PATTERN,
-  isInputPath,
-} from '../constants/index.js'
+import { COMPONENT_NAMES, HOOK_LIBRARIES, IDENTIFIER_PATTERN } from '../constants/index.js'
 import type { InputPath } from '../constants/index.js'
+import { isInputPath } from '../guard/index.js'
 
 // Test code generation is deprecated: hono-takibi no longer generates test files.
 // export const TestSchema = Schema.Struct({

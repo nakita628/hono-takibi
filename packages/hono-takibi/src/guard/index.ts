@@ -1,4 +1,10 @@
-import { COMPONENT_REF_PREFIX, HTTP_METHODS, IDENTIFIER_PATTERN } from '../constants/index.js'
+import {
+  COMPONENT_REF_PREFIX,
+  HTTP_METHODS,
+  IDENTIFIER_PATTERN,
+  INPUT_EXTENSIONS,
+} from '../constants/index.js'
+import type { InputPath } from '../constants/index.js'
 import type {
   Callbacks,
   Header,
@@ -23,6 +29,14 @@ export function isHttpMethod(method: string): method is (typeof HTTP_METHODS)[nu
 
 export function isValidIdent(str: string) {
   return IDENTIFIER_PATTERN.test(str)
+}
+
+/** An input document by its extension, or an `http(s)` URL to one (see `InputPath`). */
+export function isInputPath(v: unknown): v is InputPath {
+  return (
+    typeof v === 'string' &&
+    (INPUT_EXTENSIONS.some((extension) => v.endsWith(extension)) || /^https?:\/\//u.test(v))
+  )
 }
 
 export function isOpenAPIPaths(v: unknown): v is OpenAPIPaths {

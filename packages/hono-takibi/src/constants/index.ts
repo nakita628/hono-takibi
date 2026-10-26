@@ -39,17 +39,12 @@ export const INPUT_EXTENSIONS = ['.yaml', '.yml', '.json', '.tsp'] as const
  * document served without an extension is OpenAPI by content).
  */
 export type InputPath =
-  | `${string}${(typeof INPUT_EXTENSIONS)[number]}`
+  | `${string}.yaml`
+  | `${string}.yml`
+  | `${string}.json`
+  | `${string}.tsp`
   | `http://${string}`
   | `https://${string}`
-
-/** An input document by its extension, or an `http(s)` URL to one (see `InputPath`). */
-export function isInputPath(v: unknown): v is InputPath {
-  return (
-    typeof v === 'string' &&
-    (INPUT_EXTENSIONS.some((extension) => v.endsWith(extension)) || /^https?:\/\//u.test(v))
-  )
-}
 
 /** A JavaScript identifier that can be written bare: as a binding, or a key or member access. */
 export const IDENTIFIER_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/u
