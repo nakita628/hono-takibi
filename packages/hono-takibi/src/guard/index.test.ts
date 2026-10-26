@@ -18,6 +18,7 @@ import {
   isMediaWithSchema,
   isOffsetTime,
   isOpenAPIPaths,
+  isUntypedObject,
   isOperation,
   isOperationLike,
   isOperationWithResponses,
@@ -810,6 +811,27 @@ describe('hasTypelessConstraint', () => {
 
   it.concurrent('returns true for schema with `contains`', () => {
     expect(hasTypelessConstraint({ contains: { type: 'string' } })).toBe(true)
+  })
+})
+
+// #385: a schema with `properties` and no `type` is an object
+describe('isUntypedObject', () => {
+  it.concurrent('is true for properties or additionalProperties without a type', () => {
+    expect(isUntypedObject({ properties: { a: { type: 'string' } } })).toBe(true)
+    expect(isUntypedObject({ properties: { a: { type: 'string' } }, required: ['a'] })).toBe(true)
+    expect(isUntypedObject({ additionalProperties: { type: 'string' } })).toBe(true)
+    expect(isUntypedObject({ additionalProperties: false, minProperties: 1 })).toBe(true)
+  })
+
+  it.concurrent('is false with a type, with no object keyword, or beside a keyword of another kind', () => {
+    expect(isUntypedObject({ type: 'object', properties: {} })).toBe(false)
+    expect(isUntypedObject({ type: 'string', properties: {} })).toBe(false)
+    expect(isUntypedObject({})).toBe(false)
+    expect(isUntypedObject({ required: ['a'] })).toBe(false)
+    expect(isUntypedObject({ minProperties: 1 })).toBe(false)
+    expect(isUntypedObject({ properties: { a: { type: 'string' } }, minLength: 1 })).toBe(false)
+    expect(isUntypedObject({ properties: { a: { type: 'string' } }, items: {} })).toBe(false)
+    expect(isUntypedObject({ properties: { a: { type: 'string' } }, enum: ['a'] })).toBe(false)
   })
 })
 

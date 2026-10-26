@@ -51,6 +51,60 @@ describe('conformDefault', () => {
     })
   })
 
+  // #387: an object default keeps the keys its schema declares, each as a value of its property
+  it.concurrent('keeps the declared keys of an object, and needs the required ones', () => {
+    const schema: Schema = {
+      type: 'object',
+      properties: { active: { type: 'boolean' }, secrets: { type: 'boolean' } },
+    }
+    expect(conformDefault(schema, { other: false, secrets: 'false' })).toStrictEqual({
+      ok: true,
+      value: { secrets: false },
+    })
+    expect(conformDefault(schema, { secrets: 'maybe' })).toStrictEqual({ ok: false })
+    expect(conformDefault({ ...schema, required: ['active'] }, { secrets: true })).toStrictEqual({
+      ok: false,
+    })
+    expect(conformDefault(schema, 'x')).toStrictEqual({ ok: false })
+    // a loose object, a record and an object with no properties take any key
+    expect(conformDefault({ ...schema, additionalProperties: true }, { other: 1 })).toStrictEqual({
+      ok: true,
+      value: { other: 1 },
+    })
+    expect(
+      conformDefault({ type: 'object', additionalProperties: { type: 'string' } }, { other: 'a' }),
+    ).toStrictEqual({ ok: true, value: { other: 'a' } })
+    expect(conformDefault({ type: 'object' }, { other: 1 })).toStrictEqual({
+      ok: true,
+      value: { other: 1 },
+    })
+  })
+
+  it.concurrent('reads a default on a reference against the component it names', () => {
+    const schemas = {
+      Filters: { type: 'object', properties: { secrets: { type: 'boolean' } } },
+      Node: {
+        type: 'object',
+        properties: { next: { $ref: '#/components/schemas/Node' } },
+      },
+    } as const
+    expect(
+      conformDefault({ $ref: '#/components/schemas/Filters' }, { secrets: 'true', x: 1 }, schemas),
+    ).toStrictEqual({ ok: true, value: { secrets: true } })
+    // a component that is not among the schemas is not checked
+    expect(
+      conformDefault({ $ref: '#/components/schemas/Missing' }, { x: 1 }, schemas),
+    ).toStrictEqual({ ok: true, value: { x: 1 } })
+    // a cycle through the component ends at the reference, as written
+    expect(
+      conformDefault(
+        { $ref: '#/components/schemas/Node' },
+        { next: { next: { x: 1 } }, y: 2 },
+        schemas,
+      ),
+    ).toStrictEqual({ ok: true, value: { next: { next: { x: 1 } } } })
+  })
+
   it.concurrent('does not check a schema with no type of its own, and takes null', () => {
     expect(conformDefault({ $ref: '#/components/schemas/A' }, { any: 1 })).toStrictEqual({
       ok: true,

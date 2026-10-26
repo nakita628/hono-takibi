@@ -318,6 +318,35 @@ export function hasTypelessConstraint(schema: Schema) {
   return TYPELESS_KEYWORDS.some((k) => schema[k] !== undefined)
 }
 
+// The keywords that describe an object: what a schema with no `type` is read as an
+// object by.
+const OBJECT_KEYWORDS: ReadonlySet<keyof Schema> = new Set([
+  'required',
+  'properties',
+  'additionalProperties',
+  'patternProperties',
+  'propertyNames',
+  'minProperties',
+  'maxProperties',
+  'dependentRequired',
+  'dependentSchemas',
+  'unevaluatedProperties',
+])
+
+/**
+ * Whether a schema with no `type` is an object in all but name: it declares `properties`
+ * or `additionalProperties`, and no keyword of another kind (`minLength`, `items`). Such
+ * a schema is emitted as `z.object()` rather than checked by hand on `z.unknown()`, which
+ * is what the type writer already takes it for (#385).
+ */
+export function isUntypedObject(schema: Schema) {
+  return (
+    schema.type === undefined &&
+    (schema.properties !== undefined || schema.additionalProperties !== undefined) &&
+    TYPELESS_KEYWORDS.every((k) => schema[k] === undefined || OBJECT_KEYWORDS.has(k))
+  )
+}
+
 /**
  * Whether a `time` takes an offset. `time` is an RFC 3339 full-time, `12:34:56Z` or
  * `12:34:56+09:00`, and `z.iso.time()` takes neither. `x-isoOffset: false` asks for that.

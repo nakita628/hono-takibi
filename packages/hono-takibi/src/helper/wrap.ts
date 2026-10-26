@@ -9,7 +9,7 @@ import type { Header, Parameter, Schema, Type } from '../openapi/index.js'
 import { regexLiteral } from '../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { makeExamples } from './openapi.js'
-import { WIRE_EMPTY, WIRE_INHERITED, WIRE_NULL, wireStyle } from './wire.js'
+import { WIRE_EMPTY, WIRE_INHERITED, WIRE_NULL, resolveSchemaRef, wireStyle } from './wire.js'
 
 // `$defs` / `definitions` hold schemas, not metadata: written into `.openapi()` as they are,
 // they do not type-check as Schema Objects (#377). An entry a `$ref` reaches is inlined
@@ -229,14 +229,27 @@ function makeSerializedParam(param: Parameter) {
  * boolean (`'true'`) or a number (`'10'`) for a schema of that type is read as the value
  * (YAML and query strings arrive as text); a number for a string is written as text. An
  * enum or const takes only what it lists; an array takes an array whose every item
- * conforms. A schema with no type of its own (a reference, a `oneOf`) is not checked.
+ * conforms; an object keeps the keys its `properties` declare, each conforming, and has
+ * every `required` one (#387). A reference is read as the component it names when
+ * `schemas` has it; a schema with no type of its own otherwise (a `oneOf`) is not checked.
  */
 export function conformDefault(
   schema: Schema,
   value: unknown,
+  schemas?: { readonly [k: string]: Schema },
 ): { readonly ok: true; readonly value: unknown } | { readonly ok: false } {
   if (value === undefined) return { ok: false }
   if (value === null) return { ok: true, value }
+  if (schema.$ref !== undefined) {
+    const target = resolveSchemaRef(schema.$ref, schemas)
+    if (target === undefined) return { ok: true, value }
+    const { $ref: _ref, default: _default, ...beside } = schema
+    // The component is read once: a cycle through it ends at the reference, as written.
+    const rest = Object.fromEntries(
+      Object.entries(schemas ?? {}).filter(([, component]) => component !== target),
+    )
+    return conformDefault({ ...target, ...beside }, value, rest)
+  }
   if (schema.enum !== undefined) {
     return schema.enum.some((member) => member === value) ? { ok: true, value } : { ok: false }
   }
@@ -279,12 +292,43 @@ export function conformDefault(
       if (items === undefined || typeof items === 'boolean' || isSchemaArray(items)) {
         return { ok: true, value }
       }
-      const readItems = value.map((item) => conformDefault(items, item))
+      const readItems = value.map((item) => conformDefault(items, item, schemas))
       return readItems.every((item) => item.ok)
         ? { ok: true, value: readItems.map((item) => (item.ok ? item.value : undefined)) }
         : undefined
     }
-    if (type === 'object') return isRecord(value) ? { ok: true, value } : undefined
+    if (type === 'object') {
+      if (!isRecord(value)) return undefined
+      const properties = schema.properties
+      // `z.looseObject()` and `.catchall()` take any key; `z.object()` strips the keys the
+      // schema does not declare, and `z.strictObject()` rejects them, so neither output type
+      // has such a key: a default that carries one does not type-check (#387). The keys the
+      // schema declares are kept, as values of their properties, and a required key has to
+      // be among them.
+      if (
+        properties === undefined ||
+        schema.additionalProperties === true ||
+        typeof schema.additionalProperties === 'object'
+      ) {
+        return { ok: true, value }
+      }
+      const required = Array.isArray(schema.required) ? schema.required : []
+      if (required.some((key) => !Object.hasOwn(value, String(key)))) return undefined
+      const members = Object.entries(value).flatMap(([key, item]) => {
+        const property = properties[key]
+        return property === undefined
+          ? []
+          : [[key, conformDefault(property, item, schemas)] as const]
+      })
+      return members.every(([, item]) => item.ok)
+        ? {
+            ok: true,
+            value: Object.fromEntries(
+              members.map(([key, item]) => [key, item.ok ? item.value : undefined]),
+            ),
+          }
+        : undefined
+    }
     // `date`, or a type the generator does not know: taken as written.
     return { ok: true, value }
   }
@@ -327,6 +371,8 @@ export function wrap(
     inheritedAbsent?: boolean
     /** The text `null` is read as the value, before or after it is read as text. @internal */
     nullRead?: 'first' | 'last'
+    /** The component schemas, which a default on a reference is read against. @internal */
+    schemas?: { readonly [k: string]: Schema }
   },
 ) {
   // JSON Schema 2020-12: pre-2019-09 legacy keys + non-standard underscore variants.
@@ -421,7 +467,7 @@ export function wrap(
   // that spells a boolean or a number is read as that value, and what cannot be read is
   // left to the document (`.openapi({default})`) rather than written as `.default()`, which
   // would not type-check.
-  const conformed = conformDefault(schema, schema.default)
+  const conformed = conformDefault(schema, schema.default, options?.schemas)
   const defaultValue = conformed.ok ? conformed.value : undefined
   const droppedDefault = schema.default !== undefined && !conformed.ok
   // A schema that declares `null` nowhere but in `default: null` (a `oneOf`, a reference, a

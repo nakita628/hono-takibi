@@ -1259,8 +1259,10 @@ describe('object keywords', () => {
     })
   })
 
-  // The schema that applies when cc is present.
-  // cc が存在する場合に適用されるスキーマ。
+  // The schema that applies when cc is present: an object (#385), so the pointer names
+  // the property that failed.
+  // cc が存在する場合に適用されるスキーマ。オブジェクト(#385)なので、pointer は失敗した
+  // プロパティを指す。
   it('dependentSchemas rejects a cc that is not 16 digits', async () => {
     const res = await app.request('/object-edge', {
       method: 'POST',
@@ -1277,7 +1279,7 @@ describe('object keywords', () => {
       title: 'Unprocessable Content',
       status: 422,
       detail: 'Request validation failed',
-      errors: [{ pointer: '/dependent', detail: 'cc must be 16 digits' }],
+      errors: [{ pointer: '/dependent/cc', detail: 'cc must be 16 digits' }],
     })
   })
 })

@@ -169,6 +169,29 @@ describe('utils', () => {
       expect(regexLiteral('(?i)\\p{L}+')).toStrictEqual({ source: '\\p{L}+', flags: 'iu' })
     })
 
+    // #386: a PCRE hex escape in braces is the character it names, not `x{`
+    it.concurrent('writes a hex escape in braces as a Unicode escape', () => {
+      expect(regexLiteral(String.raw`^[\x00-\x{FFFF}]*$`)).toStrictEqual({
+        source: String.raw`^[\x00-\uFFFF]*$`,
+        flags: '',
+      })
+      expect(regexLiteral(String.raw`\x{41}\x{1F600}`)).toStrictEqual({
+        source: String.raw`\u0041\u{1F600}`,
+        flags: 'u',
+      })
+      expect(regexLiteral(String.raw`(?i)\x{e9}`)).toStrictEqual({
+        source: String.raw`\u00E9`,
+        flags: 'i',
+      })
+      // an escaped backslash before `x{` is a backslash, and what follows it is text
+      expect(regexLiteral(String.raw`\\x{41}`)).toStrictEqual({
+        source: String.raw`\\x{41}`,
+        flags: '',
+      })
+      // no character has a code above U+10FFFF
+      expect(regexLiteral(String.raw`\x{110000}`)).toBeUndefined()
+    })
+
     it.concurrent('answers undefined for what JavaScript cannot compile', () => {
       expect(regexLiteral('(?x)^a b$')).toBeUndefined()
       expect(regexLiteral('a++')).toBeUndefined()

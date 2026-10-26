@@ -226,12 +226,15 @@ const REGEX_LINE_TERMINATOR_ESCAPES: { readonly [k: string]: string } = {
 /**
  * A `pattern` as a JavaScript regex literal: its source and flags, or `undefined` when no
  * literal can stand for it. A leading inline flag group, `(?i)` / `(?s)` / `(?m)` (PCRE,
- * which JavaScript has not), becomes the flag; `\p{..}` asks for `u`. What is left is
- * compiled once here: a pattern JavaScript rejects (`(?x)`, a possessive quantifier) would
- * otherwise be written into a literal that keeps the whole file from parsing (#370).
+ * which JavaScript has not), becomes the flag; a PCRE hex escape in braces, `\x{FFFF}`,
+ * becomes `\uFFFF`, or `\u{10FFFF}` with `u` above the BMP (#386); `\p{..}` asks for `u`.
+ * What is left is compiled once here: a pattern JavaScript rejects (`(?x)`, a possessive
+ * quantifier) would otherwise be written into a literal that keeps the whole file from
+ * parsing (#370).
  *
  * @example
  * regexLiteral('(?i)^(pay|details)$') // { source: '^(pay|details)$', flags: 'i' }
+ * regexLiteral('^[\\x00-\\x{FFFF}]*$') // { source: '^[\\x00-\\uFFFF]*$', flags: '' }
  * regexLiteral('a++') // undefined
  */
 export function regexLiteral(pattern: string) {
@@ -239,15 +242,47 @@ export function regexLiteral(pattern: string) {
   const letters = inline?.[1] ?? ''
   // `x` (ignore whitespace) and the rest have no JavaScript flag: no literal says the same.
   if (letters.split('').some((letter) => !'ims'.includes(letter))) return undefined
-  const source = inline === null ? pattern : pattern.slice(inline[0].length)
+  const hex = hexBraceEscapes(inline === null ? pattern : pattern.slice(inline[0].length))
+  if (hex === undefined) return undefined
+  const { source } = hex
   const flags = [
-    ...new Set([...letters.split(''), ...(/\\[pP]\{/u.test(source) ? ['u'] : [])]),
+    ...new Set([...letters.split(''), ...(hex.astral || /\\[pP]\{/u.test(source) ? ['u'] : [])]),
   ].join('')
   try {
     return { source, flags: new RegExp(source, flags).flags } as const
   } catch {
     return undefined
   }
+}
+
+/**
+ * The source with every PCRE hex escape in braces, `\x{FFFF}`, written as the JavaScript
+ * escape of the same character: `\uFFFF` up to U+FFFF, `\u{10FFFF}` above it, which only
+ * the `u` flag reads (`astral`). Without the flag JavaScript reads `\x{` as the letter `x`
+ * followed by `{`, and TypeScript rejects the literal (#386). A code above U+10FFFF is no
+ * character: `undefined`. The source is read as escape pairs, so an escaped backslash
+ * before `x{` is left alone.
+ */
+function hexBraceEscapes(source: string) {
+  let astral = false
+  let invalid = false
+  const rewritten = source.replaceAll(
+    /\\([\s\S])(\{([0-9A-Fa-f]{1,8})\})?/gu,
+    (match: string, escaped: string, _brace: string | undefined, digits: string | undefined) => {
+      if (escaped !== 'x' || digits === undefined) return match
+      const code = Number.parseInt(digits, 16)
+      if (code > 0x10_ff_ff) {
+        invalid = true
+        return match
+      }
+      if (code > 0xff_ff) {
+        astral = true
+        return `\\u{${code.toString(16).toUpperCase()}}`
+      }
+      return `\\u${code.toString(16).toUpperCase().padStart(4, '0')}`
+    },
+  )
+  return invalid ? undefined : ({ source: rewritten, astral } as const)
 }
 
 export function escapeRegexLiteral(source: string) {
