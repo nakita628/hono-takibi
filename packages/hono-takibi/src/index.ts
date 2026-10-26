@@ -1,11 +1,10 @@
 #!/usr/bin/env node
-import * as module from 'node:module'
+// Subpath imports: the package index re-exports NodeRedis, NodeSocket and the rest, which
+// pull `redis` and `ws` into every run. The two modules used here load in a third of the time.
+import * as NodeRuntime from '@effect/platform-node/NodeRuntime'
+import * as NodeServices from '@effect/platform-node/NodeServices'
+import { Effect } from 'effect'
 
-// The modules a run loads are compiled once and their bytecode kept (Node 22.1+), in Node's
-// own cache directory unless `NODE_COMPILE_CACHE` names one: every later run starts faster.
-// It is turned on before anything else is loaded, so the program is imported here rather
-// than statically: a static import is evaluated before this module's own body.
-if ('enableCompileCache' in module) module.enableCompileCache()
+import { honoTakibi } from './cli/index.js'
 
-const { run } = await import('./cli/main.js')
-run()
+NodeRuntime.runMain(honoTakibi().pipe(Effect.provide(NodeServices.layer)))
