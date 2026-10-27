@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test'
 import { z } from 'zod'
 
+import { JSON_BIGINT } from '../../helper/wire.js'
 import type { Schema } from '../../openapi/index.js'
 import { zodToOpenAPI } from './index.js'
 
@@ -13026,6 +13027,57 @@ describe('zodToOpenAPI: keywords beside not', () => {
   it.concurrent('validates the constraints beside not', () => {
     expect(zodToOpenAPI({ type: 'string', minLength: 2, not: { enum: ['ab'] } })).toBe(
       'z.string().min(2).refine((val) => !["ab"].includes(val))',
+    )
+  })
+
+  // An int64 hands out a bigint, so what `not` excludes is written as a bigint too:
+  // `[0].includes(val)` does not type-check against a bigint, and `0n` is not `0`.
+  // int64 は bigint を返すので、not が除外する値も bigint で書く:
+  // `[0].includes(val)` は bigint に対して型エラーになり、実行時も `0n` は `0` ではない。
+  it.concurrent('writes the excluded enum members of an int64 as bigints', () => {
+    expect(zodToOpenAPI({ type: 'integer', format: 'int64', not: { enum: [0] } })).toBe(
+      `z.preprocess(${JSON_BIGINT},z.int64()).openapi({type:"integer",format:"int64"}).refine((val) => ![0n].includes(val)).openapi({type:"integer",format:"int64"})`,
+    )
+    const runtime = z.int64().refine((val) => ![0n].includes(val))
+    expect(runtime.safeParse(1n).success).toBe(true)
+    expect(runtime.safeParse(0n).success).toBe(false)
+  })
+
+  it.concurrent('writes the excluded const of an int64 as a bigint', () => {
+    expect(zodToOpenAPI({ type: 'integer', format: 'int64', not: { const: 0 } })).toBe(
+      `z.preprocess(${JSON_BIGINT},z.int64()).openapi({type:"integer",format:"int64"}).refine((val) => val !== 0n).openapi({type:"integer",format:"int64"})`,
+    )
+    const runtime = z.int64().refine((val) => val !== 0n)
+    expect(runtime.safeParse(1n).success).toBe(true)
+    expect(runtime.safeParse(0n).success).toBe(false)
+  })
+
+  // `format: bigint` spells its literals as `BigInt(n)`, like its bounds do.
+  // `format: bigint` のリテラルは、境界値と同じく `BigInt(n)` で書く。
+  it.concurrent('writes the excluded enum members of a bigint as BigInt(n)', () => {
+    expect(zodToOpenAPI({ type: 'integer', format: 'bigint', not: { enum: [0, 1] } })).toBe(
+      `z.preprocess(${JSON_BIGINT},z.bigint()).openapi({type:"integer",format:"bigint"}).refine((val) => ![BigInt(0),BigInt(1)].includes(val)).openapi({type:"integer",format:"bigint"})`,
+    )
+  })
+
+  // The same with `x-coerce`: the coerced value handed to the refine is still a bigint.
+  // `x-coerce` でも同様: refine に渡る値は変換後の bigint である。
+  it.concurrent('writes the excluded enum members of a coerced int64 as bigints', () => {
+    expect(
+      zodToOpenAPI({ type: 'integer', format: 'int64', 'x-coerce': true, not: { enum: [0] } }),
+    ).toBe(
+      'z.coerce.bigint().pipe(z.int64()).openapi({type:"integer",format:"int64"}).refine((val) => ![0n].includes(val)).openapi({type:"integer",format:"int64"})',
+    )
+  })
+
+  // A fraction can never be a bigint, so it excludes nothing and is dropped from the list.
+  // 小数は bigint になり得ないので何も除外せず、リストから落とす。
+  it.concurrent('drops a fractional member from the excluded enum of an int64', () => {
+    expect(zodToOpenAPI({ type: 'integer', format: 'int64', not: { enum: [1.5] } })).toBe(
+      `z.preprocess(${JSON_BIGINT},z.int64()).openapi({type:"integer",format:"int64"}).openapi({type:"integer",format:"int64"})`,
+    )
+    expect(zodToOpenAPI({ type: 'integer', format: 'int64', not: { enum: [1.5, 2] } })).toBe(
+      `z.preprocess(${JSON_BIGINT},z.int64()).openapi({type:"integer",format:"int64"}).refine((val) => ![2n].includes(val)).openapi({type:"integer",format:"int64"})`,
     )
   })
 
