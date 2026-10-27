@@ -1494,6 +1494,19 @@ describe('zodToOpenAPI', () => {
       })
 
       describe('not.enum', () => {
+        it.concurrent('not.enum: int64 excludes bigint literals', () => {
+          const code = zodToOpenAPI({
+            type: 'integer',
+            format: 'int64',
+            not: { enum: [0, 2] },
+          })
+          expect(code).toContain('.refine((val) => ![0n,2n].includes(val))')
+          const runtime = z.int64().refine((val) => ![0n, 2n].includes(val))
+          expect(runtime.safeParse(0n).success).toBe(false)
+          expect(runtime.safeParse(2n).success).toBe(false)
+          expect(runtime.safeParse(3n).success).toBe(true)
+        })
+
         it.concurrent('not.enum: excludes ["a","b","c"]', () => {
           expect(zodToOpenAPI({ not: { enum: ['a', 'b', 'c'] } })).toBe(
             `z.any().refine((val) => !["a","b","c"].includes(val))`,

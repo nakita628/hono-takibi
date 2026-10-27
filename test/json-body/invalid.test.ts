@@ -38,6 +38,26 @@ import { jsonBodyApp } from './app'
 // What is not a whole number, or not one that arrived with every digit, is rejected.
 // 整数でない値や、すべての桁を保ったまま届いていない値は、拒否される。
 describe('int64: rejected values', () => {
+  it('excluded rejects a forbidden int64 sent as a number', async () => {
+    const res = await jsonBodyApp.request('/numbers', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{"excluded":0}',
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['excluded'] })
+  })
+
+  it('excluded rejects a forbidden int64 sent as text', async () => {
+    const res = await jsonBodyApp.request('/numbers', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{"excluded":"2"}',
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['excluded'] })
+  })
+
   // 9007199254740993 cannot be held by a JSON number: it has lost its last digit before the
   // schema sees it. It has to be sent as a string of digits.
   // 9007199254740993 は、JSON の number では保持できない。スキーマに届く前に、

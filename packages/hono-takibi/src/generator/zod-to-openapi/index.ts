@@ -399,7 +399,11 @@ export function zodToOpenAPI(
         }
       }
       if (isPureEnum && Array.isArray(not.enum)) {
-        const list = JSON.stringify(not.enum)
+        const list =
+          isBigintFormat &&
+          not.enum.every((value) => typeof value === 'number' && Number.isInteger(value))
+            ? `[${not.enum.map((value) => `${value}n`).join(',')}]`
+            : JSON.stringify(not.enum)
         const predicate = `(val) => !${list}.includes(val)`
         return done(`${notBase}.refine(${predicate}${notErrorArg})`, schema)
       }

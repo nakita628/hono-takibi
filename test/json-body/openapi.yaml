@@ -31,6 +31,7 @@ paths:
                 unsigned: { type: integer, format: uint64 }
                 ranged: { type: integer, format: int64, minimum: 1, maximum: 100 }
                 level: { type: integer, format: int64, enum: [1, 2] }
+                excluded: { type: integer, format: int64, not: { enum: [0, 2] } }
                 version: { type: integer, format: int64, const: 5 }
                 cursor: { type: integer, format: int64, default: 0 }
                 maybe: { type: [integer, 'null'], format: int64 }

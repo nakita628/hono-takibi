@@ -147,6 +147,19 @@ describe('int64: a number or a string of digits', () => {
 
   // level is an int64 enum of 1 and 2. Its members are bigints, like the value.
   // level は 1 と 2 の int64 enum である。メンバーは、値と同じく bigint である。
+  it('excluded accepts an allowed int64', async () => {
+    const res = await jsonBodyApp.request('/numbers', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{"excluded":3}',
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      excluded: { valueType: 'bigint', valueText: '3' },
+      cursor: { valueType: 'bigint', valueText: '0' },
+    })
+  })
+
   it('level reads a member of an int64 enum', async () => {
     const res = await jsonBodyApp.request('/numbers', {
       method: 'POST',
