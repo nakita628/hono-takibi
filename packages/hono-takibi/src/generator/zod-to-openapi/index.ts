@@ -355,6 +355,19 @@ export function zodToOpenAPI(
         childOptions,
       )
     })()
+    // The refine sees what the base schema hands out. An int64 / uint64 / bigint integer
+    // hands out a bigint (with or without `x-coerce`), so the values `not` excludes are
+    // written as bigint literals: `[0].includes(val)` is a type error on a bigint, and
+    // `0n` is not `0` at runtime either, so a number literal lets the excluded value pass.
+    const notIsBigint =
+      normalizeTypes(schema.type).includes('integer') &&
+      (schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint')
+    const notLiteral = (value: unknown): string =>
+      typeof value === 'number' && notIsBigint && Number.isInteger(value)
+        ? schema.format === 'bigint'
+          ? `BigInt(${value})`
+          : `${value}n`
+        : JSON.stringify(value)
     const typePredicates: { readonly [k: string]: string } = {
       string: `(val) => typeof val !== 'string'`,
       number: `(val) => typeof val !== 'number'`,
@@ -372,7 +385,7 @@ export function zodToOpenAPI(
       )
     }
     if (typeof schema.not === 'object' && 'const' in schema.not) {
-      const value = JSON.stringify(schema.not.const)
+      const value = notLiteral(schema.not.const)
       const predicate = `(val) => val !== ${value}`
       return done(`${notBase}.refine(${predicate}${notErrorArg})`, schema)
     }
@@ -399,12 +412,18 @@ export function zodToOpenAPI(
         }
       }
       if (isPureEnum && Array.isArray(not.enum)) {
-        const list = JSON.stringify(not.enum)
+        // A bigint is never a fraction, so a fractional member cannot exclude anything and
+        // would only be a number literal beside the bigint ones.
+        const members = notIsBigint
+          ? not.enum.filter((member) => typeof member !== 'number' || Number.isInteger(member))
+          : not.enum
+        if (members.length === 0) return done(notBase, schema)
+        const list = `[${members.map(notLiteral).join(',')}]`
         const predicate = `(val) => !${list}.includes(val)`
         return done(`${notBase}.refine(${predicate}${notErrorArg})`, schema)
       }
       if (onlyKeys.length === 1 && onlyKeys[0] === 'const') {
-        const value = JSON.stringify(not.const)
+        const value = notLiteral(not.const)
         const predicate = `(val) => val !== ${value}`
         return done(`${notBase}.refine(${predicate}${notErrorArg})`, schema)
       }
