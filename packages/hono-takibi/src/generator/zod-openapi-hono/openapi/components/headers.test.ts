@@ -118,7 +118,10 @@ export type XCustomHeader=z.infer<typeof XCustomHeaderSchema>`,
       },
     }
     const result = headersCode(components, true, false)
-    expect(result).toBe(`export const XMetaHeaderSchema={'application/json':{schema:z.string()}}`)
+    // #410: the schema under the one media type is the header's
+    expect(result).toBe(
+      'export const XMetaHeaderSchema=z.string().exactOptional().openapi({param:{required:false}})',
+    )
   })
 
   it('should handle header with content and type export', () => {
@@ -135,7 +138,7 @@ export type XCustomHeader=z.infer<typeof XCustomHeaderSchema>`,
     }
     const result = headersCode(components, true, true)
     expect(result).toBe(
-      `export const XMetaHeaderSchema={'application/json':{schema:z.string()}}
+      `export const XMetaHeaderSchema=z.string().exactOptional().openapi({param:{required:false}})
 
 export type XMetaHeader=z.infer<typeof XMetaHeaderSchema>`,
     )
@@ -154,7 +157,10 @@ export type XMetaHeader=z.infer<typeof XMetaHeaderSchema>`,
       },
     }
     const result = headersCode(components, true, false, true)
-    expect(result).toBe(`export const XMetaHeaderSchema={'application/json':{schema:z.string()}}`)
+    // #410: the schema under the one media type is the header's
+    expect(result).toBe(
+      'export const XMetaHeaderSchema=z.string().exactOptional().openapi({param:{required:false}})',
+    )
   })
 
   it('should generate header with schema and readonly', () => {
@@ -214,7 +220,10 @@ export const XRateLimitHeaderSchema=z.int().exactOptional().openapi({param:{requ
         },
       },
     }
-    expect(headersCode(components, true, false)).toBe('')
+    // a header that declares no schema takes any value, so that a reference to it resolves
+    expect(headersCode(components, true, false)).toBe(
+      'export const XEmptyHeaderSchema=z.any().exactOptional().openapi({description:"An empty header with no schema",param:{required:false}})',
+    )
   })
 
   it('should generate multiple headers with export and type', () => {

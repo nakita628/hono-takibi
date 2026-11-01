@@ -44,6 +44,7 @@ import {
   handlerGroupOf,
   makeGeneratedImport,
   isInsideDirectory,
+  normalizeOpenAPI,
 } from '../helper/index.js'
 import type { Grouping } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
@@ -316,6 +317,11 @@ function importTargets(config: Config) {
  * at: it would generate `z.any()` for every parameter and no response schema, and look
  * complete (#374).
  */
+/** An object of the document (`shared` may not read `guard`). */
+function isObjectValue(value: unknown): value is { readonly [k: string]: unknown } {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
 export function openAPI3(document: OpenAPI, input: string) {
   const swagger: unknown = Reflect.get(document, 'swagger')
   if (document.openapi === undefined && typeof swagger === 'string') {
@@ -325,9 +331,29 @@ export function openAPI3(document: OpenAPI, input: string) {
       }),
     )
   }
+  // A component is an object; one that is not (`components.schemas.x-foo: null`) would be
+  // read as a schema and crash the generator, so it is named instead (#416).
+  const sections = isObjectValue(document.components) ? document.components : {}
+  const invalid = COMPONENT_NAMES.flatMap((section) => {
+    const entries = sections[section]
+    return isObjectValue(entries)
+      ? Object.entries(entries).flatMap(([name, value]) =>
+          isObjectValue(value) ? [] : [`components.${section}.${name} is ${JSON.stringify(value)}`],
+        )
+      : []
+  })
+  if (invalid.length > 0) {
+    return Effect.fail(
+      new GenerateError({
+        message: `${input}: ${invalid.join(', ')}; a component is an object.`,
+      }),
+    )
+  }
   // A 3.1 document needs `paths`, `components` or `webhooks`, not all of them: one that
   // describes webhooks alone has no `paths`, which every generator iterates (#384).
-  return Effect.succeed(document.paths === undefined ? { ...document, paths: {} } : document)
+  return Effect.succeed(
+    normalizeOpenAPI(document.paths === undefined ? { ...document, paths: {} } : document),
+  )
 }
 
 export function packageRoots(openAPI: OpenAPI, config: Config) {

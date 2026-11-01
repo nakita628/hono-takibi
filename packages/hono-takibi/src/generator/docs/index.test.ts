@@ -11020,4 +11020,35 @@ Status Code **200**
     expect(md.match(/^\|x\|\[VariableAlias\]\(#schemavariablealias\)\|/gmu)).toHaveLength(1)
     expect(md.match(/^\|type\|string\|true\|none\|none\|$/gmu)).toHaveLength(2)
   })
+
+  // #414: a `type` that is an object (one level of nesting too many, Codat) is not a type
+  describe('a property whose type is not a name', () => {
+    it('describes the property as any instead of crashing', () => {
+      const doc = {
+        openapi: '3.0.0',
+        info: { title: 'Codat', version: '1.0.0' },
+        paths: {
+          '/items': {
+            post: {
+              operationId: 'createItem',
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        kind: { type: { type: 'string', enum: ['Inventory', 'Service'] } },
+                      },
+                    },
+                  },
+                },
+              },
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      } as unknown as OpenAPI
+      expect(makeDocs(doc)).toContain('|» kind|body|any|false|none|')
+    })
+  })
 })

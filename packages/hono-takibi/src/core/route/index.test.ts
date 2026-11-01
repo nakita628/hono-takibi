@@ -434,7 +434,9 @@ export const queryUsersRoute = createRoute({
   path: '/users',
   summary: 'Search users',
   description: 'A safe read whose parameters travel in the body.',
-  request: { body: { content: { 'application/json': { schema: z.object({}) } }, required: true } },
+  request: {
+    body: { content: { 'application/json': { schema: z.looseObject({}) } }, required: true },
+  },
   responses: { 200: { description: 'OK' } },
 })
 `)

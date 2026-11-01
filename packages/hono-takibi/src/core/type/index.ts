@@ -5,6 +5,7 @@ import { Effect } from 'effect'
 import { JSON_MEDIA_TYPE } from '../../constants/index.js'
 import { emit } from '../../emit/index.js'
 import {
+  isBinaryFile,
   isHttpMethod,
   isMediaWithSchema,
   isOpenAPIPaths,
@@ -425,8 +426,11 @@ function makeSingleTypeString(
   aliases: Aliases,
   visited: Set<string>,
 ) {
-  if (type === 'string') return schema.format === 'binary' ? 'File' : 'string'
-  if (type === 'number' || type === 'integer') {
+  if (type === 'string') return isBinaryFile(schema) ? 'File' : 'string'
+  if (type === 'number') return 'number'
+  // `z.int64()` / `z.uint64()` / `z.bigint()` output a bigint; `type: number` with the same
+  // format is `z.number()` (#412).
+  if (type === 'integer') {
     const isBigintFormat =
       schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint'
     return isBigintFormat ? 'bigint' : 'number'

@@ -1,6 +1,9 @@
 import { isSchemaObject, isSingleSchema } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { error } from '../utils/index.js'
+import { resolveSchemaRef } from './wire.js'
+
+type Schemas = { readonly [k: string]: Schema }
 
 // Returns the slot value JSON-encoded for splicing into generated code, or
 // undefined when the slot is absent / non-string (callers omit `message`).
@@ -391,14 +394,27 @@ function makePatternPropsStmt(sub: Schema) {
   return `for(const k of Object.keys(o)){for(const p of ${JSON.stringify(patterns)}){if(new RegExp(p).test(k)){e.add(k)}}}`
 }
 
-function collectAllOfStmts(list: readonly Schema[]): readonly string[] {
-  return list.flatMap((sub) =>
-    [
+// The keys an `allOf` member evaluates: its own properties and pattern properties, and those
+// of its own `allOf`. A member that is a reference evaluates the keys of the component it
+// names (#405), read once however often it is reached.
+function collectAllOfStmts(
+  list: readonly Schema[],
+  schemas: Schemas | undefined,
+  reading: ReadonlySet<string> = new Set(),
+): readonly string[] {
+  return list.flatMap((sub) => {
+    if (sub.$ref !== undefined) {
+      const target = reading.has(sub.$ref) ? undefined : resolveSchemaRef(sub.$ref, schemas)
+      return target === undefined
+        ? []
+        : collectAllOfStmts([target], schemas, new Set([...reading, sub.$ref]))
+    }
+    return [
       makeOwnPropsStmt(sub),
       makePatternPropsStmt(sub),
-      ...(sub.allOf ? collectAllOfStmts(sub.allOf) : []),
-    ].filter((s): s is string => s !== undefined),
-  )
+      ...(sub.allOf ? collectAllOfStmts(sub.allOf, schemas, reading) : []),
+    ].filter((s): s is string => s !== undefined)
+  })
 }
 
 function conditionalBranchStmt(sub: Schema, recurse: (s: Schema) => string) {
@@ -415,7 +431,11 @@ function conditionalBranchStmt(sub: Schema, recurse: (s: Schema) => string) {
 // properties and pattern properties, those of every `allOf` member, those of each `anyOf`
 // and `oneOf` branch that matches, the `if` / `then` / `else` properties the condition
 // selects, and those of each `dependentSchemas` entry whose key is present.
-function makeUnevaluatedEvaluationStmts(schema: Schema, recurse: (s: Schema) => string) {
+function makeUnevaluatedEvaluationStmts(
+  schema: Schema,
+  recurse: (s: Schema) => string,
+  schemas: Schemas | undefined,
+) {
   const branchStmts = (branches: readonly Schema[] | undefined) =>
     branches
       ? branches
@@ -457,7 +477,7 @@ function makeUnevaluatedEvaluationStmts(schema: Schema, recurse: (s: Schema) => 
     'const e=new Set()',
     makeOwnPropsStmt(schema),
     makePatternPropsStmt(schema),
-    ...(schema.allOf ? collectAllOfStmts(schema.allOf) : []),
+    ...(schema.allOf ? collectAllOfStmts(schema.allOf, schemas) : []),
     ...branchStmts(schema.anyOf),
     ...branchStmts(schema.oneOf),
     ...ifStmts,
@@ -481,6 +501,7 @@ export function makeUnevaluatedProperties(
   schema: Schema,
   recurse: (s: Schema) => string,
   messageOverride?: string,
+  schemas?: Schemas,
 ) {
   const up = schema.unevaluatedProperties
   if (up === undefined || up === true) {
@@ -491,7 +512,34 @@ export function makeUnevaluatedProperties(
     up === false
       ? `for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]${messageField}})}}`
       : `const Schema=${recurse(up)};for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}`
-  return `.superRefine((o,ctx)=>{${[...makeUnevaluatedEvaluationStmts(schema, recurse), finalStmt].join(';')}})`
+  return `.superRefine((o,ctx)=>{${[...makeUnevaluatedEvaluationStmts(schema, recurse, schemas), finalStmt].join(';')}})`
+}
+
+// The codes of the issues a schema raises (`$ZodIssueCode`). An issue of `safeParse` is
+// pushed into `ctx.issues` as the raw issue of its own code: spread as one of the union, its
+// `input` is `unknown` and the push does not type-check (#405), so each code is narrowed.
+const ISSUE_CODES = [
+  'invalid_type',
+  'too_big',
+  'too_small',
+  'invalid_format',
+  'not_multiple_of',
+  'unrecognized_keys',
+  'invalid_union',
+  'invalid_key',
+  'invalid_element',
+  'invalid_value',
+  'custom',
+] as const
+
+/**
+ * The statement that forwards `issue` into `ctx.issues`, narrowed by its code. `pushArg` is
+ * the raw issue as source, built from `issue` (`{...issue,input:issue.input,path:[...]}`).
+ */
+export function makeIssueForwarding(pushArg: string) {
+  return ISSUE_CODES.map(
+    (code, i) => `${i === 0 ? '' : 'else '}if(issue.code==='${code}'){ctx.issues.push(${pushArg})}`,
+  ).join('')
 }
 
 // Variant for `z.unknown().check((ctx)=>{...})` (operates on `ctx.value`).
@@ -501,6 +549,7 @@ export function makeUnevaluatedPropertiesCheck(
   schema: Schema,
   recurse: (s: Schema) => string,
   messageOverride?: string,
+  schemas?: Schemas,
 ) {
   const up = schema.unevaluatedProperties
   if (up === undefined || up === true) {
@@ -510,8 +559,8 @@ export function makeUnevaluatedPropertiesCheck(
   const finalStmt =
     up === false
       ? `for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o${messageField}})}}`
-      : `const Schema=${recurse(up)};for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}}}`
-  return `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;${[...makeUnevaluatedEvaluationStmts(schema, recurse), finalStmt].join(';')}}`
+      : `const Schema=${recurse(up)};for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding('{...issue,path:[k,...issue.path],input:issue.input}')}}}}`
+  return `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;${[...makeUnevaluatedEvaluationStmts(schema, recurse, schemas), finalStmt].join(';')}}`
 }
 
 // The error arguments of a numeric bound, as Zod v4 `{error:"..."}` parameters: for the

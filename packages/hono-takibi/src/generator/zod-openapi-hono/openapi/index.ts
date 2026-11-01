@@ -1,5 +1,4 @@
-import { uniqueComponentNames } from '../../../helper/names.js'
-import { inlinePointerRefs } from '../../../helper/pointer.js'
+import { normalizeOpenAPI } from '../../../helper/document.js'
 import type { OpenAPI } from '../../../openapi/index.js'
 import { componentsCode } from './components/index.js'
 import { routeCode } from './routes/index.js'
@@ -27,9 +26,12 @@ export function zodOpenAPIHono(
   } = {},
 ) {
   // A `$ref` into `paths` (or anywhere but a component) names no declaration: it is written
-  // out where it stands. Two components whose names would make one identifier are told apart.
-  const openapi = uniqueComponentNames(inlinePointerRefs(document))
-  const components = openapi.components ? componentsCode(openapi.components, options) : ''
+  // out where it stands, or declared as a component when it is recursive. Two components whose
+  // names would make one identifier are told apart, and an `x-` key of `paths` is no path.
+  const openapi = normalizeOpenAPI(document)
+  const components = openapi.components
+    ? componentsCode(openapi.components, { ...options, document: openapi })
+    : ''
   const routes = routeCode(openapi, options.readonly)
   const webhooks = webhookCode(openapi, options.readonly)
   const output = [components, routes, webhooks].filter((v) => v.length > 0).join('\n\n')

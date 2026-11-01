@@ -1,4 +1,4 @@
-import { isSchemaArray, isValidIdent } from '../guard/index.js'
+import { isBinaryFile, isSchemaArray, isUntypedObject, isValidIdent } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { decodePercent, makeStringLiteral, toIdentifierPascalCase } from '../utils/index.js'
 
@@ -96,8 +96,10 @@ function makeUnionTypeString(
       : `(${types.join(separator)})`
 }
 
+// A schema with no `type` is an object when it declares properties (#385); otherwise the
+// value may be anything (`{ required: ['oas'] }` is checked on `z.unknown()`, Tyk).
 function normalizeType(schema: Schema): readonly string[] {
-  if (!schema.type) return ['object']
+  if (!schema.type) return isUntypedObject(schema) ? ['object'] : []
   return Array.isArray(schema.type) ? schema.type : [schema.type]
 }
 
@@ -113,7 +115,10 @@ function makeBaseTypeString(
       .map((t) => makeSingleTypeString(schema, t, selfTypeName, cyclicGroup, readonly))
       .join('|')
   }
-  return makeSingleTypeString(schema, types[0] ?? 'object', selfTypeName, cyclicGroup, readonly)
+  const [type] = types
+  // No type but `null`: what `z.null()` outputs. No type at all: anything.
+  if (type === undefined) return schema.type === 'null' ? 'null' : 'unknown'
+  return makeSingleTypeString(schema, type, selfTypeName, cyclicGroup, readonly)
 }
 
 function makeSingleTypeString(
@@ -123,7 +128,8 @@ function makeSingleTypeString(
   cyclicGroup?: ReadonlySet<string>,
   readonly?: boolean,
 ) {
-  if (type === 'string') return 'string'
+  // `z.file()` outputs a File (#413).
+  if (type === 'string') return isBinaryFile(schema) ? 'File' : 'string'
   if (type === 'number') return 'number'
   if (type === 'integer') return isBigintFormat(schema) ? 'bigint' : 'number'
   if (type === 'boolean') return 'boolean'

@@ -5,7 +5,7 @@ import { object } from './object.js'
 
 describe('object', () => {
   it.concurrent.each<[Schema, string]>([
-    [{ type: 'object' }, 'z.object({})'],
+    [{ type: 'object' }, 'z.looseObject({})'],
     [
       { type: 'object', properties: { foo: { type: 'string' } }, required: ['foo'] },
       'z.object({foo:z.string()})',
@@ -71,11 +71,11 @@ describe('object', () => {
     it.concurrent.each<[Schema, string]>([
       [
         { type: 'object', minProperties: 1, 'x-minProperties-message': 'At least 1 property' },
-        'z.object({}).refine((val)=>Object.keys(val).length>=1,{error:"At least 1 property"})',
+        'z.looseObject({}).refine((val)=>Object.keys(val).length>=1,{error:"At least 1 property"})',
       ],
       [
         { type: 'object', maxProperties: 5, 'x-maxProperties-message': 'At most 5 properties' },
-        'z.object({}).refine((val)=>Object.keys(val).length<=5,{error:"At most 5 properties"})',
+        'z.looseObject({}).refine((val)=>Object.keys(val).length<=5,{error:"At most 5 properties"})',
       ],
       [
         {
@@ -85,7 +85,7 @@ describe('object', () => {
           'x-minProperties-message': 'At least 1',
           'x-maxProperties-message': 'At most 10',
         },
-        'z.object({}).refine((val)=>Object.keys(val).length>=1,{error:"At least 1"}).refine((val)=>Object.keys(val).length<=10,{error:"At most 10"})',
+        'z.looseObject({}).refine((val)=>Object.keys(val).length>=1,{error:"At least 1"}).refine((val)=>Object.keys(val).length<=10,{error:"At most 10"})',
       ],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)
@@ -103,7 +103,7 @@ describe('object', () => {
           'x-error-message': 'オブジェクト必須',
           'x-dependentRequired-message': 'fooにはbarが必要',
         },
-        `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"fooにはbarが必要",path:["bar"]})}})`,
+        `z.looseObject({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"fooにはbarが必要",path:["bar"]})}})`,
       ],
       // x-dependentRequired-message alone (no x-error-message)
       [
@@ -112,7 +112,7 @@ describe('object', () => {
           dependentRequired: { foo: ['bar'] },
           'x-dependentRequired-message': 'fooにはbarが必要',
         },
-        `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"fooにはbarが必要",path:["bar"]})}})`,
+        `z.looseObject({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"fooにはbarが必要",path:["bar"]})}})`,
       ],
       // fallback: no x-dependentRequired-message → x-error-message used
       [
@@ -121,7 +121,7 @@ describe('object', () => {
           dependentRequired: { foo: ['bar'] },
           'x-error-message': 'エラー',
         },
-        `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"エラー",path:["bar"]})}})`,
+        `z.looseObject({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"エラー",path:["bar"]})}})`,
       ],
       // no message at all → default 'requires "<dep>" when "<key>" present'
       [
@@ -129,7 +129,7 @@ describe('object', () => {
           type: 'object',
           dependentRequired: { foo: ['bar'] },
         },
-        `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"requires \\"bar\\" when \\"foo\\" present",path:["bar"]})}})`,
+        `z.looseObject({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"requires \\"bar\\" when \\"foo\\" present",path:["bar"]})}})`,
       ],
       // multiple deps per key (foo requires both bar and baz)
       // each missing dep emits its own issue at path:[d]
@@ -139,7 +139,7 @@ describe('object', () => {
           dependentRequired: { foo: ['bar', 'baz'] },
           'x-dependentRequired-message': '依存エラー',
         },
-        `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"依存エラー",path:["bar"]})};if(!Object.hasOwn(o,"baz")){ctx.addIssue({code:'custom',message:"依存エラー",path:["baz"]})}})`,
+        `z.looseObject({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"依存エラー",path:["bar"]})};if(!Object.hasOwn(o,"baz")){ctx.addIssue({code:'custom',message:"依存エラー",path:["baz"]})}})`,
       ],
       // multiple dependentRequired entries
       [
@@ -148,7 +148,7 @@ describe('object', () => {
           dependentRequired: { foo: ['bar'], baz: ['qux'] },
           'x-dependentRequired-message': '依存エラー',
         },
-        `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"依存エラー",path:["bar"]})}}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"baz")){return}if(!Object.hasOwn(o,"qux")){ctx.addIssue({code:'custom',message:"依存エラー",path:["qux"]})}})`,
+        `z.looseObject({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"依存エラー",path:["bar"]})}}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"baz")){return}if(!Object.hasOwn(o,"qux")){ctx.addIssue({code:'custom',message:"依存エラー",path:["qux"]})}})`,
       ],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)
@@ -493,7 +493,7 @@ describe('object', () => {
           'x-error-message': 'オブジェクトエラー',
           'x-minProperties-message': '最低2つ必要',
         },
-        `z.object({}).refine((val)=>Object.keys(val).length>=2,{error:"最低2つ必要"}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"a")){return}if(!Object.hasOwn(o,"b")){ctx.addIssue({code:'custom',message:"オブジェクトエラー",path:["b"]})}})`,
+        `z.looseObject({}).refine((val)=>Object.keys(val).length>=2,{error:"最低2つ必要"}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"a")){return}if(!Object.hasOwn(o,"b")){ctx.addIssue({code:'custom',message:"オブジェクトエラー",path:["b"]})}})`,
       ],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)
@@ -540,7 +540,7 @@ describe('object if/then/else split-branch (per-branch message override)', () =>
         'x-then-message': 'then failed',
       }),
     ).toBe(
-      `z.object({}).superRefine((o,ctx)=>{const If=z.object({a:z.string().exactOptional()}).openapi({"required":[]});const ifOk=If.safeParse(o).success;if(ifOk){const Branch=z.object({b:z.number().exactOptional()}).openapi({"required":[]});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path,message:"then failed"})}}}else{const Branch=z.object({c:z.boolean().exactOptional()}).openapi({"required":[]});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}})`,
+      `z.looseObject({}).superRefine((o,ctx)=>{const If=z.object({a:z.string().exactOptional()}).openapi({"required":[]});const ifOk=If.safeParse(o).success;if(ifOk){const Branch=z.object({b:z.number().exactOptional()}).openapi({"required":[]});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path,message:"then failed"})}}}else{const Branch=z.object({c:z.boolean().exactOptional()}).openapi({"required":[]});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}})`,
     )
   })
 
@@ -554,7 +554,7 @@ describe('object if/then/else split-branch (per-branch message override)', () =>
         else: { type: 'object', properties: { c: { type: 'boolean' } } },
       }),
     ).toBe(
-      `z.object({}).superRefine((o,ctx)=>{const If=z.object({a:z.string().exactOptional()}).openapi({"required":[]});const ifOk=If.safeParse(o).success;const Branch=ifOk?z.object({b:z.number().exactOptional()}).openapi({"required":[]}):z.object({c:z.boolean().exactOptional()}).openapi({"required":[]});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})`,
+      `z.looseObject({}).superRefine((o,ctx)=>{const If=z.object({a:z.string().exactOptional()}).openapi({"required":[]});const ifOk=If.safeParse(o).success;const Branch=ifOk?z.object({b:z.number().exactOptional()}).openapi({"required":[]}):z.object({c:z.boolean().exactOptional()}).openapi({"required":[]});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})`,
     )
   })
 })

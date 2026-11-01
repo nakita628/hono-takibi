@@ -329,6 +329,24 @@ export function isUntypedObject(schema: Schema) {
 }
 
 /**
+ * Whether a string is emitted as `z.file()`: `format: binary` on a string, with no content
+ * encoding, media type or schema (which make it an encoded string) and no `x-codec` (which
+ * replaces the schema). What it hands out is a `File`, not a string: a `pattern` and a string
+ * `default` describe the encoded text, not the file (#413).
+ */
+export function isBinaryFile(schema: Schema) {
+  const types = Array.isArray(schema.type) ? schema.type : [schema.type]
+  return (
+    schema.format === 'binary' &&
+    types.includes('string') &&
+    schema.contentEncoding === undefined &&
+    schema.contentMediaType === undefined &&
+    schema.contentSchema === undefined &&
+    schema['x-codec'] === undefined
+  )
+}
+
+/**
  * Whether a `time` takes an offset. `time` is an RFC 3339 full-time, `12:34:56Z` or
  * `12:34:56+09:00`, and `z.iso.time()` takes neither. `x-isoOffset: false` asks for that.
  */

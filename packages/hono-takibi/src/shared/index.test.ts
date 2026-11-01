@@ -2072,6 +2072,43 @@ describe('openAPI3', () => {
     expect(await runGenerator(openAPI3(bare, 'openapi.yaml'))).toBe(bare)
   })
 
+  // #416: a component that is not an object is named, not read as a schema
+  it.concurrent('fails for a component that is not an object, naming it', async () => {
+    const document = {
+      openapi: '3.0.0',
+      info: { title: 'A', version: '1' },
+      paths: {},
+      components: {
+        schemas: { 'x-foo': null, Thing: { type: 'object' } },
+        parameters: { 'x-bar': 1 },
+      },
+    } as unknown as OpenAPI
+    const error = await runGeneratorError(openAPI3(document, 'openapi.yaml'))
+    expect(error.message).toBe(
+      'openapi.yaml: components.schemas.x-foo is null, components.parameters.x-bar is 1; a component is an object.',
+    )
+  })
+
+  // #416: an `x-` key of the Paths Object is an extension, not a path
+  it.concurrent('leaves the extensions of paths and responses out', async () => {
+    const document = {
+      openapi: '3.0.0',
+      info: { title: 'A', version: '1' },
+      paths: {
+        'x-vendor-object': { get: { responses: { default: { description: 'not a path' } } } },
+        '/thing': {
+          post: {
+            responses: { '200': { description: 'OK' }, 'x-vendor-object': { description: 'no' } },
+          },
+        },
+      },
+    } as unknown as OpenAPI
+    expect(await runGenerator(openAPI3(document, 'openapi.yaml'))).toStrictEqual({
+      ...document,
+      paths: { '/thing': { post: { responses: { '200': { description: 'OK' } } } } },
+    })
+  })
+
   // #384: a 3.1 document of webhooks alone has no `paths`, which every generator iterates
   it.concurrent('gives a document without paths an empty one', async () => {
     const webhooks = {

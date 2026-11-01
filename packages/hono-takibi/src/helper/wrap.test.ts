@@ -105,6 +105,101 @@ describe('conformDefault', () => {
     ).toStrictEqual({ ok: true, value: { next: { next: { x: 1 } } } })
   })
 
+  // #412: a `type: number` with `format: int64` is `z.number()`, and its default a number
+  it.concurrent('writes the default of a number with format int64 as a number', () => {
+    expect(wrap('z.number()', { type: 'number', format: 'int64', default: 0 })).toBe(
+      'z.number().default(0)',
+    )
+    expect(
+      wrap('z.int64()', { type: 'integer', format: 'int64', default: 0 }, undefined, {
+        isOptional: true,
+      }),
+    ).toBe(
+      'z.int64().default(0n).exactOptional().openapi({type:"integer",format:"int64",default:0})',
+    )
+  })
+
+  // #403: an int64 whose default is not a value of it states the default once
+  it.concurrent('states a dropped default of an int64 once in the metadata', () => {
+    expect(
+      wrap('z.int64().min(0n)', {
+        type: 'integer',
+        format: 'int64',
+        nullable: true,
+        minimum: 0,
+        default: 'null',
+      }),
+    ).toBe(
+      'z.int64().min(0n).nullable().openapi({type:["integer","null"],format:"int64",minimum:0,default:"null"})',
+    )
+  })
+
+  // #413: `z.file()` hands out a File, which no text is
+  it.concurrent('leaves a string default and a pattern of a binary string to the document', () => {
+    expect(
+      wrap('z.file()', { type: 'string', format: 'binary', default: '', pattern: '^.+' }),
+    ).toBe('z.file().openapi({type:"string",format:"binary","default":"","pattern":"^.+"})')
+    expect(conformDefault({ type: 'string', format: 'binary' }, 'x')).toStrictEqual({ ok: false })
+    // an encoded string is text, and takes one
+    expect(
+      conformDefault({ type: 'string', format: 'binary', contentEncoding: 'base64' }, 'eA=='),
+    ).toStrictEqual({ ok: true, value: 'eA==' })
+  })
+
+  // #394: a default beside `allOf: [{ $ref }]` is read against the component
+  it.concurrent('reads a default beside an allOf against its members', () => {
+    const schemas = {
+      Precision: { type: 'number' },
+      Mode: { type: 'string', enum: ['coerce', 'strict'] },
+    } as const
+    expect(
+      conformDefault({ allOf: [{ $ref: '#/components/schemas/Precision' }] }, '7', schemas),
+    ).toStrictEqual({ ok: true, value: 7 })
+    expect(
+      conformDefault({ allOf: [{ $ref: '#/components/schemas/Mode' }] }, "'strict'", schemas),
+    ).toStrictEqual({ ok: false })
+    expect(
+      conformDefault({ allOf: [{ $ref: '#/components/schemas/Mode' }] }, 'strict', schemas),
+    ).toStrictEqual({ ok: true, value: 'strict' })
+    // every member reads it, and what is written beside them too
+    expect(
+      conformDefault({ allOf: [{ type: 'integer' }, { minimum: 0 }], enum: [1, 2] }, '3'),
+    ).toStrictEqual({ ok: false })
+    expect(
+      conformDefault({ allOf: [{ type: 'integer' }, { minimum: 0 }], enum: [1, 2] }, '2'),
+    ).toStrictEqual({ ok: true, value: 2 })
+  })
+
+  // #396: a value one branch takes is a value of the union, whatever stands beside it
+  it.concurrent('keeps a default one branch of a oneOf takes as it is', () => {
+    const union = {
+      type: 'string',
+      oneOf: [{ type: 'string', enum: ['cover'] }, { type: 'boolean' }],
+    } as const
+    expect(conformDefault(union, false)).toStrictEqual({ ok: true, value: false })
+    expect(conformDefault(union, 'cover')).toStrictEqual({ ok: true, value: 'cover' })
+    // no branch takes it: what is written beside the branches reads it
+    expect(conformDefault(union, 7)).toStrictEqual({ ok: true, value: '7' })
+    expect(
+      conformDefault({ anyOf: [{ type: 'integer' }, { type: 'boolean' }] }, '1'),
+    ).toStrictEqual({ ok: true, value: 1 })
+    // no branch takes it, and nothing beside them says what it is: not a value of the union
+    expect(
+      conformDefault({ anyOf: [{ type: 'integer' }, { type: 'boolean' }] }, 'x'),
+    ).toStrictEqual({ ok: false })
+    expect(
+      conformDefault(
+        {
+          oneOf: [
+            { type: 'string', enum: ['id', 'state'] },
+            { type: 'array', items: { type: 'string', enum: ['id', 'state'] } },
+          ],
+        },
+        'id,state',
+      ),
+    ).toStrictEqual({ ok: false })
+  })
+
   it.concurrent('does not check a schema with no type of its own, and takes null', () => {
     expect(conformDefault({ $ref: '#/components/schemas/A' }, { any: 1 })).toStrictEqual({
       ok: true,
@@ -464,7 +559,10 @@ describe('wrap', () => {
   })
 
   it('should return examples', () => {
-    const result = wrap('z.string()', { type: 'string', examples: ['example1', 'example2'] } as any)
+    const result = wrap('z.string()', {
+      type: 'string',
+      examples: ['example1', 'example2'],
+    } as any)
     const expected = 'z.string().openapi({"examples":["example1","example2"]})'
     expect(result).toBe(expected)
   })
@@ -546,9 +644,9 @@ describe('wrap', () => {
         },
       },
     }
-    const result = wrap('z.object({})', { type: 'object' }, { parameters: testParameter })
+    const result = wrap('z.looseObject({})', { type: 'object' }, { parameters: testParameter })
     const expected =
-      'z.object({}).exactOptional().openapi({param:{"name":"filter","in":"query","required":false,"schema":{"type":"object"},"content":{"application/json":{"schema":{"type":"object"},"examples":{"japanese":{value:{"name":"田中太郎","description":"参照地獄テスト"}}}}}}})'
+      'z.looseObject({}).exactOptional().openapi({param:{"name":"filter","in":"query","required":false,"schema":{"type":"object"},"content":{"application/json":{"schema":{"type":"object"},"examples":{"japanese":{value:{"name":"田中太郎","description":"参照地獄テスト"}}}}}}})'
     expect(result).toBe(expected)
   })
 
@@ -670,9 +768,9 @@ describe('wrap', () => {
         required: ['name', 'email'],
         description: 'User object',
       }
-      const result = wrap('z.object({})', schema)
+      const result = wrap('z.looseObject({})', schema)
       expect(result).toBe(
-        'z.object({}).openapi({"required":["name","email"],"description":"User object"})',
+        'z.looseObject({}).openapi({"required":["name","email"],"description":"User object"})',
       )
     })
 
@@ -683,9 +781,9 @@ describe('wrap', () => {
         required: ['name', null, true, false, 'email'],
         description: 'Schema with mixed required values',
       } as unknown as Schema
-      const result = wrap('z.object({})', schema)
+      const result = wrap('z.looseObject({})', schema)
       expect(result).toBe(
-        'z.object({}).openapi({"required":["name","null","true","false","email"],"description":"Schema with mixed required values"})',
+        'z.looseObject({}).openapi({"required":["name","null","true","false","email"],"description":"Schema with mixed required values"})',
       )
     })
 
@@ -695,9 +793,9 @@ describe('wrap', () => {
         required: [],
         description: 'Object with empty required',
       }
-      const result = wrap('z.object({})', schema)
+      const result = wrap('z.looseObject({})', schema)
       expect(result).toBe(
-        'z.object({}).openapi({"required":[],"description":"Object with empty required"})',
+        'z.looseObject({}).openapi({"required":[],"description":"Object with empty required"})',
       )
     })
 
@@ -895,16 +993,15 @@ describe('wrap', () => {
       expect(result).toBe('z.array(z.string()).openapi({"description":"arr"})')
     })
 
-    it.concurrent('should pass through $schema property (v2.7 — Core meta)', () => {
+    // #393: `$schema` is no Schema Object key, so `.openapi()` cannot take it
+    it.concurrent('leaves $schema out of the metadata', () => {
       const schema = {
         type: 'string',
         $schema: 'http://json-schema.org/draft-07/schema#',
         description: 'test',
       } as unknown as Schema
       const result = wrap('z.string()', schema)
-      expect(result).toBe(
-        'z.string().openapi({"$schema":"http://json-schema.org/draft-07/schema#","description":"test"})',
-      )
+      expect(result).toBe('z.string().openapi({"description":"test"})')
     })
 
     it.concurrent('should filter out contentEncoding property', () => {
@@ -926,8 +1023,8 @@ describe('wrap', () => {
         else: { maxLength: 0 },
         description: 'conditional',
       } as unknown as Schema
-      const result = wrap('z.object({})', schema)
-      expect(result).toBe('z.object({}).openapi({"description":"conditional"})')
+      const result = wrap('z.looseObject({})', schema)
+      expect(result).toBe('z.looseObject({}).openapi({"description":"conditional"})')
     })
   })
 
@@ -1178,38 +1275,64 @@ describe('formatLiteral via default (format-aware literals)', () => {
 
 describe('filterUnsupportedProps (required coercion + nested boolean schemas)', () => {
   it.concurrent('coerces non-string required entries to strings (YAML literal quirk)', () => {
-    expect(wrap('z.object({})', { type: 'object', required: [1, true, 'x'] } as Schema)).toBe(
-      'z.object({}).openapi({"required":["1","true","x"]})',
+    expect(wrap('z.looseObject({})', { type: 'object', required: [1, true, 'x'] } as Schema)).toBe(
+      'z.looseObject({}).openapi({"required":["1","true","x"]})',
     )
   })
 
-  it.concurrent('drops nested boolean `items` from preserved schema keys', () => {
+  // An extension's value is the author's own: it is written as it is, whatever its shape.
+  it.concurrent('keeps the value of an x- extension as written', () => {
     expect(
-      wrap('z.object({})', {
+      wrap('z.looseObject({})', {
         type: 'object',
         'x-defs': { Foo: { type: 'array', items: true } },
       } as unknown as Schema),
-    ).toBe('z.object({}).openapi({"x-defs":{"Foo":{"type":"array"}}})')
+    ).toBe('z.looseObject({}).openapi({"x-defs":{"Foo":{"type":"array","items":true}}})')
   })
 
-  it.concurrent('drops nested `not` whose value is a boolean schema', () => {
+  // #393: a parameter's `schema` is a Schema Object too, at every level
+  it.concurrent('writes only Schema Object keys into param.schema, at every level', () => {
+    const schema = {
+      type: 'object',
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      properties: { by: { type: 'string', errorMessage: 'nope', description: 'kept' } },
+    } as unknown as Schema
     expect(
-      wrap('z.object({})', {
-        type: 'object',
-        'x-defs': { Foo: { not: { not: true } } },
+      wrap('z.looseObject({})', schema, { parameters: { name: 'filter', in: 'header', schema } }),
+    ).toBe(
+      'z.looseObject({}).exactOptional().openapi({param:{"name":"filter","in":"header","schema":{"type":"object","properties":{"by":{"type":"string","description":"kept"}}},"required":false}})',
+    )
+  })
+
+  // a Discriminator Object takes no extension (OpenSearch's `x-default`)
+  it.concurrent('writes only propertyName and mapping of a discriminator', () => {
+    expect(
+      wrap('z.xor([A,B])', {
+        oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
+        discriminator: { propertyName: 'type', 'x-default': 'object' },
       } as unknown as Schema),
-    ).toBe('z.object({}).openapi({"x-defs":{"Foo":{}}})')
+    ).toBe('z.xor([A,B]).openapi({"discriminator":{"propertyName":"type"}})')
+  })
+
+  // #398: a 3.0-style `examples` map on a schema is the list of its values
+  it.concurrent('writes a map of examples as the list of their values', () => {
+    expect(
+      wrap('z.string()', {
+        type: 'string',
+        examples: { a: { value: 'x' }, b: { externalValue: 'https://e.example' } },
+      }),
+    ).toBe('z.string().openapi({"examples":["x"]})')
   })
 
   // #377: `$defs` holds schemas, which `.openapi()` cannot take as they are
   it.concurrent('leaves $defs and definitions out of the metadata', () => {
     expect(
-      wrap('z.object({})', {
+      wrap('z.looseObject({})', {
         type: 'object',
         title: 'T',
         $defs: { Foo: { type: 'string', enum: ['a'] } },
         definitions: { Bar: { type: 'string' } },
       } as unknown as Schema),
-    ).toBe('z.object({}).openapi({"title":"T"})')
+    ).toBe('z.looseObject({}).openapi({"title":"T"})')
   })
 })

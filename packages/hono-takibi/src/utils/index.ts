@@ -227,7 +227,8 @@ const REGEX_LINE_TERMINATOR_ESCAPES: { readonly [k: string]: string } = {
  * A `pattern` as a JavaScript regex literal: its source and flags, or `undefined` when no
  * literal can stand for it. A leading inline flag group, `(?i)` / `(?s)` / `(?m)` (PCRE,
  * which JavaScript has not), becomes the flag; a PCRE hex escape in braces, `\x{FFFF}`,
- * becomes `\uFFFF`, or `\u{10FFFF}` with `u` above the BMP (#386); `\p{..}` asks for `u`.
+ * becomes `\uFFFF`, or `\u{10FFFF}` with `u` above the BMP (#386); `\p{..}` asks for `u`; a
+ * legacy octal escape, `\000`, becomes `\x00` (#408).
  * What is left is compiled once here: a pattern JavaScript rejects (`(?x)`, a possessive
  * quantifier) would otherwise be written into a literal that keeps the whole file from
  * parsing (#370).
@@ -235,6 +236,7 @@ const REGEX_LINE_TERMINATOR_ESCAPES: { readonly [k: string]: string } = {
  * @example
  * regexLiteral('(?i)^(pay|details)$') // { source: '^(pay|details)$', flags: 'i' }
  * regexLiteral('^[\\x00-\\x{FFFF}]*$') // { source: '^[\\x00-\\uFFFF]*$', flags: '' }
+ * regexLiteral('[^/:|\\000-\\037]+') // { source: '[^/:|\\x00-\\x1f]+', flags: '' }
  * regexLiteral('a++') // undefined
  */
 export function regexLiteral(pattern: string) {
@@ -244,7 +246,7 @@ export function regexLiteral(pattern: string) {
   if (letters.split('').some((letter) => !'ims'.includes(letter))) return undefined
   const hex = hexBraceEscapes(inline === null ? pattern : pattern.slice(inline[0].length))
   if (hex === undefined) return undefined
-  const { source } = hex
+  const source = octalEscapes(hex.source)
   const flags = [
     ...new Set([...letters.split(''), ...(hex.astral || /\\[pP]\{/u.test(source) ? ['u'] : [])]),
   ].join('')
@@ -283,6 +285,66 @@ function hexBraceEscapes(source: string) {
     },
   )
   return invalid ? undefined : ({ source: rewritten, astral } as const)
+}
+
+/**
+ * The source with every legacy octal escape (Annex B), `\000` or `\37`, written as the hex
+ * escape of the same character, `\x00` or `\x1f`: TypeScript rejects the octal form in a
+ * regex literal (TS1487, #408), and V8 reads both the same. Outside a character class a
+ * backslash and digits name a capturing group when there are that many (`(a)\1`), and are
+ * kept; inside one, or past the count, they are an octal escape. `\0` alone is the NUL
+ * escape JavaScript has, and `\8` / `\9` are the identity escapes it has, so both stay.
+ */
+function octalEscapes(source: string) {
+  const groups = capturingGroups(source)
+  let out = ''
+  let inClass = false
+  let i = 0
+  while (i < source.length) {
+    const char = source[i]
+    if (char === '\\') {
+      const digits = /^[0-9]+/u.exec(source.slice(i + 1))?.[0] ?? ''
+      const isBackreference =
+        !inClass && !digits.startsWith('0') && Number.parseInt(digits, 10) <= groups
+      const octal = isBackreference ? undefined : /^[0-3]?[0-7]{1,2}|^[0-7]/u.exec(digits)?.[0]
+      if (octal !== undefined && digits !== '0') {
+        out += `\\x${Number.parseInt(octal, 8).toString(16).padStart(2, '0')}`
+        i += 1 + octal.length
+        continue
+      }
+      out += source.slice(i, i + 2)
+      i += 2
+      continue
+    }
+    if (char === '[' && !inClass) inClass = true
+    else if (char === ']' && inClass) inClass = false
+    out += char
+    i += 1
+  }
+  return out
+}
+
+/** How many capturing groups a pattern has: `(` that is not a lookaround, a lookbehind or `(?:`, outside a class. */
+function capturingGroups(source: string) {
+  let count = 0
+  let inClass = false
+  for (let i = 0; i < source.length; i += 1) {
+    const char = source[i]
+    if (char === '\\') {
+      i += 1
+      continue
+    }
+    if (char === '[' && !inClass) inClass = true
+    else if (char === ']' && inClass) inClass = false
+    else if (char === '(' && !inClass) {
+      const next = source.slice(i + 1, i + 3)
+      // `(?<name>` captures; `(?:`, `(?=`, `(?!`, `(?<=` and `(?<!` do not.
+      if (!next.startsWith('?') || (next === '?<' && !'=!'.includes(source[i + 3] ?? ''))) {
+        count += 1
+      }
+    }
+  }
+  return count
 }
 
 export function escapeRegexLiteral(source: string) {

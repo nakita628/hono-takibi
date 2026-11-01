@@ -5,7 +5,10 @@ import { error, makeSafeKey } from '../../../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
 import { zodToOpenAPI } from '../index.js'
 
-export function object(schema: Schema, options?: { readonly?: boolean }) {
+export function object(
+  schema: Schema,
+  options?: { readonly?: boolean; schemas?: { readonly [k: string]: Schema } },
+) {
   const readonly = options?.readonly
   if (schema.oneOf || schema.anyOf || schema.allOf || schema.not) {
     return zodToOpenAPI(schema, undefined, options)
@@ -48,11 +51,14 @@ export function object(schema: Schema, options?: { readonly?: boolean }) {
   // When additionalProperties is undefined but patternProperties / propertyNames /
   // unevaluatedProperties are present, use looseObject so the refines see unknown
   // keys — z.object strips them before the refine runs, masking violations (silent bug).
+  // A free-form object, `type: object` declaring no property at all, takes any key in
+  // OpenAPI; `z.object({})` would strip every one of them (#411), so it is loose as well.
   const needsLoose =
     schema.additionalProperties === undefined &&
     (schema.patternProperties !== undefined ||
       schema.propertyNames !== undefined ||
-      schema.unevaluatedProperties !== undefined)
+      schema.unevaluatedProperties !== undefined ||
+      Object.keys(schema.properties ?? {}).length === 0)
   const objectType =
     schema.additionalProperties === true
       ? 'looseObject'
@@ -207,6 +213,11 @@ export function object(schema: Schema, options?: { readonly?: boolean }) {
   // Delegated to makeUnevaluatedProperties (see helper/zod.ts).
   // JSON Schema 2020-12 §11.2: anyOf/oneOf/if-then-else contribute evaluated
   // keys only for branches that ACTUALLY succeeded at runtime.
-  const unevaluatedProperties = makeUnevaluatedProperties(schema, zodToOpenAPI, errorMessage)
+  const unevaluatedProperties = makeUnevaluatedProperties(
+    schema,
+    zodToOpenAPI,
+    errorMessage,
+    options?.schemas,
+  )
   return `${base}${minProperties}${maxProperties}${propertyNames}${patternProperties}${dependentRequired}${dependentSchemas}${ifThenElse}${unevaluatedProperties}${readonly ? '.readonly()' : ''}`
 }

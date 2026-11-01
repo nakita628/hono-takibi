@@ -3,6 +3,10 @@ import { makeBoundErrorArgs } from '../../../helper/zod.js'
 import type { Schema } from '../../../openapi/index.js'
 import { baseError, error } from '../../../utils/index.js'
 
+/** What a 64-bit integer holds, signed and unsigned. */
+const INT64_RANGE = [-(2n ** 63n), 2n ** 63n - 1n] as const
+const UINT64_RANGE = [0n, 2n ** 64n - 1n] as const
+
 /**
  * Generates a Zod schema for integer types (int32 / int64 / bigint), with
  * min/max constraints and `x-minimum-message` / `x-maximum-message` vendor
@@ -42,9 +46,19 @@ export function integer(
         : isBigint
           ? `z.bigint(${baseErrorArg})`
           : `z.int(${baseErrorArg})`
+  // A bound of an int64 / uint64 is a bigint literal. `9223372036854775807` (the int64
+  // maximum, common in Java-generated documents) was already rounded to 2^63 when the
+  // document was parsed, and `${n}n` would spell that double's shortest form,
+  // `9223372036854776000n`, a bound 2^63 + 192 wide (#412): the literal is the exact value
+  // the double holds, kept within the range of the type, which `z.int64()` enforces anyway.
   const lit = (n: number): string => {
     if (schema.format === 'bigint') return `BigInt(${n})`
-    if (schema.format === 'int64' || schema.format === 'uint64') return `${n}n`
+    if (schema.format === 'int64' || schema.format === 'uint64') {
+      if (!Number.isInteger(n)) return `${n}n`
+      const [min, max] = schema.format === 'uint64' ? UINT64_RANGE : INT64_RANGE
+      const exact = BigInt(n)
+      return `${exact < min ? min : exact > max ? max : exact}n`
+    }
     return `${n}`
   }
   // Per-keyword precedence (openapi/index.ts): `x-<keyword>-message` >

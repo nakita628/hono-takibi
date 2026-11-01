@@ -942,4 +942,19 @@ describe('string pattern with unicode property escapes (/u flag)', () => {
   ])('string(%o) → %s', (input, expected) => {
     expect(string(input)).toBe(expected)
   })
+
+  // #413: `z.file()` has no `.regex()`; `maxLength` is the size of the file
+  describe('format: binary', () => {
+    it.concurrent('skips a pattern and keeps the length bound', () => {
+      expect(string({ type: 'string', format: 'binary', pattern: '^.{1,5}', maxLength: 5 })).toBe(
+        'z.file().max(5)',
+      )
+      // an encoded string is text: its pattern applies
+      expect(
+        string({ type: 'string', format: 'binary', contentEncoding: 'base64', pattern: '^a' }),
+      ).toBe(
+        'z.base64().transform((val)=>new TextDecoder().decode(Uint8Array.from(atob(val),(char)=>char.charCodeAt(0))))',
+      )
+    })
+  })
 })

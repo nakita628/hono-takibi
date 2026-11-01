@@ -1,6 +1,7 @@
 export * from './ast.js'
 export * from './code.js'
 export * from './discriminator.js'
+export * from './document.js'
 export * from './faker.js'
 export * from './group.js'
 export * from './handler.js'

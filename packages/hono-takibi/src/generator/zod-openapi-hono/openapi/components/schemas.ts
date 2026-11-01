@@ -4,7 +4,7 @@ import {
   makeSchemaInfos,
   makeTypeDefinitions,
 } from '../../../../helper/index.js'
-import type { Components } from '../../../../openapi/index.js'
+import type { Components, OpenAPI } from '../../../../openapi/index.js'
 
 /**
  * Generates TypeScript code for OpenAPI component schemas.
@@ -27,12 +27,15 @@ export function schemasCode(
   exportSchemas: boolean,
   exportSchemasTypes: boolean,
   readonly?: boolean,
+  // The whole document, when the components are generated as part of it: a discriminated
+  // union in a body of the document names branches that have to stay discriminable.
+  document?: OpenAPI,
 ) {
   const { schemas } = components
   if (!schemas) return ''
   const schemaNames = Object.keys(schemas)
   if (schemaNames.length === 0) return ''
-  const analysis = analyzeCircularSchemas(schemas, schemaNames, readonly)
+  const analysis = analyzeCircularSchemas(schemas, schemaNames, readonly, document)
   const infos = makeSchemaInfos(schemas, schemaNames, analysis)
   const typeDefs = makeTypeDefinitions(infos, schemas, analysis.cyclicGroupPascal, readonly)
   const schemaBlocks = infos.map((info) =>

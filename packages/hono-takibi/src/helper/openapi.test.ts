@@ -22,6 +22,7 @@ import {
   makeRequestBody,
   makeRequestParams,
   makeResponses,
+  makeHeaderSchema,
 } from './openapi.js'
 
 describe('openapi helper', () => {
@@ -173,7 +174,7 @@ describe('openapi helper', () => {
         headers: { 'X-Rate-Limit': { schema: { type: 'integer' } } },
       })
       expect(result).toBe(
-        '{description:"Success",headers:z.object({"X-Rate-Limit":{schema:z.int().exactOptional().openapi({param:{required:false}})}})}',
+        '{description:"Success",headers:z.object({"X-Rate-Limit":z.int().exactOptional().openapi({param:{required:false}})})}',
       )
     })
     it.concurrent('generates response with content', () => {
@@ -208,7 +209,7 @@ describe('openapi helper', () => {
         links: { Next: { operationId: 'getNext' } },
       })
       expect(result).toBe(
-        `{summary:"Sum",description:"Desc",content:{'application/json':{schema:z.object({})}},headers:z.object({"X-Custom":{schema:z.string().exactOptional().openapi({param:{required:false}})}}),links:{"Next":{operationId:"getNext"}}}`,
+        `{summary:"Sum",description:"Desc",content:{'application/json':{schema:z.looseObject({})}},headers:z.object({"X-Custom":z.string().exactOptional().openapi({param:{required:false}})}),links:{"Next":{operationId:"getNext"}}}`,
       )
     })
     it.concurrent('generates empty response object with description fallback', () => {
@@ -358,7 +359,7 @@ describe('openapi helper', () => {
       const result = makeRequestBody({
         content: { 'application/json': { schema: { type: 'object' } } },
       })
-      expect(result).toBe(`{content:{'application/json':{schema:z.object({})}}}`)
+      expect(result).toBe(`{content:{'application/json':{schema:z.looseObject({})}}}`)
     })
     it.concurrent('generates request body with required false', () => {
       const result = makeRequestBody({
@@ -379,7 +380,7 @@ describe('openapi helper', () => {
         },
       })
       expect(result).toBe(
-        `{content:{'application/json':{schema:z.object({})},'application/xml':{schema:z.object({})}}}`,
+        `{content:{'application/json':{schema:z.looseObject({})},'application/xml':{schema:z.looseObject({})}}}`,
       )
     })
   })
@@ -413,7 +414,7 @@ describe('openapi helper', () => {
         encoding: { file: { contentType: 'application/octet-stream' } },
       })
       expect(result).toBe(
-        '{schema:z.object({}),encoding:{"file":{contentType:"application/octet-stream"}}}',
+        '{schema:z.looseObject({}),encoding:{"file":{contentType:"application/octet-stream"}}}',
       )
     })
     it.concurrent('generates media with prefixEncoding', () => {
@@ -421,7 +422,7 @@ describe('openapi helper', () => {
         schema: { type: 'object' },
         prefixEncoding: { contentType: 'text/plain' },
       })
-      expect(result).toBe('{schema:z.object({}),prefixEncoding:{contentType:"text/plain"}}')
+      expect(result).toBe('{schema:z.looseObject({}),prefixEncoding:{contentType:"text/plain"}}')
     })
     it.concurrent('generates media with itemEncoding', () => {
       const result = makeMedia({
@@ -519,7 +520,7 @@ describe('openapi helper', () => {
         },
       ])
       expect(result.query.filter).toBe(
-        `z.preprocess((val)=>{if(typeof val!=='string')return val;try{return JSON.parse(val)}catch{return val}},z.object({})).exactOptional().openapi({param:{"name":"filter","in":"query","content":{"application/json":{"schema":{"type":"object"}}},"required":false}})`,
+        `z.preprocess((val)=>{if(typeof val!=='string')return val;try{return JSON.parse(val)}catch{return val}},z.looseObject({})).exactOptional().openapi({param:{"name":"filter","in":"query","content":{"application/json":{"schema":{"type":"object"}}},"required":false}})`,
       )
     })
     it.concurrent('handles parameters without schema returns z.any()', () => {
@@ -884,7 +885,7 @@ describe('openapi helper', () => {
         'X-Rate-Limit': { schema: { type: 'integer' } },
       })
       expect(result).toBe(
-        `z.object({"X-Rate-Limit":{schema:z.int().exactOptional().openapi({param:{required:false}})}})`,
+        `z.object({"X-Rate-Limit":z.int().exactOptional().openapi({param:{required:false}})})`,
       )
     })
     it.concurrent('generates header responses with $ref', () => {
@@ -900,7 +901,7 @@ describe('openapi helper', () => {
         'X-Rate-Reset': { schema: { type: 'integer' } },
       })
       expect(result).toBe(
-        `z.object({"X-Rate-Limit":{schema:z.int().exactOptional().openapi({param:{required:false}})},"X-Rate-Remaining":{schema:z.int().exactOptional().openapi({param:{required:false}})},"X-Rate-Reset":{schema:z.int().exactOptional().openapi({param:{required:false}})}})`,
+        `z.object({"X-Rate-Limit":z.int().exactOptional().openapi({param:{required:false}}),"X-Rate-Remaining":z.int().exactOptional().openapi({param:{required:false}}),"X-Rate-Reset":z.int().exactOptional().openapi({param:{required:false}})})`,
       )
     })
     it.concurrent('generates header responses with mixed schema and $ref', () => {
@@ -909,7 +910,7 @@ describe('openapi helper', () => {
         'X-Custom': { $ref: '#/components/headers/CustomHeader' },
       })
       expect(result).toBe(
-        `z.object({"X-Rate-Limit":{schema:z.int().exactOptional().openapi({param:{required:false}})},"X-Custom":CustomHeaderHeaderSchema})`,
+        `z.object({"X-Rate-Limit":z.int().exactOptional().openapi({param:{required:false}}),"X-Custom":CustomHeaderHeaderSchema})`,
       )
     })
   })
@@ -955,7 +956,7 @@ describe('openapi helper', () => {
         examples: { sample: { value: 'sample-value' } },
       })
       expect(result).toBe(
-        '{examples:{"sample":{value:"sample-value"}},schema:z.string().exactOptional().openapi({examples:{"sample":{value:"sample-value"}},param:{required:false}})}',
+        '{examples:{"sample":{value:"sample-value"}},schema:z.string().exactOptional().openapi({examples:["sample-value"],param:{required:false}})}',
       )
     })
     it.concurrent('generates header with style', () => {
@@ -980,7 +981,44 @@ describe('openapi helper', () => {
       const result = makeHeadersAndReferences({
         content: { 'application/json': { schema: { type: 'object' } } },
       })
-      expect(result).toBe(`{content:'application/json':{schema:z.object({})}}`)
+      expect(result).toBe(`{content:{'application/json':{schema:z.looseObject({})}}}`)
+    })
+  })
+
+  // A response header is a member of `z.object()`: the schema alone, the Header Object's own
+  // fields in its `.openapi()`; `content` holds the schema under one media type (#410).
+  describe('makeHeaderSchema', () => {
+    it.concurrent('names a referenced header component', () => {
+      expect(makeHeaderSchema({ $ref: '#/components/headers/RateLimit' })).toBe(
+        'RateLimitHeaderSchema',
+      )
+    })
+    it.concurrent('writes the schema with what the header says about itself', () => {
+      expect(
+        makeHeaderSchema({ description: 'rate', required: true, schema: { type: 'integer' } }),
+      ).toBe('z.int().openapi({description:"rate"})')
+    })
+    it.concurrent('takes the schema of the one media type of content, and its example', () => {
+      expect(
+        makeHeaderSchema({
+          content: { 'text/plain': { schema: { type: 'string' }, example: 'keep-alive' } },
+        }),
+      ).toBe('z.string().exactOptional().openapi({example:"keep-alive",param:{required:false}})')
+      expect(
+        makeHeaderSchema({
+          description: 'd',
+          content: {
+            'text/plain': { schema: { type: 'string' }, examples: { a: { value: 'x' } } },
+          },
+        }),
+      ).toBe(
+        'z.string().exactOptional().openapi({description:"d",examples:["x"],param:{required:false}})',
+      )
+    })
+    it.concurrent('takes anything for a header with neither schema nor content', () => {
+      expect(makeHeaderSchema({ description: 'd' })).toBe(
+        'z.any().exactOptional().openapi({description:"d",param:{required:false}})',
+      )
     })
   })
 
@@ -998,14 +1036,14 @@ describe('openapi helper', () => {
       const result = makeRequest(undefined, {
         content: { 'application/json': { schema: { type: 'object' } } },
       })
-      expect(result).toBe(`{body:{content:{'application/json':{schema:z.object({})}}}}`)
+      expect(result).toBe(`{body:{content:{'application/json':{schema:z.looseObject({})}}}}`)
     })
     it.concurrent('generates request with both parameters and body', () => {
       const result = makeRequest([{ name: 'id', in: 'path', schema: { type: 'string' } }], {
         content: { 'application/json': { schema: { type: 'object' } } },
       })
       expect(result).toBe(
-        `{params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})}),body:{content:{'application/json':{schema:z.object({})}}}}`,
+        `{params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})}),body:{content:{'application/json':{schema:z.looseObject({})}}}}`,
       )
     })
     it.concurrent('returns undefined for empty request', () => {
@@ -1149,7 +1187,7 @@ describe('openapi helper', () => {
         },
       })
       expect(result).toBe(
-        `"{$request.body#/callbackUrl}":{post:{tags:["callback"],summary:"Callback summary",description:"Callback description",operationId:"callbackOp",requestBody:{content:{'application/json':{schema:z.object({})}}},responses:{200:{description:"Success"}},deprecated:true}}`,
+        `"{$request.body#/callbackUrl}":{post:{tags:["callback"],summary:"Callback summary",description:"Callback description",operationId:"callbackOp",requestBody:{content:{'application/json':{schema:z.looseObject({})}}},responses:{200:{description:"Success"}},deprecated:true}}`,
       )
     })
     it.concurrent('generates callback with multiple methods', () => {
@@ -2516,7 +2554,7 @@ describe('makeParameterSchema: an object parameter', () => {
   it('reads an exploded form object that declares no properties as the document declares it', () => {
     expect(
       makeParameterSchema({ name: 'filter', in: 'query', schema: { type: 'object' } }),
-    ).toContain('z.object({})')
+    ).toContain('z.looseObject({})')
   })
 
   // An object in a header is one value of alternating names and values.

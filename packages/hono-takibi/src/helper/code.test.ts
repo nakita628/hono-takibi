@@ -174,20 +174,20 @@ describe('makeImports', () => {
   })
 
   it.concurrent('inserts honoExtras between createRoute and z', () => {
-    const code = 'const route = createRoute({ request: { body: z.object({}) } })'
+    const code = 'const route = createRoute({ request: { body: z.looseObject({}) } })'
     const result = makeImports(code, '/src/routes/user.ts', undefined, false, [
       'defineOpenAPIRoute',
     ])
     expect(result).toBe(
-      "import{createRoute,defineOpenAPIRoute,z}from'@hono/zod-openapi'\n\n\nconst route = createRoute({ request: { body: z.object({}) } })",
+      "import{createRoute,defineOpenAPIRoute,z}from'@hono/zod-openapi'\n\n\nconst route = createRoute({ request: { body: z.looseObject({}) } })",
     )
   })
 
   it.concurrent('adds both createRoute and z imports', () => {
-    const code = 'const route = createRoute({ request: { body: z.object({}) } })'
+    const code = 'const route = createRoute({ request: { body: z.looseObject({}) } })'
     const result = makeImports(code, '/src/routes/user.ts', undefined)
     expect(result).toBe(
-      "import{createRoute,z}from'@hono/zod-openapi'\n\n\nconst route = createRoute({ request: { body: z.object({}) } })",
+      "import{createRoute,z}from'@hono/zod-openapi'\n\n\nconst route = createRoute({ request: { body: z.looseObject({}) } })",
     )
   })
 
@@ -213,7 +213,7 @@ describe('makeImports', () => {
 
   it.concurrent('excludes locally defined exports from imports', () => {
     const code =
-      'export const UserSchema = z.object({})\nconst route = createRoute({ body: UserSchema })'
+      'export const UserSchema = z.looseObject({})\nconst route = createRoute({ body: UserSchema })'
     const result = makeImports(code, '/src/routes/user.ts', {
       schemas: { output: '/src/schemas.ts' },
     })

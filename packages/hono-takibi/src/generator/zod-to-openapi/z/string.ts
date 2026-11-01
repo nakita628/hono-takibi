@@ -1,5 +1,5 @@
 import { OCTET_STREAM_MEDIA_TYPE } from '../../../constants/index.js'
-import { isOffsetTime } from '../../../guard/index.js'
+import { isBinaryFile, isOffsetTime } from '../../../guard/index.js'
 import type { Schema } from '../../../openapi/index.js'
 import { baseError, error, escapeRegexLiteral, regexLiteral } from '../../../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
@@ -314,7 +314,10 @@ export function string(
   const patternMessagePart = patternMessage ? `,${error(patternMessage)}` : ''
   // A pattern no JavaScript literal can stand for is left to the document (`wrap` keeps it
   // in `.openapi({pattern})`) rather than written into one that does not parse.
-  const literal = schema.pattern === undefined ? undefined : regexLiteral(schema.pattern)
+  // `z.file()` has no `.regex()`: a pattern on a binary string describes the encoded text,
+  // which the file is not (#413); `wrap` keeps it in the document.
+  const literal =
+    schema.pattern === undefined || isBinaryFile(schema) ? undefined : regexLiteral(schema.pattern)
   const pattern = literal
     ? `.regex(/${escapeRegexLiteral(literal.source)}/${literal.flags}${patternMessagePart})`
     : undefined
