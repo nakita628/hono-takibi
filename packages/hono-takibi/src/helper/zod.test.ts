@@ -6,6 +6,7 @@ import {
   emitTypelessRefine,
   makeUnevaluatedProperties,
   makeUnevaluatedPropertiesCheck,
+  makeIssueForwarding,
 } from './zod.js'
 
 const recurse = zodToOpenAPI
@@ -222,7 +223,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((val,ctx)=>{{const ifOk=z.object({kind:z.literal("A").exactOptional()}).openapi({"required":[]}).safeParse(val).success;if(ifOk){const Schema=z.object({}).openapi({"required":["x"]});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom',message:"err"})}};if(!ifOk){const Schema=z.object({}).openapi({"required":["y"]});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom',message:"err"})}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{{const ifOk=z.object({kind:z.literal("A").exactOptional()}).openapi({"required":[]}).safeParse(val).success;if(ifOk){const Schema=z.looseObject({}).openapi({"required":["x"]});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom',message:"err"})}};if(!ifOk){const Schema=z.looseObject({}).openapi({"required":["y"]});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom',message:"err"})}}}})`,
       )
     })
 
@@ -517,7 +518,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};const Schema=z.number();for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}}}}`,
+        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};const Schema=z.number();for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding('{...issue,path:[k,...issue.path],input:issue.input}')}}}}}`,
       )
     })
 
@@ -542,6 +543,40 @@ describe('helper/zod', () => {
         ),
       ).toBe(
         `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){for(const p of ["^x_"]){if(new RegExp(p).test(k)){e.add(k)}}};for(const k of ["b"]){e.add(k)};if(z.object({c:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){for(const k of ["c"]){e.add(k)}};if(z.object({d:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){for(const k of ["d"]){e.add(k)}};const ifOk=z.object({x:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success;if(ifOk){for(const k of ["x"]){e.add(k)}};if(ifOk){for(const k of ["y"]){e.add(k)}};if(!ifOk){for(const k of ["z"]){e.add(k)}};if("e" in o){for(const k of ["f"]){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o,message:"unevaluated"})}}}`,
+      )
+    })
+
+    // #405: the keys a `$ref` member of the allOf declares are evaluated too, and an issue
+    // of the unevaluated-properties schema is forwarded by its code
+    it('evaluates the keys of a referenced allOf member, and forwards issues by code', () => {
+      const schemas = {
+        Base: { type: 'object', properties: { meta: { type: 'string' } } },
+        Deep: { allOf: [{ $ref: '#/components/schemas/Base' }], properties: { d: {} } },
+        Loop: { allOf: [{ $ref: '#/components/schemas/Loop' }], properties: { l: {} } },
+      } as const
+      const code = makeUnevaluatedPropertiesCheck(
+        {
+          allOf: [
+            { $ref: '#/components/schemas/Base' },
+            { $ref: '#/components/schemas/Deep' },
+            { $ref: '#/components/schemas/Loop' },
+            { $ref: '#/components/schemas/Nope' },
+            { type: 'object', properties: { doc_count: { type: 'integer' } } },
+          ],
+          unevaluatedProperties: { $ref: '#/components/schemas/Base' },
+        },
+        recurse,
+        undefined,
+        schemas,
+      )
+      expect(code).toContain(
+        `const e=new Set();for(const k of ["meta"]){e.add(k)};for(const k of ["d"]){e.add(k)};for(const k of ["meta"]){e.add(k)};for(const k of ["l"]){e.add(k)};for(const k of ["doc_count"]){e.add(k)}`,
+      )
+      expect(code).toContain(
+        `if(issue.code==='invalid_type'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='too_big')`,
+      )
+      expect(code).toContain(
+        `else if(issue.code==='custom'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}`,
       )
     })
 

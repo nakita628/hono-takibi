@@ -385,7 +385,7 @@ export const postUsersRoute = createRoute({
 
 export const UserListResponseResponse = {
   description: 'List of users',
-  content: { 'application/json': { schema: z.array(z.object({})) } },
+  content: { 'application/json': { schema: z.array(z.looseObject({})) } },
 }
 
 export const getUsersRoute = createRoute({
@@ -557,7 +557,10 @@ export const getUsersRoute = createRoute({
     200: {
       description: 'Success',
       content: {
-        'application/json': { schema: z.object({}), examples: { UserExample: UserExampleExample } },
+        'application/json': {
+          schema: z.looseObject({}),
+          examples: { UserExample: UserExampleExample },
+        },
       },
     },
   },
@@ -673,7 +676,7 @@ export const getUsersIdRoute = createRoute({
 export const OnEventCallback = {
   '{$request.body#/callbackUrl}': {
     post: {
-      requestBody: { content: { 'application/json': { schema: z.object({}) } } },
+      requestBody: { content: { 'application/json': { schema: z.looseObject({}) } } },
       responses: { 200: { description: 'OK' } },
     },
   },
@@ -1792,7 +1795,10 @@ export const getUsersRoute = createRoute({
     200: {
       description: 'Success',
       content: {
-        'application/json': { schema: z.object({}), examples: { UserExample: UserExampleExample } },
+        'application/json': {
+          schema: z.looseObject({}),
+          examples: { UserExample: UserExampleExample },
+        },
       },
     },
   },
@@ -1900,7 +1906,10 @@ export const getUsersRoute = createRoute({
     200: {
       description: 'Success',
       content: {
-        'application/json': { schema: z.object({}), examples: { ChainedUser: BaseUserExample } },
+        'application/json': {
+          schema: z.looseObject({}),
+          examples: { ChainedUser: BaseUserExample },
+        },
       },
     },
   },
@@ -2005,7 +2014,7 @@ export const getUsersRoute = createRoute({
       description: 'Success',
       content: {
         'application/json': {
-          schema: z.object({}),
+          schema: z.looseObject({}),
           examples: { ExtendedUser: ExtendedUserExample },
         },
       },
@@ -2112,7 +2121,7 @@ export const getMessagesRoute = createRoute({
       description: 'Success',
       content: {
         'application/json': {
-          schema: z.object({}),
+          schema: z.looseObject({}),
           examples: { JapaneseMessage: JapaneseMessageExample },
         },
       },
@@ -2259,7 +2268,7 @@ export const getUsersIdRoute = createRoute({
 export const OnEventCallback = {
   '{$request.body#/callbackUrl}': {
     post: {
-      requestBody: { content: { 'application/json': { schema: z.object({}) } } },
+      requestBody: { content: { 'application/json': { schema: z.looseObject({}) } } },
       responses: { 200: { description: 'OK' } },
     },
   },

@@ -21,8 +21,8 @@ describe('makeTypeString', () => {
     })
 
     it('should handle null type', () => {
-      // null type alone is treated as nullable object
-      expect(makeTypeString({ type: 'null' }, 'Test')).toBe('({[key:string]:unknown}|null)')
+      // `z.null()` outputs null
+      expect(makeTypeString({ type: 'null' }, 'Test')).toBe('null')
     })
   })
 
@@ -174,7 +174,7 @@ describe('makeTypeString', () => {
         'Event',
         cyclicGroup,
       )
-      expect(result).toBe('(z.infer<typeof TraceContextSchema>|({[key:string]:unknown}|null))')
+      expect(result).toBe('(z.infer<typeof TraceContextSchema>|null)')
     })
 
     it('should use local type for self-reference in cyclic group', () => {
@@ -547,7 +547,7 @@ describe('makeTypeString', () => {
         },
         'Test',
       )
-      expect(result).toBe('(z.infer<typeof UserSchema>|({[key:string]:unknown}|null))')
+      expect(result).toBe('(z.infer<typeof UserSchema>|null)')
     })
 
     it('should handle nullable array of objects', () => {
@@ -629,15 +629,18 @@ describe('makeTypeString', () => {
     })
 
     it('should handle empty oneOf array', () => {
-      expect(makeTypeString({ oneOf: [] }, 'Test')).toBe('{[key:string]:unknown}')
+      // `z.any()`: anything
+      expect(makeTypeString({ oneOf: [] }, 'Test')).toBe('unknown')
     })
 
     it('should handle empty anyOf array', () => {
-      expect(makeTypeString({ anyOf: [] }, 'Test')).toBe('{[key:string]:unknown}')
+      // `z.any()`: anything
+      expect(makeTypeString({ anyOf: [] }, 'Test')).toBe('unknown')
     })
 
     it('should handle empty allOf array', () => {
-      expect(makeTypeString({ allOf: [] }, 'Test')).toBe('{[key:string]:unknown}')
+      // `z.any()`: anything
+      expect(makeTypeString({ allOf: [] }, 'Test')).toBe('unknown')
     })
 
     it('should handle URL-encoded $ref with special characters', () => {
@@ -696,5 +699,26 @@ describe('makeTypeString array items edge cases', () => {
   })
   it('empty items array → unknown[]', () => {
     expect(makeTypeString({ type: 'array', items: [] }, 'X')).toBe('unknown[]')
+  })
+
+  // #413: `z.file()` outputs a File
+  describe('binary strings', () => {
+    it.concurrent('types a binary string as File, an encoded one as string', () => {
+      expect(makeTypeString({ type: 'string', format: 'binary' }, 'T')).toBe('File')
+      expect(
+        makeTypeString(
+          {
+            oneOf: [
+              { type: 'string', format: 'binary' },
+              { type: 'string', format: 'uri' },
+            ],
+          },
+          'T',
+        ),
+      ).toBe('(File|string)')
+      expect(
+        makeTypeString({ type: 'string', format: 'binary', contentEncoding: 'base64' }, 'T'),
+      ).toBe('string')
+    })
   })
 })

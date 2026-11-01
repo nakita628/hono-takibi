@@ -1011,7 +1011,7 @@ export const postUploadRoute = createRoute({
   method: 'post',
   path: '/upload',
   operationId: 'upload',
-  request: { body: { content: { 'multipart/form-data': { schema: z.object({}) } } } },
+  request: { body: { content: { 'multipart/form-data': { schema: z.looseObject({}) } } } },
   responses: { 200: { description: 'OK' } },
 })
 

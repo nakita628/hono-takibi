@@ -80,3 +80,137 @@ function resolvePointer(document: OpenAPI, ref: string): unknown {
     return undefined
   }, document)
 }
+
+/**
+ * Moves the schema a recursive inline pointer names into `components.schemas`, and names it
+ * there in every `$ref`. A `definitions` entry of an externally referenced JSON Schema that
+ * reaches itself (`Node.children.items` → `Node`, Tyk) cannot be inlined where it is used:
+ * the copy would never end, so `inlinePointerRefs` leaves the reference inside the copy as
+ * written, and `makeRef` named it `NodeSchema`, which nothing declared (#404). As a component
+ * it is declared, with the `z.lazy()` and the type a recursive component gets.
+ *
+ * The component is named after the pointer's last segment, numbered when the name is taken.
+ * A pointer is recursive when its target, read through the inline pointers under it, comes
+ * back to the pointer itself.
+ */
+export function hoistRecursivePointers(document: OpenAPI): OpenAPI {
+  if (!hasInlinePointer(document)) return document
+  const pointers = [...new Set(inlinePointers(document))]
+  const recursive = pointers.filter((pointer) => isRecursivePointer(document, pointer))
+  if (recursive.length === 0) return document
+  const existing = document.components?.schemas ?? {}
+  const taken = new Set(Object.keys(existing))
+  const names = new Map(
+    recursive.map((pointer) => {
+      const base = pointerSegments(pointer).at(-1) ?? 'Schema'
+      const name = taken.has(base) ? numbered(base, (candidate) => !taken.has(candidate)) : base
+      taken.add(name)
+      return [pointer, name] as const
+    }),
+  )
+  const rename = (node: unknown): unknown => {
+    if (Array.isArray(node)) return node.map(rename)
+    if (!isRecord(node)) return node
+    return Object.fromEntries(
+      Object.entries(node).map(([key, value]) => {
+        const name = key === '$ref' && typeof value === 'string' ? names.get(value) : undefined
+        return [key, name === undefined ? rename(value) : `#/components/schemas/${name}`]
+      }),
+    )
+  }
+  const hoisted = Object.fromEntries(
+    [...names].flatMap(([pointer, name]) => {
+      const target = resolvePointer(document, pointer)
+      return isRecord(target) ? [[name, target]] : []
+    }),
+  )
+  const renamed = rename({
+    ...document,
+    components: { ...document.components, schemas: { ...existing, ...hoisted } },
+  })
+  return isOpenAPI(renamed) ? renamed : document
+}
+
+// The walk keeps every key and every value's shape, so what comes back is a document; the
+// type cannot see that.
+function isOpenAPI(value: unknown): value is OpenAPI {
+  return isRecord(value) && 'paths' in value
+}
+
+/** Every inline pointer a `$ref` under `node` names, in document order, duplicates included. */
+function inlinePointers(node: unknown): readonly string[] {
+  if (Array.isArray(node)) return node.flatMap(inlinePointers)
+  if (!isRecord(node)) return []
+  const { $ref } = node
+  return [
+    ...(typeof $ref === 'string' && isInlinePointer($ref) ? [$ref] : []),
+    ...Object.values(node).flatMap(inlinePointers),
+  ]
+}
+
+/** Whether the target of `pointer`, read through the inline pointers under it, names `pointer` again. */
+function isRecursivePointer(document: OpenAPI, pointer: string) {
+  const visited = new Set<string>()
+  const reaches = (node: unknown): boolean => {
+    if (Array.isArray(node)) return node.some(reaches)
+    if (!isRecord(node)) return false
+    const { $ref } = node
+    if (typeof $ref === 'string' && isInlinePointer($ref)) {
+      if ($ref === pointer) return true
+      if (!visited.has($ref)) {
+        visited.add($ref)
+        if (reaches(resolvePointer(document, $ref))) return true
+      }
+    }
+    return Object.values(node).some(reaches)
+  }
+  return reaches(resolvePointer(document, pointer))
+}
+
+/** `name2`, `name3`, ...: the first that `isFree`. */
+function numbered(name: string, isFree: (candidate: string) => boolean) {
+  const candidates = (n: number): string =>
+    isFree(`${name}${n}`) ? `${name}${n}` : candidates(n + 1)
+  return candidates(2)
+}
+
+/**
+ * Resolves the `$ref`s of an embedded JSON Schema resource against the resource. A schema
+ * with an `$id` (or Draft 4's `id`) is a resource of its own, and a `#/definitions/Tag` inside
+ * it names its own `definitions`, not the document's (RFC 3986 §5, JSON Schema §8.2). A
+ * bundler that copies such a schema into the document keeps those pointers as written, so
+ * read against the document they name nothing (Tyk's OpenAPI 3.0 meta-schema, #404). Each is
+ * written as the pointer to the same place in the document, where `inlinePointerRefs` and
+ * `hoistRecursivePointers` read it. A pointer the document resolves as it is is left alone.
+ */
+export function resolveEmbeddedRefs(document: OpenAPI): OpenAPI {
+  if (!hasInlinePointer(document)) return document
+  let changed = false
+  const walk = (node: unknown, path: string, resource: string | undefined): unknown => {
+    if (Array.isArray(node)) return node.map((item, i) => walk(item, `${path}/${i}`, resource))
+    if (!isRecord(node)) return node
+    const own = typeof node.$id === 'string' || typeof node.id === 'string' ? path : resource
+    return Object.fromEntries(
+      Object.entries(node).map(([key, value]) => {
+        const segment = key.replaceAll('~', '~0').replaceAll('/', '~1')
+        if (
+          key === '$ref' &&
+          typeof value === 'string' &&
+          own !== undefined &&
+          own !== '#' &&
+          value.startsWith('#/') &&
+          resolvePointer(document, value) === undefined
+        ) {
+          const inResource = `${own}${value.slice(1)}`
+          if (resolvePointer(document, inResource) !== undefined) {
+            changed = true
+            return [key, inResource]
+          }
+        }
+        return [key, walk(value, `${path}/${segment}`, own)]
+      }),
+    )
+  }
+  const walked = walk(document, '#', undefined)
+  return changed && isOpenAPI(walked) ? walked : document
+}

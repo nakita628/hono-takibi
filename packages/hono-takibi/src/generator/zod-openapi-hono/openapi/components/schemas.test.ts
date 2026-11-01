@@ -117,4 +117,37 @@ export type Test=z.infer<typeof TestSchema>`,
 export type Item=z.infer<typeof ItemSchema>`,
     )
   })
+
+  // #402: a discriminator parent whose subtypes allOf-extend it is no cycle
+  it.concurrent('writes the subtypes of a self-extending parent without a cycle', () => {
+    const components = {
+      schemas: {
+        Connection: {
+          type: 'object',
+          properties: { name: { type: 'string' } },
+          discriminator: { propertyName: 'type' },
+          oneOf: [
+            { $ref: '#/components/schemas/SampleConnection' },
+            { $ref: '#/components/schemas/KafkaConnection' },
+          ],
+        },
+        SampleConnection: { type: 'object', allOf: [{ $ref: '#/components/schemas/Connection' }] },
+        KafkaConnection: {
+          type: 'object',
+          allOf: [
+            { $ref: '#/components/schemas/Connection' },
+            { type: 'object', properties: { bootstrapServers: { type: 'string' } } },
+          ],
+        },
+      },
+    } as const
+    expect(schemasCode(components, false, false)).toBe(
+      // in document order here; `componentsCode` sorts the declarations afterwards
+      [
+        `const ConnectionSchema=z.xor([SampleConnectionSchema,KafkaConnectionSchema]).openapi({"discriminator":{"propertyName":"type"}}).openapi('Connection')`,
+        `const SampleConnectionSchema=z.object({name:z.string().exactOptional()}).openapi({"required":[]}).openapi('SampleConnection')`,
+        `const KafkaConnectionSchema=z.object({name:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({bootstrapServers:z.string().exactOptional()}).openapi({"required":[]})).openapi('KafkaConnection')`,
+      ].join('\n\n'),
+    )
+  })
 })

@@ -1,6 +1,6 @@
 import {
-  hasNotProperty,
   hasNoUserChain,
+  isBinaryFile,
   isExamplesInput,
   isRecord,
   isSchemaArray,
@@ -11,11 +11,132 @@ import { regexLiteral } from '../utils/index.js'
 import { makeExamples } from './openapi.js'
 import { WIRE_EMPTY, WIRE_INHERITED, WIRE_NULL, resolveSchemaRef, wireStyle } from './wire.js'
 
-// `$defs` / `definitions` hold schemas, not metadata: written into `.openapi()` as they are,
-// they do not type-check as Schema Objects (#377). An entry a `$ref` reaches is inlined
-// before generation, so nothing is lost. The core keywords that are strings (`$schema`,
-// `$id`, `$anchor`, `$comment`) are passed through as before.
-const structuralProps = new Set(['$defs', 'definitions'])
+/**
+ * The keys of a Schema Object (OpenAPI 3.1 §4.8.24, the type `.openapi()` and `param.schema`
+ * take), plus `x-` extensions. Whatever else a document carries — `$schema`, `$id`,
+ * `$defs` (#377), ajv-errors' `errorMessage` (#393) — has no place in the metadata: written
+ * there, the call does not type-check. `nullable` is the 3.0 spelling of a `null` type.
+ */
+const SCHEMA_OBJECT_KEYS = new Set([
+  '$ref',
+  'discriminator',
+  'readOnly',
+  'writeOnly',
+  'xml',
+  'externalDocs',
+  'example',
+  'examples',
+  'deprecated',
+  'type',
+  'format',
+  'allOf',
+  'oneOf',
+  'anyOf',
+  'not',
+  'items',
+  'properties',
+  'additionalProperties',
+  'propertyNames',
+  'description',
+  'default',
+  'title',
+  'multipleOf',
+  'maximum',
+  'const',
+  'exclusiveMaximum',
+  'minimum',
+  'exclusiveMinimum',
+  'maxLength',
+  'minLength',
+  'pattern',
+  'maxItems',
+  'minItems',
+  'uniqueItems',
+  'maxProperties',
+  'minProperties',
+  'required',
+  'enum',
+  'prefixItems',
+  'contentMediaType',
+  'contentEncoding',
+  'nullable',
+])
+
+/** Whether a key belongs to a Schema Object as written: one of its own, or an extension. */
+function isSchemaObjectKey(key: string) {
+  return SCHEMA_OBJECT_KEYS.has(key) || key.startsWith('x-')
+}
+
+// The keys whose value is a schema, a list of schemas or a map of schemas: what is pruned
+// is pruned under them too.
+const SCHEMA_VALUED_KEYS = new Set(['items', 'not', 'additionalProperties', 'propertyNames'])
+const SCHEMA_LIST_KEYS = new Set(['allOf', 'oneOf', 'anyOf', 'prefixItems'])
+const SCHEMA_MAP_KEYS = new Set(['properties'])
+
+/**
+ * A schema as a Schema Object for the document: only the keys a Schema Object has, at
+ * every level. `items` as a boolean or a tuple, and `not` as a boolean, are JSON Schema
+ * shapes the Schema Object has not; a `required` member YAML read as a literal (`null`,
+ * `true`) is a string; a 3.0-style `examples` map is its values. The output is what
+ * `.openapi()` is handed, so nothing in it may fail to type-check.
+ */
+export function pruneSchemaObject(schema: unknown): unknown {
+  if (!isRecord(schema)) return schema
+  const pruned: { [k: string]: unknown } = {}
+  for (const [key, value] of Object.entries(schema)) {
+    if (value === undefined || !isSchemaObjectKey(key)) continue
+    if (key === 'items' && (typeof value === 'boolean' || Array.isArray(value))) continue
+    if (key === 'not' && typeof value === 'boolean') continue
+    if (key === 'required' && Array.isArray(value)) {
+      pruned[key] = value.map((v) => (typeof v === 'string' ? v : String(v)))
+      continue
+    }
+    if (key === 'examples') {
+      const list = examplesList(value)
+      if (list !== undefined) pruned[key] = list
+      continue
+    }
+    // A Discriminator Object has `propertyName` and `mapping`, and takes no extension
+    // (`x-default`, OpenSearch).
+    if (key === 'discriminator' && isRecord(value)) {
+      pruned[key] = Object.fromEntries(
+        Object.entries(value).filter(([k]) => k === 'propertyName' || k === 'mapping'),
+      )
+      continue
+    }
+    if (SCHEMA_VALUED_KEYS.has(key)) {
+      pruned[key] = pruneSchemaObject(value)
+      continue
+    }
+    if (SCHEMA_LIST_KEYS.has(key) && Array.isArray(value)) {
+      pruned[key] = value.map(pruneSchemaObject)
+      continue
+    }
+    if (SCHEMA_MAP_KEYS.has(key) && isRecord(value)) {
+      pruned[key] = Object.fromEntries(
+        Object.entries(value).map(([name, sub]) => [name, pruneSchemaObject(sub)]),
+      )
+      continue
+    }
+    pruned[key] = value
+  }
+  return pruned
+}
+
+/**
+ * `examples` as the Schema Object has it, a list of values: a list is taken as it is, and a
+ * map of Example Objects (the 3.0 shape of a Header or Parameter Object, #398) is reduced to
+ * the values its entries carry. A map whose entries carry none (`externalValue`, `$ref`) has
+ * nothing the schema can state: `undefined`.
+ */
+export function examplesList(examples: unknown): readonly unknown[] | undefined {
+  if (Array.isArray(examples)) return Array.from(examples, (example: unknown) => example)
+  if (!isRecord(examples)) return undefined
+  const values = Object.values(examples).flatMap((example) =>
+    isRecord(example) && 'value' in example && example.value !== undefined ? [example.value] : [],
+  )
+  return values.length > 0 ? values : undefined
+}
 
 // Drop-list: keys already expressed in the zod method chain.
 const zodExpressedProps = new Set([
@@ -200,6 +321,9 @@ function makeSerializedParam(param: Parameter) {
       if (key === 'examples' && isExamplesInput(value)) {
         return `"examples":${makeExamples(value)}`
       }
+      if (key === 'schema') {
+        return `"schema":${JSON.stringify(pruneSchemaObject(value))}`
+      }
       if (key === 'content' && isRecord(value)) {
         const media = Object.entries(value).map(([mediaType, mediaObj]) => {
           if (!isRecord(mediaObj)) {
@@ -210,7 +334,10 @@ function makeSerializedParam(param: Parameter) {
           // interpolated into the emitted code as the literal text `undefined`.
           const restEntries = Object.entries(mediaRest)
             .filter(([, v]) => v !== undefined)
-            .map(([k, v]) => `${JSON.stringify(k)}:${JSON.stringify(v)}`)
+            .map(
+              ([k, v]) =>
+                `${JSON.stringify(k)}:${JSON.stringify(k === 'schema' ? pruneSchemaObject(v) : v)}`,
+            )
           const examplesEntry = isExamplesInput(mediaExamples)
             ? `"examples":${makeExamples(mediaExamples)}`
             : undefined
@@ -254,6 +381,35 @@ export function conformDefault(
       new Set([...reading, schema.$ref]),
     )
   }
+  // The members of an `allOf` all have to take the value, each reading what the one before
+  // handed on; what is written beside them is read last. A `default` beside
+  // `allOf: [{ $ref }]` is thereby read against the component (#394).
+  if (schema.allOf !== undefined && schema.allOf.length > 0) {
+    const { allOf, default: _default, ...beside } = schema
+    return [...allOf, beside].reduce<ReturnType<typeof conformDefault>>(
+      (read, member) => (read.ok ? conformDefault(member, read.value, schemas, reading) : read),
+      { ok: true, value },
+    )
+  }
+  // A value one branch of a `oneOf` / `anyOf` takes is a value of the union, whatever is
+  // written beside the branches (`type: string` beside a boolean branch, #396): the branch
+  // that takes it as it is comes first, then the first that reads it. A value no branch takes
+  // is read by what is written beside them, when that says what the value is; otherwise it
+  // is not a value of the union (`'create_time,id'` for an enum or a list of it, Elasticsearch).
+  const branches = schema.oneOf ?? schema.anyOf
+  if (branches !== undefined && branches.length > 0) {
+    const read = branches.map((branch) => conformDefault(branch, value, schemas, reading))
+    const taken =
+      read.find((result) => result.ok && result.value === value) ?? read.find((result) => result.ok)
+    if (taken !== undefined) return taken
+    const { oneOf: _oneOf, anyOf: _anyOf, default: _default, ...beside } = schema
+    const isTyped =
+      beside.type !== undefined ||
+      beside.enum !== undefined ||
+      beside.const !== undefined ||
+      beside.allOf !== undefined
+    return isTyped ? conformDefault(beside, value, schemas, reading) : { ok: false }
+  }
   if (schema.enum !== undefined) {
     return schema.enum.some((member) => member === value) ? { ok: true, value } : { ok: false }
   }
@@ -284,6 +440,8 @@ export function conformDefault(
       return { ok: true, value: number }
     }
     if (type === 'string') {
+      // `z.file()` hands out a File: no text is a value of it (#413).
+      if (isBinaryFile(schema)) return undefined
       if (typeof value === 'string') return { ok: true, value }
       if (typeof value === 'number' || typeof value === 'boolean') {
         return { ok: true, value: String(value) }
@@ -379,43 +537,6 @@ export function wrap(
     schemas?: { readonly [k: string]: Schema }
   },
 ) {
-  // JSON Schema 2020-12: pre-2019-09 legacy keys + non-standard underscore variants.
-  const unsupportedProps = new Set([
-    '$recursiveRef',
-    '$recursiveAnchor',
-    'optional',
-    'min_items',
-    'max_items',
-  ])
-  const filterUnsupportedProps = (obj: unknown): unknown => {
-    if (obj === null || typeof obj !== 'object') {
-      return obj
-    }
-    if (Array.isArray(obj)) {
-      return obj.map(filterUnsupportedProps)
-    }
-    const filtered: { [k: string]: unknown } = {}
-    for (const [key, value] of Object.entries(obj)) {
-      if (unsupportedProps.has(key)) {
-        continue
-      }
-      // OpenAPI expects SchemaObject | ReferenceObject for items
-      if (key === 'items' && (typeof value === 'boolean' || Array.isArray(value))) {
-        continue
-      }
-      if (key === 'not' && hasNotProperty(value) && typeof value.not === 'boolean') {
-        continue
-      }
-      // YAML may parse null/true/false as literals in `required`; coerce to string
-      if (key === 'required' && Array.isArray(value)) {
-        filtered[key] = value.map((v) => (typeof v === 'string' ? v : String(v)))
-        continue
-      }
-      filtered[key] = filterUnsupportedProps(value)
-    }
-    return filtered
-  }
-
   const typeList = Array.isArray(schema.type)
     ? schema.type
     : schema.type !== undefined
@@ -431,11 +552,15 @@ export function wrap(
       return `${v}`
     }
     if (typeof v === 'number') {
-      if (schema.format === 'int64' || schema.format === 'uint64') {
-        return `${v}n`
-      }
-      if (schema.format === 'bigint') {
-        return `BigInt(${v})`
+      // Only an integer of a 64-bit format is emitted as a bigint (`z.int64()`); a
+      // `type: number` with `format: int64` is `z.number()`, and takes a number (#412).
+      if (typeList.includes('integer')) {
+        if (schema.format === 'int64' || schema.format === 'uint64') {
+          return `${v}n`
+        }
+        if (schema.format === 'bigint') {
+          return `BigInt(${v})`
+        }
       }
       return `${v}`
     }
@@ -544,24 +669,42 @@ export function wrap(
           .map(([k]) => k)
       : [],
   )
+  // A bigint has no place in a document: the schema derived from `z.int64()` is a string
+  // of digits, which drops the bounds, and a bigint default cannot be serialised at all —
+  // serving the document throws. What the source declares is a JSON integer, so its own
+  // keywords are what the document states. A parameter states its schema already.
+  const isBigintInteger =
+    meta?.parameters === undefined &&
+    typeList.includes('integer') &&
+    (schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint') &&
+    hasNoUserChain(schema)
+  // `z.file()` (OpenAPI `format: binary`) is opaque to @hono/zod-openapi's
+  // schema derivation: emitting it without an explicit `type`/`format` makes
+  // `getOpenAPIDocument()` throw `UnknownZodTypeError`. `type`/`format` are
+  // dropped as `zodExpressedProps` above, so re-surface them in `.openapi()`
+  // for the binary-file case only (other formats are derived from the chain).
+  const isFile = isBinaryFile(schema)
+  // What the chain does not express and the Schema Object has: an unknown keyword stays
+  // out of `.openapi()`, as does `$defs` (#377, #393).
   const baseArgs = Object.fromEntries([
     ...Object.entries(schema).filter(
       ([k, v]) =>
+        isSchemaObjectKey(k) &&
         !(
           zodExpressedProps.has(k) ||
-          structuralProps.has(k) ||
           (k === 'required' && typeof v === 'boolean') ||
           headerDupKeys.has(k)
         ),
     ),
     // A default that `.default()` could not take still belongs to the document, as does a
-    // pattern that no JavaScript regex literal can stand for (#370).
-    ...(droppedDefault ? [['default', schema.default] as const] : []),
-    ...(typeof schema.pattern === 'string' && regexLiteral(schema.pattern) === undefined
+    // pattern that no JavaScript regex literal can stand for (#370) or that describes the
+    // text of a file (#413). An int64 states its default below, once (#403).
+    ...(droppedDefault && !isBigintInteger ? [['default', schema.default] as const] : []),
+    ...(typeof schema.pattern === 'string' && (isFile || regexLiteral(schema.pattern) === undefined)
       ? [['pattern', schema.pattern] as const]
       : []),
   ])
-  const args = filterUnsupportedProps(baseArgs)
+  const args = pruneSchemaObject(baseArgs)
   // What a response header says about itself that is also schema metadata. `style`,
   // `explode` and `allowReserved` describe its serialisation and `content` its media type:
   // they belong to the Header Object in the document, not to `.openapi()`, which has no
@@ -577,7 +720,12 @@ export function wrap(
           ? `deprecated:${JSON.stringify(meta.headers.deprecated)}`
           : undefined,
         meta.headers.example ? `example:${JSON.stringify(meta.headers.example)}` : undefined,
-        meta.headers.examples ? `examples:${makeExamples(meta.headers.examples)}` : undefined,
+        // A Header Object's `examples` is a map of Example Objects; the schema's is a list
+        // of values (#398).
+        ...(() => {
+          const list = examplesList(meta.headers.examples)
+          return list === undefined ? [] : [`examples:${JSON.stringify(list)}`]
+        })(),
       ].filter((v) => v !== undefined)
     : []
   const openapiSchema = args ? JSON.stringify(args) : undefined
@@ -586,19 +734,7 @@ export function wrap(
     openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
       ? openapiSchema.slice(1, -1)
       : openapiSchema
-  // `z.file()` (OpenAPI `format: binary`) is opaque to @hono/zod-openapi's
-  // schema derivation: emitting it without an explicit `type`/`format` makes
-  // `getOpenAPIDocument()` throw `UnknownZodTypeError`. `type`/`format` are
-  // dropped as `zodExpressedProps` above, so re-surface them in `.openapi()`
-  // for the binary-file case only (other formats are derived from the chain).
-  const isBinaryFile =
-    schema.format === 'binary' &&
-    typeList.includes('string') &&
-    schema.contentEncoding === undefined &&
-    schema.contentMediaType === undefined &&
-    schema.contentSchema === undefined &&
-    schema['x-codec'] === undefined
-  const fileMetaProps = isBinaryFile
+  const fileMetaProps = isFile
     ? [isNullable ? 'type:["string","null"]' : 'type:"string"', 'format:"binary"']
     : []
   // A `time` that may carry an offset is emitted as a string matched against a pattern,
@@ -613,15 +749,6 @@ export function wrap(
     schema.contentSchema === undefined &&
     hasNoUserChain(schema)
   const timeMetaProps = isOffsetTime ? ['format:"time"'] : []
-  // A bigint has no place in a document: the schema derived from `z.int64()` is a string
-  // of digits, which drops the bounds, and a bigint default cannot be serialised at all —
-  // serving the document throws. What the source declares is a JSON integer, so its own
-  // keywords are what the document states. A parameter states its schema already.
-  const isBigintInteger =
-    meta?.parameters === undefined &&
-    typeList.includes('integer') &&
-    (schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint') &&
-    hasNoUserChain(schema)
   const bigintMetaProps = isBigintInteger
     ? [
         isNullable ? 'type:["integer","null"]' : 'type:"integer"',

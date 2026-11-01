@@ -6,7 +6,7 @@ import {
   isSingleSchema,
   isUntypedObject,
 } from '../../guard/index.js'
-import { discriminatedBranches } from '../../helper/discriminator.js'
+import { discriminatedBranches, inheritedBase } from '../../helper/discriminator.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { makeRef } from '../../helper/openapi.js'
 import {
@@ -25,7 +25,11 @@ import {
 } from '../../helper/wire.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { undecorated, wrap } from '../../helper/wrap.js'
-import { emitTypelessRefine, makeUnevaluatedPropertiesCheck } from '../../helper/zod.js'
+import {
+  emitTypelessRefine,
+  makeIssueForwarding,
+  makeUnevaluatedPropertiesCheck,
+} from '../../helper/zod.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
 import { baseError, error, makeStringLiteral, normalizeTypes } from '../../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
@@ -220,9 +224,11 @@ export function zodToOpenAPI(
       effectiveAllOf.some(
         (s) => s.type === 'null' || (s.nullable === true && Object.keys(s).length === 1),
       )
-    const nonNull = effectiveAllOf.filter(
-      (s) => !(s.type === 'null' || (s.nullable === true && Object.keys(s).length === 1)),
-    )
+    const nonNull = effectiveAllOf
+      .filter((s) => !(s.type === 'null' || (s.nullable === true && Object.keys(s).length === 1)))
+      // A member that names the parent this schema is a branch of stands for the parent's
+      // own properties: the parent as a whole would name this schema back (#402).
+      .map((s) => inheritedBase(s, childOptions?.schemas) ?? s)
     if (nonNull.length === 0) return done('z.any()', { ...schema, nullable })
     const schemas = nonNull.map(child)
     const isBareRef =
@@ -236,6 +242,7 @@ export function zodToOpenAPI(
       { ...schema, allOf: effectiveAllOf },
       (s) => zodToOpenAPI(s, undefined, childOptions),
       schema['x-error-message'],
+      childOptions?.schemas,
     )
     if (allOfMessage || unevalCheck) {
       const safeParseBranches = (() => {
@@ -248,26 +255,7 @@ export function zodToOpenAPI(
         const pushArg = msgExpr
           ? `{...issue,input:issue.input,message:${msgExpr}}`
           : '{...issue,input:issue.input}'
-        const codes = [
-          'invalid_type',
-          'too_big',
-          'too_small',
-          'invalid_format',
-          'not_multiple_of',
-          'unrecognized_keys',
-          'invalid_union',
-          'invalid_key',
-          'invalid_element',
-          'invalid_value',
-          'custom',
-        ] as const
-        const branches = codes
-          .map(
-            (c, i) =>
-              `${i === 0 ? '' : 'else '}if(issue.code==='${c}'){ctx.issues.push(${pushArg})}`,
-          )
-          .join('')
-        return `const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){${branches}}}`
+        return `const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding(pushArg)}}}`
       })()
       const unevalCall = unevalCheck ? `;(${unevalCheck})(ctx)` : ''
       const wrapped = `(()=>{const Schema=${z};return z.unknown().check((ctx)=>{${safeParseBranches}${unevalCall}}).pipe(Schema)})()`

@@ -1,5 +1,5 @@
 import { ast } from '../../../../helper/index.js'
-import type { Components } from '../../../../openapi/index.js'
+import type { Components, OpenAPI } from '../../../../openapi/index.js'
 import { callbacksCode } from './callbacks.js'
 import { examplesCode } from './examples.js'
 import { headersCode } from './headers.js'
@@ -31,6 +31,8 @@ export function componentsCode(
     readonly exportPathItems?: boolean
     readonly exportMediaTypes?: boolean
     readonly exportMediaTypesTypes?: boolean
+    /** The whole document, when the components are generated as part of it. */
+    readonly document?: OpenAPI
   },
 ) {
   // An absent flag is an off flag — the same thing `config`'s schema decodes a missing
@@ -53,9 +55,10 @@ export function componentsCode(
     exportPathItems = false,
     exportMediaTypes = false,
     exportMediaTypesTypes = false,
+    document,
   } = options
   const code = [
-    schemasCode(components, exportSchemas, exportSchemasTypes, readonly),
+    schemasCode(components, exportSchemas, exportSchemasTypes, readonly, document),
     responsesCode(components, exportResponses, readonly),
     parametersCode(components, exportParameters, exportParametersTypes, readonly),
     examplesCode(components, exportExamples, readonly),

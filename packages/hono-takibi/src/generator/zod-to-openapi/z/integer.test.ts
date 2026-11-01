@@ -673,4 +673,25 @@ describe('integer min/max non-zero (.min/.max emit paths)', () => {
       expect(z.uint64().safeParse(18_446_744_073_709_551_616n).success).toBe(false)
     })
   })
+
+  // #412: a bound at or beyond what a double holds exactly is the limit of the type (the
+  // document's 9223372036854775807 is 2^63 once parsed)
+  describe('64-bit bounds past 2^53', () => {
+    it.concurrent('writes the int64 maximum exactly, and clamps a bound past the type', () => {
+      expect(integer({ type: 'integer', format: 'int64', maximum: 2 ** 63 })).toBe(
+        'z.int64().max(9223372036854775807n)',
+      )
+      expect(integer({ type: 'integer', format: 'int64', minimum: -(2 ** 63) })).toBe(
+        'z.int64().min(-9223372036854775808n)',
+      )
+      expect(integer({ type: 'integer', format: 'uint64', maximum: 2 ** 64 })).toBe(
+        'z.uint64().max(18446744073709551615n)',
+      )
+      expect(integer({ type: 'integer', format: 'uint64', minimum: -1 })).toBe('z.uint64().min(0n)')
+      // a bound past 2^53 is the integer the double holds
+      expect(integer({ type: 'integer', format: 'int64', maximum: 2 ** 53 })).toBe(
+        'z.int64().max(9007199254740992n)',
+      )
+    })
+  })
 })

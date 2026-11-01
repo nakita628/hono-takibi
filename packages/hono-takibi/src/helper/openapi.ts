@@ -123,11 +123,12 @@ export function makeExamples(examples: {
 export function makeOperationResponses(
   responses: Operation['responses'] | { readonly [k: string]: unknown },
   readonly?: boolean,
+  schemas?: { readonly [k: string]: Schema },
 ) {
   const result = Object.entries(responses)
     .map(([statusCode, res]) => {
       if (!isResponses(res)) return undefined
-      return `${/^\d+$/u.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(res, readonly)}`
+      return `${/^\d+$/u.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(res, readonly, schemas)}`
     })
     .filter((v) => v !== undefined)
     .join(',')
@@ -139,12 +140,50 @@ export function makeHeaderResponses(
   readonly?: boolean,
 ) {
   const result = Object.entries(headers)
-    .map(([k, header]) => `${JSON.stringify(k)}:${makeHeadersAndReferences(header, readonly)}`)
+    .map(([k, header]) => `${JSON.stringify(k)}:${makeHeaderSchema(header, readonly)}`)
     .join(',')
   return `z.object({${result}})`
 }
 
-export function makeResponses(responses: Responses, readonly?: boolean) {
+/**
+ * The Zod schema of a response header, as a member of the `z.object()` the response's
+ * `headers` is: what the Header Object says about itself (`description`, `required`,
+ * `example`) is written into the schema's `.openapi()`, since a `z.object()` takes schemas
+ * alone. A header may carry its schema under a single media type in `content` instead of
+ * `schema` (#410): that schema is the header's, and the media type's example its example. A
+ * reference names the component.
+ */
+export function makeHeaderSchema(header: Header | Reference, readonly?: boolean) {
+  if ('$ref' in header && header.$ref) {
+    return makeRef(header.$ref)
+  }
+  const options = readonly === true ? { readonly: true } : undefined
+  if ('schema' in header && header.schema) {
+    return zodToOpenAPI(header.schema, { headers: header }, options)
+  }
+  const [media] = 'content' in header ? Object.values(header.content ?? {}) : []
+  if ('content' in header && media !== undefined && isMedia(media)) {
+    const { content: _content, ...own } = header
+    const meta: Header = {
+      ...own,
+      ...(media.example === undefined ? {} : { example: media.example }),
+      ...(media.examples === undefined ? {} : { examples: media.examples }),
+    }
+    return zodToOpenAPI(media.schema, { headers: meta }, options)
+  }
+  // A header that declares no schema takes any value.
+  return zodToOpenAPI({}, { headers: header }, options)
+}
+
+/**
+ * `schemas` are the document's component schemas: a default beside a reference in a body
+ * is read against the component it names (#394), as it is in a component.
+ */
+export function makeResponses(
+  responses: Responses,
+  readonly?: boolean,
+  schemas?: { readonly [k: string]: Schema },
+) {
   if (responses.$ref) {
     return makeRef(responses.$ref)
   }
@@ -154,7 +193,7 @@ export function makeResponses(responses: Responses, readonly?: boolean) {
     `description:${JSON.stringify(responses.description ?? '')}`,
     // Keys follow `openapi/index.ts` `Responses` declaration order: content before headers.
     responses.content
-      ? `content:{${makeContent(responses.content, readonly).join(',')}}`
+      ? `content:{${makeContent(responses.content, readonly, undefined, schemas).join(',')}}`
       : undefined,
     responses.headers ? `headers:${makeHeaderResponses(responses.headers, readonly)}` : undefined,
     responses.links
@@ -201,7 +240,7 @@ export function makeHeadersAndReferences(headers: Header | Reference, readonly?:
       ? `schema:${zodToOpenAPI(headers.schema, { headers }, readonly === true ? { readonly: true } : undefined)}`
       : undefined,
     'content' in headers && headers.content
-      ? `content:${makeContent(headers.content, readonly).join(',')}`
+      ? `content:{${makeContent(headers.content, readonly).join(',')}}`
       : undefined,
   ]
     .filter((v) => v !== undefined)
@@ -302,6 +341,8 @@ export function makeContent(
   readonly?: boolean,
   // Set for the content of a request body, whose form media types arrive as text.
   request?: { readonly schemas?: { readonly [k: string]: Schema } },
+  // The component schemas, for the content of a response.
+  schemas?: { readonly [k: string]: Schema },
 ) {
   return Object.freeze(
     Object.entries(content)
@@ -321,7 +362,7 @@ export function makeContent(
           const isForm =
             request !== undefined &&
             FORM_MEDIA_TYPES.some((formType) => mediaType.startsWith(formType))
-          return `${key}:${makeMedia(mediaOrRef, readonly, isForm ? request : undefined)}`
+          return `${key}:${makeMedia(mediaOrRef, readonly, isForm ? request : undefined, schemas ?? request?.schemas)}`
         }
         return undefined
       })
@@ -358,11 +399,13 @@ export function makeMedia(
   media: Media,
   readonly?: boolean,
   form?: { readonly schemas?: { readonly [k: string]: Schema } },
+  schemas?: { readonly [k: string]: Schema },
 ) {
+  const components = schemas ?? form?.schemas
   const schemaOptions = {
     ...(readonly === true ? { readonly: true } : {}),
     ...(form === undefined ? {} : { coerce: true, form: true }),
-    ...(form?.schemas === undefined ? {} : { schemas: form.schemas }),
+    ...(components === undefined ? {} : { schemas: components }),
   }
   const encodingCode = media.encoding
     ? Object.entries(media.encoding)
@@ -679,7 +722,7 @@ export function makeRouteProperties(
     operation.operationId ? `operationId:${JSON.stringify(operation.operationId)}` : undefined,
     request ? `request:${request}` : undefined,
     operation.responses
-      ? `responses:${makeOperationResponses(operation.responses, readonly)}`
+      ? `responses:${makeOperationResponses(operation.responses, readonly, schemas)}`
       : undefined,
     operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks, readonly)}}` : undefined,
     operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,

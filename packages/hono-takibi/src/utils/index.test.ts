@@ -192,6 +192,42 @@ describe('utils', () => {
       expect(regexLiteral(String.raw`\x{110000}`)).toBeUndefined()
     })
 
+    // #408: a legacy octal escape is the character it names, which TypeScript spells in hex
+    it.concurrent('writes an octal escape as a hex escape', () => {
+      expect(regexLiteral(String.raw`[^/:|\000-\037]+`)).toStrictEqual({
+        source: String.raw`[^/:|\x00-\x1f]+`,
+        flags: '',
+      })
+      expect(regexLiteral(String.raw`\377\40\7`)).toStrictEqual({
+        source: String.raw`\xff\x20\x07`,
+        flags: '',
+      })
+      // `\400` is `\40` and a `0`; `\08` is NUL and an `8`
+      expect(regexLiteral(String.raw`\400\08`)).toStrictEqual({
+        source: String.raw`\x200\x008`,
+        flags: '',
+      })
+      // a backreference names a group that is there; past the count it is an octal escape
+      expect(regexLiteral(String.raw`(a)\1\2`)).toStrictEqual({
+        source: String.raw`(a)\1\x02`,
+        flags: '',
+      })
+      expect(regexLiteral(String.raw`(?:a)(?<n>b)(?<=c)\1\2`)).toStrictEqual({
+        source: String.raw`(?:a)(?<n>b)(?<=c)\1\x02`,
+        flags: '',
+      })
+      // inside a class there is no backreference
+      expect(regexLiteral(String.raw`(a)[\1]`)).toStrictEqual({
+        source: String.raw`(a)[\x01]`,
+        flags: '',
+      })
+      // `\0` alone, `\8` and `\9`, and an escaped backslash before digits are left alone
+      expect(regexLiteral(String.raw`\0\8\9\\12`)).toStrictEqual({
+        source: String.raw`\0\8\9\\12`,
+        flags: '',
+      })
+    })
+
     it.concurrent('answers undefined for what JavaScript cannot compile', () => {
       expect(regexLiteral('(?x)^a b$')).toBeUndefined()
       expect(regexLiteral('a++')).toBeUndefined()

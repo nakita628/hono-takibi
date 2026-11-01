@@ -1,11 +1,12 @@
 import type { Node, Program, Statement } from 'oxc-parser'
 
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import { isSchemaArray } from '../guard/index.js'
-import type { Schema } from '../openapi/index.js'
-import { cyclicNodes, ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
+import { isRecord, isSchemaArray } from '../guard/index.js'
+import type { OpenAPI, Schema } from '../openapi/index.js'
+import { cyclicNodes, decodePercent, ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
 import { discriminatedBranches } from './discriminator.js'
 import { declarationOf, identifierNames, parseModule, textOf } from './syntax.js'
+import { resolveSchemaRef } from './wire.js'
 
 type DeclarationKind = 'variable' | 'type' | 'interface'
 
@@ -72,15 +73,104 @@ function nestedSchemas(schema: Schema | boolean | undefined): readonly Schema[] 
 // so it also needs the `$ZodTypeDiscriminable` half of its annotation to stay a member.
 // The union may sit anywhere in a component (`CompoundFilter.filters.items`), so every
 // nested schema is looked at, and the same test decides as the one that emits the union.
+// A union in a request or response body of the document is emitted the same way, with the
+// component schemas at hand, so the rest of the document is looked at too when it is given.
 function findDiscriminatedBranches(
   schemas: { readonly [k: string]: Schema },
   schemaNames: readonly string[],
+  document?: OpenAPI,
 ) {
+  const inDocument = document === undefined ? [] : unionNodes(document)
   return new Set(
-    schemaNames
-      .flatMap((n) => nestedSchemas(schemas[n]))
+    [...schemaNames.flatMap((n) => nestedSchemas(schemas[n])), ...inDocument]
       .flatMap((schema) => discriminatedBranches(schema, schemas) ?? [])
       .flatMap(({ name }) => (name === undefined ? [] : [name])),
+  )
+}
+
+/** Every object under `node` that has a `oneOf` and a `discriminator`: a union the generator may route by key. */
+function unionNodes(node: unknown): readonly Schema[] {
+  if (Array.isArray(node)) return node.flatMap(unionNodes)
+  if (!isRecord(node)) return []
+  const below = Object.values(node).flatMap(unionNodes)
+  return isDiscriminatedUnion(node) ? [node, ...below] : below
+}
+
+function isDiscriminatedUnion(node: { readonly [k: string]: unknown }): node is Schema {
+  return Array.isArray(node.oneOf) && isRecord(node.discriminator)
+}
+
+/**
+ * How deep a component schema nests before it is declared with an explicit type. A chain of
+ * 15 components, each an object with a property of the next, makes `createRoute` instantiate
+ * a type TypeScript gives up on (TS2589, #407); 14 do not. Past this depth a component is
+ * annotated `z.ZodType<XType>`, as a recursive one is, so that what refers to it reads a
+ * named type instead of the whole inferred one. Half the limit leaves room for what a route
+ * and its handler add around the schema.
+ */
+const DEEP_SCHEMA_DEPTH = 8
+
+/**
+ * How many objects and arrays a value of the schema nests, at most: a property or an item is
+ * one level deeper than the schema it belongs to, a member of `allOf` / `oneOf` / `anyOf`
+ * is as deep as the schema itself, and a reference is as deep as the component it names. A
+ * reference back into a component being measured is a cycle, which is typed in its own right.
+ */
+function schemaDepth(
+  schema: Schema | boolean | undefined,
+  schemas: { readonly [k: string]: Schema },
+  depths: Map<string, number>,
+  measuring: ReadonlySet<string>,
+): number {
+  if (schema === undefined || typeof schema === 'boolean') return 0
+  if (schema.$ref !== undefined) {
+    const name =
+      resolveSchemaRef(schema.$ref, schemas) === undefined ? undefined : refName(schema.$ref)
+    if (name === undefined || measuring.has(name)) return 0
+    return componentDepth(name, schemas, depths, measuring)
+  }
+  const depth = (s: Schema | boolean | undefined) => schemaDepth(s, schemas, depths, measuring)
+  const nested = [
+    ...Object.values(schema.properties ?? {}),
+    ...Object.values(schema.patternProperties ?? {}),
+    ...(schema.prefixItems ?? []),
+    ...(isSchemaArray(schema.items) ? schema.items : [schema.items]),
+    schema.additionalProperties,
+  ].map((s) => (s === undefined || typeof s === 'boolean' ? 0 : 1 + depth(s)))
+  const beside = [...(schema.allOf ?? []), ...(schema.anyOf ?? []), ...(schema.oneOf ?? [])].map(
+    depth,
+  )
+  return Math.max(0, ...nested, ...beside)
+}
+
+function componentDepth(
+  name: string,
+  schemas: { readonly [k: string]: Schema },
+  depths: Map<string, number>,
+  measuring: ReadonlySet<string>,
+) {
+  const known = depths.get(name)
+  if (known !== undefined) return known
+  const depth = schemaDepth(schemas[name], schemas, depths, new Set([...measuring, name]))
+  depths.set(name, depth)
+  return depth
+}
+
+function refName($ref: string) {
+  const name = $ref.split('/').at(-1)
+  return name === undefined ? undefined : decodePercent(name)
+}
+
+/** The component schemas nested at least `DEEP_SCHEMA_DEPTH` levels deep (#407). */
+function findDeepSchemas(
+  schemas: { readonly [k: string]: Schema },
+  schemaNames: readonly string[],
+) {
+  const depths = new Map<string, number>()
+  return new Set(
+    schemaNames.filter(
+      (name) => componentDepth(name, schemas, depths, new Set()) >= DEEP_SCHEMA_DEPTH,
+    ),
   )
 }
 
@@ -88,6 +178,8 @@ export function analyzeCircularSchemas(
   schemas: { readonly [k: string]: Schema },
   schemaNames: readonly string[],
   readonly?: boolean,
+  // The whole document, when the components are generated as part of it.
+  document?: OpenAPI,
 ) {
   const varNameSet = new Set(
     schemaNames.map((n) => toIdentifierPascalCase(ensureSuffix(n, 'Schema'))),
@@ -141,7 +233,8 @@ export function analyzeCircularSchemas(
     cyclicSchemas,
     extendedCyclicSchemas,
     cyclicGroupPascal: new Set([...extendedCyclicSchemas].map(toIdentifierPascalCase)),
-    discriminatedBranches: findDiscriminatedBranches(schemas, schemaNames),
+    deepSchemas: findDeepSchemas(schemas, schemaNames),
+    discriminatedBranches: findDiscriminatedBranches(schemas, schemaNames, document),
     varNameToName,
   } as const
 }

@@ -16,6 +16,7 @@ export function makeSchemaInfo(
     readonly cyclicSchemas: ReadonlySet<string>
     readonly extendedCyclicSchemas: ReadonlySet<string>
     readonly cyclicGroupPascal: ReadonlySet<string>
+    readonly deepSchemas: ReadonlySet<string>
     readonly discriminatedBranches: ReadonlySet<string>
     readonly varNameToName: ReadonlyMap<string, string>
   },
@@ -24,9 +25,15 @@ export function makeSchemaInfo(
   const safeSchemaName = toIdentifierPascalCase(schemaName)
   const variableName = toIdentifierPascalCase(ensureSuffix(schemaName, 'Schema'))
   const isCircular = analysis.cyclicSchemas.has(schemaName)
-  const isSelfReferencing = zSchema.includes(variableName)
+  // The identifier as a whole: `ConnectionSchema` is not referenced by `SampleConnectionSchema`.
+  const isSelfReferencing = new RegExp(String.raw`\b${variableName}\b`, 'u').test(zSchema)
   const needsLazy = isCircular || isSelfReferencing
-  const needsTypeDef = needsLazy || analysis.extendedCyclicSchemas.has(schemaName)
+  // A deeply nested component is typed by name too, so that what refers to it stays cheap to
+  // infer (#407).
+  const needsTypeDef =
+    needsLazy ||
+    analysis.extendedCyclicSchemas.has(schemaName) ||
+    analysis.deepSchemas.has(schemaName)
   return {
     schemaName,
     schema,
@@ -48,6 +55,7 @@ export function makeSchemaInfos(
     readonly cyclicSchemas: ReadonlySet<string>
     readonly extendedCyclicSchemas: ReadonlySet<string>
     readonly cyclicGroupPascal: ReadonlySet<string>
+    readonly deepSchemas: ReadonlySet<string>
     readonly discriminatedBranches: ReadonlySet<string>
     readonly varNameToName: ReadonlyMap<string, string>
   },
@@ -159,6 +167,7 @@ export function makeSplitSchemaFile(
     readonly cyclicSchemas: ReadonlySet<string>
     readonly extendedCyclicSchemas: ReadonlySet<string>
     readonly cyclicGroupPascal: ReadonlySet<string>
+    readonly deepSchemas: ReadonlySet<string>
     readonly discriminatedBranches: ReadonlySet<string>
     readonly varNameToName: ReadonlyMap<string, string>
   },

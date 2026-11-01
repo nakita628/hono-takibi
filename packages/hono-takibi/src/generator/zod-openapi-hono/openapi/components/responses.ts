@@ -28,7 +28,7 @@ export function responsesCode(
   return Object.keys(responses)
     .map((k) => {
       const isRef = responses[k].$ref !== undefined
-      return `${makeConst(exportResponses, k, 'Response')}${makeResponses(responses[k])}${isRef ? '' : asConst}`
+      return `${makeConst(exportResponses, k, 'Response')}${makeResponses(responses[k], undefined, components.schemas)}${isRef ? '' : asConst}`
     })
     .join('\n\n')
 }

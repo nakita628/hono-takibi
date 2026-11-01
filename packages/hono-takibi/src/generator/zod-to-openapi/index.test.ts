@@ -1215,7 +1215,7 @@ describe('zodToOpenAPI', () => {
             },
           ],
         }
-        const expected = `GeoJsonObjectSchema.and(z.object({geometry:GeometrySchema.nullable(),properties:z.object({}).nullable(),id:z.xor([z.number(),z.string()]).exactOptional()}).openapi({"required":["geometry","properties"]})).openapi({"description":"GeoJSon 'Feature' object","externalDocs":{"url":"https://tools.ietf.org/html/rfc7946#section-3.2"}})`
+        const expected = `GeoJsonObjectSchema.and(z.object({geometry:GeometrySchema.nullable(),properties:z.looseObject({}).nullable(),id:z.xor([z.number(),z.string()]).exactOptional()}).openapi({"required":["geometry","properties"]})).openapi({"description":"GeoJSon 'Feature' object","externalDocs":{"url":"https://tools.ietf.org/html/rfc7946#section-3.2"}})`
         expect(zodToOpenAPI(input)).toBe(expected)
         // runtime skipped: external $ref `GeoJsonObjectSchema` / `GeometrySchema` unresolved
       })
@@ -1692,9 +1692,9 @@ describe('zodToOpenAPI', () => {
             'z.any().refine((val) => !ForbiddenSchema.safeParse(val).success,{error:"禁止スキーマ不可"})',
           )
           const ForbiddenSchema = z.string()
-          const runtime = z
-            .any()
-            .refine((val) => !ForbiddenSchema.safeParse(val).success, { error: '禁止スキーマ不可' })
+          const runtime = z.any().refine((val) => !ForbiddenSchema.safeParse(val).success, {
+            error: '禁止スキーマ不可',
+          })
           expect(runtime.safeParse(123).success).toBe(true)
           const result = runtime.safeParse('abc')
           expect(result.success).toBe(false)
@@ -5036,11 +5036,11 @@ describe('zodToOpenAPI', () => {
           expect(runtime.safeParse(undefined).success).toBe(true)
           expect(runtime.safeParse('a').success).toBe(true)
         })
-        it.concurrent('object: x-readonly=true → z.object({}).readonly()', () => {
+        it.concurrent('object: x-readonly=true → z.looseObject({}).readonly()', () => {
           expect(zodToOpenAPI({ type: 'object', 'x-readonly': true })).toBe(
-            'z.object({}).readonly()',
+            'z.looseObject({}).readonly()',
           )
-          const runtime = z.object({}).readonly()
+          const runtime = z.looseObject({}).readonly()
           expect(runtime.safeParse({}).success).toBe(true)
         })
         it.concurrent('string: x-readonly=true → z.string().readonly()', () => {
@@ -5463,7 +5463,7 @@ describe('zodToOpenAPI', () => {
             else: { required: ['basicFeature'] },
           })
           expect(generated).toBe(
-            'z.object({}).superRefine((o,ctx)=>{const If=z.object({type:z.literal("premium")}).openapi({"required":["type"]});const ifOk=If.safeParse(o).success;const Branch=ifOk?z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"premiumFeature")){ctx.addIssue({code:\'custom\'})}}}).openapi({"required":["premiumFeature"]}):z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"basicFeature")){ctx.addIssue({code:\'custom\'})}}}).openapi({"required":["basicFeature"]});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})',
+            'z.looseObject({}).superRefine((o,ctx)=>{const If=z.object({type:z.literal("premium")}).openapi({"required":["type"]});const ifOk=If.safeParse(o).success;const Branch=ifOk?z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"premiumFeature")){ctx.addIssue({code:\'custom\'})}}}).openapi({"required":["premiumFeature"]}):z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"basicFeature")){ctx.addIssue({code:\'custom\'})}}}).openapi({"required":["basicFeature"]});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})',
           )
           // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
         })
@@ -5521,7 +5521,11 @@ describe('zodToOpenAPI', () => {
               }
             }
             for (let i = Prefix.length; i < arr.length; i += 1) {
-              ctx.addIssue({ code: 'custom', path: [i], message: `Unevaluated item at index ${i}` })
+              ctx.addIssue({
+                code: 'custom',
+                path: [i],
+                message: `Unevaluated item at index ${i}`,
+              })
             }
           })
           expect(runtime.safeParse(['a', 1]).success).toBe(true)
@@ -5533,51 +5537,36 @@ describe('zodToOpenAPI', () => {
             ])
           }
         })
-        // ----- JSON Schema 2020-12 Core meta keywords pass-through -----
-        it.concurrent('string: $schema pass-through → .openapi({$schema})', () => {
-          const generated = zodToOpenAPI({
-            type: 'string',
-            $schema: 'https://json-schema.org/draft/2020-12/schema',
-          })
-          expect(generated).toBe(
-            'z.string().openapi({"$schema":"https://json-schema.org/draft/2020-12/schema"})',
-          )
-          // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
+        // ----- JSON Schema 2020-12 Core meta keywords: not Schema Object keys (#393) -----
+        it.concurrent('string: $schema is not written into the metadata', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'string',
+              $schema: 'https://json-schema.org/draft/2020-12/schema',
+            }),
+          ).toBe('z.string()')
         })
-        it.concurrent('string: $id pass-through → .openapi({$id})', () => {
-          const generated = zodToOpenAPI({
-            type: 'string',
-            $id: 'https://example.com/schemas/user.json',
-          })
-          expect(generated).toBe(
-            'z.string().openapi({"$id":"https://example.com/schemas/user.json"})',
-          )
-          // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
+        it.concurrent('string: $id, $anchor, $dynamicAnchor, $dynamicRef, $vocabulary are not written', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'string',
+              $id: 'https://example.com/schemas/user.json',
+              $anchor: 'user-name',
+              $dynamicAnchor: 'meta',
+              $dynamicRef: '#meta',
+              $vocabulary: { 'https://json-schema.org/draft/2020-12/vocab/core': true },
+              description: 'kept',
+            }),
+          ).toBe('z.string().openapi({"description":"kept"})')
         })
-        it.concurrent('string: $anchor pass-through', () => {
-          const generated = zodToOpenAPI({ type: 'string', $anchor: 'user-name' })
-          expect(generated).toBe('z.string().openapi({"$anchor":"user-name"})')
-          // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
-        })
-        it.concurrent('string: $dynamicAnchor pass-through', () => {
-          const generated = zodToOpenAPI({ type: 'string', $dynamicAnchor: 'meta' })
-          expect(generated).toBe('z.string().openapi({"$dynamicAnchor":"meta"})')
-          // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
-        })
-        it.concurrent('string: $dynamicRef pass-through', () => {
-          const generated = zodToOpenAPI({ type: 'string', $dynamicRef: '#meta' })
-          expect(generated).toBe('z.string().openapi({"$dynamicRef":"#meta"})')
-          // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
-        })
-        it.concurrent('string: $vocabulary pass-through', () => {
-          const generated = zodToOpenAPI({
-            type: 'string',
-            $vocabulary: { 'https://json-schema.org/draft/2020-12/vocab/core': true },
-          })
-          expect(generated).toBe(
-            'z.string().openapi({"$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/core":true}})',
-          )
-          // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
+        // #393: ajv-errors' `errorMessage` is no Schema Object key either
+        it.concurrent('string: errorMessage is not written into the metadata', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'array',
+              items: { type: 'string', errorMessage: 'by items should be target or branch' },
+            } as unknown as Schema),
+          ).toBe('z.array(z.string())')
         })
         // ----- $defs: schemas, not metadata (#377) -----
         it.concurrent('string: $defs is not written into the metadata', () => {
@@ -5902,8 +5891,8 @@ describe('zodToOpenAPI', () => {
       // object
       describe('object', () => {
         it.concurrent('object: empty schema', () => {
-          expect(zodToOpenAPI({ type: 'object' })).toBe('z.object({})')
-          const runtime = z.object({})
+          expect(zodToOpenAPI({ type: 'object' })).toBe('z.looseObject({})')
+          const runtime = z.looseObject({})
           expect(runtime.safeParse({}).success).toBe(true)
           const result = runtime.safeParse('string')
           expect(result.success).toBe(false)
@@ -5919,8 +5908,10 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('object: nullable via nullable:true', () => {
-          expect(zodToOpenAPI({ type: ['object'], nullable: true })).toBe('z.object({}).nullable()')
-          const runtime = z.object({}).nullable()
+          expect(zodToOpenAPI({ type: ['object'], nullable: true })).toBe(
+            'z.looseObject({}).nullable()',
+          )
+          const runtime = z.looseObject({}).nullable()
           expect(runtime.safeParse({}).success).toBe(true)
           expect(runtime.safeParse(null).success).toBe(true)
           const result = runtime.safeParse('string')
@@ -5937,8 +5928,8 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('object: nullable via type tuple', () => {
-          expect(zodToOpenAPI({ type: ['object', 'null'] })).toBe('z.object({}).nullable()')
-          const runtime = z.object({}).nullable()
+          expect(zodToOpenAPI({ type: ['object', 'null'] })).toBe('z.looseObject({}).nullable()')
+          const runtime = z.looseObject({}).nullable()
           expect(runtime.safeParse({}).success).toBe(true)
           expect(runtime.safeParse(null).success).toBe(true)
         })
@@ -6003,8 +5994,10 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('object: with default', () => {
-          expect(zodToOpenAPI({ type: 'object', default: {} })).toBe('z.object({}).default({})')
-          const runtime = z.object({}).default({})
+          expect(zodToOpenAPI({ type: 'object', default: {} })).toBe(
+            'z.looseObject({}).default({})',
+          )
+          const runtime = z.looseObject({}).default({})
           expect(runtime.safeParse(undefined).success).toBe(true)
         })
         it.concurrent('object: nullable + default', () => {
@@ -6014,16 +6007,16 @@ describe('zodToOpenAPI', () => {
               default: {},
               nullable: true,
             }),
-          ).toBe('z.object({}).nullable().default({})')
-          const runtime = z.object({}).nullable().default({})
+          ).toBe('z.looseObject({}).nullable().default({})')
+          const runtime = z.looseObject({}).nullable().default({})
           expect(runtime.safeParse(undefined).success).toBe(true)
           expect(runtime.safeParse(null).success).toBe(true)
         })
         it.concurrent('object: nullable via type tuple + default', () => {
           expect(zodToOpenAPI({ type: ['object', 'null'], default: {} })).toBe(
-            'z.object({}).nullable().default({})',
+            'z.looseObject({}).nullable().default({})',
           )
-          const runtime = z.object({}).nullable().default({})
+          const runtime = z.looseObject({}).nullable().default({})
           expect(runtime.safeParse(undefined).success).toBe(true)
           expect(runtime.safeParse(null).success).toBe(true)
         })
@@ -6126,8 +6119,8 @@ describe('zodToOpenAPI', () => {
               type: 'array',
               items: { type: 'object' },
             }),
-          ).toBe('z.array(z.object({}))')
-          const runtime = z.array(z.object({}))
+          ).toBe('z.array(z.looseObject({}))')
+          const runtime = z.array(z.looseObject({}))
           expect(runtime.safeParse([{}]).success).toBe(true)
           const result = runtime.safeParse(['a'])
           expect(result.success).toBe(false)
@@ -7350,9 +7343,9 @@ describe('zodToOpenAPI', () => {
             'x-minProperties-message': 'At least 1',
           })
           expect(generated).toBe(
-            'z.object({}).refine((val)=>Object.keys(val).length>=1,{error:"At least 1"})',
+            'z.looseObject({}).refine((val)=>Object.keys(val).length>=1,{error:"At least 1"})',
           )
-          // skip runtime: z.object({}) strips unknown keys before .refine() runs, so
+          // skip runtime: z.looseObject({}) strips unknown keys before .refine() runs, so
           // valid input shapes can't be exercised here without redefining the schema
         })
         it.concurrent('x-maxProperties-message on .refine() with size <= 5', () => {
@@ -7362,9 +7355,9 @@ describe('zodToOpenAPI', () => {
             'x-maxProperties-message': 'At most 5',
           })
           expect(generated).toBe(
-            'z.object({}).refine((val)=>Object.keys(val).length<=5,{error:"At most 5"})',
+            'z.looseObject({}).refine((val)=>Object.keys(val).length<=5,{error:"At most 5"})',
           )
-          // skip runtime: z.object({}) strips unknown keys before .refine() runs
+          // skip runtime: z.looseObject({}) strips unknown keys before .refine() runs
         })
         it.concurrent('x-minProperties + x-maxProperties-message combined', () => {
           const generated = zodToOpenAPI({
@@ -7375,9 +7368,9 @@ describe('zodToOpenAPI', () => {
             'x-maxProperties-message': '10個以下',
           })
           expect(generated).toBe(
-            'z.object({}).refine((val)=>Object.keys(val).length>=2,{error:"2個以上"}).refine((val)=>Object.keys(val).length<=10,{error:"10個以下"})',
+            'z.looseObject({}).refine((val)=>Object.keys(val).length>=2,{error:"2個以上"}).refine((val)=>Object.keys(val).length<=10,{error:"10個以下"})',
           )
-          // skip runtime: z.object({}) strips unknown keys before .refine() runs
+          // skip runtime: z.looseObject({}) strips unknown keys before .refine() runs
         })
         it.concurrent('dependentRequired → x-error-message fallback (superRefine)', () => {
           const generated = zodToOpenAPI({
@@ -7386,9 +7379,9 @@ describe('zodToOpenAPI', () => {
             'x-error-message': 'fooにはbarが必要',
           })
           expect(generated).toBe(
-            `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"fooにはbarが必要",path:["bar"]})}})`,
+            `z.looseObject({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"fooにはbarが必要",path:["bar"]})}})`,
           )
-          // skip runtime: z.object({}) strips unknown keys (foo/bar) before superRefine
+          // skip runtime: z.looseObject({}) strips unknown keys (foo/bar) before superRefine
         })
       })
 
@@ -8680,7 +8673,7 @@ describe('zodToOpenAPI', () => {
     // exact emitted Zod chain — any drift from the intended API surfaces here.
     it.concurrent('refine: minProperties emits .refine without superRefine', () => {
       expect(zodToOpenAPI({ type: 'object', minProperties: 1 })).toBe(
-        'z.object({}).refine((val)=>Object.keys(val).length>=1)',
+        'z.looseObject({}).refine((val)=>Object.keys(val).length>=1)',
       )
     })
     it.concurrent('superRefine: uniqueItems emits .superRefine with seen Map', () => {

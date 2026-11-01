@@ -562,3 +562,109 @@ describe('zodOpenAPIHono component names that collide', () => {
     expect(code).not.toContain('Type=')
   })
 })
+
+// #394: a default beside a reference in a body is read against the component, as in a component
+describe('zodOpenAPIHono bodies read the components', () => {
+  it('drops a default of a body property that is not a value of the referenced component', () => {
+    const spec = {
+      openapi: '3.0.3',
+      info: { title: 'defaults', version: '1.0.0' },
+      paths: {
+        '/search': {
+          post: {
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      mode: { default: "'strict'", allOf: [{ $ref: '#/components/schemas/Mode' }] },
+                      precision: {
+                        default: '7',
+                        allOf: [{ $ref: '#/components/schemas/Precision' }],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        mode: { default: 'strict', allOf: [{ $ref: '#/components/schemas/Mode' }] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Mode: { type: 'string', enum: ['coerce', 'strict'] },
+          Precision: { type: 'number' },
+        },
+      },
+    } as OpenAPI
+    const code = zodOpenAPIHono(spec)
+    expect(code).toContain(`mode:ModeSchema.exactOptional().openapi({"default":"'strict'"})`)
+    expect(code).toContain('precision:PrecisionSchema.default(7).exactOptional()')
+    expect(code).toContain('mode:ModeSchema.default("strict").exactOptional()')
+  })
+
+  it('keeps a recursive branch of a discriminated union in a body discriminable', () => {
+    const spec = {
+      openapi: '3.1.0',
+      info: { title: 'union', version: '1.0.0' },
+      paths: {
+        '/shapes': {
+          post: {
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    oneOf: [
+                      { $ref: '#/components/schemas/Leaf' },
+                      { $ref: '#/components/schemas/Node' },
+                    ],
+                    discriminator: { propertyName: 'kind' },
+                  },
+                },
+              },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Leaf: {
+            type: 'object',
+            required: ['kind'],
+            properties: { kind: { type: 'string', const: 'leaf' } },
+          },
+          Node: {
+            type: 'object',
+            required: ['kind'],
+            properties: {
+              kind: { type: 'string', const: 'node' },
+              child: { $ref: '#/components/schemas/Node' },
+            },
+          },
+        },
+      },
+    } as OpenAPI
+    const code = zodOpenAPIHono(spec)
+    expect(code).toContain(
+      'const NodeSchema:z.ZodType<NodeType>&z.core.$ZodTypeDiscriminable=z.lazy(',
+    )
+    expect(code).toContain("schema:z.discriminatedUnion('kind',[LeafSchema,NodeSchema])")
+  })
+})

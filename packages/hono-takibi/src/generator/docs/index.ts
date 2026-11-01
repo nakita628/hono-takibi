@@ -294,8 +294,9 @@ function pickMedia(content: unknown, doc: OpenAPI) {
  * Escapes a value for a Markdown table cell: `|` would close the cell and a
  * line break would end the row.
  */
-function escapeCell(value: string) {
-  return value.replaceAll('|', '\\|').replaceAll(/\r?\n/gu, '<br>')
+function escapeCell(value: unknown) {
+  // The document may hand a value the type says is a string and is not (#414).
+  return String(value).replaceAll('|', '\\|').replaceAll(/\r?\n/gu, '<br>')
 }
 
 /**
@@ -433,8 +434,11 @@ function inferType(value: unknown) {
 }
 
 function baseTypeOf(schema: Schema, doc: OpenAPI, visited: ReadonlySet<string>) {
-  if (Array.isArray(schema.type)) return schema.type.join(' | ')
-  if (schema.type !== undefined) return schema.type
+  if (Array.isArray(schema.type)) return schema.type.map(String).join(' | ')
+  if (typeof schema.type === 'string') return schema.type
+  // A `type` that is neither a name nor a list of names (an object, in Codat's document) is
+  // not a type: the routes take such a value for anything, and so do the docs (#414).
+  if (schema.type !== undefined) return 'any'
   if (isRecord(schema.properties)) return 'object'
   const variants = variantsOf(schema)
   if (variants.length > 0) {
