@@ -67,6 +67,69 @@ function isSchemaObjectKey(key: string) {
   return SCHEMA_OBJECT_KEYS.has(key) || key.startsWith('x-')
 }
 
+const TYPE_NAMES = new Set(['integer', 'number', 'string', 'boolean', 'object', 'null', 'array'])
+
+function isTypeName(value: unknown) {
+  return typeof value === 'string' && TYPE_NAMES.has(value)
+}
+
+/**
+ * What each Schema Object key's value is: the type `.openapi()` and `param.schema` take for
+ * it. A value of another type does not type-check once written (#419) — a `minimum` written
+ * as text (`"'created_at' - 21 days"`, Revolut), a `discriminator` without its
+ * `propertyName` — so it is left out, as a key the Schema Object has not is. `exclusiveMinimum`
+ * and `exclusiveMaximum` are numbers in 3.1 and booleans in 3.0; `type` is a type name or a
+ * list of them. A key absent here (`default`, `example`, `const`) takes any value.
+ */
+const SCHEMA_OBJECT_VALUE_TYPES: { readonly [key: string]: (value: unknown) => boolean } = {
+  $ref: (v) => typeof v === 'string',
+  discriminator: (v) => isRecord(v) && typeof v.propertyName === 'string',
+  readOnly: (v) => typeof v === 'boolean',
+  writeOnly: (v) => typeof v === 'boolean',
+  deprecated: (v) => typeof v === 'boolean',
+  uniqueItems: (v) => typeof v === 'boolean',
+  nullable: (v) => typeof v === 'boolean',
+  xml: isRecord,
+  externalDocs: (v) => isRecord(v) && typeof v.url === 'string',
+  type: (v) => isTypeName(v) || (Array.isArray(v) && v.length > 0 && v.every(isTypeName)),
+  format: (v) => typeof v === 'string',
+  description: (v) => typeof v === 'string',
+  title: (v) => typeof v === 'string',
+  pattern: (v) => typeof v === 'string',
+  contentMediaType: (v) => typeof v === 'string',
+  contentEncoding: (v) => typeof v === 'string',
+  multipleOf: (v) => typeof v === 'number',
+  maximum: (v) => typeof v === 'number',
+  minimum: (v) => typeof v === 'number',
+  exclusiveMaximum: (v) => typeof v === 'number' || typeof v === 'boolean',
+  exclusiveMinimum: (v) => typeof v === 'number' || typeof v === 'boolean',
+  maxLength: (v) => typeof v === 'number',
+  minLength: (v) => typeof v === 'number',
+  maxItems: (v) => typeof v === 'number',
+  minItems: (v) => typeof v === 'number',
+  maxProperties: (v) => typeof v === 'number',
+  minProperties: (v) => typeof v === 'number',
+  required: Array.isArray,
+  enum: Array.isArray,
+  allOf: Array.isArray,
+  oneOf: Array.isArray,
+  anyOf: Array.isArray,
+  prefixItems: Array.isArray,
+  // `items` as a boolean or a tuple, and `not` as a boolean, are JSON Schema shapes the
+  // Schema Object has not.
+  items: isRecord,
+  not: isRecord,
+  propertyNames: isRecord,
+  additionalProperties: (v) => typeof v === 'boolean' || isRecord(v),
+  properties: isRecord,
+}
+
+/** Whether a Schema Object key's value has the type the key takes. */
+function hasSchemaObjectValueType(key: string, value: unknown) {
+  const check = SCHEMA_OBJECT_VALUE_TYPES[key]
+  return check === undefined || check(value)
+}
+
 // The keys whose value is a schema, a list of schemas or a map of schemas: what is pruned
 // is pruned under them too.
 const SCHEMA_VALUED_KEYS = new Set(['items', 'not', 'additionalProperties', 'propertyNames'])
@@ -74,19 +137,17 @@ const SCHEMA_LIST_KEYS = new Set(['allOf', 'oneOf', 'anyOf', 'prefixItems'])
 const SCHEMA_MAP_KEYS = new Set(['properties'])
 
 /**
- * A schema as a Schema Object for the document: only the keys a Schema Object has, at
- * every level. `items` as a boolean or a tuple, and `not` as a boolean, are JSON Schema
- * shapes the Schema Object has not; a `required` member YAML read as a literal (`null`,
- * `true`) is a string; a 3.0-style `examples` map is its values. The output is what
- * `.openapi()` is handed, so nothing in it may fail to type-check.
+ * A schema as a Schema Object for the document: only the keys a Schema Object has, each
+ * with a value of the type it takes, at every level. A `required` member YAML read as a
+ * literal (`null`, `true`) is a string; a 3.0-style `examples` map is its values. The output
+ * is what `.openapi()` is handed, so nothing in it may fail to type-check.
  */
 export function pruneSchemaObject(schema: unknown): unknown {
   if (!isRecord(schema)) return schema
   const pruned: { [k: string]: unknown } = {}
   for (const [key, value] of Object.entries(schema)) {
     if (value === undefined || !isSchemaObjectKey(key)) continue
-    if (key === 'items' && (typeof value === 'boolean' || Array.isArray(value))) continue
-    if (key === 'not' && typeof value === 'boolean') continue
+    if (!hasSchemaObjectValueType(key, value)) continue
     if (key === 'required' && Array.isArray(value)) {
       pruned[key] = value.map((v) => (typeof v === 'string' ? v : String(v)))
       continue
@@ -96,12 +157,16 @@ export function pruneSchemaObject(schema: unknown): unknown {
       if (list !== undefined) pruned[key] = list
       continue
     }
-    // A Discriminator Object has `propertyName` and `mapping`, and takes no extension
-    // (`x-default`, OpenSearch).
+    // A Discriminator Object has `propertyName` and a `mapping` of names to references,
+    // and takes no extension (`x-default`, OpenSearch).
     if (key === 'discriminator' && isRecord(value)) {
-      pruned[key] = Object.fromEntries(
-        Object.entries(value).filter(([k]) => k === 'propertyName' || k === 'mapping'),
-      )
+      const mapping = isRecord(value.mapping)
+        ? Object.entries(value.mapping).filter(([, v]) => typeof v === 'string')
+        : undefined
+      pruned[key] = {
+        propertyName: value.propertyName,
+        ...(mapping === undefined ? {} : { mapping: Object.fromEntries(mapping) }),
+      }
       continue
     }
     if (SCHEMA_VALUED_KEYS.has(key)) {

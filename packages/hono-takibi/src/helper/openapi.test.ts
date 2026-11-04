@@ -527,10 +527,12 @@ describe('openapi helper', () => {
       const result = makeParameters([{ name: 'unknown', in: 'query' }])
       expect(result.query.unknown).toBe('z.any()')
     })
+    // `date` names no Schema Object type: written into `param.schema`, it does not type-check
+    // (#419), so the document's schema states nothing about the type.
     it.concurrent('applies coercion for query date parameters', () => {
       const result = makeParameters([{ name: 'date', in: 'query', schema: { type: 'date' } }])
       expect(result.query.date).toBe(
-        'z.coerce.date().exactOptional().openapi({param:{"name":"date","in":"query","schema":{"type":"date"},"required":false}})',
+        'z.coerce.date().exactOptional().openapi({param:{"name":"date","in":"query","schema":{},"required":false}})',
       )
     })
     it.concurrent('generates a query parameter with exact string output', () => {

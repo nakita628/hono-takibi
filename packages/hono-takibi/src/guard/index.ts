@@ -77,6 +77,34 @@ export function isRefOnly(s: Schema) {
 }
 
 /**
+ * The keywords that say something about a value without constraining it: the JSON Schema
+ * 2020-12 §9 annotations, OpenAPI's own (`example`, `externalDocs`, `xml`) and `nullable`,
+ * which the caller reads as `null` being allowed. An `allOf` member of these alone describes
+ * the intersection and validates nothing: emitted as a schema it is `z.any()`, and
+ * `X.and(z.any())` is `any` (#420).
+ */
+const ANNOTATION_KEYWORDS = new Set([
+  'title',
+  'description',
+  'default',
+  'deprecated',
+  'readOnly',
+  'writeOnly',
+  'example',
+  'examples',
+  'externalDocs',
+  'xml',
+  '$comment',
+  'nullable',
+])
+
+/** Whether a schema carries annotations alone: no type, and no keyword that validates. */
+export function isAnnotationOnly(schema: Schema) {
+  const keys = Object.keys(schema)
+  return keys.length > 0 && keys.every((key) => ANNOTATION_KEYWORDS.has(key))
+}
+
+/**
  * OpenAPI 3.2 §4.25: `discriminator` "MUST NOT change the validation outcome of the
  * schema". A branch can therefore be routed by key only when the key alone already
  * decides it: a bare object head that requires the discriminating property and pins it

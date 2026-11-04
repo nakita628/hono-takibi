@@ -421,3 +421,14 @@ describe('regression: x-required-message unreachable under coerce', () => {
     }
   })
 })
+
+// #419: a bound written as text (`minimum: "'created_at' - 21 days"`, Revolut) is no number
+describe('bounds that are not numbers', () => {
+  it.concurrent.each<[Schema, string]>([
+    [{ type: 'number', minimum: "'created_at' - 21 days" } as unknown as Schema, 'z.number()'],
+    [{ type: 'number', maximum: 'abc', multipleOf: 'x' } as unknown as Schema, 'z.number()'],
+    [{ type: 'number', minimum: 1, maximum: 'abc' } as unknown as Schema, 'z.number().min(1)'],
+  ])('number(%o) → %s', (schema, expected) => {
+    expect(number(schema)).toBe(expected)
+  })
+})

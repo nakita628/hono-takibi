@@ -1,6 +1,7 @@
 import { ARROW_FUNCTION_PATTERN } from '../../constants/index.js'
 import {
   hasTypelessConstraint,
+  isAnnotationOnly,
   isRefOnly,
   isSchemaArray,
   isSingleSchema,
@@ -221,21 +222,28 @@ export function zodToOpenAPI(
     const nullable =
       schema.nullable === true ||
       (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null') ||
-      effectiveAllOf.some(
-        (s) => s.type === 'null' || (s.nullable === true && Object.keys(s).length === 1),
-      )
+      effectiveAllOf.some((s) => s.type === 'null' || (s.nullable === true && isAnnotationOnly(s)))
     const nonNull = effectiveAllOf
       .filter((s) => !(s.type === 'null' || (s.nullable === true && Object.keys(s).length === 1)))
       // A member that names the parent this schema is a branch of stands for the parent's
       // own properties: the parent as a whole would name this schema back (#402).
       .map((s) => inheritedBase(s, childOptions?.schemas) ?? s)
-    if (nonNull.length === 0) return done('z.any()', { ...schema, nullable })
-    const schemas = nonNull.map(child)
+    // A member of annotations alone — `{ description }` beside a `$ref` (DeepL) — describes
+    // the intersection and validates nothing: emitted, it would be `z.any()`, and
+    // `X.and(z.any())` is `any` (#420). What it says is said of the whole instead, after
+    // what the schema says of itself.
+    const members = nonNull.filter((s) => !isAnnotationOnly(s))
+    const said = nonNull
+      .filter(isAnnotationOnly)
+      .reduce<Schema>((acc, s) => Object.assign(acc, s), {})
+    const emitted: Schema = { ...said, ...schema, nullable }
+    if (members.length === 0) return done('z.any()', emitted)
+    const schemas = members.map(child)
     const isBareRef =
       schemas.length === 1 &&
-      nonNull.every(isRefOnly) &&
+      members.every(isRefOnly) &&
       Object.keys(schema).every((k) => k === 'allOf' || k === 'nullable' || k === 'type')
-    if (isBareRef) return done(schemas[0], { ...schema, nullable }, true)
+    if (isBareRef) return done(schemas[0], emitted, true)
     const z = schemas.reduce((acc, s, i) => (i === 0 ? s : `${acc}.and(${s})`))
     const allOfMessage = schema['x-allOf-message'] ?? schema['x-error-message']
     const unevalCheck = makeUnevaluatedPropertiesCheck(
@@ -259,10 +267,10 @@ export function zodToOpenAPI(
       })()
       const unevalCall = unevalCheck ? `;(${unevalCheck})(ctx)` : ''
       const wrapped = `(()=>{const Schema=${z};return z.unknown().check((ctx)=>{${safeParseBranches}${unevalCall}}).pipe(Schema)})()`
-      return done(wrapped, { ...schema, nullable })
+      return done(wrapped, emitted)
     }
     // One reference and nothing to intersect it with: what is emitted is the component.
-    return done(z, { ...schema, nullable }, schemas.length === 1 && nonNull.every(isRefOnly))
+    return done(z, emitted, schemas.length === 1 && members.every(isRefOnly))
   }
   if (schema.anyOf !== undefined) {
     if (schema.anyOf.length === 0) return done('z.any()', schema)

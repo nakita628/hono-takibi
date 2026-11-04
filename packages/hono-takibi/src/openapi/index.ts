@@ -1,3 +1,4 @@
+import net from 'node:net'
 import path from 'node:path'
 
 /**
@@ -10,9 +11,81 @@ import path from 'node:path'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import { Data, Effect } from 'effect'
 
+import { isRecord } from '../guard/index.js'
+
 class OpenAPIError extends Data.TaggedError('OpenAPIError')<{
   readonly message: string
 }> {}
+
+/**
+ * How long one connection attempt is given before the next address is tried, in
+ * milliseconds. Node's default is 250 ms: a host with an AAAA record is connected to with
+ * happy eyeballs, so where IPv6 is unreachable an IPv4 handshake slower than that is cut off,
+ * the IPv6 attempt fails at once, and the download ends in `ETIMEDOUT` where `curl` and
+ * `fetch` succeed (#395, Hetzner, Unleash). A handshake across a continent takes under a
+ * second; two also cover a SYN lost once, which Linux resends after one.
+ */
+export const CONNECT_ATTEMPT_TIMEOUT_MS = 2000
+
+/**
+ * `run`, with every connection attempt it makes given {@link CONNECT_ATTEMPT_TIMEOUT_MS} at
+ * least. The ref parser pins a download to the addresses it validated and takes no option for
+ * the attempt timeout, so the process-wide default is raised for the duration and put back
+ * afterwards; one set higher (`--network-family-autoselection-attempt-timeout`) is kept.
+ */
+async function withPatientConnect<T>(run: () => Promise<T>) {
+  const previous = net.getDefaultAutoSelectFamilyAttemptTimeout()
+  if (previous >= CONNECT_ATTEMPT_TIMEOUT_MS) return run()
+  net.setDefaultAutoSelectFamilyAttemptTimeout(CONNECT_ATTEMPT_TIMEOUT_MS)
+  try {
+    return await run()
+  } finally {
+    net.setDefaultAutoSelectFamilyAttemptTimeout(previous)
+  }
+}
+
+/** The end of swagger-parser's message for a document with neither `paths` nor `webhooks`. */
+const INVALID_DEFINITION = 'is not a valid Openapi API definition'
+
+/** A document as swagger-parser types it. */
+type Document = Awaited<ReturnType<typeof SwaggerParser.bundle>>
+
+/**
+ * The document as written, read by the ref parser swagger-parser extends: its static `parse`
+ * reads one file or URL as JSON or YAML and checks nothing about OpenAPI.
+ */
+async function readDocument(input: string): Promise<{ readonly [k: string]: unknown }> {
+  const base: unknown = Object.getPrototypeOf(SwaggerParser)
+  if (typeof base !== 'function' || !('parse' in base) || typeof base.parse !== 'function') {
+    throw new TypeError('The ref parser swagger-parser extends has no parse')
+  }
+  const document: unknown = await Reflect.apply(base.parse, base, [input])
+  return isRecord(document) ? document : {}
+}
+
+/**
+ * The document, bundled. swagger-parser rejects a 3.1 document with neither `paths` nor
+ * `webhooks` as "not a valid Openapi API definition", though OpenAPI 3.1 asks for one of
+ * `paths`, `components` and `webhooks`: a document of components alone is a shared schema
+ * library (#417). Such a document is read and handed over again with an empty `paths`, which
+ * says the same.
+ */
+async function bundle(input: string) {
+  try {
+    return await SwaggerParser.bundle(input)
+  } catch (error) {
+    if (!(error instanceof SyntaxError && error.message.endsWith(INVALID_DEFINITION))) throw error
+    const document = await readDocument(input)
+    const isComponentsOnly =
+      typeof document.openapi === 'string' &&
+      document.openapi.startsWith('3.1') &&
+      document.paths === undefined &&
+      document.webhooks === undefined &&
+      isRecord(document.components)
+    if (!isComponentsOnly) throw error
+    return SwaggerParser.bundle(input, { ...document, paths: {} } as Document, {})
+  }
+}
 
 export function parseOpenAPI(
   input:
@@ -25,7 +98,7 @@ export function parseOpenAPI(
 ) {
   return Effect.tryPromise({
     try: async () => {
-      if (!input.endsWith('.tsp')) return (await SwaggerParser.bundle(input)) as OpenAPI
+      if (!input.endsWith('.tsp')) return (await withPatientConnect(() => bundle(input))) as OpenAPI
       // The TypeSpec compiler and emitter are loaded only for a `.tsp` document: together
       // they take longer to import than the whole generation of a yaml or json one.
       const [{ compile, NodeHost }, { getOpenAPI3 }] = await Promise.all([

@@ -7,6 +7,7 @@ import {
   hasNumericConstraint,
   hasRequestBodyContent,
   hasTypelessConstraint,
+  isAnnotationOnly,
   isContentBody,
   isDiscriminableBranch,
   isExamplesInput,
@@ -906,5 +907,38 @@ describe('isInheritedName', () => {
   it.concurrent('is false for any other name', () => {
     expect(isInheritedName({ name: 'page', in: 'query' })).toBe(false)
     expect(isInheritedName({ name: 'x-request-id', in: 'header' })).toBe(false)
+  })
+})
+
+// #420: an `allOf` member of annotations alone validates nothing
+describe('isAnnotationOnly', () => {
+  it.concurrent('is true for a schema of annotations alone', () => {
+    expect(isAnnotationOnly({ description: 'Language of the source audio.' })).toBe(true)
+    expect(
+      isAnnotationOnly({
+        title: 'T',
+        description: 'd',
+        default: 'en',
+        deprecated: true,
+        readOnly: true,
+        writeOnly: false,
+        example: 'en',
+        examples: ['en'],
+        externalDocs: { url: 'https://example.com' },
+        xml: { name: 'x' },
+        nullable: true,
+      }),
+    ).toBe(true)
+  })
+
+  it.concurrent('is false for a keyword that validates, a reference or an extension', () => {
+    expect(isAnnotationOnly({ description: 'd', type: 'string' })).toBe(false)
+    expect(isAnnotationOnly({ description: 'd', enum: ['en'] })).toBe(false)
+    expect(isAnnotationOnly({ $ref: '#/components/schemas/A' })).toBe(false)
+    expect(isAnnotationOnly({ description: 'd', 'x-brand': 'Id' })).toBe(false)
+  })
+
+  it.concurrent('is false for an empty schema', () => {
+    expect(isAnnotationOnly({})).toBe(false)
   })
 })

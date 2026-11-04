@@ -1134,6 +1134,53 @@ describe('zodToOpenAPI', () => {
           }),
         ).toBe('UserSchema.brand<"UserId">().openapi({"description":"branded"})')
       })
+      // #420: a member of annotations alone would be `z.any()`, and `X.and(z.any())` is `any`
+      it.concurrent('allOf: a description-only member says it of the reference, not of z.any()', () => {
+        expect(
+          zodToOpenAPI({
+            allOf: [
+              { $ref: '#/components/schemas/SourceLanguage' },
+              { description: 'Language of the source audio.' },
+            ],
+          }),
+        ).toBe('SourceLanguageSchema.openapi({"description":"Language of the source audio."})')
+      })
+      it.concurrent("allOf: the schema's own annotations come before a member's", () => {
+        expect(
+          zodToOpenAPI({
+            description: 'own',
+            allOf: [{ $ref: '#/components/schemas/A' }, { description: 'member', title: 'T' }],
+          }),
+        ).toBe('ASchema.openapi({"description":"own","title":"T"})')
+      })
+      it.concurrent('allOf: a description-only member beside two references keeps the intersection', () => {
+        expect(
+          zodToOpenAPI({
+            allOf: [
+              { $ref: '#/components/schemas/A' },
+              { $ref: '#/components/schemas/B' },
+              { description: 'both' },
+            ],
+          }),
+        ).toBe('ASchema.and(BSchema).openapi({"description":"both"})')
+      })
+      it.concurrent('allOf: members of annotations alone are z.any() with the annotations', () => {
+        expect(zodToOpenAPI({ allOf: [{ description: 'free' }] })).toBe(
+          'z.any().openapi({"description":"free"})',
+        )
+      })
+      it.concurrent('allOf: a nullable member with a description makes the reference nullable', () => {
+        expect(
+          zodToOpenAPI({
+            allOf: [{ $ref: '#/components/schemas/A' }, { nullable: true, description: 'maybe' }],
+          }),
+        ).toBe('ASchema.nullable().openapi({"description":"maybe"})')
+      })
+      it.concurrent('allOf: a default-only member is the default of the reference', () => {
+        expect(
+          zodToOpenAPI({ allOf: [{ $ref: '#/components/schemas/A' }, { default: 'en' }] }),
+        ).toBe('ASchema.default("en")')
+      })
       it.concurrent('allOf: GeoJsonObject + object with type enum (discriminator) + description/externalDocs', () => {
         const input: Schema = {
           description:

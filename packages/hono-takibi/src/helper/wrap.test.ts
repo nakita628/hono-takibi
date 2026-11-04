@@ -1314,6 +1314,70 @@ describe('filterUnsupportedProps (required coercion + nested boolean schemas)', 
     ).toBe('z.xor([A,B]).openapi({"discriminator":{"propertyName":"type"}})')
   })
 
+  // #419: a value of the wrong type does not type-check either (Revolut Business)
+  it.concurrent('leaves out a discriminator without propertyName', () => {
+    expect(
+      wrap('z.any()', {
+        discriminator: { mapping: { UK: '#/components/schemas/RequestUK' } },
+      }),
+    ).toBe('z.any()')
+  })
+
+  it.concurrent('writes only the string entries of a discriminator mapping', () => {
+    expect(
+      wrap('z.xor([A,B])', {
+        oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
+        discriminator: {
+          propertyName: 'type',
+          mapping: { a: '#/components/schemas/A', b: 1 },
+        },
+      } as unknown as Schema),
+    ).toBe(
+      'z.xor([A,B]).openapi({"discriminator":{"propertyName":"type","mapping":{"a":"#/components/schemas/A"}}})',
+    )
+  })
+
+  it.concurrent('leaves a minimum written as text out of param.schema', () => {
+    const schema = { type: 'string', minimum: "'created_at' - 21 days" } as unknown as Schema
+    expect(
+      wrap('z.string()', schema, {
+        parameters: { name: 'created_before', in: 'query', schema },
+      }),
+    ).toBe(
+      'z.string().exactOptional().openapi({param:{"name":"created_before","in":"query","schema":{"type":"string"},"required":false}})',
+    )
+  })
+
+  it.concurrent('leaves out Schema Object values of the wrong type, at every level', () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        n: {
+          type: 'integer',
+          maximum: '10',
+          exclusiveMinimum: 0,
+          deprecated: 'yes',
+          description: 'kept',
+        },
+      },
+      required: ['n'],
+      externalDocs: { description: 'no url' },
+      readOnly: 1,
+    } as unknown as Schema
+    expect(
+      wrap('z.looseObject({})', schema, { parameters: { name: 'f', in: 'header', schema } }),
+    ).toBe(
+      'z.looseObject({}).exactOptional().openapi({param:{"name":"f","in":"header","schema":{"type":"object","properties":{"n":{"type":"integer","exclusiveMinimum":0,"description":"kept"}},"required":["n"]},"required":false},"required":["n"]})',
+    )
+  })
+
+  it.concurrent('leaves out a type that names no Schema Object type', () => {
+    const schema = { type: 'date' } as unknown as Schema
+    expect(wrap('z.date()', schema, { parameters: { name: 'd', in: 'query', schema } })).toBe(
+      'z.date().exactOptional().openapi({param:{"name":"d","in":"query","schema":{},"required":false}})',
+    )
+  })
+
   // #398: a 3.0-style `examples` map on a schema is the list of its values
   it.concurrent('writes a map of examples as the list of their values', () => {
     expect(
