@@ -13,9 +13,13 @@
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^13.1.0",
+    "@faker-js/faker": "catalog:",
     "@guolao/vue-monaco-editor": "^1.6.0",
+    "@hono/zod-openapi": "catalog:",
     "@oxc-parser/binding-wasm32-wasip1": "catalog:",
+    "@oxc-transform/binding-wasm32-wasip1": "catalog:",
     "@playwright/test": "^1.64.1",
+    "@scalar/api-reference": "catalog:",
     "@tailwindcss/vite": "^4.3.4",
     "@types/node": "^26.6.6",
     "@typespec/bundler": "catalog:",
@@ -31,9 +35,12 @@
     "@typespec/streams": "catalog:",
     "@typespec/versioning": "catalog:",
     "@typespec/xml": "catalog:",
+    "hono": "catalog:",
     "hono-takibi": "workspace:*",
     "js-yaml": "^5.5.0",
     "monaco-editor": "0.57.0",
+    "oxc-parser": "catalog:",
+    "oxc-transform": "catalog:",
     "pathe": "^2.0.3",
     "prettier": "^3.9.10",
     "tailwindcss": "^4.3.4",
@@ -41,6 +48,7 @@
     "vitepress": "2.0.0-alpha.20",
     "vitepress-plugin-group-icons": "^1.8.1",
     "vue": "^3.5.44",
-    "wrangler": "catalog:"
+    "wrangler": "catalog:",
+    "zod": "catalog:"
   }
 }

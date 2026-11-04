@@ -9,6 +9,7 @@ export default defineConfig({
       'vite-plugin/index': './src/vite-plugin/index.ts',
       'generator/zod-openapi-hono/openapi/index':
         './src/generator/zod-openapi-hono/openapi/index.ts',
+      'generator/mock/index': './src/generator/mock/index.ts',
       'core/rpc/index': './src/core/rpc/index.ts',
       'core/hooks/index': './src/core/hooks/index.ts',
       'core/type/index': './src/core/type/index.ts',

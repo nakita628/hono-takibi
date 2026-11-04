@@ -17,6 +17,7 @@ import {
   TYPESPEC_COMPILE_FAILED_PREFIX,
   type TypeSpecMarker,
 } from '../lib'
+import MockReference from './MockReference.vue'
 const monacoRef = shallowRef<MonacoEditor | null>(null)
 const monacoReady = ref(false)
 const monacoSetup = { done: false }
@@ -87,6 +88,13 @@ const sampleName = ref(initialSample.name)
 const activeSample = computed(() => SAMPLES.find((s) => s.name === sampleName.value) ?? firstSample)
 const input = ref(decoded?.source ?? firstSample.source)
 const output = shallowRef('// Generating ...')
+// The last document that generated successfully; the Mock view runs its server.
+const openAPIDocument = shallowRef<{ readonly [key: string]: unknown } | null>(null)
+const VIEWS = [
+  { id: 'code', label: 'Code' },
+  { id: 'mock', label: 'Mock' },
+] as const
+const view = ref<(typeof VIEWS)[number]['id']>('code')
 const error = ref('')
 const errorIsHint = ref(false)
 const outputStale = ref(false)
@@ -99,6 +107,7 @@ async function run() {
   paintMarkers(result.markers)
   if (result.ok) {
     output.value = result.value
+    openAPIDocument.value = result.document
     error.value = ''
     errorIsHint.value = false
     outputStale.value = false
@@ -174,6 +183,27 @@ const outputOptions = { ...editorOptions, readOnly: true }
       >
         <option v-for="s in SAMPLES" :key="s.name" :value="s.name">{{ s.name }}</option>
       </select>
+      <div
+        class="pg-views flex overflow-hidden rounded-md border border-(--vp-c-divider)"
+        role="group"
+        aria-label="Output view"
+      >
+        <button
+          v-for="v in VIEWS"
+          :key="v.id"
+          class="pg-view px-3 py-1"
+          :class="
+            view === v.id
+              ? 'bg-(--vp-c-brand-soft) text-(--vp-c-brand-1)'
+              : 'bg-(--vp-c-bg-soft) text-(--vp-c-text-2) hover:text-(--vp-c-brand-1)'
+          "
+          type="button"
+          :aria-pressed="view === v.id"
+          @click="view = v.id"
+        >
+          {{ v.label }}
+        </button>
+      </div>
       <span class="flex-1" />
       <button
         class="pg-button rounded-md border border-(--vp-c-divider) bg-(--vp-c-bg-soft) px-3 py-1 text-(--vp-c-text-1) hover:border-(--vp-c-brand-1) hover:text-(--vp-c-brand-1)"
@@ -215,6 +245,7 @@ const outputOptions = { ...editorOptions, readOnly: true }
           >{{ error }}</div
         >
         <VueMonacoEditor
+          v-if="view === 'code'"
           :value="output"
           language="typescript"
           path="file:///output.ts"
@@ -222,6 +253,7 @@ const outputOptions = { ...editorOptions, readOnly: true }
           :options="outputOptions"
           @before-mount="setupMonaco"
         />
+        <MockReference v-else-if="openAPIDocument" :document="openAPIDocument" />
       </div>
     </div>
   </div>
