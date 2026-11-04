@@ -319,6 +319,22 @@ test.describe('Playground', () => {
     await expect(body).toHaveText(/"name":\s*"[^"]*[\u3040-\u30ff\u4e00-\u9fff]/)
   })
 
+  test('Mock view follows the site appearance while open', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light' })
+    await page.goto('/playground')
+    await expect(page.locator('.pg-pane').nth(1)).toContainText('welcome')
+    await page.locator('.pg-view', { hasText: 'Mock' }).click()
+    await expect(page.locator('.pg-scalar')).toContainText('Hono Takibi API')
+    // Scalar expresses its color mode as a class on <body>.
+    await expect(page.locator('body')).toHaveClass(/\blight-mode\b/)
+    await page.locator('.VPSwitchAppearance').click()
+    await expect(page.locator('html')).toHaveClass(/\bdark\b/)
+    await expect(page.locator('body')).toHaveClass(/\bdark-mode\b/)
+    await expect(page.locator('.pg-scalar')).toContainText('Hono Takibi API')
+    await page.locator('.VPSwitchAppearance').click()
+    await expect(page.locator('body')).toHaveClass(/\blight-mode\b/)
+  })
+
   test('Code view returns after the Mock view', async ({ page }) => {
     await page.goto('/playground')
     await expect(page.locator('.pg-pane').nth(1)).toContainText('welcome')

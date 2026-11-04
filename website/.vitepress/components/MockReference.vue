@@ -216,7 +216,12 @@ const configuration = computed<Configuration>(() => ({
       >{{ error }}</div
     >
     <div class="pg-scalar min-h-0 flex-1 overflow-auto">
-      <ApiReference :configuration="configuration" />
+      <!--
+        Scalar reads `forceDarkModeState` once, when it mounts, so a change of
+        the site's appearance remounts it; the mock server lives in this
+        component and is unaffected.
+      -->
+      <ApiReference :key="isDark ? 'dark' : 'light'" :configuration="configuration" />
     </div>
   </div>
 </template>
