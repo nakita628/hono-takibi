@@ -108,7 +108,9 @@ export async function generate(
   // function, so there is nothing left to catch around it.
   const { zodOpenAPIHono } = await import('hono-takibi/zod-openapi-hono')
   const formatted = await formatCode(zodOpenAPIHono(bundled.value as OpenAPI, options))
+  // The bundled document travels with the code: the Mock view generates and runs
+  // its server from this same document.
   return formatted.ok
-    ? ({ ok: true, value: formatted.value, markers } as const)
+    ? ({ ok: true, value: formatted.value, document: bundled.value, markers } as const)
     : ({ ok: false, error: formatted.error, markers } as const)
 }

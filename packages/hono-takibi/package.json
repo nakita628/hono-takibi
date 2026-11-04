@@ -37,6 +37,10 @@
       "types": "./dist/generator/zod-openapi-hono/openapi/index.d.ts",
       "import": "./dist/generator/zod-openapi-hono/openapi/index.js"
     },
+    "./mock": {
+      "types": "./dist/generator/mock/index.d.ts",
+      "import": "./dist/generator/mock/index.js"
+    },
     "./rpc": {
       "types": "./dist/core/rpc/index.d.ts",
       "import": "./dist/core/rpc/index.js"
