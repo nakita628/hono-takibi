@@ -62,20 +62,20 @@
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^13.1.0",
-    "@effect/platform-node": "4.0.6",
+    "@effect/platform-node": "4.1.2",
     "@typespec/compiler": "catalog:",
     "@typespec/openapi3": "catalog:",
-    "effect": "4.0.6",
+    "effect": "4.1.2",
     "oxc-parser": "catalog:",
-    "oxfmt": "^0.74.0"
+    "oxfmt": "^0.75.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
     "@hono/zod-openapi": "^1.6.3",
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "@typespec/http": "catalog:",
     "@typespec/rest": "catalog:",
-    "hono": "^4.13.13",
+    "hono": "^4.13.16",
     "typescript": "^7.0.2",
     "zod": "^4.6.7"
   }
