@@ -27,4 +27,4 @@ Pick another declared response with the `Prefer` header:
 curl -H 'Prefer: code=404' http://localhost:3000/orders/1
 ```
 
-Try it without installing anything: the [Playground](/playground)'s **Mock** view runs the generated server in your browser behind a [Scalar](https://scalar.com/) API reference, so every **Send** is answered by this code.
+Try it without installing anything: the [Playground](/playground)'s **Mock** view runs the generated server in your browser behind a [Scalar](https://scalar.com/) API reference, so every **Send** is answered by this code. The options above the reference are the ones of this `mock` config: `useExamples`, `locale`, `seed`, `delay`, `arrayMin` and `arrayMax`.

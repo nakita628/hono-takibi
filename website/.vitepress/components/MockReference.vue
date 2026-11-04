@@ -51,18 +51,19 @@ const delay = ref('')
 const arrayMin = ref('')
 const arrayMax = ref('')
 
-function toInteger(field: string) {
+// A number field as an option entry: `{}` when it is empty or not a count.
+function integerOption<K extends string>(key: K, field: string): { readonly [key in K]?: number } {
   const value = Number.parseInt(field, 10)
-  return Number.isNaN(value) || value < 0 ? undefined : value
+  return Number.isNaN(value) || value < 0 ? {} : { [key]: value }
 }
 
 const options = computed<MockOptions & { readonly locale?: MockLocale }>(() => ({
   useExamples: examples.value === 'true' ? true : examples.value === 'all' ? 'all' : false,
   ...(locale.value === 'en' ? {} : { locale: locale.value }),
-  ...(toInteger(seed.value) === undefined ? {} : { seed: toInteger(seed.value) }),
-  ...(toInteger(delay.value) === undefined ? {} : { delay: toInteger(delay.value) }),
-  ...(toInteger(arrayMin.value) === undefined ? {} : { arrayMin: toInteger(arrayMin.value) }),
-  ...(toInteger(arrayMax.value) === undefined ? {} : { arrayMax: toInteger(arrayMax.value) }),
+  ...integerOption('seed', seed.value),
+  ...integerOption('delay', delay.value),
+  ...integerOption('arrayMin', arrayMin.value),
+  ...integerOption('arrayMax', arrayMax.value),
 }))
 
 function selectLocale(event: Event) {
@@ -80,7 +81,7 @@ async function rebuild([source, mockOptions]: readonly [
   build.generation += 1
   const generation = build.generation
   building.value = true
-  const result = await createMockServer(source, mockOptions)
+  const result = await createMockServer(source, mockOptions, server.value)
   if (generation !== build.generation) return
   building.value = false
   if (result.ok) {
@@ -111,7 +112,9 @@ async function customFetch(input: string | URL | Request, init?: RequestInit) {
 }
 
 const configuration = computed<Configuration>(() => ({
-  content: props.document,
+  // Scalar annotates the document it is given (its selected server, for one);
+  // a copy keeps those marks out of the document the generator reads.
+  content: structuredClone(props.document),
   servers: [{ url: MOCK_SERVER_URL, description: 'hono-takibi mock (answered in this page)' }],
   customFetch,
   proxyUrl: '',

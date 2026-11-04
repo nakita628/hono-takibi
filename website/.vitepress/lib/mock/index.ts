@@ -175,6 +175,7 @@ async function instantiate(module: string, runtime: object) {
 export async function createMockServer(
   document: OpenAPI,
   options: MockOptions & { readonly locale?: MockLocale } = {},
+  previous: MockServer | null = null,
 ) {
   try {
     const [{ makeMock }, runtime] = await Promise.all([
@@ -182,6 +183,10 @@ export async function createMockServer(
       loadRuntime(options.locale),
     ])
     const code = makeMock(document, '', options)
+    // An edit that leaves the generated module unchanged (a description, say)
+    // keeps the server that already runs it: every blob module loaded stays in
+    // memory for the life of the page, so none is loaded for nothing.
+    if (previous?.code === code) return { ok: true, value: previous } as const
     const app = await instantiate(await compileModule(code), runtime)
     const server: MockServer = {
       code,
