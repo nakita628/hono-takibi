@@ -1,12 +1,16 @@
 import { describe, expect, it } from 'vite-plus/test'
 
 import {
+  fileMimeTypes,
+  hasMimeAlternatives,
   hasNoContentResponse,
   hasNotProperty,
   hasNoUserChain,
   hasNumericConstraint,
   hasRequestBodyContent,
   hasTypelessConstraint,
+  isAnnotationOnly,
+  isBinaryFile,
   isContentBody,
   isDiscriminableBranch,
   isExamplesInput,
@@ -906,5 +910,101 @@ describe('isInheritedName', () => {
   it.concurrent('is false for any other name', () => {
     expect(isInheritedName({ name: 'page', in: 'query' })).toBe(false)
     expect(isInheritedName({ name: 'x-request-id', in: 'header' })).toBe(false)
+  })
+})
+
+// A `z.file()` as `z.toJSONSchema()` writes it: `format: binary` beside `contentEncoding:
+// binary`, the size as `minLength` / `maxLength`, the MIME types as `contentMediaType` or
+// an `anyOf` of them.
+describe('isBinaryFile', () => {
+  it.concurrent('is true for a binary string, with or without content keywords', () => {
+    expect(isBinaryFile({ type: 'string', format: 'binary' })).toBe(true)
+    expect(isBinaryFile({ type: 'string', format: 'binary', contentEncoding: 'binary' })).toBe(true)
+    expect(isBinaryFile({ type: 'string', format: 'binary', contentMediaType: 'image/png' })).toBe(
+      true,
+    )
+    expect(isBinaryFile({ type: ['string', 'null'], format: 'binary' })).toBe(true)
+  })
+
+  it.concurrent('is false for encoded text, a decoded content schema or a codec', () => {
+    expect(isBinaryFile({ type: 'string', format: 'binary', contentEncoding: 'base64' })).toBe(
+      false,
+    )
+    expect(
+      isBinaryFile({ type: 'string', format: 'binary', contentSchema: { type: 'object' } }),
+    ).toBe(false)
+    expect(isBinaryFile({ type: 'string', format: 'binary', 'x-codec': 'z.codec()' })).toBe(false)
+    expect(isBinaryFile({ type: 'string', format: 'byte' })).toBe(false)
+    expect(isBinaryFile({ type: 'integer', format: 'binary' })).toBe(false)
+  })
+})
+
+describe('fileMimeTypes', () => {
+  it.concurrent('reads one type from contentMediaType and several from anyOf', () => {
+    expect(fileMimeTypes({ type: 'string', format: 'binary' })).toBeUndefined()
+    expect(
+      fileMimeTypes({ type: 'string', format: 'binary', contentMediaType: 'image/png' }),
+    ).toStrictEqual(['image/png'])
+    expect(
+      fileMimeTypes({
+        type: 'string',
+        format: 'binary',
+        anyOf: [{ contentMediaType: 'image/png' }, { contentMediaType: 'image/jpeg' }],
+      }),
+    ).toStrictEqual(['image/png', 'image/jpeg'])
+    expect(
+      fileMimeTypes({
+        type: 'string',
+        format: 'binary',
+        contentMediaType: 'image/png',
+        anyOf: [{ contentMediaType: 'image/png' }, { contentMediaType: 'image/gif' }],
+      }),
+    ).toStrictEqual(['image/png', 'image/gif'])
+  })
+
+  it.concurrent('ignores an anyOf whose members are more than a MIME type', () => {
+    expect(
+      hasMimeAlternatives({
+        anyOf: [{ contentMediaType: 'image/png' }, { contentMediaType: 'image/gif', minLength: 1 }],
+      }),
+    ).toBe(false)
+    expect(hasMimeAlternatives({ anyOf: [{ type: 'string' }] })).toBe(false)
+    expect(hasMimeAlternatives({ anyOf: [] })).toBe(false)
+    expect(
+      fileMimeTypes({ type: 'string', format: 'binary', anyOf: [{ type: 'string' }] }),
+    ).toBeUndefined()
+  })
+})
+
+// #420: an `allOf` member of annotations alone validates nothing
+describe('isAnnotationOnly', () => {
+  it.concurrent('is true for a schema of annotations alone', () => {
+    expect(isAnnotationOnly({ description: 'Language of the source audio.' })).toBe(true)
+    expect(
+      isAnnotationOnly({
+        title: 'T',
+        description: 'd',
+        default: 'en',
+        deprecated: true,
+        readOnly: true,
+        writeOnly: false,
+        example: 'en',
+        examples: ['en'],
+        externalDocs: { url: 'https://example.com' },
+        xml: { name: 'x' },
+        nullable: true,
+      }),
+    ).toBe(true)
+  })
+
+  it.concurrent('is false for a keyword that validates, a reference or an extension', () => {
+    expect(isAnnotationOnly({ description: 'd', type: 'string' })).toBe(false)
+    expect(isAnnotationOnly({ description: 'd', enum: ['en'] })).toBe(false)
+    expect(isAnnotationOnly({ $ref: '#/components/schemas/A' })).toBe(false)
+    expect(isAnnotationOnly({ description: 'd', 'x-brand': 'Id' })).toBe(false)
+  })
+
+  it.concurrent('is false for an empty schema', () => {
+    expect(isAnnotationOnly({})).toBe(false)
   })
 })

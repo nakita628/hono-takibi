@@ -1134,6 +1134,53 @@ describe('zodToOpenAPI', () => {
           }),
         ).toBe('UserSchema.brand<"UserId">().openapi({"description":"branded"})')
       })
+      // #420: a member of annotations alone would be `z.any()`, and `X.and(z.any())` is `any`
+      it.concurrent('allOf: a description-only member says it of the reference, not of z.any()', () => {
+        expect(
+          zodToOpenAPI({
+            allOf: [
+              { $ref: '#/components/schemas/SourceLanguage' },
+              { description: 'Language of the source audio.' },
+            ],
+          }),
+        ).toBe('SourceLanguageSchema.openapi({"description":"Language of the source audio."})')
+      })
+      it.concurrent("allOf: the schema's own annotations come before a member's", () => {
+        expect(
+          zodToOpenAPI({
+            description: 'own',
+            allOf: [{ $ref: '#/components/schemas/A' }, { description: 'member', title: 'T' }],
+          }),
+        ).toBe('ASchema.openapi({"description":"own","title":"T"})')
+      })
+      it.concurrent('allOf: a description-only member beside two references keeps the intersection', () => {
+        expect(
+          zodToOpenAPI({
+            allOf: [
+              { $ref: '#/components/schemas/A' },
+              { $ref: '#/components/schemas/B' },
+              { description: 'both' },
+            ],
+          }),
+        ).toBe('ASchema.and(BSchema).openapi({"description":"both"})')
+      })
+      it.concurrent('allOf: members of annotations alone are z.any() with the annotations', () => {
+        expect(zodToOpenAPI({ allOf: [{ description: 'free' }] })).toBe(
+          'z.any().openapi({"description":"free"})',
+        )
+      })
+      it.concurrent('allOf: a nullable member with a description makes the reference nullable', () => {
+        expect(
+          zodToOpenAPI({
+            allOf: [{ $ref: '#/components/schemas/A' }, { nullable: true, description: 'maybe' }],
+          }),
+        ).toBe('ASchema.nullable().openapi({"description":"maybe"})')
+      })
+      it.concurrent('allOf: a default-only member is the default of the reference', () => {
+        expect(
+          zodToOpenAPI({ allOf: [{ $ref: '#/components/schemas/A' }, { default: 'en' }] }),
+        ).toBe('ASchema.default("en")')
+      })
       it.concurrent('allOf: GeoJsonObject + object with type enum (discriminator) + description/externalDocs', () => {
         const input: Schema = {
           description:
@@ -2995,6 +3042,48 @@ describe('zodToOpenAPI', () => {
         }
       })
 
+      // A `z.file()` as `z.toJSONSchema()` writes it comes back as the same `z.file()`, and
+      // the document states what the chain checks.
+      it.concurrent('string format: binary with size and MIME type → z.file().min().max().mime(), all stated', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'string',
+            format: 'binary',
+            contentEncoding: 'binary',
+            minLength: 1,
+            maxLength: 1_048_576,
+            contentMediaType: 'image/png',
+          }),
+        ).toBe(
+          'z.file().min(1).max(1048576).mime("image/png").openapi({type:"string",format:"binary",minLength:1,maxLength:1048576,anyOf:[{"contentMediaType":"image/png"}]})',
+        )
+        const runtime = z.file().min(1).max(1_048_576).mime('image/png')
+        expect(runtime.safeParse(new File(['x'], 'a.png', { type: 'image/png' })).success).toBe(
+          true,
+        )
+        expect(runtime.safeParse(new File(['x'], 'a.txt', { type: 'text/plain' })).success).toBe(
+          false,
+        )
+        expect(runtime.safeParse(new File([], 'a.png', { type: 'image/png' })).success).toBe(false)
+      })
+      it.concurrent('string format: binary with an anyOf of MIME types → z.file().mime([...])', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'string',
+            format: 'binary',
+            anyOf: [{ contentMediaType: 'image/png' }, { contentMediaType: 'image/jpeg' }],
+          }),
+        ).toBe(
+          'z.file().mime(["image/png","image/jpeg"]).openapi({type:"string",format:"binary",anyOf:[{"contentMediaType":"image/png"},{"contentMediaType":"image/jpeg"}]})',
+        )
+        const runtime = z.file().mime(['image/png', 'image/jpeg'])
+        expect(runtime.safeParse(new File(['x'], 'a.jpg', { type: 'image/jpeg' })).success).toBe(
+          true,
+        )
+        expect(runtime.safeParse(new File(['x'], 'a.gif', { type: 'image/gif' })).success).toBe(
+          false,
+        )
+      })
       it.concurrent('string format: binary → z.file().openapi({type,format}) (rejects non-File "plain string"; valid File omitted for Node test env)', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'binary' })).toBe(
           'z.file().openapi({type:"string",format:"binary"})',

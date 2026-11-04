@@ -945,6 +945,39 @@ describe('string pattern with unicode property escapes (/u flag)', () => {
 
   // #413: `z.file()` has no `.regex()`; `maxLength` is the size of the file
   describe('format: binary', () => {
+    // What `z.toJSONSchema()` writes for `z.file().min(1).max(1048576).mime("image/png")`
+    it.concurrent('reads the size and the MIME type of a file as Zod writes them', () => {
+      expect(
+        string({
+          type: 'string',
+          format: 'binary',
+          contentEncoding: 'binary',
+          minLength: 1,
+          maxLength: 1_048_576,
+          contentMediaType: 'image/png',
+        }),
+      ).toBe('z.file().min(1).max(1048576).mime("image/png")')
+      expect(string({ type: 'string', format: 'binary', contentEncoding: 'binary' })).toBe(
+        'z.file()',
+      )
+    })
+    it.concurrent('reads several MIME types from an anyOf of them, with a message', () => {
+      expect(
+        string({
+          type: 'string',
+          format: 'binary',
+          anyOf: [{ contentMediaType: 'image/png' }, { contentMediaType: 'image/jpeg' }],
+        }),
+      ).toBe('z.file().mime(["image/png","image/jpeg"])')
+      expect(
+        string({
+          type: 'string',
+          format: 'binary',
+          contentMediaType: 'application/pdf',
+          'x-contentMediaType-message': 'PDF only',
+        }),
+      ).toBe('z.file().mime("application/pdf",{error:"PDF only"})')
+    })
     it.concurrent('skips a pattern and keeps the length bound', () => {
       expect(string({ type: 'string', format: 'binary', pattern: '^.{1,5}', maxLength: 5 })).toBe(
         'z.file().max(5)',

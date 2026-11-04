@@ -77,6 +77,34 @@ export function isRefOnly(s: Schema) {
 }
 
 /**
+ * The keywords that say something about a value without constraining it: the JSON Schema
+ * 2020-12 §9 annotations, OpenAPI's own (`example`, `externalDocs`, `xml`) and `nullable`,
+ * which the caller reads as `null` being allowed. An `allOf` member of these alone describes
+ * the intersection and validates nothing: emitted as a schema it is `z.any()`, and
+ * `X.and(z.any())` is `any` (#420).
+ */
+const ANNOTATION_KEYWORDS = new Set([
+  'title',
+  'description',
+  'default',
+  'deprecated',
+  'readOnly',
+  'writeOnly',
+  'example',
+  'examples',
+  'externalDocs',
+  'xml',
+  '$comment',
+  'nullable',
+])
+
+/** Whether a schema carries annotations alone: no type, and no keyword that validates. */
+export function isAnnotationOnly(schema: Schema) {
+  const keys = Object.keys(schema)
+  return keys.length > 0 && keys.every((key) => ANNOTATION_KEYWORDS.has(key))
+}
+
+/**
  * OpenAPI 3.2 §4.25: `discriminator` "MUST NOT change the validation outcome of the
  * schema". A branch can therefore be routed by key only when the key alone already
  * decides it: a bare object head that requires the discriminating property and pins it
@@ -336,13 +364,45 @@ export function isUntypedObject(schema: Schema) {
  */
 export function isBinaryFile(schema: Schema) {
   const types = Array.isArray(schema.type) ? schema.type : [schema.type]
+  // `contentEncoding: binary` says what `format: binary` says, and `contentMediaType` is
+  // the type the file has: both are what `z.toJSONSchema()` writes for a `z.file()`. An
+  // encoding that makes the value text (`base64`) or a `contentSchema` to decode into is
+  // not a file.
   return (
     schema.format === 'binary' &&
     types.includes('string') &&
-    schema.contentEncoding === undefined &&
-    schema.contentMediaType === undefined &&
+    (schema.contentEncoding === undefined || schema.contentEncoding === 'binary') &&
     schema.contentSchema === undefined &&
     schema['x-codec'] === undefined
+  )
+}
+
+/**
+ * The MIME types a file is restricted to, what `z.file().mime()` takes: its
+ * `contentMediaType`, and the ones an `anyOf` of members that each name one carries, which
+ * is how `z.toJSONSchema()` writes `.mime([...])`. `undefined` when the schema names none.
+ */
+export function fileMimeTypes(schema: Schema): readonly string[] | undefined {
+  const own = schema.contentMediaType === undefined ? [] : [schema.contentMediaType]
+  const listed = hasMimeAlternatives(schema)
+    ? schema.anyOf.flatMap((member) =>
+        typeof member.contentMediaType === 'string' ? [member.contentMediaType] : [],
+      )
+    : []
+  const types = [...new Set([...own, ...listed])]
+  return types.length > 0 ? types : undefined
+}
+
+/** Whether a schema's `anyOf` is a list of MIME types alone: `[{contentMediaType}, ...]`. */
+export function hasMimeAlternatives(
+  schema: Schema,
+): schema is Schema & { readonly anyOf: readonly Schema[] } {
+  return (
+    schema.anyOf !== undefined &&
+    schema.anyOf.length > 0 &&
+    schema.anyOf.every(
+      (member) => typeof member.contentMediaType === 'string' && Object.keys(member).length === 1,
+    )
   )
 }
 

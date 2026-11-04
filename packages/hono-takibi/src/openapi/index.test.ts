@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import net from 'node:net'
 import os from 'node:os'
 import path from 'node:path'
 
@@ -6,7 +7,7 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { runGenerator, runGeneratorError } from '../testing/index.js'
-import { parseOpenAPI } from './index.js'
+import { CONNECT_ATTEMPT_TIMEOUT_MS, parseOpenAPI } from './index.js'
 
 describe('parseOpenAPI', () => {
   it('includes the resolver error code when a download has no reason text', async () => {
@@ -121,6 +122,108 @@ describe('parseOpenAPI', () => {
   it.concurrent('should return err for a document that does not exist', async () => {
     const result = await runGeneratorError(parseOpenAPI('not-yaml-nor-json.yaml'))
     expect(typeof result.message).toBe('string')
+  })
+
+  // #395: with IPv6 unreachable, an IPv4 handshake slower than Node's 250 ms attempt timeout
+  // ended the download in ETIMEDOUT where curl succeeds
+  it('gives a connection attempt two seconds while bundling, then puts the default back', async () => {
+    const previous = net.getDefaultAutoSelectFamilyAttemptTimeout()
+    const document = { openapi: '3.0.0', info: { title: 't', version: '1' }, paths: {} }
+    const seen: number[] = []
+    const bundle = vi.spyOn(SwaggerParser, 'bundle').mockImplementationOnce(() => {
+      seen.push(net.getDefaultAutoSelectFamilyAttemptTimeout())
+      return Promise.resolve(document)
+    })
+    try {
+      await expect(runGenerator(parseOpenAPI('https://example.com/openapi.yaml'))).resolves.toBe(
+        document,
+      )
+      expect(seen).toStrictEqual([Math.max(previous, CONNECT_ATTEMPT_TIMEOUT_MS)])
+      expect(net.getDefaultAutoSelectFamilyAttemptTimeout()).toBe(previous)
+    } finally {
+      bundle.mockRestore()
+    }
+  })
+
+  it('puts the attempt timeout default back when bundling fails', async () => {
+    const previous = net.getDefaultAutoSelectFamilyAttemptTimeout()
+    const bundle = vi
+      .spyOn(SwaggerParser, 'bundle')
+      .mockRejectedValueOnce(new Error('Error downloading https://example.com/openapi.yaml: '))
+    try {
+      await runGeneratorError(parseOpenAPI('https://example.com/openapi.yaml'))
+      expect(net.getDefaultAutoSelectFamilyAttemptTimeout()).toBe(previous)
+    } finally {
+      bundle.mockRestore()
+    }
+  })
+
+  // #417: OpenAPI 3.1 asks for one of `paths`, `components` and `webhooks`
+  it.concurrent('reads a 3.1 document of components alone, with an empty paths', async () => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-openapi-'))
+    const input = `${directory}/openapi.yaml` as const
+    fs.writeFileSync(
+      input,
+      [
+        'openapi: 3.1.0',
+        'info: { title: Shared schemas, version: 1.0.0 }',
+        'components:',
+        '  schemas:',
+        '    Money:',
+        '      type: object',
+        '      required: [amount, currency]',
+        '      properties:',
+        '        amount: { type: integer }',
+        '        currency: { $ref: "#/components/schemas/Currency" }',
+        '    Currency:',
+        '      type: string',
+        '',
+      ].join('\n'),
+    )
+    try {
+      const document = await runGenerator(parseOpenAPI(input))
+      expect(document.paths).toStrictEqual({})
+      expect(document.components?.schemas).toStrictEqual({
+        Money: {
+          type: 'object',
+          required: ['amount', 'currency'],
+          properties: {
+            amount: { type: 'integer' },
+            currency: { $ref: '#/components/schemas/Currency' },
+          },
+        },
+        Currency: { type: 'string' },
+      })
+    } finally {
+      fs.rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
+  it.concurrent('still rejects a 3.1 document with neither paths, webhooks nor components', async () => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-openapi-'))
+    const input = `${directory}/openapi.yaml` as const
+    fs.writeFileSync(input, 'openapi: 3.1.0\ninfo: { title: Nothing, version: 1.0.0 }\n')
+    try {
+      const error = await runGeneratorError(parseOpenAPI(input))
+      expect(error.message).toBe(`${input} is not a valid Openapi API definition`)
+    } finally {
+      fs.rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
+  it.concurrent('still rejects a 3.0 document of components alone, which needs paths', async () => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-openapi-'))
+    const input = `${directory}/openapi.yaml` as const
+    fs.writeFileSync(
+      input,
+      'openapi: 3.0.3\ninfo: { title: Shared schemas, version: 1.0.0 }\ncomponents:\n  schemas:\n    Money: { type: object }\n',
+    )
+    try {
+      const error = await runGeneratorError(parseOpenAPI(input))
+      expect(error.message).toBe(`${input} is not a valid Openapi API definition`)
+    } finally {
+      fs.rmSync(directory, { recursive: true, force: true })
+    }
   })
 })
 

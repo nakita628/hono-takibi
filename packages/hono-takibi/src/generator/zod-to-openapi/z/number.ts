@@ -36,8 +36,10 @@ export function number(schema: Schema) {
     exclusiveArg: exMinErrorArg,
     exclusivePart: exMinErrorPart,
   } = makeBoundErrorArgs(schema, 'minimum', errorMessage)
+  // A bound written as text (`minimum: "'created_at' - 21 days"`, Revolut) is no number to
+  // compare with: left out here, it stays out of the document too (#419).
   const minimum = (() => {
-    if (schema.minimum !== undefined) {
+    if (typeof schema.minimum === 'number') {
       if (schema.minimum === 0 && schema.exclusiveMinimum === true) {
         return `.positive(${exMinErrorArg})`
       }
@@ -61,7 +63,7 @@ export function number(schema: Schema) {
     exclusivePart: exMaxErrorPart,
   } = makeBoundErrorArgs(schema, 'maximum', errorMessage)
   const maximum = (() => {
-    if (schema.maximum !== undefined) {
+    if (typeof schema.maximum === 'number') {
       if (schema.maximum === 0 && schema.exclusiveMaximum === true) {
         return `.negative(${exMaxErrorArg})`
       }
@@ -83,7 +85,7 @@ export function number(schema: Schema) {
   const multipleOfMessage = schema['x-multipleOf-message'] ?? errorMessage
   const multipleOfErrorArg = multipleOfMessage ? `,${error(multipleOfMessage)}` : ''
   const multipleOf =
-    schema.multipleOf !== undefined
+    typeof schema.multipleOf === 'number'
       ? `.multipleOf(${schema.multipleOf}${multipleOfErrorArg})`
       : undefined
   const innerChain = [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')

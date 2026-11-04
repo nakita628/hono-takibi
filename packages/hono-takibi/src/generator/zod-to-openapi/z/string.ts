@@ -1,5 +1,5 @@
 import { OCTET_STREAM_MEDIA_TYPE } from '../../../constants/index.js'
-import { isBinaryFile, isOffsetTime } from '../../../guard/index.js'
+import { fileMimeTypes, isBinaryFile, isOffsetTime } from '../../../guard/index.js'
 import type { Schema } from '../../../openapi/index.js'
 import { baseError, error, escapeRegexLiteral, regexLiteral } from '../../../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
@@ -171,10 +171,16 @@ export function string(
 
   // Decodes the encoded payload, optionally JSON-parses it, then validates
   // against contentSchema. Generates: z.<base>().transform((s) => decoded).pipe(z.<contentSchema>())
+  // A file's `contentEncoding: binary` and `contentMediaType` describe the file, not text
+  // to decode: `z.file()` takes them as `.mime()` below.
   const enc = schema.contentEncoding
   const mediaType = schema.contentMediaType
   const contentSchema = schema.contentSchema
-  if ((enc !== undefined || mediaType !== undefined || contentSchema !== undefined) && !hashBase) {
+  if (
+    (enc !== undefined || mediaType !== undefined || contentSchema !== undefined) &&
+    !hashBase &&
+    !isBinaryFile(schema)
+  ) {
     const baseStr = (() => {
       if (enc === 'base64') return 'z.base64()'
       if (enc === 'base64url') return 'z.base64url()'
@@ -331,6 +337,15 @@ export function string(
     schema.minLength !== undefined &&
     schema.maxLength !== undefined &&
     schema.minLength === schema.maxLength
+  // `z.file().mime()`: the type the file has (`contentMediaType`), or the ones an `anyOf`
+  // of such members lists, which is how `z.toJSONSchema()` writes `.mime([...])`.
+  const mimeTypes = isBinaryFile(schema) ? fileMimeTypes(schema) : undefined
+  const mimeMessage = schema['x-contentMediaType-message'] ?? errorMessage
+  const mimeMessagePart = mimeMessage ? `,${error(mimeMessage)}` : ''
+  const mime =
+    mimeTypes === undefined
+      ? undefined
+      : `.mime(${JSON.stringify(mimeTypes.length === 1 ? mimeTypes[0] : mimeTypes)}${mimeMessagePart})`
   // P2 string substring checks. Each carries the original plain string so the
   // round-trip to Zod preserves the user's literal (not a regex-escaped pattern).
   const includes =
@@ -369,6 +384,7 @@ export function string(
     !isFixedLength && schema.maxLength !== undefined
       ? `.max(${schema.maxLength}${maxLengthMessagePart})`
       : undefined,
+    mime,
     includes,
     startsWith,
     endsWith,
