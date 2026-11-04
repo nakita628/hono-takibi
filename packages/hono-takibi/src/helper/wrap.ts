@@ -1,4 +1,5 @@
 import {
+  fileMimeTypes,
   hasNoUserChain,
   isBinaryFile,
   isExamplesInput,
@@ -256,6 +257,7 @@ const zodExpressedProps = new Set([
   'x-dependentSchemas-message',
   'x-minLength-message',
   'x-maxLength-message',
+  'x-contentMediaType-message',
   'x-minItems-message',
   'x-maxItems-message',
   'x-minProperties-message',
@@ -799,8 +801,25 @@ export function wrap(
     openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
       ? openapiSchema.slice(1, -1)
       : openapiSchema
+  // What `.min()`, `.max()` and `.mime()` check is stated too, since the document derives
+  // none of it from a `z.file()`: the size as `minLength` and `maxLength`, the MIME types as
+  // an `anyOf` of `contentMediaType` members, the way `z.toJSONSchema()` writes a list of
+  // them. `contentMediaType` and `contentEncoding` at the top would not type-check: the
+  // argument of `.openapi()` has the keys the 3.0 and 3.1 Schema Objects share, and those two
+  // are 3.1's alone (`contentEncoding: binary` says what `format: binary` says anyway).
+  const fileMimes = isFile ? fileMimeTypes(schema) : undefined
   const fileMetaProps = isFile
-    ? [isNullable ? 'type:["string","null"]' : 'type:"string"', 'format:"binary"']
+    ? [
+        isNullable ? 'type:["string","null"]' : 'type:"string"',
+        'format:"binary"',
+        ...(typeof schema.minLength === 'number' ? [`minLength:${schema.minLength}`] : []),
+        ...(typeof schema.maxLength === 'number' ? [`maxLength:${schema.maxLength}`] : []),
+        ...(fileMimes === undefined
+          ? []
+          : [
+              `anyOf:${JSON.stringify(fileMimes.map((contentMediaType) => ({ contentMediaType })))}`,
+            ]),
+      ]
     : []
   // A `time` that may carry an offset is emitted as a string matched against a pattern,
   // which the document would describe as a pattern alone. What the source declares is a

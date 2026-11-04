@@ -708,6 +708,20 @@ describe('makeTypeString array items edge cases', () => {
       expect(
         makeTypeString(
           {
+            type: 'string',
+            format: 'binary',
+            contentEncoding: 'binary',
+            contentMediaType: 'image/png',
+          },
+          'T',
+        ),
+      ).toBe('File')
+      expect(
+        makeTypeString({ type: 'string', format: 'binary', contentEncoding: 'base64' }, 'T'),
+      ).toBe('string')
+      expect(
+        makeTypeString(
+          {
             oneOf: [
               { type: 'string', format: 'binary' },
               { type: 'string', format: 'uri' },

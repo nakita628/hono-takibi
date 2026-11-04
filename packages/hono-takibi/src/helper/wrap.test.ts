@@ -326,6 +326,32 @@ describe('wrap', () => {
   })
 
   describe('file', () => {
+    // `contentMediaType` and `contentEncoding` are keys of the 3.1 Schema Object alone, which
+    // the argument of `.openapi()` has not: the MIME types are an `anyOf` of them.
+    it.concurrent('states the size and the MIME types of a file', () => {
+      expect(
+        wrap('z.file().min(1).max(2).mime("image/png")', {
+          type: 'string',
+          format: 'binary',
+          contentEncoding: 'binary',
+          minLength: 1,
+          maxLength: 2,
+          contentMediaType: 'image/png',
+        }),
+      ).toBe(
+        'z.file().min(1).max(2).mime("image/png").openapi({type:"string",format:"binary",minLength:1,maxLength:2,anyOf:[{"contentMediaType":"image/png"}]})',
+      )
+      expect(
+        wrap('z.file().mime(["a/b","c/d"])', {
+          type: 'string',
+          format: 'binary',
+          anyOf: [{ contentMediaType: 'a/b' }, { contentMediaType: 'c/d' }],
+        }),
+      ).toBe(
+        'z.file().mime(["a/b","c/d"]).openapi({type:"string",format:"binary",anyOf:[{"contentMediaType":"a/b"},{"contentMediaType":"c/d"}]})',
+      )
+    })
+
     it.concurrent('re-surfaces type/format so z.file() survives getOpenAPIDocument()', () => {
       expect(wrap('z.file()', { type: 'string', format: 'binary' })).toBe(
         'z.file().openapi({type:"string",format:"binary"})',

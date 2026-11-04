@@ -608,6 +608,7 @@ export type Schema = {
   readonly 'x-enum-message'?: string
   readonly 'x-minLength-message'?: string // string minLength
   readonly 'x-maxLength-message'?: string // string maxLength
+  readonly 'x-contentMediaType-message'?: string // file mime
   readonly 'x-minItems-message'?: string // array minItems
   readonly 'x-maxItems-message'?: string // array maxItems
   readonly 'x-minProperties-message'?: string // object minProperties

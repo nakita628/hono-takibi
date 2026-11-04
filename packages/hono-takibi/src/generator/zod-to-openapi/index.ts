@@ -1,7 +1,9 @@
 import { ARROW_FUNCTION_PATTERN } from '../../constants/index.js'
 import {
+  hasMimeAlternatives,
   hasTypelessConstraint,
   isAnnotationOnly,
+  isBinaryFile,
   isRefOnly,
   isSchemaArray,
   isSingleSchema,
@@ -272,7 +274,10 @@ export function zodToOpenAPI(
     // One reference and nothing to intersect it with: what is emitted is the component.
     return done(z, emitted, schemas.length === 1 && members.every(isRefOnly))
   }
-  if (schema.anyOf !== undefined) {
+  // `z.toJSONSchema()` writes `z.file().mime([...])` as an `anyOf` of `contentMediaType`
+  // members under the file: those are the types the file may have, which the string
+  // emitter reads, not branches to choose between.
+  if (schema.anyOf !== undefined && !(isBinaryFile(schema) && hasMimeAlternatives(schema))) {
     if (schema.anyOf.length === 0) return done('z.any()', schema)
     // `discriminator` is not consulted here on purpose. anyOf means "at least one
     // branch matches" (JSON Schema §10.2.1.2), and `z.union` already is exactly

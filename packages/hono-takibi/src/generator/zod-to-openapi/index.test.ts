@@ -3042,6 +3042,48 @@ describe('zodToOpenAPI', () => {
         }
       })
 
+      // A `z.file()` as `z.toJSONSchema()` writes it comes back as the same `z.file()`, and
+      // the document states what the chain checks.
+      it.concurrent('string format: binary with size and MIME type → z.file().min().max().mime(), all stated', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'string',
+            format: 'binary',
+            contentEncoding: 'binary',
+            minLength: 1,
+            maxLength: 1_048_576,
+            contentMediaType: 'image/png',
+          }),
+        ).toBe(
+          'z.file().min(1).max(1048576).mime("image/png").openapi({type:"string",format:"binary",minLength:1,maxLength:1048576,anyOf:[{"contentMediaType":"image/png"}]})',
+        )
+        const runtime = z.file().min(1).max(1_048_576).mime('image/png')
+        expect(runtime.safeParse(new File(['x'], 'a.png', { type: 'image/png' })).success).toBe(
+          true,
+        )
+        expect(runtime.safeParse(new File(['x'], 'a.txt', { type: 'text/plain' })).success).toBe(
+          false,
+        )
+        expect(runtime.safeParse(new File([], 'a.png', { type: 'image/png' })).success).toBe(false)
+      })
+      it.concurrent('string format: binary with an anyOf of MIME types → z.file().mime([...])', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'string',
+            format: 'binary',
+            anyOf: [{ contentMediaType: 'image/png' }, { contentMediaType: 'image/jpeg' }],
+          }),
+        ).toBe(
+          'z.file().mime(["image/png","image/jpeg"]).openapi({type:"string",format:"binary",anyOf:[{"contentMediaType":"image/png"},{"contentMediaType":"image/jpeg"}]})',
+        )
+        const runtime = z.file().mime(['image/png', 'image/jpeg'])
+        expect(runtime.safeParse(new File(['x'], 'a.jpg', { type: 'image/jpeg' })).success).toBe(
+          true,
+        )
+        expect(runtime.safeParse(new File(['x'], 'a.gif', { type: 'image/gif' })).success).toBe(
+          false,
+        )
+      })
       it.concurrent('string format: binary → z.file().openapi({type,format}) (rejects non-File "plain string"; valid File omitted for Node test env)', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'binary' })).toBe(
           'z.file().openapi({type:"string",format:"binary"})',
