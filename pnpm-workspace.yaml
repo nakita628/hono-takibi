@@ -46,7 +46,7 @@ overrides:
   # 'initWorker')" and the playground never generates. 1.2.5 is the last release written for
   # alpha.6; drop this once the binding moves its emnapi pins to a beta the runtime matches.
   '@oxc-parser/binding-wasm32-wasip1>@napi-rs/wasm-runtime': 1.2.6
-  '@oxc-transform/binding-wasm32-wasip1>@napi-rs/wasm-runtime': 1.2.5
+  '@oxc-transform/binding-wasm32-wasip1>@napi-rs/wasm-runtime': 1.2.6
 allowBuilds:
   # Telemetry postinstall pulled in through @typespec/playground -> swagger-ui-dist;
   # nothing to build, so it never runs.
