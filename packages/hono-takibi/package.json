@@ -74,13 +74,13 @@
     "oxfmt": "^0.75.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^10.6.0",
-    "@hono/zod-openapi": "^1.6.3",
-    "@types/node": "^26.6.6",
+    "@faker-js/faker": "10.6.0",
+    "@hono/zod-openapi": "1.6.3",
+    "@types/node": "26.6.6",
     "@typespec/http": "catalog:",
     "@typespec/rest": "catalog:",
-    "hono": "^4.13.16",
-    "typescript": "^7.0.2",
-    "zod": "^4.6.7"
+    "hono": "4.13.16",
+    "typescript": "7.0.2",
+    "zod": "4.6.7"
   }
 }
