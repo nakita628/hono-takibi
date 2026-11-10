@@ -302,16 +302,6 @@ export function string(
   const postUpper = upperX && !baseHasUpper ? '.toUpperCase()' : ''
   const postNormalize = normalizeX ? `.normalize("${normalizeX}")` : ''
 
-  const base = usePipe
-    ? `z.string()${postTrim}${postLower}${postUpper}${postNormalize}.pipe(${makeValidationBase()})`
-    : makeValidationBase()
-  // When piped, transforms live before `.pipe(...)`. Otherwise they trail the
-  // validation chain (after .min/.max/.length).
-  const endTrim = usePipe ? '' : postTrim
-  const endLower = usePipe ? '' : postLower
-  const endUpper = usePipe ? '' : postUpper
-  const endNormalize = usePipe ? '' : postNormalize
-
   // Per-keyword precedence: `x-<keyword>-message` > `x-error-message` > Zod default.
   // The `x-error-message` already flows into the `z.string({error})` constructor via
   // `baseErrorArg`, but Zod scopes that to invalid-type errors only — `.min/.max/...`
@@ -367,15 +357,8 @@ export function string(
   // case constraint.
   const lowercaseValidate = schema['x-lowercase'] === true ? '.lowercase()' : undefined
   const uppercaseValidate = schema['x-uppercase'] === true ? '.uppercase()' : undefined
-  const chain = [
-    base,
-    // Pre-validation transforms come BEFORE refinements so input is normalized
-    // first (`z.string().toLowerCase().regex(...)`). For validation-format
-    // schemas these are already inside the pipe — `endTrim` et al. are empty.
-    endTrim || undefined,
-    endLower || undefined,
-    endUpper || undefined,
-    endNormalize || undefined,
+  // What the value is checked against once the format has read it.
+  const refinements = [
     pattern,
     isFixedLength ? `.length(${schema.minLength}${lengthMessagePart})` : undefined,
     !isFixedLength && schema.minLength !== undefined
@@ -393,5 +376,12 @@ export function string(
   ]
     .filter((v) => v !== undefined)
     .join('')
-  return chain
+  // The result of `.pipe()` is a `ZodPipe`, which has no `.max()` / `.regex()`: the checks
+  // go on the format schema inside it, where they read the normalized value (#430).
+  if (usePipe) {
+    return `z.string()${postTrim}${postLower}${postUpper}${postNormalize}.pipe(${makeValidationBase()}${refinements})`
+  }
+  // Pre-validation transforms come BEFORE refinements so input is normalized
+  // first (`z.string().toLowerCase().regex(...)`).
+  return `${makeValidationBase()}${postTrim}${postLower}${postUpper}${postNormalize}${refinements}`
 }

@@ -21,7 +21,7 @@ catalog:
   '@typespec/streams': ^0.87.0
   '@typespec/versioning': ^0.87.0
   '@typespec/xml': ^0.87.0
-  cf: 1.0.0-beta.27
+  cf: 1.0.0-beta.28
   oxc-parser: ^0.157.0
   # The browser build of oxc-parser imports this binding and oxc-parser does not list it
   # itself; the website's playground needs it, at the version of oxc-parser.
@@ -30,13 +30,13 @@ catalog:
   # it; its browser build imports this binding the same way oxc-parser does.
   oxc-transform: ^0.157.0
   '@oxc-transform/binding-wasm32-wasip1': ^0.157.0
-  wrangler: ^4.156.2
+  wrangler: ^4.158.0
   # What the playground's Mock view runs the generated server against; hono-takibi's own
   # devDependencies name the same releases, which are the ones the generator targets.
   '@faker-js/faker': ^10.6.0
   '@hono/zod-openapi': ^1.6.3
-  '@scalar/api-reference': ^1.76.4
-  hono: ^4.13.16
+  '@scalar/api-reference': ^1.77.0
+  hono: ^4.13.17
   zod: ^4.6.7
 overrides:
   # @oxc-parser/binding-wasm32-wasip1 0.157 pins @emnapi/core and @emnapi/runtime at
@@ -45,8 +45,10 @@ overrides:
   # browser the parser then fails to load with "Cannot set properties of undefined (setting
   # 'initWorker')" and the playground never generates. 1.2.5 is the last release written for
   # alpha.6; drop this once the binding moves its emnapi pins to a beta the runtime matches.
-  '@oxc-parser/binding-wasm32-wasip1>@napi-rs/wasm-runtime': 1.2.6
-  '@oxc-transform/binding-wasm32-wasip1>@napi-rs/wasm-runtime': 1.2.6
+  # Renovate is told to leave it alone (renovate.json): 1.2.6 passed lint and test and broke
+  # every playground e2e test, which the Renovate PRs did not run.
+  '@oxc-parser/binding-wasm32-wasip1>@napi-rs/wasm-runtime': 1.2.5
+  '@oxc-transform/binding-wasm32-wasip1>@napi-rs/wasm-runtime': 1.2.5
 allowBuilds:
   # Telemetry postinstall pulled in through @typespec/playground -> swagger-ui-dist;
   # nothing to build, so it never runs.

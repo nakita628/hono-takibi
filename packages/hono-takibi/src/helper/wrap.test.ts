@@ -23,6 +23,19 @@ describe('conformDefault', () => {
     expect(conformDefault({ type: 'boolean' }, 'yes')).toStrictEqual({ ok: false })
   })
 
+  // #422: a schema with `properties` and no `type` is an object
+  it.concurrent('reads a default on properties with no type as an object', () => {
+    const schema: Schema = { properties: { value: { type: 'number' } }, required: ['value'] }
+    expect(conformDefault(schema, [])).toStrictEqual({ ok: false })
+    expect(conformDefault(schema, {})).toStrictEqual({ ok: false })
+    expect(conformDefault(schema, { value: '1', other: true })).toStrictEqual({
+      ok: true,
+      value: { value: 1 },
+    })
+    // a keyword of another kind beside them: the value may be of any type
+    expect(conformDefault({ ...schema, minLength: 1 }, [])).toStrictEqual({ ok: true, value: [] })
+  })
+
   it.concurrent('writes a number or a boolean for a string as text', () => {
     expect(conformDefault({ type: 'string' }, 1)).toStrictEqual({ ok: true, value: '1' })
     expect(conformDefault({ type: 'string' }, false)).toStrictEqual({ ok: true, value: 'false' })
@@ -244,6 +257,17 @@ describe('wrap', () => {
 
   // #369
   describe('default that is not a value of the schema', () => {
+    // #422
+    it.concurrent('leaves an array default on properties with no type to the document', () => {
+      expect(
+        wrap('z.object({value:z.number()})', {
+          properties: { value: { type: 'number' } },
+          required: ['value'],
+          default: [],
+        }),
+      ).toBe('z.object({value:z.number()}).openapi({"required":["value"],"default":[]})')
+    })
+
     it.concurrent('leaves an enum default the enum does not list to the document', () => {
       expect(
         wrap("z.enum(['name','created_on'])", {
