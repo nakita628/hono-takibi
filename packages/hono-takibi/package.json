@@ -71,7 +71,7 @@
     "@typespec/openapi3": "catalog:",
     "effect": "4.1.2",
     "oxc-parser": "catalog:",
-    "oxfmt": "^0.75.0"
+    "oxfmt": "^0.77.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
@@ -79,7 +79,7 @@
     "@types/node": "^26.6.6",
     "@typespec/http": "catalog:",
     "@typespec/rest": "catalog:",
-    "hono": "^4.13.16",
+    "hono": "^4.13.17",
     "typescript": "^7.0.2",
     "zod": "^4.6.7"
   }

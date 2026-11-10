@@ -21,7 +21,7 @@ catalog:
   '@typespec/streams': ^0.87.0
   '@typespec/versioning': ^0.87.0
   '@typespec/xml': ^0.87.0
-  cf: 1.0.0-beta.27
+  cf: 1.0.0-beta.28
   oxc-parser: ^0.157.0
   # The browser build of oxc-parser imports this binding and oxc-parser does not list it
   # itself; the website's playground needs it, at the version of oxc-parser.
@@ -30,13 +30,13 @@ catalog:
   # it; its browser build imports this binding the same way oxc-parser does.
   oxc-transform: ^0.157.0
   '@oxc-transform/binding-wasm32-wasip1': ^0.157.0
-  wrangler: ^4.156.2
+  wrangler: ^4.158.0
   # What the playground's Mock view runs the generated server against; hono-takibi's own
   # devDependencies name the same releases, which are the ones the generator targets.
   '@faker-js/faker': ^10.6.0
   '@hono/zod-openapi': ^1.6.3
-  '@scalar/api-reference': ^1.76.4
-  hono: ^4.13.16
+  '@scalar/api-reference': ^1.77.0
+  hono: ^4.13.17
   zod: ^4.6.7
 overrides:
   # @oxc-parser/binding-wasm32-wasip1 0.157 pins @emnapi/core and @emnapi/runtime at
