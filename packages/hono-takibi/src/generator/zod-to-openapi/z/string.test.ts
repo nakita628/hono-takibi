@@ -991,3 +991,48 @@ describe('string pattern with unicode property escapes (/u flag)', () => {
     })
   })
 })
+
+// #430: the result of `.pipe()` has no `.max()` / `.min()` / `.regex()`
+describe('format with a normalizing extension and string constraints', () => {
+  it.concurrent.each<[Schema, string]>([
+    [
+      { type: 'string', format: 'email', maxLength: 254, 'x-trim': true },
+      'z.string().trim().pipe(z.email().max(254))',
+    ],
+    [
+      { type: 'string', format: 'email', maxLength: 254, 'x-toLowerCase': true },
+      'z.string().toLowerCase().pipe(z.email().max(254))',
+    ],
+    [
+      { type: 'string', format: 'email', minLength: 3, 'x-toUpperCase': true },
+      'z.string().toUpperCase().pipe(z.email().min(3))',
+    ],
+    [
+      { type: 'string', format: 'uuid', minLength: 36, maxLength: 36, 'x-normalize': 'NFC' },
+      'z.string().normalize("NFC").pipe(z.uuid().length(36))',
+    ],
+    [
+      { type: 'string', format: 'email', pattern: '^[a-z@.]+$', 'x-trim': true },
+      'z.string().trim().pipe(z.email().regex(/^[a-z@.]+$/))',
+    ],
+    [
+      {
+        type: 'string',
+        format: 'email',
+        maxLength: 254,
+        'x-trim': true,
+        'x-error-message': 'bad',
+      },
+      'z.string().trim().pipe(z.email({error:"bad"}).max(254,{error:"bad"}))',
+    ],
+    [
+      { type: 'string', format: 'email', 'x-startsWith': 'a', 'x-lowercase': true, 'x-trim': true },
+      'z.string().trim().pipe(z.email().startsWith("a").lowercase())',
+    ],
+    // controls
+    [{ type: 'string', format: 'email', maxLength: 254 }, 'z.email().max(254)'],
+    [{ type: 'string', maxLength: 50, 'x-trim': true }, 'z.string().trim().max(50)'],
+  ])('string(%o) → %s', (input, expected) => {
+    expect(string(input)).toBe(expected)
+  })
+})

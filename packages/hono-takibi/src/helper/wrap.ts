@@ -5,6 +5,7 @@ import {
   isExamplesInput,
   isRecord,
   isSchemaArray,
+  isUntypedObject,
 } from '../guard/index.js'
 import type { Header, Parameter, Schema, Type } from '../openapi/index.js'
 import { regexLiteral } from '../utils/index.js'
@@ -485,9 +486,15 @@ export function conformDefault(
       ? { ok: true, value }
       : { ok: false }
   }
-  const types = (Array.isArray(schema.type) ? schema.type : [schema.type]).filter(
-    (t) => t !== undefined && t !== 'null',
-  )
+  // A schema with no `type` that is an object in all but name is emitted as `z.object()`,
+  // so its default is read as an object's (`default: []` beside `properties`, #422).
+  const types = (
+    isUntypedObject(schema)
+      ? ['object' as const]
+      : Array.isArray(schema.type)
+        ? schema.type
+        : [schema.type]
+  ).filter((t) => t !== undefined && t !== 'null')
   if (types.length === 0) return { ok: true, value }
   const read = (type: Type): { readonly ok: true; readonly value: unknown } | undefined => {
     if (type === 'boolean') {
