@@ -28,6 +28,11 @@
       "groupName": "typespec"
     },
     {
+      "description": "The override pins the last @napi-rs/wasm-runtime the oxc wasm bindings load with in the browser (see pnpm-workspace.yaml); a newer one stops the playground generating.",
+      "matchDepNames": ["/@napi-rs\\/wasm-runtime$/"],
+      "enabled": false
+    },
+    {
       "matchUpdateTypes": ["pin", "pinDigest"],
       "automerge": true
     },
