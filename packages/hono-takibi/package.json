@@ -1,6 +1,6 @@
 {
   "name": "hono-takibi",
-  "version": "0.30.1",
+  "version": "0.31.0",
   "description": "Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi",
   "keywords": [
     "hono",
@@ -56,6 +56,10 @@
     "./docs": {
       "types": "./dist/core/docs/index.d.ts",
       "import": "./dist/core/docs/index.js"
+    },
+    "./generate": {
+      "types": "./dist/generate/index.d.ts",
+      "import": "./dist/generate/index.js"
     }
   },
   "scripts": {

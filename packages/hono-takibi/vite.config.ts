@@ -14,6 +14,7 @@ export default defineConfig({
       'core/hooks/index': './src/core/hooks/index.ts',
       'core/type/index': './src/core/type/index.ts',
       'core/docs/index': './src/core/docs/index.ts',
+      'generate/index': './src/generate/index.ts',
     },
     dts: true,
     // tsdown defaults to `.mjs` / `.d.mts` for node; `bin` and `exports` point at `.js` / `.d.ts`.
@@ -421,10 +422,11 @@ export default defineConfig({
         },
       },
       {
-        // The two places an Effect meets something that is not one: the Vite plugin's
-        // hooks are Vite's own Promise/callback API, and the test helpers hand a result
-        // back to a test. Everywhere else an Effect is returned, not run.
-        files: ['src/vite-plugin/**', 'src/testing/**'],
+        // The places an Effect meets something that is not one: the Vite plugin's hooks are
+        // Vite's own Promise/callback API, `generate` hands a Promise to a program that
+        // generates code itself, and the test helpers hand a result back to a test.
+        // Everywhere else an Effect is returned, not run.
+        files: ['src/vite-plugin/**', 'src/generate/**', 'src/testing/**'],
         rules: { 'custom/no-effect-run': 'off' },
       },
       {
