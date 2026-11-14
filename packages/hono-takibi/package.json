@@ -56,6 +56,10 @@
     "./docs": {
       "types": "./dist/core/docs/index.d.ts",
       "import": "./dist/core/docs/index.js"
+    },
+    "./generate": {
+      "types": "./dist/generate/index.d.ts",
+      "import": "./dist/generate/index.js"
     }
   },
   "scripts": {
