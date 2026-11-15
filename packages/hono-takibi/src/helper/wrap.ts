@@ -70,6 +70,28 @@ function isSchemaObjectKey(key: string) {
   return SCHEMA_OBJECT_KEYS.has(key) || key.startsWith('x-')
 }
 
+/**
+ * What each key of an XML Object (OpenAPI 3.1 §4.8.26) takes. A key it has not — an
+ * `example` written beside `attribute` (#442, openSUSE OBS) — does not type-check in the
+ * metadata, nor does a value of another type.
+ */
+const XML_OBJECT_VALUE_TYPES: { readonly [key: string]: (value: unknown) => boolean } = {
+  name: (v) => typeof v === 'string',
+  namespace: (v) => typeof v === 'string',
+  prefix: (v) => typeof v === 'string',
+  attribute: (v) => typeof v === 'boolean',
+  wrapped: (v) => typeof v === 'boolean',
+}
+
+/** An `xml` value as an XML Object: the keys it has, each of its type, and extensions. */
+function pruneXmlObject(xml: { readonly [key: string]: unknown }) {
+  return Object.fromEntries(
+    Object.entries(xml).filter(
+      ([key, value]) => key.startsWith('x-') || XML_OBJECT_VALUE_TYPES[key]?.(value) === true,
+    ),
+  )
+}
+
 const TYPE_NAMES = new Set(['integer', 'number', 'string', 'boolean', 'object', 'null', 'array'])
 
 function isTypeName(value: unknown) {
@@ -170,6 +192,11 @@ export function pruneSchemaObject(schema: unknown): unknown {
         propertyName: value.propertyName,
         ...(mapping === undefined ? {} : { mapping: Object.fromEntries(mapping) }),
       }
+      continue
+    }
+    if (key === 'xml' && isRecord(value)) {
+      const xml = pruneXmlObject(value)
+      if (Object.keys(xml).length > 0) pruned[key] = xml
       continue
     }
     if (SCHEMA_VALUED_KEYS.has(key)) {
