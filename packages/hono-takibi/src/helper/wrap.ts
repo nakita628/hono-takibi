@@ -167,7 +167,7 @@ const SCHEMA_MAP_KEYS = new Set(['properties'])
  * literal (`null`, `true`) is a string; a 3.0-style `examples` map is its values. The output
  * is what `.openapi()` is handed, so nothing in it may fail to type-check.
  */
-export function pruneSchemaObject(schema: unknown): unknown {
+function pruneSchemaObject(schema: unknown): unknown {
   if (!isRecord(schema)) return schema
   const pruned: { [k: string]: unknown } = {}
   for (const [key, value] of Object.entries(schema)) {
@@ -224,7 +224,7 @@ export function pruneSchemaObject(schema: unknown): unknown {
  * the values its entries carry. A map whose entries carry none (`externalValue`, `$ref`) has
  * nothing the schema can state: `undefined`.
  */
-export function examplesList(examples: unknown): readonly unknown[] | undefined {
+function examplesList(examples: unknown): readonly unknown[] | undefined {
   if (Array.isArray(examples)) return Array.from(examples, (example: unknown) => example)
   if (!isRecord(examples)) return undefined
   const values = Object.values(examples).flatMap((example) =>
