@@ -185,7 +185,8 @@ function numbered(name: string, isFree: (candidate: string) => boolean) {
  */
 export function resolveEmbeddedRefs(document: OpenAPI): OpenAPI {
   if (!hasInlinePointer(document)) return document
-  let changed = false
+  // Held in an object: a `let` written inside `walk` is read as never written after it.
+  const state = { changed: false }
   const walk = (node: unknown, path: string, resource: string | undefined): unknown => {
     if (Array.isArray(node)) return node.map((item, i) => walk(item, `${path}/${i}`, resource))
     if (!isRecord(node)) return node
@@ -203,7 +204,7 @@ export function resolveEmbeddedRefs(document: OpenAPI): OpenAPI {
         ) {
           const inResource = `${own}${value.slice(1)}`
           if (resolvePointer(document, inResource) !== undefined) {
-            changed = true
+            state.changed = true
             return [key, inResource]
           }
         }
@@ -212,5 +213,5 @@ export function resolveEmbeddedRefs(document: OpenAPI): OpenAPI {
     )
   }
   const walked = walk(document, '#', undefined)
-  return changed && isOpenAPI(walked) ? walked : document
+  return state.changed && isOpenAPI(walked) ? walked : document
 }

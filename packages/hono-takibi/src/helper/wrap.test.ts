@@ -753,6 +753,16 @@ describe('wrap', () => {
       )
     })
 
+    it.concurrent.each([
+      [0, 'example:0'],
+      [false, 'example:false'],
+      ['', 'example:""'],
+    ])('keeps a header example of %j: it is an example, not an absence', (example, expected) => {
+      const testHeader: Header = { required: true, example }
+      const result = wrap('z.number()', { type: 'number' }, { headers: testHeader })
+      expect(result).toBe(`z.number().openapi({${expected}})`)
+    })
+
     it.concurrent('should handle header with no openapi props when required is true', () => {
       const testHeader: Header = {
         required: true,

@@ -26,7 +26,7 @@ describe('schemas', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-schemas-'))
     const output = path.join(tmpDir, 'schemas.ts')
     const result = await runGenerator(schemas({}, output, false, true))
-    expect(result).toStrictEqual('No schemas found')
+    expect(result).toBe('No schemas found')
   })
 
   describe('non-split mode', () => {
@@ -50,10 +50,10 @@ describe('schemas', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(`Generated schema code written to ${output}`)
+      expect(result).toBe(`Generated schema code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.length > 0).toBe(true)
+      const content = fs.readFileSync(output, 'utf8')
+      expect(content.length).toBeGreaterThan(0)
     })
   })
 
@@ -86,9 +86,7 @@ describe('schemas', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated schema code written to ${output}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated schema code written to ${output}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'user.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'post.ts'))).toBe(true)
@@ -105,7 +103,7 @@ describe('schemas', () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-schemas-contract-'))
       const output = path.join(tmpDir, 'schemas.ts')
       await runGenerator(schemas(sampleSchemas, output, false, false))
-      const emitted = fs.readFileSync(output, 'utf-8')
+      const emitted = fs.readFileSync(output, 'utf8')
       const generated = schemasCode({ schemas: sampleSchemas }, true, false)
       const emittedNames = new Set(
         [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Schema\s*=/gu)].map(
@@ -128,7 +126,7 @@ describe('schemas', () => {
       const files = fs.readdirSync(outDir).filter((f) => f !== 'index.ts')
       const emittedNames = new Set<string>()
       for (const f of files) {
-        const src = fs.readFileSync(path.join(outDir, f), 'utf-8')
+        const src = fs.readFileSync(path.join(outDir, f), 'utf8')
         for (const m of src.matchAll(
           /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Schema\s*=/gu,
         )) {

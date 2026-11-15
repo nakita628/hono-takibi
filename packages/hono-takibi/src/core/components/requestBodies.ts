@@ -32,9 +32,9 @@ export function requestBodies(
       const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
       yield* Effect.all(
         [
-          ...bodyNames.map((bodyName) => {
+          ...Object.entries(requestBodies).map(([bodyName, requestBody]) => {
             const singleComponent = {
-              requestBodies: { [bodyName]: requestBodies[bodyName] },
+              requestBodies: { [bodyName]: requestBody },
               ...(schemas === undefined ? {} : { schemas }),
             }
             const code = requestBodiesCode(singleComponent, true, readonly)

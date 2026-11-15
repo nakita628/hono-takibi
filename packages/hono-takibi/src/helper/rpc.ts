@@ -43,13 +43,17 @@ function makeToParameterLikes(
     | undefined,
 ) {
   return (
-    arr?: unknown,
+    parameters?: unknown,
   ): readonly {
     readonly name: string
     readonly in: 'path' | 'query' | 'header' | 'cookie'
     readonly required?: boolean
   }[] =>
-    Array.isArray(arr) ? arr.map((x) => resolveParam(x)).filter((param) => param !== undefined) : []
+    Array.isArray(parameters)
+      ? parameters
+          .map((parameter) => resolveParam(parameter))
+          .filter((param) => param !== undefined)
+      : []
 }
 
 export function formatPath(p: string, hasBasePath?: boolean) {
@@ -103,7 +107,8 @@ function refRequestBodyName(refLike: unknown) {
 function pickAllBodyInfoFromContent(content: unknown) {
   if (!isRecord(content)) return undefined
   const formContentTypes = new Set<string>(FORM_MEDIA_TYPES)
-  const isFormContentType = (ct: string): boolean => formContentTypes.has(ct.split(';')[0].trim())
+  const isFormContentType = (ct: string): boolean =>
+    formContentTypes.has((ct.split(';')[0] ?? '').trim())
   const validEntries = Object.entries(content).filter(
     ([, mediaObj]) => isRecord(mediaObj) && isSchemaProperty(mediaObj) && isRecord(mediaObj.schema),
   )
@@ -203,7 +208,7 @@ export function operationHasArgs(
   deps: {
     readonly client: string
     readonly toParameterLikes: (
-      arr?: unknown,
+      parameters?: unknown,
     ) => readonly { name: string; in: 'path' | 'query' | 'header' | 'cookie'; required?: boolean }[]
     pickAllBodyInfo: (operation: {
       readonly summary?: string

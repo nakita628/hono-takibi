@@ -35,7 +35,7 @@ describe('docs', () => {
     const result = await runGenerator(docs(openAPI, output))
     expect(result).toBe(`Generated docs written to ${output}`)
     expect(fs.existsSync(output)).toBe(true)
-    const content = fs.readFileSync(output, 'utf-8')
+    const content = fs.readFileSync(output, 'utf8')
     expect(content.length).toBeGreaterThan(0)
   })
 

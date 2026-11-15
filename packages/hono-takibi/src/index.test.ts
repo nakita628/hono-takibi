@@ -16,7 +16,7 @@ describe('CLI and config options test with string matching', { timeout: 30_000 }
 
   it('--help returns help text', () => {
     const result = execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')} --help`, {
-      encoding: 'utf-8',
+      encoding: 'utf8',
     })
     expect(result).toContain('hono-takibi [flags] [<input>]')
     expect(result).toContain('--output, -o')
@@ -25,7 +25,7 @@ describe('CLI and config options test with string matching', { timeout: 30_000 }
 
   it('-h returns help text', () => {
     const result = execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')} -h`, {
-      encoding: 'utf-8',
+      encoding: 'utf8',
     })
     expect(result).toContain('hono-takibi [flags] [<input>]')
   })
@@ -68,7 +68,7 @@ describe('CLI and config options test with string matching', { timeout: 30_000 }
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
-    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const ItemSchema = z
@@ -125,7 +125,7 @@ export const getItemsRoute = createRoute({
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
-    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 const ItemSchema = z
@@ -178,7 +178,7 @@ export const getItemsRoute = createRoute({
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
-    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const ItemIdParamsSchema = z
@@ -227,7 +227,7 @@ export const getItemsIdRoute = createRoute({
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
-    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 const ItemIdParamsSchema = z
@@ -276,7 +276,7 @@ export const getItemsIdRoute = createRoute({
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
-    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer' }
@@ -325,7 +325,7 @@ export const getSecureRoute = createRoute({
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
-    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const UserBodyRequestBody = {
@@ -380,7 +380,7 @@ export const postUsersRoute = createRoute({
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
-    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const UserListResponseResponse = {
@@ -431,7 +431,7 @@ export const getUsersRoute = createRoute({
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
-    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const RateLimitHeaderSchema = z
@@ -484,7 +484,7 @@ export const getUsersRoute = createRoute({
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
-    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 const RateLimitHeaderSchema = z
@@ -544,7 +544,7 @@ export const getUsersRoute = createRoute({
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
-    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const UserExampleExample = { summary: 'User example', value: { id: 1, name: 'John' } }
@@ -603,7 +603,7 @@ export const getUsersRoute = createRoute({
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
-    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const GetUserPostsLink = {
@@ -670,7 +670,7 @@ export const getUsersIdRoute = createRoute({
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
-    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const OnEventCallback = {
@@ -774,7 +774,7 @@ export const postSubscribeRoute = createRoute({
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
-    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const ItemSchema = z
@@ -846,7 +846,7 @@ export const postItemsIdRoute = createRoute({
     expect(() => {
       execSync(
         `node ${path.resolve(import.meta.dirname, '../dist/cli.js')} tmp-cli-test/nonexistent.json -o tmp-cli-test/output.ts`,
-        { encoding: 'utf-8' },
+        { encoding: 'utf8' },
       )
       // `<input>` is validated before any generator runs, so a missing document
       // is a parse-time error rather than a downstream ENOENT.
@@ -864,7 +864,7 @@ export const postItemsIdRoute = createRoute({
       execSync(
         `node ${path.resolve(import.meta.dirname, '../dist/cli.js')} tmp-cli-test/simple.json`,
         {
-          encoding: 'utf-8',
+          encoding: 'utf8',
         },
       )
     }).toThrow(/<input> requires -o <output\.ts>/u)
@@ -924,7 +924,7 @@ describe('config template mode tests', { timeout: 30_000 }, () => {
     })
 
     // Verify routes file
-    const routesFile = fs.readFileSync(path.join(testDir, 'src/routes.ts'), 'utf-8')
+    const routesFile = fs.readFileSync(path.join(testDir, 'src/routes.ts'), 'utf8')
     expect(routesFile).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 const UserSchema = z
@@ -943,7 +943,7 @@ export const getUsersRoute = createRoute({
 `)
 
     // Verify app file (index.ts)
-    const appFile = fs.readFileSync(path.join(testDir, 'src/index.ts'), 'utf-8')
+    const appFile = fs.readFileSync(path.join(testDir, 'src/index.ts'), 'utf8')
     expect(appFile).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { usersHandler } from './handlers'
 
@@ -955,7 +955,7 @@ export default app
 `)
 
     // Verify handler file
-    const handlerFile = fs.readFileSync(path.join(testDir, 'src/handlers/users.ts'), 'utf-8')
+    const handlerFile = fs.readFileSync(path.join(testDir, 'src/handlers/users.ts'), 'utf8')
     expect(handlerFile).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getUsersRoute } from '../routes'
 
@@ -965,7 +965,7 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {})
 `)
 
     // Verify handler index file
-    const handlerIndexFile = fs.readFileSync(path.join(testDir, 'src/handlers/index.ts'), 'utf-8')
+    const handlerIndexFile = fs.readFileSync(path.join(testDir, 'src/handlers/index.ts'), 'utf8')
     expect(handlerIndexFile).toBe(`export * from './users'
 `)
   })
@@ -998,7 +998,7 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {})
       cwd: path.resolve(testDir),
     })
 
-    const handlerFile = fs.readFileSync(path.join(testDir, 'src/handlers/products.ts'), 'utf-8')
+    const handlerFile = fs.readFileSync(path.join(testDir, 'src/handlers/products.ts'), 'utf8')
     expect(handlerFile).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getProductsRoute, postProductsRoute } from '../routes'
 
@@ -1070,10 +1070,10 @@ describe('hono-takibi.config.ts split generation tests', { timeout: 30_000 }, ()
     })
 
     // Verify schemas split output
-    const schemasIndex = fs.readFileSync(path.join(testDir, 'src/schemas/index.ts'), 'utf-8')
+    const schemasIndex = fs.readFileSync(path.join(testDir, 'src/schemas/index.ts'), 'utf8')
     expect(schemasIndex).toBe(`export * from './user'\n`)
 
-    const userSchema = fs.readFileSync(path.join(testDir, 'src/schemas/user.ts'), 'utf-8')
+    const userSchema = fs.readFileSync(path.join(testDir, 'src/schemas/user.ts'), 'utf8')
     expect(userSchema).toBe(`import { z } from '@hono/zod-openapi'
 
 export const UserSchema = z
@@ -1083,10 +1083,10 @@ export const UserSchema = z
 `)
 
     // Verify routes split output with correct import path
-    const routesIndex = fs.readFileSync(path.join(testDir, 'src/routes/index.ts'), 'utf-8')
+    const routesIndex = fs.readFileSync(path.join(testDir, 'src/routes/index.ts'), 'utf8')
     expect(routesIndex).toBe(`export * from './getUsers'\n`)
 
-    const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf-8')
+    const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf8')
     expect(getUsersRoute).toBe(`import { createRoute } from '@hono/zod-openapi'
 import { UserSchema } from '@/schemas'
 
@@ -1147,7 +1147,7 @@ export const getUsersRoute = createRoute({
     })
 
     // Verify schemas with exportTypes
-    const itemSchema = fs.readFileSync(path.join(testDir, 'src/schemas/item.ts'), 'utf-8')
+    const itemSchema = fs.readFileSync(path.join(testDir, 'src/schemas/item.ts'), 'utf8')
     expect(itemSchema).toBe(`import { z } from '@hono/zod-openapi'
 
 export const ItemSchema = z
@@ -1185,7 +1185,7 @@ export type Item = z.infer<typeof ItemSchema>
       cwd: path.resolve(testDir),
     })
 
-    const routesFile = fs.readFileSync(path.join(testDir, 'src/routes.ts'), 'utf-8')
+    const routesFile = fs.readFileSync(path.join(testDir, 'src/routes.ts'), 'utf8')
     expect(routesFile).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const getTestRoute = createRoute({
@@ -1242,7 +1242,7 @@ export const getTestRoute = createRoute({
       cwd: path.resolve(testDir),
     })
 
-    const getPostsRoute = fs.readFileSync(path.join(testDir, 'src/routes/getPosts.ts'), 'utf-8')
+    const getPostsRoute = fs.readFileSync(path.join(testDir, 'src/routes/getPosts.ts'), 'utf8')
     expect(getPostsRoute).toBe(`import { createRoute } from '@hono/zod-openapi'
 import { PostSchema } from '../schemas'
 
@@ -1305,7 +1305,7 @@ export const getPostsRoute = createRoute({
 
     const getCommentsRoute = fs.readFileSync(
       path.join(testDir, 'src/routes/getComments.ts'),
-      'utf-8',
+      'utf8',
     )
     expect(getCommentsRoute).toBe(`import { createRoute } from '@hono/zod-openapi'
 import { CommentSchema } from '~/schemas'
@@ -1371,7 +1371,7 @@ export const getCommentsRoute = createRoute({
 
     const getProductsRoute = fs.readFileSync(
       path.join(testDir, 'src/routes/getProducts.ts'),
-      'utf-8',
+      'utf8',
     )
     expect(getProductsRoute).toBe(`import { createRoute } from '@hono/zod-openapi'
 import { ProductSchema } from '@myorg/schemas'
@@ -1428,13 +1428,10 @@ export const getProductsRoute = createRoute({
       cwd: path.resolve(testDir),
     })
 
-    const parametersIndex = fs.readFileSync(path.join(testDir, 'src/parameters/index.ts'), 'utf-8')
+    const parametersIndex = fs.readFileSync(path.join(testDir, 'src/parameters/index.ts'), 'utf8')
     expect(parametersIndex).toBe(`export * from './itemId'\n`)
 
-    const getItemRoute = fs.readFileSync(
-      path.join(testDir, 'src/routes/getItemsItemId.ts'),
-      'utf-8',
-    )
+    const getItemRoute = fs.readFileSync(path.join(testDir, 'src/routes/getItemsItemId.ts'), 'utf8')
     expect(getItemRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 import { ItemIdParamsSchema } from '@/parameters'
 
@@ -1489,15 +1486,12 @@ export const getItemsItemIdRoute = createRoute({
       cwd: path.resolve(testDir),
     })
 
-    const responsesIndex = fs.readFileSync(
-      path.join(testDir, 'src/api/responses/index.ts'),
-      'utf-8',
-    )
+    const responsesIndex = fs.readFileSync(path.join(testDir, 'src/api/responses/index.ts'), 'utf8')
     expect(responsesIndex).toBe(`export * from './orderList'\n`)
 
     const getOrdersRoute = fs.readFileSync(
       path.join(testDir, 'src/api/routes/getOrders.ts'),
-      'utf-8',
+      'utf8',
     )
     expect(getOrdersRoute).toBe(`import { createRoute } from '@hono/zod-openapi'
 import { OrderListResponse } from '../responses'
@@ -1554,10 +1548,10 @@ export const getOrdersRoute = createRoute({
       cwd: path.resolve(testDir),
     })
 
-    const headersIndex = fs.readFileSync(path.join(testDir, 'src/headers/index.ts'), 'utf-8')
+    const headersIndex = fs.readFileSync(path.join(testDir, 'src/headers/index.ts'), 'utf8')
     expect(headersIndex).toBe(`export * from './rateLimit'\n`)
 
-    const rateLimitHeader = fs.readFileSync(path.join(testDir, 'src/headers/rateLimit.ts'), 'utf-8')
+    const rateLimitHeader = fs.readFileSync(path.join(testDir, 'src/headers/rateLimit.ts'), 'utf8')
     expect(rateLimitHeader).toBe(`import { z } from '@hono/zod-openapi'
 
 export const RateLimitHeaderSchema = z
@@ -1566,7 +1560,7 @@ export const RateLimitHeaderSchema = z
   .openapi({ description: 'Rate limit', param: { required: false } })
 `)
 
-    const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf-8')
+    const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf8')
     expect(getUsersRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 import { RateLimitHeaderSchema } from '@/headers'
 
@@ -1619,18 +1613,15 @@ export const getUsersRoute = createRoute({
       cwd: path.resolve(testDir),
     })
 
-    const securityIndex = fs.readFileSync(path.join(testDir, 'src/security/index.ts'), 'utf-8')
+    const securityIndex = fs.readFileSync(path.join(testDir, 'src/security/index.ts'), 'utf8')
     expect(securityIndex).toBe(`export * from './bearerAuth'\n`)
 
-    const bearerAuthFile = fs.readFileSync(
-      path.join(testDir, 'src/security/bearerAuth.ts'),
-      'utf-8',
-    )
+    const bearerAuthFile = fs.readFileSync(path.join(testDir, 'src/security/bearerAuth.ts'), 'utf8')
     expect(bearerAuthFile)
       .toBe(`export const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer' }
 `)
 
-    const getSecureRoute = fs.readFileSync(path.join(testDir, 'src/routes/getSecure.ts'), 'utf-8')
+    const getSecureRoute = fs.readFileSync(path.join(testDir, 'src/routes/getSecure.ts'), 'utf8')
     expect(getSecureRoute).toBe(`import { createRoute } from '@hono/zod-openapi'
 
 export const getSecureRoute = createRoute({
@@ -1691,10 +1682,10 @@ export const getSecureRoute = createRoute({
       cwd: path.resolve(testDir),
     })
 
-    const bodiesIndex = fs.readFileSync(path.join(testDir, 'src/bodies/index.ts'), 'utf-8')
+    const bodiesIndex = fs.readFileSync(path.join(testDir, 'src/bodies/index.ts'), 'utf8')
     expect(bodiesIndex).toBe(`export * from './userBody'\n`)
 
-    const userBodyFile = fs.readFileSync(path.join(testDir, 'src/bodies/userBody.ts'), 'utf-8')
+    const userBodyFile = fs.readFileSync(path.join(testDir, 'src/bodies/userBody.ts'), 'utf8')
     expect(userBodyFile).toBe(`import { z } from '@hono/zod-openapi'
 
 export const UserBodyRequestBody = {
@@ -1707,7 +1698,7 @@ export const UserBodyRequestBody = {
 }
 `)
 
-    const postUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/postUsers.ts'), 'utf-8')
+    const postUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/postUsers.ts'), 'utf8')
     expect(postUsersRoute).toBe(`import { createRoute } from '@hono/zod-openapi'
 import { UserBodyRequestBody } from '@myorg/request-bodies'
 
@@ -1769,18 +1760,18 @@ export const postUsersRoute = createRoute({
       cwd: path.resolve(testDir),
     })
 
-    const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf-8')
+    const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf8')
     expect(examplesIndex).toBe(`export * from './userExample'\n`)
 
     const userExampleFile = fs.readFileSync(
       path.join(testDir, 'src/examples/userExample.ts'),
-      'utf-8',
+      'utf8',
     )
     expect(userExampleFile)
       .toBe(`export const UserExampleExample = { summary: 'User example', value: { id: 1, name: 'John' } }
 `)
 
-    const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf-8')
+    const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf8')
     // Only `UserExampleExample` is a real identifier; the `UserExample` token
     // appearing as an object key originates from the quoted JSON-stringified
     // map key and must NOT be treated as an importable identifier.
@@ -1863,19 +1854,19 @@ export const getUsersRoute = createRoute({
     })
 
     // Check index.ts exports all examples
-    const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf-8')
+    const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf8')
     expect(examplesIndex).toBe(`export * from './aliasUser'
 export * from './baseUser'
 export * from './chainedUser'
 `)
 
     // Check BaseUser is exported as object (no import)
-    const baseUserFile = fs.readFileSync(path.join(testDir, 'src/examples/baseUser.ts'), 'utf-8')
+    const baseUserFile = fs.readFileSync(path.join(testDir, 'src/examples/baseUser.ts'), 'utf8')
     expect(baseUserFile)
       .toBe(`export const BaseUserExample = { summary: 'Base user', value: { id: 1, name: 'Base' } }
 `)
     // Check AliasUser imports and references BaseUser
-    const aliasUserFile = fs.readFileSync(path.join(testDir, 'src/examples/aliasUser.ts'), 'utf-8')
+    const aliasUserFile = fs.readFileSync(path.join(testDir, 'src/examples/aliasUser.ts'), 'utf8')
     expect(aliasUserFile).toBe(`import { BaseUserExample } from './baseUser'
 
 export const AliasUserExample = BaseUserExample
@@ -1885,7 +1876,7 @@ export const AliasUserExample = BaseUserExample
     // (SwaggerParser.bundle resolves $ref chains to final target)
     const chainedUserFile = fs.readFileSync(
       path.join(testDir, 'src/examples/chainedUser.ts'),
-      'utf-8',
+      'utf8',
     )
     expect(chainedUserFile).toBe(`import { BaseUserExample } from './baseUser'
 
@@ -1894,7 +1885,7 @@ export const ChainedUserExample = BaseUserExample
 
     // Check route imports the resolved BaseUser from examples
     // (SwaggerParser.bundle resolves all $ref chains to final target)
-    const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf-8')
+    const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf8')
     expect(getUsersRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 import { BaseUserExample } from '@/examples'
 
@@ -1976,13 +1967,13 @@ export const getUsersRoute = createRoute({
     })
 
     // Check index.ts exports all examples
-    const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf-8')
+    const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf8')
     expect(examplesIndex).toBe(`export * from './baseUser'
 export * from './extendedUser'
 `)
 
     // Check BaseUser is exported with its own properties
-    const baseUserFile = fs.readFileSync(path.join(testDir, 'src/examples/baseUser.ts'), 'utf-8')
+    const baseUserFile = fs.readFileSync(path.join(testDir, 'src/examples/baseUser.ts'), 'utf8')
     expect(baseUserFile).toBe(
       `export const BaseUserExample = { summary: 'Base user example', value: { id: 1, name: 'Base' } }
 `,
@@ -1992,7 +1983,7 @@ export * from './extendedUser'
     // (sibling properties are lost in bundle process)
     const extendedUserFile = fs.readFileSync(
       path.join(testDir, 'src/examples/extendedUser.ts'),
-      'utf-8',
+      'utf8',
     )
     expect(extendedUserFile).toBe(`import { BaseUserExample } from './baseUser'
 
@@ -2001,7 +1992,7 @@ export const ExtendedUserExample = BaseUserExample
 
     // Check route imports the resolved example
     // SwaggerParser.bundle() resolves $ref chains, so route uses ExtendedUserExample
-    const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf-8')
+    const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf8')
     expect(getUsersRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 import { ExtendedUserExample } from '@/examples'
 
@@ -2081,7 +2072,7 @@ export const getUsersRoute = createRoute({
     })
 
     // Check index.ts exports all examples
-    const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf-8')
+    const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf8')
     expect(examplesIndex).toBe(`export * from './aliasJapanese'
 export * from './japaneseMessage'
 `)
@@ -2089,7 +2080,7 @@ export * from './japaneseMessage'
     // Check JapaneseMessage is exported with Unicode content
     const japaneseFile = fs.readFileSync(
       path.join(testDir, 'src/examples/japaneseMessage.ts'),
-      'utf-8',
+      'utf8',
     )
     expect(japaneseFile).toBe(`export const JapaneseMessageExample = {
   summary: 'Japanese message',
@@ -2098,7 +2089,7 @@ export * from './japaneseMessage'
 `)
 
     // Check AliasJapanese imports and references JapaneseMessage
-    const aliasFile = fs.readFileSync(path.join(testDir, 'src/examples/aliasJapanese.ts'), 'utf-8')
+    const aliasFile = fs.readFileSync(path.join(testDir, 'src/examples/aliasJapanese.ts'), 'utf8')
     expect(aliasFile).toBe(`import { JapaneseMessageExample } from './japaneseMessage'
 
 export const AliasJapaneseExample = JapaneseMessageExample
@@ -2107,7 +2098,7 @@ export const AliasJapaneseExample = JapaneseMessageExample
     // Check route imports the resolved JapaneseMessage
     const getMessagesRoute = fs.readFileSync(
       path.join(testDir, 'src/routes/getMessages.ts'),
-      'utf-8',
+      'utf8',
     )
     expect(getMessagesRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 import { JapaneseMessageExample } from '@/examples'
@@ -2175,12 +2166,12 @@ export const getMessagesRoute = createRoute({
       cwd: path.resolve(testDir),
     })
 
-    const linksIndex = fs.readFileSync(path.join(testDir, 'src/links/index.ts'), 'utf-8')
+    const linksIndex = fs.readFileSync(path.join(testDir, 'src/links/index.ts'), 'utf8')
     expect(linksIndex).toBe(`export * from './getUserPosts'\n`)
 
     const getUserPostsFile = fs.readFileSync(
       path.join(testDir, 'src/links/getUserPosts.ts'),
-      'utf-8',
+      'utf8',
     )
     expect(getUserPostsFile).toBe(`export const GetUserPostsLink = {
   operationId: 'getUserPosts',
@@ -2188,7 +2179,7 @@ export const getMessagesRoute = createRoute({
 }
 `)
 
-    const getUserRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsersId.ts'), 'utf-8')
+    const getUserRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsersId.ts'), 'utf8')
     expect(getUserRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 import { GetUserPostsLink } from '@/links'
 
@@ -2259,10 +2250,10 @@ export const getUsersIdRoute = createRoute({
       cwd: path.resolve(testDir),
     })
 
-    const callbacksIndex = fs.readFileSync(path.join(testDir, 'src/callbacks/index.ts'), 'utf-8')
+    const callbacksIndex = fs.readFileSync(path.join(testDir, 'src/callbacks/index.ts'), 'utf8')
     expect(callbacksIndex).toBe(`export * from './onEvent'\n`)
 
-    const onEventFile = fs.readFileSync(path.join(testDir, 'src/callbacks/onEvent.ts'), 'utf-8')
+    const onEventFile = fs.readFileSync(path.join(testDir, 'src/callbacks/onEvent.ts'), 'utf8')
     expect(onEventFile).toBe(`import { z } from '@hono/zod-openapi'
 
 export const OnEventCallback = {
@@ -2277,7 +2268,7 @@ export const OnEventCallback = {
 
     const postSubscribeRoute = fs.readFileSync(
       path.join(testDir, 'src/routes/postSubscribe.ts'),
-      'utf-8',
+      'utf8',
     )
     expect(postSubscribeRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 import { OnEventCallback } from '../callbacks'
@@ -2397,7 +2388,7 @@ export const postSubscribeRoute = createRoute({
       cwd: path.resolve(testDir),
     })
 
-    const onEventFile = fs.readFileSync(path.join(testDir, 'src/callbacks/onEvent.ts'), 'utf-8')
+    const onEventFile = fs.readFileSync(path.join(testDir, 'src/callbacks/onEvent.ts'), 'utf8')
     expect(onEventFile).toBe(`import { EventPayloadSchema } from '../schemas'
 
 export const OnEventCallback = {
@@ -2414,7 +2405,7 @@ export const OnEventCallback = {
 
     const postSubscribeRoute = fs.readFileSync(
       path.join(testDir, 'src/routes/postSubscribe.ts'),
-      'utf-8',
+      'utf8',
     )
     expect(postSubscribeRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 import { SubscriptionSchema } from '../schemas'
@@ -2470,7 +2461,7 @@ export const postSubscribeRoute = createRoute({
       cwd: path.resolve(testDir),
     })
 
-    const getSimpleRoute = fs.readFileSync(path.join(testDir, 'src/routes/getSimple.ts'), 'utf-8')
+    const getSimpleRoute = fs.readFileSync(path.join(testDir, 'src/routes/getSimple.ts'), 'utf8')
     expect(getSimpleRoute).toBe(`import { createRoute } from '@hono/zod-openapi'
 
 export const getSimpleRoute = createRoute({
@@ -2542,7 +2533,7 @@ export const getSimpleRoute = createRoute({
       cwd: path.resolve(testDir),
     })
 
-    const postMixedRoute = fs.readFileSync(path.join(testDir, 'src/routes/postMixed.ts'), 'utf-8')
+    const postMixedRoute = fs.readFileSync(path.join(testDir, 'src/routes/postMixed.ts'), 'utf8')
 
     expect(postMixedRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 import { MixedSchemaSchema } from '@/schemas'
@@ -2633,8 +2624,8 @@ post:
       cwd: path.resolve(testDir),
     })
 
-    const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf-8')
-    const postUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/postUsers.ts'), 'utf-8')
+    const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf8')
+    const postUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/postUsers.ts'), 'utf8')
 
     expect(getUsersRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -2738,7 +2729,7 @@ export const postUsersRoute = createRoute({
       },
     )
 
-    const result = fs.readFileSync(path.join(testDir, 'routes.ts'), 'utf-8')
+    const result = fs.readFileSync(path.join(testDir, 'routes.ts'), 'utf8')
 
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -2833,15 +2824,12 @@ export const paymentReceivedPostWebhook = {
     })
 
     // Verify mediaTypes split output
-    const mediaTypesIndex = fs.readFileSync(path.join(testDir, 'src/mediaTypes/index.ts'), 'utf-8')
+    const mediaTypesIndex = fs.readFileSync(path.join(testDir, 'src/mediaTypes/index.ts'), 'utf8')
     expect(mediaTypesIndex).toBe(`export * from './jsonContent'
 export * from './xmlContent'
 `)
 
-    const jsonContent = fs.readFileSync(
-      path.join(testDir, 'src/mediaTypes/jsonContent.ts'),
-      'utf-8',
-    )
+    const jsonContent = fs.readFileSync(path.join(testDir, 'src/mediaTypes/jsonContent.ts'), 'utf8')
     expect(jsonContent).toBe(`import { z } from '@hono/zod-openapi'
 
 export const JsonContentMediaTypeSchema = z
@@ -2849,7 +2837,7 @@ export const JsonContentMediaTypeSchema = z
   .openapi({ required: ['data'] })
 `)
 
-    const xmlContent = fs.readFileSync(path.join(testDir, 'src/mediaTypes/xmlContent.ts'), 'utf-8')
+    const xmlContent = fs.readFileSync(path.join(testDir, 'src/mediaTypes/xmlContent.ts'), 'utf8')
     expect(xmlContent).toBe(`import { z } from '@hono/zod-openapi'
 
 export const XmlContentMediaTypeSchema = z
@@ -2897,7 +2885,7 @@ export const XmlContentMediaTypeSchema = z
       cwd: path.resolve(testDir),
     })
 
-    const result = fs.readFileSync(path.join(testDir, 'src/routes.ts'), 'utf-8')
+    const result = fs.readFileSync(path.join(testDir, 'src/routes.ts'), 'utf8')
 
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -2956,7 +2944,7 @@ export const getDataRoute = createRoute({
       cwd: path.resolve(testDir),
     })
 
-    const result = fs.readFileSync(path.join(testDir, 'src/routes.ts'), 'utf-8')
+    const result = fs.readFileSync(path.join(testDir, 'src/routes.ts'), 'utf8')
 
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -3040,7 +3028,7 @@ export const getDataRoute = createRoute({
       cwd: path.resolve(testDir),
     })
 
-    const userCreated = fs.readFileSync(path.join(testDir, 'src/callbacks/userCreated.ts'), 'utf-8')
+    const userCreated = fs.readFileSync(path.join(testDir, 'src/callbacks/userCreated.ts'), 'utf8')
     expect(userCreated).toBe(`import { UserSchema } from '~/schemas'
 
 export const UserCreatedCallback = {
@@ -3102,7 +3090,7 @@ export const UserCreatedCallback = {
       cwd: path.resolve(testDir),
     })
 
-    const jsonUser = fs.readFileSync(path.join(testDir, 'src/mediaTypes/jsonUser.ts'), 'utf-8')
+    const jsonUser = fs.readFileSync(path.join(testDir, 'src/mediaTypes/jsonUser.ts'), 'utf8')
     expect(jsonUser).toBe(`import { UserSchema } from '~/schemas'
 
 export const JsonUserMediaTypeSchema = UserSchema
@@ -3149,7 +3137,7 @@ export const JsonUserMediaTypeSchema = UserSchema
       execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
         cwd: path.resolve(testDir),
       })
-      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
+      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf8' })
       expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const ItemSchema = z
@@ -3177,7 +3165,7 @@ export const getItemsRoute = createRoute({
       execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
         cwd: path.resolve(testDir),
       })
-      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
+      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf8' })
       expect(result).toBe(`import { createRoute, z } from "@hono/zod-openapi";
 
 export const ItemSchema = z
@@ -3205,7 +3193,7 @@ export const getItemsRoute = createRoute({
       execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
         cwd: path.resolve(testDir),
       })
-      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
+      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf8' })
       expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi';
 
 export const ItemSchema = z
@@ -3233,7 +3221,7 @@ export const getItemsRoute = createRoute({
       execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
         cwd: path.resolve(testDir),
       })
-      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
+      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf8' })
       expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const ItemSchema = z
@@ -3261,7 +3249,7 @@ export const getItemsRoute = createRoute({
       execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
         cwd: path.resolve(testDir),
       })
-      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
+      const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf8' })
       expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const ItemSchema = z
@@ -3357,7 +3345,7 @@ export const getItemsRoute = createRoute({
         `node ${path.resolve(import.meta.dirname, '../dist/cli.js')} brand.json -o brand-output.ts`,
         { cwd: path.resolve(testDir) },
       )
-      const result = fs.readFileSync(`${testDir}/brand-output.ts`, { encoding: 'utf-8' })
+      const result = fs.readFileSync(`${testDir}/brand-output.ts`, { encoding: 'utf8' })
       // Verify branded schemas are generated with .brand<"X">()
       expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -3445,7 +3433,7 @@ export const postUsersRoute = createRoute({
       execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
         cwd: path.resolve(testDir),
       })
-      const result = fs.readFileSync(`${testDir}/brand-config-output.ts`, { encoding: 'utf-8' })
+      const result = fs.readFileSync(`${testDir}/brand-config-output.ts`, { encoding: 'utf8' })
       expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const ItemIdSchema = z.uuid().brand<'ItemId'>().openapi('ItemId')

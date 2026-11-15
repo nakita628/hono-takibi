@@ -217,7 +217,7 @@ describe('makeImports', () => {
     const result = makeImports(code, '/src/routes/user.ts', {
       schemas: { output: '/src/schemas.ts' },
     })
-    expect(result.includes('import{UserSchema}')).toBe(false)
+    expect(result).not.toContain('import{UserSchema}')
   })
 
   it.concurrent('handles ParamsSchema pattern for parameters', () => {
@@ -345,8 +345,8 @@ describe('makeImports', () => {
       mediaTypes: { output: '/src/media-types.ts' },
     })
     // MediaTypeSchema should only appear in mediaTypes import, not schemas
-    expect(result.includes("import{JsonMediaTypeSchema}from'../media-types'")).toBe(true)
-    expect(result.includes("import{JsonMediaTypeSchema}from'../schemas'")).toBe(false)
+    expect(result).toContain("import{JsonMediaTypeSchema}from'../media-types'")
+    expect(result).not.toContain("import{JsonMediaTypeSchema}from'../schemas'")
   })
 
   // -----------------------------------------------------------------
@@ -421,7 +421,7 @@ describe('makeImports', () => {
       parameters: { output: '/src/components/parameters', split: true },
     })
     const importLines = result.split('\n').filter((l) => l.startsWith('import'))
-    expect(importLines.length).toBe(0)
+    expect(importLines).toHaveLength(0)
   })
 
   it('ignores identifiers inside strings even when escaped quotes are present', () => {
@@ -441,7 +441,7 @@ describe('makeImports', () => {
     const result = makeImports(code, '/src/wrap.ts', {
       callbacks: { output: '/src/components/callbacks', split: true },
     })
-    expect(result.includes('import{UserCreatedCallback}from')).toBe(true)
+    expect(result).toContain('import{UserCreatedCallback}from')
   })
 
   it('detects identifier when one occurrence is in code and another is in a string', () => {
@@ -457,7 +457,7 @@ describe('makeImports', () => {
     })
     const importLines = result.split('\n').filter((l) => l.startsWith('import'))
     const userSchemaImports = importLines.filter((l) => l.includes('UserSchema'))
-    expect(userSchemaImports.length).toBe(1)
+    expect(userSchemaImports).toHaveLength(1)
   })
 
   it('does not self-import when an identifier shape matches the file own export', () => {
@@ -500,7 +500,7 @@ export const X = { v: 1 }`
       mediaTypes: { output: '/src/components/mediaTypes', split: true },
     })
     const importLines = result.split('\n').filter((l) => l.startsWith('import'))
-    expect(importLines.length).toBe(0)
+    expect(importLines).toHaveLength(0)
   })
 
   it('still imports identifier when comment mentions it AND code references it', () => {
@@ -513,7 +513,7 @@ export const X = { schema: UserSchema }`
     })
     const importLines = result.split('\n').filter((l) => l.startsWith('import'))
     const userSchemaImports = importLines.filter((l) => l.includes('UserSchema'))
-    expect(userSchemaImports.length).toBe(1)
+    expect(userSchemaImports).toHaveLength(1)
   })
 
   // ============================================================
@@ -690,10 +690,10 @@ export const X = { schema: UserSchema }`
     const result = makeImports(code, '/src/x.ts', {
       schemas: { output: '/src/components/schemas', split: true },
     })
-    expect(result.includes('UserSchema')).toBe(true)
-    expect(result.includes('PetSchema')).toBe(true)
-    expect(result.includes('TodoSchema')).toBe(true)
-    expect(result.includes('CommentSchema')).toBe(true)
+    expect(result).toContain('UserSchema')
+    expect(result).toContain('PetSchema')
+    expect(result).toContain('TodoSchema')
+    expect(result).toContain('CommentSchema')
   })
 
   // ============================================================
@@ -718,7 +718,7 @@ export const X = { schema: UserSchema }`
       schemas: { output: '/src/components/schemas', split: true },
     })
     const importLines = result.split('\n').filter((l) => l.startsWith('import'))
-    expect(importLines.length).toBe(0)
+    expect(importLines).toHaveLength(0)
   })
 
   // ============================================================
@@ -735,7 +735,7 @@ export const X = { schema: UserSchema }`
     })
     const importLines = result.split('\n').filter((l) => l.startsWith('import'))
     // Bare 'Schema' / 'Response' / 'Callback' / 'PathItem' shouldn't be imported
-    expect(importLines.length).toBe(0)
+    expect(importLines).toHaveLength(0)
   })
 
   // ============================================================
@@ -751,7 +751,7 @@ export const X = { schema: UserSchema }`
     const result = makeImports(code, '/src/x.ts', {
       schemas: { output: '/src/components/schemas', split: true },
     })
-    expect(result.includes('import{UserSchemaSchema}from')).toBe(true)
+    expect(result).toContain('import{UserSchemaSchema}from')
   })
 
   it('classifies *ParamsSchemaSchema correctly (ends in two Schemas)', () => {
@@ -805,7 +805,7 @@ export const X = { schema: UserSchema }`
     })
     // Count occurrences of the import line
     const importMatches = result.match(/import\{UserSchema\}/gu) ?? []
-    expect(importMatches.length).toBe(1)
+    expect(importMatches).toHaveLength(1)
   })
 
   // ============================================================
@@ -820,6 +820,6 @@ export const X = { schema: UserSchema }`
     // Single import line containing all three names sorted alphabetically.
     expect(importLines.some((l) => l.includes('{CommentSchema,PetSchema,UserSchema}'))).toBe(true)
     // No separate import line per identifier.
-    expect(importLines.filter((l) => l.includes('schemas')).length).toBe(1)
+    expect(importLines.filter((l) => l.includes('schemas'))).toHaveLength(1)
   })
 })

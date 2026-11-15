@@ -25,10 +25,10 @@ export function responsesCode(
   const { responses } = components
   if (!responses) return ''
   const asConst = readonly ? ' as const' : ''
-  return Object.keys(responses)
-    .map((k) => {
-      const isRef = responses[k].$ref !== undefined
-      return `${makeConst(exportResponses, k, 'Response')}${makeResponses(responses[k], undefined, components.schemas)}${isRef ? '' : asConst}`
+  return Object.entries(responses)
+    .map(([k, response]) => {
+      const isRef = response.$ref !== undefined
+      return `${makeConst(exportResponses, k, 'Response')}${makeResponses(response, undefined, components.schemas)}${isRef ? '' : asConst}`
     })
     .join('\n\n')
 }

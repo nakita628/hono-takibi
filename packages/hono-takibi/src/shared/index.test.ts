@@ -128,7 +128,7 @@ describe('makeJob define mode', () => {
     )
     const jobs = makeJob(openAPI, cfg)
     await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
-    const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'server', p), 'utf-8')
+    const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'server', p), 'utf8')
 
     expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getUsersIdRoute, getHealthRoute } from './routes'
@@ -177,7 +177,7 @@ export const getUsersIdRoute = defineOpenAPIRoute({
     )
     const jobs = makeJob(openAPI, cfg)
     await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
-    const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
+    const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf8')
 
     expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getUsersIdRoute, getHealthRoute } from './routes'
@@ -254,7 +254,7 @@ export const UserSchema = z
     )
     const jobs = makeJob(openAPI, cfg)
     await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
-    const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
+    const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf8')
 
     expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getUsersIdRoute, getHealthRoute } from '@/routes'
@@ -286,7 +286,7 @@ import { UserSchema } from '@/components'`)
     expect(fs.existsSync(path.join(tmpDir, 'src', 'routes', 'users.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'src', 'handlers'))).toBe(false)
 
-    expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf-8'))
+    expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf8'))
       .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getUsersIdRoute, getHealthRoute } from './routes'
 
@@ -297,7 +297,7 @@ export const api = app.openapiRoutes([getUsersIdRoute, getHealthRoute] as const)
 export default app
 `)
     const usersFirstLines = fs
-      .readFileSync(path.join(tmpDir, 'src', 'routes', 'users.ts'), 'utf-8')
+      .readFileSync(path.join(tmpDir, 'src', 'routes', 'users.ts'), 'utf8')
       .split('\n')
       .slice(0, 2)
       .join('\n')
@@ -321,7 +321,7 @@ import { UserSchema } from '../components'`)
     expect(fs.existsSync(path.join(tmpDir, 'src', 'api', 'components', 'index.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'src', 'routes'))).toBe(false)
 
-    expect(fs.readFileSync(path.join(tmpDir, 'src', 'api', 'index.ts'), 'utf-8'))
+    expect(fs.readFileSync(path.join(tmpDir, 'src', 'api', 'index.ts'), 'utf8'))
       .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getUsersIdRoute, getHealthRoute } from './routes'
 
@@ -332,7 +332,7 @@ export const api = app.openapiRoutes([getUsersIdRoute, getHealthRoute] as const)
 export default app
 `)
     const usersFirstLines = fs
-      .readFileSync(path.join(tmpDir, 'src', 'api', 'routes', 'users.ts'), 'utf-8')
+      .readFileSync(path.join(tmpDir, 'src', 'api', 'routes', 'users.ts'), 'utf8')
       .split('\n')
       .slice(0, 2)
       .join('\n')
@@ -352,7 +352,7 @@ import { UserSchema } from '../components'`)
       }),
     )
     await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
-    const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
+    const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf8')
 
     expect(read('components/index.ts')).toBe(`import { z } from '@hono/zod-openapi'
 
@@ -398,7 +398,7 @@ export const getUsersIdRoute = defineOpenAPIRoute({
       }),
     )
     await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
-    const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'server', p), 'utf-8')
+    const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'server', p), 'utf8')
 
     expect(fs.existsSync(path.join(tmpDir, 'src'))).toBe(false)
     expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
@@ -433,7 +433,7 @@ import { UserSchema } from '../components'`)
     expect(fs.existsSync(path.join(tmpDir, 'src', 'components'))).toBe(false)
     expect(
       fs
-        .readFileSync(path.join(tmpDir, 'src', 'routes', 'users.ts'), 'utf-8')
+        .readFileSync(path.join(tmpDir, 'src', 'routes', 'users.ts'), 'utf8')
         .split('\n')
         .slice(0, 2)
         .join('\n'),
@@ -453,7 +453,7 @@ import { UserSchema } from '../../shared/components'`)
       }),
     )
     await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
-    const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
+    const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf8')
 
     expect(fs.existsSync(path.join(tmpDir, 'src', 'api', 'components', 'index.ts'))).toBe(true)
     expect(read('index.ts').split('\n')).toContain(
@@ -476,7 +476,7 @@ import { UserSchema } from '@/api/components'`)
     )
     const jobs = makeJob(openAPI, cfg)
     await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
-    const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
+    const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf8')
 
     expect(read('index.ts').split('\n')).toContain(
       "import { getUsersIdRoute, getHealthRoute } from '@/routes'",
@@ -509,7 +509,7 @@ describe(
       fs.writeFileSync(
         usersPath,
         fs
-          .readFileSync(usersPath, 'utf-8')
+          .readFileSync(usersPath, 'utf8')
           .replace(
             'handler: async (c) => {},',
             "handler: async (c) => {\n    return c.json({ id: c.req.param('id'), name: 'Jane' }, 200)\n  },",
@@ -517,13 +517,13 @@ describe(
       )
       await run(openAPI)
 
-      const afterRegen = fs.readFileSync(usersPath, 'utf-8')
+      const afterRegen = fs.readFileSync(usersPath, 'utf8')
       const trimmed = afterRegen.split('\n').map((l) => l.trim())
       expect(trimmed).toContain("return c.json({ id: c.req.param('id'), name: 'Jane' }, 200)")
       expect(trimmed).not.toContain('handler: async (c) => {},')
       // Idempotent: a further regeneration changes nothing.
       await run(openAPI)
-      expect(fs.readFileSync(usersPath, 'utf-8')).toBe(afterRegen)
+      expect(fs.readFileSync(usersPath, 'utf8')).toBe(afterRegen)
     })
 
     it('preserves a hand-edited createRoute (not re-synced from spec)', async () => {
@@ -544,7 +544,7 @@ describe(
       fs.writeFileSync(
         usersPath,
         fs
-          .readFileSync(usersPath, 'utf-8')
+          .readFileSync(usersPath, 'utf8')
           .replace(
             "operationId: 'getUser',",
             "operationId: 'getUser',\n    summary: 'Get a user',",
@@ -554,7 +554,7 @@ describe(
 
       expect(
         fs
-          .readFileSync(usersPath, 'utf-8')
+          .readFileSync(usersPath, 'utf8')
           .split('\n')
           .map((l) => l.trim()),
       ).toContain("summary: 'Get a user',")
@@ -579,13 +579,13 @@ describe(
         usersPath,
         `import { db } from '../db'\nimport { authRoute } from '../middleware/auth'\n${fs.readFileSync(
           usersPath,
-          'utf-8',
+          'utf8',
         )}\nconst PAGE_SIZE = 20\nfunction toDto(x: unknown) {\n  return x\n}\n`,
       )
       await run(openAPI)
 
       const trimmed = fs
-        .readFileSync(usersPath, 'utf-8')
+        .readFileSync(usersPath, 'utf8')
         .split('\n')
         .map((l) => l.trim())
       expect(trimmed).toContain("import { db } from '../db'")
@@ -611,7 +611,7 @@ describe(
       fs.writeFileSync(
         usersPath,
         fs
-          .readFileSync(usersPath, 'utf-8')
+          .readFileSync(usersPath, 'utf8')
           .replace(
             'handler: async (c) => {},',
             "handler: async (c) => {\n    return c.json({ id: '1', name: 'Jane' }, 200)\n  },",
@@ -630,7 +630,7 @@ describe(
       // Existing edit kept.
       expect(
         fs
-          .readFileSync(usersPath, 'utf-8')
+          .readFileSync(usersPath, 'utf8')
           .split('\n')
           .map((l) => l.trim()),
       ).toContain("return c.json({ id: '1', name: 'Jane' }, 200)")
@@ -638,7 +638,7 @@ describe(
       expect(fs.existsSync(path.join(tmpDir, 'src', 'routes', 'tags.ts'))).toBe(true)
       // App + barrel reflect the new route. (mergeImports sorts the named imports on
       // regeneration; the openapiRoutes array keeps spec order from the generated body.)
-      expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getHealthRoute, getTagsRoute, getUsersIdRoute } from './routes'
 
@@ -649,7 +649,7 @@ export const api = app.openapiRoutes([getUsersIdRoute, getHealthRoute, getTagsRo
 export default app
 `,
       )
-      expect(fs.readFileSync(path.join(tmpDir, 'src', 'routes', 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(tmpDir, 'src', 'routes', 'index.ts'), 'utf8')).toBe(
         `export * from './users'
 export * from './health'
 export * from './tags'
@@ -671,27 +671,27 @@ export * from './tags'
 
       await run(openAPI)
       const healthPath = path.join(tmpDir, 'src', 'routes', 'health.ts')
-      const healthContent = fs.readFileSync(healthPath, 'utf-8')
+      const healthContent = fs.readFileSync(healthPath, 'utf8')
       // Spec drops the health resource.
       const withoutHealth = {
         ...openAPI,
-        paths: { '/users/{id}': (openAPI.paths as Record<string, unknown>)['/users/{id}'] },
+        paths: { '/users/{id}': (openAPI.paths as { [key: string]: unknown })['/users/{id}'] },
       } as unknown as OpenAPI
       await run(withoutHealth)
 
       // The route declaration goes, the file stays for the user to remove.
-      expect(healthContent.includes('export const getHealthRoute')).toBe(true)
-      expect(fs.readFileSync(healthPath, 'utf-8')).toBe(
+      expect(healthContent).toContain('export const getHealthRoute')
+      expect(fs.readFileSync(healthPath, 'utf8')).toBe(
         `import { createRoute, defineOpenAPIRoute } from '@hono/zod-openapi'
 `,
       )
       expect(fs.existsSync(path.join(tmpDir, 'src', 'routes', 'users.ts'))).toBe(true)
-      expect(fs.readFileSync(path.join(tmpDir, 'src', 'routes', 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(tmpDir, 'src', 'routes', 'index.ts'), 'utf8')).toBe(
         `export * from './users'
 export * from './health'
 `,
       )
-      expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getUsersIdRoute } from './routes'
 
@@ -722,7 +722,7 @@ export default app
       fs.writeFileSync(
         indexPath,
         fs
-          .readFileSync(indexPath, 'utf-8')
+          .readFileSync(indexPath, 'utf8')
           .replace(
             "import { OpenAPIHono } from '@hono/zod-openapi'",
             "import { OpenAPIHono } from '@hono/zod-openapi'\nimport { logger } from 'hono/logger'",
@@ -744,7 +744,7 @@ export default app
       await run(withTags)
 
       const trimmed = fs
-        .readFileSync(indexPath, 'utf-8')
+        .readFileSync(indexPath, 'utf8')
         .split('\n')
         .map((l) => l.trim())
       expect(trimmed).toContain("import { logger } from 'hono/logger'")
@@ -775,7 +775,7 @@ export default app
       fs.writeFileSync(
         usersPath,
         fs
-          .readFileSync(usersPath, 'utf-8')
+          .readFileSync(usersPath, 'utf8')
           .replace(
             'handler: async (c) => {},',
             "handler: async (c) => {\n    return c.json({ id: '1', name: 'Jane' }, 200)\n  },",
@@ -785,12 +785,12 @@ export default app
 
       expect(
         fs
-          .readFileSync(usersPath, 'utf-8')
+          .readFileSync(usersPath, 'utf8')
           .split('\n')
           .map((l) => l.trim()),
       ).toContain("return c.json({ id: '1', name: 'Jane' }, 200)")
       // App imports from the derived routes dir (mergeImports sorts the names on regeneration).
-      expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf-8').split('\n')).toContain(
+      expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf8').split('\n')).toContain(
         "import { getHealthRoute, getUsersIdRoute } from './routes'",
       )
     })
@@ -813,7 +813,7 @@ export default app
       fs.writeFileSync(
         usersPath,
         fs
-          .readFileSync(usersPath, 'utf-8')
+          .readFileSync(usersPath, 'utf8')
           .replace(
             'handler: async (c) => {},',
             "handler: async (c) => {\n    return c.json({ id: '1', name: 'Jane' }, 200)\n  },",
@@ -821,12 +821,12 @@ export default app
       )
       await run(openAPI)
 
-      const content = fs.readFileSync(usersPath, 'utf-8')
+      const content = fs.readFileSync(usersPath, 'utf8')
       const trimmed = content.split('\n').map((l) => l.trim())
       expect(trimmed).toContain("return c.json({ id: '1', name: 'Jane' }, 200)")
       expect(trimmed).toContain("import { UserSchema } from '@/components'")
       // No duplicate component import line after regeneration.
-      expect(content.split('\n').filter((l) => l.includes("from '@/components'")).length).toBe(1)
+      expect(content.split('\n').filter((l) => l.includes("from '@/components'"))).toHaveLength(1)
     })
   },
 )
@@ -2066,10 +2066,10 @@ describe('openAPI3', () => {
 
   it.concurrent('answers an OpenAPI 3 document itself', async () => {
     const document = { openapi: '3.0.3', info: { title: 'A', version: '1' }, paths: {} } as OpenAPI
-    expect(await runGenerator(openAPI3(document, 'openapi.yaml'))).toBe(document)
+    await expect(runGenerator(openAPI3(document, 'openapi.yaml'))).resolves.toBe(document)
     // a document that states no version is taken as OpenAPI 3, as before
     const bare = { paths: {} } as OpenAPI
-    expect(await runGenerator(openAPI3(bare, 'openapi.yaml'))).toBe(bare)
+    await expect(runGenerator(openAPI3(bare, 'openapi.yaml'))).resolves.toBe(bare)
   })
 
   // #416: a component that is not an object is named, not read as a schema
@@ -2103,7 +2103,7 @@ describe('openAPI3', () => {
         },
       },
     } as unknown as OpenAPI
-    expect(await runGenerator(openAPI3(document, 'openapi.yaml'))).toStrictEqual({
+    await expect(runGenerator(openAPI3(document, 'openapi.yaml'))).resolves.toStrictEqual({
       ...document,
       paths: { '/thing': { post: { responses: { '200': { description: 'OK' } } } } },
     })
@@ -2116,7 +2116,7 @@ describe('openAPI3', () => {
       info: { title: 'A', version: '1' },
       webhooks: { invoices: { post: { responses: { 200: { description: 'OK' } } } } },
     } as unknown as OpenAPI
-    expect(await runGenerator(openAPI3(webhooks, 'openapi.yaml'))).toStrictEqual({
+    await expect(runGenerator(openAPI3(webhooks, 'openapi.yaml'))).resolves.toStrictEqual({
       ...webhooks,
       paths: {},
     })

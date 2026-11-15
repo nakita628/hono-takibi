@@ -1,4 +1,10 @@
-import { isBinaryFile, isSchemaArray, isUntypedObject, isValidIdent } from '../guard/index.js'
+import {
+  isBinaryFile,
+  isPresent,
+  isSchemaArray,
+  isUntypedObject,
+  isValidIdent,
+} from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { decodePercent, makeStringLiteral, toIdentifierPascalCase } from '../utils/index.js'
 
@@ -8,7 +14,7 @@ export function makeTypeString(
   cyclicGroup?: ReadonlySet<string>,
   readonly?: boolean,
 ) {
-  if (!schema) return 'unknown'
+  if (!isPresent(schema)) return 'unknown'
   // `{}` and `true` constrain nothing: the value is `unknown`, not an object (#379).
   if (Object.keys(schema).length === 0) return 'unknown'
   const types = normalizeType(schema)
@@ -20,7 +26,7 @@ export function makeTypeString(
     types.includes('null') ||
     schema.default === null ||
     (schema.enum?.includes(null) ?? false)
-  const nonNullTypes = types.filter((t) => t !== 'null')
+  const nonNullTypes = types.filter((typeName) => typeName !== 'null')
   const baseType = makeNonNullTypeString(schema, nonNullTypes, selfTypeName, cyclicGroup, readonly)
   if (!isNullable || baseType === 'null') return baseType
   return `(${baseType}|null)`
@@ -63,9 +69,9 @@ function makeNonNullTypeString(
 }
 
 function makeRefTypeString(ref: string, selfTypeName: string) {
-  const propertiesMatch = ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//u)
+  const propertiesMatch = /^#\/components\/schemas\/([^/]+)\/properties\//u.exec(ref)
   if (propertiesMatch) {
-    const parentName = toIdentifierPascalCase(decodePercent(propertiesMatch[1]))
+    const parentName = toIdentifierPascalCase(decodePercent(propertiesMatch[1] ?? ''))
     if (parentName === selfTypeName) {
       return `${parentName}Type`
     }
@@ -89,17 +95,14 @@ function makeUnionTypeString(
   const types = schemas
     .filter(Boolean)
     .map((s) => makeTypeString(s, selfTypeName, cyclicGroup, readonly))
-  return types.length === 0
-    ? 'unknown'
-    : types.length === 1
-      ? types[0]
-      : `(${types.join(separator)})`
+  const [only] = types
+  return only === undefined ? 'unknown' : types.length === 1 ? only : `(${types.join(separator)})`
 }
 
 // A schema with no `type` is an object when it declares properties (#385); otherwise the
 // value may be anything (`{ required: ['oas'] }` is checked on `z.unknown()`, Tyk).
 function normalizeType(schema: Schema): readonly string[] {
-  if (!schema.type) return isUntypedObject(schema) ? ['object'] : []
+  if (schema.type === undefined) return isUntypedObject(schema) ? ['object'] : []
   return Array.isArray(schema.type) ? schema.type : [schema.type]
 }
 
@@ -112,7 +115,9 @@ function makeBaseTypeString(
 ) {
   if (types.length > 1) {
     return types
-      .map((t) => makeSingleTypeString(schema, t, selfTypeName, cyclicGroup, readonly))
+      .map((typeName) =>
+        makeSingleTypeString(schema, typeName, selfTypeName, cyclicGroup, readonly),
+      )
       .join('|')
   }
   const [type] = types
@@ -158,14 +163,11 @@ function makeArrayTypeString(
   readonly?: boolean,
 ): string {
   const prefix = readonly ? 'readonly ' : ''
-  if (!schema.items) return `${prefix}unknown[]`
+  // Boolean `items` (JSON Schema 2020-12 §10.3.1.2) are `unknown[]` either way: `true`
+  // constrains nothing, and `false` is emitted as `z.array(z.any()).length(0)`, which infers
+  // an array and would not fit an empty tuple.
+  if (!isPresent(schema.items) || schema.items === true) return `${prefix}unknown[]`
   const items = schema.items
-  // JSON Schema 2020-12 §10.3.1.2 boolean items:
-  //   items: true  → trailing items unconstrained (unknown[])
-  //   items: false → trailing items disallowed; collapses to an empty tuple.
-  if (typeof items === 'boolean') {
-    return items ? `${prefix}unknown[]` : readonly ? 'readonly []' : '[]'
-  }
   if (isSchemaArray(items)) {
     const firstItem = items[0]
     if (items.length > 1) {

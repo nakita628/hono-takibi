@@ -20,8 +20,9 @@ import { error, makeStringLiteral } from '../../../utils/index.js'
  */
 // oxlint-disable-next-line no-underscore-dangle -- `enum` is a reserved word
 export function _enum(schema: Schema) {
-  const ht = (t: string): boolean =>
-    schema.type === t || (Array.isArray(schema.type) && schema.type.some((v) => v === t))
+  const ht = (typeName: string): boolean =>
+    schema.type === typeName ||
+    (Array.isArray(schema.type) && schema.type.some((v) => v === typeName))
   // Zod v4 `z.enum` emits a single issue code (`invalid_value`) for both type
   // and value mismatches, so a per-code dispatch isn't possible — the
   // override is a clearer name for the enum case (no new capability).
@@ -47,11 +48,11 @@ export function _enum(schema: Schema) {
   // Inner tuple — used inside a z.union of multiple tuples; the outer
   // union's errorArg covers this tuple too, so neither the tuple wrapper
   // nor its inner literals receive errorArg.
-  const innerTuple = (arr: readonly unknown[]): string =>
-    `z.tuple([${arr.map(innerLit).join(',')}])`
+  const innerTuple = (items: readonly unknown[]): string =>
+    `z.tuple([${items.map(innerLit).join(',')}])`
   // Outer tuple — used when a single tuple is the entire schema output.
-  const outerTuple = (arr: readonly unknown[]): string =>
-    `z.tuple([${arr.map(innerLit).join(',')}]${errorArg})`
+  const outerTuple = (items: readonly unknown[]): string =>
+    `z.tuple([${items.map(innerLit).join(',')}]${errorArg})`
   if (!schema.enum || schema.enum.length === 0) return 'z.any()'
   if (ht('number') || ht('integer')) {
     return schema.enum.length > 1

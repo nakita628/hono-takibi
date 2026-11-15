@@ -26,7 +26,7 @@ describe('callbacks', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
     const output = path.join(tmpDir, 'callbacks.ts')
     const result = await runGenerator(callbacks({}, output, false))
-    expect(result).toStrictEqual('No callbacks found')
+    expect(result).toBe('No callbacks found')
   })
 
   describe('non-split mode', () => {
@@ -56,10 +56,10 @@ describe('callbacks', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual(`Generated callbacks code written to ${output}`)
+      expect(result).toBe(`Generated callbacks code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.length > 0).toBe(true)
+      const content = fs.readFileSync(output, 'utf8')
+      expect(content.length).toBeGreaterThan(0)
     })
   })
 
@@ -90,9 +90,7 @@ describe('callbacks', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated Callback code written to ${output}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated Callback code written to ${output}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'onEvent.ts'))).toBe(true)
     })
@@ -124,9 +122,7 @@ describe('callbacks', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated Callback code written to ${output}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated Callback code written to ${output}/*.ts (index.ts included)`)
     })
   })
 
@@ -151,8 +147,8 @@ describe('callbacks', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(`Generated callbacks code written to ${output}`)
-      expect(fs.readFileSync(output, 'utf-8')).toBe(
+      expect(result).toBe(`Generated callbacks code written to ${output}`)
+      expect(fs.readFileSync(output, 'utf8')).toBe(
         `export const OnEventCallback = {\n  '{$request.body#/callbackUrl}': { post: { responses: { 200: { description: 'OK' } } } },\n} as const\n`,
       )
     })
@@ -202,8 +198,8 @@ describe('callbacks', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual(`Generated callbacks code written to ${output}`)
-      expect(fs.readFileSync(output, 'utf-8')).toBe(
+      expect(result).toBe(`Generated callbacks code written to ${output}`)
+      expect(fs.readFileSync(output, 'utf8')).toBe(
         `export const OnPaymentCallback = {\n  '{$request.body#/callbackUrl}': { post: { responses: { 200: { description: 'OK' } } } },\n}\n\nexport const OnShipmentCallback = {\n  '{$request.body#/shipmentUrl}': { post: { responses: { 200: { description: 'OK' } } } },\n}\n`,
       )
     })
@@ -221,7 +217,7 @@ describe('callbacks', () => {
         },
       }
       await expect(runGenerator(callbacks(sampleCallbacks, output, false))).resolves.toBeDefined()
-      const emitted = fs.readFileSync(output, 'utf-8')
+      const emitted = fs.readFileSync(output, 'utf8')
       const generated = callbacksCode({ callbacks: sampleCallbacks }, true)
       const emittedNames = new Set(
         [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Callback\s*=/gu)].map(

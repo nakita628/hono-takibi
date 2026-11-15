@@ -4,7 +4,7 @@ import type { HTTP_METHODS } from '../constants/index.js'
  * Normalize a JSON Schema `type` value into an array of type strings.
  */
 export function normalizeTypes(
-  t?:
+  type?:
     | 'string'
     | 'number'
     | 'integer'
@@ -18,7 +18,7 @@ export function normalizeTypes(
         ...('string' | 'number' | 'integer' | 'date' | 'boolean' | 'array' | 'object' | 'null')[],
       ],
 ) {
-  return t === undefined ? [] : Array.isArray(t) ? t : [t]
+  return type === undefined ? [] : Array.isArray(type) ? type : [type]
 }
 
 /**
@@ -43,7 +43,7 @@ export function methodPath(method: string, path: string) {
     .join(' ')
     .trim()
     .split(/\s+/u)
-    .map((str) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
+    .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
     .join('')
   const suffix = hasTrailingSlash ? 'Index' : ''
   return apiPath ? (`${method}${apiPath}${suffix}` as const) : method
@@ -120,8 +120,8 @@ export function requestParamsArray(
 ) {
   return Object.freeze(
     Object.entries(parameters)
-      .filter(([, obj]) => obj && Object.keys(obj).length > 0)
-      .map(([section, obj]) => {
+      .filter(([, entries]) => Object.keys(entries).length > 0)
+      .map(([section, entries]) => {
         const name =
           section === 'path'
             ? 'params'
@@ -130,7 +130,7 @@ export function requestParamsArray(
               : section === 'cookie'
                 ? 'cookies'
                 : section
-        const fields = Object.entries(obj)
+        const fields = Object.entries(entries)
           .map(([k, v]) => `${k}:${v}`)
           .join(',')
         const before = gather[section]
@@ -240,7 +240,7 @@ const REGEX_LINE_TERMINATOR_ESCAPES: { readonly [k: string]: string } = {
  * regexLiteral('a++') // undefined
  */
 export function regexLiteral(pattern: string) {
-  const inline = pattern.match(/^\(\?([a-z]+)\)/u)
+  const inline = /^\(\?([a-z]+)\)/u.exec(pattern)
   const letters = inline?.[1] ?? ''
   // `x` (ignore whitespace) and the rest have no JavaScript flag: no literal says the same.
   if (letters.split('').some((letter) => !'ims'.includes(letter))) return undefined
@@ -257,6 +257,9 @@ export function regexLiteral(pattern: string) {
   }
 }
 
+/** An escape pair, with the braces and the digits of a PCRE hex escape after it if any. */
+const HEX_BRACE_ESCAPE = /\\([\s\S])(\{([0-9A-Fa-f]{1,8})\})?/gu
+
 /**
  * The source with every PCRE hex escape in braces, `\x{FFFF}`, written as the JavaScript
  * escape of the same character: `\uFFFF` up to U+FFFF, `\u{10FFFF}` above it, which only
@@ -266,25 +269,21 @@ export function regexLiteral(pattern: string) {
  * before `x{` is left alone.
  */
 function hexBraceEscapes(source: string) {
-  let astral = false
-  let invalid = false
+  const codes = Array.from(source.matchAll(HEX_BRACE_ESCAPE), (match) =>
+    match[1] === 'x' && match[3] !== undefined ? Number.parseInt(match[3], 16) : undefined,
+  ).filter((code) => code !== undefined)
+  if (codes.some((code) => code > 0x10_ff_ff)) return undefined
   const rewritten = source.replaceAll(
-    /\\([\s\S])(\{([0-9A-Fa-f]{1,8})\})?/gu,
+    HEX_BRACE_ESCAPE,
     (match: string, escaped: string, _brace: string | undefined, digits: string | undefined) => {
       if (escaped !== 'x' || digits === undefined) return match
       const code = Number.parseInt(digits, 16)
-      if (code > 0x10_ff_ff) {
-        invalid = true
-        return match
-      }
-      if (code > 0xff_ff) {
-        astral = true
-        return `\\u{${code.toString(16).toUpperCase()}}`
-      }
-      return `\\u${code.toString(16).toUpperCase().padStart(4, '0')}`
+      return code > 0xff_ff
+        ? `\\u{${code.toString(16).toUpperCase()}}`
+        : `\\u${code.toString(16).toUpperCase().padStart(4, '0')}`
     },
   )
-  return invalid ? undefined : ({ source: rewritten, astral } as const)
+  return { source: rewritten, astral: codes.some((code) => code > 0xff_ff) } as const
 }
 
 /**
@@ -416,22 +415,22 @@ export function toIdentifierPascalCase(text: string) {
 
 function pascalCaseIdentifier(text: string) {
   // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
-  const hasNonAscii = [...text].some((c) => c.charCodeAt(0) > 127)
+  const hasNonAscii = [...text].some((char) => char.charCodeAt(0) > 127)
   const result = text
     .replaceAll(/[^A-Za-z0-9_$]/gu, '_')
     .replaceAll(/_+/gu, '_')
     .replaceAll(/^_+|_+$/gu, '')
     .replace(/^([0-9])/u, '_$1')
-    .replaceAll(/_+([a-zA-Z])/gu, (_: string, c: string) => c.toUpperCase())
-    .replace(/^([a-z])/u, (_: string, c: string) => c.toUpperCase())
+    .replaceAll(/_+([a-zA-Z])/gu, (_: string, char: string) => char.toUpperCase())
+    .replace(/^([a-z])/u, (_: string, char: string) => char.toUpperCase())
   if (!result || /^_+$/u.test(result)) {
     // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
-    const hash = [...text].reduce((acc, c) => acc + c.charCodeAt(0), 0)
+    const hash = [...text].reduce((acc, char) => acc + char.charCodeAt(0), 0)
     return `Unnamed${String(hash)}` as const
   }
   if (hasNonAscii) {
     // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
-    const hash = [...text].reduce((acc, c) => acc + c.charCodeAt(0), 0)
+    const hash = [...text].reduce((acc, char) => acc + char.charCodeAt(0), 0)
     return `${result}${String(hash)}` as const
   }
   return result
@@ -601,7 +600,9 @@ export function baseError(typeMessage: string | undefined, requiredMessage: stri
 
 export function statusCodeToNumber(statusCode: string) {
   if (statusCode === 'default') return 200
-  if (statusCode.toUpperCase().endsWith('XX')) return Number.parseInt(statusCode[0], 10) * 100
+  if (statusCode.toUpperCase().endsWith('XX')) {
+    return Number.parseInt(statusCode.charAt(0), 10) * 100
+  }
   return Number.parseInt(statusCode, 10)
 }
 

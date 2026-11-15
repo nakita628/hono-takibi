@@ -26,7 +26,7 @@ describe('requestBodies', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-requestBodies-'))
     const output = path.join(tmpDir, 'requestBodies.ts')
     const result = await runGenerator(requestBodies({}, output, false))
-    expect(result).toStrictEqual('No requestBodies found')
+    expect(result).toBe('No requestBodies found')
   })
 
   describe('non-split mode', () => {
@@ -54,10 +54,10 @@ describe('requestBodies', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual(`Generated requestBodies code written to ${output}`)
+      expect(result).toBe(`Generated requestBodies code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.length > 0).toBe(true)
+      const content = fs.readFileSync(output, 'utf8')
+      expect(content.length).toBeGreaterThan(0)
     })
   })
 
@@ -98,7 +98,7 @@ describe('requestBodies', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
+      expect(result).toBe(
         `Generated requestBodies code written to ${output}/*.ts (index.ts included)`,
       )
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
@@ -122,7 +122,7 @@ describe('requestBodies', () => {
         },
       }
       await runGenerator(requestBodies(sampleBodies, output, false))
-      const emitted = fs.readFileSync(output, 'utf-8')
+      const emitted = fs.readFileSync(output, 'utf8')
       const generated = requestBodiesCode({ requestBodies: sampleBodies }, true)
       const emittedNames = new Set(
         [

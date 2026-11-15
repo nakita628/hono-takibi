@@ -3,6 +3,7 @@ import {
   hasNoUserChain,
   isBinaryFile,
   isExamplesInput,
+  isPresent,
   isRecord,
   isSchemaArray,
   isUntypedObject,
@@ -494,7 +495,7 @@ export function conformDefault(
       : Array.isArray(schema.type)
         ? schema.type
         : [schema.type]
-  ).filter((t) => t !== undefined && t !== 'null')
+  ).filter((typeName) => typeName !== undefined && typeName !== 'null')
   if (types.length === 0) return { ok: true, value }
   const read = (type: Type): { readonly ok: true; readonly value: unknown } | undefined => {
     if (type === 'boolean') {
@@ -530,7 +531,7 @@ export function conformDefault(
       }
       const readItems = value.map((item) => conformDefault(items, item, schemas, reading))
       return readItems.every((item) => item.ok)
-        ? { ok: true, value: readItems.map((item) => (item.ok ? item.value : undefined)) }
+        ? { ok: true, value: readItems.map((item) => item.value) }
         : undefined
     }
     if (type === 'object') {
@@ -689,14 +690,15 @@ export function wrap(
           ? `((schema)=>z.union([schema,z.preprocess(${WIRE_NULL},schema)]))(${typed})`
           : typed
     // `!== undefined` (not truthy): `default: 0` is valid.
-    const d = defaultValue !== undefined ? `${n}.default(${formatLiteral(defaultValue)})` : n
+    const defaulted =
+      defaultValue !== undefined ? `${n}.default(${formatLiteral(defaultValue)})` : n
     const pf =
       schema['x-prefault'] !== undefined
-        ? `${d}.prefault(${formatLiteral(schema['x-prefault'])})`
-        : d
-    const c =
+        ? `${defaulted}.prefault(${formatLiteral(schema['x-prefault'])})`
+        : defaulted
+    const caught =
       schema['x-catch'] !== undefined ? `${pf}.catch(${formatLiteral(schema['x-catch'])})` : pf
-    const fr = schema['x-readonly'] === true ? `${c}.readonly()` : c
+    const fr = schema['x-readonly'] === true ? `${caught}.readonly()` : caught
     const refineChain = `${fr}${schema['x-refine'] ?? ''}`
     const superRefineChain = `${refineChain}${schema['x-superRefine'] ?? ''}`
     // Precedence (outermost wins): x-preprocess > x-transform > x-pipe > x-codec.
@@ -793,7 +795,10 @@ export function wrap(
         meta.headers.deprecated
           ? `deprecated:${JSON.stringify(meta.headers.deprecated)}`
           : undefined,
-        meta.headers.example ? `example:${JSON.stringify(meta.headers.example)}` : undefined,
+        // `!== undefined` (not truthy): an example of `0`, `false` or `''` is an example.
+        meta.headers.example !== undefined
+          ? `example:${JSON.stringify(meta.headers.example)}`
+          : undefined,
         // A Header Object's `examples` is a map of Example Objects; the schema's is a list
         // of values (#398).
         ...(() => {
@@ -802,10 +807,10 @@ export function wrap(
         })(),
       ].filter((v) => v !== undefined)
     : []
-  const openapiSchema = args ? JSON.stringify(args) : undefined
+  const openapiSchema = isPresent(args) ? JSON.stringify(args) : undefined
   // Strip outer braces so the body embeds directly in `.openapi({...})`.
   const openapiSchemaBody =
-    openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
+    openapiSchema?.startsWith('{') && openapiSchema.endsWith('}')
       ? openapiSchema.slice(1, -1)
       : openapiSchema
   // What `.min()`, `.max()` and `.mime()` check is stated too, since the document derives
@@ -900,7 +905,7 @@ export function wrap(
   ].filter((v) => v !== undefined)
   // https://github.com/OAI/OpenAPI-Specification/issues/2385
   if (meta?.parameters || meta?.headers) {
-    if (meta?.parameters?.required === true || meta?.headers?.required === true) {
+    if (meta.parameters?.required === true || meta.headers?.required === true) {
       return result.length === 0 ? z : `${z}.openapi({${result.join(',')}})`
     }
     return result.length === 0

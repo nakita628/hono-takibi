@@ -59,11 +59,11 @@ describe('template', () => {
     // `server/index.ts` means "module server/", so the app entry and handlers land beside it.
     expect(fs.existsSync(path.join(tmpDir, 'index.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'handlers', 'health.ts'))).toBe(true)
-    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8').split('\n')).toContain(
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8').split('\n')).toContain(
       "import { healthHandler } from './handlers'",
     )
     expect(
-      fs.readFileSync(path.join(tmpDir, 'handlers', 'health.ts'), 'utf-8').split('\n'),
+      fs.readFileSync(path.join(tmpDir, 'handlers', 'health.ts'), 'utf8').split('\n'),
     ).toContain("import { getHealthRoute } from '../server'")
   })
 
@@ -92,11 +92,11 @@ describe('template', () => {
     expect(fs.existsSync(path.join(tmpDir, 'src', 'index.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'src', 'handlers', 'health.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'handlers'))).toBe(false)
-    expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf-8').split('\n')).toContain(
+    expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf8').split('\n')).toContain(
       "import { getHealthRoute } from './routes'",
     )
     expect(
-      fs.readFileSync(path.join(tmpDir, 'src', 'handlers', 'health.ts'), 'utf-8').split('\n'),
+      fs.readFileSync(path.join(tmpDir, 'src', 'handlers', 'health.ts'), 'utf8').split('\n'),
     ).toContain("import type { getHealthRoute } from '../routes'")
   })
 
@@ -128,8 +128,8 @@ export const api = new OpenAPIHono()
       },
     } as OpenAPI
     await runGenerator(template(openAPI, output, '/', undefined, undefined, false))
-    const content = fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')
-    expect(content.includes('custom-marker')).toBe(true)
+    const content = fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8')
+    expect(content).toContain('custom-marker')
   })
 
   it('preserves import aliases and repeated namespace imports in the app file', async () => {
@@ -174,7 +174,7 @@ export const debug = { workerEnv, appEnv, BookService, ReviewService }
       },
     } as OpenAPI
     await runGenerator(template(openAPI, output, '/', '@/api', undefined, true))
-    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')).toBe(
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8')).toBe(
       `import { OpenAPIHono } from '@hono/zod-openapi'
 import { env as workerEnv } from 'cloudflare:workers'
 import { getBooksBookIdReviewsRouteHandler, getBooksRouteHandler } from '@/api/handlers'
@@ -233,8 +233,8 @@ export const usersHandler = app.openapi(getUsersRoute, async (c) => {
     } as OpenAPI
     await runGenerator(template(tagged, output, '/', undefined, undefined, false))
     expect(fs.existsSync(path.join(tmpDir, 'handlers', 'userManagement.ts'))).toBe(false)
-    expect(fs.readFileSync(path.join(tmpDir, 'handlers', 'users.ts'), 'utf-8')).toBe(implemented)
-    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')).toBe(
+    expect(fs.readFileSync(path.join(tmpDir, 'handlers', 'users.ts'), 'utf8')).toBe(implemented)
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8')).toBe(
       `import { OpenAPIHono } from '@hono/zod-openapi'
 import { usersHandler } from './handlers'
 
@@ -269,6 +269,6 @@ export default app
     const result = await runGeneratorError(
       template(openAPI, output, '/', undefined, undefined, false),
     )
-    expect(result.message.length > 0).toBe(true)
+    expect(result.message.length).toBeGreaterThan(0)
   })
 })

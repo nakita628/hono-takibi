@@ -167,13 +167,13 @@ export function object(
     ? Object.entries(schema.dependentRequired)
         .map(([key, deps]) => {
           const stmts = deps
-            .map((d) => {
+            .map((dependency) => {
               const fallback = dependentRequiredMessage ?? errorMessage
-              const msg = fallback ?? `requires "${d}" when "${key}" present`
+              const msg = fallback ?? `requires "${dependency}" when "${key}" present`
               const msgExpr = ARROW_FUNCTION_PATTERN.test(msg)
-                ? `(${msg})({code:'custom',path:[${JSON.stringify(d)}],input:o})`
+                ? `(${msg})({code:'custom',path:[${JSON.stringify(dependency)}],input:o})`
                 : JSON.stringify(msg)
-              return `if(!Object.hasOwn(o,${JSON.stringify(d)})){ctx.addIssue({code:'custom',message:${msgExpr},path:[${JSON.stringify(d)}]})}`
+              return `if(!Object.hasOwn(o,${JSON.stringify(dependency)})){ctx.addIssue({code:'custom',message:${msgExpr},path:[${JSON.stringify(dependency)}]})}`
             })
             .join(';')
           return `.superRefine((o,ctx)=>{if(!Object.hasOwn(o,${JSON.stringify(key)})){return}${stmts}})`

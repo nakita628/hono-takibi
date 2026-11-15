@@ -89,19 +89,23 @@ export default app
 describe('makeMock', () => {
   describe('basePath: "/"', () => {
     it('generates mock without .basePath()', async () => {
-      expect(await format(minimalOpenAPI, '/')).toBe(minimalExpected(''))
+      await expect(format(minimalOpenAPI, '/')).resolves.toBe(minimalExpected(''))
     })
   })
 
   describe('basePath: "/api"', () => {
     it('generates mock with .basePath("/api")', async () => {
-      expect(await format(minimalOpenAPI, '/api')).toBe(minimalExpected(".basePath('/api')"))
+      await expect(format(minimalOpenAPI, '/api')).resolves.toBe(
+        minimalExpected(".basePath('/api')"),
+      )
     })
   })
 
   describe('basePath: "/api/v1"', () => {
     it('generates mock with .basePath("/api/v1")', async () => {
-      expect(await format(minimalOpenAPI, '/api/v1')).toBe(minimalExpected(".basePath('/api/v1')"))
+      await expect(format(minimalOpenAPI, '/api/v1')).resolves.toBe(
+        minimalExpected(".basePath('/api/v1')"),
+      )
     })
   })
 
@@ -139,7 +143,7 @@ describe('makeMock', () => {
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -223,7 +227,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -312,7 +316,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -372,7 +376,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -433,7 +437,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { getCookie } from 'hono/cookie'
@@ -512,7 +516,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -590,7 +594,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -666,7 +670,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -742,7 +746,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -817,7 +821,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -875,7 +879,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -936,7 +940,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -1001,7 +1005,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -1043,7 +1047,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -1120,7 +1124,7 @@ export default app
           },
         },
       } as unknown as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -1197,7 +1201,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -1286,7 +1290,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -1377,7 +1381,7 @@ export default app
         },
         components: { schemas: { UserId: { type: 'string', 'x-brand': 'UserId' } } },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -1437,7 +1441,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -1510,7 +1514,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -1555,7 +1559,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -1596,7 +1600,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -1654,7 +1658,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -1754,7 +1758,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -1839,7 +1843,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -1912,7 +1916,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -1994,7 +1998,7 @@ export default app
           examples: { UserExample: { summary: 'User', value: { id: 1, name: 'Alice' } } },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -2059,7 +2063,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -2135,7 +2139,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -2258,7 +2262,7 @@ export default app
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'
@@ -3339,7 +3343,7 @@ function preferProblem(detail: string): never {
           },
         },
       } as OpenAPI
-      expect(await format(spec, '/'))
+      await expect(format(spec, '/')).resolves
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { HTTPException } from 'hono/http-exception'

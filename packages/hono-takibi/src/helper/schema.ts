@@ -60,7 +60,7 @@ export function makeSchemaInfos(
     readonly varNameToName: ReadonlyMap<string, string>
   },
 ) {
-  return schemaNames.map((name) => makeSchemaInfo(name, schemas[name], analysis))
+  return schemaNames.map((name) => makeSchemaInfo(name, schemas[name] ?? {}, analysis))
 }
 
 export function makeSchemaCode(
@@ -133,7 +133,7 @@ export function makeTypeDefinitions(
   const referencedTypes = new Set(
     initialTypeDefs.flatMap((typeDef) =>
       Array.from(typeDef.matchAll(/(\w+Type)\b/gu), (match) => match[1]).filter(
-        (t): t is string => t !== undefined,
+        (value): value is string => value !== undefined,
       ),
     ),
   )
@@ -184,10 +184,14 @@ export function makeSplitSchemaFile(
     ...(readonly !== undefined ? { readonly } : {}),
   })
   const content = `${typeDefinition}${schemaCode}`
-  const deps = findSchemaRefs(content, schemaName).filter((d) => d in schemas)
+  const deps = findSchemaRefs(content, schemaName).filter((dependency) => dependency in schemas)
   const depImports =
     deps.length > 0
-      ? deps.map((d) => renderNamedImport([`${d}Schema`], `./${uncapitalize(d)}`)).join('\n')
+      ? deps
+          .map((dependency) =>
+            renderNamedImport([`${dependency}Schema`], `./${uncapitalize(dependency)}`),
+          )
+          .join('\n')
       : ''
   const importZ = renderNamedImport(['z'], '@hono/zod-openapi')
   return [importZ, depImports, '\n', content].filter(Boolean).join('\n')

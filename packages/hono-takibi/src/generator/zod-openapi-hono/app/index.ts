@@ -134,7 +134,9 @@ export function app(
   }
   if (!routeHandler) {
     const handlerFileNames = inlineHandlerFileNames ?? handlerFilesOf(openapi)
-    const handlerExportNames = handlerFileNames.map((fn) => `${basename(fn, '.ts')}Handler`)
+    const handlerExportNames = handlerFileNames.map(
+      (fileName) => `${basename(fileName, '.ts')}Handler`,
+    )
     const handlerModule =
       handlerModuleOverride ?? (aliasPrefix ? `${aliasPrefix}/handlers` : './handlers')
     const handlerImport =

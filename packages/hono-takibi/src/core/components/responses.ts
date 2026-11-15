@@ -31,8 +31,8 @@ export function responses(
       const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
       yield* Effect.all(
         [
-          ...responseNames.map((responseName) => {
-            const singleComponent = { responses: { [responseName]: responses[responseName] } }
+          ...Object.entries(responses).map(([responseName, response]) => {
+            const singleComponent = { responses: { [responseName]: response } }
             const code = responsesCode(singleComponent, true, readonly)
             const filePath = path.join(outDir, `${uncapitalize(responseName)}.ts`)
             return emit(

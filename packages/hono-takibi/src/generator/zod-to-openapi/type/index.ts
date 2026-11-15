@@ -1,3 +1,4 @@
+import { isPresent } from '../../../guard/index.js'
 import { makeTypeString } from '../../../helper/type.js'
 import type { Schema } from '../../../openapi/index.js'
 
@@ -25,7 +26,7 @@ export function zodType(
     : schema.type === 'object'
   const isRecordLike =
     typeIsObject &&
-    schema.additionalProperties &&
+    isPresent(schema.additionalProperties) &&
     (!schema.properties || Object.keys(schema.properties).length === 0)
   // Use inline index signature for record-like types in cyclic groups to avoid TS2456
   // TypeScript doesn't allow Record<string,T> in cyclic type references

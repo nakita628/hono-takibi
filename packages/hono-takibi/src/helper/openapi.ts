@@ -15,6 +15,7 @@ import {
   isParameterRef,
   isPathItemEntry,
   isPathItemRef,
+  isPresent,
   isRecord,
   isRefObject,
   isResponses,
@@ -46,10 +47,10 @@ import {
 import { inlineWireRefs, isEmptyAbsent, WIRE_FORM, makeWireGather, wireObject } from './wire.js'
 
 export function makeRef($ref: string) {
-  const propertiesMatch = $ref.match(/^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/u)
+  const propertiesMatch = /^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/u.exec($ref)
   if (propertiesMatch) {
     const parentSchema = toIdentifierPascalCase(
-      ensureSuffix(decodePercent(propertiesMatch[1]), 'Schema'),
+      ensureSuffix(decodePercent(propertiesMatch[1] ?? ''), 'Schema'),
     )
     return `z.lazy(()=>${parentSchema})`
   }
@@ -102,10 +103,10 @@ export function makeExamples(examples: {
         'defaultValue' in example && example.defaultValue !== undefined
           ? `defaultValue:${JSON.stringify(example.defaultValue)}`
           : undefined,
-        'serializedValue' in example && example.serializedValue !== undefined
+        'serializedValue' in example
           ? `serializedValue:${JSON.stringify(example.serializedValue)}`
           : undefined,
-        'externalValue' in example && example.externalValue !== undefined
+        'externalValue' in example
           ? `externalValue:${JSON.stringify(example.externalValue)}`
           : undefined,
         'value' in example && example.value !== undefined
@@ -125,10 +126,10 @@ export function makeOperationResponses(
   readonly?: boolean,
   schemas?: { readonly [k: string]: Schema },
 ) {
-  const result = Object.entries(responses)
-    .map(([statusCode, res]) => {
-      if (!isResponses(res)) return undefined
-      return `${/^\d+$/u.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(res, readonly, schemas)}`
+  const result = Object.entries(responses ?? {})
+    .map(([statusCode, response]) => {
+      if (!isResponses(response)) return undefined
+      return `${/^\d+$/u.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(response, readonly, schemas)}`
     })
     .filter((v) => v !== undefined)
     .join(',')
@@ -158,7 +159,7 @@ export function makeHeaderSchema(header: Header | Reference, readonly?: boolean)
     return makeRef(header.$ref)
   }
   const options = readonly === true ? { readonly: true } : undefined
-  if ('schema' in header && header.schema) {
+  if ('schema' in header && isPresent(header.schema)) {
     return zodToOpenAPI(header.schema, { headers: header }, options)
   }
   const [media] = 'content' in header ? Object.values(header.content ?? {}) : []
@@ -229,17 +230,17 @@ export function makeHeadersAndReferences(headers: Header | Reference, readonly?:
     'example' in headers && headers.example !== undefined
       ? `example:${JSON.stringify(headers.example)}`
       : undefined,
-    'examples' in headers && headers.examples
+    'examples' in headers && isPresent(headers.examples)
       ? `examples:${makeExamples(headers.examples)}`
       : undefined,
     'style' in headers && headers.style ? `style:${JSON.stringify(headers.style)}` : undefined,
     'explode' in headers && headers.explode
       ? `explode:${JSON.stringify(headers.explode)}`
       : undefined,
-    'schema' in headers && headers.schema
+    'schema' in headers && isPresent(headers.schema)
       ? `schema:${zodToOpenAPI(headers.schema, { headers }, readonly === true ? { readonly: true } : undefined)}`
       : undefined,
-    'content' in headers && headers.content
+    'content' in headers && isPresent(headers.content)
       ? `content:{${makeContent(headers.content, readonly).join(',')}}`
       : undefined,
   ]
@@ -285,7 +286,6 @@ export function makeCallback(callback: Callbacks) {
       const pathItemCode = makePathItem(pathItem)
       return `${JSON.stringify(callbackKey)}:${pathItemCode}`
     })
-    .filter((v) => v !== undefined)
     .join(',')
 }
 
@@ -380,7 +380,7 @@ export function makeRequestBody(
   }
   const result = [
     body.description !== undefined ? `description:${JSON.stringify(body.description)}` : undefined,
-    'content' in body && body.content
+    'content' in body && isPresent(body.content)
       ? `content:{${makeContent(body.content, readonly, schemas === undefined ? {} : { schemas }).join(',')}}`
       : undefined,
     'required' in body && body.required ? `required:${JSON.stringify(body.required)}` : undefined,
@@ -413,7 +413,7 @@ export function makeMedia(
         .join(',')
     : undefined
   const result = [
-    media.schema
+    isPresent(media.schema)
       ? `schema:${zodToOpenAPI(media.schema, undefined, Object.keys(schemaOptions).length > 0 ? schemaOptions : undefined)}`
       : undefined,
     media.itemSchema
@@ -473,7 +473,7 @@ export function makeRequest(
       ? makeRequestParams(parameters, readonly, schemas)
       : undefined,
     (requestBody && '$ref' in requestBody && requestBody.$ref) ||
-    (requestBody && 'content' in requestBody && requestBody.content)
+    (requestBody && 'content' in requestBody && isPresent(requestBody.content))
       ? `body:${makeRequestBody(requestBody, readonly, schemas)}`
       : undefined,
   ]
@@ -549,10 +549,12 @@ export function makeParameters(
 } {
   return parameters.reduce((acc: { [section: string]: { [k: string]: string } }, param) => {
     if (!('in' in param)) return acc
-    if (!acc[param.in]) acc[param.in] = {}
-    acc[param.in][makeSafeKey(param.name)] = param.$ref
-      ? makeRef(param.$ref)
-      : makeParameterSchema(param, readonly, schemas)
+    acc[param.in] = {
+      ...acc[param.in],
+      [makeSafeKey(param.name)]: param.$ref
+        ? makeRef(param.$ref)
+        : makeParameterSchema(param, readonly, schemas),
+    }
     return acc
   }, {})
 }
@@ -653,7 +655,7 @@ export function makeOperation(operation: Operation, readonly?: boolean) {
     operation.requestBody
       ? `requestBody:${makeRequestBody(operation.requestBody, readonly)}`
       : undefined,
-    operation.responses
+    isPresent(operation.responses)
       ? `responses:${makeOperationResponses(operation.responses, readonly)}`
       : undefined,
     operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks, readonly)}}` : undefined,
@@ -721,7 +723,7 @@ export function makeRouteProperties(
     operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
     operation.operationId ? `operationId:${JSON.stringify(operation.operationId)}` : undefined,
     request ? `request:${request}` : undefined,
-    operation.responses
+    isPresent(operation.responses)
       ? `responses:${makeOperationResponses(operation.responses, readonly, schemas)}`
       : undefined,
     operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks, readonly)}}` : undefined,
@@ -820,7 +822,7 @@ export function makeWebhookEntries(
   if (!openapi.webhooks) return []
   const resolve = resolveParameter(openapi)
   return Object.entries(openapi.webhooks).flatMap(([name, pathItem]) =>
-    pathItem
+    isPresent(pathItem)
       ? HTTP_METHODS.filter((m) => pathItem[m]?.responses).flatMap((method) => {
           const operation = pathItem[method]
           if (!operation) return []

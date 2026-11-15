@@ -108,7 +108,7 @@ describe('parsePathItem', () => {
     expect(result.get).toStrictEqual({ responses: { '200': {} } })
     expect(result.post).toStrictEqual({ responses: { '201': {} } })
     expect(result.delete).toStrictEqual({ responses: { '204': {} } })
-    expect(result.put).toBe(undefined)
+    expect(result.put).toBeUndefined()
   })
 
   it.concurrent('includes path-level parameters', () => {
@@ -125,8 +125,8 @@ describe('parsePathItem', () => {
       summary: 'Not an operation',
       description: 'Also not an operation',
     })
-    expect(result.get).toBe(undefined)
-    expect(result.post).toBe(undefined)
+    expect(result.get).toBeUndefined()
+    expect(result.post).toBeUndefined()
   })
 })
 
@@ -170,7 +170,7 @@ describe('makeOperationDeps', () => {
   it.concurrent('pickAllBodyInfo returns undefined for no requestBody', () => {
     const deps = makeOperationDeps('client', {}, {})
     const result = deps.pickAllBodyInfo({ responses: {} })
-    expect(result).toBe(undefined)
+    expect(result).toBeUndefined()
   })
 
   it.concurrent('pickAllBodyInfo detects JSON body', () => {
@@ -446,11 +446,11 @@ describe('Use Case: OpenAPI path item parsing', () => {
     expect(result.get).toStrictEqual({ summary: 'Get resource', responses: { '200': {} } })
     expect(result.put).toStrictEqual({ summary: 'Update resource', responses: { '200': {} } })
     expect(result.delete).toStrictEqual({ summary: 'Delete resource', responses: { '204': {} } })
-    expect(result.post).toBe(undefined)
-    expect(result.patch).toBe(undefined)
-    expect(result.options).toBe(undefined)
-    expect(result.head).toBe(undefined)
-    expect(result.trace).toBe(undefined)
+    expect(result.post).toBeUndefined()
+    expect(result.patch).toBeUndefined()
+    expect(result.options).toBeUndefined()
+    expect(result.head).toBeUndefined()
+    expect(result.trace).toBeUndefined()
     expect(result.parameters).toStrictEqual([
       { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
     ])
@@ -479,10 +479,10 @@ describe('Use Case: OpenAPI path item parsing', () => {
       put: null,
       delete: [],
     })
-    expect(result.get).toBe(undefined)
-    expect(result.post).toBe(undefined)
-    expect(result.put).toBe(undefined)
-    expect(result.delete).toBe(undefined)
+    expect(result.get).toBeUndefined()
+    expect(result.post).toBeUndefined()
+    expect(result.put).toBeUndefined()
+    expect(result.delete).toBeUndefined()
   })
 })
 
@@ -495,8 +495,8 @@ describe('makeOperationDeps pickAllBodyInfo $ref resolution', () => {
   })
   it('returns undefined when the referenced requestBody is missing', () => {
     const deps = makeOperationDeps('client', {}, { Empty: { description: 'no content' } })
-    expect(deps.pickAllBodyInfo({ requestBody: { $ref: '#/components/requestBodies/Nope' } })).toBe(
-      undefined,
-    )
+    expect(
+      deps.pickAllBodyInfo({ requestBody: { $ref: '#/components/requestBodies/Nope' } }),
+    ).toBeUndefined()
   })
 })

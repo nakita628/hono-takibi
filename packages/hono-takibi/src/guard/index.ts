@@ -26,8 +26,8 @@ export function isHttpMethod(method: string): method is (typeof HTTP_METHODS)[nu
   return HTTP_METHODS.some((candidate) => candidate === method)
 }
 
-export function isValidIdent(str: string) {
-  return IDENTIFIER_PATTERN.test(str)
+export function isValidIdent(text: string) {
+  return IDENTIFIER_PATTERN.test(text)
 }
 
 /**
@@ -211,6 +211,16 @@ export function isSchemaArray(
 }
 
 /**
+ * Whether a value read from the document is there. The types describe a well-formed
+ * document, so they call such a value always present; a key written with nothing after it is
+ * `null` in YAML, and `false` is a schema that is given as "nothing", so the question is asked
+ * rather than assumed.
+ */
+export function isPresent<T>(value: T): value is Exclude<T, undefined | null | false> {
+  return value !== undefined && value !== null && value !== false
+}
+
+/**
  * JSON Schema 2020-12 §4.3.2 / §10.3.1.2 type guard for schema-vs-boolean
  * discrimination. `items`, `additionalProperties`, `unevaluatedItems`, and
  * `unevaluatedProperties` may be either an object schema or a boolean schema
@@ -218,7 +228,7 @@ export function isSchemaArray(
  * object form so callers can recurse without `as` casts.
  */
 export function isSchemaObject(v: Schema | readonly Schema[] | boolean | undefined): v is Schema {
-  return typeof v === 'object' && v !== null && !Array.isArray(v)
+  return isRecord(v)
 }
 
 export function isMediaWithSchema(v: unknown): v is { readonly schema: Schema } {

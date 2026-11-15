@@ -12,6 +12,7 @@ import {
   isOperation,
   isParameter,
   isParameterArray,
+  isPresent,
   isRequestBody,
   isSchemaArray,
   isStringRef,
@@ -198,7 +199,7 @@ function makeInputType(
 }
 
 function makePathParams(openApiPath: string): readonly string[] {
-  return [...openApiPath.matchAll(/\{([^}]+)\}/gu)].map((m) => m[1])
+  return [...openApiPath.matchAll(/\{([^}]+)\}/gu)].flatMap((m) => m[1] ?? [])
 }
 
 function makeParamPart(params: readonly Parameter[], aliases: Aliases) {
@@ -280,7 +281,7 @@ function makeOutputTypes(
   aliases: Aliases,
   inputType: string,
 ): readonly string[] {
-  return Object.entries(responses).flatMap(([statusCode, response]) => {
+  return Object.entries(responses ?? {}).flatMap(([statusCode, response]) => {
     const resolvedResponse = makeResolvedResponse(response, aliases.components)
     const status = statusCodeToNumber(statusCode)
     if (!resolvedResponse.content) {
@@ -316,7 +317,7 @@ function makeResolvedParameter(parameter: unknown, components: Components | unde
 }
 
 function makeResolvedRequestBody(requestBody: unknown, components: Components | undefined) {
-  if (!requestBody || typeof requestBody !== 'object') return undefined
+  if (typeof requestBody !== 'object' || requestBody === null) return undefined
   if (isRequestBody(requestBody) && !isStringRef(requestBody)) return requestBody
   if (isStringRef(requestBody) && components?.requestBodies) {
     const refName = requestBody.$ref.split('/').at(-1)
@@ -354,7 +355,7 @@ function makeParameterSchema(parameter: Parameter) {
 }
 
 function makeSchemaTypeString(schema: Schema, aliases: Aliases, visited: Set<string>): string {
-  if (!schema) return 'unknown'
+  if (!isPresent(schema)) return 'unknown'
   if (schema.$ref) return makeRefTypeString(schema.$ref, aliases)
   if (schema.oneOf && schema.oneOf.length > 0) {
     return schema.oneOf.map((s) => makeSchemaTypeString(s, aliases, visited)).join('|')
@@ -394,13 +395,17 @@ function makeSchemaTypeString(schema: Schema, aliases: Aliases, visited: Set<str
   }
   const types = makeNormalizedTypes(schema)
   const isNullable = schema.nullable === true || types.includes('null')
-  const nonNullTypes = types.filter((t) => t !== 'null')
+  const nonNullTypes = types.filter((typeName) => typeName !== 'null')
   const baseType = makeBaseTypeString(schema, nonNullTypes, aliases, visited)
   return isNullable ? `(${baseType}|null)` : baseType
 }
 
 function makeNormalizedTypes(schema: Schema): readonly string[] {
-  return schema.type ? (Array.isArray(schema.type) ? schema.type : [schema.type]) : ['object']
+  return schema.type === undefined
+    ? ['object']
+    : Array.isArray(schema.type)
+      ? schema.type
+      : [schema.type]
 }
 
 function makeBaseTypeString(
@@ -410,7 +415,7 @@ function makeBaseTypeString(
   visited: Set<string>,
 ) {
   return types.length > 1
-    ? types.map((t) => makeSingleTypeString(schema, t, aliases, visited)).join('|')
+    ? types.map((typeName) => makeSingleTypeString(schema, typeName, aliases, visited)).join('|')
     : makeSingleTypeString(schema, types[0] ?? 'object', aliases, visited)
 }
 
@@ -516,15 +521,11 @@ function makePropertyMap(
 }
 
 function makeArrayTypeString(schema: Schema, aliases: Aliases, visited: Set<string>) {
-  if (!schema.items) return 'unknown[]'
+  // Boolean `items` (JSON Schema 2020-12 §10.3.1.2) are `unknown[]` either way: `true`
+  // constrains nothing, and `false` is emitted as `z.array(z.any()).length(0)`, which infers
+  // an array and would not fit an empty tuple.
+  if (!isPresent(schema.items) || schema.items === true) return 'unknown[]'
   const items = schema.items
-  // JSON Schema 2020-12 §10.3.1.2 boolean items:
-  //   items: true  → trailing items unconstrained (unknown[])
-  //   items: false → trailing items disallowed; with no prefixItems the type
-  //                  collapses to []. We surface a tuple of length 0.
-  if (typeof items === 'boolean') {
-    return items ? 'unknown[]' : '[]'
-  }
   if (isSchemaArray(items)) {
     return items.length > 1
       ? `[${items.map((item) => makeSchemaTypeString(item, aliases, visited)).join(',')}]`

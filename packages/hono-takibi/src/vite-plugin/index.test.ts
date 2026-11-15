@@ -223,18 +223,18 @@ describe('honoTakibiVite', () => {
     plugin.configureServer(server)
     await reloaded
 
-    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/schema/extra.ts'))).toBe(
-      false,
-    )
-    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/route/extra.ts'))).toBe(
-      false,
-    )
-    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/schema/README.md'))).toBe(
-      true,
-    )
-    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/route/README.md'))).toBe(
-      true,
-    )
+    await expect(
+      fileExists(path.join(testState.sandboxDirectory, 'out/schema/extra.ts')),
+    ).resolves.toBe(false)
+    await expect(
+      fileExists(path.join(testState.sandboxDirectory, 'out/route/extra.ts')),
+    ).resolves.toBe(false)
+    await expect(
+      fileExists(path.join(testState.sandboxDirectory, 'out/schema/README.md')),
+    ).resolves.toBe(true)
+    await expect(
+      fileExists(path.join(testState.sandboxDirectory, 'out/route/README.md')),
+    ).resolves.toBe(true)
     expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/schema'))).toBe(true)
     expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/route'))).toBe(true)
   })
@@ -297,7 +297,7 @@ describe('honoTakibiVite', () => {
     await reloaded
 
     const result = plugin.handleHotUpdate({ file: 'some-other-file.ts', server })
-    expect(result).toBe(undefined)
+    expect(result).toBeUndefined()
   })
 
   it('creates independent plugin instances', () => {
@@ -418,7 +418,7 @@ describe('honoTakibiVite', () => {
     plugin.configureServer(server)
     await reloaded
 
-    expect(onSpy).toHaveBeenCalledTimes(1)
+    expect(onSpy).toHaveBeenCalledOnce()
     expect(onSpy.mock.calls[0][0]).toBe('all')
     expect(typeof onSpy.mock.calls[0][1]).toBe('function')
   })
@@ -746,7 +746,7 @@ describe('honoTakibiVite', () => {
     const failure = await Effect.runPromise(
       Effect.flip(actual.parseOpenAPI(`${testState.sandboxDirectory}/missing.yaml`)),
     )
-    vi.mocked(parseOpenAPI).mockImplementationOnce(() => Effect.fail(failure))
+    vi.mocked(parseOpenAPI).mockReturnValueOnce(Effect.fail(failure))
 
     const configuration = {
       input: 'openapi.yaml',
@@ -774,7 +774,7 @@ describe('honoTakibiVite', () => {
   // パッケージの検査はジョブの前に走り、失敗はドキュメントの失敗と同じように記録される。
   it('logs a config error when a split output in another package names no package', async () => {
     const { parseOpenAPI } = await import('../openapi/index.js')
-    vi.mocked(parseOpenAPI).mockImplementationOnce(() =>
+    vi.mocked(parseOpenAPI).mockReturnValueOnce(
       Effect.succeed({
         openapi: '3.1.0',
         info: { title: 'Pets', version: '1.0.0' },
@@ -909,7 +909,7 @@ describe('honoTakibiVite', () => {
   it('logs error when a generator returns failure result', async () => {
     const core = await import('../core/index.js')
     // Any error in `takibi`'s channel will do; the plugin only reads `.message`.
-    vi.mocked(core.takibi).mockImplementationOnce(() =>
+    vi.mocked(core.takibi).mockReturnValueOnce(
       Effect.fail(new FormatError({ message: 'takibi internal failure' })),
     )
     const configuration = {
@@ -1006,10 +1006,10 @@ describe('honoTakibiVite', () => {
       expect(logSpy).toHaveBeenCalledWith('⏭️ input unchanged - skipped regeneration')
     })
 
-    expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun)
-    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/route/marker.ts'))).toBe(
-      true,
-    )
+    expect(vi.mocked(routeMock).mock.calls).toHaveLength(callsAfterInitialRun)
+    await expect(
+      fileExists(path.join(testState.sandboxDirectory, 'out/route/marker.ts')),
+    ).resolves.toBe(true)
     expect(sendSpy).not.toHaveBeenCalledWith({ type: 'full-reload' })
     logSpy.mockRestore()
   })
@@ -1043,7 +1043,7 @@ describe('honoTakibiVite', () => {
     if (watcherCallback) await watcherCallback('change', yamlPath)
     await reloadDeferred.promise
 
-    expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
+    expect(vi.mocked(routeMock).mock.calls).toHaveLength(callsAfterInitialRun + 1)
     expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/route'))).toBe(true)
   })
 
@@ -1068,7 +1068,7 @@ describe('honoTakibiVite', () => {
     const configPath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
     if (watcherCallback) await watcherCallback('change', configPath)
     await waitFor(() => {
-      expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
+      expect(vi.mocked(routeMock).mock.calls).toHaveLength(callsAfterInitialRun + 1)
     })
 
     const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
@@ -1076,7 +1076,7 @@ describe('honoTakibiVite', () => {
     await waitFor(() => {
       expect(logSpy).toHaveBeenCalledWith('⏭️ input unchanged - skipped regeneration')
     })
-    expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
+    expect(vi.mocked(routeMock).mock.calls).toHaveLength(callsAfterInitialRun + 1)
     logSpy.mockRestore()
   })
 
@@ -1103,7 +1103,7 @@ describe('honoTakibiVite', () => {
     }
     if (watcherCallback) await watcherCallback('change', yamlPath)
     await firstReload.promise
-    expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
+    expect(vi.mocked(routeMock).mock.calls).toHaveLength(callsAfterInitialRun + 1)
 
     const secondReload = createDeferred()
     server.ws.send = (payload) => {
@@ -1111,7 +1111,7 @@ describe('honoTakibiVite', () => {
     }
     if (watcherCallback) await watcherCallback('change', yamlPath)
     await secondReload.promise
-    expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 2)
+    expect(vi.mocked(routeMock).mock.calls).toHaveLength(callsAfterInitialRun + 2)
   })
 
   it('serializes an overlapping config-change run with an in-flight input-change run', async () => {
@@ -1136,7 +1136,7 @@ describe('honoTakibiVite', () => {
       return Promise.resolve({ default: configuration })
     }
     const gate = createDeferred()
-    vi.mocked(routeMock).mockImplementationOnce(() =>
+    vi.mocked(routeMock).mockReturnValueOnce(
       Effect.promise(() => gate.promise).pipe(
         Effect.as('Generated route code written to out/route'),
       ),
@@ -1147,7 +1147,7 @@ describe('honoTakibiVite', () => {
     const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
     if (watcherCallback) await watcherCallback('change', yamlPath)
     await waitFor(() => {
-      expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
+      expect(vi.mocked(routeMock).mock.calls).toHaveLength(callsAfterInitialRun + 1)
     })
 
     const configPath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
@@ -1188,7 +1188,7 @@ describe('honoTakibiVite', () => {
     if (watcherCallback) await watcherCallback('change', yamlPath)
     await reloadDeferred.promise
 
-    expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
+    expect(vi.mocked(routeMock).mock.calls).toHaveLength(callsAfterInitialRun + 1)
   })
 
   // --- output snapshot: reload only when output files change ---
@@ -1222,7 +1222,7 @@ describe('honoTakibiVite', () => {
     const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
     if (watcherCallback) await watcherCallback('change', yamlPath)
     await waitFor(() => {
-      expect(vi.mocked(core.takibi).mock.calls.length).toBe(callsAfterInitialRun + 1)
+      expect(vi.mocked(core.takibi).mock.calls).toHaveLength(callsAfterInitialRun + 1)
     })
     await new Promise((resolve) => setTimeout(resolve, 50))
 

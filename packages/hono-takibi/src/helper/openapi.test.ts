@@ -1376,7 +1376,7 @@ describe('openapi helper', () => {
     })
 
     it.concurrent('generates empty operation', () => {
-      const result = makeOperation({} as any)
+      const result = makeOperation({})
       expect(result).toBe('{}')
     })
 

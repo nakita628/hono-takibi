@@ -812,7 +812,7 @@ describe('parseConfig()', () => {
           template: { define: true },
         }),
       )
-      expect(result.output).toBe(undefined)
+      expect(result.output).toBeUndefined()
       expect(result.template?.define).toBe(true)
     })
 
