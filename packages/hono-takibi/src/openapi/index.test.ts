@@ -7,7 +7,7 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { runGenerator, runGeneratorError } from '../testing/index.js'
-import { CONNECT_ATTEMPT_TIMEOUT_MS, parseOpenAPI } from './index.js'
+import { CONNECT_ATTEMPT_TIMEOUT_MS, isLiteralPointer, parseOpenAPI } from './index.js'
 
 describe('parseOpenAPI', () => {
   it('includes the resolver error code when a download has no reason text', async () => {
@@ -232,6 +232,123 @@ describe('parseOpenAPI', () => {
 const TSP_TEST_DIR = path.resolve(import.meta.dirname, '../..')
 const TSP_TEST_FILE = `${TSP_TEST_DIR}/tmp-spec.tsp` as const
 const TSP_TEST_SUBDIR = `${TSP_TEST_DIR}/tmp`
+
+describe('a $ref key inside a literal (#432)', () => {
+  it.concurrent('leaves the $ref keys of examples, defaults and enums as data', async () => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-openapi-'))
+    const input = `${directory}/openapi.json` as const
+    const content = {
+      schema: {
+        type: 'object',
+        example: { panel: { $ref: '#/spec/panels/a' } },
+        examples: [{ $ref: '#/spec/panels/b' }],
+        properties: {
+          // A property named as a keyword is a schema, and its reference is one.
+          example: { $ref: '#/components/schemas/Panel' },
+          kind: { default: { $ref: 'missing.json#/c' }, enum: [{ $ref: '#/spec/d' }] },
+        },
+      },
+      example: { $ref: '#/spec/panels/e' },
+      examples: { sample: { value: { content: { $ref: '#/spec/panels/request-rate' } } } },
+    }
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Example dollar-ref', version: '1.0' },
+      paths: {
+        '/widgets': {
+          post: {
+            requestBody: { content: { 'application/json': content } },
+            responses: { default: { $ref: '#/components/responses/Failure' } },
+          },
+        },
+      },
+      components: {
+        schemas: { Panel: { type: 'string' } },
+        responses: { Failure: { description: 'failure' } },
+      },
+    }
+    fs.writeFileSync(input, JSON.stringify(document))
+    try {
+      expect(await runGenerator(parseOpenAPI(input))).toStrictEqual(document)
+    } finally {
+      fs.rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
+  it.concurrent('leaves the literals of a referenced file as data, and bundles the rest', async () => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-openapi-'))
+    const input = `${directory}/openapi.json` as const
+    fs.writeFileSync(
+      `${directory}/body.json`,
+      JSON.stringify({
+        content: {
+          'application/json': {
+            schema: { type: 'object' },
+            example: { panel: { $ref: 'missing.json#/a' } },
+          },
+        },
+      }),
+    )
+    fs.writeFileSync(
+      input,
+      JSON.stringify({
+        openapi: '3.0.3',
+        info: { title: 'Example dollar-ref', version: '1.0' },
+        paths: {
+          '/widgets': {
+            post: {
+              requestBody: { $ref: 'body.json' },
+              responses: { 200: { description: 'ok' } },
+            },
+          },
+        },
+      }),
+    )
+    try {
+      const result = await runGenerator(parseOpenAPI(input))
+      expect(result.paths).toStrictEqual({
+        '/widgets': {
+          post: {
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: { type: 'object' },
+                  example: { panel: { $ref: 'missing.json#/a' } },
+                },
+              },
+            },
+            responses: { 200: { description: 'ok' } },
+          },
+        },
+      })
+    } finally {
+      fs.rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
+  it.concurrent.each([
+    ['#/paths/~1w/post/requestBody/content/application~1json/example', undefined, true],
+    ['#/paths/~1w/post/requestBody/content/application~1json/examples/a/value', undefined, true],
+    ['#/paths/~1w/post/requestBody/content/application~1json/examples/a', undefined, false],
+    ['#/components/examples/example/value/default', undefined, true],
+    ['#/components/examples/example', undefined, false],
+    ['#/components/schemas/A/default', undefined, true],
+    ['#/components/schemas/A/enum/0', undefined, true],
+    ['#/components/schemas/A/const', undefined, true],
+    ['#/components/schemas/A/examples', [{}], true],
+    ['#/components/schemas/A/examples', {}, false],
+    ['#/components/schemas/A/properties/example', undefined, false],
+    ['#/components/schemas/A/properties/default/properties/enum', undefined, false],
+    ['#/components/schemas/A/properties/properties/example', undefined, true],
+    ['#/components/schemas/default', undefined, false],
+    ['#/paths/~1w/get/responses/default', undefined, false],
+    ['#/paths/~1w/get/parameters/0/example', undefined, true],
+    ['#/paths/~1w/get/parameters/0/schema', undefined, false],
+    ['#', undefined, false],
+  ])('isLiteralPointer(%s, %j) is %s', (pointer, value, expected) => {
+    expect(isLiteralPointer(pointer, value)).toBe(expected)
+  })
+})
 
 describe('parseOpenAPI TypeSpec', () => {
   beforeEach(() => {

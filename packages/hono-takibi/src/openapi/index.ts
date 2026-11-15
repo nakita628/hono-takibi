@@ -63,6 +63,71 @@ async function readDocument(input: string): Promise<{ readonly [k: string]: unkn
   return isRecord(document) ? document : {}
 }
 
+/** The keys of a Schema, Parameter, Header or Media Type Object whose value is a literal. */
+const LITERAL_KEYS: ReadonlySet<string> = new Set(['example', 'default', 'const', 'enum'])
+
+/** The keys whose value is a map of names: a key of such a map is a name, never a keyword. */
+const NAME_MAP_KEYS: ReadonlySet<string> = new Set([
+  'paths',
+  'webhooks',
+  'schemas',
+  'responses',
+  'parameters',
+  'requestBodies',
+  'headers',
+  'securitySchemes',
+  'links',
+  'callbacks',
+  'pathItems',
+  'mediaTypes',
+  'content',
+  'encoding',
+  'variables',
+  'properties',
+  'patternProperties',
+  '$defs',
+  'definitions',
+  'dependentSchemas',
+])
+
+/**
+ * Whether the value at `pointer` (`#/paths/~1widgets/post/...`, from the root of the document)
+ * is a literal: an `example`, a `default`, a `const`, an `enum`, an entry of a JSON Schema
+ * `examples` array, or the `value` of an Example Object. A `$ref` key inside one is data, not
+ * a reference (#432, SigNoz: a dashboard JSON example whose `$ref` keys point into the
+ * dashboard). The pointer is read from the root, so that a property, a response or an example
+ * that is named `example` or `default` is not taken for the keyword.
+ */
+export function isLiteralPointer(pointer: string, value?: unknown) {
+  const step = (
+    state: 'object' | 'names' | 'examples' | 'example',
+    segments: readonly string[],
+  ): boolean => {
+    const [segment, ...rest] = segments
+    if (segment === undefined) return false
+    if (state === 'names') return step('object', rest)
+    if (state === 'examples') return step('example', rest)
+    if (state === 'example' && (segment === 'value' || segment === 'dataValue')) return true
+    if (LITERAL_KEYS.has(segment)) return true
+    if (segment === 'examples') {
+      // The `examples` of a Schema Object is an array of literals; elsewhere a map of
+      // Example Objects.
+      return rest.length === 0 ? Array.isArray(value) : step('examples', rest)
+    }
+    return step(NAME_MAP_KEYS.has(segment) ? 'names' : 'object', rest)
+  }
+  return step('object', pointer.split('/').slice(1))
+}
+
+/**
+ * The options every document is bundled with: a literal is left as written, neither
+ * downloaded nor read as a pointer.
+ */
+const LITERALS_KEPT = {
+  resolveExcludedPathMatcher: isLiteralPointer,
+  bundle: { excludedPathMatcher: isLiteralPointer },
+}
+
 /**
  * The document, bundled. swagger-parser rejects a 3.1 document with neither `paths` nor
  * `webhooks` as "not a valid Openapi API definition", though OpenAPI 3.1 asks for one of
@@ -72,7 +137,7 @@ async function readDocument(input: string): Promise<{ readonly [k: string]: unkn
  */
 async function bundle(input: string) {
   try {
-    return await SwaggerParser.bundle(input)
+    return await SwaggerParser.bundle(input, LITERALS_KEPT)
   } catch (error) {
     if (!(error instanceof SyntaxError && error.message.endsWith(INVALID_DEFINITION))) throw error
     const document = await readDocument(input)
@@ -83,7 +148,7 @@ async function bundle(input: string) {
       document.webhooks === undefined &&
       isRecord(document.components)
     if (!isComponentsOnly) throw error
-    return SwaggerParser.bundle(input, { ...document, paths: {} } as Document, {})
+    return SwaggerParser.bundle(input, { ...document, paths: {} } as Document, LITERALS_KEPT)
   }
 }
 
