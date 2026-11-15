@@ -13,10 +13,11 @@ import {
   isParameter,
   isPathItemEntry,
   isPathItemRef,
+  isPresent,
   isRefObject,
-  isSecurityArray,
   isSchemaArray,
   isSchemaObject,
+  isSecurityArray,
   isSecurityScheme,
 } from '../../guard/index.js'
 import { getNonExistentValue, mockFunctionSignature, schemaToFaker } from '../../helper/index.js'
@@ -46,7 +47,7 @@ function collectRefs(schema: Schema, refs = new Set<string>()) {
     const refName = schema.$ref.split('/').at(-1)
     if (refName) refs.add(refName)
   }
-  if (schema.items) {
+  if (isPresent(schema.items)) {
     const items = isSchemaArray(schema.items) ? schema.items : [schema.items]
     for (const item of items) {
       if (isSchemaObject(item)) collectRefs(item, refs)
@@ -228,7 +229,7 @@ function extractSecurityInfo(
           readonly in?: 'header' | 'query' | 'cookie'
         }[] => {
           const scheme = securitySchemes?.[schemeName]
-          if (!(scheme && isSecurityScheme(scheme))) return [] as const
+          if (!(isPresent(scheme) && isSecurityScheme(scheme))) return [] as const
           if (scheme.type === 'http' && scheme.scheme === 'bearer') {
             return [{ type: 'bearer', name: 'Authorization' }] as const
           }
@@ -272,7 +273,7 @@ function filterToJsonContentTypes(openapi: OpenAPI) {
           }
           if (!hasRequestBodyContent(v)) return [k, v] as const
           const jsonContent = v.requestBody.content[JSON_MEDIA_TYPE]
-          if (!jsonContent) return [k, v] as const
+          if (!isPresent(jsonContent)) return [k, v] as const
           return [
             k,
             {
@@ -916,11 +917,12 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
   }
   const sortedRefs = topologicalSort(allDeps, schemas)
   const circularSchemas = detectCircularSchemas(schemas)
-  const mockFunctions = sortedRefs
-    .filter((refName) => schemas[refName])
-    .map((refName) =>
-      makeMockFunction(refName, schemas[refName], schemas, circularSchemas, fakerOptions),
-    )
+  const mockFunctions = sortedRefs.flatMap((refName) => {
+    const schema = schemas[refName]
+    return schema === undefined
+      ? []
+      : [makeMockFunction(refName, schema, schemas, circularSchemas, fakerOptions)]
+  })
   // Emit only the schema consts a route can reach. Roots are every
   // `#/components/schemas/X` referenced from the paths and from the non-schema
   // component objects a route may `$ref` (responses, parameters, request

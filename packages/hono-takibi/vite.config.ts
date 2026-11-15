@@ -466,6 +466,22 @@ export default defineConfig({
       'max-nested-callbacks': ['error', 4],
       'max-classes-per-file': ['error', 2],
 
+      // Conditions. A condition is a boolean, a string or a number that is there, or an
+      // explicit question: an `any`, an object the types call always present and a union of
+      // a schema with a boolean (`items`, `additionalProperties`) are asked with `isPresent`
+      // or compared, so `0`, `false` and `null` are never dropped by accident. An optional
+      // string stays a condition: `if (description)` means "written and not empty" in some
+      // 200 places, and that is what it should mean.
+      'typescript/strict-boolean-expressions': [
+        'error',
+        { allowNullableBoolean: true, allowNullableString: true },
+      ],
+      // `typescript/no-unnecessary-condition` is deliberately absent. `OpenAPI` types a
+      // well-formed document and the input is whatever was written: most of what the rule
+      // calls unnecessary (`v !== null`, `operation.responses ?? {}`, `document.paths ===
+      // undefined`) is the code that keeps a malformed document from throwing.
+      // `noUncheckedIndexedAccess` in tsconfig.json is what makes index reads honest.
+
       // Types. The repository writes a dictionary as an index signature
       // (`{ readonly [k: string]: X }`), which can be `readonly` where `Record` cannot say so
       // without a wrapper.
@@ -759,6 +775,7 @@ export default defineConfig({
           'typescript/no-unsafe-call': 'off',
           'typescript/no-unsafe-member-access': 'off',
           'typescript/no-unsafe-return': 'off',
+          'typescript/strict-boolean-expressions': 'off',
         },
       },
       {
@@ -803,6 +820,7 @@ export default defineConfig({
           'typescript/no-explicit-any': 'off',
           'typescript/consistent-type-assertions': 'off',
           'typescript/no-unsafe-type-assertion': 'off',
+          'typescript/strict-boolean-expressions': 'off',
           'typescript/no-unsafe-argument': 'off',
           'typescript/no-unsafe-assignment': 'off',
           'typescript/no-unsafe-member-access': 'off',

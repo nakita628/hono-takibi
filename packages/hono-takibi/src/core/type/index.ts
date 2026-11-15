@@ -12,6 +12,7 @@ import {
   isOperation,
   isParameter,
   isParameterArray,
+  isPresent,
   isRequestBody,
   isSchemaArray,
   isStringRef,
@@ -198,7 +199,7 @@ function makeInputType(
 }
 
 function makePathParams(openApiPath: string): readonly string[] {
-  return [...openApiPath.matchAll(/\{([^}]+)\}/gu)].map((m) => m[1])
+  return [...openApiPath.matchAll(/\{([^}]+)\}/gu)].flatMap((m) => m[1] ?? [])
 }
 
 function makeParamPart(params: readonly Parameter[], aliases: Aliases) {
@@ -316,7 +317,7 @@ function makeResolvedParameter(parameter: unknown, components: Components | unde
 }
 
 function makeResolvedRequestBody(requestBody: unknown, components: Components | undefined) {
-  if (!requestBody || typeof requestBody !== 'object') return undefined
+  if (typeof requestBody !== 'object' || requestBody === null) return undefined
   if (isRequestBody(requestBody) && !isStringRef(requestBody)) return requestBody
   if (isStringRef(requestBody) && components?.requestBodies) {
     const refName = requestBody.$ref.split('/').at(-1)
@@ -354,7 +355,7 @@ function makeParameterSchema(parameter: Parameter) {
 }
 
 function makeSchemaTypeString(schema: Schema, aliases: Aliases, visited: Set<string>): string {
-  if (!schema) return 'unknown'
+  if (!isPresent(schema)) return 'unknown'
   if (schema.$ref) return makeRefTypeString(schema.$ref, aliases)
   if (schema.oneOf && schema.oneOf.length > 0) {
     return schema.oneOf.map((s) => makeSchemaTypeString(s, aliases, visited)).join('|')
@@ -400,7 +401,11 @@ function makeSchemaTypeString(schema: Schema, aliases: Aliases, visited: Set<str
 }
 
 function makeNormalizedTypes(schema: Schema): readonly string[] {
-  return schema.type ? (Array.isArray(schema.type) ? schema.type : [schema.type]) : ['object']
+  return schema.type === undefined
+    ? ['object']
+    : Array.isArray(schema.type)
+      ? schema.type
+      : [schema.type]
 }
 
 function makeBaseTypeString(
@@ -516,7 +521,7 @@ function makePropertyMap(
 }
 
 function makeArrayTypeString(schema: Schema, aliases: Aliases, visited: Set<string>) {
-  if (!schema.items) return 'unknown[]'
+  if (!isPresent(schema.items)) return 'unknown[]'
   const items = schema.items
   // JSON Schema 2020-12 §10.3.1.2 boolean items:
   //   items: true  → trailing items unconstrained (unknown[])

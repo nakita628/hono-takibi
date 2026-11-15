@@ -32,8 +32,8 @@ export function headers(
       const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
       yield* Effect.all(
         [
-          ...headerNames.map((headerName) => {
-            const singleComponent = { headers: { [headerName]: headers[headerName] } }
+          ...Object.entries(headers).map(([headerName, header]) => {
+            const singleComponent = { headers: { [headerName]: header } }
             const code = headersCode(singleComponent, true, exportType, readonly)
             const filePath = path.join(outDir, `${uncapitalize(headerName)}.ts`)
             return emit(

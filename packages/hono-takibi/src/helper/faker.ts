@@ -1,5 +1,5 @@
 import { COMPONENT_REF_PREFIX } from '../constants/index.js'
-import { hasNumericConstraint, isSchemaArray, isSchemaObject } from '../guard/index.js'
+import { hasNumericConstraint, isPresent, isSchemaArray, isSchemaObject } from '../guard/index.js'
 import type { Schema, Type } from '../openapi/index.js'
 import {
   ensureSuffix,
@@ -753,7 +753,7 @@ function schemaValue(
   if (schema.type === 'array' && schema.prefixItems && schema.prefixItems.length > 0) {
     return `[${schema.prefixItems.map((item) => schemaToFaker(item, undefined, options)).join(', ')}]`
   }
-  if (schema.type === 'array' && schema.items) {
+  if (schema.type === 'array' && isPresent(schema.items)) {
     const itemSchema = isSchemaArray(schema.items) ? schema.items[0] : schema.items
     if (!isSchemaObject(itemSchema)) return '[]'
     const itemCall = recursiveCall(itemSchema, options.recursive)
@@ -830,7 +830,7 @@ function schemaValue(
     const props = renderProps(schema.properties, [...required, ...optional.slice(0, missing)])
     return props === '' ? '{}' : `{ ${props} }`
   }
-  if (schema.type === 'object' && !schema.properties && schema.additionalProperties) {
+  if (schema.type === 'object' && !schema.properties && isPresent(schema.additionalProperties)) {
     // A map (`z.record(z.string(), X)`) gets a few entries so consumers see its
     // shape. `additionalProperties: true` says nothing about the values, and
     // `propertyNames`/`patternProperties` constrain keys a random key would

@@ -33,9 +33,9 @@ export function parameters(
       const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
       yield* Effect.all(
         [
-          ...parameterNames.map((parameterName) => {
+          ...Object.entries(parameters).map(([parameterName, parameter]) => {
             const singleComponent = {
-              parameters: { [parameterName]: parameters[parameterName] },
+              parameters: { [parameterName]: parameter },
               ...(schemas === undefined ? {} : { schemas }),
             }
             const code = parametersCode(singleComponent, true, exportType, readonly)

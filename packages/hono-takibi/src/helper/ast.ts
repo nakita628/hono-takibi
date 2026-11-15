@@ -190,7 +190,7 @@ export function analyzeCircularSchemas(
   const zSchemaMap = new Map(
     schemaNames.map((n) => [
       n,
-      zodToOpenAPI(schemas[n], undefined, {
+      zodToOpenAPI(schemas[n] ?? {}, undefined, {
         schemas,
         ...(readonly === true ? { readonly: true } : {}),
       }),

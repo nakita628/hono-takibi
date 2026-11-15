@@ -21,11 +21,11 @@ export function parametersCode(
 ) {
   const { parameters } = components
   if (!parameters) return ''
-  return Object.keys(parameters)
-    .map((k) =>
+  return Object.entries(parameters)
+    .map(([k, parameter]) =>
       zodToOpenAPISchema(
         toIdentifierPascalCase(ensureSuffix(k, 'ParamsSchema')),
-        makeParameterSchema(parameters[k], readonly, components.schemas),
+        makeParameterSchema(parameter, readonly, components.schemas),
         exportParameters,
         exportParametersTypes,
         true,

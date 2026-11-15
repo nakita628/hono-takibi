@@ -3,6 +3,7 @@ import {
   hasNoUserChain,
   isBinaryFile,
   isExamplesInput,
+  isPresent,
   isRecord,
   isSchemaArray,
   isUntypedObject,
@@ -794,7 +795,10 @@ export function wrap(
         meta.headers.deprecated
           ? `deprecated:${JSON.stringify(meta.headers.deprecated)}`
           : undefined,
-        meta.headers.example ? `example:${JSON.stringify(meta.headers.example)}` : undefined,
+        // `!== undefined` (not truthy): an example of `0`, `false` or `''` is an example.
+        meta.headers.example !== undefined
+          ? `example:${JSON.stringify(meta.headers.example)}`
+          : undefined,
         // A Header Object's `examples` is a map of Example Objects; the schema's is a list
         // of values (#398).
         ...(() => {
@@ -803,7 +807,7 @@ export function wrap(
         })(),
       ].filter((v) => v !== undefined)
     : []
-  const openapiSchema = args ? JSON.stringify(args) : undefined
+  const openapiSchema = isPresent(args) ? JSON.stringify(args) : undefined
   // Strip outer braces so the body embeds directly in `.openapi({...})`.
   const openapiSchemaBody =
     openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')

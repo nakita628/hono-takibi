@@ -120,7 +120,7 @@ export function requestParamsArray(
 ) {
   return Object.freeze(
     Object.entries(parameters)
-      .filter(([, entries]) => entries && Object.keys(entries).length > 0)
+      .filter(([, entries]) => Object.keys(entries ?? {}).length > 0)
       .map(([section, entries]) => {
         const name =
           section === 'path'
@@ -601,7 +601,9 @@ export function baseError(typeMessage: string | undefined, requiredMessage: stri
 
 export function statusCodeToNumber(statusCode: string) {
   if (statusCode === 'default') return 200
-  if (statusCode.toUpperCase().endsWith('XX')) return Number.parseInt(statusCode[0], 10) * 100
+  if (statusCode.toUpperCase().endsWith('XX')) {
+    return Number.parseInt(statusCode.charAt(0), 10) * 100
+  }
   return Number.parseInt(statusCode, 10)
 }
 

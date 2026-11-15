@@ -245,7 +245,8 @@ export function zodToOpenAPI(
       schemas.length === 1 &&
       members.every(isRefOnly) &&
       Object.keys(schema).every((k) => k === 'allOf' || k === 'nullable' || k === 'type')
-    if (isBareRef) return done(schemas[0], emitted, true)
+    const [only] = schemas
+    if (isBareRef && only !== undefined) return done(only, emitted, true)
     const z = schemas.reduce((acc, s, i) => (i === 0 ? s : `${acc}.and(${s})`))
     const allOfMessage = schema['x-allOf-message'] ?? schema['x-error-message']
     const unevalCheck = makeUnevaluatedPropertiesCheck(

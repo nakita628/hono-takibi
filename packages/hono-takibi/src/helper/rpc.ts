@@ -107,7 +107,8 @@ function refRequestBodyName(refLike: unknown) {
 function pickAllBodyInfoFromContent(content: unknown) {
   if (!isRecord(content)) return undefined
   const formContentTypes = new Set<string>(FORM_MEDIA_TYPES)
-  const isFormContentType = (ct: string): boolean => formContentTypes.has(ct.split(';')[0].trim())
+  const isFormContentType = (ct: string): boolean =>
+    formContentTypes.has((ct.split(';')[0] ?? '').trim())
   const validEntries = Object.entries(content).filter(
     ([, mediaObj]) => isRecord(mediaObj) && isSchemaProperty(mediaObj) && isRecord(mediaObj.schema),
   )

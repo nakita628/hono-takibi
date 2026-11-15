@@ -1,4 +1,10 @@
-import { isBinaryFile, isSchemaArray, isUntypedObject, isValidIdent } from '../guard/index.js'
+import {
+  isBinaryFile,
+  isPresent,
+  isSchemaArray,
+  isUntypedObject,
+  isValidIdent,
+} from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { decodePercent, makeStringLiteral, toIdentifierPascalCase } from '../utils/index.js'
 
@@ -8,7 +14,7 @@ export function makeTypeString(
   cyclicGroup?: ReadonlySet<string>,
   readonly?: boolean,
 ) {
-  if (!schema) return 'unknown'
+  if (!isPresent(schema)) return 'unknown'
   // `{}` and `true` constrain nothing: the value is `unknown`, not an object (#379).
   if (Object.keys(schema).length === 0) return 'unknown'
   const types = normalizeType(schema)
@@ -65,7 +71,7 @@ function makeNonNullTypeString(
 function makeRefTypeString(ref: string, selfTypeName: string) {
   const propertiesMatch = /^#\/components\/schemas\/([^/]+)\/properties\//u.exec(ref)
   if (propertiesMatch) {
-    const parentName = toIdentifierPascalCase(decodePercent(propertiesMatch[1]))
+    const parentName = toIdentifierPascalCase(decodePercent(propertiesMatch[1] ?? ''))
     if (parentName === selfTypeName) {
       return `${parentName}Type`
     }
@@ -89,17 +95,14 @@ function makeUnionTypeString(
   const types = schemas
     .filter(Boolean)
     .map((s) => makeTypeString(s, selfTypeName, cyclicGroup, readonly))
-  return types.length === 0
-    ? 'unknown'
-    : types.length === 1
-      ? types[0]
-      : `(${types.join(separator)})`
+  const [only] = types
+  return only === undefined ? 'unknown' : types.length === 1 ? only : `(${types.join(separator)})`
 }
 
 // A schema with no `type` is an object when it declares properties (#385); otherwise the
 // value may be anything (`{ required: ['oas'] }` is checked on `z.unknown()`, Tyk).
 function normalizeType(schema: Schema): readonly string[] {
-  if (!schema.type) return isUntypedObject(schema) ? ['object'] : []
+  if (schema.type === undefined) return isUntypedObject(schema) ? ['object'] : []
   return Array.isArray(schema.type) ? schema.type : [schema.type]
 }
 
@@ -160,7 +163,7 @@ function makeArrayTypeString(
   readonly?: boolean,
 ): string {
   const prefix = readonly ? 'readonly ' : ''
-  if (!schema.items) return `${prefix}unknown[]`
+  if (!isPresent(schema.items)) return `${prefix}unknown[]`
   const items = schema.items
   // JSON Schema 2020-12 §10.3.1.2 boolean items:
   //   items: true  → trailing items unconstrained (unknown[])

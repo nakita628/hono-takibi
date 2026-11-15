@@ -60,7 +60,7 @@ export function makeSchemaInfos(
     readonly varNameToName: ReadonlyMap<string, string>
   },
 ) {
-  return schemaNames.map((name) => makeSchemaInfo(name, schemas[name], analysis))
+  return schemaNames.map((name) => makeSchemaInfo(name, schemas[name] ?? {}, analysis))
 }
 
 export function makeSchemaCode(

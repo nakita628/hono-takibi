@@ -26,10 +26,10 @@ export function schemas(
       const analysis = analyzeCircularSchemas(schemas, schemaNames, readonly)
       yield* Effect.all(
         [
-          ...schemaNames.map((schemaName) => {
+          ...Object.entries(schemas).map(([schemaName, schema]) => {
             const fileCode = makeSplitSchemaFile(
               schemaName,
-              schemas[schemaName],
+              schema,
               schemas,
               analysis,
               exportType,
