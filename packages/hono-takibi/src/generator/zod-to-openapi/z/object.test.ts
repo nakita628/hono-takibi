@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test'
+import { z } from 'zod'
 
 import type { Schema } from '../../../openapi/index.js'
 import { object } from './object.js'
@@ -463,6 +464,145 @@ describe('object', () => {
       [{ type: 'object', additionalProperties: true }, 'z.looseObject({})'],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)
+    })
+  })
+
+  describe('patternProperties + additionalProperties: false (#447)', () => {
+    // JSON Schema 2020-12 §10.3.2.3: additionalProperties applies only to keys
+    // matched by neither properties nor patternProperties. A strictObject base
+    // rejects pattern-matched keys before the patternProperties superRefine can
+    // see them, so the base must be looseObject and undeclared non-pattern keys
+    // rejected in a superRefine instead.
+    it.concurrent('codegen: pattern-only schema → looseObject + undeclared-key superRefine', () => {
+      expect(
+        object({
+          type: 'object',
+          patternProperties: { '^x-': { type: 'integer' } },
+          additionalProperties: false,
+        }),
+      ).toBe(
+        'z.looseObject({}).superRefine((o,ctx)=>{for(const k of Object.keys(o)){if(!["^x-"].some((p)=>new RegExp(p).test(k))){ctx.addIssue({code:"custom",path:[k]})}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})',
+      )
+    })
+
+    it.concurrent('codegen: declared properties stay allowed alongside pattern keys', () => {
+      expect(
+        object({
+          type: 'object',
+          properties: { name: { type: 'string' } },
+          required: ['name'],
+          patternProperties: { '^x-': { type: 'integer' } },
+          additionalProperties: false,
+        }),
+      ).toBe(
+        'z.looseObject({name:z.string()}).superRefine((o,ctx)=>{for(const k of Object.keys(o)){if(!["name"].includes(k)&&!["^x-"].some((p)=>new RegExp(p).test(k))){ctx.addIssue({code:"custom",path:[k]})}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})',
+      )
+    })
+
+    it.concurrent('codegen: x-additionalProperties-message rides the undeclared-key issue', () => {
+      expect(
+        object({
+          type: 'object',
+          patternProperties: { '^x-': { type: 'integer' } },
+          additionalProperties: false,
+          'x-additionalProperties-message': 'No extra keys',
+        }),
+      ).toBe(
+        'z.looseObject({}).superRefine((o,ctx)=>{for(const k of Object.keys(o)){if(!["^x-"].some((p)=>new RegExp(p).test(k))){ctx.addIssue({code:"custom",path:[k],message:"No extra keys"})}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})',
+      )
+    })
+
+    // Runtime checks: the equivalent Zod schema is mirrored by hand in TS rather
+    // than evaluated from the generated string, so no `new Function` / `eval` is
+    // introduced here (repo convention, see string.test.ts).
+    const PatProps = z
+      .looseObject({})
+      .superRefine((o, ctx) => {
+        for (const k of Object.keys(o)) {
+          // oxlint-disable-next-line require-unicode-regexp -- mirrors the regex the generator emits
+          if (!['^x-'].some((p) => new RegExp(p).test(k))) {
+            ctx.addIssue({ code: 'custom', path: [k] })
+          }
+        }
+      })
+      .superRefine((o, ctx) => {
+        // oxlint-disable-next-line require-unicode-regexp, prefer-regex-literals -- mirrors the regex the generator emits
+        const regex = new RegExp('^x-')
+        const Schema = z.int()
+        for (const [k, val] of Object.entries(o)) {
+          // oxlint-disable-next-line typescript/prefer-string-starts-ends-with -- mirrors the emitted code verbatim
+          if (!regex.test(k)) {
+            continue
+          }
+          const result = Schema.safeParse(val)
+          if (!result.success) {
+            for (const issue of result.error.issues) {
+              ctx.addIssue({ ...issue, path: [k, ...issue.path] })
+            }
+          }
+        }
+      })
+
+    it.concurrent('runtime: { "x-a": 1 } passes', () => {
+      expect(PatProps.safeParse({ 'x-a': 1 }).success).toBe(true)
+    })
+
+    it.concurrent('runtime: { "x-a": "s" } fails on the value type', () => {
+      const result = PatProps.safeParse({ 'x-a': 's' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
+          {
+            expected: 'number',
+            code: 'invalid_type',
+            path: ['x-a'],
+            message: 'Invalid input: expected number, received string',
+          },
+        ])
+      }
+    })
+
+    it.concurrent('runtime: { y: 1 } fails as an undeclared key', () => {
+      const result = PatProps.safeParse({ y: 1 })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
+          { code: 'custom', path: ['y'], message: 'Invalid input' },
+        ])
+      }
+    })
+
+    it.concurrent('runtime: declared property + pattern key pass, undeclared key fails', () => {
+      const WithDeclared = z
+        .looseObject({ name: z.string() })
+        .superRefine((o, ctx) => {
+          for (const k of Object.keys(o)) {
+            // oxlint-disable-next-line require-unicode-regexp -- mirrors the regex the generator emits
+            if (!['name'].includes(k) && !['^x-'].some((p) => new RegExp(p).test(k))) {
+              ctx.addIssue({ code: 'custom', path: [k] })
+            }
+          }
+        })
+        .superRefine((o, ctx) => {
+          // oxlint-disable-next-line require-unicode-regexp, prefer-regex-literals -- mirrors the regex the generator emits
+          const regex = new RegExp('^x-')
+          const Schema = z.int()
+          for (const [k, val] of Object.entries(o)) {
+            // oxlint-disable-next-line typescript/prefer-string-starts-ends-with -- mirrors the emitted code verbatim
+            if (!regex.test(k)) {
+              continue
+            }
+            const result = Schema.safeParse(val)
+            if (!result.success) {
+              for (const issue of result.error.issues) {
+                ctx.addIssue({ ...issue, path: [k, ...issue.path] })
+              }
+            }
+          }
+        })
+      expect(WithDeclared.safeParse({ name: 'a', 'x-1': 2 }).success).toBe(true)
+      expect(WithDeclared.safeParse({ name: 'a', y: 1 }).success).toBe(false)
+      expect(WithDeclared.safeParse({ name: 'a', 'x-1': 's' }).success).toBe(false)
     })
   })
 

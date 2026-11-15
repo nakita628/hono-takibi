@@ -59,11 +59,20 @@ export function object(
       schema.propertyNames !== undefined ||
       schema.unevaluatedProperties !== undefined ||
       Object.keys(schema.properties ?? {}).length === 0)
+  const hasPatternProperties =
+    schema.patternProperties !== undefined && Object.keys(schema.patternProperties).length > 0
   const objectType =
     schema.additionalProperties === true
       ? 'looseObject'
       : schema.additionalProperties === false
-        ? 'strictObject'
+        ? // additionalProperties applies only to keys matched by neither properties
+          // nor patternProperties (JSON Schema 2020-12 §10.3.2.3). A strictObject
+          // base would reject pattern-matched keys before the patternProperties
+          // superRefine sees them (#447), so use looseObject here and reject
+          // undeclared non-pattern keys in `undeclaredKeys` below instead.
+          hasPatternProperties
+          ? 'looseObject'
+          : 'strictObject'
         : needsLoose
           ? 'looseObject'
           : 'object'
@@ -160,6 +169,27 @@ export function object(
         })
         .join('')
     : ''
+  // additionalProperties: false with patternProperties (#447): the base is
+  // looseObject, so undeclared keys that match no pattern are rejected here
+  // instead of by strictObject (which would also reject pattern-matched keys).
+  // Message precedence follows makeObjectChecks in helper/zod.ts:
+  // x-additionalProperties-message > x-error-message > Zod default.
+  const undeclaredKeys =
+    schema.additionalProperties === false && hasPatternProperties
+      ? (() => {
+          const declaredKeys = Object.keys(schema.properties ?? {})
+          const patterns = Object.keys(schema.patternProperties ?? {})
+          const message = additionalPropertiesMessage ?? errorMessage
+          const messageField = message !== undefined ? `,message:${JSON.stringify(message)}` : ''
+          const guard = [
+            ...(declaredKeys.length > 0 ? [`!${JSON.stringify(declaredKeys)}.includes(k)`] : []),
+            ...(patterns.length > 0
+              ? [`!${JSON.stringify(patterns)}.some((p)=>new RegExp(p).test(k))`]
+              : []),
+          ].join('&&')
+          return `.superRefine((o,ctx)=>{for(const k of Object.keys(o)){if(${guard}){ctx.addIssue({code:"custom",path:[k]${messageField}})}}})`
+        })()
+      : ''
   // Emits an issue per missing dependent key with path:[d] so the JSON pointer
   // locates it; x-dependentRequired-message (or x-error-message) overrides the
   // default `requires "<dep>" when "<key>" present` message.
@@ -219,5 +249,5 @@ export function object(
     errorMessage,
     options?.schemas,
   )
-  return `${base}${minProperties}${maxProperties}${propertyNames}${patternProperties}${dependentRequired}${dependentSchemas}${ifThenElse}${unevaluatedProperties}${readonly ? '.readonly()' : ''}`
+  return `${base}${undeclaredKeys}${minProperties}${maxProperties}${propertyNames}${patternProperties}${dependentRequired}${dependentSchemas}${ifThenElse}${unevaluatedProperties}${readonly ? '.readonly()' : ''}`
 }
