@@ -172,7 +172,7 @@ export function parseOpenAPI(
       const program = await compile(NodeHost, path.resolve(input), { noEmit: true })
       if (program.diagnostics.length > 0) {
         throw new Error(
-          `TypeSpec compile failed:\n${program.diagnostics.map((d) => d.message).join('\n')}`,
+          `TypeSpec compile failed:\n${program.diagnostics.map((diagnostic) => diagnostic.message).join('\n')}`,
         )
       }
       const [record] = await getOpenAPI3(program)

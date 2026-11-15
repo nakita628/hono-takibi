@@ -152,7 +152,9 @@ function propertyNameHint(propertyName: string) {
     lookup(PROPERTY_NAME_TO_FAKER, propertyName) ??
     lookup(
       PROPERTY_NAME_TO_FAKER,
-      propertyName.replaceAll(/[_-]+([a-zA-Z0-9])/gu, (_: string, c: string) => c.toUpperCase()),
+      propertyName.replaceAll(/[_-]+([a-zA-Z0-9])/gu, (_: string, char: string) =>
+        char.toUpperCase(),
+      ),
     )
   )
 }
@@ -205,8 +207,8 @@ function scanPattern(
 }
 
 function firstAlternative(source: string) {
-  const bar = scanPattern(source, (char, _, depth) => char === '|' && depth === 0)
-  return bar === -1 ? source : source.slice(0, bar)
+  const pipeIndex = scanPattern(source, (char, _, depth) => char === '|' && depth === 0)
+  return pipeIndex === -1 ? source : source.slice(0, pipeIndex)
 }
 
 function expandGroups(source: string) {
@@ -674,7 +676,8 @@ function exclusiveVariants(
     return (
       shape === undefined ||
       shapes.every(
-        (other, j) => j === index || other === undefined || !alsoMatches(shape, other, schemas),
+        (other, otherIndex) =>
+          otherIndex === index || other === undefined || !alsoMatches(shape, other, schemas),
       )
     )
   })
@@ -742,7 +745,7 @@ function schemaValue(
     const primary =
       schema.properties !== undefined && types.includes('object')
         ? 'object'
-        : TYPE_PRIORITY.find((t) => types.includes(t))
+        : TYPE_PRIORITY.find((typeName) => types.includes(typeName))
     if (primary === undefined) return types.includes('null') ? 'null' : 'undefined'
     const value = schemaToFaker({ ...schema, type: primary }, propertyName, options)
     return types.includes('null') ? `faker.helpers.arrayElement([${value}, null])` : value
@@ -808,7 +811,7 @@ function schemaValue(
           }
           // The depth is checked once, with the draw: a recursive value guarded by it
           // on its own (`depth < N ? mockX(depth + 1) : undefined`) is written unguarded.
-          const guarded = value.match(/^depth < \d+ \? ([\s\S]*) : undefined$/u)
+          const guarded = /^depth < \d+ \? ([\s\S]*) : undefined$/u.exec(value)
           const drawn = guarded?.[1] ?? value
           return `...(depth < ${MAX_RECURSION_DEPTH} && faker.datatype.boolean() ? { ${key}: ${drawn} } : {})`
         }
@@ -977,7 +980,7 @@ export function getNonExistentValue(schema?: Schema, schemas?: { readonly [k: st
       ? (schemas[schema.$ref.replace(COMPONENT_REF_PREFIX.schemas, '')] ?? schema)
       : schema
   const types = normalizeTypes(resolved.type)
-  const primary = TYPE_PRIORITY.find((t) => types.includes(t))
+  const primary = TYPE_PRIORITY.find((typeName) => types.includes(typeName))
   if (primary === 'integer' || primary === 'number') return '-1'
   if (resolved.format === 'uuid') return '00000000-0000-0000-0000-000000000000'
   return '__non_existent__'

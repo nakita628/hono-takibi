@@ -53,7 +53,7 @@ const MESSAGE_SLOTS = {
   else: 'x-else-message',
   length: 'x-length-message',
   error: 'x-error-message',
-} as const satisfies Record<string, keyof Schema>
+} as const satisfies { [key: string]: keyof Schema }
 
 // Precedence: x-<keyword>-message > x-error-message (except error/then/else) > Zod default.
 function messageFor(schema: Schema, key: keyof typeof MESSAGE_SLOTS) {
@@ -138,7 +138,9 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
   const dependentRequiredChecks = schema.dependentRequired
     ? Object.entries(schema.dependentRequired)
         .map(([key, deps]) => {
-          const depsCheck = deps.map((d) => `Object.hasOwn(val,${JSON.stringify(d)})`).join('&&')
+          const depsCheck = deps
+            .map((dependency) => `Object.hasOwn(val,${JSON.stringify(dependency)})`)
+            .join('&&')
           return depsCheck
             ? `if(Object.hasOwn(val,${JSON.stringify(key)})){if(!(${depsCheck})){ctx.addIssue(${issueObj(dependentRequiredMessage)})}}`
             : undefined
@@ -194,8 +196,8 @@ function makeArrayChecks(schema: Schema, recurse: (s: Schema) => string): readon
   const prefixItemsMessage = messageFor(schema, 'prefixItems')
   const prefixChecks = schema.prefixItems
     ? schema.prefixItems.map(
-        (sub, idx) =>
-          `if(val.length>${idx}){const Schema=${recurse(sub)};if(!Schema.safeParse(val[${idx}]).success){ctx.addIssue(${issueObj(prefixItemsMessage)})}}`,
+        (sub, index) =>
+          `if(val.length>${index}){const Schema=${recurse(sub)};if(!Schema.safeParse(val[${index}]).success){ctx.addIssue(${issueObj(prefixItemsMessage)})}}`,
       )
     : []
   // items:false → trailing items forbidden; items:true → unconstrained.

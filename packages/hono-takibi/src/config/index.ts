@@ -92,7 +92,7 @@ const ConfigSchema = Schema.Struct({
   ),
   format: Schema.optionalKey(
     Schema.declare<FormatConfig>(
-      (u): u is FormatConfig => typeof u === 'object' && u !== null,
+      (value): value is FormatConfig => typeof value === 'object' && value !== null,
     ).annotate({
       title: 'Formatter options',
       description:

@@ -25,7 +25,7 @@ describe('mediaTypes', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
     const output = path.join(tmpDir, 'mediaTypes.ts')
     const result = await runGenerator(mediaTypes({}, output, false))
-    expect(result).toStrictEqual('No mediaTypes found')
+    expect(result).toBe('No mediaTypes found')
   })
 
   describe('non-split mode', () => {
@@ -48,10 +48,10 @@ describe('mediaTypes', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual(`Generated mediaTypes code written to ${output}`)
+      expect(result).toBe(`Generated mediaTypes code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.length > 0).toBe(true)
+      const content = fs.readFileSync(output, 'utf8')
+      expect(content.length).toBeGreaterThan(0)
     })
   })
 
@@ -76,7 +76,7 @@ describe('mediaTypes', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(`Generated mediaTypes code written to ${output}`)
+      expect(result).toBe(`Generated mediaTypes code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
     })
 
@@ -92,10 +92,10 @@ describe('mediaTypes', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual(`Generated mediaTypes code written to ${output}`)
+      expect(result).toBe(`Generated mediaTypes code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.length > 0).toBe(true)
+      const content = fs.readFileSync(output, 'utf8')
+      expect(content.length).toBeGreaterThan(0)
     })
 
     it('writes single file with unknown structure fallback', async () => {
@@ -110,7 +110,7 @@ describe('mediaTypes', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual(`Generated mediaTypes code written to ${output}`)
+      expect(result).toBe(`Generated mediaTypes code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
     })
 
@@ -141,7 +141,7 @@ describe('mediaTypes', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual(`Generated mediaTypes code written to ${output}`)
+      expect(result).toBe(`Generated mediaTypes code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
     })
   })
@@ -174,9 +174,7 @@ describe('mediaTypes', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated MediaType code written to ${output}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated MediaType code written to ${output}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'jsonMedia.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'xmlMedia.ts'))).toBe(true)
@@ -202,9 +200,7 @@ describe('mediaTypes', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated MediaType code written to ${output}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated MediaType code written to ${output}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(output, 'jsonMedia.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
     })
@@ -221,14 +217,12 @@ describe('mediaTypes', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated MediaType code written to ${output}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated MediaType code written to ${output}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(output, 'aliasMedia.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
 
-      const content = fs.readFileSync(path.join(output, 'aliasMedia.ts'), 'utf-8')
-      expect(content.length > 0).toBe(true)
+      const content = fs.readFileSync(path.join(output, 'aliasMedia.ts'), 'utf8')
+      expect(content.length).toBeGreaterThan(0)
     })
 
     it('handles unknown structure fallback in split mode', async () => {
@@ -243,9 +237,7 @@ describe('mediaTypes', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated MediaType code written to ${output}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated MediaType code written to ${output}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(output, 'unknownMedia.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
     })
@@ -270,9 +262,7 @@ describe('mediaTypes', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated MediaType code written to ${outDir}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated MediaType code written to ${outDir}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(outDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(outDir, 'jsonMedia.ts'))).toBe(true)
     })
@@ -299,8 +289,8 @@ describe('mediaTypes', () => {
           { schemas: { output: path.join(tmpDir, 'schemas'), split: true } },
         ),
       )
-      const content = fs.readFileSync(path.join(output, 'jsonUser.ts'), 'utf-8')
-      expect(content.includes('UserSchema')).toBe(true)
+      const content = fs.readFileSync(path.join(output, 'jsonUser.ts'), 'utf8')
+      expect(content).toContain('UserSchema')
       // Must include an actual `import { UserSchema } from ...` line — not
       // just the body reference.
       const importLine = content
@@ -329,9 +319,9 @@ describe('mediaTypes', () => {
           },
         ),
       )
-      const content = fs.readFileSync(path.join(output, 'jsonUser.ts'), 'utf-8')
+      const content = fs.readFileSync(path.join(output, 'jsonUser.ts'), 'utf8')
       // Alias must be honored verbatim — no relative-path fallback.
-      expect(content.includes("from '~/components/schemas'")).toBe(true)
+      expect(content).toContain("from '~/components/schemas'")
     })
 
     it('does not emit an unused `z` import when only a $ref is present', async () => {
@@ -348,10 +338,10 @@ describe('mediaTypes', () => {
           { schemas: { output: path.join(tmpDir, 'schemas'), split: true } },
         ),
       )
-      const content = fs.readFileSync(path.join(output, 'jsonUser.ts'), 'utf-8')
+      const content = fs.readFileSync(path.join(output, 'jsonUser.ts'), 'utf8')
       // The body has no `z.` usage; an unused `import { z } from '@hono/zod-openapi'`
       // would be dead weight that breaks `noUnusedImports` lints.
-      expect(content.includes("import { z } from '@hono/zod-openapi'")).toBe(false)
+      expect(content).not.toContain("import { z } from '@hono/zod-openapi'")
     })
 
     it('generates sorted barrel file', async () => {
@@ -371,12 +361,10 @@ describe('mediaTypes', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated MediaType code written to ${output}/*.ts (index.ts included)`,
-      )
-      const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf-8')
+      expect(result).toBe(`Generated MediaType code written to ${output}/*.ts (index.ts included)`)
+      const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf8')
       const lines = indexContent.trim().split('\n')
-      expect(lines.length).toBe(2)
+      expect(lines).toHaveLength(2)
       expect(lines[0]).toBe("export * from './alphaMedia'")
       expect(lines[1]).toBe("export * from './zooMedia'")
     })

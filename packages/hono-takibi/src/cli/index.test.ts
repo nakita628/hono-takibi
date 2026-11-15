@@ -134,7 +134,7 @@ const minimalOpenapi = {
 }
 
 const { version } = JSON.parse(
-  fs.readFileSync(new URL('../../package.json', import.meta.url), 'utf-8'),
+  fs.readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
 ) as { readonly version: string }
 
 // SGR escapes the CLI formatter emits when stdout is a TTY, stripped so the
@@ -241,8 +241,7 @@ describe('hono-takibi <input> -o <output>', { timeout: 30_000 }, () => {
 
     expect(result.ok).toBe(true)
     expect(result.stdout).toBe(`🔥 Generated code written to ${output}`)
-    expect(fs.readFileSync(output, 'utf-8'))
-      .toBe(`import { createRoute, z } from '@hono/zod-openapi'
+    expect(fs.readFileSync(output, 'utf8')).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const getHonoRoute = createRoute({
   method: 'get',
@@ -315,8 +314,7 @@ export const getZodOpenapiHonoRoute = createRoute({
     const result = await runCli([input, '-o', output])
 
     expect(result.ok).toBe(true)
-    expect(fs.readFileSync(output, 'utf-8'))
-      .toBe(`import { createRoute, z } from '@hono/zod-openapi'
+    expect(fs.readFileSync(output, 'utf8')).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 const ItemIdSchema = z.uuid().brand<'ItemId'>().openapi('ItemId')
 
@@ -385,7 +383,7 @@ describe('hono-takibi invariants', () => {
    * keeps this from being a flaky benchmark.
    */
   it('loads the generators lazily, so the built-in flags stay fast', () => {
-    const source = fs.readFileSync(new URL('./index.ts', import.meta.url), 'utf-8')
+    const source = fs.readFileSync(new URL('./index.ts', import.meta.url), 'utf8')
     const header = source.slice(0, source.indexOf('const commandLine'))
 
     for (const heavy of ['../openapi/index.js', '../core/index.js', '../shared/index.js']) {
@@ -482,7 +480,7 @@ describe('hono-takibi --help', () => {
     useTmpDir('cli-help-docs-')
     const docs = fs.readFileSync(
       new URL('../../../../website/docs/index.md', import.meta.url),
-      'utf-8',
+      'utf8',
     )
     const marker = '`hono-takibi --help`:\n\n```\n'
     const opening = docs.indexOf(marker)
@@ -533,7 +531,7 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     const result = await runCli([])
 
     expect(result.ok).toBe(true)
-    expect(fs.readFileSync(output, 'utf-8').includes('getItemsRoute')).toBe(true)
+    expect(fs.readFileSync(output, 'utf8')).toContain('getItemsRoute')
   })
 
   it('runs the config file named by --config', async () => {
@@ -551,7 +549,7 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     const result = await runCli(['--config', config])
 
     expect(result.ok).toBe(true)
-    expect(fs.readFileSync(output, 'utf-8').includes('getItemsRoute')).toBe(true)
+    expect(fs.readFileSync(output, 'utf8')).toContain('getItemsRoute')
   })
 
   it('names the config it looked for when there is no input and no config file', async () => {
@@ -758,7 +756,7 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     const result = await runCli(['--config', 'config/api.config.ts'])
 
     expect(result.ok).toBe(true)
-    expect(fs.readFileSync(path.join(dir, 'src', 'routes.ts'), 'utf-8')).toContain('getItemsRoute')
+    expect(fs.readFileSync(path.join(dir, 'src', 'routes.ts'), 'utf8')).toContain('getItemsRoute')
   })
 
   it('applies the config format block to what it writes', async () => {
@@ -776,7 +774,7 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     const result = await runCli([])
 
     expect(result.ok).toBe(true)
-    expect(fs.readFileSync(path.join(dir, 'routes.ts'), 'utf-8')).toContain(
+    expect(fs.readFileSync(path.join(dir, 'routes.ts'), 'utf8')).toContain(
       'import { createRoute, z } from "@hono/zod-openapi";',
     )
   })
@@ -881,7 +879,7 @@ export default {}`,
     const result = await runCli([])
 
     expect(result.ok).toBe(true)
-    expect(fs.readFileSync(path.join(dir, 'rpc.ts'), 'utf-8')).toContain(
+    expect(fs.readFileSync(path.join(dir, 'rpc.ts'), 'utf8')).toContain(
       "import { client } from './lib'",
     )
   })
@@ -912,11 +910,11 @@ export default {}`,
     ])
     expect(fs.existsSync(path.join(dir, 'handlers'))).toBe(false)
     expect(fs.existsSync(path.join(dir, 'src/routes/index.ts'))).toBe(true)
-    expect(fs.readFileSync(path.join(dir, 'src/index.ts'), 'utf-8')).toContain("from './routes'")
+    expect(fs.readFileSync(path.join(dir, 'src/index.ts'), 'utf8')).toContain("from './routes'")
     const handlers = fs.readdirSync(path.join(dir, 'src/handlers')).filter((f) => f !== 'index.ts')
     expect(handlers.length).toBeGreaterThan(0)
     for (const file of handlers) {
-      expect(fs.readFileSync(path.join(dir, 'src/handlers', file), 'utf-8')).toContain(
+      expect(fs.readFileSync(path.join(dir, 'src/handlers', file), 'utf8')).toContain(
         "from '../routes'",
       )
     }
@@ -949,7 +947,7 @@ export default {}`,
     const result = await runCli([])
 
     expect(result.ok).toBe(true)
-    const client = fs.readFileSync(path.join(dir, 'lib/client.ts'), 'utf-8')
+    const client = fs.readFileSync(path.join(dir, 'lib/client.ts'), 'utf8')
     expect(client).toContain(line)
     expect(client).toContain('hcWithType(baseUrl)')
     expect(client).not.toContain("?? '/'")
@@ -975,7 +973,7 @@ export default {}`,
     const result = await runCli([])
 
     expect(result.ok).toBe(true)
-    const client = fs.readFileSync(path.join(dir, 'lib/client.ts'), 'utf-8')
+    const client = fs.readFileSync(path.join(dir, 'lib/client.ts'), 'utf8')
     expect(client).toContain("hcWithType('/', { init: { credentials: 'include' } })")
   })
 
@@ -1031,7 +1029,7 @@ export default {}`,
     const routes = fs
       .readdirSync(path.join(dir, 'src/routes'))
       .filter((file) => file !== 'index.ts')
-      .map((file) => fs.readFileSync(path.join(dir, 'src/routes', file), 'utf-8'))
+      .map((file) => fs.readFileSync(path.join(dir, 'src/routes', file), 'utf8'))
     expect(routes.some((source) => source.includes("from '@packages/components'"))).toBe(true)
     expect(routes.some((source) => source.includes("from '../components'"))).toBe(false)
   })
@@ -1109,13 +1107,13 @@ export default {}`,
     const result = await runCli([])
 
     expect(result.ok).toBe(true)
-    expect(fs.readFileSync(path.join(dir, 'client/src/lib/client.ts'), 'utf-8')).toContain(
+    expect(fs.readFileSync(path.join(dir, 'client/src/lib/client.ts'), 'utf8')).toContain(
       "import type { api } from '@packages/server'",
     )
-    expect(fs.readFileSync(path.join(dir, 'client/src/swr.ts'), 'utf-8')).toContain(
+    expect(fs.readFileSync(path.join(dir, 'client/src/swr.ts'), 'utf8')).toContain(
       "import { client } from './lib'",
     )
-    expect(fs.readFileSync(path.join(dir, 'web/src/hooks.ts'), 'utf-8')).toContain(
+    expect(fs.readFileSync(path.join(dir, 'web/src/hooks.ts'), 'utf8')).toContain(
       "import { client } from '@packages/client'",
     )
   })
@@ -1311,15 +1309,13 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
 
     const cli = startCli(['--watch'])
     try {
-      expect(await until(() => cli.output().includes('👀 Watching'))).toBe(true)
+      await expect(until(() => cli.output().includes('👀 Watching'))).resolves.toBe(true)
 
-      expect(
-        await writeUntil(
-          config,
-          `export default { input: './openapi.json', output: './b.ts' }`,
-          () => fs.existsSync(path.join(dir, 'b.ts')),
+      await expect(
+        writeUntil(config, `export default { input: './openapi.json', output: './b.ts' }`, () =>
+          fs.existsSync(path.join(dir, 'b.ts')),
         ),
-      ).toBe(true)
+      ).resolves.toBe(true)
     } finally {
       await Effect.runPromise(Fiber.interrupt(cli.fiber))
     }
@@ -1339,12 +1335,14 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
 
     const cli = startCli(['--watch'])
     try {
-      expect(await until(() => cli.output().includes('👀 Watching'))).toBe(true)
+      await expect(until(() => cli.output().includes('👀 Watching'))).resolves.toBe(true)
 
-      expect(await writeUntil(input, '{ not json', () => cli.output().includes('❌'))).toBe(true)
+      await expect(
+        writeUntil(input, '{ not json', () => cli.output().includes('❌')),
+      ).resolves.toBe(true)
 
-      expect(
-        await writeUntil(
+      await expect(
+        writeUntil(
           input,
           JSON.stringify({
             ...minimalOpenapi,
@@ -1354,9 +1352,9 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
               },
             },
           }),
-          () => fs.readFileSync(routes, 'utf-8').includes('getWidgetsRoute'),
+          () => fs.readFileSync(routes, 'utf8').includes('getWidgetsRoute'),
         ),
-      ).toBe(true)
+      ).resolves.toBe(true)
     } finally {
       await Effect.runPromise(Fiber.interrupt(cli.fiber))
     }
@@ -1375,17 +1373,17 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
 
     const cli = startCli(['--watch'])
     try {
-      expect(await until(() => cli.output().includes('👀 Watching'))).toBe(true)
+      await expect(until(() => cli.output().includes('👀 Watching'))).resolves.toBe(true)
       expect(cli.output()).toContain("basePath: must start with '/'")
       expect(fs.existsSync(path.join(dir, 'routes.ts'))).toBe(false)
 
-      expect(
-        await writeUntil(
+      await expect(
+        writeUntil(
           config,
           `export default { input: './openapi.json', basePath: '/api', output: './routes.ts' }`,
           () => fs.existsSync(path.join(dir, 'routes.ts')),
         ),
-      ).toBe(true)
+      ).resolves.toBe(true)
     } finally {
       await Effect.runPromise(Fiber.interrupt(cli.fiber))
     }
@@ -1409,14 +1407,14 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
 
     const cli = startCli(['--watch'])
     try {
-      expect(await until(() => cli.output().includes('👀 Watching'))).toBe(true)
+      await expect(until(() => cli.output().includes('👀 Watching'))).resolves.toBe(true)
       expect(cli.output()).toContain('❌')
       expect(cli.output()).toContain(`👀 Watching ${dir} and hono-takibi.config.ts`)
       expect(fs.existsSync(routes)).toBe(false)
 
-      expect(
-        await writeUntil(input, JSON.stringify(minimalOpenapi), () => fs.existsSync(routes)),
-      ).toBe(true)
+      await expect(
+        writeUntil(input, JSON.stringify(minimalOpenapi), () => fs.existsSync(routes)),
+      ).resolves.toBe(true)
     } finally {
       await Effect.runPromise(Fiber.interrupt(cli.fiber))
     }
@@ -1442,19 +1440,21 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
 
     const cli = startCli(['--watch'])
     try {
-      expect(await until(() => cli.output().includes(`👀 Watching ${spec} and`))).toBe(true)
-
-      fs.rmSync(spec, { recursive: true })
-      expect(await until(() => cli.output().includes(`waiting for ${spec}`))).toBe(true)
-
-      fs.mkdirSync(spec)
-      fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
-      expect(await until(() => cli.output().split(`👀 Watching ${spec} and`).length === 3)).toBe(
+      await expect(until(() => cli.output().includes(`👀 Watching ${spec} and`))).resolves.toBe(
         true,
       )
 
-      expect(
-        await writeUntil(
+      fs.rmSync(spec, { recursive: true })
+      await expect(until(() => cli.output().includes(`waiting for ${spec}`))).resolves.toBe(true)
+
+      fs.mkdirSync(spec)
+      fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
+      await expect(
+        until(() => cli.output().split(`👀 Watching ${spec} and`).length === 3),
+      ).resolves.toBe(true)
+
+      await expect(
+        writeUntil(
           input,
           JSON.stringify({
             ...minimalOpenapi,
@@ -1464,9 +1464,9 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
               },
             },
           }),
-          () => fs.readFileSync(routes, 'utf-8').includes('getWidgetsRoute'),
+          () => fs.readFileSync(routes, 'utf8').includes('getWidgetsRoute'),
         ),
-      ).toBe(true)
+      ).resolves.toBe(true)
     } finally {
       await Effect.runPromise(Fiber.interrupt(cli.fiber))
     }
@@ -1487,17 +1487,19 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
 
     const cli = startCli(['--watch'])
     try {
-      expect(await until(() => cli.output().includes(`waiting for ${spec}`))).toBe(true)
+      await expect(until(() => cli.output().includes(`waiting for ${spec}`))).resolves.toBe(true)
       expect(fs.existsSync(routes)).toBe(false)
 
       fs.mkdirSync(spec)
-      expect(await until(() => cli.output().includes(`👀 Watching ${spec} and`))).toBe(true)
+      await expect(until(() => cli.output().includes(`👀 Watching ${spec} and`))).resolves.toBe(
+        true,
+      )
 
-      expect(
-        await writeUntil(path.join(spec, 'openapi.json'), JSON.stringify(minimalOpenapi), () =>
+      await expect(
+        writeUntil(path.join(spec, 'openapi.json'), JSON.stringify(minimalOpenapi), () =>
           fs.existsSync(routes),
         ),
-      ).toBe(true)
+      ).resolves.toBe(true)
     } finally {
       await Effect.runPromise(Fiber.interrupt(cli.fiber))
     }
@@ -1543,18 +1545,18 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
 
     const cli = startCli(['--watch'])
     try {
-      expect(await until(() => cli.output().includes('👀 Watching'))).toBe(true)
+      await expect(until(() => cli.output().includes('👀 Watching'))).resolves.toBe(true)
       expect(cli.output()).toContain(
         `👀 Watching ${path.join(dir, 'spec')}, ${shared} and hono-takibi.config.ts`,
       )
 
-      expect(
-        await writeUntil(
+      await expect(
+        writeUntil(
           shared,
           JSON.stringify({ type: 'object', properties: { renamed: { type: 'number' } } }),
-          () => fs.readFileSync(routes, 'utf-8').includes('renamed'),
+          () => fs.readFileSync(routes, 'utf8').includes('renamed'),
         ),
-      ).toBe(true)
+      ).resolves.toBe(true)
     } finally {
       await Effect.runPromise(Fiber.interrupt(cli.fiber))
     }
@@ -1573,20 +1575,20 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
 
     const cli = startCli(['--watch'])
     try {
-      expect(await until(() => cli.output().includes(path.join(dir, 'a')))).toBe(true)
+      await expect(until(() => cli.output().includes(path.join(dir, 'a')))).resolves.toBe(true)
 
-      expect(
-        await writeUntil(
+      await expect(
+        writeUntil(
           config,
           `export default { input: './b/openapi.json', output: './routes.ts' }`,
           () => cli.output().includes(path.join(dir, 'b')),
         ),
-      ).toBe(true)
+      ).resolves.toBe(true)
 
       // Editing the document in the directory the config now names has to rerun. The
       // round restarted to follow it, so this is a second watcher with its own window.
-      expect(
-        await writeUntil(
+      await expect(
+        writeUntil(
           path.join(dir, 'b', 'openapi.json'),
           JSON.stringify({
             ...minimalOpenapi,
@@ -1596,9 +1598,9 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
               },
             },
           }),
-          () => fs.readFileSync(path.join(dir, 'routes.ts'), 'utf-8').includes('getWidgetsRoute'),
+          () => fs.readFileSync(path.join(dir, 'routes.ts'), 'utf8').includes('getWidgetsRoute'),
         ),
-      ).toBe(true)
+      ).resolves.toBe(true)
     } finally {
       await Effect.runPromise(Fiber.interrupt(cli.fiber))
     }

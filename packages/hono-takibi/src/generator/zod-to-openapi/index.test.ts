@@ -8686,7 +8686,7 @@ describe('zodToOpenAPI', () => {
       const valid = PropertyNamesSchema.safeParse({ valid: 1, BadKey: 2 })
       expect(valid.success).toBe(false)
       if (!valid.success) {
-        expect(valid.error.issues.length).toBe(1)
+        expect(valid.error.issues).toHaveLength(1)
         expect(valid.error.issues[0].path).toStrictEqual(['BadKey'])
         expect(valid.error.issues[0].message).toBe(
           "Property name 'BadKey' does not match pattern ^[a-z]+$",
@@ -11289,7 +11289,7 @@ describe('zodToOpenAPI', () => {
       const valid = DtOff.safeParse('not-a-date')
       expect(valid.success).toBe(false)
       if (!valid.success) {
-        expect(valid.error.issues.length).toBe(1)
+        expect(valid.error.issues).toHaveLength(1)
         expect(valid.error.issues[0].code).toBe('invalid_format')
         expect(valid.error.issues[0].message).toBe('Invalid ISO datetime')
       }
@@ -11310,7 +11310,7 @@ describe('zodToOpenAPI', () => {
       const valid = DtLocal.safeParse('no-date')
       expect(valid.success).toBe(false)
       if (!valid.success) {
-        expect(valid.error.issues.length).toBe(1)
+        expect(valid.error.issues).toHaveLength(1)
         expect(valid.error.issues[0].code).toBe('invalid_format')
       }
     })
@@ -12455,7 +12455,7 @@ describe('zodToOpenAPI', () => {
       )
     })
     it.concurrent('runtime: BigInt(1) PASSES', () => {
-      expect(Bi.safeParse(BigInt(1)).success).toBe(true)
+      expect(Bi.safeParse(1n).success).toBe(true)
     })
     it.concurrent('runtime: 1 (number) FAILS', () => {
       const valid = Bi.safeParse(1)
@@ -12481,7 +12481,7 @@ describe('zodToOpenAPI', () => {
       )
     })
     it.concurrent('runtime: BigInt(1) PASSES', () => {
-      expect(I64.safeParse(BigInt(1)).success).toBe(true)
+      expect(I64.safeParse(1n).success).toBe(true)
     })
     it.concurrent('runtime: 1 (number) FAILS', () => {
       const valid = I64.safeParse(1)
@@ -12934,7 +12934,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: null → null', () => {
       const valid = ND.safeParse(null)
       expect(valid.success).toBe(true)
-      if (valid) expect(valid.data).toBe(null)
+      if (valid) expect(valid.data).toBeNull()
     })
   })
 

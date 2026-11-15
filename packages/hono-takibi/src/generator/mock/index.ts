@@ -558,21 +558,21 @@ function responsePayload(
     // that does not fit its schema (`bytes: null` for a number, `null` for an object) is
     // the document's to fix, and the mock still answers with it rather than fail to compile.
     const cast = response.exampleCast ? ` as unknown as ${response.exampleCast}` : ''
-    const data = exampleCode(example, response.jsonSchema, schemas)
-    return { kind: 'json', data: `${data}${cast}` } as const
+    const code = exampleCode(example, response.jsonSchema, schemas)
+    return { kind: 'json', code: `${code}${cast}` } as const
   }
   if (response.jsonSchema) {
     collectRefs(response.jsonSchema, allRefs)
     const value = schemaToFaker(response.jsonSchema, undefined, { schemas, ...fakerOptions })
     // A schema without a type generates no value; any JSON value fits it, and
     // `null` keeps the body valid JSON.
-    const data = value === 'undefined' ? 'null' : value
-    return { kind: 'json', data } as const
+    const code = value === 'undefined' ? 'null' : value
+    return { kind: 'json', code } as const
   }
   if (response.textSchema) {
     collectRefs(response.textSchema, allRefs)
-    const data = schemaToFaker(response.textSchema, undefined, { schemas, ...fakerOptions })
-    return { kind: 'text', data } as const
+    const code = schemaToFaker(response.textSchema, undefined, { schemas, ...fakerOptions })
+    return { kind: 'text', code } as const
   }
   return { kind: 'none' } as const
 }
@@ -590,9 +590,9 @@ function makeHandlerBody(
       response?.jsonType && response.jsonType !== JSON_MEDIA_TYPE
         ? `, { 'Content-Type': ${makeStringLiteral(response.jsonType)} }`
         : ''
-    return `return c.json(${payload.data}, ${statusCode}${headers})`
+    return `return c.json(${payload.code}, ${statusCode}${headers})`
   }
-  if (payload.kind === 'text') return `return c.text(${payload.data}, ${statusCode})`
+  if (payload.kind === 'text') return `return c.text(${payload.code}, ${statusCode})`
   if (statusCode === 204) return `return new Response(null, { status: 204 })`
   return `return c.body(null, ${statusCode})`
 }
@@ -607,10 +607,10 @@ function makeRawHandlerBody(
 ) {
   if (payload.kind === 'json') {
     const type = makeStringLiteral(response.jsonType ?? JSON_MEDIA_TYPE)
-    return `return preferResponse(${statusExpr}, JSON.stringify(${payload.data}), ${type})`
+    return `return preferResponse(${statusExpr}, JSON.stringify(${payload.code}), ${type})`
   }
   if (payload.kind === 'text') {
-    return `return preferResponse(${statusExpr}, String(${payload.data}), ${makeStringLiteral(TEXT_MEDIA_TYPE)})`
+    return `return preferResponse(${statusExpr}, String(${payload.code}), ${makeStringLiteral(TEXT_MEDIA_TYPE)})`
   }
   return `return preferResponse(${statusExpr}, null)`
 }
@@ -779,7 +779,7 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
           ? [describeResponse(key, response, openapi.components, useExamples !== false, routeId)]
           : []
       })
-      const successResponse = responses.find((r) => r.key === successKey)
+      const successResponse = responses.find((candidate) => candidate.key === successKey)
       const handlerBody = makeHandlerBody(
         statusCode,
         successResponse,
@@ -800,7 +800,12 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
       // `preferResponse`. The success response's default body stays the final
       // return below.
       const preferTable = JSON.stringify(
-        Object.fromEntries(responses.map((r) => [r.key, r.namedExamples.map(([name]) => name)])),
+        Object.fromEntries(
+          responses.map((candidate) => [
+            candidate.key,
+            candidate.namedExamples.map(([name]) => name),
+          ]),
+        ),
       )
       const preferBranches = responses
         .flatMap((response) => {
@@ -832,7 +837,7 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
       const preferCall = `resolvePrefer(c.req,${preferTable},${JSON.stringify(successKey)})`
       // A 401 that declares a body answers with it, so the body fits the route's
       // own response schema; one that declares none keeps the plain message.
-      const unauthorizedResponse = responses.find((r) => r.key === '401')
+      const unauthorizedResponse = responses.find((candidate) => candidate.key === '401')
       const unauthorizedPayload = unauthorizedResponse
         ? responsePayload(
             unauthorizedResponse,
@@ -865,7 +870,7 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
           return [{ name: resolved.name, schema: resolved.schema ?? { type: 'string' as const } }]
         },
       )
-      const notFoundResponse = responses.find((r) => r.key === '404')
+      const notFoundResponse = responses.find((candidate) => candidate.key === '404')
       const notFoundCheck =
         notFoundResponse !== undefined && pathParams.length > 0
           ? (() => {

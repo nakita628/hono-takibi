@@ -218,14 +218,14 @@ describe('makeSplitSchemaFile', () => {
       const analysis = analyzeCircularSchemas(schemas, schemaNames)
       const result = makeSplitSchemaFile('Event', schemas.Event, schemas, analysis, true)
 
-      const typeDefMatch = result.match(/type EventType=\{[^}]+\}/u)
+      const typeDefMatch = /type EventType=\{[^}]+\}/u.exec(result)
       expect(typeDefMatch).not.toBeNull()
 
       const typeDef = typeDefMatch?.[0] ?? ''
-      expect(typeDef.includes('z.infer<typeof EventTypeSchema>')).toBe(true)
-      expect(typeDef.includes('z.infer<typeof TraceContextSchema>')).toBe(true)
-      expect(typeDef.includes('EventTypeType')).toBe(false)
-      expect(typeDef.includes('TraceContextType')).toBe(false)
+      expect(typeDef).toContain('z.infer<typeof EventTypeSchema>')
+      expect(typeDef).toContain('z.infer<typeof TraceContextSchema>')
+      expect(typeDef).not.toContain('EventTypeType')
+      expect(typeDef).not.toContain('TraceContextType')
     })
 
     it.concurrent('should use local type for self-reference', () => {
@@ -233,7 +233,7 @@ describe('makeSplitSchemaFile', () => {
       const analysis = analyzeCircularSchemas(schemas, schemaNames)
       const result = makeSplitSchemaFile('Event', schemas.Event, schemas, analysis, true)
 
-      expect(result.includes('causedBy?:EventType[]')).toBe(true)
+      expect(result).toContain('causedBy?:EventType[]')
     })
 
     it.concurrent('should generate correct imports without type imports', () => {
@@ -285,7 +285,7 @@ describe('makeSplitSchemaFile', () => {
       const analysis = analyzeCircularSchemas(schemas, schemaNames)
       const result = makeSplitSchemaFile('Profile', schemas.Profile, schemas, analysis, true)
 
-      expect(result.includes('type ProfileType')).toBe(false)
+      expect(result).not.toContain('type ProfileType')
     })
 
     it.concurrent('should generate exact output for simple non-cyclic schema', () => {
@@ -573,7 +573,7 @@ describe('makeSchemaInfos', () => {
     const analysis = analyzeCircularSchemas(schemas, schemaNames)
     const infos = makeSchemaInfos(schemas, schemaNames, analysis)
 
-    expect(infos.length).toBe(3)
+    expect(infos).toHaveLength(3)
     expect(infos[0].schemaName).toBe('User')
     expect(infos[0].variableName).toBe('UserSchema')
     expect(infos[1].schemaName).toBe('Post')
@@ -606,7 +606,7 @@ describe('makeSchemaInfos', () => {
     const analysis = analyzeCircularSchemas(schemas, ['User'])
     const infos = makeSchemaInfos(schemas, ['User'], analysis)
 
-    expect(infos.length).toBe(1)
+    expect(infos).toHaveLength(1)
     expect(infos[0].schemaName).toBe('User')
     expect(infos[0].safeSchemaName).toBe('User')
     expect(infos[0].variableName).toBe('UserSchema')
@@ -643,7 +643,7 @@ describe('makeTypeDefinitions', () => {
     const infos = makeSchemaInfos(schemas, schemaNames, analysis)
     const typeDefs = makeTypeDefinitions(infos, schemas, analysis.cyclicGroupPascal)
 
-    expect(typeDefs.length).toBe(1)
+    expect(typeDefs).toHaveLength(1)
     expect(typeDefs[0]).toBe('type NodeType={value?:string;children?:NodeType[]}')
   })
 
@@ -687,7 +687,7 @@ describe('makeTypeDefinitions', () => {
     const infos = makeSchemaInfos(schemas, schemaNames, analysis)
     const typeDefs = makeTypeDefinitions(infos, schemas, analysis.cyclicGroupPascal, true)
 
-    expect(typeDefs.length).toBe(1)
+    expect(typeDefs).toHaveLength(1)
     expect(typeDefs[0]).toBe(
       'type NodeType={readonly value?:string;readonly children?:readonly NodeType[]}',
     )
@@ -710,7 +710,7 @@ describe('makeTypeDefinitions', () => {
     const typeDefs = makeTypeDefinitions(infos, schemas, analysis.cyclicGroupPascal)
 
     // Only Node should have a type definition (self-referencing)
-    expect(typeDefs.length).toBe(1)
+    expect(typeDefs).toHaveLength(1)
     expect(typeDefs[0]).toBe('type NodeType={value?:string;children?:NodeType[]}')
   })
 

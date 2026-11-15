@@ -394,7 +394,7 @@ function makeSchemaTypeString(schema: Schema, aliases: Aliases, visited: Set<str
   }
   const types = makeNormalizedTypes(schema)
   const isNullable = schema.nullable === true || types.includes('null')
-  const nonNullTypes = types.filter((t) => t !== 'null')
+  const nonNullTypes = types.filter((typeName) => typeName !== 'null')
   const baseType = makeBaseTypeString(schema, nonNullTypes, aliases, visited)
   return isNullable ? `(${baseType}|null)` : baseType
 }
@@ -410,7 +410,7 @@ function makeBaseTypeString(
   visited: Set<string>,
 ) {
   return types.length > 1
-    ? types.map((t) => makeSingleTypeString(schema, t, aliases, visited)).join('|')
+    ? types.map((typeName) => makeSingleTypeString(schema, typeName, aliases, visited)).join('|')
     : makeSingleTypeString(schema, types[0] ?? 'object', aliases, visited)
 }
 

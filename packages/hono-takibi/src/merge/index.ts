@@ -571,14 +571,14 @@ function mergeImports(existingFile: Source, generatedFile: Source, dropStaleAuto
 function parseImportDeclarations(source: Source) {
   return source.program.body
     .filter((statement): statement is ImportDeclaration => statement.type === 'ImportDeclaration')
-    .map((d) => {
-      const defaultImport = d.specifiers.find(
+    .map((declaration) => {
+      const defaultImport = declaration.specifiers.find(
         (specifier) => specifier.type === 'ImportDefaultSpecifier',
       )
-      const namespaceImport = d.specifiers.find(
+      const namespaceImport = declaration.specifiers.find(
         (specifier) => specifier.type === 'ImportNamespaceSpecifier',
       )
-      const namedImports = d.specifiers.flatMap((specifier) => {
+      const namedImports = declaration.specifiers.flatMap((specifier) => {
         if (specifier.type !== 'ImportSpecifier') return []
         return [
           {
@@ -592,12 +592,12 @@ function parseImportDeclarations(source: Source) {
         ]
       })
       return {
-        moduleSpecifier: d.source.value,
-        isTypeOnlyImport: d.importKind === 'type',
+        moduleSpecifier: declaration.source.value,
+        isTypeOnlyImport: declaration.importKind === 'type',
         defaultImport: defaultImport?.local.name,
         namespaceImport: namespaceImport?.local.name,
         namedImports,
-        isSideEffectOnly: d.specifiers.length === 0,
+        isSideEffectOnly: declaration.specifiers.length === 0,
       }
     })
 }
@@ -796,12 +796,12 @@ function formatImportLine(
  * Returns empty string if there is no prefix chain.
  */
 function extractChainPrefix(apiStmtText: string, app: string) {
-  const initMatch = apiStmtText.match(
-    new RegExp(String.raw`[=]\s*${escapeRegexLiteral(app)}\b`, 'u'),
+  const initMatch = new RegExp(String.raw`[=]\s*${escapeRegexLiteral(app)}\b`, 'u').exec(
+    apiStmtText,
   )
   if (initMatch?.index === undefined) return ''
   const afterApp = apiStmtText.slice(initMatch.index + initMatch[0].length)
-  const routeMatch = afterApp.match(/\.(?:openapiRoutes|openapi|route)\s*\(/u)
+  const routeMatch = /\.(?:openapiRoutes|openapi|route)\s*\(/u.exec(afterApp)
   if (!routeMatch || routeMatch.index === undefined || routeMatch.index === 0) return ''
   const candidate = afterApp.slice(0, routeMatch.index).trim()
   // Only treat as chain prefix when it actually starts with a method call (e.g. `.basePath('/api')`).
@@ -857,12 +857,12 @@ function mergeInlineHandler(existingText: string, generatedText: string) {
   const generatedCalls = extractOpenApiCalls(generatedText)
   if (generatedCalls.size === 0) return generatedText
   const existingCalls = extractOpenApiCalls(existingText)
-  const firstCallMatch = generatedText.match(/\.openapi\s*\(/u)
+  const firstCallMatch = /\.openapi\s*\(/u.exec(generatedText)
   if (firstCallMatch?.index === undefined) return generatedText
   // The part before the chain (`export const xHandler = app`) is the user's when they have a
   // chain: they may hang the routes off their own router (`= router`, `= new OpenAPIHono()`),
   // and swapping in the generated `app` would reference a binding their file never declares.
-  const existingFirstCall = existingText.match(/\.openapi\s*\(/u)
+  const existingFirstCall = /\.openapi\s*\(/u.exec(existingText)
   const prefix =
     existingCalls.size > 0 && existingFirstCall?.index !== undefined
       ? existingText.slice(0, existingFirstCall.index).trimEnd()
@@ -1038,16 +1038,16 @@ export function mergeBarrelFile(existingCode: string, generatedCode: string) {
   if (existingFile.errors.length > 0) return existingCode
   const existingModules = new Set(
     exportDeclarations(existingFile)
-      .map((d) => d.specifier)
+      .map((declaration) => declaration.specifier)
       .filter((spec): spec is string => spec !== undefined)
       .map((spec) => spec.replace(/\.(?:js|ts)$/u, '')),
   )
   const missingExports = exportDeclarations(generatedFile)
-    .filter((d) => {
-      const spec = d.specifier
+    .filter((declaration) => {
+      const spec = declaration.specifier
       return spec !== undefined && !existingModules.has(spec.replace(/\.(?:js|ts)$/u, ''))
     })
-    .map((d) => d.text)
+    .map((declaration) => declaration.text)
   if (missingExports.length === 0) return existingCode
   const base = existingCode.trimEnd()
   return `${base ? `${base}\n` : ''}${missingExports.join('\n')}\n`

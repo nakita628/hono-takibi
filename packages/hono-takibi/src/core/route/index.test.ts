@@ -111,7 +111,7 @@ describe('route', () => {
           },
         ),
       )
-      const index = fs.readFileSync(out, 'utf-8')
+      const index = fs.readFileSync(out, 'utf8')
       const expected = `import { createRoute } from '@hono/zod-openapi'
 import { HonoSchema, HonoXSchema, ZodOpenAPIHonoSchema } from '@packages/schemas'
 
@@ -156,7 +156,7 @@ export const getZodOpenapiHonoRoute = createRoute({
 `
 
       expect(index).toBe(expected)
-      expect(result).toStrictEqual(`Generated route code written to ${out}`)
+      expect(result).toBe(`Generated route code written to ${out}`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -177,9 +177,9 @@ export const getZodOpenapiHonoRoute = createRoute({
       } as OpenAPI
       const out = path.join(dir, 'empty.ts')
       const result = await runGenerator(route(emptyOpenapi, { output: out, split: true }))
-      expect(result).toStrictEqual(`Generated route code written to ${out}`)
+      expect(result).toBe(`Generated route code written to ${out}`)
       expect(fs.existsSync(out)).toBe(true)
-      expect(fs.readFileSync(out, 'utf-8')).toBe('')
+      expect(fs.readFileSync(out, 'utf8')).toBe('')
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -219,14 +219,14 @@ export const getZodOpenapiHonoRoute = createRoute({
         ),
       )
 
-      const index = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
+      const index = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf8')
       const indexExpected = `export * from './getHono'
 export * from './getHonox'
 export * from './getZodOpenapiHono'
 `
-      const getHono = fs.readFileSync(path.join(outDir, 'getHono.ts'), 'utf-8')
-      const getHonox = fs.readFileSync(path.join(outDir, 'getHonox.ts'), 'utf-8')
-      const getZod = fs.readFileSync(path.join(outDir, 'getZodOpenapiHono.ts'), 'utf-8')
+      const getHono = fs.readFileSync(path.join(outDir, 'getHono.ts'), 'utf8')
+      const getHonox = fs.readFileSync(path.join(outDir, 'getHonox.ts'), 'utf8')
+      const getZod = fs.readFileSync(path.join(outDir, 'getZodOpenapiHono.ts'), 'utf8')
       const getHonoExpected = `import { createRoute } from '@hono/zod-openapi'
 import { HonoSchema } from '@packages/schemas'
 
@@ -282,9 +282,7 @@ export const getZodOpenapiHonoRoute = createRoute({
       expect(getHono).toBe(getHonoExpected)
       expect(getHonox).toBe(getHonoxExpected)
       expect(getZod).toBe(getZodExpected)
-      expect(result).toStrictEqual(
-        `Generated route code written to ${outDir}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated route code written to ${outDir}/*.ts (index.ts included)`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -296,7 +294,7 @@ export const getZodOpenapiHonoRoute = createRoute({
       try {
         const out = path.join(dir, 'routes.ts')
         await runGenerator(route(openapi, { output: out }))
-        const emitted = fs.readFileSync(out, 'utf-8')
+        const emitted = fs.readFileSync(out, 'utf8')
         const generated = routeCode(openapi)
         const emittedNames = new Set(
           [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/gu)].map(
@@ -322,7 +320,7 @@ export const getZodOpenapiHonoRoute = createRoute({
         const files = fs.readdirSync(outDir).filter((f) => f !== 'index.ts')
         const emittedNames = new Set<string>()
         for (const f of files) {
-          const src = fs.readFileSync(path.join(outDir, f), 'utf-8')
+          const src = fs.readFileSync(path.join(outDir, f), 'utf8')
           for (const m of src.matchAll(
             /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/gu,
           )) {
@@ -346,7 +344,7 @@ export const getZodOpenapiHonoRoute = createRoute({
       try {
         const outDir = path.join(dir, 'routes')
         await runGenerator(route(openapi, { output: outDir, split: true }))
-        const indexContent = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
+        const indexContent = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf8')
         expect(indexContent).toBe(
           [
             "export * from './getHono'",
@@ -383,7 +381,7 @@ export const getZodOpenapiHonoRoute = createRoute({
           .filter((f) => f !== 'index.ts')
           .sort()
         expect(files).toStrictEqual(['getR.ts', 'postR.ts'])
-        const indexContent = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
+        const indexContent = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf8')
         expect(indexContent).toBe("export * from './getR'\nexport * from './postR'\n")
       } finally {
         fs.rmSync(dir, { recursive: true, force: true })
@@ -419,7 +417,7 @@ export const getZodOpenapiHonoRoute = createRoute({
           },
         } as OpenAPI
         await runGenerator(route(openAPI, { output: out }))
-        expect(fs.readFileSync(out, 'utf-8'))
+        expect(fs.readFileSync(out, 'utf8'))
           .toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const getUsersRoute = createRoute({
@@ -478,8 +476,8 @@ export const queryUsersRoute = createRoute({
         } as OpenAPI
         const out = path.join(dir, 'routes.ts')
         const result = await runGenerator(route(richOpenapi, { output: out }))
-        expect(result).toStrictEqual(`Generated route code written to ${out}`)
-        expect(fs.readFileSync(out, 'utf-8')).toBe(`import { createRoute } from '@hono/zod-openapi'
+        expect(result).toBe(`Generated route code written to ${out}`)
+        expect(fs.readFileSync(out, 'utf8')).toBe(`import { createRoute } from '@hono/zod-openapi'
 
 export const postRichRoute = createRoute({
   method: 'post',
@@ -528,8 +526,8 @@ export const postRichRoute = createRoute({
         } as OpenAPI
         const out = path.join(dir, 'routes.ts')
         const result = await runGenerator(route(refOpenapi, { output: out }))
-        expect(result).toStrictEqual(`Generated route code written to ${out}`)
-        expect(fs.readFileSync(out, 'utf-8'))
+        expect(result).toBe(`Generated route code written to ${out}`)
+        expect(fs.readFileSync(out, 'utf8'))
           .toBe(`import { createRoute, z } from '@hono/zod-openapi'
 import { IdParamParamsSchema } from './parameters'
 
@@ -569,8 +567,8 @@ export const getUsersIdRoute = createRoute({
         } as OpenAPI
         const out = path.join(dir, 'routes.ts')
         const result = await runGenerator(route(refOpenapi, { output: out }))
-        expect(result).toStrictEqual(`Generated route code written to ${out}`)
-        expect(fs.readFileSync(out, 'utf-8'))
+        expect(result).toBe(`Generated route code written to ${out}`)
+        expect(fs.readFileSync(out, 'utf8'))
           .toBe(`import { createRoute, z } from '@hono/zod-openapi'
 import { IdParamParamsSchema } from './parameters'
 
@@ -602,8 +600,8 @@ export const getUsersIdRoute = createRoute({
         } as OpenAPI
         const out = path.join(dir, 'routes.ts')
         const result = await runGenerator(route(refOpenapi, { output: out }))
-        expect(result).toStrictEqual(`Generated route code written to ${out}`)
-        expect(fs.readFileSync(out, 'utf-8')).toBe(`import { createRoute } from '@hono/zod-openapi'
+        expect(result).toBe(`Generated route code written to ${out}`)
+        expect(fs.readFileSync(out, 'utf8')).toBe(`import { createRoute } from '@hono/zod-openapi'
 
 export const getPingRoute = createRoute({
   method: 'get',

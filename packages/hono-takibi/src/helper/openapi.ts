@@ -46,7 +46,7 @@ import {
 import { inlineWireRefs, isEmptyAbsent, WIRE_FORM, makeWireGather, wireObject } from './wire.js'
 
 export function makeRef($ref: string) {
-  const propertiesMatch = $ref.match(/^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/u)
+  const propertiesMatch = /^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/u.exec($ref)
   if (propertiesMatch) {
     const parentSchema = toIdentifierPascalCase(
       ensureSuffix(decodePercent(propertiesMatch[1]), 'Schema'),
@@ -126,9 +126,9 @@ export function makeOperationResponses(
   schemas?: { readonly [k: string]: Schema },
 ) {
   const result = Object.entries(responses)
-    .map(([statusCode, res]) => {
-      if (!isResponses(res)) return undefined
-      return `${/^\d+$/u.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(res, readonly, schemas)}`
+    .map(([statusCode, response]) => {
+      if (!isResponses(response)) return undefined
+      return `${/^\d+$/u.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(response, readonly, schemas)}`
     })
     .filter((v) => v !== undefined)
     .join(',')

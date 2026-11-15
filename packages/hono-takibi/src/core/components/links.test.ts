@@ -25,7 +25,7 @@ describe('links', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
     const output = path.join(tmpDir, 'links.ts')
     const result = await runGenerator(links({}, output, false))
-    expect(result).toStrictEqual('No links found')
+    expect(result).toBe('No links found')
   })
 
   describe('non-split mode', () => {
@@ -44,10 +44,10 @@ describe('links', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual(`Generated links code written to ${output}`)
+      expect(result).toBe(`Generated links code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.length > 0).toBe(true)
+      const content = fs.readFileSync(output, 'utf8')
+      expect(content.length).toBeGreaterThan(0)
     })
   })
 
@@ -68,8 +68,8 @@ describe('links', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(`Generated links code written to ${output}`)
-      expect(fs.readFileSync(output, 'utf-8')).toBe(
+      expect(result).toBe(`Generated links code written to ${output}`)
+      expect(fs.readFileSync(output, 'utf8')).toBe(
         `export const GetUserByIdLink = {\n  operationId: 'getUser',\n  parameters: { userId: '$response.body#/id' },\n} as const\n`,
       )
     })

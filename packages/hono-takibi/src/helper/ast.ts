@@ -44,7 +44,7 @@ function findCyclicSchemas(names: readonly string[], deps: ReadonlyMap<string, r
   const nameDeps = new Map(
     names.map((n) => [
       n,
-      (deps.get(n) ?? []).map((v) => var2name.get(v)).filter((x) => x !== undefined),
+      (deps.get(n) ?? []).map((v) => var2name.get(v)).filter((name) => name !== undefined),
     ]),
   )
   return cyclicNodes(nameDeps)
@@ -224,7 +224,7 @@ export function analyzeCircularSchemas(
   const extendedCyclicSchemas = new Set([
     ...cyclicSchemas,
     ...[...cyclicSchemas].flatMap((n) =>
-      (depsMap.get(n) ?? []).map((v) => varNameToName.get(v)).filter((x) => x !== undefined),
+      (depsMap.get(n) ?? []).map((v) => varNameToName.get(v)).filter((name) => name !== undefined),
     ),
   ])
   return {
@@ -281,14 +281,14 @@ function getStatementReferences(
 }
 
 function parseStatements(code: string, program: Program) {
-  const declared = program.body.map(declaredOf).filter((d) => d !== undefined)
-  const declNames = new Set(declared.map((d) => d.name))
-  return declared.map((d) =>
+  const declared = program.body.map(declaredOf).filter((declaration) => declaration !== undefined)
+  const declNames = new Set(declared.map((declaration) => declaration.name))
+  return declared.map((declaration) =>
     createDeclaration(
-      d.name,
-      textOf(code, d.statement),
-      getStatementReferences(code, d, declNames, d.name, d.kind),
-      d.kind,
+      declaration.name,
+      textOf(code, declaration.statement),
+      getStatementReferences(code, declaration, declNames, declaration.name, declaration.kind),
+      declaration.kind,
     ),
   )
 }
@@ -305,24 +305,26 @@ function topoSort(
     readonly kind: DeclarationKind
   }[],
 ) {
-  const map = new Map(decls.map((d) => [makeKey(d.kind, d.name), d]))
+  const map = new Map(
+    decls.map((declaration) => [makeKey(declaration.kind, declaration.name), declaration]),
+  )
   const findByName = (name: string): ReturnType<typeof createDeclaration> | undefined =>
     map.get(makeKey('variable', name)) ??
     map.get(makeKey('type', name)) ??
     map.get(makeKey('interface', name))
   const sorted: ReturnType<typeof createDeclaration>[] = []
   const perm = new Set<string>()
-  const temp = new Set<string>()
+  const visiting = new Set<string>()
   const visit = (key: string): void => {
-    if (perm.has(key) || temp.has(key)) return
+    if (perm.has(key) || visiting.has(key)) return
     const decl = map.get(key)
     if (!decl) return
-    temp.add(key)
+    visiting.add(key)
     for (const ref of decl.refs) {
       const found = findByName(ref)
       if (found) visit(makeKey(found.kind, found.name))
     }
-    temp.delete(key)
+    visiting.delete(key)
     perm.add(key)
     sorted.push(decl)
   }
@@ -336,6 +338,6 @@ export function ast(code: string) {
   const decls = parseStatements(code, parseModule(code))
   if (decls.length === 0) return code
   return topoSort(decls)
-    .map((d) => d.fullText)
+    .map((declaration) => declaration.fullText)
     .join('\n\n')
 }

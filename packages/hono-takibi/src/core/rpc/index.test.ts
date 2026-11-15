@@ -431,11 +431,11 @@ describe('rpc', () => {
         | `${string}.json`
         | `${string}.tsp`
       const out = path.join(dir, 'index.ts')
-      fs.writeFileSync(input, JSON.stringify(openapi), 'utf-8')
+      fs.writeFileSync(input, JSON.stringify(openapi), 'utf8')
 
       const result = await runGenerator(rpc(openapi, out, '../index.ts'))
 
-      const index = fs.readFileSync(out, 'utf-8')
+      const index = fs.readFileSync(out, 'utf8')
       const expected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
@@ -685,7 +685,7 @@ describe('rpc (isOptional tests)', () => {
       const out = path.join(dir, 'index.ts')
       const result = await runGenerator(rpc(openapiIsOptional, out, '../client'))
 
-      const generated = fs.readFileSync(out, 'utf-8')
+      const generated = fs.readFileSync(out, 'utf8')
 
       const expected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
@@ -720,7 +720,7 @@ export async function getAllOptional(
 `
 
       expect(generated).toBe(expected)
-      expect(result).toStrictEqual(`Generated rpc code written to ${out}`)
+      expect(result).toBe(`Generated rpc code written to ${out}`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -745,7 +745,7 @@ export async function getAllOptional(
 
       await runGenerator(rpc(simpleOpenAPI, out, '../api', 'authClient'))
 
-      const code = fs.readFileSync(out, 'utf-8')
+      const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
 import { authClient } from '../api'
 
@@ -779,7 +779,7 @@ describe('rpc (parseResponse: true)', () => {
 
       await runGenerator(rpc(simpleOpenAPI, out, '../client', 'client', true))
 
-      const code = fs.readFileSync(out, 'utf-8')
+      const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -820,7 +820,7 @@ export async function getHealth(options?: ClientRequestOptions) {
 
       await runGenerator(rpc(openAPIWithArgs, out, '../client', 'client', true))
 
-      const code = fs.readFileSync(out, 'utf-8')
+      const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -878,7 +878,7 @@ describe('rpc (trailing slash)', () => {
       const out = path.join(dir, 'index.ts')
       const result = await runGenerator(rpc(trailingSlashOpenAPI, out, '../client'))
 
-      const code = fs.readFileSync(out, 'utf-8')
+      const code = fs.readFileSync(out, 'utf8')
 
       const expected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
@@ -900,7 +900,7 @@ export async function getPostsIndex(
 `
 
       expect(code).toBe(expected)
-      expect(result).toStrictEqual(`Generated rpc code written to ${out}`)
+      expect(result).toBe(`Generated rpc code written to ${out}`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -927,7 +927,7 @@ describe('rpc (docs: true)', () => {
 
       await runGenerator(rpc(openAPI, out, '../client', 'client', false, undefined, true))
 
-      const code = fs.readFileSync(out, 'utf-8')
+      const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
@@ -965,7 +965,7 @@ export async function getHealth(options?: ClientRequestOptions) {
 
       await runGenerator(rpc(openAPI, out, '../client', 'client', false, undefined, true))
 
-      const code = fs.readFileSync(out, 'utf-8')
+      const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
@@ -1005,7 +1005,7 @@ export async function getUsers(options?: ClientRequestOptions) {
 
       await runGenerator(rpc(openAPI, out, '../client', 'client', false, undefined, true))
 
-      const code = fs.readFileSync(out, 'utf-8')
+      const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
@@ -1041,7 +1041,7 @@ export async function getPing(options?: ClientRequestOptions) {
 
       await runGenerator(rpc(openAPI, out, '../client', 'client', false, undefined, true))
 
-      const code = fs.readFileSync(out, 'utf-8')
+      const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
@@ -1074,7 +1074,7 @@ export async function getSilent(options?: ClientRequestOptions) {
 
       await runGenerator(rpc(openAPI, out, '../client', 'client'))
 
-      const code = fs.readFileSync(out, 'utf-8')
+      const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
@@ -1108,7 +1108,7 @@ export async function getHealth(options?: ClientRequestOptions) {
 
       await runGenerator(rpc(openAPI, out, '../client', 'client', true, undefined, true))
 
-      const code = fs.readFileSync(out, 'utf-8')
+      const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -1188,7 +1188,7 @@ describe('rpc (query method)', () => {
         },
       } as OpenAPI
       await runGenerator(rpc(openAPI, out, './client'))
-      expect(fs.readFileSync(out, 'utf-8'))
+      expect(fs.readFileSync(out, 'utf8'))
         .toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from './client'
 

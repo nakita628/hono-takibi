@@ -25,7 +25,7 @@ describe('examples', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
     const output = path.join(tmpDir, 'examples.ts')
     const result = await runGenerator(examples({}, output, false))
-    expect(result).toStrictEqual('No examples found')
+    expect(result).toBe('No examples found')
   })
 
   describe('non-split mode', () => {
@@ -41,10 +41,10 @@ describe('examples', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual(`Generated examples code written to ${output}`)
+      expect(result).toBe(`Generated examples code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.length > 0).toBe(true)
+      const content = fs.readFileSync(output, 'utf8')
+      expect(content.length).toBeGreaterThan(0)
     })
   })
 
@@ -62,10 +62,10 @@ describe('examples', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(`Generated examples code written to ${output}`)
+      expect(result).toBe(`Generated examples code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.length > 0).toBe(true)
+      const content = fs.readFileSync(output, 'utf8')
+      expect(content.length).toBeGreaterThan(0)
     })
 
     it('writes single file with multiple examples', async () => {
@@ -81,7 +81,7 @@ describe('examples', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual(`Generated examples code written to ${output}`)
+      expect(result).toBe(`Generated examples code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
     })
   })
@@ -100,9 +100,7 @@ describe('examples', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated Example code written to ${output}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated Example code written to ${output}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'userExample.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'postExample.ts'))).toBe(true)
@@ -121,14 +119,12 @@ describe('examples', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated Example code written to ${output}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated Example code written to ${output}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(output, 'userExample.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
 
-      const content = fs.readFileSync(path.join(output, 'userExample.ts'), 'utf-8')
-      expect(content.length > 0).toBe(true)
+      const content = fs.readFileSync(path.join(output, 'userExample.ts'), 'utf8')
+      expect(content.length).toBeGreaterThan(0)
     })
 
     it('writes individual files with .ts suffix in output', async () => {
@@ -144,9 +140,7 @@ describe('examples', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated Example code written to ${outDir}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated Example code written to ${outDir}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(outDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(outDir, 'userExample.ts'))).toBe(true)
     })
@@ -163,14 +157,12 @@ describe('examples', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated Example code written to ${output}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated Example code written to ${output}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(output, 'aliasExample.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
 
-      const content = fs.readFileSync(path.join(output, 'aliasExample.ts'), 'utf-8')
-      expect(content.length > 0).toBe(true)
+      const content = fs.readFileSync(path.join(output, 'aliasExample.ts'), 'utf8')
+      expect(content.length).toBeGreaterThan(0)
     })
 
     it('generates sorted barrel file', async () => {
@@ -186,12 +178,10 @@ describe('examples', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated Example code written to ${output}/*.ts (index.ts included)`,
-      )
-      const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf-8')
+      expect(result).toBe(`Generated Example code written to ${output}/*.ts (index.ts included)`)
+      const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf8')
       const lines = indexContent.trim().split('\n')
-      expect(lines.length).toBe(2)
+      expect(lines).toHaveLength(2)
       expect(lines[0]).toBe("export * from './alphaExample'")
       expect(lines[1]).toBe("export * from './zooExample'")
     })

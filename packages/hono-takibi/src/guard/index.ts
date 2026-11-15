@@ -26,8 +26,8 @@ export function isHttpMethod(method: string): method is (typeof HTTP_METHODS)[nu
   return HTTP_METHODS.some((candidate) => candidate === method)
 }
 
-export function isValidIdent(str: string) {
-  return IDENTIFIER_PATTERN.test(str)
+export function isValidIdent(text: string) {
+  return IDENTIFIER_PATTERN.test(text)
 }
 
 /**

@@ -25,7 +25,7 @@ describe('securitySchemes', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-securitySchemes-'))
     const output = path.join(tmpDir, 'securitySchemes.ts')
     const result = await runGenerator(securitySchemes({}, output, false))
-    expect(result).toStrictEqual('No securitySchemes found')
+    expect(result).toBe('No securitySchemes found')
   })
 
   describe('non-split mode', () => {
@@ -45,10 +45,10 @@ describe('securitySchemes', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual(`Generated securitySchemes code written to ${output}`)
+      expect(result).toBe(`Generated securitySchemes code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.length > 0).toBe(true)
+      const content = fs.readFileSync(output, 'utf8')
+      expect(content.length).toBeGreaterThan(0)
     })
   })
 
@@ -70,8 +70,8 @@ describe('securitySchemes', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(`Generated securitySchemes code written to ${output}`)
-      expect(fs.readFileSync(output, 'utf-8')).toBe(
+      expect(result).toBe(`Generated securitySchemes code written to ${output}`)
+      expect(fs.readFileSync(output, 'utf8')).toBe(
         `export const BearerAuthSecurityScheme = {\n  type: 'http',\n  scheme: 'bearer',\n  bearerFormat: 'JWT',\n} as const\n`,
       )
     })

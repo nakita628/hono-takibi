@@ -42,8 +42,8 @@ describe('defineTemplate', () => {
         undefined,
       ),
     )
-    expect(result).toStrictEqual('🔥 Generated code and template files written')
-    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')).toBe(
+    expect(result).toBe('🔥 Generated code and template files written')
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8')).toBe(
       `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getHealthRoute } from './routes'
 
@@ -54,7 +54,7 @@ export const api = app.openapiRoutes([getHealthRoute] as const)
 export default app
 `,
     )
-    expect(fs.readFileSync(path.join(tmpDir, 'routes', 'health.ts'), 'utf-8')).toBe(
+    expect(fs.readFileSync(path.join(tmpDir, 'routes', 'health.ts'), 'utf8')).toBe(
       `import { createRoute, defineOpenAPIRoute } from '@hono/zod-openapi'
 
 export const getHealthRoute = defineOpenAPIRoute({
@@ -83,10 +83,10 @@ export const getHealthRoute = defineOpenAPIRoute({
         undefined,
       ),
     )
-    expect(result).toStrictEqual('🔥 Generated code and template files written')
+    expect(result).toBe('🔥 Generated code and template files written')
     expect(fs.existsSync(path.join(tmpDir, 'src', 'index.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'src', 'routes', 'health.ts'))).toBe(true)
-    expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf-8').split('\n')).toContain(
+    expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf8').split('\n')).toContain(
       "import { getHealthRoute } from './routes'",
     )
   })
@@ -111,8 +111,8 @@ export const api = new OpenAPIHono()
         undefined,
       ),
     )
-    const content = fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')
-    expect(content.includes('custom-marker')).toBe(true)
+    const content = fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8')
+    expect(content).toContain('custom-marker')
   })
 
   it('emits routes/ at cwd when output is a bare index.ts', async () => {
@@ -124,7 +124,7 @@ export const api = new OpenAPIHono()
         defineTemplate(openAPI, 'index.ts', 'components.ts', '/', undefined, undefined),
       )
       expect(fs.existsSync(path.join(tmpDir, 'routes', 'health.ts'))).toBe(true)
-      expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8').split('\n')).toContain(
+      expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8').split('\n')).toContain(
         "import { getHealthRoute } from './routes'",
       )
     } finally {
@@ -146,7 +146,7 @@ export const api = new OpenAPIHono()
         undefined,
       ),
     )
-    expect(result.message.length > 0).toBe(true)
+    expect(result.message.length).toBeGreaterThan(0)
   })
 
   it('imports handlers through a pathAlias when one is configured', async () => {
@@ -162,7 +162,7 @@ export const api = new OpenAPIHono()
       ),
     )
     expect(fs.existsSync(path.join(tmpDir, 'routes', 'health.ts'))).toBe(true)
-    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8').split('\n')).toContain(
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8').split('\n')).toContain(
       "import { getHealthRoute } from '@/routes'",
     )
   })

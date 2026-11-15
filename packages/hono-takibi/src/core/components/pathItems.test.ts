@@ -37,7 +37,7 @@ describe('pathItems', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
     const output = path.join(tmpDir, 'pathItems.ts')
     const result = await runGenerator(pathItems({ pathItems: {} }, { output }))
-    expect(result).toStrictEqual('No pathItems found')
+    expect(result).toBe('No pathItems found')
   })
 
   describe('non-split mode', () => {
@@ -67,10 +67,10 @@ describe('pathItems', () => {
           { output },
         ),
       )
-      expect(result).toStrictEqual(`Generated pathItems code written to ${output}`)
+      expect(result).toBe(`Generated pathItems code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.length > 0).toBe(true)
+      const content = fs.readFileSync(output, 'utf8')
+      expect(content.length).toBeGreaterThan(0)
     })
 
     it('writes single file with readonly flag', async () => {
@@ -101,7 +101,7 @@ describe('pathItems', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(`Generated pathItems code written to ${output}`)
+      expect(result).toBe(`Generated pathItems code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
     })
   })
@@ -147,18 +147,16 @@ describe('pathItems', () => {
           { output, split: true },
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated PathItem code written to ${output}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated PathItem code written to ${output}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'userOperations.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'postOperations.ts'))).toBe(true)
 
-      const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf-8')
-      expect(indexContent.length > 0).toBe(true)
+      const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf8')
+      expect(indexContent.length).toBeGreaterThan(0)
 
-      const userContent = fs.readFileSync(path.join(output, 'userOperations.ts'), 'utf-8')
-      expect(userContent.length > 0).toBe(true)
+      const userContent = fs.readFileSync(path.join(output, 'userOperations.ts'), 'utf8')
+      expect(userContent.length).toBeGreaterThan(0)
     })
 
     it('writes single file in split mode with .ts suffix in output', async () => {
@@ -188,9 +186,7 @@ describe('pathItems', () => {
           { output, split: true },
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated PathItem code written to ${outDir}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated PathItem code written to ${outDir}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(outDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(outDir, 'userOperations.ts'))).toBe(true)
     })
@@ -223,9 +219,7 @@ describe('pathItems', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated PathItem code written to ${output}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated PathItem code written to ${output}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(output, 'userOperations.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
     })
@@ -259,9 +253,7 @@ describe('pathItems', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated PathItem code written to ${output}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated PathItem code written to ${output}/*.ts (index.ts included)`)
     })
   })
 
@@ -279,7 +271,7 @@ describe('pathItems', () => {
           { output },
         ),
       )
-      expect(result).toStrictEqual('No pathItems found')
+      expect(result).toBe('No pathItems found')
     })
   })
 
@@ -340,7 +332,7 @@ describe('pathItems', () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-contract-'))
       const output = path.join(tmpDir, 'pathItems.ts')
       await runGenerator(pathItems(components, { output }))
-      const emitted = fs.readFileSync(output, 'utf-8')
+      const emitted = fs.readFileSync(output, 'utf8')
       const generated = pathItemsCode(components, true)
       const emittedNames = new Set(
         [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)PathItem/gu)].map(
@@ -362,7 +354,7 @@ describe('pathItems', () => {
       const files = fs.readdirSync(output).filter((f) => f !== 'index.ts')
       const emittedNames = new Set<string>()
       for (const f of files) {
-        const src = fs.readFileSync(path.join(output, f), 'utf-8')
+        const src = fs.readFileSync(path.join(output, f), 'utf8')
         for (const m of src.matchAll(
           /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)PathItem/gu,
         )) {
@@ -382,7 +374,7 @@ describe('pathItems', () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-contract-'))
       const output = path.join(tmpDir, 'pathItems')
       await runGenerator(pathItems(components, { output, split: true }))
-      const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf8')
       expect(indexContent).toBe("export * from './adminOps'\nexport * from './userOps'\n")
     })
 
@@ -401,7 +393,7 @@ describe('pathItems', () => {
         .filter((f) => f !== 'index.ts')
         .sort()
       expect(files).toStrictEqual(['inline.ts'])
-      const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf8')
       expect(indexContent).toBe("export * from './inline'\n")
     })
   })

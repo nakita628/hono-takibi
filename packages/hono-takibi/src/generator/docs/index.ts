@@ -101,8 +101,8 @@ const MULTIPART_BOUNDARY = 'boundary'
 const SLUG_STRIP = /[^\p{L}\p{N}\p{M}　-鿿＀-￯ -]/gu
 
 function toSlug(text: string) {
-  const str = typeof text === 'string' ? text : String(text ?? '')
-  return str.toLowerCase().replaceAll(SLUG_STRIP, '').replaceAll(/\s+/gu, '-')
+  const label = typeof text === 'string' ? text : String(text ?? '')
+  return label.toLowerCase().replaceAll(SLUG_STRIP, '').replaceAll(/\s+/gu, '-')
 }
 
 function findFreeId(used: ReadonlySet<string>, base: string, n = 0): string {
@@ -386,7 +386,9 @@ function expandSchema(schema: Schema, doc: OpenAPI, inside: Inside) {
 }
 
 function primaryType(schema: Schema) {
-  return Array.isArray(schema.type) ? schema.type.find((t) => t !== 'null') : schema.type
+  return Array.isArray(schema.type)
+    ? schema.type.find((typeName) => typeName !== 'null')
+    : schema.type
 }
 
 function isObjectSchema(
@@ -805,12 +807,12 @@ function makeAuthenticationSection(doc: OpenAPI): readonly string[] {
 function makeAsideAuth(operation: Operation, doc: OpenAPI): readonly string[] {
   const reqs = securityRequirements(operation, doc)
   // An empty requirement object means the operation may be called anonymously.
-  const named = reqs.filter((req) => Object.keys(req).length > 0)
+  const named = reqs.filter((requirement) => Object.keys(requirement).length > 0)
   if (named.length === 0) {
     return ['<aside class="success">', 'This operation does not require authentication', '</aside>']
   }
-  const methods = named.map((req) =>
-    Object.entries(req)
+  const methods = named.map((requirement) =>
+    Object.entries(requirement)
       .map(([name, scopes]) => {
         const scheme = securitySchemeOf(name, doc)
         const scopeArr = Array.isArray(scopes) ? scopes : []
@@ -841,7 +843,7 @@ function makeShellQuote(value: string) {
  */
 function makeShellQuoteWithVars(value: string) {
   const escaped = value
-    .replaceAll(/[\\"`]/gu, (c) => `\\${c}`)
+    .replaceAll(/[\\"`]/gu, (char) => `\\${char}`)
     .replaceAll(/\$(?!\{[A-Z_]+\})/gu, '\\$')
   return `"${escaped}"`
 }
@@ -1072,7 +1074,7 @@ function getBodyMedia(operation: Operation, doc: OpenAPI) {
 function indentJsonBody(body: string) {
   const lines = body.split('\n')
   if (lines.length <= 1) return body
-  return [lines[0], ...lines.slice(1).map((l) => `  ${l}`)].join('\n')
+  return [lines[0], ...lines.slice(1).map((line) => `  ${line}`)].join('\n')
 }
 
 function isBinarySchema(schema: Schema | undefined, doc: OpenAPI) {
@@ -1460,8 +1462,8 @@ function makeFieldTable(fields: readonly FieldRow[]): readonly string[] {
     '|Name|Type|Required|Restrictions|Description|',
     '|---|---|---|---|---|',
     ...fields.map(
-      (f) =>
-        `|${escapeCell(f.name)}|${escapeCell(f.type)}|${f.required}|${f.restrictions}|${escapeCell(f.description)}|`,
+      (field) =>
+        `|${escapeCell(field.name)}|${escapeCell(field.type)}|${field.required}|${field.restrictions}|${escapeCell(field.description)}|`,
     ),
     '',
   ]
@@ -1509,12 +1511,12 @@ function makeParametersTable(
             required: body?.required === true,
             description: describe(body?.description, false),
           },
-          ...makeBodyFields(operation, doc).map((f) => ({
-            name: f.name,
+          ...makeBodyFields(operation, doc).map((field) => ({
+            name: field.name,
             location: 'body',
-            type: f.type,
-            required: f.required,
-            description: f.description,
+            type: field.type,
+            required: field.required,
+            description: field.description,
           })),
         ]
       : []),
@@ -1526,8 +1528,8 @@ function makeParametersTable(
     '|Name|In|Type|Required|Description|',
     '|---|---|---|---|---|',
     ...rows.map(
-      (r) =>
-        `|${escapeCell(r.name)}|${escapeCell(r.location)}|${escapeCell(r.type)}|${r.required}|${escapeCell(r.description)}|`,
+      (row) =>
+        `|${escapeCell(row.name)}|${escapeCell(row.location)}|${escapeCell(row.type)}|${row.required}|${escapeCell(row.description)}|`,
     ),
     '',
   ]

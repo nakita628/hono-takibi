@@ -134,13 +134,13 @@ describe('operationTags', () => {
   // An operation without tags gives a Grouping nothing to read.
   // tags のない operation では、Grouping が読むものはない。
   it.concurrent('is undefined when the operation has no tags', () => {
-    expect(operationTags({ responses: {} })).toBe(undefined)
+    expect(operationTags({ responses: {} })).toBeUndefined()
   })
 
   // tags that is not an array is not read as tags.
   // 配列でない tags は、tags として読まない。
   it.concurrent('is undefined when tags is not an array', () => {
-    expect(operationTags({ tags: 'books' })).toBe(undefined)
+    expect(operationTags({ tags: 'books' })).toBeUndefined()
   })
 
   // Only strings can name a group.

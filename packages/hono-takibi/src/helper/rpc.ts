@@ -43,13 +43,17 @@ function makeToParameterLikes(
     | undefined,
 ) {
   return (
-    arr?: unknown,
+    parameters?: unknown,
   ): readonly {
     readonly name: string
     readonly in: 'path' | 'query' | 'header' | 'cookie'
     readonly required?: boolean
   }[] =>
-    Array.isArray(arr) ? arr.map((x) => resolveParam(x)).filter((param) => param !== undefined) : []
+    Array.isArray(parameters)
+      ? parameters
+          .map((parameter) => resolveParam(parameter))
+          .filter((param) => param !== undefined)
+      : []
 }
 
 export function formatPath(p: string, hasBasePath?: boolean) {
@@ -203,7 +207,7 @@ export function operationHasArgs(
   deps: {
     readonly client: string
     readonly toParameterLikes: (
-      arr?: unknown,
+      parameters?: unknown,
     ) => readonly { name: string; in: 'path' | 'query' | 'header' | 'cookie'; required?: boolean }[]
     pickAllBodyInfo: (operation: {
       readonly summary?: string

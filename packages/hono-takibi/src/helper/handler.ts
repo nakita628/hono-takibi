@@ -30,7 +30,7 @@ function sanitizeHandlerSegment(segment: string) {
     .replaceAll(/[^0-9A-Za-z._-]/gu, '_')
     .replaceAll(/^[._-]+|[._-]+$/gu, '')
     .replaceAll(/__+/gu, '_')
-    .replaceAll(/[-._](\w)/gu, (_, c: string) => c.toUpperCase())
+    .replaceAll(/[-._](\w)/gu, (_, char: string) => char.toUpperCase())
 }
 
 /**
@@ -288,7 +288,7 @@ function makeStubFileContent(
 }
 
 function makeBarrelContent(fileNames: readonly string[]) {
-  return fileNames.map((h) => `export * from './${basename(h, '.ts')}'`).join('\n')
+  return fileNames.map((fileName) => `export * from './${basename(fileName, '.ts')}'`).join('\n')
 }
 
 /** oxfmt, keeping the source as-is when it will not parse what we just built. */
@@ -415,7 +415,7 @@ export function zodOpenAPIHonoHandler(
       ...specHandlers,
       ...makeOrphanHandlers(
         existing,
-        specHandlers.map((h) => h.fileName),
+        specHandlers.map((handler) => handler.fileName),
       ),
     ]
     // const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
@@ -439,7 +439,7 @@ export function zodOpenAPIHonoHandler(
         ),
         writeBarrel(
           handlerPath,
-          handlers.map((h) => h.fileName),
+          handlers.map((handler) => handler.fileName),
         ),
       ],
       { concurrency: 'unbounded' },
@@ -579,7 +579,7 @@ export function defineOpenAPIRouteHandler(
         ),
         writeBarrel(
           handlerPath,
-          handlerList.map((h) => h.fileName),
+          handlerList.map((handler) => handler.fileName),
         ),
       ],
       { concurrency: 'unbounded' },

@@ -51,7 +51,7 @@ describe('swr hooks', () => {
         const out = path.join(dir, 'index.ts')
         const result = await runGenerator(hooks(openapiSimple, out, '../client', 'swr'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
 
         expect(code).toBe(`import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
@@ -276,7 +276,7 @@ export function usePostUsers<TError = unknown>(options?: {
 }
 `)
 
-        expect(result).toStrictEqual(`Generated swr hooks written to ${out}`)
+        expect(result).toBe(`Generated swr hooks written to ${out}`)
       } finally {
         fs.rmSync(dir, { recursive: true, force: true })
       }
@@ -308,7 +308,7 @@ export function usePostUsers<TError = unknown>(options?: {
           }),
         )
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
 
         expect(code).toBe(`import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
@@ -439,7 +439,7 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
         const out = path.join(dir, 'index.ts')
         await runGenerator(hooks(openapiNoArgs, out, '../client', 'swr'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
 
         expect(code).toBe(`import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
@@ -593,7 +593,7 @@ export function usePostPing<TError = unknown>(options?: {
 
         await runGenerator(hooks(hyphenOpenAPI, out, '../client', 'swr'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
 
         expect(code).toBe(`import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
@@ -741,7 +741,7 @@ export function useInfiniteGetHonoX<TError = unknown>(options: {
 
         await runGenerator(hooks(paramOpenAPI, out, '../client', 'swr'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
 
         expect(code).toBe(`import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
@@ -956,7 +956,7 @@ export function useDeleteUsersId<TError = unknown>(options?: {
           runGenerator(hooks(openapiImmutable, out, '../client', 'swr')),
         ).resolves.toBeDefined()
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
 
         const expected = `import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
@@ -1083,7 +1083,7 @@ export function useInfiniteGetHono<TError = unknown>(options: {
 
         await runGenerator(hooks(simpleOpenAPI, out, '../client', 'swr'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
 
         expect(code).toBe(`import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
@@ -1207,13 +1207,13 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
           },
         } as OpenAPI
         await runGenerator(hooks(openAPI, out, '../client', 'swr'))
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         // Assertion: must not contain Infinite-related symbols
-        expect(code.includes('Infinite')).toBe(false)
-        expect(code.includes('useSWRInfinite')).toBe(false)
-        expect(code.includes('swr/infinite')).toBe(false)
-        expect(code.includes('SWRInfiniteConfiguration')).toBe(false)
-        expect(code.includes('SWRInfiniteKeyLoader')).toBe(false)
+        expect(code).not.toContain('Infinite')
+        expect(code).not.toContain('useSWRInfinite')
+        expect(code).not.toContain('swr/infinite')
+        expect(code).not.toContain('SWRInfiniteConfiguration')
+        expect(code).not.toContain('SWRInfiniteKeyLoader')
       } finally {
         fs.rmSync(dir, { recursive: true, force: true })
       }
@@ -1248,7 +1248,7 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
           },
         } as OpenAPI
         await runGenerator(hooks(openAPI, out, '../client', 'swr'))
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         expect(code).toBe(`import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
@@ -1454,7 +1454,7 @@ describe('tanstack-query hooks', () => {
         const out = path.join(dir, 'index.ts')
         const result = await runGenerator(hooks(openapiSimple, out, '../client', 'tanstack-query'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
   useQuery,
   useSuspenseQuery,
@@ -1983,7 +1983,7 @@ export function usePostUsers<TError = DefaultError, TOnMutateResult = unknown>(
 `
 
         expect(code).toBe(expected)
-        expect(result).toStrictEqual(`Generated tanstack-query hooks written to ${out}`)
+        expect(result).toBe(`Generated tanstack-query hooks written to ${out}`)
       } finally {
         fs.rmSync(dir, { recursive: true, force: true })
       }
@@ -2015,7 +2015,7 @@ export function usePostUsers<TError = DefaultError, TOnMutateResult = unknown>(
           }),
         )
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
   useQuery,
   useSuspenseQuery,
@@ -2305,7 +2305,7 @@ export function useSuspenseInfiniteUsers<
         const out = path.join(dir, 'index.ts')
         await runGenerator(hooks(openapiNoArgs, out, '../client', 'tanstack-query'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
   useQuery,
   useSuspenseQuery,
@@ -2626,7 +2626,7 @@ export function usePostPing<TError = DefaultError, TOnMutateResult = unknown>(
 
         await runGenerator(hooks(hyphenOpenAPI, out, '../client', 'tanstack-query'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
   useQuery,
   useSuspenseQuery,
@@ -2931,7 +2931,7 @@ export function useSuspenseInfiniteHonoX<
 
         await runGenerator(hooks(paramOpenAPI, out, '../client', 'tanstack-query'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
   useQuery,
   useSuspenseQuery,
@@ -3334,7 +3334,7 @@ export function useDeleteUsersId<TError = DefaultError, TOnMutateResult = unknow
         await expect(
           runGenerator(hooks(spec, out, '../client', 'tanstack-query')),
         ).resolves.toBeDefined()
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         expect(code).toBe(`import {
   useQuery,
   useSuspenseQuery,
@@ -3627,7 +3627,7 @@ export function useSuspenseInfiniteUsers<
           },
         } as OpenAPI
         await runGenerator(hooks(openAPI, out, '../client', 'tanstack-query'))
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         expect(code).toBe(`import {
   useQuery,
   useSuspenseQuery,
@@ -4020,7 +4020,7 @@ describe('preact-query hooks', () => {
         const out = path.join(dir, 'index.ts')
         const result = await runGenerator(hooks(openapiSimple, out, '../client', 'preact-query'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
   useQuery,
   useSuspenseQuery,
@@ -4549,7 +4549,7 @@ export function usePostUsers<TError = DefaultError, TOnMutateResult = unknown>(
 `
 
         expect(code).toBe(expected)
-        expect(result).toStrictEqual(`Generated preact-query hooks written to ${out}`)
+        expect(result).toBe(`Generated preact-query hooks written to ${out}`)
       } finally {
         fs.rmSync(dir, { recursive: true, force: true })
       }
@@ -4578,7 +4578,7 @@ export function usePostUsers<TError = DefaultError, TOnMutateResult = unknown>(
       try {
         const out = path.join(dir, 'index.ts')
         await runGenerator(hooks(spec, out, '../client', 'preact-query'))
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         expect(code).toBe(`import {
   useQuery,
   useSuspenseQuery,
@@ -4876,7 +4876,7 @@ describe('solid-query hooks', () => {
         const out = path.join(dir, 'index.ts')
         const result = await runGenerator(hooks(openapiSimple, out, '../client', 'solid-query'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
   createQuery,
   createInfiniteQuery,
@@ -5161,7 +5161,7 @@ export function createPostUsers<TError = DefaultError, TOnMutateResult = unknown
 `
 
         expect(code).toBe(expected)
-        expect(result).toStrictEqual(`Generated solid-query hooks written to ${out}`)
+        expect(result).toBe(`Generated solid-query hooks written to ${out}`)
       } finally {
         fs.rmSync(dir, { recursive: true, force: true })
       }
@@ -5211,7 +5211,7 @@ describe('vue-query hooks', () => {
         const out = path.join(dir, 'index.ts')
         const result = await runGenerator(hooks(openapiSimple, out, '../client', 'vue-query'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import { useQuery, useInfiniteQuery, useMutation, mutationOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
@@ -5558,7 +5558,7 @@ export function usePostUsers<TError = DefaultError, TOnMutateResult = unknown>(
 `
 
         expect(code).toBe(expected)
-        expect(result).toStrictEqual(`Generated vue-query hooks written to ${out}`)
+        expect(result).toBe(`Generated vue-query hooks written to ${out}`)
       } finally {
         fs.rmSync(dir, { recursive: true, force: true })
       }
@@ -5590,7 +5590,7 @@ export function usePostUsers<TError = DefaultError, TOnMutateResult = unknown>(
           }),
         )
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
@@ -5778,7 +5778,7 @@ export function useInfiniteUsers<
         const out = path.join(dir, 'index.ts')
         await runGenerator(hooks(openapiNoArgs, out, '../client', 'vue-query'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import { useQuery, useInfiniteQuery, useMutation, mutationOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
@@ -6000,7 +6000,7 @@ export function usePostPing<TError = DefaultError, TOnMutateResult = unknown>(
 
         await runGenerator(hooks(hyphenOpenAPI, out, '../client', 'vue-query'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
@@ -6197,7 +6197,7 @@ export function useInfiniteHonoX<
 
         await runGenerator(hooks(paramOpenAPI, out, '../client', 'vue-query'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import { useQuery, useInfiniteQuery, useMutation, mutationOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
@@ -6507,7 +6507,7 @@ export function useDeleteUsersId<TError = DefaultError, TOnMutateResult = unknow
           runGenerator(hooks(putPatchOpenAPI, out, '../client', 'vue-query')),
         ).resolves.toBeDefined()
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import { useMutation, mutationOptions } from '@tanstack/vue-query'
 import type { UseMutationOptions, DefaultError, QueryClient } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -6659,7 +6659,7 @@ export function usePatchUsersId<TError = DefaultError, TOnMutateResult = unknown
       try {
         const out = path.join(dir, 'index.ts')
         await runGenerator(hooks(spec, out, '../client', 'vue-query'))
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         expect(code).toBe(`import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
@@ -6887,7 +6887,7 @@ describe('svelte-query hooks', () => {
         const out = path.join(dir, 'index.ts')
         const result = await runGenerator(hooks(openapiSimple, out, '../client', 'svelte-query'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
   createQuery,
   createInfiniteQuery,
@@ -7411,7 +7411,7 @@ export function createDeletePetsPetId<TError = DefaultError, TOnMutateResult = u
 `
 
         expect(code).toBe(expected)
-        expect(result).toStrictEqual(`Generated svelte-query hooks written to ${out}`)
+        expect(result).toBe(`Generated svelte-query hooks written to ${out}`)
       } finally {
         fs.rmSync(dir, { recursive: true, force: true })
       }
@@ -7445,7 +7445,7 @@ export function createDeletePetsPetId<TError = DefaultError, TOnMutateResult = u
           }),
         )
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
   createQuery,
   createInfiniteQuery,
@@ -7652,7 +7652,7 @@ export function createInfiniteUsers<
         const out = path.join(dir, 'index.ts')
         await runGenerator(hooks(openapiNoArgs, out, '../client', 'svelte-query'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
   createQuery,
   createInfiniteQuery,
@@ -7895,7 +7895,7 @@ export function createPostPing<TError = DefaultError, TOnMutateResult = unknown>
 
         await runGenerator(hooks(hyphenOpenAPI, out, '../client', 'svelte-query'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
   createQuery,
   createInfiniteQuery,
@@ -8115,7 +8115,7 @@ export function createInfiniteHonoX<
 
         await runGenerator(hooks(paramOpenAPI, out, '../client', 'svelte-query'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
   createQuery,
   createInfiniteQuery,
@@ -8425,7 +8425,7 @@ export function createDeleteUsersId<TError = DefaultError, TOnMutateResult = unk
       try {
         const out = path.join(dir, 'index.ts')
         await runGenerator(hooks(spec, out, '../client', 'svelte-query'))
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         expect(code).toBe(`import {
   createQuery,
   createInfiniteQuery,
@@ -8641,7 +8641,7 @@ describe('angular-query hooks', () => {
         const out = path.join(dir, 'index.ts')
         const result = await runGenerator(hooks(openapiSimple, out, '../client', 'angular-query'))
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
   injectQuery,
   injectInfiniteQuery,
@@ -8920,7 +8920,7 @@ export function injectPostUsers<TError = DefaultError, TOnMutateResult = unknown
 `
 
         expect(code).toBe(expected)
-        expect(result).toStrictEqual(`Generated angular-query hooks written to ${out}`)
+        expect(result).toBe(`Generated angular-query hooks written to ${out}`)
       } finally {
         fs.rmSync(dir, { recursive: true, force: true })
       }
@@ -8946,7 +8946,7 @@ export function injectPostUsers<TError = DefaultError, TOnMutateResult = unknown
           ),
         )
 
-        const code = fs.readFileSync(out, 'utf-8')
+        const code = fs.readFileSync(out, 'utf8')
         expect(code)
           .toBe(`import { injectQuery, queryOptions } from '@tanstack/angular-query-experimental'
 import type {
@@ -10737,7 +10737,7 @@ describe('hooks: a cookie parameter is left out of the key, as a header is', () 
     try {
       const out = path.join(dir, 'index.ts')
       await runGenerator(hooks(spec, out, '../client', library))
-      return fs.readFileSync(out, 'utf-8')
+      return fs.readFileSync(out, 'utf8')
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }

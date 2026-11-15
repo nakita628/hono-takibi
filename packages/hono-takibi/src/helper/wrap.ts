@@ -494,7 +494,7 @@ export function conformDefault(
       : Array.isArray(schema.type)
         ? schema.type
         : [schema.type]
-  ).filter((t) => t !== undefined && t !== 'null')
+  ).filter((typeName) => typeName !== undefined && typeName !== 'null')
   if (types.length === 0) return { ok: true, value }
   const read = (type: Type): { readonly ok: true; readonly value: unknown } | undefined => {
     if (type === 'boolean') {
@@ -689,14 +689,15 @@ export function wrap(
           ? `((schema)=>z.union([schema,z.preprocess(${WIRE_NULL},schema)]))(${typed})`
           : typed
     // `!== undefined` (not truthy): `default: 0` is valid.
-    const d = defaultValue !== undefined ? `${n}.default(${formatLiteral(defaultValue)})` : n
+    const defaulted =
+      defaultValue !== undefined ? `${n}.default(${formatLiteral(defaultValue)})` : n
     const pf =
       schema['x-prefault'] !== undefined
-        ? `${d}.prefault(${formatLiteral(schema['x-prefault'])})`
-        : d
-    const c =
+        ? `${defaulted}.prefault(${formatLiteral(schema['x-prefault'])})`
+        : defaulted
+    const caught =
       schema['x-catch'] !== undefined ? `${pf}.catch(${formatLiteral(schema['x-catch'])})` : pf
-    const fr = schema['x-readonly'] === true ? `${c}.readonly()` : c
+    const fr = schema['x-readonly'] === true ? `${caught}.readonly()` : caught
     const refineChain = `${fr}${schema['x-refine'] ?? ''}`
     const superRefineChain = `${refineChain}${schema['x-superRefine'] ?? ''}`
     // Precedence (outermost wins): x-preprocess > x-transform > x-pipe > x-codec.

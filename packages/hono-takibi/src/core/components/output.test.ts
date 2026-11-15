@@ -24,7 +24,7 @@ describe('components', () => {
       paths: {},
     } as unknown as OpenAPI
     const result = await runGenerator(components(openAPI, output))
-    expect(result).toStrictEqual('No components found')
+    expect(result).toBe('No components found')
   })
 
   it('writes all components into a single file', async () => {
@@ -45,8 +45,8 @@ describe('components', () => {
       paths: {},
     } as unknown as OpenAPI
     const result = await runGenerator(components(openAPI, output))
-    expect(result).toStrictEqual(`Generated components code written to ${output}`)
-    const content = fs.readFileSync(output, 'utf-8')
+    expect(result).toBe(`Generated components code written to ${output}`)
+    const content = fs.readFileSync(output, 'utf8')
     expect(content).toBe(`import { z } from '@hono/zod-openapi'
 
 export const UserSchema = z

@@ -24,6 +24,7 @@ export function parseSource(code: string): {
   readonly program: Program
   readonly errors: readonly string[]
 } {
+  // oxlint-disable-next-line node/no-sync -- parses a string in memory; nothing is read or awaited
   const { program, errors } = parseSync('module.ts', code, PARSER_OPTIONS)
   return { program, errors: errors.map((error) => error.message) }
 }

@@ -30,12 +30,12 @@ describe('FormatOptions', () => {
   it('uses default options without setFormatOptions', async () => {
     // default: printWidth: 100, singleQuote: true, semi: false
     const result = await runGenerator(fmt("const x = 'hello';"))
-    expect(result).toStrictEqual("const x = 'hello'\n")
+    expect(result).toBe("const x = 'hello'\n")
   })
 
   it('semi: true adds semicolons', async () => {
     const result = await fmtWith({ semi: true, singleQuote: true }, "const x = 'hello'")
-    expect(result).toStrictEqual("const x = 'hello';\n")
+    expect(result).toBe("const x = 'hello';\n")
   })
 
   // A config file's `format` block usually sets one option. Losing the merge with the
@@ -45,7 +45,7 @@ describe('FormatOptions', () => {
       { printWidth: 30 },
       "const a = 'x';\nconst pair = [aaaaaaaaaa, bbbbbbbbbb, cccccccccc]",
     )
-    expect(result).toStrictEqual(`const a = 'x'
+    expect(result).toBe(`const a = 'x'
 const pair = [
   aaaaaaaaaa,
   bbbbbbbbbb,
@@ -57,6 +57,6 @@ const pair = [
   it('falls back to defaults when called with empty object', async () => {
     // default: singleQuote: true, semi: false
     const result = await fmtWith({}, "const x = 'hello'")
-    expect(result).toStrictEqual("const x = 'hello'\n")
+    expect(result).toBe("const x = 'hello'\n")
   })
 })

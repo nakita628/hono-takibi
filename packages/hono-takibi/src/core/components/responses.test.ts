@@ -26,7 +26,7 @@ describe('responses', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-responses-'))
     const output = path.join(tmpDir, 'responses.ts')
     const result = await runGenerator(responses({}, output, false))
-    expect(result).toStrictEqual('No responses found')
+    expect(result).toBe('No responses found')
   })
 
   describe('non-split mode', () => {
@@ -54,10 +54,10 @@ describe('responses', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual(`Generated responses code written to ${output}`)
+      expect(result).toBe(`Generated responses code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.length > 0).toBe(true)
+      const content = fs.readFileSync(output, 'utf8')
+      expect(content.length).toBeGreaterThan(0)
     })
   })
 
@@ -99,9 +99,7 @@ describe('responses', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated responses code written to ${output}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated responses code written to ${output}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'notFound.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'unauthorized.ts'))).toBe(true)
@@ -117,7 +115,7 @@ describe('responses', () => {
         Unauthorized: { description: 'Unauthorized' },
       }
       await runGenerator(responses(sampleResponses, output, false))
-      const emitted = fs.readFileSync(output, 'utf-8')
+      const emitted = fs.readFileSync(output, 'utf8')
       const generated = responsesCode({ responses: sampleResponses }, true)
       const emittedNames = new Set(
         [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Response\s*=/gu)].map(

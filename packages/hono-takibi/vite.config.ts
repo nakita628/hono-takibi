@@ -360,16 +360,190 @@ export default defineConfig({
       'import/no-named-as-default': 'error',
       'import/no-anonymous-default-export': 'error',
       'import/consistent-type-specifier-style': 'error',
-      // Dependency hygiene. (`import/no-extraneous-dependencies` would be the one that
-      // matters most here — a `devDependency` reaching `src` breaks the published package —
-      // but oxlint does not implement it yet; `vp pack` externalising an undeclared import
-      // is the current backstop.)
+      // Dependency hygiene. `import/no-extraneous-dependencies` is not implemented by oxlint;
+      // `custom/no-undeclared-dependency` below does its work.
       'import/no-self-import': 'error',
       'import/no-absolute-path': 'error',
       'import/no-empty-named-blocks': 'error',
       // Naming: the identifiers a reader scans first.
       'no-shadow-restricted-names': 'error',
       'no-delete-var': 'error',
+      // --- Second hardening pass --------------------------------------------
+      // Every rule below was measured against `src` before being turned on: it either
+      // held already, or the handful of sites it found were rewritten in the same change.
+
+      // Module graph and dependencies. `custom/no-undeclared-dependency` stands in for
+      // `import/no-extraneous-dependencies`, which oxlint does not implement: a bare
+      // specifier in shipped code must be a `dependency` or `peerDependency` of
+      // package.json, since a `devDependency` reaching `src` breaks the published package.
+      'custom/no-undeclared-dependency': 'error',
+      'import/named': 'error',
+      'import/newline-after-import': 'error',
+      'import/no-amd': 'error',
+      'import/no-dynamic-require': 'error',
+      'import/no-webpack-loader-syntax': 'error',
+      // A type import and a value import of one module stay two statements
+      // (`import/consistent-type-specifier-style`); anything else is one.
+      'no-duplicate-imports': ['error', { allowSeparateTypeImports: true }],
+      // A ratchet, not a target: the widest module today imports 13 others, and a module
+      // that needs more is doing the work of two.
+      'import/max-dependencies': ['error', { max: 13 }],
+      // The process is configured by a config file and flags, never by the environment,
+      // and only the CLI entry decides when it ends.
+      'node/no-process-env': 'error',
+      'unicorn/no-process-exit': 'error',
+      // An Effect program reads files through the FileSystem service; a `*Sync` call
+      // blocks the event loop under `concurrency: 'unbounded'`.
+      'node/no-sync': 'error',
+      // A promise is built by `Effect.tryPromise` around an API that returns one, not by hand.
+      'promise/avoid-new': 'error',
+      'no-promise-executor-return': 'error',
+
+      // Naming. A vague name is banned outright, and a one-letter name is kept to the
+      // conventional ones: `k` / `v` for an entry, `s` / `p` / `n` / `m` / `i` for the
+      // string, path, name, match and index of a one-line callback, `a` / `b` for a
+      // comparator, `z` for zod, and single capitals for type parameters.
+      'custom/identifier-case': 'error',
+      'id-length': [
+        'error',
+        {
+          min: 2,
+          properties: 'never',
+          exceptions: [
+            '_',
+            'k',
+            'v',
+            's',
+            'p',
+            'n',
+            'm',
+            'i',
+            'a',
+            'b',
+            'z',
+            'T',
+            'K',
+            'A',
+            'E',
+            'M',
+          ],
+        },
+      ],
+      'id-denylist': [
+        'error',
+        'data',
+        'tmp',
+        'temp',
+        'foo',
+        'bar',
+        'cb',
+        'err',
+        'e',
+        'res',
+        'req',
+        'obj',
+        'val',
+        'arr',
+        'str',
+        'fn',
+        'ret',
+        'idx',
+        'cnt',
+        'num',
+        'buf',
+        'ctx',
+        'elem',
+        'el',
+        'cur',
+        'x',
+        'y',
+      ],
+      'func-name-matching': 'error',
+
+      // Size ratchets. The limits are the tightest that hold today, so the deepest
+      // nesting in the codebase is as deep as it gets.
+      'max-depth': ['error', 4],
+      'max-nested-callbacks': ['error', 4],
+      'max-classes-per-file': ['error', 2],
+
+      // Types. The repository writes a dictionary as an index signature
+      // (`{ readonly [k: string]: X }`), which can be `readonly` where `Record` cannot say so
+      // without a wrapper.
+      'typescript/consistent-indexed-object-style': ['error', 'index-signature'],
+      'typescript/adjacent-overload-signatures': 'error',
+      'typescript/unified-signatures': 'error',
+      'typescript/ban-tslint-comment': 'error',
+      'typescript/no-unnecessary-qualifier': 'error',
+      // No enums, namespaces or parameter properties: none of them survives type stripping,
+      // and a union of literals says what an enum says.
+      'typescript/no-namespace': 'error',
+      'typescript/no-mixed-enums': 'error',
+      'typescript/prefer-enum-initializers': 'error',
+      'typescript/prefer-literal-enum-member': 'error',
+      'oxc/no-const-enum': 'error',
+      'typescript/parameter-properties': 'error',
+      'typescript/no-empty-interface': 'error',
+      // The two classes of this package are tagged errors; these keep a third honest.
+      'typescript/class-literal-property-style': 'error',
+      'typescript/prefer-return-this-type': 'error',
+      'typescript/related-getter-setter-pairs': 'error',
+      'accessor-pairs': 'error',
+      'grouped-accessor-pairs': 'error',
+      'class-methods-use-this': 'error',
+      'no-constructor-return': 'error',
+      'unicorn/no-static-only-class': 'error',
+      'unicorn/no-this-assignment': 'error',
+      'unicorn/prefer-class-fields': 'error',
+      'unicorn/custom-error-definition': 'error',
+
+      // Regex and strings.
+      'typescript/prefer-regexp-exec': 'error',
+      'unicorn/no-console-spaces': 'error',
+      'unicorn/require-number-to-fixed-digits-argument': 'error',
+
+      // Control flow.
+      'default-case': 'error',
+      'unicorn/switch-case-braces': ['error', 'avoid'],
+      'unicorn/switch-case-break-position': 'error',
+      'unicorn/prefer-ternary': 'error',
+      'unicorn/no-negation-in-equality-check': 'error',
+      'logical-assignment-operators': 'error',
+      'no-eq-null': 'error',
+      'sort-vars': 'error',
+      'vars-on-top': 'error',
+      'oxc/branches-sharing-code': 'error',
+      'oxc/bad-bitwise-operator': 'error',
+
+      // Objects, arrays and built-ins.
+      'no-proto': 'error',
+      'no-alert': 'error',
+      // `unicorn/no-array-method-this-argument` is deliberately absent: it reads the mapper
+      // of `Effect.forEach(items, f)` as the `thisArg` of an array method.
+      'unicorn/no-instanceof-array': 'error',
+      'unicorn/no-new-buffer': 'error',
+      'unicorn/no-unnecessary-array-splice-count': 'error',
+      'unicorn/no-useless-iterator-to-array': 'error',
+      'unicorn/prefer-prototype-methods': 'error',
+      'unicorn/prefer-reflect-apply': 'error',
+      'unicorn/prefer-date-now': 'error',
+      'unicorn/consistent-date-clone': 'error',
+      'unicorn/prefer-event-target': 'error',
+      'unicorn/prefer-bigint-literals': 'error',
+      'unicorn/text-encoding-identifier-case': 'error',
+      'unicorn/explicit-timer-delay': 'error',
+      'unicorn/consistent-assert': 'error',
+      'unicorn/prefer-top-level-await': 'error',
+      'unicorn/require-module-attributes': 'error',
+
+      // JSDoc: a tag that is written says something.
+      'jsdoc/check-access': 'error',
+      'jsdoc/no-blank-blocks': 'error',
+      'jsdoc/require-param-name': 'error',
+      'jsdoc/require-param-description': 'error',
+      'jsdoc/require-returns-description': 'error',
+      'jsdoc/require-throws-description': 'error',
+      'jsdoc/require-yields-description': 'error',
+
       // `unicorn/filename-case` is deliberately absent: the component modules are named
       // after the OpenAPI Components Object keys they emit (`mediaTypes.ts`, `pathItems.ts`,
       // `requestBodies.ts`, `securitySchemes.ts`), which are also the config field names.
@@ -644,6 +818,37 @@ export default defineConfig({
           // Fixtures feed and assert on source text that contains a literal `${...}`;
           // there that is the value under test, not a lost backtick.
           'no-template-curly-in-string': 'off',
+          // The suite drives real files and subprocesses: it reads and writes
+          // synchronously, waits on hand-built promises and nests `describe` callbacks.
+          'node/no-sync': 'off',
+          'promise/avoid-new': 'off',
+          'no-promise-executor-return': 'off',
+          'max-nested-callbacks': 'off',
+          // A fixture names its throwaway values as briefly as it likes.
+          'id-length': 'off',
+          'id-denylist': 'off',
+          'custom/identifier-case': 'off',
+          'custom/no-undeclared-dependency': 'off',
+          'vitest/consistent-each-for': 'error',
+          'vitest/consistent-vitest-vi': 'error',
+          'vitest/consistent-test-filename': 'error',
+          'vitest/max-nested-describe': 'error',
+          'vitest/no-import-node-test': 'error',
+          'vitest/no-unneeded-async-expect-function': 'error',
+          'vitest/prefer-called-exactly-once-with': 'error',
+          'vitest/prefer-called-once': 'error',
+          'vitest/prefer-mock-promise-shorthand': 'error',
+          'vitest/prefer-mock-return-shorthand': 'error',
+          'vitest/prefer-strict-boolean-matchers': 'error',
+          'vitest/prefer-strict-equal': 'error',
+          'vitest/prefer-to-be': 'error',
+          'vitest/prefer-to-be-object': 'error',
+          'vitest/prefer-to-contain': 'error',
+          'vitest/prefer-to-have-length': 'error',
+          'vitest/prefer-comparison-matcher': 'error',
+          'vitest/prefer-expect-resolves': 'error',
+          'vitest/prefer-todo': 'error',
+          'vitest/prefer-importing-vitest-globals': 'error',
           'vitest/no-identical-title': 'error',
           'vitest/valid-expect': 'error',
           'vitest/valid-title': 'error',

@@ -144,7 +144,7 @@ describe('takibi generate (sandbox)', () => {
 
       expect(result).toBe(`🔥 Generated code written to ${out}`)
 
-      const generatedCode = fs.readFileSync(out, 'utf-8')
+      const generatedCode = fs.readFileSync(out, 'utf8')
       const expectedCode = `import { createRoute, z } from '@hono/zod-openapi'
 
 export const getHonoRoute = createRoute({
@@ -233,7 +233,7 @@ describe('templateCode (sandbox)', () => {
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenAPIHono.ts'))).toBe(true)
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -261,7 +261,7 @@ describe('templateCode (sandbox)', () => {
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenAPIHono.ts'))).toBe(true)
 
-      const appCode = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      const appCode = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')
       expect(appCode).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getHonoRoute, getHonoXRoute, getZodOpenapiHonoRoute } from './route'
 import {
@@ -280,7 +280,7 @@ export const api = app
 export default app
 `)
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -326,9 +326,9 @@ describe('basePath behavior', () => {
         template(simpleOpenapi, out, '/', undefined, undefined, true),
       )
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
-      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')
       expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from './route'
 import { getTestRouteHandler } from './handlers'
@@ -356,9 +356,9 @@ export default app
         template(simpleOpenapi, out, '/api', undefined, undefined, true),
       )
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
-      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')
       expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from './route'
 import { getTestRouteHandler } from './handlers'
@@ -386,9 +386,9 @@ export default app
         template(simpleOpenapi, out, '/api/v1', undefined, undefined, true),
       )
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
-      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')
       expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from './route'
 import { getTestRouteHandler } from './handlers'
@@ -417,9 +417,9 @@ describe('--template mode strict content tests', () => {
         template: true,
       })
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
-      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')
       const expectedIndex = `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from './route'
 import { getTestRouteHandler } from './handlers'
@@ -447,7 +447,7 @@ export default app
 
       const handlersIndexContent = fs.readFileSync(
         path.join(srcDir, 'handlers', 'index.ts'),
-        'utf-8',
+        'utf8',
       )
       const expectedHandlersIndex = `export * from './test'
 `
@@ -466,7 +466,7 @@ export default app
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
       await runTakibiWithTemplate(simpleOpenapi, out, { template: true })
 
-      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
+      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')
       const expectedHandler = `import type { RouteHandler } from '@hono/zod-openapi'
 import type { getTestRoute } from '../route'
 
@@ -487,7 +487,7 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
       await runTakibiWithTemplate(simpleOpenapi, out, { template: true })
 
-      const routeContent = fs.readFileSync(path.join(srcDir, 'route.ts'), 'utf-8')
+      const routeContent = fs.readFileSync(path.join(srcDir, 'route.ts'), 'utf8')
       const expectedRoute = `import { createRoute, z } from '@hono/zod-openapi'
 
 export const getTestRoute = createRoute({
@@ -521,7 +521,7 @@ export const getTestRoute = createRoute({
         basePath: '/api/v1',
       })
 
-      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')
       const expectedIndex = `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from './route'
 import { getTestRouteHandler } from './handlers'
@@ -549,13 +549,13 @@ export default app
         template: true,
       })
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
       expect(fs.existsSync(path.join(dir, 'route.ts'))).toBe(true)
       expect(fs.existsSync(path.join(dir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(dir, 'handlers', 'test.ts'))).toBe(true)
 
-      const indexContent = fs.readFileSync(path.join(dir, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(dir, 'index.ts'), 'utf8')
       expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from './route'
 import { getTestRouteHandler } from './handlers'
@@ -567,7 +567,7 @@ export const api = app.openapi(getTestRoute, getTestRouteHandler)
 export default app
 `)
 
-      const handlerContent = fs.readFileSync(path.join(dir, 'handlers', 'test.ts'), 'utf-8')
+      const handlerContent = fs.readFileSync(path.join(dir, 'handlers', 'test.ts'), 'utf8')
       expect(handlerContent).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
 import type { getTestRoute } from '../route'
 
@@ -588,7 +588,7 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
         pathAlias: '@/api',
       })
 
-      const indexContent = fs.readFileSync(path.join(dir, 'src', 'api', 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(dir, 'src', 'api', 'index.ts'), 'utf8')
       expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from '@/api/routes'
 import { getTestRouteHandler } from '@/api/handlers'
@@ -602,7 +602,7 @@ export default app
 
       const handlerContent = fs.readFileSync(
         path.join(dir, 'src', 'api', 'handlers', 'test.ts'),
-        'utf-8',
+        'utf8',
       )
       expect(handlerContent).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
 import type { getTestRoute } from '@/api/routes'
@@ -624,7 +624,7 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       const out = path.join(srcDir, 'routes', 'index.ts') as `${string}.ts`
       const result = await runTakibiWithTemplate(simpleOpenapi, out, { template: true })
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
       // routes/index.ts should contain route definitions
       expect(fs.existsSync(path.join(srcDir, 'routes', 'index.ts'))).toBe(true)
@@ -634,7 +634,7 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'test.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'index.ts'))).toBe(true)
 
-      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')
       expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from './routes'
 import { getTestRouteHandler } from './handlers'
@@ -646,14 +646,14 @@ export const api = app.openapi(getTestRoute, getTestRouteHandler)
 export default app
 `)
 
-      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
+      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')
       expect(handlerContent).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
 import type { getTestRoute } from '../routes'
 
 export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) => {}
 `)
 
-      const routeContent = fs.readFileSync(path.join(srcDir, 'routes', 'index.ts'), 'utf-8')
+      const routeContent = fs.readFileSync(path.join(srcDir, 'routes', 'index.ts'), 'utf8')
       expect(routeContent).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const getTestRoute = createRoute({
@@ -686,7 +686,7 @@ export const getTestRoute = createRoute({
         pathAlias: '@/src',
       })
 
-      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')
       expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from '@/src/routes'
 import { getTestRouteHandler } from '@/src/handlers'
@@ -698,7 +698,7 @@ export const api = app.openapi(getTestRoute, getTestRouteHandler)
 export default app
 `)
 
-      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
+      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')
       expect(handlerContent).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
 import type { getTestRoute } from '@/src/routes'
 
@@ -723,7 +723,7 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
         routeImport: '@packages/routes',
       })
 
-      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')
       expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from '@packages/routes'
 import { getTestRouteHandler } from '@/handlers'
@@ -735,7 +735,7 @@ export const api = app.openapi(getTestRoute, getTestRouteHandler)
 export default app
 `)
 
-      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
+      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')
       expect(handlerContent).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
 import type { getTestRoute } from '@packages/routes'
 
@@ -759,7 +759,7 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
         routeImport: '@packages/routes',
       })
 
-      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')
       expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from '@packages/routes'
 import { getTestRouteHandler } from './handlers'
@@ -771,7 +771,7 @@ export const api = app.openapi(getTestRoute, getTestRouteHandler)
 export default app
 `)
 
-      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
+      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')
       expect(handlerContent).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
 import type { getTestRoute } from '@packages/routes'
 
@@ -795,7 +795,7 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
         pathAlias: '@/',
       })
 
-      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')
       expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from '@/routes'
 import { getTestRouteHandler } from '@/handlers'
@@ -807,7 +807,7 @@ export const api = app.openapi(getTestRoute, getTestRouteHandler)
 export default app
 `)
 
-      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
+      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')
       expect(handlerContent).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
 import type { getTestRoute } from '@/routes'
 
@@ -832,7 +832,7 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
         routeImport: '@packages/routes',
       })
 
-      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')
       expect(indexContent).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from '@packages/routes'
 import { getTestRouteHandler } from '@/handlers'
@@ -844,7 +844,7 @@ export const api = app.openapi(getTestRoute, getTestRouteHandler)
 export default app
 `)
 
-      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
+      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')
       expect(handlerContent).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
 import type { getTestRoute } from '@packages/routes'
 
@@ -870,9 +870,9 @@ describe('3-pattern strict tests (monorepo / pathAlias / plain)', () => {
         routeImport: '@packages/routes',
       })
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
-      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from '@packages/routes'
 import { getTestRouteHandler } from '@/handlers'
@@ -885,7 +885,7 @@ export default app
 `,
       )
 
-      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')).toBe(
         `import type { RouteHandler } from '@hono/zod-openapi'
 import type { getTestRoute } from '@packages/routes'
 
@@ -909,9 +909,9 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
         pathAlias: '@/',
       })
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
-      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from '@/routes'
 import { getTestRouteHandler } from '@/handlers'
@@ -924,7 +924,7 @@ export default app
 `,
       )
 
-      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')).toBe(
         `import type { RouteHandler } from '@hono/zod-openapi'
 import type { getTestRoute } from '@/routes'
 
@@ -947,9 +947,9 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
         template: true,
       })
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
-      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from './routes'
 import { getTestRouteHandler } from './handlers'
@@ -962,7 +962,7 @@ export default app
 `,
       )
 
-      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')).toBe(
         `import type { RouteHandler } from '@hono/zod-openapi'
 import type { getTestRoute } from '../routes'
 
@@ -987,13 +987,13 @@ describe('template() unit tests', () => {
         template(simpleOpenapi, routeOutput, '/', undefined, undefined, true),
       )
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'test.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'index.ts'))).toBe(true)
 
-      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from './routes'
 import { getTestRouteHandler } from './handlers'
@@ -1006,7 +1006,7 @@ export default app
 `,
       )
 
-      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')).toBe(
         `import type { RouteHandler } from '@hono/zod-openapi'
 import type { getTestRoute } from '../routes'
 
@@ -1029,9 +1029,9 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
         template(simpleOpenapi, routeOutput, '/', '@/', '@packages/routes', true),
       )
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
-      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from '@packages/routes'
 import { getTestRouteHandler } from '@/handlers'
@@ -1044,7 +1044,7 @@ export default app
 `,
       )
 
-      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')).toBe(
         `import type { RouteHandler } from '@hono/zod-openapi'
 import type { getTestRoute } from '@packages/routes'
 
@@ -1067,13 +1067,13 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
         template(simpleOpenapi, routeOutput, '/', undefined, undefined, true),
       )
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
       // App template at parent dir (src/index.ts), not in routes/
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'test.ts'))).toBe(true)
 
-      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from './routes'
 import { getTestRouteHandler } from './handlers'
@@ -1104,9 +1104,9 @@ describe('routeHandler: false (app import pattern)', () => {
         routeHandler: false,
       })
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
-      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { testHandler } from './handlers'
 
@@ -1118,7 +1118,7 @@ export default app
 `,
       )
 
-      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from '../route'
 
@@ -1128,7 +1128,7 @@ export const testHandler = app.openapi(getTestRoute, (c) => {})
 `,
       )
 
-      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'index.ts'), 'utf8')).toBe(
         `export * from './test'
 `,
       )
@@ -1150,9 +1150,9 @@ export const testHandler = app.openapi(getTestRoute, (c) => {})
         routeHandler: false,
       })
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
-      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { testHandler } from './handlers'
 
@@ -1164,7 +1164,7 @@ export default app
 `,
       )
 
-      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from '../route'
 
@@ -1191,9 +1191,9 @@ export const testHandler = app.openapi(getTestRoute, (c) => {})
         routeHandler: false,
       })
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
-      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { testHandler } from '@/handlers'
 
@@ -1205,7 +1205,7 @@ export default app
 `,
       )
 
-      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from '@/route'
 
@@ -1233,9 +1233,9 @@ export const testHandler = app.openapi(getTestRoute, (c) => {})
         routeHandler: false,
       })
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
-      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { testHandler } from '@/src/handlers'
 
@@ -1247,7 +1247,7 @@ export default app
 `,
       )
 
-      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from '@/src/route'
 
@@ -1276,9 +1276,9 @@ export const testHandler = app.openapi(getTestRoute, (c) => {})
         routeHandler: false,
       })
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
-      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { testHandler } from '@/handlers'
 
@@ -1290,7 +1290,7 @@ export default app
 `,
       )
 
-      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from '@packages/api/routes'
 
@@ -1316,9 +1316,9 @@ export const testHandler = app.openapi(getTestRoute, (c) => {})
         routeHandler: false,
       })
 
-      expect(result).toStrictEqual('🔥 Generated code and template files written')
+      expect(result).toBe('🔥 Generated code and template files written')
 
-      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { testHandler } from './handlers'
 
@@ -1330,7 +1330,7 @@ export default app
 `,
       )
 
-      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')).toBe(
+      expect(fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf8')).toBe(
         `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from '../routes'
 

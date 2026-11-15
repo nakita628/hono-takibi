@@ -26,7 +26,7 @@ describe('headers', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-headers-'))
     const output = path.join(tmpDir, 'headers.ts')
     const result = await runGenerator(headers({}, output, false, true))
-    expect(result).toStrictEqual('No headers found')
+    expect(result).toBe('No headers found')
   })
 
   describe('non-split mode', () => {
@@ -46,10 +46,10 @@ describe('headers', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(`Generated headers code written to ${output}`)
+      expect(result).toBe(`Generated headers code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.length > 0).toBe(true)
+      const content = fs.readFileSync(output, 'utf8')
+      expect(content.length).toBeGreaterThan(0)
     })
   })
 
@@ -74,9 +74,7 @@ describe('headers', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated headers code written to ${output}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated headers code written to ${output}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'x-Rate-Limit.ts'))).toBe(true)
     })
@@ -91,7 +89,7 @@ describe('headers', () => {
         XRequestId: { schema: { type: 'string' as const }, description: 'Request ID' },
       }
       await runGenerator(headers(sampleHeaders, output, false, true))
-      const emitted = fs.readFileSync(output, 'utf-8')
+      const emitted = fs.readFileSync(output, 'utf8')
       const generated = headersCode({ headers: sampleHeaders }, true, true)
       const emittedNames = new Set(
         [

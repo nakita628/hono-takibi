@@ -26,7 +26,7 @@ describe('parameters', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-parameters-'))
     const output = path.join(tmpDir, 'parameters.ts')
     const result = await runGenerator(parameters({}, output, false, true))
-    expect(result).toStrictEqual('No parameters found')
+    expect(result).toBe('No parameters found')
   })
 
   describe('non-split mode', () => {
@@ -48,10 +48,10 @@ describe('parameters', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(`Generated parameters code written to ${output}`)
+      expect(result).toBe(`Generated parameters code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.length > 0).toBe(true)
+      const content = fs.readFileSync(output, 'utf8')
+      expect(content.length).toBeGreaterThan(0)
     })
   })
 
@@ -79,9 +79,7 @@ describe('parameters', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual(
-        `Generated parameters code written to ${output}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated parameters code written to ${output}/*.ts (index.ts included)`)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'userId.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'page.ts'))).toBe(true)
@@ -102,7 +100,7 @@ describe('parameters', () => {
         Page: { name: 'page', in: 'query' as const, schema: { type: 'integer' as const } },
       }
       await runGenerator(parameters(sampleParams, output, false, true))
-      const emitted = fs.readFileSync(output, 'utf-8')
+      const emitted = fs.readFileSync(output, 'utf8')
       const generated = parametersCode({ parameters: sampleParams }, true, true)
       const emittedNames = new Set(
         [

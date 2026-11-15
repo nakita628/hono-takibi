@@ -58,7 +58,7 @@ describe('isInsideDirectory', () => {
 
 // `appEntryOutput` is the one place the app entry is derived, and every generated import
 // is relative to it. A wrong anchor here breaks every route import at once.
-const entry = async (config: Record<string, unknown>) =>
+const entry = async (config: { [key: string]: unknown }) =>
   appEntryOutput(await runGenerator(parseConfig({ input: 'openapi.yaml', ...config })))
 
 describe('appEntryDirectory', () => {
@@ -83,23 +83,25 @@ describe('appEntryDirectory', () => {
 
 describe('appEntryOutput', () => {
   it.concurrent('prefers an explicit output in every mode', async () => {
-    expect(await entry({ output: 'src/app.ts' })).toBe('src/app.ts')
-    expect(
-      await entry({
+    await expect(entry({ output: 'src/app.ts' })).resolves.toBe('src/app.ts')
+    await expect(
+      entry({
         output: 'src/server/index.ts',
         template: { define: true },
         components: { output: 'src/api/components/index.ts' },
       }),
-    ).toBe('src/server/index.ts')
+    ).resolves.toBe('src/server/index.ts')
   })
 
   it.concurrent('falls back to routes.output outside define mode', async () => {
-    expect(await entry({ routes: { output: 'src/routes/index.ts' } })).toBe('src/routes/index.ts')
-    expect(await entry({})).toBeUndefined()
+    await expect(entry({ routes: { output: 'src/routes/index.ts' } })).resolves.toBe(
+      'src/routes/index.ts',
+    )
+    await expect(entry({})).resolves.toBeUndefined()
   })
 
   it.concurrent('defaults define mode to src/index.ts without a components anchor', async () => {
-    expect(await entry({ template: { define: true } })).toBe('src/index.ts')
+    await expect(entry({ template: { define: true } })).resolves.toBe('src/index.ts')
   })
 
   it.concurrent.each([
@@ -109,7 +111,9 @@ describe('appEntryOutput', () => {
     ['components.ts', 'index.ts'],
     ['./components/index.ts', 'index.ts'],
   ])('anchors define mode next to components.output %s', async (output, expected) => {
-    expect(await entry({ template: { define: true }, components: { output } })).toBe(expected)
+    await expect(entry({ template: { define: true }, components: { output } })).resolves.toBe(
+      expected,
+    )
   })
 })
 

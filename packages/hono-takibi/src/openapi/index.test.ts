@@ -269,7 +269,7 @@ describe('a $ref key inside a literal (#432)', () => {
     }
     fs.writeFileSync(input, JSON.stringify(document))
     try {
-      expect(await runGenerator(parseOpenAPI(input))).toStrictEqual(document)
+      await expect(runGenerator(parseOpenAPI(input))).resolves.toStrictEqual(document)
     } finally {
       fs.rmSync(directory, { recursive: true, force: true })
     }

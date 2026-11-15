@@ -94,9 +94,9 @@ describe('webhooks', () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-'))
       const out = path.join(tmpDir, 'webhooks.ts')
       const result = await runGenerator(webhooks(mockOpenAPI, { output: out }))
-      expect(result).toStrictEqual(`Generated webhooks code written to ${out}`)
+      expect(result).toBe(`Generated webhooks code written to ${out}`)
 
-      const content = fs.readFileSync(out, 'utf-8')
+      const content = fs.readFileSync(out, 'utf8')
       const expected = `import { OrderEventSchema, UserEventSchema } from './schemas'
 
 export const newOrderPostWebhook = {
@@ -135,11 +135,9 @@ export const userCreatedPostWebhook = {
           split: true,
         }),
       )
-      expect(result).toStrictEqual(
-        `Generated webhooks code written to ${out}/*.ts (index.ts included)`,
-      )
+      expect(result).toBe(`Generated webhooks code written to ${out}/*.ts (index.ts included)`)
 
-      const newOrderContent = fs.readFileSync(path.join(out, 'newOrderPost.ts'), 'utf-8')
+      const newOrderContent = fs.readFileSync(path.join(out, 'newOrderPost.ts'), 'utf8')
       const expectedNewOrder = `import { OrderEventSchema } from './schemas'
 
 export const newOrderPostWebhook = {
@@ -155,7 +153,7 @@ export const newOrderPostWebhook = {
 `
       expect(newOrderContent).toBe(expectedNewOrder)
 
-      const userCreatedContent = fs.readFileSync(path.join(out, 'userCreatedPost.ts'), 'utf-8')
+      const userCreatedContent = fs.readFileSync(path.join(out, 'userCreatedPost.ts'), 'utf8')
       const expectedUserCreated = `import { UserEventSchema } from './schemas'
 
 export const userCreatedPostWebhook = {
@@ -171,7 +169,7 @@ export const userCreatedPostWebhook = {
 `
       expect(userCreatedContent).toBe(expectedUserCreated)
 
-      const indexContent = fs.readFileSync(path.join(out, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(out, 'index.ts'), 'utf8')
       const expectedIndex = `export * from './newOrderPost'
 export * from './userCreatedPost'
 `
@@ -199,9 +197,9 @@ export * from './userCreatedPost'
         },
       } as OpenAPI
       const result = await runGenerator(webhooks(simpleWebhook, { output: out }))
-      expect(result).toStrictEqual(`Generated webhooks code written to ${out}`)
+      expect(result).toBe(`Generated webhooks code written to ${out}`)
 
-      const content = fs.readFileSync(out, 'utf-8')
+      const content = fs.readFileSync(out, 'utf8')
       const expected = `export const simplePostWebhook = {
   method: 'post',
   path: '/simple',
@@ -218,7 +216,7 @@ export * from './userCreatedPost'
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-contract-'))
       const out = path.join(tmpDir, 'webhooks.ts')
       await runGenerator(webhooks(mockOpenAPI, { output: out }))
-      const emitted = fs.readFileSync(out, 'utf-8')
+      const emitted = fs.readFileSync(out, 'utf8')
       const generated = webhookCode(mockOpenAPI)
       const emittedNames = new Set(
         [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Webhook\s*=/gu)].map(
@@ -240,7 +238,7 @@ export * from './userCreatedPost'
       const files = fs.readdirSync(outDir).filter((f) => f !== 'index.ts')
       const emittedNames = new Set<string>()
       for (const f of files) {
-        const src = fs.readFileSync(path.join(outDir, f), 'utf-8')
+        const src = fs.readFileSync(path.join(outDir, f), 'utf8')
         for (const m of src.matchAll(
           /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Webhook\s*=/gu,
         )) {
@@ -260,7 +258,7 @@ export * from './userCreatedPost'
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-contract-'))
       const outDir = path.join(tmpDir, 'webhooks')
       await runGenerator(webhooks(mockOpenAPI, { output: outDir, split: true }))
-      const indexContent = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf8')
       expect(indexContent).toBe(
         "export * from './newOrderPost'\nexport * from './userCreatedPost'\n",
       )
@@ -289,7 +287,7 @@ export * from './userCreatedPost'
         .filter((f) => f !== 'index.ts')
         .sort()
       expect(files).toStrictEqual(['eventsGet.ts', 'eventsPost.ts'])
-      const indexContent = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
+      const indexContent = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf8')
       expect(indexContent).toBe("export * from './eventsGet'\nexport * from './eventsPost'\n")
     })
   })
@@ -323,8 +321,8 @@ export * from './userCreatedPost'
         },
       } as OpenAPI
       const result = await runGenerator(webhooks(refOpenapi, { output: out }))
-      expect(result).toStrictEqual(`Generated webhooks code written to ${out}`)
-      expect(fs.readFileSync(out, 'utf-8')).toBe(`import { z } from '@hono/zod-openapi'
+      expect(result).toBe(`Generated webhooks code written to ${out}`)
+      expect(fs.readFileSync(out, 'utf8')).toBe(`import { z } from '@hono/zod-openapi'
 import { TraceIdParamsSchema } from './parameters'
 
 export const pingPostWebhook = {
@@ -365,8 +363,8 @@ export const pingPostWebhook = {
         },
       } as OpenAPI
       const result = await runGenerator(webhooks(refOpenapi, { output: out }))
-      expect(result).toStrictEqual(`Generated webhooks code written to ${out}`)
-      expect(fs.readFileSync(out, 'utf-8')).toBe(`import { z } from '@hono/zod-openapi'
+      expect(result).toBe(`Generated webhooks code written to ${out}`)
+      expect(fs.readFileSync(out, 'utf8')).toBe(`import { z } from '@hono/zod-openapi'
 import { TraceIdParamsSchema } from './parameters'
 
 export const pingPostWebhook = {
@@ -412,8 +410,8 @@ export const pingPostWebhook = {
         },
       } as OpenAPI
       const result = await runGenerator(webhooks(richOpenapi, { output: out }))
-      expect(result).toStrictEqual(`Generated webhooks code written to ${out}`)
-      expect(fs.readFileSync(out, 'utf-8')).toBe(`export const richPostWebhook = {
+      expect(result).toBe(`Generated webhooks code written to ${out}`)
+      expect(fs.readFileSync(out, 'utf8')).toBe(`export const richPostWebhook = {
   method: 'post',
   path: '/rich',
   tags: ['events'],
@@ -448,7 +446,7 @@ export const pingPostWebhook = {
           { output: out },
         ),
       )
-      expect(result).toStrictEqual('No webhooks found')
+      expect(result).toBe('No webhooks found')
     })
 
     it('returns success "No webhooks found" when every method lacks responses', async () => {
@@ -467,7 +465,7 @@ export const pingPostWebhook = {
           { output: out },
         ),
       )
-      expect(result).toStrictEqual('No webhooks found')
+      expect(result).toBe('No webhooks found')
     })
   })
 })

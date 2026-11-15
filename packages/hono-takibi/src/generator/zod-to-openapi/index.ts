@@ -405,7 +405,9 @@ export function zodToOpenAPI(
         }
       }
       if (isPureMultiType && Array.isArray(not.type)) {
-        const predicates = not.type.map((t) => typePredicates[t]).filter((v) => v !== undefined)
+        const predicates = not.type
+          .map((typeName) => typePredicates[typeName])
+          .filter((v) => v !== undefined)
         if (predicates.length > 0) {
           const bodies = predicates.map((v) => `(${v.replace(/^\(val\) => /u, '')})`)
           const combined = `(val) => ${bodies.join(' && ')}`
@@ -511,10 +513,10 @@ export function zodToOpenAPI(
       needsDefaultRequired ? { ...schema, required: [] } : schema,
     )
   }
-  const t = normalizeTypes(schema.type)
+  const types = normalizeTypes(schema.type)
   // `type: [integer, string]` accepts a value of either type, so it is a union of what each
   // type emits. The keywords are handed to every branch, which reads the ones of its type.
-  const alternatives = t.filter((type) => type !== 'null')
+  const alternatives = types.filter((type) => type !== 'null')
   if (alternatives.length > 1) {
     const { type: _type, ...rest } = undecorated(schema)
     const branches = alternatives.map((type) =>
@@ -522,10 +524,10 @@ export function zodToOpenAPI(
     )
     return done(`z.union([${branches.join(',')}])`, schema)
   }
-  if (t.includes('string')) return done(string(schema, childOptions), schema)
-  if (t.includes('number')) return done(number(schema), schema)
-  if (t.includes('integer')) return done(integer(schema, { json: isJson }), schema)
-  if (t.includes('boolean')) {
+  if (types.includes('string')) return done(string(schema, childOptions), schema)
+  if (types.includes('number')) return done(number(schema), schema)
+  if (types.includes('integer')) return done(integer(schema, { json: isJson }), schema)
+  if (types.includes('boolean')) {
     const errorMessage = schema['x-error-message']
     const requiredMessage = schema['x-required-message']
     const xStringbool = schema['x-stringbool']
@@ -554,7 +556,7 @@ export function zodToOpenAPI(
     const base = arg ? `${baseFn}(${arg})` : `${baseFn}()`
     return done(base, schema)
   }
-  if (t.includes('array')) {
+  if (types.includes('array')) {
     const readonlyMod = readonly ? '.readonly()' : ''
     const arrayErrorMessage = schema['x-error-message']
     const arrayErrorArg = arrayErrorMessage ? `,${error(arrayErrorMessage)}` : ''
@@ -749,19 +751,19 @@ export function zodToOpenAPI(
     }
     return done(`${z}${uniqueChain}${containsChain}${unevaluatedItemsChain}${readonlyMod}`, schema)
   }
-  if (t.includes('object')) return done(object(schema, childOptions), schema)
-  if (t.includes('date')) {
+  if (types.includes('object')) return done(object(schema, childOptions), schema)
+  if (types.includes('date')) {
     const errorMessage = schema['x-error-message']
     const dateFn = effective?.coerce ? 'z.coerce.date' : 'z.date'
     const base = errorMessage ? `${dateFn}(${error(errorMessage)})` : `${dateFn}()`
     return done(base, schema)
   }
-  if (t.length === 1 && t[0] === 'null') {
+  if (types.length === 1 && types[0] === 'null') {
     const errorMessage = schema['x-error-message']
     const base = errorMessage ? `z.null(${error(errorMessage)})` : 'z.null()'
     return done(base, schema)
   }
-  if (t.length === 0 && hasTypelessConstraint(schema)) {
+  if (types.length === 0 && hasTypelessConstraint(schema)) {
     return done(
       emitTypelessRefine(schema, (s) => zodToOpenAPI(s, undefined, childOptions)),
       schema,

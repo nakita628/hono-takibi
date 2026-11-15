@@ -20,7 +20,7 @@ export function makeTypeString(
     types.includes('null') ||
     schema.default === null ||
     (schema.enum?.includes(null) ?? false)
-  const nonNullTypes = types.filter((t) => t !== 'null')
+  const nonNullTypes = types.filter((typeName) => typeName !== 'null')
   const baseType = makeNonNullTypeString(schema, nonNullTypes, selfTypeName, cyclicGroup, readonly)
   if (!isNullable || baseType === 'null') return baseType
   return `(${baseType}|null)`
@@ -63,7 +63,7 @@ function makeNonNullTypeString(
 }
 
 function makeRefTypeString(ref: string, selfTypeName: string) {
-  const propertiesMatch = ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//u)
+  const propertiesMatch = /^#\/components\/schemas\/([^/]+)\/properties\//u.exec(ref)
   if (propertiesMatch) {
     const parentName = toIdentifierPascalCase(decodePercent(propertiesMatch[1]))
     if (parentName === selfTypeName) {
@@ -112,7 +112,9 @@ function makeBaseTypeString(
 ) {
   if (types.length > 1) {
     return types
-      .map((t) => makeSingleTypeString(schema, t, selfTypeName, cyclicGroup, readonly))
+      .map((typeName) =>
+        makeSingleTypeString(schema, typeName, selfTypeName, cyclicGroup, readonly),
+      )
       .join('|')
   }
   const [type] = types
