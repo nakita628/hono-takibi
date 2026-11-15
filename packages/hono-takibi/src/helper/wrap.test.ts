@@ -1374,6 +1374,31 @@ describe('filterUnsupportedProps (required coercion + nested boolean schemas)', 
     ).toBe('z.xor([A,B]).openapi({"discriminator":{"propertyName":"type"}})')
   })
 
+  // #442: an XML Object has `name`, `namespace`, `prefix`, `attribute` and `wrapped` (openSUSE OBS)
+  it.concurrent('writes only the keys an XML Object has', () => {
+    expect(
+      wrap('z.string()', {
+        type: 'string',
+        xml: { attribute: true, example: 'http://example.com' },
+      } as unknown as Schema),
+    ).toBe('z.string().openapi({"xml":{"attribute":true}})')
+  })
+
+  it.concurrent('leaves out XML Object values of the wrong type, and keeps its extensions', () => {
+    expect(
+      wrap('z.string()', {
+        type: 'string',
+        xml: { name: 'id', prefix: 1, wrapped: 'yes', 'x-ns': { a: 1 } },
+      } as unknown as Schema),
+    ).toBe('z.string().openapi({"xml":{"name":"id","x-ns":{"a":1}}})')
+  })
+
+  it.concurrent('leaves out an xml with no key an XML Object has', () => {
+    expect(wrap('z.string()', { type: 'string', xml: { example: 'x' } } as unknown as Schema)).toBe(
+      'z.string()',
+    )
+  })
+
   // #419: a value of the wrong type does not type-check either (Revolut Business)
   it.concurrent('leaves out a discriminator without propertyName', () => {
     expect(
