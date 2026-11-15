@@ -20,16 +20,6 @@ import { cleanSplitOutputs, makeJob, openAPI3, packageRoots } from '../shared/in
  * ```
  */
 export function generate(config: unknown) {
-  return Effect.runPromise(
-    generateProgram(config).pipe(
-      Effect.mapError((error) => new Error(error.message)),
-      Effect.provide(NodeServices.layer),
-    ),
-  )
-}
-
-/** The config checked, the document read and every output written. */
-function generateProgram(config: unknown) {
   return Effect.gen(function* () {
     const parsed = yield* parseConfig(config)
     const openAPI = yield* openAPI3(yield* parseOpenAPI(parsed.input), parsed.input)
@@ -39,5 +29,9 @@ function generateProgram(config: unknown) {
       concurrency: 'unbounded',
     }).pipe(Effect.provideService(FormatOptions, parsed.format ?? {}))
     return messages.filter((message) => message !== '').join('\n')
-  })
+  }).pipe(
+    Effect.mapError((error) => new Error(error.message)),
+    Effect.provide(NodeServices.layer),
+    Effect.runPromise,
+  )
 }
