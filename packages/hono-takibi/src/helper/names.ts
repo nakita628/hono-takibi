@@ -14,13 +14,14 @@ import { decodePercent, ensureSuffix, toIdentifierPascalCase } from '../utils/in
  * (`api_response_common_failure2`, so `ApiResponseCommonFailure2Schema`), and the
  * references to it follow. The document that is emitted names the schema the new way too.
  *
- * Security schemes are left alone: `security` requirements name them, and a `$ref` does not.
+ * A security scheme is named by the `security` requirements rather than by a `$ref`, so the
+ * requirements follow a renamed scheme: TypeSpec names a second `ApiKeyAuth` in another
+ * location `ApiKeyAuth_`, and both were `ApiKeyAuthSecurityScheme` (#434).
  */
 export function uniqueComponentNames(document: OpenAPI): OpenAPI {
   const components = document.components
   if (!isRecord(components)) return document
   const renames = COMPONENT_NAMES.flatMap((section) => {
-    if (section === 'securitySchemes') return []
     const entries = components[section]
     if (!isRecord(entries)) return []
     const identifier = (name: string) =>
@@ -71,12 +72,27 @@ export function uniqueComponentNames(document: OpenAPI): OpenAPI {
     const renamed = encoded.includes('%') ? encodeURIComponent(rename.renamed) : rename.renamed
     return ['#', 'components', section, renamed, ...rest].join('/')
   }
+  const schemes = new Map(
+    renames
+      .filter((rename) => rename.section === 'securitySchemes')
+      .map((rename) => [rename.name, rename.renamed]),
+  )
+  const rewriteRequirement = (requirement: unknown) =>
+    isRecord(requirement)
+      ? Object.fromEntries(
+          Object.entries(requirement).map(([name, scopes]) => [schemes.get(name) ?? name, scopes]),
+        )
+      : requirement
   const rewrite = (node: unknown): unknown => {
     if (Array.isArray(node)) return node.map(rewrite)
     if (!isRecord(node)) return node
     return Object.fromEntries(
       Object.entries(node).map(([key, value]) => {
         if (key === '$ref' && typeof value === 'string') return [key, rewriteRef(value)]
+        // A Security Requirement Object is keyed by the names of the schemes.
+        if (key === 'security' && Array.isArray(value) && schemes.size > 0) {
+          return [key, value.map(rewriteRequirement)]
+        }
         // `discriminator.mapping` values are references written as strings.
         if (key === 'mapping' && isRecord(value)) {
           return [

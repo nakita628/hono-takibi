@@ -87,10 +87,31 @@ describe('uniqueComponentNames', () => {
     )
   })
 
-  it.concurrent('leaves security schemes alone: security requirements name them', () => {
-    expect(Object.keys(uniqueComponentNames(spec).components?.securitySchemes ?? {})).toStrictEqual(
-      ['api-key', 'api_key'],
-    )
+  it.concurrent('numbers a security scheme too, and the requirements that name it (#434)', () => {
+    const result = uniqueComponentNames({
+      openapi: '3.0.3',
+      info: { title: 'schemes', version: '1.0.0' },
+      security: [{ ApiKeyAuth_: [] }],
+      paths: {
+        '/a': { get: { security: [{ ApiKeyAuth: [] }], responses: {} } },
+        '/b': { get: { security: [{ ApiKeyAuth_: ['read'], ApiKeyAuth: [] }], responses: {} } },
+      },
+      components: {
+        securitySchemes: {
+          ApiKeyAuth: { type: 'apiKey', in: 'cookie', name: 'token' },
+          ApiKeyAuth_: { type: 'apiKey', in: 'query', name: 'token' },
+        },
+      },
+    } as OpenAPI)
+    expect(result.components?.securitySchemes).toStrictEqual({
+      ApiKeyAuth: { type: 'apiKey', in: 'cookie', name: 'token' },
+      ApiKeyAuth_2: { type: 'apiKey', in: 'query', name: 'token' },
+    })
+    expect(result.security).toStrictEqual([{ ApiKeyAuth_2: [] }])
+    expect(result.paths).toStrictEqual({
+      '/a': { get: { security: [{ ApiKeyAuth: [] }], responses: {} } },
+      '/b': { get: { security: [{ ApiKeyAuth_2: ['read'], ApiKeyAuth: [] }], responses: {} } },
+    })
   })
 
   it.concurrent('returns the document itself when no identifier collides', () => {
