@@ -4,6 +4,7 @@ import {
   hasTypelessConstraint,
   isAnnotationOnly,
   isBinaryFile,
+  isRecord,
   isRefOnly,
   isSchemaArray,
   isSingleSchema,
@@ -392,7 +393,7 @@ export function zodToOpenAPI(
       return done(`${notBase}.refine(${predicate}${notErrorArg})`, schema)
     }
     const not = schema.not
-    if (typeof not === 'object' && not !== null) {
+    if (isRecord(not)) {
       const onlyKeys = Object.keys(not)
       const isPureType =
         onlyKeys.length === 1 && (onlyKeys[0] === 'type' || onlyKeys[0] === 'const')
@@ -505,10 +506,7 @@ export function zodToOpenAPI(
       schema.required === undefined &&
       Object.keys(schema.properties ?? {}).length > 0 &&
       typeof schema.additionalProperties !== 'object' &&
-      schema.oneOf === undefined &&
-      schema.anyOf === undefined &&
-      schema.allOf === undefined &&
-      schema.not === undefined
+      schema.anyOf === undefined
     return done(
       object(schema, childOptions),
       needsDefaultRequired ? { ...schema, required: [] } : schema,

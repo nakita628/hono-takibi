@@ -281,7 +281,7 @@ function makeOutputTypes(
   aliases: Aliases,
   inputType: string,
 ): readonly string[] {
-  return Object.entries(responses).flatMap(([statusCode, response]) => {
+  return Object.entries(responses ?? {}).flatMap(([statusCode, response]) => {
     const resolvedResponse = makeResolvedResponse(response, aliases.components)
     const status = statusCodeToNumber(statusCode)
     if (!resolvedResponse.content) {
@@ -521,15 +521,11 @@ function makePropertyMap(
 }
 
 function makeArrayTypeString(schema: Schema, aliases: Aliases, visited: Set<string>) {
-  if (!isPresent(schema.items)) return 'unknown[]'
+  // Boolean `items` (JSON Schema 2020-12 §10.3.1.2) are `unknown[]` either way: `true`
+  // constrains nothing, and `false` is emitted as `z.array(z.any()).length(0)`, which infers
+  // an array and would not fit an empty tuple.
+  if (!isPresent(schema.items) || schema.items === true) return 'unknown[]'
   const items = schema.items
-  // JSON Schema 2020-12 §10.3.1.2 boolean items:
-  //   items: true  → trailing items unconstrained (unknown[])
-  //   items: false → trailing items disallowed; with no prefixItems the type
-  //                  collapses to []. We surface a tuple of length 0.
-  if (typeof items === 'boolean') {
-    return items ? 'unknown[]' : '[]'
-  }
   if (isSchemaArray(items)) {
     return items.length > 1
       ? `[${items.map((item) => makeSchemaTypeString(item, aliases, visited)).join(',')}]`

@@ -44,7 +44,7 @@ const SHIPPED_FILE = /(^|\/)src\//u
 const IDENTIFIER_CASE =
   /^[_$]?(?:[a-z][A-Za-z0-9]*|[A-Z][A-Za-z0-9]*|[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+)?$/u
 const DECLARED = new Set([
-  ...Object.keys(MANIFEST.dependencies ?? {}),
+  ...Object.keys(MANIFEST.dependencies),
   ...Object.keys(MANIFEST.peerDependencies ?? {}),
   ...Object.keys(MANIFEST.optionalDependencies ?? {}),
 ])

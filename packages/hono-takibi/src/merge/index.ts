@@ -802,7 +802,7 @@ function extractChainPrefix(apiStmtText: string, app: string) {
   if (initMatch?.index === undefined) return ''
   const afterApp = apiStmtText.slice(initMatch.index + initMatch[0].length)
   const routeMatch = /\.(?:openapiRoutes|openapi|route)\s*\(/u.exec(afterApp)
-  if (!routeMatch || routeMatch.index === undefined || routeMatch.index === 0) return ''
+  if (!routeMatch || routeMatch.index === 0) return ''
   const candidate = afterApp.slice(0, routeMatch.index).trim()
   // Only treat as chain prefix when it actually starts with a method call (e.g. `.basePath('/api')`).
   // Why: comments alone (`// Public routes`) get returned by the trim() above and would be

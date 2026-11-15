@@ -120,7 +120,7 @@ export function requestParamsArray(
 ) {
   return Object.freeze(
     Object.entries(parameters)
-      .filter(([, entries]) => Object.keys(entries ?? {}).length > 0)
+      .filter(([, entries]) => Object.keys(entries).length > 0)
       .map(([section, entries]) => {
         const name =
           section === 'path'
@@ -257,6 +257,9 @@ export function regexLiteral(pattern: string) {
   }
 }
 
+/** An escape pair, with the braces and the digits of a PCRE hex escape after it if any. */
+const HEX_BRACE_ESCAPE = /\\([\s\S])(\{([0-9A-Fa-f]{1,8})\})?/gu
+
 /**
  * The source with every PCRE hex escape in braces, `\x{FFFF}`, written as the JavaScript
  * escape of the same character: `\uFFFF` up to U+FFFF, `\u{10FFFF}` above it, which only
@@ -266,25 +269,21 @@ export function regexLiteral(pattern: string) {
  * before `x{` is left alone.
  */
 function hexBraceEscapes(source: string) {
-  let astral = false
-  let invalid = false
+  const codes = Array.from(source.matchAll(HEX_BRACE_ESCAPE), (match) =>
+    match[1] === 'x' && match[3] !== undefined ? Number.parseInt(match[3], 16) : undefined,
+  ).filter((code) => code !== undefined)
+  if (codes.some((code) => code > 0x10_ff_ff)) return undefined
   const rewritten = source.replaceAll(
-    /\\([\s\S])(\{([0-9A-Fa-f]{1,8})\})?/gu,
+    HEX_BRACE_ESCAPE,
     (match: string, escaped: string, _brace: string | undefined, digits: string | undefined) => {
       if (escaped !== 'x' || digits === undefined) return match
       const code = Number.parseInt(digits, 16)
-      if (code > 0x10_ff_ff) {
-        invalid = true
-        return match
-      }
-      if (code > 0xff_ff) {
-        astral = true
-        return `\\u{${code.toString(16).toUpperCase()}}`
-      }
-      return `\\u${code.toString(16).toUpperCase().padStart(4, '0')}`
+      return code > 0xff_ff
+        ? `\\u{${code.toString(16).toUpperCase()}}`
+        : `\\u${code.toString(16).toUpperCase().padStart(4, '0')}`
     },
   )
-  return invalid ? undefined : ({ source: rewritten, astral } as const)
+  return { source: rewritten, astral: codes.some((code) => code > 0xff_ff) } as const
 }
 
 /**

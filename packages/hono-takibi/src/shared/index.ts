@@ -352,7 +352,7 @@ export function openAPI3(document: OpenAPI, input: string) {
   // A 3.1 document needs `paths`, `components` or `webhooks`, not all of them: one that
   // describes webhooks alone has no `paths`, which every generator iterates (#384).
   return Effect.succeed(
-    normalizeOpenAPI(document.paths === undefined ? { ...document, paths: {} } : document),
+    normalizeOpenAPI(isObjectValue(document.paths) ? document : { ...document, paths: {} }),
   )
 }
 

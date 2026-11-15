@@ -531,7 +531,7 @@ export function conformDefault(
       }
       const readItems = value.map((item) => conformDefault(items, item, schemas, reading))
       return readItems.every((item) => item.ok)
-        ? { ok: true, value: readItems.map((item) => (item.ok ? item.value : undefined)) }
+        ? { ok: true, value: readItems.map((item) => item.value) }
         : undefined
     }
     if (type === 'object') {
@@ -810,7 +810,7 @@ export function wrap(
   const openapiSchema = isPresent(args) ? JSON.stringify(args) : undefined
   // Strip outer braces so the body embeds directly in `.openapi({...})`.
   const openapiSchemaBody =
-    openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
+    openapiSchema?.startsWith('{') && openapiSchema.endsWith('}')
       ? openapiSchema.slice(1, -1)
       : openapiSchema
   // What `.min()`, `.max()` and `.mime()` check is stated too, since the document derives
@@ -905,7 +905,7 @@ export function wrap(
   ].filter((v) => v !== undefined)
   // https://github.com/OAI/OpenAPI-Specification/issues/2385
   if (meta?.parameters || meta?.headers) {
-    if (meta?.parameters?.required === true || meta?.headers?.required === true) {
+    if (meta.parameters?.required === true || meta.headers?.required === true) {
       return result.length === 0 ? z : `${z}.openapi({${result.join(',')}})`
     }
     return result.length === 0

@@ -103,10 +103,10 @@ export function makeExamples(examples: {
         'defaultValue' in example && example.defaultValue !== undefined
           ? `defaultValue:${JSON.stringify(example.defaultValue)}`
           : undefined,
-        'serializedValue' in example && example.serializedValue !== undefined
+        'serializedValue' in example
           ? `serializedValue:${JSON.stringify(example.serializedValue)}`
           : undefined,
-        'externalValue' in example && example.externalValue !== undefined
+        'externalValue' in example
           ? `externalValue:${JSON.stringify(example.externalValue)}`
           : undefined,
         'value' in example && example.value !== undefined
@@ -126,7 +126,7 @@ export function makeOperationResponses(
   readonly?: boolean,
   schemas?: { readonly [k: string]: Schema },
 ) {
-  const result = Object.entries(responses)
+  const result = Object.entries(responses ?? {})
     .map(([statusCode, response]) => {
       if (!isResponses(response)) return undefined
       return `${/^\d+$/u.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(response, readonly, schemas)}`
@@ -286,7 +286,6 @@ export function makeCallback(callback: Callbacks) {
       const pathItemCode = makePathItem(pathItem)
       return `${JSON.stringify(callbackKey)}:${pathItemCode}`
     })
-    .filter((v) => v !== undefined)
     .join(',')
 }
 

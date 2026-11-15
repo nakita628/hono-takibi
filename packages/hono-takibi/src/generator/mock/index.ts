@@ -361,15 +361,14 @@ function makeAuthCheck(
           if (sec.type === 'bearer' || sec.type === 'oauth2' || sec.type === 'basic') {
             return [`c.req.header('Authorization')`]
           }
-          if (sec.type === 'apiKey') {
-            // `name` comes from the document, so it is emitted as an escaped literal.
-            if (sec.in === 'header') return [`c.req.header(${makeStringLiteral(sec.name)})`]
-            if (sec.in === 'query') return [`c.req.query(${makeStringLiteral(sec.name)})`]
-            // Hono's request object does not expose a `.cookie()` accessor; cookies
-            // must come from the `hono/cookie` helper. Caller is responsible for
-            // emitting the matching `import { getCookie } from 'hono/cookie'`.
-            if (sec.in === 'cookie') return [`getCookie(c, ${makeStringLiteral(sec.name)})`]
-          }
+          // What is left is an API key. `name` comes from the document, so it is emitted
+          // as an escaped literal.
+          if (sec.in === 'header') return [`c.req.header(${makeStringLiteral(sec.name)})`]
+          if (sec.in === 'query') return [`c.req.query(${makeStringLiteral(sec.name)})`]
+          // Hono's request object does not expose a `.cookie()` accessor; cookies
+          // must come from the `hono/cookie` helper. Caller is responsible for
+          // emitting the matching `import { getCookie } from 'hono/cookie'`.
+          if (sec.in === 'cookie') return [`getCookie(c, ${makeStringLiteral(sec.name)})`]
           return []
         }),
       ),
@@ -709,7 +708,7 @@ function makeDelayMiddlewareCode(delay: MockOptions['delay']) {
   const ms =
     typeof delay === 'number'
       ? `${delay}`
-      : typeof delay === 'object' && delay !== null
+      : typeof delay === 'object'
         ? `faker.number.int({ min: ${delay.min}, max: ${delay.max} })`
         : undefined
   if (ms === undefined) return ''

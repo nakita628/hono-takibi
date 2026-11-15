@@ -501,7 +501,8 @@ export type Operation = {
   readonly operationId?: string
   readonly parameters?: readonly (Parameter | Reference)[]
   readonly requestBody?: RequestBody | Reference
-  readonly responses: {
+  // Optional since OpenAPI 3.1: an operation may describe a request alone.
+  readonly responses?: {
     readonly [k: string]: Responses
   }
   readonly callbacks?: {

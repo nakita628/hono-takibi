@@ -228,7 +228,7 @@ export function isPresent<T>(value: T): value is Exclude<T, undefined | null | f
  * object form so callers can recurse without `as` casts.
  */
 export function isSchemaObject(v: Schema | readonly Schema[] | boolean | undefined): v is Schema {
-  return typeof v === 'object' && v !== null && !Array.isArray(v)
+  return isRecord(v)
 }
 
 export function isMediaWithSchema(v: unknown): v is { readonly schema: Schema } {

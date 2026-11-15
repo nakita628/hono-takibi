@@ -163,14 +163,11 @@ function makeArrayTypeString(
   readonly?: boolean,
 ): string {
   const prefix = readonly ? 'readonly ' : ''
-  if (!isPresent(schema.items)) return `${prefix}unknown[]`
+  // Boolean `items` (JSON Schema 2020-12 §10.3.1.2) are `unknown[]` either way: `true`
+  // constrains nothing, and `false` is emitted as `z.array(z.any()).length(0)`, which infers
+  // an array and would not fit an empty tuple.
+  if (!isPresent(schema.items) || schema.items === true) return `${prefix}unknown[]`
   const items = schema.items
-  // JSON Schema 2020-12 §10.3.1.2 boolean items:
-  //   items: true  → trailing items unconstrained (unknown[])
-  //   items: false → trailing items disallowed; collapses to an empty tuple.
-  if (typeof items === 'boolean') {
-    return items ? `${prefix}unknown[]` : readonly ? 'readonly []' : '[]'
-  }
   if (isSchemaArray(items)) {
     const firstItem = items[0]
     if (items.length > 1) {

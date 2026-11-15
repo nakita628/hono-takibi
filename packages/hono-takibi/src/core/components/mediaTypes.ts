@@ -5,6 +5,7 @@ import { Effect } from 'effect'
 import { emit } from '../../emit/index.js'
 import { GenerateError } from '../../error/index.js'
 import { zodToOpenAPI } from '../../generator/zod-to-openapi/index.js'
+import { isRecord } from '../../guard/index.js'
 import { makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import {
@@ -45,7 +46,7 @@ export function mediaTypes(
             const v = mediaTypes[k]
             const name = toIdentifierPascalCase(ensureSuffix(k, 'MediaTypeSchema'))
             const filePath = path.join(outDir, `${uncapitalize(k)}.ts`)
-            if (typeof v === 'object' && v !== null && '$ref' in v && v.$ref) {
+            if (isRecord(v) && '$ref' in v && v.$ref) {
               const refKey = v.$ref.split('/').at(-1) ?? ''
               const refName = toIdentifierPascalCase(ensureSuffix(refKey, 'MediaTypeSchema'))
               const body = `export const ${name} = ${refName}\n`
@@ -55,7 +56,7 @@ export function mediaTypes(
                 filePath,
               )
             }
-            if (typeof v === 'object' && v !== null && 'schema' in v) {
+            if (isRecord(v) && 'schema' in v) {
               const zodCode = zodToOpenAPI(v.schema, undefined, options)
               const schemaCode = zodToOpenAPISchema(name, zodCode, true, false, true)
               return emit(
@@ -85,12 +86,12 @@ export function mediaTypes(
       .map((k) => {
         const v = mediaTypes[k]
         const name = toIdentifierPascalCase(ensureSuffix(k, 'MediaTypeSchema'))
-        if (typeof v === 'object' && v !== null && '$ref' in v && v.$ref) {
+        if (isRecord(v) && '$ref' in v && v.$ref) {
           const refKey = v.$ref.split('/').at(-1) ?? ''
           const refName = toIdentifierPascalCase(ensureSuffix(refKey, 'MediaTypeSchema'))
           return `export const ${name} = ${refName}`
         }
-        if (typeof v === 'object' && v !== null && 'schema' in v) {
+        if (isRecord(v) && 'schema' in v) {
           const zodCode = zodToOpenAPI(v.schema, undefined, options)
           return zodToOpenAPISchema(name, zodCode, true, false, true)
         }

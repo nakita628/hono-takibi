@@ -100,8 +100,14 @@ const MULTIPART_BOUNDARY = 'boundary'
 
 const SLUG_STRIP = /[^\p{L}\p{N}\p{M}　-鿿＀-￯ -]/gu
 
-function toSlug(text: string) {
-  const label = typeof text === 'string' ? text : String(text ?? '')
+// `unknown`: a tag name or a summary is whatever the document wrote, a number included.
+function toSlug(text: unknown) {
+  const label =
+    typeof text === 'string'
+      ? text
+      : typeof text === 'number' || typeof text === 'boolean'
+        ? String(text)
+        : ''
   return label.toLowerCase().replaceAll(SLUG_STRIP, '').replaceAll(/\s+/gu, '-')
 }
 
@@ -436,11 +442,13 @@ function inferType(value: unknown) {
 }
 
 function baseTypeOf(schema: Schema, doc: OpenAPI, visited: ReadonlySet<string>) {
-  if (Array.isArray(schema.type)) return schema.type.map(String).join(' | ')
-  if (typeof schema.type === 'string') return schema.type
+  // Read as `unknown`: the document may hold what the type of `type` does not.
+  const type: unknown = schema.type
+  if (Array.isArray(type)) return type.map(String).join(' | ')
+  if (typeof type === 'string') return type
   // A `type` that is neither a name nor a list of names (an object, in Codat's document) is
   // not a type: the routes take such a value for anything, and so do the docs (#414).
-  if (schema.type !== undefined) return 'any'
+  if (type !== undefined) return 'any'
   if (isRecord(schema.properties)) return 'object'
   const variants = variantsOf(schema)
   if (variants.length > 0) {
@@ -1145,7 +1153,7 @@ function acceptedMediaType(operation: Operation, doc: OpenAPI) {
 }
 
 function makeFullPath(basePath: string, pathStr: string) {
-  return `${(basePath ?? '/').replace(/\/+$/u, '')}${pathStr}`
+  return `${basePath.replace(/\/+$/u, '')}${pathStr}`
 }
 
 function makeCodeSample(
@@ -1217,7 +1225,7 @@ function makeCodeSample(
   const target = query.length > 0 ? `${fullPath}?${query.join('&')}` : fullPath
 
   if (curl) {
-    const baseUrl = (options.baseUrl ?? '').replace(/\/+$/u, '')
+    const baseUrl = options.baseUrl.replace(/\/+$/u, '')
     const args = [...(method === 'GET' ? [] : [`-X ${method}`]), ...headers, ...bodyArgs]
     const command = [`curl ${shellArg(`${baseUrl}${target}`, true)}`, ...args.map((a) => `  ${a}`)]
     return ['> Code samples', '', '```bash', command.join(' \\\n'), '```']
@@ -1234,7 +1242,9 @@ function makeCodeSample(
 }
 
 function toYamlScalar(item: unknown) {
-  if (typeof item !== 'string') return JSON.stringify(item) ?? 'null'
+  // `JSON.stringify(undefined)` is `undefined`, whatever its type says.
+  if (item === undefined) return 'null'
+  if (typeof item !== 'string') return JSON.stringify(item)
   const plain = /^[A-Za-z_/][\w ./@-]*$/u.test(item) && !/^(?:true|false|null|yes|no)$/iu.test(item)
   return plain && item.trim() === item ? item : JSON.stringify(item)
 }
@@ -1302,7 +1312,7 @@ function enumValuesOf(
 
 function formatEnumValue(value: unknown) {
   if (typeof value === 'string') return value === '' ? '""' : value
-  return JSON.stringify(value) ?? String(value)
+  return value === undefined ? 'undefined' : JSON.stringify(value)
 }
 
 function restrictionsOf(schema: Schema) {

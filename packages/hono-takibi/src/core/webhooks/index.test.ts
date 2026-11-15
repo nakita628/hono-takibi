@@ -461,7 +461,7 @@ export const pingPostWebhook = {
             webhooks: {
               ev: { post: { operationId: 'p' }, get: { operationId: 'g' } },
             },
-          } as unknown as OpenAPI,
+          },
           { output: out },
         ),
       )

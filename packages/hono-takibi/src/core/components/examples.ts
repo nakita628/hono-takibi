@@ -4,6 +4,7 @@ import { Effect } from 'effect'
 
 import { emit } from '../../emit/index.js'
 import { GenerateError } from '../../error/index.js'
+import { isRecord } from '../../guard/index.js'
 import { makeExportConst, makeRef } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import {
@@ -33,7 +34,7 @@ export function examples(
             const v = examples[k]
             const name = toIdentifierPascalCase(ensureSuffix(k, 'Example'))
             const filePath = path.join(outDir, `${uncapitalize(k)}.ts`)
-            if (typeof v === 'object' && v !== null && '$ref' in v && typeof v.$ref === 'string') {
+            if (isRecord(v) && '$ref' in v && typeof v.$ref === 'string') {
               const refName = makeRef(v.$ref)
               const refKey = v.$ref.split('/').at(-1) ?? ''
               const importPath = `./${uncapitalize(refKey)}`

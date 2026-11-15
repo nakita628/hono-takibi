@@ -476,11 +476,11 @@ export default defineConfig({
         'error',
         { allowNullableBoolean: true, allowNullableString: true },
       ],
-      // `typescript/no-unnecessary-condition` is deliberately absent. `OpenAPI` types a
-      // well-formed document and the input is whatever was written: most of what the rule
-      // calls unnecessary (`v !== null`, `operation.responses ?? {}`, `document.paths ===
-      // undefined`) is the code that keeps a malformed document from throwing.
-      // `noUncheckedIndexedAccess` in tsconfig.json is what makes index reads honest.
+      // What the types call impossible is not asked. Where the document may hold what
+      // `OpenAPI` does not describe (a key with nothing after it, a `type` that is an
+      // object), the value is read as `unknown` or asked through a guard (`isRecord`,
+      // `isPresent`), which says so; a bare `x !== null` on a type without `null` does not.
+      'typescript/no-unnecessary-condition': 'error',
 
       // Types. The repository writes a dictionary as an index signature
       // (`{ readonly [k: string]: X }`), which can be `readonly` where `Record` cannot say so
@@ -776,6 +776,7 @@ export default defineConfig({
           'typescript/no-unsafe-member-access': 'off',
           'typescript/no-unsafe-return': 'off',
           'typescript/strict-boolean-expressions': 'off',
+          'typescript/no-unnecessary-condition': 'off',
         },
       },
       {
@@ -821,6 +822,7 @@ export default defineConfig({
           'typescript/consistent-type-assertions': 'off',
           'typescript/no-unsafe-type-assertion': 'off',
           'typescript/strict-boolean-expressions': 'off',
+          'typescript/no-unnecessary-condition': 'off',
           'typescript/no-unsafe-argument': 'off',
           'typescript/no-unsafe-assignment': 'off',
           'typescript/no-unsafe-member-access': 'off',
