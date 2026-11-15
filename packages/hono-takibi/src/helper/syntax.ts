@@ -52,7 +52,7 @@ function isNode(value: unknown): value is Node {
  * Calls `visit` on `node` and on every node under it, each child in the order the grammar
  * lists them. A node whose children the parser does not list is walked over its fields.
  */
-export function walk(node: Node, visit: (node: Node) => void): void {
+function walk(node: Node, visit: (node: Node) => void): void {
   visit(node)
   const keys =
     visitorKeys[node.type] ?? Object.keys(node).filter((key) => key !== 'type' && key !== 'parent')
