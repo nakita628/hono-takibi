@@ -245,7 +245,7 @@ describe('a $ref key inside a literal (#432)', () => {
         properties: {
           // A property named as a keyword is a schema, and its reference is one.
           example: { $ref: '#/components/schemas/Panel' },
-          kind: { default: { $ref: 'missing.json#/c' }, enum: [{ $ref: '#/spec/d' }] },
+          kind: { default: { $ref: '#/spec/c' }, enum: [{ $ref: '#/spec/d' }] },
         },
       },
       example: { $ref: '#/spec/panels/e' },
@@ -284,7 +284,7 @@ describe('a $ref key inside a literal (#432)', () => {
         content: {
           'application/json': {
             schema: { type: 'object' },
-            example: { panel: { $ref: 'missing.json#/a' } },
+            example: { panel: { $ref: '#/spec/panels/a' } },
           },
         },
       }),
@@ -313,7 +313,7 @@ describe('a $ref key inside a literal (#432)', () => {
               content: {
                 'application/json': {
                   schema: { type: 'object' },
-                  example: { panel: { $ref: 'missing.json#/a' } },
+                  example: { panel: { $ref: '#/spec/panels/a' } },
                 },
               },
             },

@@ -120,13 +120,12 @@ export function isLiteralPointer(pointer: string, value?: unknown) {
 }
 
 /**
- * The options every document is bundled with: a literal is left as written, neither
- * downloaded nor read as a pointer.
+ * The options every document is bundled with: a literal is left as written rather than read
+ * as a pointer. The ref parser's `resolveExcludedPathMatcher`, which would also keep it from
+ * downloading a literal `$ref` that names another file, is left unset: with any matcher at
+ * all its crawler does not end on a document whose schemas refer to one another.
  */
-const LITERALS_KEPT = {
-  resolveExcludedPathMatcher: isLiteralPointer,
-  bundle: { excludedPathMatcher: isLiteralPointer },
-}
+const LITERALS_KEPT = { bundle: { excludedPathMatcher: isLiteralPointer } }
 
 /**
  * The document, bundled. swagger-parser rejects a 3.1 document with neither `paths` nor
