@@ -472,9 +472,10 @@ export default defineConfig({
       // or compared, so `0`, `false` and `null` are never dropped by accident. An optional
       // string stays a condition: `if (description)` means "written and not empty" in some
       // 200 places, and that is what it should mean.
+      // A number is never a condition (`allowNumber: false`): `if (minimum)` loses `0`.
       'typescript/strict-boolean-expressions': [
         'error',
-        { allowNullableBoolean: true, allowNullableString: true },
+        { allowNullableBoolean: true, allowNullableString: true, allowNumber: false },
       ],
       // What the types call impossible is not asked. Where the document may hold what
       // `OpenAPI` does not describe (a key with nothing after it, a `type` that is an
