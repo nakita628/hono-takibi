@@ -1,5 +1,4 @@
 import fs from 'node:fs'
-import net from 'node:net'
 import os from 'node:os'
 import path from 'node:path'
 
@@ -7,7 +6,7 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { runGenerator, runGeneratorError } from '../testing/index.js'
-import { CONNECT_ATTEMPT_TIMEOUT_MS, parseOpenAPI } from './index.js'
+import { parseOpenAPI } from './index.js'
 
 describe('parseOpenAPI', () => {
   it('includes the resolver error code when a download has no reason text', async () => {
@@ -126,38 +125,6 @@ describe('parseOpenAPI', () => {
 
   // #395: with IPv6 unreachable, an IPv4 handshake slower than Node's 250 ms attempt timeout
   // ended the download in ETIMEDOUT where curl succeeds
-  it('gives a connection attempt two seconds while bundling, then puts the default back', async () => {
-    const previous = net.getDefaultAutoSelectFamilyAttemptTimeout()
-    const document = { openapi: '3.0.0', info: { title: 't', version: '1' }, paths: {} }
-    const seen: number[] = []
-    const bundle = vi.spyOn(SwaggerParser, 'bundle').mockImplementationOnce(() => {
-      seen.push(net.getDefaultAutoSelectFamilyAttemptTimeout())
-      return Promise.resolve(document)
-    })
-    try {
-      await expect(runGenerator(parseOpenAPI('https://example.com/openapi.yaml'))).resolves.toBe(
-        document,
-      )
-      expect(seen).toStrictEqual([Math.max(previous, CONNECT_ATTEMPT_TIMEOUT_MS)])
-      expect(net.getDefaultAutoSelectFamilyAttemptTimeout()).toBe(previous)
-    } finally {
-      bundle.mockRestore()
-    }
-  })
-
-  it('puts the attempt timeout default back when bundling fails', async () => {
-    const previous = net.getDefaultAutoSelectFamilyAttemptTimeout()
-    const bundle = vi
-      .spyOn(SwaggerParser, 'bundle')
-      .mockRejectedValueOnce(new Error('Error downloading https://example.com/openapi.yaml: '))
-    try {
-      await runGeneratorError(parseOpenAPI('https://example.com/openapi.yaml'))
-      expect(net.getDefaultAutoSelectFamilyAttemptTimeout()).toBe(previous)
-    } finally {
-      bundle.mockRestore()
-    }
-  })
-
   // swagger-parser asks for `paths` or `webhooks`; the document is taken as it answers.
   it.concurrent('rejects a 3.1 document of components alone, as swagger-parser does', async () => {
     const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-openapi-'))

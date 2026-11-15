@@ -1,4 +1,3 @@
-import net from 'node:net'
 import path from 'node:path'
 
 /**
@@ -15,33 +14,6 @@ class OpenAPIError extends Data.TaggedError('OpenAPIError')<{
   readonly message: string
 }> {}
 
-/**
- * How long one connection attempt is given before the next address is tried, in
- * milliseconds. Node's default is 250 ms: a host with an AAAA record is connected to with
- * happy eyeballs, so where IPv6 is unreachable an IPv4 handshake slower than that is cut off,
- * the IPv6 attempt fails at once, and the download ends in `ETIMEDOUT` where `curl` and
- * `fetch` succeed (#395, Hetzner, Unleash). A handshake across a continent takes under a
- * second; two also cover a SYN lost once, which Linux resends after one.
- */
-export const CONNECT_ATTEMPT_TIMEOUT_MS = 2000
-
-/**
- * `run`, with every connection attempt it makes given {@link CONNECT_ATTEMPT_TIMEOUT_MS} at
- * least. The ref parser pins a download to the addresses it validated and takes no option for
- * the attempt timeout, so the process-wide default is raised for the duration and put back
- * afterwards; one set higher (`--network-family-autoselection-attempt-timeout`) is kept.
- */
-async function withPatientConnect<T>(run: () => Promise<T>) {
-  const previous = net.getDefaultAutoSelectFamilyAttemptTimeout()
-  if (previous >= CONNECT_ATTEMPT_TIMEOUT_MS) return run()
-  net.setDefaultAutoSelectFamilyAttemptTimeout(CONNECT_ATTEMPT_TIMEOUT_MS)
-  try {
-    return await run()
-  } finally {
-    net.setDefaultAutoSelectFamilyAttemptTimeout(previous)
-  }
-}
-
 export function parseOpenAPI(
   input:
     | `${string}.yaml`
@@ -54,7 +26,7 @@ export function parseOpenAPI(
   return Effect.tryPromise({
     try: async () => {
       if (!input.endsWith('.tsp')) {
-        return (await withPatientConnect(() => SwaggerParser.bundle(input))) as OpenAPI
+        return (await SwaggerParser.bundle(input)) as OpenAPI
       }
       // The TypeSpec compiler and emitter are loaded only for a `.tsp` document: together
       // they take longer to import than the whole generation of a yaml or json one.
