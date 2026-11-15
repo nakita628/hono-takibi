@@ -11,8 +11,6 @@ import path from 'node:path'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import { Data, Effect } from 'effect'
 
-import { isRecord } from '../guard/index.js'
-
 class OpenAPIError extends Data.TaggedError('OpenAPIError')<{
   readonly message: string
 }> {}
@@ -44,49 +42,6 @@ async function withPatientConnect<T>(run: () => Promise<T>) {
   }
 }
 
-/** The end of swagger-parser's message for a document with neither `paths` nor `webhooks`. */
-const INVALID_DEFINITION = 'is not a valid Openapi API definition'
-
-/** A document as swagger-parser types it. */
-type Document = Awaited<ReturnType<typeof SwaggerParser.bundle>>
-
-/**
- * The document as written, read by the ref parser swagger-parser extends: its static `parse`
- * reads one file or URL as JSON or YAML and checks nothing about OpenAPI.
- */
-async function readDocument(input: string): Promise<{ readonly [k: string]: unknown }> {
-  const base: unknown = Object.getPrototypeOf(SwaggerParser)
-  if (typeof base !== 'function' || !('parse' in base) || typeof base.parse !== 'function') {
-    throw new TypeError('The ref parser swagger-parser extends has no parse')
-  }
-  const document: unknown = await Reflect.apply(base.parse, base, [input])
-  return isRecord(document) ? document : {}
-}
-
-/**
- * The document, bundled. swagger-parser rejects a 3.1 document with neither `paths` nor
- * `webhooks` as "not a valid Openapi API definition", though OpenAPI 3.1 asks for one of
- * `paths`, `components` and `webhooks`: a document of components alone is a shared schema
- * library (#417). Such a document is read and handed over again with an empty `paths`, which
- * says the same.
- */
-async function bundle(input: string) {
-  try {
-    return await SwaggerParser.bundle(input)
-  } catch (error) {
-    if (!(error instanceof SyntaxError && error.message.endsWith(INVALID_DEFINITION))) throw error
-    const document = await readDocument(input)
-    const isComponentsOnly =
-      typeof document.openapi === 'string' &&
-      document.openapi.startsWith('3.1') &&
-      document.paths === undefined &&
-      document.webhooks === undefined &&
-      isRecord(document.components)
-    if (!isComponentsOnly) throw error
-    return SwaggerParser.bundle(input, { ...document, paths: {} } as Document, {})
-  }
-}
-
 export function parseOpenAPI(
   input:
     | `${string}.yaml`
@@ -98,7 +53,9 @@ export function parseOpenAPI(
 ) {
   return Effect.tryPromise({
     try: async () => {
-      if (!input.endsWith('.tsp')) return (await withPatientConnect(() => bundle(input))) as OpenAPI
+      if (!input.endsWith('.tsp')) {
+        return (await withPatientConnect(() => SwaggerParser.bundle(input))) as OpenAPI
+      }
       // The TypeSpec compiler and emitter are loaded only for a `.tsp` document: together
       // they take longer to import than the whole generation of a yaml or json one.
       const [{ compile, NodeHost }, { getOpenAPI3 }] = await Promise.all([

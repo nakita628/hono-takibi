@@ -158,8 +158,8 @@ describe('parseOpenAPI', () => {
     }
   })
 
-  // #417: OpenAPI 3.1 asks for one of `paths`, `components` and `webhooks`
-  it.concurrent('reads a 3.1 document of components alone, with an empty paths', async () => {
+  // swagger-parser asks for `paths` or `webhooks`; the document is taken as it answers.
+  it.concurrent('rejects a 3.1 document of components alone, as swagger-parser does', async () => {
     const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-openapi-'))
     const input = `${directory}/openapi.yaml` as const
     fs.writeFileSync(
@@ -181,25 +181,14 @@ describe('parseOpenAPI', () => {
       ].join('\n'),
     )
     try {
-      const document = await runGenerator(parseOpenAPI(input))
-      expect(document.paths).toStrictEqual({})
-      expect(document.components?.schemas).toStrictEqual({
-        Money: {
-          type: 'object',
-          required: ['amount', 'currency'],
-          properties: {
-            amount: { type: 'integer' },
-            currency: { $ref: '#/components/schemas/Currency' },
-          },
-        },
-        Currency: { type: 'string' },
-      })
+      const error = await runGeneratorError(parseOpenAPI(input))
+      expect(error.message).toBe(`${input} is not a valid Openapi API definition`)
     } finally {
       fs.rmSync(directory, { recursive: true, force: true })
     }
   })
 
-  it.concurrent('still rejects a 3.1 document with neither paths, webhooks nor components', async () => {
+  it.concurrent('rejects a 3.1 document with neither paths, webhooks nor components', async () => {
     const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-openapi-'))
     const input = `${directory}/openapi.yaml` as const
     fs.writeFileSync(input, 'openapi: 3.1.0\ninfo: { title: Nothing, version: 1.0.0 }\n')
@@ -211,7 +200,7 @@ describe('parseOpenAPI', () => {
     }
   })
 
-  it.concurrent('still rejects a 3.0 document of components alone, which needs paths', async () => {
+  it.concurrent('rejects a 3.0 document of components alone, which needs paths', async () => {
     const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-openapi-'))
     const input = `${directory}/openapi.yaml` as const
     fs.writeFileSync(
