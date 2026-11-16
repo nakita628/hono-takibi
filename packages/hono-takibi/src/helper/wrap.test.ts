@@ -36,6 +36,21 @@ describe('conformDefault', () => {
     expect(conformDefault({ ...schema, minLength: 1 }, [])).toStrictEqual({ ok: true, value: [] })
   })
 
+  // #444: a schema with `properties` beside a `type` is an object too
+  it.concurrent('reads a default on properties beside a type as an object', () => {
+    const schema: Schema = {
+      type: 'string',
+      properties: { link: { type: 'string' } },
+      required: ['link'],
+    }
+    expect(conformDefault(schema, '0')).toStrictEqual({ ok: false })
+    expect(conformDefault(schema, {})).toStrictEqual({ ok: false })
+    expect(conformDefault(schema, { link: 'x' })).toStrictEqual({
+      ok: true,
+      value: { link: 'x' },
+    })
+  })
+
   it.concurrent('writes a number or a boolean for a string as text', () => {
     expect(conformDefault({ type: 'string' }, 1)).toStrictEqual({ ok: true, value: '1' })
     expect(conformDefault({ type: 'string' }, false)).toStrictEqual({ ok: true, value: 'false' })
@@ -266,6 +281,28 @@ describe('wrap', () => {
           default: [],
         }),
       ).toBe('z.object({value:z.number()}).openapi({"required":["value"],"default":[]})')
+    })
+
+    // #444
+    it.concurrent('leaves a string default on a string type with properties to the document', () => {
+      expect(
+        wrap('z.object({link:z.string()})', {
+          type: 'string',
+          properties: { link: { type: 'string' } },
+          required: ['page'],
+          default: '0',
+        }),
+      ).toBe('z.object({link:z.string()}).openapi({"required":["page"],"default":"0"})')
+    })
+
+    it.concurrent('keeps an object default on a string type with properties', () => {
+      expect(
+        wrap('z.object({link:z.string()})', {
+          type: 'string',
+          properties: { link: { type: 'string' } },
+          default: { link: 'x' },
+        }),
+      ).toBe('z.object({link:z.string()}).default({"link":"x"})')
     })
 
     it.concurrent('leaves an enum default the enum does not list to the document', () => {

@@ -548,6 +548,9 @@ function makeSerializedParam(param: Parameter) {
  * conforms; an object keeps the keys its `properties` declare, each conforming, and has
  * every `required` one (#387). A reference is read as the component it names when
  * `schemas` has it; a schema with no type of its own otherwise (a `oneOf`) is not checked.
+ * A schema is read as the object it is emitted as when it declares `properties`, even
+ * beside a `type` that says otherwise (`type: string` with `properties`, #444): the
+ * emitter writes `z.object()` for it, so a string default is not a value of it.
  */
 export function conformDefault(
   schema: Schema,
@@ -609,8 +612,13 @@ export function conformDefault(
   }
   // A schema with no `type` that is an object in all but name is emitted as `z.object()`,
   // so its default is read as an object's (`default: []` beside `properties`, #422).
+  // The emitter writes `z.object()` for any schema with `properties` (a `type` beside
+  // them does not stop it), so one with a declared type is read as an object too
+  // (`type: string` with `properties` and a string default, #444). A schema with no
+  // `type` and a keyword of another kind beside `properties` is not an object here,
+  // matching the emitter, which refines it by hand instead.
   const types = (
-    isUntypedObject(schema)
+    isUntypedObject(schema) || (schema.properties !== undefined && schema.type !== undefined)
       ? ['object' as const]
       : Array.isArray(schema.type)
         ? schema.type
