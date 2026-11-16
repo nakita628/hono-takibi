@@ -148,11 +148,33 @@ export function accepts(schema: unknown, value: Json, schemas: Schemas): boolean
     const properties = isRecord(schema['properties']) ? schema['properties'] : {}
     const required: readonly unknown[] = Array.isArray(schema['required']) ? schema['required'] : []
     if (!required.every((key) => typeof key === 'string' && key in value)) return false
+    // A key is held to the property that names it and to every pattern that matches it;
+    // `additionalProperties` is for the keys neither reaches (JSON Schema 2020-12 §10.3.2).
+    const patterns = isRecord(schema['patternProperties']) ? schema['patternProperties'] : {}
     for (const [key, item] of Object.entries(value)) {
-      if (key in properties) {
-        if (!valid(properties[key], item)) return false
-      } else if ('additionalProperties' in schema) {
+      const matched = Object.keys(patterns).filter((pattern) => new RegExp(pattern, 'u').test(key))
+      if (key in properties && !valid(properties[key], item)) return false
+      if (!matched.every((pattern) => valid(patterns[pattern], item))) return false
+      if (!(key in properties) && matched.length === 0 && 'additionalProperties' in schema) {
         if (!valid(schema['additionalProperties'], item)) return false
+      }
+    }
+    const { minProperties, maxProperties, propertyNames, dependentRequired } = schema
+    const keys = Object.keys(value)
+    if (typeof minProperties === 'number' && keys.length < minProperties) return false
+    if (typeof maxProperties === 'number' && keys.length > maxProperties) return false
+    if (propertyNames !== undefined && !keys.every((key) => valid(propertyNames, key))) {
+      return false
+    }
+    if (isRecord(dependentRequired)) {
+      for (const [key, needed] of Object.entries(dependentRequired)) {
+        if (
+          key in value &&
+          Array.isArray(needed) &&
+          !needed.every((one: unknown) => typeof one === 'string' && one in value)
+        ) {
+          return false
+        }
       }
     }
   }
@@ -190,7 +212,11 @@ export function mentioned(
   }
   if (isRecord(target)) {
     return Object.entries(target).flatMap(([key, item]) =>
-      key === 'pattern' || key === 'format' || key === 'type' || key === 'required'
+      key === 'pattern' ||
+      key === 'format' ||
+      key === 'type' ||
+      key === 'required' ||
+      key === 'dependentRequired'
         ? []
         : mentioned(item, schemas, [...seen, target]),
     )

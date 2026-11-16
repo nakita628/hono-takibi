@@ -889,6 +889,148 @@
                   },
                   "null": {
                     "type": "null"
+                  },
+                  "object_map_props": {
+                    "type": "object",
+                    "properties": {
+                      "a": {
+                        "type": "integer"
+                      }
+                    },
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "object_pattern": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^x": {
+                        "type": "integer"
+                      }
+                    }
+                  },
+                  "object_pattern_open": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^x": {
+                        "type": "integer"
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "object_pattern_closed": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^x": {
+                        "type": "integer"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "object_pattern_closed_props": {
+                    "type": "object",
+                    "properties": {
+                      "a": {
+                        "type": "integer"
+                      }
+                    },
+                    "patternProperties": {
+                      "^x": {
+                        "type": "integer"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "object_pattern_map": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^x": {
+                        "type": "integer"
+                      }
+                    },
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "object_pattern_map_props": {
+                    "type": "object",
+                    "required": ["a"],
+                    "properties": {
+                      "a": {
+                        "type": "integer"
+                      }
+                    },
+                    "patternProperties": {
+                      "^[xy]": {
+                        "type": "integer"
+                      }
+                    },
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "object_pattern_overlap": {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "type": "number"
+                      }
+                    },
+                    "patternProperties": {
+                      "^x": {
+                        "type": "integer"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "object_pattern_two": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^x": {
+                        "type": "integer"
+                      },
+                      "^[ab]": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": {
+                      "type": "number"
+                    }
+                  },
+                  "object_pattern_ref": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^x": {
+                        "$ref": "#/components/schemas/Count"
+                      }
+                    },
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/Name"
+                    }
+                  },
+                  "object_names": {
+                    "type": "object",
+                    "propertyNames": {
+                      "pattern": "^[ab]$"
+                    }
+                  },
+                  "object_sized": {
+                    "type": "object",
+                    "minProperties": 1,
+                    "maxProperties": 2
+                  },
+                  "object_dependent": {
+                    "type": "object",
+                    "dependentRequired": {
+                      "a": ["b"]
+                    }
+                  },
+                  "typeless_pattern": {
+                    "patternProperties": {
+                      "^x": {
+                        "type": "integer"
+                      }
+                    }
                   }
                 }
               }
