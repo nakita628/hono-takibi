@@ -1,3 +1,6 @@
+import { promisify } from 'node:util'
+import { deflateRaw } from 'node:zlib'
+
 import { expect, test } from '@playwright/test'
 import type { Page } from '@playwright/test'
 
@@ -70,8 +73,14 @@ export const getRoute = createRoute({
 })
 `
 
-function encodeShare(payload: { readonly mode: string; readonly source: string }) {
-  return Buffer.from(JSON.stringify(payload), 'utf8').toString('base64')
+async function encodeShare(payload: { readonly mode: string; readonly source: string }) {
+  const deflated = await promisify(deflateRaw)(payload.source)
+  return `z=${payload.mode}.${deflated.toString('base64url')}`
+}
+
+// The uncompressed form links shared before compression still use.
+function encodeLegacyShare(payload: { readonly mode: string; readonly source: string }) {
+  return `code=${Buffer.from(JSON.stringify(payload), 'utf8').toString('base64')}`
 }
 
 async function expectCopiedOutput(page: Page, expected: string) {
@@ -189,12 +198,11 @@ test.describe('Playground', () => {
     await page.locator('.pg-button', { hasText: 'Share' }).click()
     await expect(page.locator('.pg-button', { hasText: 'Copied URL!' })).toBeVisible()
     const url = await page.evaluate(() => navigator.clipboard.readText())
-    expect(url).toBe(
-      `http://localhost:4173/playground#code=${encodeShare({
-        mode: 'typespec',
-        source: TYPESPEC_SOURCE,
-      })}`,
-    )
+    // The deflate bytes are the browser's own, so only the shape is pinned here;
+    // the reload below proves the link round-trips.
+    expect(url).toMatch(/^http:\/\/localhost:4173\/playground#z=typespec\.[\w-]+$/u)
+    const legacy = encodeLegacyShare({ mode: 'typespec', source: TYPESPEC_SOURCE })
+    expect(url.length).toBeLessThan(`http://localhost:4173/playground#${legacy}`.length)
     await page.goto(url)
     // Navigating to the same path with only a hash change is a same-document
     // navigation; reload so the playground decodes the shared payload on setup.
@@ -347,11 +355,109 @@ test.describe('Playground', () => {
   })
 
   test('restores mode and source from a shared URL', async ({ page }) => {
-    const hash = encodeShare({ mode: 'yaml', source: YAML_SOURCE })
-    await page.goto(`/playground#code=${hash}`)
+    const hash = await encodeShare({ mode: 'yaml', source: YAML_SOURCE })
+    await page.goto(`/playground#${hash}`)
     await expect(page.locator('.pg-select')).toHaveValue('OpenAPI (YAML)')
     await expect(page.locator('.pg-pane').first()).toContainText('openapi:')
     await expect(page.locator('.pg-pane').nth(1)).toContainText('Welcome')
     await expectCopiedOutput(page, EXPECTED)
+  })
+
+  test('still restores an uncompressed shared URL', async ({ page }) => {
+    const hash = encodeLegacyShare({ mode: 'yaml', source: YAML_SOURCE })
+    await page.goto(`/playground#${hash}`)
+    await expect(page.locator('.pg-select')).toHaveValue('OpenAPI (YAML)')
+    await expect(page.locator('.pg-pane').first()).toContainText('openapi:')
+    await expect(page.locator('.pg-pane').nth(1)).toContainText('Welcome')
+    await expectCopiedOutput(page, EXPECTED)
+  })
+
+  test('restores a share pasted into an open playground', async ({ page }) => {
+    await page.goto('/playground')
+    await expect(page.locator('.pg-pane').nth(1)).toContainText('welcome')
+    const hash = await encodeShare({ mode: 'yaml', source: YAML_SOURCE })
+    await page.evaluate((next) => {
+      location.hash = next
+    }, hash)
+    await expect(page.locator('.pg-select')).toHaveValue('OpenAPI (YAML)')
+    await expect(page.locator('.pg-pane').first()).toContainText('openapi:')
+    await expect(page.locator('.pg-pane').nth(1)).toContainText('Welcome')
+    await expectCopiedOutput(page, EXPECTED)
+  })
+
+  test('loads the source a #url= link points at and shares that link back', async ({ page }) => {
+    await page.route('https://spec.example/openapi.yaml', (route) =>
+      route.fulfill({
+        body: YAML_SOURCE,
+        contentType: 'text/yaml',
+        headers: { 'access-control-allow-origin': '*' },
+      }),
+    )
+    await page.goto('/playground#url=https://spec.example/openapi.yaml')
+    await expect(page.locator('.pg-select')).toHaveValue('OpenAPI (YAML)')
+    await expect(page.locator('.pg-pane').first()).toContainText('openapi:')
+    await expect(page.locator('.pg-pane').nth(1)).toContainText('Welcome')
+    await expectCopiedOutput(page, EXPECTED)
+    await page.locator('.pg-button', { hasText: 'Share' }).click()
+    await expect(page.locator('.pg-button', { hasText: 'Copied URL!' })).toBeVisible()
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      'http://localhost:4173/playground#url=https://spec.example/openapi.yaml',
+    )
+  })
+
+  test('reads a GitHub file page address from the raw host', async ({ page }) => {
+    await page.route(
+      'https://raw.githubusercontent.com/owner/repo/main/api/openapi.yaml',
+      (route) =>
+        route.fulfill({
+          body: YAML_SOURCE,
+          contentType: 'text/plain',
+          headers: { 'access-control-allow-origin': '*' },
+        }),
+    )
+    await page.goto('/playground#url=https://github.com/owner/repo/blob/main/api/openapi.yaml')
+    await expect(page.locator('.pg-select')).toHaveValue('OpenAPI (YAML)')
+    await expect(page.locator('.pg-pane').first()).toContainText('openapi:')
+    await expect(page.locator('.pg-pane').nth(1)).toContainText('Welcome')
+    await expectCopiedOutput(page, EXPECTED)
+  })
+
+  test('reports a #url= link that cannot be loaded', async ({ page }) => {
+    await page.route('https://spec.example/missing.yaml', (route) =>
+      route.fulfill({ status: 404, headers: { 'access-control-allow-origin': '*' } }),
+    )
+    await page.goto('/playground#url=https://spec.example/missing.yaml')
+    await expect(page.locator('.pg-error')).toHaveText(
+      'Cannot load https://spec.example/missing.yaml: HTTP 404',
+    )
+    await expect(page.locator('.pg-select')).toHaveValue('TypeSpec')
+  })
+
+  test('Share warns when the URL is long enough to be cut off', async ({ page }) => {
+    await page.goto('/playground')
+    await expect(page.locator('.pg-pane').nth(1)).toContainText('welcome')
+    await page.locator('.pg-button', { hasText: 'Share' }).click()
+    await expect(page.locator('.pg-button', { hasText: 'Copied URL!' })).toBeVisible()
+    await expect(page.locator('.pg-share-note')).toHaveCount(0)
+
+    // Hashes do not compress, so this source keeps its share URL long.
+    const digests = await Promise.all(
+      Array.from({ length: 60 }, async (_, index) => {
+        const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${index}`))
+        return Buffer.from(digest).toString('hex')
+      }),
+    )
+    const source = `${YAML_SOURCE}${digests.map((digest) => `# ${digest}\n`).join('')}`
+    await page.evaluate(
+      (next) => {
+        location.hash = next
+      },
+      await encodeShare({ mode: 'yaml', source }),
+    )
+    await expect(page.locator('.pg-pane').first()).toContainText('openapi:')
+    await page.locator('.pg-button', { hasText: /^(Share|Copied URL!)$/u }).click()
+    await expect(page.locator('.pg-share-note')).toContainText(
+      'a link this long can be cut off where you paste it',
+    )
   })
 })
