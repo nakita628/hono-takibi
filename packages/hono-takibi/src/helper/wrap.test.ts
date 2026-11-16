@@ -1178,6 +1178,139 @@ describe('wrap', () => {
     })
   })
 
+  // #452: `patternProperties` is checked in a refinement the document derives nothing
+  // from, so the keyword is stated in `.openapi()`. It is handed over in a spread: the
+  // argument has no such key, and an object literal naming it does not type-check.
+  describe('patternProperties stated in the document (#452)', () => {
+    it.concurrent('writes patternProperties as the source has it', () => {
+      expect(
+        wrap('z.looseObject({})', {
+          type: 'object',
+          patternProperties: { '^x-': { type: 'integer' } },
+        }),
+      ).toBe('z.looseObject({}).openapi({...{patternProperties:{"^x-":{"type":"integer"}}}})')
+    })
+
+    it.concurrent('states additionalProperties: false beside it', () => {
+      expect(
+        wrap('z.looseObject({})', {
+          type: 'object',
+          patternProperties: { '^x-': { type: 'integer' } },
+          additionalProperties: false,
+        }),
+      ).toBe(
+        'z.looseObject({}).openapi({...{patternProperties:{"^x-":{"type":"integer"}}},additionalProperties:false})',
+      )
+    })
+
+    it.concurrent('leaves additionalProperties to the chain when it is not false', () => {
+      expect(
+        wrap('z.record(z.string(),z.string())', {
+          type: 'object',
+          patternProperties: { '^x-': { type: 'integer' } },
+          additionalProperties: { type: 'string' },
+        }),
+      ).toBe(
+        'z.record(z.string(),z.string()).openapi({...{patternProperties:{"^x-":{"type":"integer"}}}})',
+      )
+    })
+
+    it.concurrent('writes a referenced component out, so the document needs no definition', () => {
+      expect(
+        wrap(
+          'z.looseObject({})',
+          {
+            type: 'object',
+            patternProperties: { '^x-': { $ref: '#/components/schemas/Tag' } },
+          },
+          undefined,
+          {
+            schemas: {
+              Tag: { type: 'object', properties: { id: { $ref: '#/components/schemas/Id' } } },
+              Id: { type: 'integer', minimum: 1 },
+            },
+          },
+        ),
+      ).toBe(
+        'z.looseObject({}).openapi({...{patternProperties:{"^x-":{"type":"object","properties":{"id":{"type":"integer","minimum":1}}}}}})',
+      )
+    })
+
+    it.concurrent('a reference that leads back to itself is any value', () => {
+      expect(
+        wrap(
+          'z.looseObject({})',
+          {
+            type: 'object',
+            patternProperties: { '^x-': { $ref: '#/components/schemas/Node' } },
+          },
+          undefined,
+          {
+            schemas: {
+              Node: { type: 'object', properties: { next: { $ref: '#/components/schemas/Node' } } },
+            },
+          },
+        ),
+      ).toBe(
+        'z.looseObject({}).openapi({...{patternProperties:{"^x-":{"type":"object","properties":{"next":{}}}}}})',
+      )
+    })
+
+    it.concurrent('keeps a reference no component answers to', () => {
+      expect(
+        wrap('z.looseObject({})', {
+          type: 'object',
+          patternProperties: { '^x-': { $ref: '#/components/schemas/Missing' } },
+        }),
+      ).toBe(
+        'z.looseObject({}).openapi({...{patternProperties:{"^x-":{"$ref":"#/components/schemas/Missing"}}}})',
+      )
+    })
+
+    it.concurrent('keeps a nested patternProperties and drops what a Schema Object has not', () => {
+      expect(
+        wrap('z.looseObject({})', {
+          type: 'object',
+          patternProperties: {
+            '^x-': {
+              type: 'object',
+              patternProperties: { '^y-': { type: 'string' } },
+              $defs: { A: { type: 'string' } },
+            },
+          },
+        }),
+      ).toBe(
+        'z.looseObject({}).openapi({...{patternProperties:{"^x-":{"type":"object","patternProperties":{"^y-":{"type":"string"}}}}}})',
+      )
+    })
+
+    it.concurrent('writes nothing for an empty patternProperties', () => {
+      expect(
+        wrap('z.strictObject({})', {
+          type: 'object',
+          patternProperties: {},
+          additionalProperties: false,
+        }),
+      ).toBe('z.strictObject({})')
+    })
+
+    it.concurrent('leaves a parameter to its own schema', () => {
+      const parameter: Parameter = {
+        name: 'filter',
+        in: 'query',
+        required: true,
+        schema: { type: 'object', patternProperties: { '^x-': { type: 'integer' } } },
+      }
+      expect(
+        wrap(
+          'z.looseObject({})',
+          { type: 'object', patternProperties: { '^x-': { type: 'integer' } } },
+          { parameters: parameter },
+        ),
+      ).not.toContain('patternProperties')
+    })
+  })
+
   describe('combined nullable + default + isOptional', () => {
     it.concurrent('should handle nullable + default + isOptional combined', () => {
       expect(

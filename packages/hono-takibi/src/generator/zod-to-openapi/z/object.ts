@@ -176,9 +176,8 @@ export function object(
   // naming every such key, with Zod's own message unless
   // x-additionalProperties-message is set. As on the strict path,
   // x-error-message is not applied to it.
-  // The document reads `additionalProperties: {}` for this base, and that is left
-  // as is: `.openapi()` has no `patternProperties` key, and `additionalProperties:
-  // false` without it would rule out the keys the patterns allow.
+  // The document would read `additionalProperties: {}` for this base; `wrap` states
+  // `patternProperties` and `additionalProperties: false` in `.openapi()` (#452).
   const undeclaredKeys =
     schema.additionalProperties === false && hasPatternProperties
       ? (() => {
