@@ -1,3 +1,6 @@
+import { promisify } from 'node:util'
+import { deflateRaw } from 'node:zlib'
+
 import { expect, test } from '@playwright/test'
 import type { Page } from '@playwright/test'
 
@@ -70,8 +73,14 @@ export const getRoute = createRoute({
 })
 `
 
-function encodeShare(payload: { readonly mode: string; readonly source: string }) {
-  return Buffer.from(JSON.stringify(payload), 'utf8').toString('base64')
+async function encodeShare(payload: { readonly mode: string; readonly source: string }) {
+  const deflated = await promisify(deflateRaw)(payload.source)
+  return `z=${payload.mode}.${deflated.toString('base64url')}`
+}
+
+// The uncompressed form links shared before compression still use.
+function encodeLegacyShare(payload: { readonly mode: string; readonly source: string }) {
+  return `code=${Buffer.from(JSON.stringify(payload), 'utf8').toString('base64')}`
 }
 
 async function expectCopiedOutput(page: Page, expected: string) {
@@ -189,12 +198,11 @@ test.describe('Playground', () => {
     await page.locator('.pg-button', { hasText: 'Share' }).click()
     await expect(page.locator('.pg-button', { hasText: 'Copied URL!' })).toBeVisible()
     const url = await page.evaluate(() => navigator.clipboard.readText())
-    expect(url).toBe(
-      `http://localhost:4173/playground#code=${encodeShare({
-        mode: 'typespec',
-        source: TYPESPEC_SOURCE,
-      })}`,
-    )
+    // The deflate bytes are the browser's own, so only the shape is pinned here;
+    // the reload below proves the link round-trips.
+    expect(url).toMatch(/^http:\/\/localhost:4173\/playground#z=typespec\.[\w-]+$/u)
+    const legacy = encodeLegacyShare({ mode: 'typespec', source: TYPESPEC_SOURCE })
+    expect(url.length).toBeLessThan(`http://localhost:4173/playground#${legacy}`.length)
     await page.goto(url)
     // Navigating to the same path with only a hash change is a same-document
     // navigation; reload so the playground decodes the shared payload on setup.
@@ -347,8 +355,17 @@ test.describe('Playground', () => {
   })
 
   test('restores mode and source from a shared URL', async ({ page }) => {
-    const hash = encodeShare({ mode: 'yaml', source: YAML_SOURCE })
-    await page.goto(`/playground#code=${hash}`)
+    const hash = await encodeShare({ mode: 'yaml', source: YAML_SOURCE })
+    await page.goto(`/playground#${hash}`)
+    await expect(page.locator('.pg-select')).toHaveValue('OpenAPI (YAML)')
+    await expect(page.locator('.pg-pane').first()).toContainText('openapi:')
+    await expect(page.locator('.pg-pane').nth(1)).toContainText('Welcome')
+    await expectCopiedOutput(page, EXPECTED)
+  })
+
+  test('still restores an uncompressed shared URL', async ({ page }) => {
+    const hash = encodeLegacyShare({ mode: 'yaml', source: YAML_SOURCE })
+    await page.goto(`/playground#${hash}`)
     await expect(page.locator('.pg-select')).toHaveValue('OpenAPI (YAML)')
     await expect(page.locator('.pg-pane').first()).toContainText('openapi:')
     await expect(page.locator('.pg-pane').nth(1)).toContainText('Welcome')

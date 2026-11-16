@@ -2,13 +2,14 @@
 import type { MonacoEditor } from '@guolao/vue-monaco-editor'
 import { loader, VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import { useData } from 'vitepress'
-import { computed, onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue'
 
 import {
   configureTypeScriptDefaults,
+  decodeShare,
   DEFAULT_GENERATE_OPTIONS,
+  encodeShare,
   generate,
-  isMode,
   loadMonaco,
   loadOutputEditorTypes,
   loadTypeSpecContext,
@@ -52,42 +53,10 @@ function paintMarkers(markers: readonly TypeSpecMarker[]) {
 const { isDark } = useData()
 const monacoTheme = computed(() => (isDark.value ? 'typespec-dark' : 'typespec'))
 
-function decodeShare() {
-  if (typeof location === 'undefined' || !location.hash.startsWith('#code=')) return null
-  try {
-    const bytes = Uint8Array.from(atob(location.hash.slice('#code='.length)), (char) =>
-      char.charCodeAt(0),
-    )
-    const payload: unknown = JSON.parse(new TextDecoder().decode(bytes))
-    if (
-      typeof payload === 'object' &&
-      payload !== null &&
-      'mode' in payload &&
-      'source' in payload &&
-      typeof payload.source === 'string' &&
-      isMode(payload.mode)
-    ) {
-      return { mode: payload.mode, source: payload.source }
-    }
-    return null
-  } catch {
-    return null
-  }
-}
-
-function encodeShare(payload: { readonly mode: string; readonly source: string }) {
-  const bytes = new TextEncoder().encode(JSON.stringify(payload))
-  return btoa(Array.from(bytes, (b) => String.fromCharCode(b)).join(''))
-}
-
 const firstSample = SAMPLES[0]
-const decoded = decodeShare()
-const initialSample = decoded
-  ? (SAMPLES.find((s) => s.mode === decoded.mode) ?? firstSample)
-  : firstSample
-const sampleName = ref(initialSample.name)
+const sampleName = ref(firstSample.name)
 const activeSample = computed(() => SAMPLES.find((s) => s.name === sampleName.value) ?? firstSample)
-const input = ref(decoded?.source ?? firstSample.source)
+const input = ref(firstSample.source)
 const output = shallowRef('// Generating ...')
 // The last document that generated successfully; the Mock view runs its server.
 const openAPIDocument = shallowRef<{ readonly [key: string]: unknown } | null>(null)
@@ -135,7 +104,20 @@ watch(sampleName, () => {
 onMounted(async () => {
   // The TypeSpec context registers the editor language and the `typespec` /
   // `typespec-dark` themes, so both editors wait for it alongside monaco.
-  const [monaco] = await Promise.all([loadMonaco(), loadTypeSpecContext()])
+  const [monaco, , restored] = await Promise.all([
+    loadMonaco(),
+    loadTypeSpecContext(),
+    decodeShare(location.hash),
+  ])
+  if (restored) {
+    // Selecting the sample resets the input to that sample's source, so let
+    // that watcher flush before putting the shared source in.
+    sampleName.value = SAMPLES.find((s) => s.mode === restored.mode)?.name ?? firstSample.name
+    await nextTick()
+    input.value = restored.source
+    await nextTick()
+    clearTimeout(timer.id)
+  }
   loader.config({ monaco })
   monacoReady.value = true
   await run()
@@ -151,7 +133,7 @@ async function copy() {
 
 async function share() {
   const payload = { mode: activeSample.value.mode, source: input.value }
-  const url = `${location.origin}${location.pathname}#code=${encodeShare(payload)}`
+  const url = `${location.origin}${location.pathname}${await encodeShare(payload)}`
   await navigator.clipboard.writeText(url)
   shared.value = true
   setTimeout(() => {
