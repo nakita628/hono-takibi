@@ -2,13 +2,14 @@
 import type { MonacoEditor } from '@guolao/vue-monaco-editor'
 import { loader, VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import { useData } from 'vitepress'
-import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
 
 import {
   configureTypeScriptDefaults,
   decodeShare,
   DEFAULT_GENERATE_OPTIONS,
   encodeShare,
+  encodeUrlShare,
   generate,
   loadMonaco,
   loadOutputEditorTypes,
@@ -70,6 +71,17 @@ const errorIsHint = ref(false)
 const outputStale = ref(false)
 const copied = ref(false)
 const shared = ref(false)
+const shareNote = ref('')
+// Past this length a link risks being cut off where it is pasted: chat apps
+// cap a message at a few thousand characters.
+const SHARE_URL_WARN_LENGTH = 2000
+// What a `#url=` link loaded. While the input still matches it, Share hands
+// that short link back instead of embedding the source.
+const remote = shallowRef<{
+  readonly url: string
+  readonly mode: string
+  readonly source: string
+} | null>(null)
 
 async function run() {
   const mode = activeSample.value.mode
@@ -101,6 +113,34 @@ watch(sampleName, () => {
   input.value = activeSample.value.source
 })
 
+async function applyShare(restored: {
+  readonly mode: string
+  readonly source: string
+  readonly url?: string
+}) {
+  // Selecting the sample resets the input to that sample's source, so let
+  // that watcher flush before putting the shared source in.
+  sampleName.value = SAMPLES.find((s) => s.mode === restored.mode)?.name ?? firstSample.name
+  await nextTick()
+  input.value = restored.source
+  remote.value = restored.url
+    ? { url: restored.url, mode: restored.mode, source: restored.source }
+    : null
+}
+
+// A share link pasted into a tab that already shows the playground changes
+// only the hash, so nothing remounts; the input watcher regenerates.
+async function onHashChange() {
+  const restored = await decodeShare(location.hash)
+  if (!restored) return
+  if (restored.ok) {
+    await applyShare(restored.value)
+  } else {
+    error.value = restored.error
+    errorIsHint.value = false
+  }
+}
+
 onMounted(async () => {
   // The TypeSpec context registers the editor language and the `typespec` /
   // `typespec-dark` themes, so both editors wait for it alongside monaco.
@@ -109,18 +149,21 @@ onMounted(async () => {
     loadTypeSpecContext(),
     decodeShare(location.hash),
   ])
-  if (restored) {
-    // Selecting the sample resets the input to that sample's source, so let
-    // that watcher flush before putting the shared source in.
-    sampleName.value = SAMPLES.find((s) => s.mode === restored.mode)?.name ?? firstSample.name
-    await nextTick()
-    input.value = restored.source
+  if (restored?.ok) {
+    await applyShare(restored.value)
     await nextTick()
     clearTimeout(timer.id)
   }
   loader.config({ monaco })
   monacoReady.value = true
   await run()
+  // A successful run clears the error, so a failed share is reported after it.
+  if (restored && !restored.ok) error.value = restored.error
+  globalThis.addEventListener('hashchange', onHashChange)
+})
+
+onUnmounted(() => {
+  globalThis.removeEventListener('hashchange', onHashChange)
 })
 
 async function copy() {
@@ -133,12 +176,23 @@ async function copy() {
 
 async function share() {
   const payload = { mode: activeSample.value.mode, source: input.value }
-  const url = `${location.origin}${location.pathname}${await encodeShare(payload)}`
+  const loaded = remote.value
+  const hash =
+    loaded && loaded.mode === payload.mode && loaded.source === payload.source
+      ? encodeUrlShare(loaded.url)
+      : await encodeShare(payload)
+  const url = `${location.origin}${location.pathname}${hash}`
   await navigator.clipboard.writeText(url)
   shared.value = true
   setTimeout(() => {
     shared.value = false
   }, 1500)
+  if (url.length > SHARE_URL_WARN_LENGTH) {
+    shareNote.value = `${url.length.toLocaleString('en-US')} characters — a link this long can be cut off where you paste it`
+    setTimeout(() => {
+      shareNote.value = ''
+    }, 6000)
+  }
 }
 
 const editorOptions = {
@@ -188,6 +242,7 @@ const outputOptions = { ...editorOptions, readOnly: true }
         </button>
       </div>
       <span class="flex-1" />
+      <span v-if="shareNote" class="pg-share-note text-(--vp-c-text-2)">{{ shareNote }}</span>
       <button
         class="pg-button rounded-md border border-(--vp-c-divider) bg-(--vp-c-bg-soft) px-3 py-1 text-(--vp-c-text-1) hover:border-(--vp-c-brand-1) hover:text-(--vp-c-brand-1)"
         type="button"

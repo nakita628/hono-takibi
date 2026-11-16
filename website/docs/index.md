@@ -127,6 +127,8 @@ export const getRoute = createRoute({
 
 Try it in the [Playground](/playground).
 
+To open a spec that is already hosted, link to it with `#url=`: `/playground#url=https://example.com/openapi.yaml`. The host must allow cross-origin requests, as raw GitHub files and gists do.
+
 ## CLI
 
 `hono-takibi --help`:
