@@ -130,12 +130,23 @@ export function object(
   // early-returned and silently dropped every one of those constraints.
   // Beside declared properties it is what every other key is held to: a record would hold
   // the declared ones to it as well, and drop what they declare.
-  const base =
+  // Beside patternProperties neither will do (#454): a record and a catchall hold every
+  // undeclared key to the schema, the ones a pattern matches among them, while
+  // additionalProperties applies to the keys matched by neither properties nor
+  // patternProperties (JSON Schema 2020-12 §10.3.2.3). The base is then looseObject, and
+  // `additionalKeys` below holds the remaining keys to the schema.
+  const additionalSchema =
     typeof schema.additionalProperties === 'object'
-      ? Object.keys(schema.properties ?? {}).length > 0
-        ? `z.object({${propertiesCode}}${objectParams}).catchall(${zodToOpenAPI(schema.additionalProperties, undefined, options)})`
-        : `z.record(z.string(),${zodToOpenAPI(schema.additionalProperties, undefined, options)})`
-      : `z.${objectType}({${propertiesCode}}${objectParams})`
+      ? zodToOpenAPI(schema.additionalProperties, undefined, options)
+      : undefined
+  const base =
+    additionalSchema === undefined
+      ? `z.${objectType}({${propertiesCode}}${objectParams})`
+      : hasPatternProperties
+        ? `z.looseObject({${propertiesCode}}${objectParams})`
+        : Object.keys(schema.properties ?? {}).length > 0
+          ? `z.object({${propertiesCode}}${objectParams}).catchall(${additionalSchema})`
+          : `z.record(z.string(),${additionalSchema})`
   const minProperties =
     typeof schema.minProperties === 'number'
       ? `.refine((val)=>Object.keys(val).length>=${schema.minProperties}${minErrorArg})`
@@ -178,21 +189,33 @@ export function object(
   // x-error-message is not applied to it.
   // The document would read `additionalProperties: {}` for this base; `wrap` states
   // `patternProperties` and `additionalProperties: false` in `.openapi()` (#452).
+  // Whether `k` is a key additionalProperties applies to: one the schema neither declares
+  // nor matches with a pattern.
+  const isAdditionalKey = (() => {
+    const declaredKeys = Object.keys(schema.properties ?? {})
+    const patterns = Object.keys(schema.patternProperties ?? {})
+    return [
+      ...(declaredKeys.length > 0 ? [`!${JSON.stringify(declaredKeys)}.includes(k)`] : []),
+      `!${JSON.stringify(patterns)}.some((p)=>new RegExp(p).test(k))`,
+    ].join('&&')
+  })()
   const undeclaredKeys =
     schema.additionalProperties === false && hasPatternProperties
       ? (() => {
-          const declaredKeys = Object.keys(schema.properties ?? {})
-          const patterns = Object.keys(schema.patternProperties ?? {})
           const messageField =
             additionalPropertiesMessage !== undefined
               ? `,message:${JSON.stringify(additionalPropertiesMessage)}`
               : ''
-          const guard = [
-            ...(declaredKeys.length > 0 ? [`!${JSON.stringify(declaredKeys)}.includes(k)`] : []),
-            `!${JSON.stringify(patterns)}.some((p)=>new RegExp(p).test(k))`,
-          ].join('&&')
-          return `.superRefine((o,ctx)=>{const keys=Object.keys(o).filter((k)=>${guard});if(keys.length>0){ctx.addIssue({code:"unrecognized_keys",keys,input:o${messageField}})}})`
+          return `.superRefine((o,ctx)=>{const keys=Object.keys(o).filter((k)=>${isAdditionalKey});if(keys.length>0){ctx.addIssue({code:"unrecognized_keys",keys,input:o${messageField}})}})`
         })()
+      : ''
+  // A schema-valued additionalProperties with patternProperties (#454): the base is
+  // looseObject, so the keys that are neither declared nor matched by a pattern are held
+  // to the schema here. Each issue is passed on as the schema raised it, with the key
+  // ahead of its path: what a catchall reports for the same key.
+  const additionalKeys =
+    additionalSchema !== undefined && hasPatternProperties
+      ? `.superRefine((o,ctx)=>{const Schema=${additionalSchema};for(const [k,val] of Object.entries(o)){if(${isAdditionalKey}){const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}})`
       : ''
   // Emits an issue per missing dependent key with path:[d] so the JSON pointer
   // locates it; x-dependentRequired-message (or x-error-message) overrides the
@@ -253,5 +276,5 @@ export function object(
     errorMessage,
     options?.schemas,
   )
-  return `${base}${undeclaredKeys}${minProperties}${maxProperties}${propertyNames}${patternProperties}${dependentRequired}${dependentSchemas}${ifThenElse}${unevaluatedProperties}${readonly ? '.readonly()' : ''}`
+  return `${base}${undeclaredKeys}${additionalKeys}${minProperties}${maxProperties}${propertyNames}${patternProperties}${dependentRequired}${dependentSchemas}${ifThenElse}${unevaluatedProperties}${readonly ? '.readonly()' : ''}`
 }

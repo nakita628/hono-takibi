@@ -113,6 +113,19 @@ const objects: readonly Json[] = [
   { x: 1, y: 'a' },
   { x: 1.5 },
   { y: 1 },
+  { x: 'a' },
+  { a: 1, x: 1 },
+  { a: 1, x: 'a' },
+  { a: 'x', b: 's' },
+  { b: 's', x: 1 },
+  { a: 1, b: 's', x: 1 },
+  { b: { y: 1 } },
+  { b: { y: 'a' } },
+  { b: { z: 1 } },
+  { b: { y: { z: 1 } } },
+  { b: { y: { z: 'a' } } },
+  { b: { y: { a: 1 } } },
+  { x: 1, b: { y: 1 } },
   [{ x: 1 }],
   [{ x: 1 }, { y: 1 }],
   [{ x: 1 }, { x: 2, y: 3 }],
@@ -392,7 +405,18 @@ describe('cookie: a cookie is accepted when the document accepts what it stands 
 // どちらの場合も、リクエストは有効である。ハンドラが受け取るのは、ドキュメントに記述された
 // 内容だけであり、クライアントが追加したものは含まれない。こちらのほうが安全である。
 const decided: { readonly [name: string]: readonly string[] } = {
-  object: ['{"a":1,"c":1}: the generated code hands out {"a":1}'],
+  object: [
+    '{"a":1,"c":1}: the generated code hands out {"a":1}',
+    '{"a":1,"x":1}: the generated code hands out {"a":1}',
+    '{"a":1,"x":"a"}: the generated code hands out {"a":1}',
+    '{"a":1,"b":"s","x":1}: the generated code hands out {"a":1,"b":"s"}',
+  ],
+  object_ref: [
+    '{"a":1,"x":1}: the generated code hands out {"x":1}',
+    '{"b":"s","x":1}: the generated code hands out {"x":1}',
+    '{"a":1,"b":"s","x":1}: the generated code hands out {"x":1}',
+    '{"x":1,"b":{"y":1}}: the generated code hands out {"x":1}',
+  ],
 }
 
 describe('json: a value is accepted when the document accepts it, and arrives unchanged', () => {
@@ -422,5 +446,111 @@ describe('json: a value is accepted when the document accepts it, and arrives un
       }
       expect(disagreements).toStrictEqual(decided[name] ?? [])
     }, 60_000)
+  }
+})
+
+// The document the generated routes serve is read back and held against the one they were
+// generated from. `patternProperties` is checked in a refinement, which the served document
+// derives nothing from, and an optional property fails the probe it derives `required`
+// from: what the source says about an object's keys has to be stated, or the served
+// document describes another object than the one the routes accept.
+//
+// 生成されたルートが配信するドキュメントを読み戻し、生成元のドキュメントと突き合わせる。
+// `patternProperties` は refinement で検証されるため、配信ドキュメントには何も導出されない。
+// また、任意プロパティは `required` を導出するプローブに失敗する。オブジェクトのキーについて
+// 生成元が述べている内容は明示されなければならず、そうでなければ、配信ドキュメントは
+// ルートが受理するものとは別のオブジェクトを記述することになる。
+/**
+ * What is found by following `keys` into a JSON-like value, or `undefined` where the way
+ * ends.
+ * JSON 風の値を `keys` に沿ってたどった先にあるもの。途中で道が途切れた場合は `undefined`。
+ */
+function at(from: unknown, ...keys: readonly string[]): unknown {
+  return keys.reduce<unknown>(
+    (value, key) =>
+      typeof value === 'object' && value !== null ? Reflect.get(value, key) : undefined,
+    from,
+  )
+}
+
+/**
+ * A schema with every reference written out, so that two documents that name their
+ * components differently can be compared.
+ * すべての参照を展開したスキーマ。コンポーネントの名付け方が異なる2つのドキュメントを
+ * 比較できるようにする。
+ */
+function written(schema: unknown, from: { readonly [k: string]: unknown }): unknown {
+  const target = resolve(schema, from)
+  if (Array.isArray(target)) return target.map((item: unknown) => written(item, from))
+  if (typeof target === 'object' && target !== null) {
+    return Object.fromEntries(
+      Object.entries(target).map(([key, item]) => [key, written(item, from)]),
+    )
+  }
+  return target
+}
+
+/**
+ * What a schema says of the keys it neither declares nor matches with a pattern: `false`
+ * when it refuses them, the schema it holds them to, or `'any'` when it takes them as they
+ * are, however that is spelled (`true`, `{}`, or nothing at all).
+ * スキーマが、宣言もパターン一致もしていないキーについて述べている内容。拒否する場合は
+ * `false`、スキーマで検証する場合はそのスキーマ、そのまま受理する場合は `'any'`
+ * (`true`・`{}`・無指定のいずれの表記でも同じ)。
+ */
+function otherKeys(schema: unknown, from: { readonly [k: string]: unknown }): unknown {
+  const additional = at(schema, 'additionalProperties')
+  if (additional === false) return false
+  const stated = written(additional, from)
+  return typeof stated === 'object' && stated !== null && Object.keys(stated).length > 0
+    ? stated
+    : 'any'
+}
+
+/**
+ * The keys a schema requires, in one order.
+ * スキーマが必須とするキーを、一定の順序で返す。
+ */
+function requiredKeys(schema: unknown): readonly string[] {
+  const list = at(schema, 'required')
+  return Array.isArray(list)
+    ? list.map((key: unknown) => String(key)).sort((a, b) => a.localeCompare(b))
+    : []
+}
+
+describe('document: what the source says about an object is what the served document says', () => {
+  const served = conformanceApp.getOpenAPI31Document({
+    openapi: '3.1.0',
+    info: { title: 'Conformance', version: '0.0.0' },
+  })
+  const servedSchemas: { readonly [k: string]: unknown } = served.components?.schemas ?? {}
+  const servedBody = at(
+    served,
+    'paths',
+    '/json',
+    'post',
+    'requestBody',
+    'content',
+    'application/json',
+    'schema',
+  )
+
+  for (const [name, schema] of Object.entries(properties)) {
+    const source = resolve(schema, schemas)
+    if (at(source, 'type') !== 'object') continue
+    it(`${name} states its keys as the source has them`, () => {
+      const stated = resolve(
+        at(resolve(servedBody, servedSchemas), 'properties', name),
+        servedSchemas,
+      )
+      // The patterns, each with the schema its keys are held to.
+      expect(written(at(stated, 'patternProperties') ?? {}, servedSchemas)).toStrictEqual(
+        written(at(source, 'patternProperties') ?? {}, schemas),
+      )
+      // Whether the other keys are refused, held to a schema, or taken as they are.
+      expect(otherKeys(stated, servedSchemas)).toStrictEqual(otherKeys(source, schemas))
+      // The keys that have to be there, and no others.
+      expect(requiredKeys(stated)).toStrictEqual(requiredKeys(source))
+    })
   }
 })

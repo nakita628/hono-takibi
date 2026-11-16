@@ -502,10 +502,13 @@ export function zodToOpenAPI(
     )
   }
   if (schema.properties !== undefined || isUntypedObject(schema)) {
+    // An optional property is `.exactOptional()`, which fails the `safeParse(undefined)` probe
+    // the document derives `required` from, so an object that omits `required` states the
+    // default, `required: []`. That holds whatever `additionalProperties` is: beside a
+    // schema-valued one the object is a catchall or a loose object, probed the same way.
     const needsDefaultRequired =
       schema.required === undefined &&
       Object.keys(schema.properties ?? {}).length > 0 &&
-      typeof schema.additionalProperties !== 'object' &&
       schema.anyOf === undefined
     return done(
       object(schema, childOptions),
