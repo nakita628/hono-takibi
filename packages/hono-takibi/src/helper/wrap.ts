@@ -171,8 +171,8 @@ function pruneSchemaObject(schema: unknown, patterns = false): unknown {
   if (!isRecord(schema)) return schema
   const pruned: { [k: string]: unknown } = {}
   for (const [key, value] of Object.entries(schema)) {
-    // Under a `patternProperties` written into the document (#452) the keyword is kept at
-    // every level: it is handed to `.openapi()` in a spread, which is not type-checked.
+    // Where `patternProperties` is written into the document (#452) the keyword is kept at
+    // every level: `schemaLiteral` hands it over in a spread, which is not type-checked.
     if (patterns && key === 'patternProperties' && isRecord(value)) {
       pruned[key] = Object.fromEntries(
         Object.entries(value).map(([pattern, sub]) => [pattern, pruneSchemaObject(sub, patterns)]),
@@ -224,6 +224,49 @@ function pruneSchemaObject(schema: unknown, patterns = false): unknown {
     pruned[key] = value
   }
   return pruned
+}
+
+/**
+ * A pruned schema as the object literal `.openapi()` and `param.schema` are handed. It is
+ * the JSON of the schema, except where an object has `patternProperties`: the type of a
+ * Schema Object has no such key, and a literal that names it does not type-check, so the
+ * keyword is brought by a spread, which is not checked for the keys it brings (#452). That
+ * holds one level deep only — a literal nested in the spread is checked again — so every
+ * object that has the keyword is written this way, wherever it stands. What a
+ * `patternProperties` holds has no type to answer to, and is JSON as it is.
+ */
+function schemaLiteral(schema: unknown): string {
+  if (!hasPatternProperties(schema)) return JSON.stringify(schema)
+  if (Array.isArray(schema)) return `[${schema.map(schemaLiteral).join(',')}]`
+  if (!isRecord(schema)) return JSON.stringify(schema)
+  const entries = Object.entries(schema).flatMap(([key, value]) => {
+    if (value === undefined) return []
+    if (key === 'patternProperties') return [`...{patternProperties:${JSON.stringify(value)}}`]
+    if (SCHEMA_VALUED_KEYS.has(key) || SCHEMA_LIST_KEYS.has(key)) {
+      return [`${JSON.stringify(key)}:${schemaLiteral(value)}`]
+    }
+    if (SCHEMA_MAP_KEYS.has(key) && isRecord(value)) {
+      const members = Object.entries(value).map(
+        ([name, sub]) => `${JSON.stringify(name)}:${schemaLiteral(sub)}`,
+      )
+      return [`${JSON.stringify(key)}:{${members.join(',')}}`]
+    }
+    return [`${JSON.stringify(key)}:${JSON.stringify(value)}`]
+  })
+  return `{${entries.join(',')}}`
+}
+
+/** Whether a pruned schema has `patternProperties` where a Schema Object is typed. */
+function hasPatternProperties(schema: unknown): boolean {
+  if (Array.isArray(schema)) return schema.some(hasPatternProperties)
+  if (!isRecord(schema)) return false
+  return Object.entries(schema).some(([key, value]) => {
+    if (key === 'patternProperties') return true
+    if (SCHEMA_VALUED_KEYS.has(key) || SCHEMA_LIST_KEYS.has(key)) return hasPatternProperties(value)
+    return SCHEMA_MAP_KEYS.has(key) && isRecord(value)
+      ? Object.values(value).some(hasPatternProperties)
+      : false
+  })
 }
 
 /**
@@ -468,7 +511,7 @@ function makeSerializedParam(param: Parameter) {
         return `"examples":${makeExamples(value)}`
       }
       if (key === 'schema') {
-        return `"schema":${JSON.stringify(pruneSchemaObject(value))}`
+        return `"schema":${schemaLiteral(pruneSchemaObject(value, true))}`
       }
       if (key === 'content' && isRecord(value)) {
         const media = Object.entries(value).map(([mediaType, mediaObj]) => {
@@ -482,7 +525,7 @@ function makeSerializedParam(param: Parameter) {
             .filter(([, v]) => v !== undefined)
             .map(
               ([k, v]) =>
-                `${JSON.stringify(k)}:${JSON.stringify(k === 'schema' ? pruneSchemaObject(v) : v)}`,
+                `${JSON.stringify(k)}:${k === 'schema' ? schemaLiteral(pruneSchemaObject(v, true)) : JSON.stringify(v)}`,
             )
           const examplesEntry = isExamplesInput(mediaExamples)
             ? `"examples":${makeExamples(mediaExamples)}`
@@ -953,7 +996,7 @@ export function wrap(
   // does not type-check; a spread is not checked for the keys it brings, and the document
   // is handed whatever the metadata holds. `additionalProperties` is stated beside it when
   // it is `false` or a schema, since the object is then loose for the refinements to see
-  // the keys (#447, #454); a schema goes into the spread, for what it may hold in turn.
+  // the keys (#447, #454).
   const patternMetaProps =
     meta?.parameters === undefined &&
     meta?.headers === undefined &&
@@ -967,17 +1010,18 @@ export function wrap(
                 pruneSchemaObject(inlineSchemaRefs(sub, options?.schemas), true),
               ]),
             ),
-          )}${
-            typeof schema.additionalProperties === 'object'
-              ? `,additionalProperties:${JSON.stringify(
+          )}}`,
+          ...(schema.additionalProperties === false ? ['additionalProperties:false'] : []),
+          ...(typeof schema.additionalProperties === 'object'
+            ? [
+                `additionalProperties:${schemaLiteral(
                   pruneSchemaObject(
                     inlineSchemaRefs(schema.additionalProperties, options?.schemas),
                     true,
                   ),
-                )}`
-              : ''
-          }}`,
-          ...(schema.additionalProperties === false ? ['additionalProperties:false'] : []),
+                )}`,
+              ]
+            : []),
         ]
       : []
   // `.openapi()` on a wrapper — `.exactOptional()`, the `z.preprocess` that reads the wire —

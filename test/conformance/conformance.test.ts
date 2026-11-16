@@ -119,6 +119,13 @@ const objects: readonly Json[] = [
   { a: 'x', b: 's' },
   { b: 's', x: 1 },
   { a: 1, b: 's', x: 1 },
+  { b: { y: 1 } },
+  { b: { y: 'a' } },
+  { b: { z: 1 } },
+  { b: { y: { z: 1 } } },
+  { b: { y: { z: 'a' } } },
+  { b: { y: { a: 1 } } },
+  { x: 1, b: { y: 1 } },
   [{ x: 1 }],
   [{ x: 1 }, { y: 1 }],
   [{ x: 1 }, { x: 2, y: 3 }],
@@ -408,6 +415,7 @@ const decided: { readonly [name: string]: readonly string[] } = {
     '{"a":1,"x":1}: the generated code hands out {"x":1}',
     '{"b":"s","x":1}: the generated code hands out {"x":1}',
     '{"a":1,"b":"s","x":1}: the generated code hands out {"x":1}',
+    '{"x":1,"b":{"y":1}}: the generated code hands out {"x":1}',
   ],
 }
 

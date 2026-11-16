@@ -1031,6 +1031,45 @@
                         "type": "integer"
                       }
                     }
+                  },
+                  "object_pattern_nested": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^x": {
+                        "type": "integer"
+                      }
+                    },
+                    "additionalProperties": {
+                      "type": "object",
+                      "patternProperties": {
+                        "^y": {
+                          "type": "integer"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "object_pattern_deep": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^x": {
+                        "type": "integer"
+                      }
+                    },
+                    "additionalProperties": {
+                      "type": "object",
+                      "properties": {
+                        "y": {
+                          "type": "object",
+                          "patternProperties": {
+                            "^z": {
+                              "type": "integer"
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      }
+                    }
                   }
                 }
               }

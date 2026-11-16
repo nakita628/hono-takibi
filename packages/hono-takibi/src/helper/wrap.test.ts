@@ -1213,7 +1213,7 @@ describe('wrap', () => {
           additionalProperties: { type: 'string' },
         }),
       ).toBe(
-        'z.looseObject({}).openapi({...{patternProperties:{"^x-":{"type":"integer"}},additionalProperties:{"type":"string"}}})',
+        'z.looseObject({}).openapi({...{patternProperties:{"^x-":{"type":"integer"}}},additionalProperties:{"type":"string"}})',
       )
     })
 
@@ -1234,7 +1234,7 @@ describe('wrap', () => {
           },
         ),
       ).toBe(
-        'z.looseObject({}).openapi({...{patternProperties:{"^x-":{"type":"integer"}},additionalProperties:{"type":"object","required":["id"],"properties":{"id":{"type":"integer"}}}}})',
+        'z.looseObject({}).openapi({...{patternProperties:{"^x-":{"type":"integer"}}},additionalProperties:{"type":"object","required":["id"],"properties":{"id":{"type":"integer"}}}})',
       )
     })
 
@@ -1327,20 +1327,71 @@ describe('wrap', () => {
       ).toBe('z.strictObject({})')
     })
 
-    it.concurrent('leaves a parameter to its own schema', () => {
+    // An object literal nested in a spread is type-checked again, so the keyword is brought
+    // by a spread of its own wherever an object that has it stands.
+    it.concurrent('spreads a patternProperties nested in additionalProperties', () => {
+      expect(
+        wrap('z.looseObject({})', {
+          type: 'object',
+          patternProperties: { '^x-': { type: 'integer' } },
+          additionalProperties: {
+            type: 'object',
+            patternProperties: { '^y-': { type: 'string' } },
+            properties: {
+              deep: { type: 'object', patternProperties: { '^z-': { type: 'boolean' } } },
+              plain: { type: 'string' },
+            },
+            items: { type: 'object', patternProperties: { '^i-': { type: 'integer' } } },
+            anyOf: [{ type: 'object', patternProperties: { '^a-': { type: 'integer' } } }],
+          },
+        }),
+      ).toBe(
+        'z.looseObject({}).openapi({...{patternProperties:{"^x-":{"type":"integer"}}},additionalProperties:{"type":"object",...{patternProperties:{"^y-":{"type":"string"}}},"properties":{"deep":{"type":"object",...{patternProperties:{"^z-":{"type":"boolean"}}}},"plain":{"type":"string"}},"items":{"type":"object",...{patternProperties:{"^i-":{"type":"integer"}}}},"anyOf":[{"type":"object",...{patternProperties:{"^a-":{"type":"integer"}}}}]}})',
+      )
+    })
+
+    it.concurrent("states a parameter's patternProperties in its schema", () => {
       const parameter: Parameter = {
         name: 'filter',
         in: 'query',
         required: true,
-        schema: { type: 'object', patternProperties: { '^x-': { type: 'integer' } } },
+        schema: {
+          type: 'object',
+          patternProperties: { '^x-': { type: 'integer' } },
+          additionalProperties: false,
+        },
       }
       expect(
         wrap(
           'z.looseObject({})',
-          { type: 'object', patternProperties: { '^x-': { type: 'integer' } } },
+          {
+            type: 'object',
+            patternProperties: { '^x-': { type: 'integer' } },
+            additionalProperties: false,
+          },
           { parameters: parameter },
         ),
-      ).not.toContain('patternProperties')
+      ).toBe(
+        'z.looseObject({}).openapi({param:{"name":"filter","in":"query","required":true,"schema":{"type":"object",...{patternProperties:{"^x-":{"type":"integer"}}},"additionalProperties":false}}})',
+      )
+    })
+
+    it.concurrent('a parameter schema without patternProperties is written as JSON', () => {
+      const parameter: Parameter = {
+        name: 'filter',
+        in: 'query',
+        required: true,
+        schema: { type: 'object', properties: { a: { type: 'integer' } } },
+      }
+      expect(
+        wrap(
+          'z.object({a:z.int().exactOptional()})',
+          { type: 'object', properties: { a: { type: 'integer' } } },
+          { parameters: parameter },
+        ),
+      ).toBe(
+        'z.object({a:z.int().exactOptional()}).openapi({param:{"name":"filter","in":"query","required":true,"schema":{"type":"object","properties":{"a":{"type":"integer"}}}}})',
+      )
     })
   })
 

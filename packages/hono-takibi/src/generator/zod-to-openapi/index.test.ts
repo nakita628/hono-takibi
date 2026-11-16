@@ -8782,7 +8782,7 @@ describe('zodToOpenAPI', () => {
           additionalProperties: { type: 'string' },
         }),
       ).toBe(
-        'z.looseObject({name:z.string().exactOptional()}).superRefine((o,ctx)=>{const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!["name"].includes(k)&&!["^x-"].some((p)=>new RegExp(p).test(k))){const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}).openapi({...{patternProperties:{"^x-":{"type":"integer"}},additionalProperties:{"type":"string"}},"required":[]})',
+        'z.looseObject({name:z.string().exactOptional()}).superRefine((o,ctx)=>{const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!["name"].includes(k)&&!["^x-"].some((p)=>new RegExp(p).test(k))){const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}).openapi({...{patternProperties:{"^x-":{"type":"integer"}}},additionalProperties:{"type":"string"},"required":[]})',
       )
     })
 
