@@ -8,7 +8,7 @@
     "check": "vp fmt --check && vp run -r check && pnpm lint",
     "fix": "vp fmt && vp run -r check --fix",
     "lint": "pnpm lint:actions && pnpm knip",
-    "knip": "knip",
+    "knip": "knip --treat-config-hints-as-errors",
     "lint:actions": "pnpm lint:actions:syntax && pnpm lint:actions:security",
     "lint:actions:syntax": "sh -c 'if command -v actionlint >/dev/null; then actionlint -ignore \"unexpected key .queue. for .concurrency.\"; elif [ -n \"$LINT_ACTIONS_REQUIRED\" ]; then echo \"actionlint is not installed\"; exit 1; else echo \"actionlint is not installed (pipx install actionlint-py); the Lint workflow runs it\"; fi'",
     "lint:actions:security": "sh -c 'if command -v zizmor >/dev/null; then zizmor .github/workflows; elif [ -n \"$LINT_ACTIONS_REQUIRED\" ]; then echo \"zizmor is not installed\"; exit 1; else echo \"zizmor is not installed (pipx install zizmor); the Lint workflow runs it\"; fi'",
