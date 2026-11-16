@@ -13,7 +13,7 @@ import {
 } from '../lib'
 import type { MockLocale, MockOptions, MockServer } from '../lib'
 
-const props = defineProps<{
+const { document: openapi } = defineProps<{
   readonly document: { readonly [key: string]: unknown }
 }>()
 
@@ -91,7 +91,7 @@ async function rebuild([source, mockOptions]: readonly [
   }
 }
 
-watch([() => props.document, options], rebuild, { immediate: true })
+watch([() => openapi, options], rebuild, { immediate: true })
 
 // Requests to this page's origin are answered in this page by the generated
 // app; anything else (a server the visitor typed into the reference) goes to
@@ -112,7 +112,7 @@ async function customFetch(input: string | URL | Request, init?: RequestInit) {
 const configuration = computed<Configuration>(() => ({
   // Scalar annotates the document it is given (its selected server, for one);
   // a copy keeps those marks out of the document the generator reads.
-  content: structuredClone(props.document),
+  content: structuredClone(openapi),
   servers: [{ url: MOCK_SERVER_URL, description: 'hono-takibi mock (answered in this page)' }],
   customFetch,
   proxyUrl: '',
