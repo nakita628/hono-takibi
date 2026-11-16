@@ -167,10 +167,18 @@ const SCHEMA_MAP_KEYS = new Set(['properties'])
  * literal (`null`, `true`) is a string; a 3.0-style `examples` map is its values. The output
  * is what `.openapi()` is handed, so nothing in it may fail to type-check.
  */
-function pruneSchemaObject(schema: unknown): unknown {
+function pruneSchemaObject(schema: unknown, patterns = false): unknown {
   if (!isRecord(schema)) return schema
   const pruned: { [k: string]: unknown } = {}
   for (const [key, value] of Object.entries(schema)) {
+    // Under a `patternProperties` written into the document (#452) the keyword is kept at
+    // every level: it is handed to `.openapi()` in a spread, which is not type-checked.
+    if (patterns && key === 'patternProperties' && isRecord(value)) {
+      pruned[key] = Object.fromEntries(
+        Object.entries(value).map(([pattern, sub]) => [pattern, pruneSchemaObject(sub, patterns)]),
+      )
+      continue
+    }
     if (value === undefined || !isSchemaObjectKey(key)) continue
     if (!hasSchemaObjectValueType(key, value)) continue
     if (key === 'required' && Array.isArray(value)) {
@@ -200,22 +208,64 @@ function pruneSchemaObject(schema: unknown): unknown {
       continue
     }
     if (SCHEMA_VALUED_KEYS.has(key)) {
-      pruned[key] = pruneSchemaObject(value)
+      pruned[key] = pruneSchemaObject(value, patterns)
       continue
     }
     if (SCHEMA_LIST_KEYS.has(key) && Array.isArray(value)) {
-      pruned[key] = value.map(pruneSchemaObject)
+      pruned[key] = value.map((sub) => pruneSchemaObject(sub, patterns))
       continue
     }
     if (SCHEMA_MAP_KEYS.has(key) && isRecord(value)) {
       pruned[key] = Object.fromEntries(
-        Object.entries(value).map(([name, sub]) => [name, pruneSchemaObject(sub)]),
+        Object.entries(value).map(([name, sub]) => [name, pruneSchemaObject(sub, patterns)]),
       )
       continue
     }
     pruned[key] = value
   }
   return pruned
+}
+
+/**
+ * A schema with every reference to a component written out as the component, at every
+ * level. What `patternProperties` holds reaches the document as metadata (#452), where a
+ * reference would name a component the document defines only when a route uses it. A
+ * reference `schemas` has not stays as written; one that leads back to itself is any value.
+ */
+function inlineSchemaRefs(
+  schema: unknown,
+  schemas: { readonly [k: string]: Schema } | undefined,
+  reading: ReadonlySet<string> = new Set(),
+): unknown {
+  if (!isRecord(schema)) return schema
+  const ref = schema.$ref
+  if (typeof ref === 'string') {
+    if (reading.has(ref)) return {}
+    const target = resolveSchemaRef(ref, schemas)
+    if (target === undefined) return schema
+    const { $ref: _ref, ...beside } = schema
+    return inlineSchemaRefs({ ...target, ...beside }, schemas, new Set([...reading, ref]))
+  }
+  return Object.fromEntries(
+    Object.entries(schema).map(([key, value]) => {
+      if (SCHEMA_VALUED_KEYS.has(key)) return [key, inlineSchemaRefs(value, schemas, reading)]
+      if (SCHEMA_LIST_KEYS.has(key) && Array.isArray(value)) {
+        return [key, value.map((sub: unknown) => inlineSchemaRefs(sub, schemas, reading))]
+      }
+      if ((SCHEMA_MAP_KEYS.has(key) || key === 'patternProperties') && isRecord(value)) {
+        return [
+          key,
+          Object.fromEntries(
+            Object.entries(value).map(([name, sub]) => [
+              name,
+              inlineSchemaRefs(sub, schemas, reading),
+            ]),
+          ),
+        ]
+      }
+      return [key, value]
+    }),
+  )
 }
 
 /**
@@ -896,6 +946,30 @@ export function wrap(
           : [`enum:${JSON.stringify([schema.const])}`]),
       ]
     : []
+  // `patternProperties` is checked in a refinement, which the document derives nothing
+  // from: an object that has it reads as one taking any key, or none (#452). So the keyword
+  // is stated, as the source has it. The argument of `.openapi()` has no such key (it is
+  // not in the Schema Object of 3.0 or 3.1 as typed), and an object literal that names it
+  // does not type-check; a spread is not checked for the keys it brings, and the document
+  // is handed whatever the metadata holds. `additionalProperties: false` is stated beside
+  // it, since the object is loose for the refinements to see the keys (#447).
+  const patternMetaProps =
+    meta?.parameters === undefined &&
+    meta?.headers === undefined &&
+    schema.patternProperties !== undefined &&
+    Object.keys(schema.patternProperties).length > 0
+      ? [
+          `...{patternProperties:${JSON.stringify(
+            Object.fromEntries(
+              Object.entries(schema.patternProperties).map(([pattern, sub]) => [
+                pattern,
+                pruneSchemaObject(inlineSchemaRefs(sub, options?.schemas), true),
+              ]),
+            ),
+          )}}`,
+          ...(schema.additionalProperties === false ? ['additionalProperties:false'] : []),
+        ]
+      : []
   // `.openapi()` on a wrapper — `.exactOptional()`, the `z.preprocess` that reads the wire —
   // hides the component inside it: the document then names the component in the
   // parameter's `$ref` and never defines it. On the component itself the metadata keeps
@@ -928,6 +1002,7 @@ export function wrap(
     ...fileMetaProps,
     ...timeMetaProps,
     ...bigintMetaProps,
+    ...patternMetaProps,
     openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
   ].filter((v) => v !== undefined)
   // https://github.com/OAI/OpenAPI-Specification/issues/2385

@@ -7512,7 +7512,7 @@ describe('zodToOpenAPI', () => {
               'x-patternProperties-message': 'S_ keys must be strings',
             }),
           ).toBe(
-            'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^S_");const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"S_ keys must be strings"})}}}})',
+            'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^S_");const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"S_ keys must be strings"})}}}}).openapi({...{patternProperties:{"^S_":{"type":"string"}}}})',
           )
           const runtime = z.looseObject({}).superRefine((o, ctx) => {
             // oxlint-disable-next-line require-unicode-regexp, prefer-regex-literals -- mirrors the regex the generator emits
@@ -8398,7 +8398,7 @@ describe('zodToOpenAPI', () => {
           },
         }),
       ).toBe(
-        'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^S:");const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}).superRefine((o,ctx)=>{const regex=new RegExp("^I:");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})',
+        'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^S:");const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}).superRefine((o,ctx)=>{const regex=new RegExp("^I:");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}).openapi({...{patternProperties:{"^S:":{"type":"string"},"^I:":{"type":"integer"}}}})',
       )
     })
 
@@ -8782,7 +8782,7 @@ describe('zodToOpenAPI', () => {
           patternProperties: { '^x_': { type: 'string' } },
         }),
       ).toBe(
-        'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^x_");const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})',
+        'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^x_");const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}).openapi({...{patternProperties:{"^x_":{"type":"string"}}}})',
       )
     })
   })
