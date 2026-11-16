@@ -141,6 +141,16 @@ async function onHashChange() {
   }
 }
 
+const address = ref('')
+
+// Opening an address goes through the hash, so the address bar holds the same
+// short link Share would copy. An unchanged hash fires no event; reload then.
+async function openAddress() {
+  const hash = encodeUrlShare(address.value.trim())
+  if (location.hash === hash) await onHashChange()
+  else location.hash = hash
+}
+
 onMounted(async () => {
   // Registered before the first await: leaving the page mid-load would
   // otherwise unmount first and leave this listener behind.
@@ -190,10 +200,10 @@ async function share() {
     shared.value = false
   }, 1500)
   if (url.length > SHARE_URL_WARN_LENGTH) {
-    shareNote.value = `${url.length.toLocaleString('en-US')} characters — a link this long can be cut off where you paste it`
+    shareNote.value = `${url.length.toLocaleString('en-US')} characters — a link this long can be cut off where you paste it. For a short one, host the file and open it by URL.`
     setTimeout(() => {
       shareNote.value = ''
-    }, 6000)
+    }, 10_000)
   }
 }
 
@@ -243,7 +253,22 @@ const outputOptions = { ...editorOptions, readOnly: true }
           {{ v.label }}
         </button>
       </div>
-      <span class="flex-1" />
+      <form class="flex min-w-48 flex-1 gap-2" @submit.prevent="openAddress">
+        <input
+          v-model="address"
+          class="pg-url min-w-0 flex-1 rounded-md border border-(--vp-c-divider) bg-(--vp-c-bg) px-2 py-1 text-(--vp-c-text-1) placeholder:text-(--vp-c-text-3)"
+          type="url"
+          required
+          placeholder="Open a spec by URL — a GitHub file page works"
+          aria-label="URL of a spec to open"
+        />
+        <button
+          class="pg-button rounded-md border border-(--vp-c-divider) bg-(--vp-c-bg-soft) px-3 py-1 text-(--vp-c-text-1) hover:border-(--vp-c-brand-1) hover:text-(--vp-c-brand-1)"
+          type="submit"
+        >
+          Open
+        </button>
+      </form>
       <span v-if="shareNote" class="pg-share-note text-(--vp-c-text-2)">{{ shareNote }}</span>
       <button
         class="pg-button rounded-md border border-(--vp-c-divider) bg-(--vp-c-bg-soft) px-3 py-1 text-(--vp-c-text-1) hover:border-(--vp-c-brand-1) hover:text-(--vp-c-brand-1)"

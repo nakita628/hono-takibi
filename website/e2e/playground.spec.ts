@@ -405,6 +405,33 @@ test.describe('Playground', () => {
     )
   })
 
+  test('opens the address typed into the toolbar and puts the link in the address bar', async ({
+    page,
+  }) => {
+    await page.route('https://spec.example/openapi.yaml', (route) =>
+      route.fulfill({
+        body: YAML_SOURCE,
+        contentType: 'text/yaml',
+        headers: { 'access-control-allow-origin': '*' },
+      }),
+    )
+    await page.goto('/playground')
+    await expect(page.locator('.pg-pane').nth(1)).toContainText('welcome')
+    await page.locator('.pg-url').fill('https://spec.example/openapi.yaml')
+    await page.locator('.pg-url').press('Enter')
+    await expect(page.locator('.pg-select')).toHaveValue('OpenAPI (YAML)')
+    await expect(page.locator('.pg-pane').first()).toContainText('openapi:')
+    await expect(page).toHaveURL(
+      'http://localhost:4173/playground#url=https://spec.example/openapi.yaml',
+    )
+    // Opening the same address again changes no hash, and still reloads it.
+    await page.locator('.pg-select').selectOption('TypeSpec')
+    await expect(page.locator('.pg-pane').first()).toContainText('@service')
+    await page.locator('.pg-button', { hasText: 'Open' }).click()
+    await expect(page.locator('.pg-select')).toHaveValue('OpenAPI (YAML)')
+    await expect(page.locator('.pg-pane').first()).toContainText('openapi:')
+  })
+
   test('reads a GitHub file page address from the raw host', async ({ page }) => {
     await page.route(
       'https://raw.githubusercontent.com/owner/repo/main/api/openapi.yaml',
@@ -457,7 +484,7 @@ test.describe('Playground', () => {
     await expect(page.locator('.pg-pane').first()).toContainText('openapi:')
     await page.locator('.pg-button', { hasText: /^(Share|Copied URL!)$/u }).click()
     await expect(page.locator('.pg-share-note')).toContainText(
-      'a link this long can be cut off where you paste it',
+      'a link this long can be cut off where you paste it. For a short one, host the file and open it by URL.',
     )
   })
 })
