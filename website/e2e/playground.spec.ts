@@ -381,6 +381,7 @@ test.describe('Playground', () => {
     }, hash)
     await expect(page.locator('.pg-select')).toHaveValue('OpenAPI (YAML)')
     await expect(page.locator('.pg-pane').first()).toContainText('openapi:')
+    await expect(page.locator('.pg-pane').nth(1)).toContainText('Welcome')
     await expectCopiedOutput(page, EXPECTED)
   })
 
@@ -395,12 +396,30 @@ test.describe('Playground', () => {
     await page.goto('/playground#url=https://spec.example/openapi.yaml')
     await expect(page.locator('.pg-select')).toHaveValue('OpenAPI (YAML)')
     await expect(page.locator('.pg-pane').first()).toContainText('openapi:')
+    await expect(page.locator('.pg-pane').nth(1)).toContainText('Welcome')
     await expectCopiedOutput(page, EXPECTED)
     await page.locator('.pg-button', { hasText: 'Share' }).click()
     await expect(page.locator('.pg-button', { hasText: 'Copied URL!' })).toBeVisible()
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
       'http://localhost:4173/playground#url=https://spec.example/openapi.yaml',
     )
+  })
+
+  test('reads a GitHub file page address from the raw host', async ({ page }) => {
+    await page.route(
+      'https://raw.githubusercontent.com/owner/repo/main/api/openapi.yaml',
+      (route) =>
+        route.fulfill({
+          body: YAML_SOURCE,
+          contentType: 'text/plain',
+          headers: { 'access-control-allow-origin': '*' },
+        }),
+    )
+    await page.goto('/playground#url=https://github.com/owner/repo/blob/main/api/openapi.yaml')
+    await expect(page.locator('.pg-select')).toHaveValue('OpenAPI (YAML)')
+    await expect(page.locator('.pg-pane').first()).toContainText('openapi:')
+    await expect(page.locator('.pg-pane').nth(1)).toContainText('Welcome')
+    await expectCopiedOutput(page, EXPECTED)
   })
 
   test('reports a #url= link that cannot be loaded', async ({ page }) => {

@@ -71,13 +71,25 @@ function inferMode(pathname: string, source: string): Mode {
   return source.trimStart().startsWith('{') ? 'json' : 'yaml'
 }
 
+// The address copied from a file's page on GitHub serves HTML without CORS
+// headers; the same file is readable from the raw host.
+function toFetchable(url: URL) {
+  const match =
+    url.hostname === 'github.com'
+      ? /^\/([^/]+)\/([^/]+)\/(?:blob|raw)\/(.+)$/u.exec(url.pathname)
+      : null
+  return match
+    ? new URL(`https://raw.githubusercontent.com/${match[1]}/${match[2]}/${match[3]}`)
+    : url
+}
+
 async function fetchShare(address: string): Promise<Decoded> {
   const url = URL.canParse(address) ? new URL(address) : null
   if (!url || !/^https?:$/u.test(url.protocol)) {
     return { ok: false, error: `Cannot load ${address}: not an http(s) URL` }
   }
   try {
-    const response = await fetch(url, { credentials: 'omit' })
+    const response = await fetch(toFetchable(url), { credentials: 'omit' })
     if (!response.ok) {
       return { ok: false, error: `Cannot load ${url.href}: HTTP ${response.status}` }
     }
