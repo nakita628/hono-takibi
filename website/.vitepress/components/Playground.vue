@@ -142,6 +142,9 @@ async function onHashChange() {
 }
 
 onMounted(async () => {
+  // Registered before the first await: leaving the page mid-load would
+  // otherwise unmount first and leave this listener behind.
+  globalThis.addEventListener('hashchange', onHashChange)
   // The TypeSpec context registers the editor language and the `typespec` /
   // `typespec-dark` themes, so both editors wait for it alongside monaco.
   const [monaco, , restored] = await Promise.all([
@@ -159,7 +162,6 @@ onMounted(async () => {
   await run()
   // A successful run clears the error, so a failed share is reported after it.
   if (restored && !restored.ok) error.value = restored.error
-  globalThis.addEventListener('hashchange', onHashChange)
 })
 
 onUnmounted(() => {
