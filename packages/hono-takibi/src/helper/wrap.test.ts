@@ -1203,16 +1203,49 @@ describe('wrap', () => {
       )
     })
 
-    it.concurrent('leaves additionalProperties to the chain when it is not false', () => {
+    // #454: beside patternProperties the object is loose, so a schema-valued
+    // additionalProperties is stated too, references written out like the patterns'.
+    it.concurrent('states a schema-valued additionalProperties beside it', () => {
       expect(
-        wrap('z.record(z.string(),z.string())', {
+        wrap('z.looseObject({})', {
           type: 'object',
           patternProperties: { '^x-': { type: 'integer' } },
           additionalProperties: { type: 'string' },
         }),
       ).toBe(
-        'z.record(z.string(),z.string()).openapi({...{patternProperties:{"^x-":{"type":"integer"}}}})',
+        'z.looseObject({}).openapi({...{patternProperties:{"^x-":{"type":"integer"}},additionalProperties:{"type":"string"}}})',
       )
+    })
+
+    it.concurrent('writes a component additionalProperties refers to out', () => {
+      expect(
+        wrap(
+          'z.looseObject({})',
+          {
+            type: 'object',
+            patternProperties: { '^x-': { type: 'integer' } },
+            additionalProperties: { $ref: '#/components/schemas/Tag' },
+          },
+          undefined,
+          {
+            schemas: {
+              Tag: { type: 'object', required: ['id'], properties: { id: { type: 'integer' } } },
+            },
+          },
+        ),
+      ).toBe(
+        'z.looseObject({}).openapi({...{patternProperties:{"^x-":{"type":"integer"}},additionalProperties:{"type":"object","required":["id"],"properties":{"id":{"type":"integer"}}}}})',
+      )
+    })
+
+    it.concurrent('leaves additionalProperties: true to the chain', () => {
+      expect(
+        wrap('z.looseObject({})', {
+          type: 'object',
+          patternProperties: { '^x-': { type: 'integer' } },
+          additionalProperties: true,
+        }),
+      ).toBe('z.looseObject({}).openapi({...{patternProperties:{"^x-":{"type":"integer"}}}})')
     })
 
     it.concurrent('writes a referenced component out, so the document needs no definition', () => {

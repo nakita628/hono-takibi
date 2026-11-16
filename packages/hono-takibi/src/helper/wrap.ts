@@ -951,8 +951,9 @@ export function wrap(
   // is stated, as the source has it. The argument of `.openapi()` has no such key (it is
   // not in the Schema Object of 3.0 or 3.1 as typed), and an object literal that names it
   // does not type-check; a spread is not checked for the keys it brings, and the document
-  // is handed whatever the metadata holds. `additionalProperties: false` is stated beside
-  // it, since the object is loose for the refinements to see the keys (#447).
+  // is handed whatever the metadata holds. `additionalProperties` is stated beside it when
+  // it is `false` or a schema, since the object is then loose for the refinements to see
+  // the keys (#447, #454); a schema goes into the spread, for what it may hold in turn.
   const patternMetaProps =
     meta?.parameters === undefined &&
     meta?.headers === undefined &&
@@ -966,7 +967,16 @@ export function wrap(
                 pruneSchemaObject(inlineSchemaRefs(sub, options?.schemas), true),
               ]),
             ),
-          )}}`,
+          )}${
+            typeof schema.additionalProperties === 'object'
+              ? `,additionalProperties:${JSON.stringify(
+                  pruneSchemaObject(
+                    inlineSchemaRefs(schema.additionalProperties, options?.schemas),
+                    true,
+                  ),
+                )}`
+              : ''
+          }}`,
           ...(schema.additionalProperties === false ? ['additionalProperties:false'] : []),
         ]
       : []

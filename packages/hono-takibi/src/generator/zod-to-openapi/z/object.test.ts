@@ -178,7 +178,7 @@ describe('object', () => {
           patternProperties: { '^x-': { type: 'string' } },
           'x-patternProperties-message': 'x- keys must be strings',
         },
-        'z.record(z.string(),z.number()).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"x- keys must be strings"})}}}})',
+        'z.looseObject({}).superRefine((o,ctx)=>{const Schema=z.number();for(const [k,val] of Object.entries(o)){if(!["^x-"].some((p)=>new RegExp(p).test(k))){const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"x- keys must be strings"})}}}})',
       ],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)
@@ -272,7 +272,7 @@ describe('object', () => {
           'x-patternProperties-message': 'x_の値は整数のみ',
           'x-propertyNames-message': 'キー名は英小文字とアンダースコアのみ',
         },
-        'z.record(z.string(),z.number()).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z_]+$");for(const k of Object.keys(o)){if(!regex.test(k)){ctx.addIssue({code:"custom",path:[k],message:"キー名は英小文字とアンダースコアのみ"})}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x_");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"x_の値は整数のみ"})}}}})',
+        'z.looseObject({}).superRefine((o,ctx)=>{const Schema=z.number();for(const [k,val] of Object.entries(o)){if(!["^x_"].some((p)=>new RegExp(p).test(k))){const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}}).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z_]+$");for(const k of Object.keys(o)){if(!regex.test(k)){ctx.addIssue({code:"custom",path:[k],message:"キー名は英小文字とアンダースコアのみ"})}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x_");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"x_の値は整数のみ"})}}}})',
       ],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)
@@ -630,6 +630,137 @@ describe('object', () => {
       expect(WithDeclared.safeParse({ name: 'a', 'x-1': 2 }).success).toBe(true)
       expect(WithDeclared.safeParse({ name: 'a', y: 1 }).success).toBe(false)
       expect(WithDeclared.safeParse({ name: 'a', 'x-1': 's' }).success).toBe(false)
+    })
+  })
+
+  describe('patternProperties + schema-valued additionalProperties (#454)', () => {
+    // JSON Schema 2020-12 §10.3.2.3: additionalProperties applies only to keys
+    // matched by neither properties nor patternProperties. `z.record(z.string(), X)`
+    // and `.catchall(X)` hold every undeclared key to X, the pattern-matched ones
+    // among them, so the base is looseObject and the remaining keys are held to X
+    // in a superRefine.
+    it.concurrent('codegen: no properties → looseObject + additional-key superRefine', () => {
+      expect(
+        object({
+          type: 'object',
+          patternProperties: { '^x-': { type: 'integer' } },
+          additionalProperties: { type: 'string' },
+        }),
+      ).toBe(
+        'z.looseObject({}).superRefine((o,ctx)=>{const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!["^x-"].some((p)=>new RegExp(p).test(k))){const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})',
+      )
+    })
+
+    it.concurrent('codegen: declared properties are not held to the additional schema', () => {
+      expect(
+        object({
+          type: 'object',
+          properties: { name: { type: 'string' } },
+          required: ['name'],
+          patternProperties: { '^x-': { type: 'integer' } },
+          additionalProperties: { type: 'boolean' },
+        }),
+      ).toBe(
+        'z.looseObject({name:z.string()}).superRefine((o,ctx)=>{const Schema=z.boolean();for(const [k,val] of Object.entries(o)){if(!["name"].includes(k)&&!["^x-"].some((p)=>new RegExp(p).test(k))){const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})',
+      )
+    })
+
+    it.concurrent('codegen: without patternProperties the record and the catchall stay', () => {
+      expect(object({ type: 'object', additionalProperties: { type: 'string' } })).toBe(
+        'z.record(z.string(),z.string())',
+      )
+      expect(
+        object({
+          type: 'object',
+          properties: { name: { type: 'string' } },
+          required: ['name'],
+          additionalProperties: { type: 'string' },
+        }),
+      ).toBe('z.object({name:z.string()}).catchall(z.string())')
+      expect(
+        object({
+          type: 'object',
+          patternProperties: {},
+          additionalProperties: { type: 'string' },
+        }),
+      ).toBe('z.record(z.string(),z.string())')
+    })
+
+    // Runtime checks: the emitted schema mirrored by hand (repo convention, no
+    // `new Function` / `eval`).
+    const Mixed = z
+      .looseObject({ name: z.string() })
+      .superRefine((o, ctx) => {
+        const Schema = z.boolean()
+        for (const [k, val] of Object.entries(o)) {
+          // oxlint-disable-next-line require-unicode-regexp -- mirrors the regex the generator emits
+          if (!['name'].includes(k) && !['^x-'].some((p) => new RegExp(p).test(k))) {
+            const result = Schema.safeParse(val)
+            if (!result.success) {
+              for (const issue of result.error.issues) {
+                ctx.addIssue({ ...issue, path: [k, ...issue.path] })
+              }
+            }
+          }
+        }
+      })
+      .superRefine((o, ctx) => {
+        // oxlint-disable-next-line require-unicode-regexp, prefer-regex-literals -- mirrors the regex the generator emits
+        const regex = new RegExp('^x-')
+        const Schema = z.int()
+        for (const [k, val] of Object.entries(o)) {
+          // oxlint-disable-next-line typescript/prefer-string-starts-ends-with -- mirrors the emitted code verbatim
+          if (!regex.test(k)) {
+            continue
+          }
+          const result = Schema.safeParse(val)
+          if (!result.success) {
+            for (const issue of result.error.issues) {
+              ctx.addIssue({ ...issue, path: [k, ...issue.path] })
+            }
+          }
+        }
+      })
+
+    it.concurrent('runtime: a pattern key is held to its pattern schema alone', () => {
+      expect(Mixed.safeParse({ name: 'a', 'x-a': 1 }).success).toBe(true)
+      const result = Mixed.safeParse({ name: 'a', 'x-a': true })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
+          {
+            expected: 'number',
+            code: 'invalid_type',
+            path: ['x-a'],
+            message: 'Invalid input: expected number, received boolean',
+          },
+        ])
+      }
+    })
+
+    it.concurrent('runtime: a declared key is held to its own schema alone', () => {
+      expect(Mixed.safeParse({ name: 'a' }).success).toBe(true)
+      expect(Mixed.safeParse({ name: true }).success).toBe(false)
+    })
+
+    it.concurrent('runtime: any other key is held to the additional schema, as a catchall holds it', () => {
+      expect(Mixed.safeParse({ name: 'a', y: true }).success).toBe(true)
+      const result = Mixed.safeParse({ name: 'a', y: 1, 'x-a': 1 })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
+          {
+            expected: 'boolean',
+            code: 'invalid_type',
+            path: ['y'],
+            message: 'Invalid input: expected boolean, received number',
+          },
+        ])
+        expect(result.error.issues).toStrictEqual(
+          z.object({ name: z.string() }).catchall(z.boolean()).safeParse({ name: 'a', y: 1 }).error
+            ?.issues,
+        )
+      }
     })
   })
 
