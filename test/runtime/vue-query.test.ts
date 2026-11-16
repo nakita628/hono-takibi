@@ -30,7 +30,10 @@ vi.stubGlobal('fetch', fetchOf(host))
 
 // Long enough for a request to the in-process host to settle.
 // プロセス内のホストへのリクエストが完了するのに十分な待ち時間。
-const settle = () => new Promise((resolve) => setTimeout(resolve, 50))
+const settle = () =>
+  new Promise((resolve) => {
+    setTimeout(resolve, 50)
+  })
 
 /**
  * Runs `setup` the way a component would: with the query client injectable and a scope to

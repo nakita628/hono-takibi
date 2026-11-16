@@ -7,7 +7,8 @@ import type { InferRequestType, InferResponseType } from 'hono/client'
 import { hc } from 'hono/client'
 
 import type routes from '../__generated__/type-ref/type'
-import { type Equal, type IsAssignable, type NotAny, assertType } from './assert'
+import { assertType } from './assert'
+import type { Equal, IsAssignable, NotAny } from './assert'
 
 const client = hc<typeof routes>('http://localhost')
 

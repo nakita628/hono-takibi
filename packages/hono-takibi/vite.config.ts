@@ -40,8 +40,10 @@ export default defineConfig({
     // (`no-undef`, `unicorn/prefer-global-this`) tell `process` apart from a typo.
     env: { node: true, es2024: true },
     // Setting `plugins` replaces oxlint's default list — restate the defaults, then add
-    // import / promise / node.
-    plugins: ['typescript', 'unicorn', 'oxc', 'import', 'promise', 'node', 'jsdoc'],
+    // import / promise / node, and jest for the tests: its rules read `describe` / `it` /
+    // `expect` by name, which is how the tests call them through `vite-plus/test`, and it has
+    // rules the vitest plugin has no counterpart of (`no-restricted-matchers`, `no-export`).
+    plugins: ['typescript', 'unicorn', 'oxc', 'import', 'promise', 'node', 'jsdoc', 'jest'],
     // The repository conventions a glob cannot express (Effect program shape, function
     // declarations, predicate naming); see lint/custom.js.
     jsPlugins: ['./lint/custom.js'],
@@ -68,6 +70,40 @@ export default defineConfig({
     // `categories` above and are not restated; this list only adds rules from the
     // pedantic / style / restriction / nursery categories, which no category enables.
     rules: {
+      // The tests (jest plugin). Codegen tests own a byte-for-byte contract: equality is strict,
+      // a primitive is compared with toBe, and nothing is a snapshot — the expected text is in
+      // the test, where a reviewer reads it. A test runs, is named once, and asserts
+      // unconditionally.
+      'jest/valid-expect': ['error', { maxArgs: 2 }],
+      'jest/no-identical-title': 'error',
+      'jest/no-disabled-tests': 'error',
+      'jest/no-focused-tests': 'error',
+      'jest/no-duplicate-hooks': 'error',
+      'jest/no-test-return-statement': 'error',
+      // A hook that sets up a directory or a server asserts that it did.
+      'jest/no-standalone-expect': [
+        'error',
+        { additionalTestBlockFunctions: ['beforeAll', 'beforeEach', 'afterAll', 'afterEach'] },
+      ],
+      'jest/no-done-callback': 'error',
+      'jest/no-export': 'error',
+      'jest/no-alias-methods': 'error',
+      'jest/prefer-to-be': 'error',
+      'jest/prefer-strict-equal': 'error',
+      'jest/prefer-to-have-length': 'error',
+      'jest/prefer-equality-matcher': 'error',
+      'jest/prefer-comparison-matcher': 'error',
+      'jest/prefer-todo': 'error',
+      'jest/no-restricted-matchers': [
+        'error',
+        {
+          toMatchSnapshot: 'Write the expected value out with toBe / toStrictEqual.',
+          toMatchInlineSnapshot: 'Write the expected value out with toBe / toStrictEqual.',
+          toThrowErrorMatchingSnapshot: 'Name the error the call throws.',
+          toThrowErrorMatchingInlineSnapshot: 'Name the error the call throws.',
+          toEqual: 'Use toStrictEqual: toEqual passes on undefined properties and other classes.',
+        },
+      ],
       'custom/effect-gen-return': 'error',
       'custom/no-effect-fn': 'error',
       'custom/no-effect-flatmap': 'error',
@@ -356,6 +392,10 @@ export default defineConfig({
       'import/unambiguous': 'error',
       'import/no-commonjs': 'error',
       'import/no-named-default': 'error',
+      // A namespace import hides which names a module takes from another. The modules of
+      // `@effect/platform-node` are the exception: each is named for the service it provides
+      // (`NodeFileSystem.layer`), which is how Effect's own code and documentation spell them.
+      'import/no-namespace': ['error', { ignore: ['@effect/platform-node/*'] }],
       'import/no-unassigned-import': 'error',
       'import/no-named-as-default': 'error',
       'import/no-anonymous-default-export': 'error',
@@ -558,6 +598,12 @@ export default defineConfig({
       'jsdoc/require-param-name': 'error',
       'jsdoc/require-param-description': 'error',
       'jsdoc/require-returns-description': 'error',
+      'jsdoc/check-property-names': 'error',
+      'jsdoc/implements-on-classes': 'error',
+      'jsdoc/no-defaults': 'error',
+      'jsdoc/require-property': 'error',
+      'jsdoc/require-property-description': 'error',
+      'jsdoc/require-property-name': 'error',
       'jsdoc/require-throws-description': 'error',
       'jsdoc/require-yields-description': 'error',
 
@@ -836,6 +882,11 @@ export default defineConfig({
           // sit in the correctness / suspicious categories, so enabling the plugin is enough.
           // The suite asserts inside try/catch and conditionals throughout (~600 sites).
           'vitest/no-conditional-expect': 'off',
+          'jest/no-conditional-expect': 'off',
+          // The jest plugin does not know vitest's `describe(name, options, fn)`, and reports
+          // the options object as a callback that is not a function. `vitest/valid-describe-callback`
+          // reads the signature as it is.
+          'jest/valid-describe-callback': 'off',
           // Fixtures feed and assert on source text that contains a literal `${...}`;
           // there that is the value under test, not a lost backtick.
           'no-template-curly-in-string': 'off',

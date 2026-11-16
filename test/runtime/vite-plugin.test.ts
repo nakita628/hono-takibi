@@ -20,13 +20,12 @@
 // 他のファイルに漏れることはない。
 import { existsSync, readFileSync, rmSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { honoTakibiVite } from 'hono-takibi/vite-plugin'
 import { createServer } from 'vite'
 import { afterAll, expect, it, vi } from 'vite-plus/test'
 
-const testRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const testRoot = path.resolve(import.meta.dirname, '..')
 const caseDir = path.join(testRoot, 'cases', 'vite-plugin')
 const routesFile = path.join(testRoot, '__generated__', 'vite-plugin', 'routes.ts')
 const originalCwd = process.cwd()

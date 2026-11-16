@@ -774,7 +774,7 @@ describe('options: seed and locale', () => {
   it('draws from the configured locale', async () => {
     const res = await seededApp.request('/users/1', { headers: { 'X-API-Key': 'key' } })
     const body = (await res.json()) as { 'first-name': string }
-    expect(body['first-name']).not.toMatch(/[A-Za-z]/)
+    expect(body['first-name']).not.toMatch(/[A-Za-z]/u)
     expect(body['first-name'].length).toBeGreaterThan(0)
   })
 

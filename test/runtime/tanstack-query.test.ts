@@ -80,7 +80,7 @@ describe('generated queryOptions', () => {
     const opts = getUsersIdQueryOptions({ param: { id: '999' }, header: {} })
     const captured = await queryClient.query(opts).then(
       () => null,
-      (e: unknown) => e,
+      (error: unknown) => error,
     )
     expect(captured).toBeInstanceOf(DetailedError)
     expect((captured as DetailedError).statusCode).toBe(404)
@@ -261,7 +261,7 @@ describe('generated mutationOptions', () => {
       )
       .then(
         () => null,
-        (e: unknown) => e,
+        (error: unknown) => error,
       )
     expect(captured).toBeInstanceOf(DetailedError)
     expect((captured as DetailedError).statusCode).toBe(400)
@@ -324,11 +324,17 @@ describe('fetch cancellation', () => {
   it('queryFn forwards the abort signal to the underlying request', async () => {
     const queryClient = makeClient()
     const opts = getSlowQueryOptions()
-    const pending = queryClient.query(opts).then(
-      () => null,
-      (e: unknown) => e,
-    )
-    await new Promise((resolve) => setTimeout(resolve, 10))
+    const pending = (async (): Promise<unknown> => {
+      try {
+        await queryClient.query(opts)
+        return null
+      } catch (error) {
+        return error
+      }
+    })()
+    await new Promise((resolve) => {
+      setTimeout(resolve, 10)
+    })
     await queryClient.cancelQueries({ queryKey: opts.queryKey })
     expect(await pending).toBeInstanceOf(Error)
     await vi.waitFor(() => {

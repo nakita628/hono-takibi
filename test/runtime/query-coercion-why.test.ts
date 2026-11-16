@@ -248,7 +248,7 @@ const getCoerceIdRoute = createRoute({
     params: z.object({
       id: z
         .preprocess(
-          (val) => (typeof val === 'string' && /^-?\d+$/.test(val) ? BigInt(val) : val),
+          (val) => (typeof val === 'string' && /^-?\d+$/u.test(val) ? BigInt(val) : val),
           z.int64(),
         )
         .openapi({
@@ -320,7 +320,7 @@ const getSearchRoute = createRoute({
       limit: z
         .preprocess(
           (val) =>
-            typeof val === 'string' && /^-?\d+$/.test(val) && Number.isSafeInteger(Number(val))
+            typeof val === 'string' && /^-?\d+$/u.test(val) && Number.isSafeInteger(Number(val))
               ? Number(val)
               : val,
           z.int(),
@@ -344,7 +344,7 @@ const getSearchRoute = createRoute({
           z.array(
             z.preprocess(
               (val) =>
-                typeof val === 'string' && /^-?\d+$/.test(val) && Number.isSafeInteger(Number(val))
+                typeof val === 'string' && /^-?\d+$/u.test(val) && Number.isSafeInteger(Number(val))
                   ? Number(val)
                   : val,
               z.int(),

@@ -60,7 +60,7 @@ export const app = new Hono()
     '/items',
     validator('query', (value, c) => {
       const page = value.page
-      if (typeof page !== 'string' || !/^\d+$/.test(page)) {
+      if (typeof page !== 'string' || !/^\d+$/u.test(page)) {
         return c.json({ error: 'page must be a non-negative integer' }, 400)
       }
       return { page }
@@ -75,7 +75,9 @@ export const app = new Hono()
   )
   .get('/slow', async (c) => {
     requestLog.push('GET /slow')
-    await new Promise((resolve) => setTimeout(resolve, 50))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50)
+    })
     abortLog.push(c.req.raw.signal.aborted)
     return c.json({ ok: true })
   })

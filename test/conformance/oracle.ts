@@ -69,8 +69,8 @@ function isOfType(type: unknown, value: Json): boolean {
  * `$ref` をたどり、それが指すコンポーネントスキーマを返す。
  */
 export function resolve(schema: unknown, schemas: Schemas): unknown {
-  if (!isRecord(schema) || typeof schema['$ref'] !== 'string') return schema
-  const name = schema['$ref'].replace('#/components/schemas/', '')
+  if (!isRecord(schema) || typeof schema.$ref !== 'string') return schema
+  const name = schema.$ref.replace('#/components/schemas/', '')
   return resolve(schemas[name], schemas)
 }
 
@@ -87,19 +87,19 @@ export function accepts(schema: unknown, value: Json, schemas: Schemas): boolean
   if (schema === true) return true
   if (schema === false) return false
   if (!isRecord(schema)) return true
-  if (typeof schema['$ref'] === 'string') return accepts(resolve(schema, schemas), value, schemas)
+  if (typeof schema.$ref === 'string') return accepts(resolve(schema, schemas), value, schemas)
   const valid = (child: unknown, item: Json) => accepts(child, item, schemas)
 
-  const type = schema['type']
+  const type = schema.type
   if (type !== undefined) {
     const types: readonly unknown[] = Array.isArray(type) ? type : [type]
     if (!types.some((one) => isOfType(one, value))) return false
   }
-  const members = schema['enum']
+  const members = schema.enum
   if (Array.isArray(members) && !members.some((member: Json) => isSame(member, value))) {
     return false
   }
-  if ('const' in schema && !isSame(schema['const'] as Json, value)) return false
+  if ('const' in schema && !isSame(schema.const as Json, value)) return false
 
   if (typeof value === 'number') {
     const { minimum, maximum, exclusiveMinimum, exclusiveMaximum, multipleOf } = schema
@@ -109,7 +109,7 @@ export function accepts(schema: unknown, value: Json, schemas: Schemas): boolean
     if (typeof exclusiveMaximum === 'number' && value >= exclusiveMaximum) return false
     if (typeof multipleOf === 'number' && !Number.isInteger(value / multipleOf)) return false
     // `format: int32` bounds an integer to 32 bits (OpenAPI 3.1, data type formats).
-    if (schema['format'] === 'int32' && (value < -2147483648 || value > 2147483647)) return false
+    if (schema.format === 'int32' && (value < -2_147_483_648 || value > 2_147_483_647)) return false
   }
   if (typeof value === 'string') {
     const { minLength, maxLength, pattern } = schema
@@ -123,9 +123,7 @@ export function accepts(schema: unknown, value: Json, schemas: Schemas): boolean
   if (Array.isArray(value)) {
     const items: readonly Json[] = value
     const { minItems, maxItems, uniqueItems } = schema
-    const prefix: readonly unknown[] = Array.isArray(schema['prefixItems'])
-      ? schema['prefixItems']
-      : []
+    const prefix: readonly unknown[] = Array.isArray(schema.prefixItems) ? schema.prefixItems : []
     if (typeof minItems === 'number' && items.length < minItems) return false
     if (typeof maxItems === 'number' && items.length > maxItems) return false
     if (
@@ -139,24 +137,29 @@ export function accepts(schema: unknown, value: Json, schemas: Schemas): boolean
     }
     if (
       'items' in schema &&
-      !items.slice(prefix.length).every((item) => valid(schema['items'], item))
+      !items.slice(prefix.length).every((item) => valid(schema.items, item))
     ) {
       return false
     }
   }
   if (isJsonObject(value)) {
-    const properties = isRecord(schema['properties']) ? schema['properties'] : {}
-    const required: readonly unknown[] = Array.isArray(schema['required']) ? schema['required'] : []
+    const properties = isRecord(schema.properties) ? schema.properties : {}
+    const required: readonly unknown[] = Array.isArray(schema.required) ? schema.required : []
     if (!required.every((key) => typeof key === 'string' && key in value)) return false
     // A key is held to the property that names it and to every pattern that matches it;
     // `additionalProperties` is for the keys neither reaches (JSON Schema 2020-12 §10.3.2).
-    const patterns = isRecord(schema['patternProperties']) ? schema['patternProperties'] : {}
+    const patterns = isRecord(schema.patternProperties) ? schema.patternProperties : {}
     for (const [key, item] of Object.entries(value)) {
       const matched = Object.keys(patterns).filter((pattern) => new RegExp(pattern, 'u').test(key))
       if (key in properties && !valid(properties[key], item)) return false
       if (!matched.every((pattern) => valid(patterns[pattern], item))) return false
-      if (!(key in properties) && matched.length === 0 && 'additionalProperties' in schema) {
-        if (!valid(schema['additionalProperties'], item)) return false
+      if (
+        !(key in properties) &&
+        matched.length === 0 &&
+        'additionalProperties' in schema &&
+        !valid(schema.additionalProperties, item)
+      ) {
+        return false
       }
     }
     const { minProperties, maxProperties, propertyNames, dependentRequired } = schema
@@ -179,15 +182,15 @@ export function accepts(schema: unknown, value: Json, schemas: Schemas): boolean
     }
   }
 
-  const allOf = schema['allOf']
+  const allOf = schema.allOf
   if (Array.isArray(allOf) && !allOf.every((branch) => valid(branch, value))) return false
-  const anyOf = schema['anyOf']
+  const anyOf = schema.anyOf
   if (Array.isArray(anyOf) && !anyOf.some((branch) => valid(branch, value))) return false
-  const oneOf = schema['oneOf']
+  const oneOf = schema.oneOf
   if (Array.isArray(oneOf) && oneOf.filter((branch) => valid(branch, value)).length !== 1) {
     return false
   }
-  if ('not' in schema && valid(schema['not'], value)) return false
+  if ('not' in schema && valid(schema.not, value)) return false
   return true
 }
 
