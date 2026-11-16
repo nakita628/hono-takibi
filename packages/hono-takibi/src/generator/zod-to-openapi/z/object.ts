@@ -172,22 +172,27 @@ export function object(
   // additionalProperties: false with patternProperties (#447): the base is
   // looseObject, so undeclared keys that match no pattern are rejected here
   // instead of by strictObject (which would also reject pattern-matched keys).
-  // Message precedence follows makeObjectChecks in helper/zod.ts:
-  // x-additionalProperties-message > x-error-message > Zod default.
+  // The issue is the one strictObject raises (#449): a single `unrecognized_keys`
+  // naming every such key, with Zod's own message unless
+  // x-additionalProperties-message is set. As on the strict path,
+  // x-error-message is not applied to it.
+  // The document reads `additionalProperties: {}` for this base, and that is left
+  // as is: `.openapi()` has no `patternProperties` key, and `additionalProperties:
+  // false` without it would rule out the keys the patterns allow.
   const undeclaredKeys =
     schema.additionalProperties === false && hasPatternProperties
       ? (() => {
           const declaredKeys = Object.keys(schema.properties ?? {})
           const patterns = Object.keys(schema.patternProperties ?? {})
-          const message = additionalPropertiesMessage ?? errorMessage
-          const messageField = message !== undefined ? `,message:${JSON.stringify(message)}` : ''
+          const messageField =
+            additionalPropertiesMessage !== undefined
+              ? `,message:${JSON.stringify(additionalPropertiesMessage)}`
+              : ''
           const guard = [
             ...(declaredKeys.length > 0 ? [`!${JSON.stringify(declaredKeys)}.includes(k)`] : []),
-            ...(patterns.length > 0
-              ? [`!${JSON.stringify(patterns)}.some((p)=>new RegExp(p).test(k))`]
-              : []),
+            `!${JSON.stringify(patterns)}.some((p)=>new RegExp(p).test(k))`,
           ].join('&&')
-          return `.superRefine((o,ctx)=>{for(const k of Object.keys(o)){if(${guard}){ctx.addIssue({code:"custom",path:[k]${messageField}})}}})`
+          return `.superRefine((o,ctx)=>{const keys=Object.keys(o).filter((k)=>${guard});if(keys.length>0){ctx.addIssue({code:"unrecognized_keys",keys,input:o${messageField}})}})`
         })()
       : ''
   // Emits an issue per missing dependent key with path:[d] so the JSON pointer

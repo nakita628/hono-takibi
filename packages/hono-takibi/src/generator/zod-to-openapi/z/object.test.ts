@@ -481,7 +481,7 @@ describe('object', () => {
           additionalProperties: false,
         }),
       ).toBe(
-        'z.looseObject({}).superRefine((o,ctx)=>{for(const k of Object.keys(o)){if(!["^x-"].some((p)=>new RegExp(p).test(k))){ctx.addIssue({code:"custom",path:[k]})}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})',
+        'z.looseObject({}).superRefine((o,ctx)=>{const keys=Object.keys(o).filter((k)=>!["^x-"].some((p)=>new RegExp(p).test(k)));if(keys.length>0){ctx.addIssue({code:"unrecognized_keys",keys,input:o})}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})',
       )
     })
 
@@ -495,7 +495,7 @@ describe('object', () => {
           additionalProperties: false,
         }),
       ).toBe(
-        'z.looseObject({name:z.string()}).superRefine((o,ctx)=>{for(const k of Object.keys(o)){if(!["name"].includes(k)&&!["^x-"].some((p)=>new RegExp(p).test(k))){ctx.addIssue({code:"custom",path:[k]})}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})',
+        'z.looseObject({name:z.string()}).superRefine((o,ctx)=>{const keys=Object.keys(o).filter((k)=>!["name"].includes(k)&&!["^x-"].some((p)=>new RegExp(p).test(k)));if(keys.length>0){ctx.addIssue({code:"unrecognized_keys",keys,input:o})}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})',
       )
     })
 
@@ -508,7 +508,7 @@ describe('object', () => {
           'x-additionalProperties-message': 'No extra keys',
         }),
       ).toBe(
-        'z.looseObject({}).superRefine((o,ctx)=>{for(const k of Object.keys(o)){if(!["^x-"].some((p)=>new RegExp(p).test(k))){ctx.addIssue({code:"custom",path:[k],message:"No extra keys"})}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})',
+        'z.looseObject({}).superRefine((o,ctx)=>{const keys=Object.keys(o).filter((k)=>!["^x-"].some((p)=>new RegExp(p).test(k)));if(keys.length>0){ctx.addIssue({code:"unrecognized_keys",keys,input:o,message:"No extra keys"})}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})',
       )
     })
 
@@ -518,11 +518,12 @@ describe('object', () => {
     const PatProps = z
       .looseObject({})
       .superRefine((o, ctx) => {
-        for (const k of Object.keys(o)) {
+        const keys = Object.keys(o).filter(
           // oxlint-disable-next-line require-unicode-regexp -- mirrors the regex the generator emits
-          if (!['^x-'].some((p) => new RegExp(p).test(k))) {
-            ctx.addIssue({ code: 'custom', path: [k] })
-          }
+          (k) => !['^x-'].some((p) => new RegExp(p).test(k)),
+        )
+        if (keys.length > 0) {
+          ctx.addIssue({ code: 'unrecognized_keys', keys, input: o })
         }
       })
       .superRefine((o, ctx) => {
@@ -562,25 +563,51 @@ describe('object', () => {
       }
     })
 
-    it.concurrent('runtime: { y: 1 } fails as an undeclared key', () => {
-      const result = PatProps.safeParse({ y: 1 })
+    // #449: the issue is the one `z.strictObject` raises, so a schema reports an
+    // undeclared key the same way whether or not it has patternProperties.
+    it.concurrent('runtime: undeclared keys fail as strictObject reports them', () => {
+      const result = PatProps.safeParse({ y: 1, 'x-a': 1, z: 2 })
       expect(result.success).toBe(false)
       if (!result.success) {
         expect(result.error.issues).toStrictEqual([
-          { code: 'custom', path: ['y'], message: 'Invalid input' },
+          {
+            code: 'unrecognized_keys',
+            keys: ['y', 'z'],
+            path: [],
+            message: 'Unrecognized keys: "y", "z"',
+          },
         ])
+        expect(result.error.issues).toStrictEqual(
+          z.strictObject({}).safeParse({ y: 1, z: 2 }).error?.issues,
+        )
       }
+    })
+
+    // #449: as on the strict path, x-error-message is not the message of an
+    // undeclared key; only x-additionalProperties-message is.
+    it.concurrent('codegen: x-error-message is not applied to undeclared keys', () => {
+      expect(
+        object({
+          type: 'object',
+          patternProperties: { '^x-': { type: 'integer' } },
+          additionalProperties: false,
+          'x-error-message': 'E',
+        }),
+      ).toBe(
+        'z.looseObject({}).superRefine((o,ctx)=>{const keys=Object.keys(o).filter((k)=>!["^x-"].some((p)=>new RegExp(p).test(k)));if(keys.length>0){ctx.addIssue({code:"unrecognized_keys",keys,input:o})}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"E"})}}}})',
+      )
     })
 
     it.concurrent('runtime: declared property + pattern key pass, undeclared key fails', () => {
       const WithDeclared = z
         .looseObject({ name: z.string() })
         .superRefine((o, ctx) => {
-          for (const k of Object.keys(o)) {
+          const keys = Object.keys(o).filter(
             // oxlint-disable-next-line require-unicode-regexp -- mirrors the regex the generator emits
-            if (!['name'].includes(k) && !['^x-'].some((p) => new RegExp(p).test(k))) {
-              ctx.addIssue({ code: 'custom', path: [k] })
-            }
+            (k) => !['name'].includes(k) && !['^x-'].some((p) => new RegExp(p).test(k)),
+          )
+          if (keys.length > 0) {
+            ctx.addIssue({ code: 'unrecognized_keys', keys, input: o })
           }
         })
         .superRefine((o, ctx) => {
