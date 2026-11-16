@@ -8756,6 +8756,56 @@ describe('zodToOpenAPI', () => {
     })
   })
 
+  // An optional property is `.exactOptional()`, which fails the `safeParse(undefined)` probe
+  // the document derives `required` from: an object that omits `required` states
+  // `required: []`. A schema-valued additionalProperties was left out of that, so its
+  // optional properties were documented as required.
+  describe('required omitted beside a schema-valued additionalProperties', () => {
+    it.concurrent('catchall: states required: []', () => {
+      expect(
+        zodToOpenAPI({
+          type: 'object',
+          properties: { name: { type: 'string' } },
+          additionalProperties: { type: 'string' },
+        }),
+      ).toBe(
+        'z.object({name:z.string().exactOptional()}).catchall(z.string()).openapi({"required":[]})',
+      )
+    })
+
+    it.concurrent('beside patternProperties: states required: [] too', () => {
+      expect(
+        zodToOpenAPI({
+          type: 'object',
+          properties: { name: { type: 'string' } },
+          patternProperties: { '^x-': { type: 'integer' } },
+          additionalProperties: { type: 'string' },
+        }),
+      ).toBe(
+        'z.looseObject({name:z.string().exactOptional()}).superRefine((o,ctx)=>{const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!["name"].includes(k)&&!["^x-"].some((p)=>new RegExp(p).test(k))){const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}).openapi({...{patternProperties:{"^x-":{"type":"integer"}},additionalProperties:{"type":"string"}},"required":[]})',
+      )
+    })
+
+    it.concurrent('a required list the source has is kept as it is', () => {
+      expect(
+        zodToOpenAPI({
+          type: 'object',
+          required: ['name'],
+          properties: { name: { type: 'string' }, age: { type: 'integer' } },
+          additionalProperties: { type: 'string' },
+        }),
+      ).toBe(
+        'z.object({name:z.string(),age:z.int().exactOptional()}).catchall(z.string()).openapi({"required":["name"]})',
+      )
+    })
+
+    it.concurrent('no properties: a record states nothing', () => {
+      expect(zodToOpenAPI({ type: 'object', additionalProperties: { type: 'string' } })).toBe(
+        'z.record(z.string(),z.string())',
+      )
+    })
+  })
+
   describe('v3.2 refine vs superRefine summary (full codegen toBe)', () => {
     // Documents the API choice for each constraint family with full codegen
     // string toBe completeness (not includes-substring). Each it() pins the
