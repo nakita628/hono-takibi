@@ -13,6 +13,7 @@ export default defineConfig({
   webServer: {
     command: 'pnpm build && pnpm preview --port 4173',
     url: 'http://localhost:4173/',
+    // oxlint-disable-next-line node/no-process-env -- CI is the one place a server must not be reused
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,
   },

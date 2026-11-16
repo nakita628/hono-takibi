@@ -1,7 +1,9 @@
+// oxlint-disable-next-line import/no-namespace -- the type of the whole module, loaded with a dynamic import
 import type * as ZodOpenAPIHono from 'hono-takibi/zod-openapi-hono'
 import { load } from 'js-yaml'
 
-import { compileTypeSpec, loadTypeSpecContext, type TypeSpecMarker } from '../typespec'
+import { compileTypeSpec, loadTypeSpecContext } from '../typespec'
+import type { TypeSpecMarker } from '../typespec'
 
 export const MODES = ['typespec', 'yaml', 'json'] as const
 
@@ -57,8 +59,9 @@ async function bundleDocument(document: { readonly [key: string]: unknown }) {
       { resolve: { external: false } },
     )
     return { ok: true, value: bundled } as const
-  } catch (e) {
-    const message = e instanceof Error ? (e.message.split('\n')[0] ?? e.message) : String(e)
+  } catch (error) {
+    const message =
+      error instanceof Error ? (error.message.split('\n')[0] ?? error.message) : String(error)
     return { ok: false, error: `OpenAPI bundle failed: ${message}` } as const
   }
 }
@@ -80,8 +83,8 @@ async function formatCode(code: string) {
       semi: false,
     })
     return { ok: true, value: formatted } as const
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) } as const
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) } as const
   }
 }
 

@@ -34,11 +34,11 @@ export default defineConfig({
       dedupe: ['monaco-editor'],
       alias: [
         {
-          find: /^prettier\/plugins\/yaml\.js$/,
+          find: /^prettier\/plugins\/yaml\.js$/u,
           replacement: 'prettier/plugins/yaml',
         },
         {
-          find: /^node:path$/,
+          find: /^node:path$/u,
           replacement: fileURLToPath(import.meta.resolve('pathe')),
         },
       ],

@@ -38,8 +38,8 @@ export function typespecBundle() {
     },
     transformIndexHtml: {
       order: 'post',
-      async handler(html, ctx) {
-        const result = await htmlHandler?.call(this, html, ctx)
+      async handler(html, context) {
+        const result = await htmlHandler?.call(this, html, context)
         return typeof result === 'string' ? absolutizeImportMap(result) : result
       },
     },

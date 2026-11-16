@@ -9,11 +9,9 @@ import {
   isMockRequest,
   MOCK_LOCALES,
   MOCK_SERVER_URL,
-  type MockLocale,
-  type MockOptions,
-  type MockServer,
   unavailableResponse,
 } from '../lib'
+import type { MockLocale, MockOptions, MockServer } from '../lib'
 
 const props = defineProps<{
   readonly document: { readonly [key: string]: unknown }

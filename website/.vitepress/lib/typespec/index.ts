@@ -1,4 +1,5 @@
 import type { Diagnostic } from '@typespec/compiler'
+// oxlint-disable-next-line import/no-namespace -- the type of the whole module, loaded with a dynamic import
 import type * as TypeSpecOpenAPI3 from '@typespec/openapi3'
 import type { BrowserHost } from '@typespec/playground'
 
@@ -91,9 +92,11 @@ export async function compileTypeSpec(source: string, context: TypeSpecContext) 
     await host.writeFile(MAIN_PATH, source)
     const program = await host.compiler.compile(host, MAIN_PATH, { noEmit: true })
     const markers = program.diagnostics.map((diagnostic) => toMarker(host.compiler, diagnostic))
-    const errors = program.diagnostics.filter((d) => d.severity === 'error')
+    const errors = program.diagnostics.filter((diagnostic) => diagnostic.severity === 'error')
     if (errors.length > 0) {
-      const messages = errors.map((d) => `${d.code}: ${d.message}`).join('\n')
+      const messages = errors
+        .map((diagnostic) => `${diagnostic.code}: ${diagnostic.message}`)
+        .join('\n')
       return {
         ok: false,
         error: `${TYPESPEC_COMPILE_FAILED_PREFIX}:\n${messages}`,
@@ -110,6 +113,7 @@ export async function compileTypeSpec(source: string, context: TypeSpecContext) 
     }
     // JSON round-trip drops non-serializable values the emitter may leave in
     // the document and yields a plain-object clone.
+    // oxlint-disable-next-line unicorn/prefer-structured-clone -- structuredClone throws on what the round-trip drops
     const document: unknown = JSON.parse(JSON.stringify(tsp))
     if (typeof document !== 'object' || document === null || Array.isArray(document)) {
       return {
@@ -119,7 +123,11 @@ export async function compileTypeSpec(source: string, context: TypeSpecContext) 
       } as const
     }
     return { ok: true, value: document, markers } as const
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e), markers: [] } as const
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : String(error),
+      markers: [],
+    } as const
   }
 }

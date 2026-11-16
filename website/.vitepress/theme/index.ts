@@ -10,11 +10,10 @@ import './custom.css'
 
 export default {
   extends: DefaultTheme,
-  Layout: () => {
-    return h(DefaultTheme.Layout, null, {
+  Layout: () =>
+    h(DefaultTheme.Layout, null, {
       // https://vitepress.dev/guide/extending-default-theme#layout-slots
-    })
-  },
+    }),
   enhanceApp({ app }) {
     app.component('Playground', Playground)
   },
