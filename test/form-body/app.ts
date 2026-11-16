@@ -46,7 +46,7 @@ function echoValue(value: unknown): Echo {
  * 出力されない。省略された任意フィールドは、キー自体が存在しない。
  */
 function echoFields(fields: object) {
-  const described: Record<string, Echo | Echo[]> = {}
+  const described: { [key: string]: Echo | Echo[] } = {}
   for (const [name, value] of Object.entries(fields)) {
     if (value === undefined) continue
     described[name] = Array.isArray(value) ? value.map(echoValue) : echoValue(value)

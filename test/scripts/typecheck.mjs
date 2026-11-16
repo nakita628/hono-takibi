@@ -2,11 +2,10 @@ import { spawn } from 'node:child_process'
 import { createRequire } from 'node:module'
 import os from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { listCases } from './cases.mjs'
 
-const testRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const testRoot = path.resolve(import.meta.dirname, '..')
 // Resolve tsc as a file and run it with node instead of the .bin shim:
 // shims can be missing when a stale node_modules cache is restored in CI.
 // TypeScript 7 drops `./lib/tsc.js` from its `exports` map, so resolve the manifest
@@ -28,8 +27,12 @@ const typecheckCase = ({ name, dir }) =>
       env: { ...process.env, NODE_OPTIONS: '--max-old-space-size=4096' },
     })
     const chunks = []
-    child.stdout.on('data', (chunk) => chunks.push(chunk))
-    child.stderr.on('data', (chunk) => chunks.push(chunk))
+    child.stdout.on('data', (chunk) => {
+      chunks.push(chunk)
+    })
+    child.stderr.on('data', (chunk) => {
+      chunks.push(chunk)
+    })
     child.on('error', (error) => {
       resolve({ name, ok: false, output: error.message })
     })

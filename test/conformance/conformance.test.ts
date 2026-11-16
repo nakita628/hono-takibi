@@ -63,8 +63,8 @@ const named = mentioned(document, schemas)
 const numbers = [
   ...new Set([
     0,
-    2147483647,
-    2147483648,
+    2_147_483_647,
+    2_147_483_648,
     ...named.flatMap((value) =>
       typeof value === 'number' ? [value - 1, value - 0.5, value, value + 0.5, value + 1] : [],
     ),
@@ -282,12 +282,15 @@ async function disagreementsOf(
         `${shown}: the document accepts ${JSON.stringify(expected)}, the generated code rejects it`,
       )
     }
-    if (res.status === 200 && valid.length === 1 && expected !== undefined) {
-      if (!isSame(body[key] ?? null, expected)) {
-        disagreements.push(
-          `${shown}: the document reads ${JSON.stringify(expected)}, the generated code hands out ${JSON.stringify(body[key])}`,
-        )
-      }
+    if (
+      res.status === 200 &&
+      valid.length === 1 &&
+      expected !== undefined &&
+      !isSame(body[key] ?? null, expected)
+    ) {
+      disagreements.push(
+        `${shown}: the document reads ${JSON.stringify(expected)}, the generated code hands out ${JSON.stringify(body[key])}`,
+      )
     }
   }
   return disagreements
@@ -513,9 +516,7 @@ function otherKeys(schema: unknown, from: { readonly [k: string]: unknown }): un
  */
 function requiredKeys(schema: unknown): readonly string[] {
   const list = at(schema, 'required')
-  return Array.isArray(list)
-    ? list.map((key: unknown) => String(key)).sort((a, b) => a.localeCompare(b))
-    : []
+  return Array.isArray(list) ? list.map(String).sort((a, b) => a.localeCompare(b)) : []
 }
 
 describe('document: what the source says about an object is what the served document says', () => {

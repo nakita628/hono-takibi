@@ -1,4 +1,5 @@
-import { expect, type Page, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
+import type { Page } from '@playwright/test'
 
 const TYPESPEC_SOURCE = `import "@typespec/http";
 
@@ -74,7 +75,7 @@ function encodeShare(payload: { readonly mode: string; readonly source: string }
 }
 
 async function expectCopiedOutput(page: Page, expected: string) {
-  await page.locator('.pg-button', { hasText: /^(Copy|Copied!)$/ }).click()
+  await page.locator('.pg-button', { hasText: /^(Copy|Copied!)$/u }).click()
   await expect
     .poll(() => page.evaluate(() => navigator.clipboard.readText()), { timeout: 30_000 })
     .toBe(expected)
@@ -99,12 +100,12 @@ test.describe('Playground', () => {
     await page.goto('/playground')
     const editors = page.locator('.pg-pane .monaco-editor')
     await expect(editors).toHaveCount(2)
-    await expect(editors.nth(0)).toHaveClass(/\bvs\b/)
-    await expect(editors.nth(1)).toHaveClass(/\bvs\b/)
+    await expect(editors.nth(0)).toHaveClass(/\bvs\b/u)
+    await expect(editors.nth(1)).toHaveClass(/\bvs\b/u)
     await page.locator('.VPSwitchAppearance').click()
-    await expect(page.locator('html')).toHaveClass(/\bdark\b/)
-    await expect(editors.nth(0)).toHaveClass(/\bvs-dark\b/)
-    await expect(editors.nth(1)).toHaveClass(/\bvs-dark\b/)
+    await expect(page.locator('html')).toHaveClass(/\bdark\b/u)
+    await expect(editors.nth(0)).toHaveClass(/\bvs-dark\b/u)
+    await expect(editors.nth(1)).toHaveClass(/\bvs-dark\b/u)
   })
 
   test('generates Hono code from the default TypeSpec sample', async ({ page }) => {
@@ -138,7 +139,7 @@ test.describe('Playground', () => {
     await page.keyboard.press('ControlOrMeta+a')
     await page.keyboard.type('oops')
     await expect(page.locator('.pg-error')).toHaveText('Input must be an OpenAPI document (object)')
-    await expect(page.locator('.pg-pane').nth(1)).toHaveClass(/pg-stale/)
+    await expect(page.locator('.pg-pane').nth(1)).toHaveClass(/pg-stale/u)
   })
 
   test('recovers from an error when the input becomes valid again', async ({ page }) => {
@@ -153,7 +154,7 @@ test.describe('Playground', () => {
     await page.keyboard.press('ControlOrMeta+a')
     await page.keyboard.press('ControlOrMeta+v')
     await expect(page.locator('.pg-error')).toBeHidden()
-    await expect(page.locator('.pg-pane').nth(1)).not.toHaveClass(/pg-stale/)
+    await expect(page.locator('.pg-pane').nth(1)).not.toHaveClass(/pg-stale/u)
     await expectCopiedOutput(page, EXPECTED)
   })
 
@@ -165,8 +166,8 @@ test.describe('Playground', () => {
     await page.keyboard.press('ControlOrMeta+a')
     await page.keyboard.type('oops')
     await expect(page.locator('.pg-error')).toBeVisible()
-    await expect(page.locator('.pg-error')).not.toHaveClass(/pg-hint/)
-    await expect(page.locator('.pg-pane').nth(1)).toHaveClass(/pg-stale/)
+    await expect(page.locator('.pg-error')).not.toHaveClass(/pg-hint/u)
+    await expect(page.locator('.pg-pane').nth(1)).toHaveClass(/pg-stale/u)
   })
 
   test('shows the compile hint for invalid TypeSpec input', async ({ page }) => {
@@ -178,8 +179,8 @@ test.describe('Playground', () => {
     await expect(page.locator('.pg-error')).toHaveText(
       'TypeSpec compile failed — fix the errors highlighted in the editor',
     )
-    await expect(page.locator('.pg-error')).toHaveClass(/pg-hint/)
-    await expect(page.locator('.pg-pane').nth(1)).toHaveClass(/pg-stale/)
+    await expect(page.locator('.pg-error')).toHaveClass(/pg-hint/u)
+    await expect(page.locator('.pg-pane').nth(1)).toHaveClass(/pg-stale/u)
   })
 
   test('Share copies a URL that encodes the current mode and source', async ({ page }) => {
@@ -219,10 +220,10 @@ test.describe('Playground', () => {
     await expect(page.locator('.pg-scalar')).not.toContainText('http://')
     await expect(page.locator('.pg-error')).toBeHidden()
     await page.locator('.show-api-client-button').click()
-    await expect(page.getByRole('button', { name: /^Send get request to/ })).toHaveAccessibleName(
+    await expect(page.getByRole('button', { name: /^Send get request to/u })).toHaveAccessibleName(
       'Send get request to /',
     )
-    await page.getByRole('button', { name: /^Send/ }).first().click()
+    await page.getByRole('button', { name: /^Send/u }).first().click()
     // The client's response pane; the reference's own "200 OK" entry is a button.
     const response = page.getByRole('region', { name: 'Response' })
     await expect(response.getByRole('link', { name: '200 OK' })).toBeVisible()
@@ -256,7 +257,7 @@ test.describe('Playground', () => {
     await expect(page.locator('.pg-scalar')).toContainText('Hono Takibi API')
     const response = page.getByRole('region', { name: 'Response' })
     const body = response.getByRole('textbox')
-    const send = page.getByRole('button', { name: /^Send/ }).first()
+    const send = page.getByRole('button', { name: /^Send/u }).first()
     const close = page.getByRole('button', { name: 'Close Client' })
     // Every option change rebuilds the server; a request sent before that
     // finishes is answered by the previous one.
@@ -276,7 +277,7 @@ test.describe('Playground', () => {
     })
     await expect(body).toContainText('"message"')
     await expect(body).not.toContainText('Hono Takibi🔥')
-    const seeded = /"message":\s*"([^"]+)"/.exec(await body.innerText())?.[1] ?? ''
+    const seeded = /"message":\s*"([^"]+)"/u.exec(await body.innerText())?.[1] ?? ''
     expect(seeded).not.toBe('')
     await close.click()
     await sendWith(() => page.getByLabel('Seed').fill('7'))
@@ -313,10 +314,10 @@ test.describe('Playground', () => {
     await page.getByLabel('Locale').selectOption('ja')
     await expect(page.locator('.pg-mock-status')).toBeHidden()
     await page.locator('.show-api-client-button').click()
-    await page.getByRole('button', { name: /^Send/ }).first().click()
+    await page.getByRole('button', { name: /^Send/u }).first().click()
     const body = page.getByRole('region', { name: 'Response' }).getByRole('textbox')
     await expect(body).toContainText('"name"')
-    await expect(body).toHaveText(/"name":\s*"[^"]*[\u3040-\u30ff\u4e00-\u9fff]/)
+    await expect(body).toHaveText(/"name":\s*"[^"]*[\u3040-\u30FF\u4E00-\u9FFF]/u)
   })
 
   test('Mock view follows the site appearance while open', async ({ page }) => {
@@ -326,13 +327,13 @@ test.describe('Playground', () => {
     await page.locator('.pg-view', { hasText: 'Mock' }).click()
     await expect(page.locator('.pg-scalar')).toContainText('Hono Takibi API')
     // Scalar expresses its color mode as a class on <body>.
-    await expect(page.locator('body')).toHaveClass(/\blight-mode\b/)
+    await expect(page.locator('body')).toHaveClass(/\blight-mode\b/u)
     await page.locator('.VPSwitchAppearance').click()
-    await expect(page.locator('html')).toHaveClass(/\bdark\b/)
-    await expect(page.locator('body')).toHaveClass(/\bdark-mode\b/)
+    await expect(page.locator('html')).toHaveClass(/\bdark\b/u)
+    await expect(page.locator('body')).toHaveClass(/\bdark-mode\b/u)
     await expect(page.locator('.pg-scalar')).toContainText('Hono Takibi API')
     await page.locator('.VPSwitchAppearance').click()
-    await expect(page.locator('body')).toHaveClass(/\blight-mode\b/)
+    await expect(page.locator('body')).toHaveClass(/\blight-mode\b/u)
   })
 
   test('Code view returns after the Mock view', async ({ page }) => {

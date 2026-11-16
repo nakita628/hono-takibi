@@ -20,11 +20,10 @@
 // これにより、小さな CI ランナーでもメモリ内に収まる。
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { expect, it } from 'vite-plus/test'
 
-const testRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const testRoot = path.resolve(import.meta.dirname, '..')
 
 // The script exits with 0 only when every case compiles. Its output, inherited by this process,
 // names the case that failed.

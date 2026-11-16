@@ -14,7 +14,8 @@ import {
   useUsers,
 } from '../__generated__/vue-query/hooks'
 import type { client } from '../__generated__/vue-query/src/client'
-import { type Equal, type HasKey, type IsAssignable, type NotAny, assertType } from './assert'
+import { assertType } from './assert'
+import type { Equal, HasKey, IsAssignable, NotAny } from './assert'
 
 /**
  * The options slot of the plain query hook, as the caller sees it.
@@ -70,7 +71,7 @@ export function queryOptionsAssertions() {
 
   // The options stay typed: a right-typed value is accepted, a wrong-typed one is not.
   // オプションの型は保たれる。型の正しい値は受理され、型の誤った値は受理されない。
-  assertType<IsAssignable<{ staleTime: 1_000 }, QuerySlot>>(true)
+  assertType<IsAssignable<{ staleTime: 1000 }, QuerySlot>>(true)
   assertType<Equal<IsAssignable<{ staleTime: 'soon' }, QuerySlot>, false>>(true)
   // The key is the hook's own — a caller's would be silently overwritten — so the slot has none.
   // キーはフック自身のものである。呼び出し側が指定しても黙って上書きされるため、

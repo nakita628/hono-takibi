@@ -35,17 +35,19 @@ const EXTRA_LIB_MODULES = [
 // The monaco-editor package and its workers stay behind this dynamic import so
 // statically importing this module never pulls them into the page chunk.
 export async function loadMonaco() {
-  const [monaco, editorWorker, jsonWorker, tsWorker] = await Promise.all([
-    import('monaco-editor'),
-    import('monaco-editor/editor/editor.worker.js?worker'),
-    import('monaco-editor/language/json/json.worker.js?worker'),
-    import('monaco-editor/language/typescript/ts.worker.js?worker'),
-  ])
+  const [monaco, { default: EditorWorker }, { default: JsonWorker }, { default: TsWorker }] =
+    await Promise.all([
+      import('monaco-editor'),
+      import('monaco-editor/editor/editor.worker.js?worker'),
+      import('monaco-editor/language/json/json.worker.js?worker'),
+      import('monaco-editor/language/typescript/ts.worker.js?worker'),
+    ])
+  // oxlint-disable-next-line unicorn/prefer-global-this -- `self.MonacoEnvironment` is where Monaco looks, in a page and in a worker
   self.MonacoEnvironment = {
     getWorker: (_workerId: string, label: string) => {
-      if (label === 'typescript' || label === 'javascript') return new tsWorker.default()
-      if (label === 'json') return new jsonWorker.default()
-      return new editorWorker.default()
+      if (label === 'typescript' || label === 'javascript') return new TsWorker()
+      if (label === 'json') return new JsonWorker()
+      return new EditorWorker()
     },
   }
   return monaco
@@ -76,13 +78,13 @@ async function getBundledDts(
   excludeModulePrefixes: readonly string[] = [],
 ) {
   const ESM_URL_PATTERN =
-    /^https:\/\/esm\.sh\/(?:v\d+\/)?(@?[\w.-]+(?:\/[\w.-]+)?)(?:@[\w.\-+]+)?(\/[^?]*)?(?:\?.*)?$/
+    /^https:\/\/esm\.sh\/(?:v\d+\/)?(@?[\w.-]+(?:\/[\w.-]+)?)(?:@[\w.\-+]+)?(\/[^?]*)?(?:\?.*)?$/u
 
   function normalizeModulePath(url: string) {
     const matched = ESM_URL_PATTERN.exec(url)
-    if (!matched) return (url.split('?')[0] ?? url).replace(/\.d\.[mc]?ts$/, '')
+    if (!matched) return (url.split('?')[0] ?? url).replace(/\.d\.[mc]?ts$/u, '')
     const pkg = matched[1] ?? ''
-    const subpath = (matched[2] ?? '').replace(/\.d\.[mc]?ts$/, '')
+    const subpath = (matched[2] ?? '').replace(/\.d\.[mc]?ts$/u, '')
     return `${pkg}${subpath}`
   }
 
@@ -91,11 +93,11 @@ async function getBundledDts(
     visited: ReadonlyMap<string, string>,
   ): Promise<ReadonlyMap<string, string>> {
     if (visited.has(rootUrl)) return visited
-    const res = await fetchWithTimeout(rootUrl)
-    const dts = res.ok ? await res.text() : ''
-    const dtsImports = [...dts.matchAll(/from\s+["']([^"']+)["']/g)]
+    const response = await fetchWithTimeout(rootUrl)
+    const dts = response.ok ? await response.text() : ''
+    const dtsImports = [...dts.matchAll(/from\s+["']([^"']+)["']/gu)]
       .map((match) => match[1] ?? '')
-      .filter((p) => /\.d\.[mc]?ts$/.test(p))
+      .filter((p) => /\.d\.[mc]?ts$/u.test(p))
     const resolvedUrls = dtsImports.map((p) => new URL(p, rootUrl).toString())
     const rewritten = dtsImports.reduce(
       (acc, original, index) =>
@@ -109,9 +111,9 @@ async function getBundledDts(
     )
   }
 
-  const res = await fetchWithTimeout(`https://esm.sh/${module.spec}`)
-  if (!res.ok) return ''
-  const indexDtsUrl = res.headers.get('x-typescript-types')
+  const response = await fetchWithTimeout(`https://esm.sh/${module.spec}`)
+  if (!response.ok) return ''
+  const indexDtsUrl = response.headers.get('x-typescript-types')
   if (!indexDtsUrl) return ''
   const files = await walkDts(indexDtsUrl, new Map())
   const indexModulePath = normalizeModulePath(indexDtsUrl)
@@ -150,6 +152,6 @@ export function loadOutputEditorTypes(monaco: MonacoEditor) {
       }
     }),
   )
-    .then(() => {})
-    .catch(() => {})
+    .then(() => undefined)
+    .catch(() => undefined)
 }

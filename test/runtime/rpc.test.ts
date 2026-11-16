@@ -132,7 +132,7 @@ describe('rpc: a non-2xx response rejects with DetailedError', () => {
   it('getUsersId rejects with the full error contract on 404', async () => {
     const captured = await getUsersId({ param: { id: '999' }, header: {} }).then(
       () => null,
-      (e: unknown) => e,
+      (error: unknown) => error,
     )
     expect(captured).toBeInstanceOf(DetailedError)
     const e = captured as DetailedError
@@ -158,7 +158,7 @@ describe('rpc: a non-2xx response rejects with DetailedError', () => {
   it('getUsersId encodes a multi-byte path parameter', async () => {
     const captured = await getUsersId({ param: { id: 'あ' }, header: {} }).then(
       () => null,
-      (e: unknown) => e,
+      (error: unknown) => error,
     )
     expect(captured).toBeInstanceOf(DetailedError)
     expect((captured as DetailedError).statusCode).toBe(404)
@@ -170,7 +170,7 @@ describe('rpc: a non-2xx response rejects with DetailedError', () => {
   it('postUsers rejects with DetailedError on 400', async () => {
     const captured = await postUsers({ json: { name: '' } }).then(
       () => null,
-      (e: unknown) => e,
+      (error: unknown) => error,
     )
     expect(captured).toBeInstanceOf(DetailedError)
     const e = captured as DetailedError
@@ -192,7 +192,7 @@ describe('rpc: a non-2xx response rejects with DetailedError', () => {
   it('getItems rejects with DetailedError on 400', async () => {
     const captured = await getItems({ query: { page: 'x' } }).then(
       () => null,
-      (e: unknown) => e,
+      (error: unknown) => error,
     )
     expect(captured).toBeInstanceOf(DetailedError)
     const e = captured as DetailedError

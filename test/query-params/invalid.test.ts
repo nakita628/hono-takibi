@@ -3717,7 +3717,7 @@ describe('strictness: what the wire grammar does not read', () => {
   // バックトラックするパターンであれば、桁違いに超過する。
   it('number rejects 64000 digits followed by a letter without backtracking', async () => {
     const started = performance.now()
-    const res = await queryParamsApp.request(`/params?number=${'1'.repeat(64000)}x`)
+    const res = await queryParamsApp.request(`/params?number=${'1'.repeat(64_000)}x`)
     const elapsed = performance.now() - started
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['number'] })
@@ -3728,7 +3728,7 @@ describe('strictness: what the wire grammar does not read', () => {
   // 整数の文法でも同様である。
   it('integer rejects 64000 digits followed by a letter without backtracking', async () => {
     const started = performance.now()
-    const res = await queryParamsApp.request(`/params?integer=${'1'.repeat(64000)}x`)
+    const res = await queryParamsApp.request(`/params?integer=${'1'.repeat(64_000)}x`)
     const elapsed = performance.now() - started
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['integer'] })
@@ -3738,7 +3738,7 @@ describe('strictness: what the wire grammar does not read', () => {
   // 64000 digits with nothing after them are a number, and one that is too large to hold.
   // 後ろに何も続かない 64000 桁は数値であるが、保持できる範囲を超えている。
   it('number rejects 64000 digits', async () => {
-    const res = await queryParamsApp.request(`/params?number=${'1'.repeat(64000)}`)
+    const res = await queryParamsApp.request(`/params?number=${'1'.repeat(64_000)}`)
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['number'] })
   })

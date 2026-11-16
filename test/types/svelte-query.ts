@@ -8,7 +8,8 @@ import {
   createPostUsers,
   createUsers,
 } from '../__generated__/svelte-query/hooks'
-import { type Equal, type HasKey, type IsAssignable, type NotAny, assertType } from './assert'
+import { assertType } from './assert'
+import type { Equal, HasKey, IsAssignable, NotAny } from './assert'
 
 /**
  * The options slot of the plain query hook, as the caller sees it.
@@ -61,7 +62,7 @@ export function queryOptionsAssertions() {
 
   // The options stay typed: a right-typed value is accepted, a wrong-typed one is not.
   // オプションの型は保たれる。型の正しい値は受理され、型の誤った値は受理されない。
-  assertType<IsAssignable<{ staleTime: 1_000 }, QuerySlot>>(true)
+  assertType<IsAssignable<{ staleTime: 1000 }, QuerySlot>>(true)
   assertType<Equal<IsAssignable<{ staleTime: 'soon' }, QuerySlot>, false>>(true)
   // The key is the hook's own — a caller's would be silently overwritten — so the slot has none.
   // キーはフック自身のものである。呼び出し側が指定しても黙って上書きされるため、
@@ -81,7 +82,7 @@ export function queryOptionsAssertions() {
         query: { ...args.query, page: String(pageParam) },
       }),
     },
-    () => ({ query: { staleTime: 1_000 } }),
+    () => ({ query: { staleTime: 1000 } }),
   )
   return { disabled, names, selected, infinite }
 }

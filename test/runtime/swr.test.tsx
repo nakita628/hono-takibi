@@ -91,7 +91,7 @@ describe('generated useSWR hooks', () => {
     )
     expect(result.current.data).toStrictEqual([{ id: '0', name: 'Fallback' }])
     await waitFor(() => {
-      expect(seen.length).toBe(1)
+      expect(seen).toHaveLength(1)
     })
     expect(seen).toStrictEqual([
       [
@@ -146,10 +146,12 @@ describe('SWR key behavior', () => {
     const { result } = renderHook(() => useGetUsers({ swr: { enabled: false } }), {
       wrapper: makeWrapper(),
     })
-    await new Promise((resolve) => setTimeout(resolve, 30))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 30)
+    })
     expect(result.current.swrKey).toBeNull()
     expect(result.current.data).toBeUndefined()
-    expect(requestLog.length).toBe(before)
+    expect(requestLog).toHaveLength(before)
   })
 
   // swrKey: null is the way SWR itself disables a hook, and it is kept as null rather than
@@ -161,10 +163,12 @@ describe('SWR key behavior', () => {
     const { result } = renderHook(() => useGetUsers({ swr: { swrKey: null } }), {
       wrapper: makeWrapper(),
     })
-    await new Promise((resolve) => setTimeout(resolve, 30))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 30)
+    })
     expect(result.current.swrKey).toBeNull()
     expect(result.current.data).toBeUndefined()
-    expect(requestLog.length).toBe(before)
+    expect(requestLog).toHaveLength(before)
   })
 
   // A swrKey passed by the caller replaces the generated key. The fetch still happens.
@@ -246,7 +250,7 @@ describe('generated useSWRMutation hooks', () => {
     })
     const captured = await result.current.trigger({ json: { name: '' } }).then(
       () => null,
-      (e: unknown) => e,
+      (error: unknown) => error,
     )
     expect(captured).toBeInstanceOf(DetailedError)
     expect((captured as DetailedError).statusCode).toBe(400)
@@ -319,9 +323,11 @@ describe('generated useSWRInfinite hooks', () => {
         ),
       { wrapper: makeWrapper() },
     )
-    await new Promise((resolve) => setTimeout(resolve, 30))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 30)
+    })
     expect(result.current.data).toBeUndefined()
-    expect(requestLog.length).toBe(before)
+    expect(requestLog).toHaveLength(before)
   })
 })
 
@@ -339,7 +345,6 @@ describe('generated useSWRMutation hooks (hook-level options)', () => {
         wrapper: makeWrapper(),
       },
     )
-    // oxlint-disable-next-line typescript/no-confusing-void-expression -- asserts trigger swallows the rejection
     expect(await result.current.trigger({ json: { name: '' } })).toBeUndefined()
     await waitFor(() => {
       expect(result.current.error).toBeInstanceOf(DetailedError)

@@ -2,11 +2,10 @@ import { spawn } from 'node:child_process'
 import { cpSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { listGeneratedCases } from './cases.mjs'
 
-const testRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const testRoot = path.resolve(import.meta.dirname, '..')
 // Invoke the CLI entry directly (node + file path) instead of the .bin shim:
 // shims can be missing when a stale node_modules cache is restored in CI.
 const cli = path.resolve(testRoot, '..', 'packages', 'hono-takibi', 'dist', 'cli.js')
@@ -68,8 +67,12 @@ const generateCase = ({ name, dir }) =>
     }
     const child = spawn(process.execPath, [cli], { cwd: dir })
     const chunks = []
-    child.stdout.on('data', (chunk) => chunks.push(chunk))
-    child.stderr.on('data', (chunk) => chunks.push(chunk))
+    child.stdout.on('data', (chunk) => {
+      chunks.push(chunk)
+    })
+    child.stderr.on('data', (chunk) => {
+      chunks.push(chunk)
+    })
     child.on('error', (error) => {
       resolve({ name, ok: false, output: error.message })
     })

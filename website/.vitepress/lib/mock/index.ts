@@ -1,3 +1,4 @@
+// oxlint-disable-next-line import/no-namespace -- the type of the whole module, loaded with a dynamic import
 import type * as Mock from 'hono-takibi/mock'
 import type { Program, Statement } from 'oxc-parser'
 
@@ -126,6 +127,7 @@ async function compileModule(code: string) {
   if (transformed.errors.length > 0) {
     throw new Error(transformed.errors.map((error) => error.message).join('\n'))
   }
+  // oxlint-disable-next-line node/no-sync -- oxc-parser's parse of a string in memory: nothing is read
   const { program, errors } = parseSync('mock.js', transformed.code, {
     lang: 'js',
     sourceType: 'module',
@@ -143,7 +145,7 @@ function isInstantiate(value: unknown): value is (runtime: object) => Promise<un
 
 function isHonoApp(
   value: unknown,
-): value is { fetch(request: Request): Response | Promise<Response> } {
+): value is { fetch: (request: Request) => Response | Promise<Response> } {
   return (
     typeof value === 'object' &&
     value !== null &&
@@ -193,8 +195,8 @@ export async function createMockServer(
       fetch: async (input, init) => app.fetch(new Request(input, init)),
     }
     return { ok: true, value: server } as const
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) } as const
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) } as const
   }
 }
 

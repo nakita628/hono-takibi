@@ -15,9 +15,10 @@ import {
   MAIN_URI,
   SAMPLES,
   TYPESPEC_COMPILE_FAILED_PREFIX,
-  type TypeSpecMarker,
 } from '../lib'
+import type { TypeSpecMarker } from '../lib'
 import MockReference from './MockReference.vue'
+
 const monacoRef = shallowRef<MonacoEditor | null>(null)
 const monacoReady = ref(false)
 const monacoSetup = { done: false }
@@ -54,8 +55,8 @@ const monacoTheme = computed(() => (isDark.value ? 'typespec-dark' : 'typespec')
 function decodeShare() {
   if (typeof location === 'undefined' || !location.hash.startsWith('#code=')) return null
   try {
-    const bytes = Uint8Array.from(atob(location.hash.slice('#code='.length)), (c) =>
-      c.charCodeAt(0),
+    const bytes = Uint8Array.from(atob(location.hash.slice('#code='.length)), (char) =>
+      char.charCodeAt(0),
     )
     const payload: unknown = JSON.parse(new TextDecoder().decode(bytes))
     if (

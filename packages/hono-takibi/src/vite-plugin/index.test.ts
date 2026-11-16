@@ -8,7 +8,9 @@ import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { FormatError } from '../error/index.js'
+// oxlint-disable-next-line import/no-namespace -- the type of the whole module, which `vi.importActual` hands back
 import type * as FormatModule from '../format/index.js'
+// oxlint-disable-next-line import/no-namespace -- the type of the whole module, which `vi.importActual` hands back
 import type * as OpenAPIModule from '../openapi/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 import { honoTakibiVite } from './index.js'

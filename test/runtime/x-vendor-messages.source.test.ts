@@ -188,7 +188,7 @@ describe('x-maxProperties-message', () => {
 // 生成するドキュメントへと引き継がれる。
 describe('writeOnly', () => {
   type Documented = {
-    WriteOnly?: { properties?: Record<string, { writeOnly?: boolean; type?: string }> }
+    WriteOnly?: { properties?: { [key: string]: { writeOnly?: boolean; type?: string } } }
   }
 
   // The property the spec marks is marked in the document.
@@ -199,7 +199,7 @@ describe('writeOnly', () => {
       info: { title: 'x-vendor-messages', version: '1.0.0' },
     })
     const schemas = doc.components?.schemas as Documented | undefined
-    expect(schemas?.WriteOnly?.properties?.['password']).toStrictEqual({
+    expect(schemas?.WriteOnly?.properties?.password).toStrictEqual({
       type: 'string',
       writeOnly: true,
     })
@@ -214,6 +214,6 @@ describe('writeOnly', () => {
       info: { title: 'x-vendor-messages', version: '1.0.0' },
     })
     const schemas = doc.components?.schemas as Documented | undefined
-    expect(schemas?.WriteOnly?.properties?.['name']).toStrictEqual({ type: 'string' })
+    expect(schemas?.WriteOnly?.properties?.name).toStrictEqual({ type: 'string' })
   })
 })

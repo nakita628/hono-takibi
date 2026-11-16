@@ -19,18 +19,12 @@
 // そのため、ここではボディではなく、ルーティングの結果であるステータスを検証する。
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vite-plus/test'
 
 import app from '../__generated__/basepath/mock'
 
-const generatedDir = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '..',
-  '__generated__',
-  'basepath',
-)
+const generatedDir = path.resolve(import.meta.dirname, '..', '__generated__', 'basepath')
 
 describe('basePath: routes are served under the prefix', () => {
   // A route with no parameter.

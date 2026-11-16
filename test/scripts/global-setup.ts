@@ -1,6 +1,5 @@
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 /**
  * Regenerates every case before the suite runs.
@@ -16,8 +15,8 @@ import { fileURLToPath } from 'node:url'
  * 重なると、書き込み途中のファイルを互いに読んでしまう。
  */
 export default function setup() {
-  if (process.env['HONO_TAKIBI_SKIP_GENERATE'] === '1') return
-  const dir = path.dirname(fileURLToPath(import.meta.url))
+  if (process.env.HONO_TAKIBI_SKIP_GENERATE === '1') return
+  const dir = import.meta.dirname
   const result = spawnSync(process.execPath, [path.join(dir, 'generate.mjs')], {
     stdio: 'inherit',
   })

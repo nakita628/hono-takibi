@@ -1627,7 +1627,7 @@ describe('POST /orders: a value that is not an address', () => {
     const res = await app.request('/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productName: 'Widget', quantity: 1, address: 12345 }),
+      body: JSON.stringify({ productName: 'Widget', quantity: 1, address: 12_345 }),
     })
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({
