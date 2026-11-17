@@ -905,6 +905,31 @@ describe('wireObject', () => {
     ).toStrictEqual({ name: 'opts', how: 'spread', properties: ['size'] })
   })
 
+  // A declared type that is not an object is not contradicted by `properties`: in JSON
+  // Schema `properties` only applies to object values, so `type: string` with
+  // `properties` is a string parameter, not a deepObject group (#444).
+  // 宣言された型がオブジェクトでなければ、`properties` が付いていても矛盾しない：JSON Schema
+  // では `properties` はオブジェクトの値にのみ適用されるため、`type: string` と `properties`
+  // の組み合わせは文字列パラメータであり、deepObject グループではない (#444)。
+  it.concurrent('does not read a string type with properties as an object', () => {
+    expect(
+      wireObject(
+        {
+          name: 'page',
+          in: 'query',
+          style: 'deepObject',
+          schema: {
+            type: 'string',
+            properties: { link: { type: 'string' } },
+            required: ['page'],
+            default: '0',
+          },
+        },
+        schemas,
+      ),
+    ).toBeUndefined()
+  })
+
   // With no declared property the keys of an exploded object cannot be told from those of
   // other parameters.
   // プロパティの宣言がなければ、explode されたオブジェクトのキーを他のパラメータのキーと

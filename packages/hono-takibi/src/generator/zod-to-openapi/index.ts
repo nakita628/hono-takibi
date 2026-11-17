@@ -501,7 +501,15 @@ export function zodToOpenAPI(
       schema,
     )
   }
-  if (schema.properties !== undefined || isUntypedObject(schema)) {
+  // `properties` and `required` only apply to object values in JSON Schema, so a declared
+  // type that is not an object is not contradicted by them: `type: string` beside
+  // `properties` is a string schema, and its default is a string default (#444). The
+  // object branch is entered only when the type includes `object`, or the schema is an
+  // untyped object.
+  if (
+    (schema.properties !== undefined && normalizeTypes(schema.type).includes('object')) ||
+    isUntypedObject(schema)
+  ) {
     // An optional property is `.exactOptional()`, which fails the `safeParse(undefined)` probe
     // the document derives `required` from, so an object that omits `required` states the
     // default, `required: []`. That holds whatever `additionalProperties` is: beside a
