@@ -762,6 +762,16 @@ export function wrap(
     if (schema.type === 'date' && typeof v === 'string') {
       return `new Date(${JSON.stringify(v)})`
     }
+    // An enum member or a `const` is emitted as the literal it is written as (#443):
+    // `type: boolean` with a string enum `['false', 'true']` emits string literals, so
+    // a default that names one of them has to stay a string — coercing it to the
+    // boolean it spells would not type-check against the union (TS2769).
+    if (
+      (v === 'true' || v === 'false') &&
+      ((schema.enum?.includes(v) ?? false) || schema.const === v)
+    ) {
+      return JSON.stringify(v)
+    }
     // YAML `default: 'true'` on a boolean schema: `.default()` takes the output type, so
     // the text has to become the boolean it names.
     if (typeList.includes('boolean') && (v === 'true' || v === 'false')) {
