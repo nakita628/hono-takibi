@@ -905,6 +905,151 @@ describe('wireObject', () => {
     ).toStrictEqual({ name: 'opts', how: 'spread', properties: ['size'] })
   })
 
+  // A declared type that is not an object is not contradicted by `properties`: in JSON
+  // Schema `properties` only applies to object values, so `type: string` with
+  // `properties` is a string parameter, not a deepObject group (#444).
+  // 宣言された型がオブジェクトでなければ、`properties` が付いていても矛盾しない：JSON Schema
+  // では `properties` はオブジェクトの値にのみ適用されるため、`type: string` と `properties`
+  // の組み合わせは文字列パラメータであり、deepObject グループではない (#444)。
+  it.concurrent('does not read a string type with properties as an object', () => {
+    expect(
+      wireObject(
+        {
+          name: 'page',
+          in: 'query',
+          style: 'deepObject',
+          schema: {
+            type: 'string',
+            properties: { link: { type: 'string' } },
+            required: ['page'],
+            default: '0',
+          },
+        },
+        schemas,
+      ),
+    ).toBeUndefined()
+  })
+
+  // An untyped schema with `properties` is still an object even when another keyword
+  // stands beside them: the emitter reads those as objects (`allOf`/`oneOf`) or refines
+  // over them (`minLength`), so a deepObject parameter of that shape is still gathered.
+  // `properties` を持つ型なしスキーマは、他のキーワードが並んでいてもオブジェクトのまま
+  // である。エミッタはそれらをオブジェクトとして読む（`allOf`/`oneOf`）か、それらの上で
+  // refine する（`minLength`）ため、その形の deepObject パラメータは引き続き集められる。
+  it.concurrent('reads an untyped allOf with properties as an object', () => {
+    expect(
+      wireObject(
+        {
+          name: 'f',
+          in: 'query',
+          style: 'deepObject',
+          schema: {
+            allOf: [{ type: 'object', properties: { a: { type: 'string' } } }],
+            properties: { b: { type: 'string' } },
+          },
+        },
+        schemas,
+      ),
+    ).toStrictEqual({ name: 'f', how: 'deep', properties: ['b'] })
+  })
+
+  it.concurrent('reads an untyped oneOf with properties as an object', () => {
+    expect(
+      wireObject(
+        {
+          name: 'f',
+          in: 'query',
+          style: 'deepObject',
+          schema: {
+            oneOf: [{ type: 'object', properties: { a: { type: 'string' } } }],
+            properties: { b: { type: 'string' } },
+          },
+        },
+        schemas,
+      ),
+    ).toStrictEqual({ name: 'f', how: 'deep', properties: ['b'] })
+  })
+
+  it.concurrent('reads untyped properties with minLength as an object', () => {
+    expect(
+      wireObject(
+        {
+          name: 'f',
+          in: 'query',
+          style: 'deepObject',
+          schema: { properties: { b: { type: 'string' } }, minLength: 2 },
+        },
+        schemas,
+      ),
+    ).toStrictEqual({ name: 'f', how: 'deep', properties: ['b'] })
+  })
+
+  // An untyped schema with only `additionalProperties` is an object too: the emitter
+  // reads it as a record, so a deepObject parameter of that shape is gathered, even
+  // though it declares no property — the name travels in every key.
+  // `additionalProperties` だけを持つ型なしスキーマもオブジェクトである。エミッタはそれを
+  // レコードとして読むため、その形の deepObject パラメータも集められる。プロパティの宣言
+  // がなくても、名前はすべてのキーに含まれる。
+  it.concurrent('reads untyped additionalProperties with a schema as an object', () => {
+    expect(
+      wireObject(
+        {
+          name: 'f',
+          in: 'query',
+          style: 'deepObject',
+          schema: { additionalProperties: { type: 'string' } },
+        },
+        schemas,
+      ),
+    ).toStrictEqual({ name: 'f', how: 'deep', properties: [] })
+  })
+
+  it.concurrent('reads untyped additionalProperties true as an object', () => {
+    expect(
+      wireObject(
+        {
+          name: 'f',
+          in: 'query',
+          style: 'deepObject',
+          schema: { additionalProperties: true },
+        },
+        schemas,
+      ),
+    ).toStrictEqual({ name: 'f', how: 'deep', properties: [] })
+  })
+
+  it.concurrent('reads untyped additionalProperties false as an object', () => {
+    expect(
+      wireObject(
+        {
+          name: 'f',
+          in: 'query',
+          style: 'deepObject',
+          schema: { additionalProperties: false },
+        },
+        schemas,
+      ),
+    ).toStrictEqual({ name: 'f', how: 'deep', properties: [] })
+  })
+
+  // With another keyword beside it the emitter refines instead of reading an object,
+  // so the parameter is not gathered — matching the emitter.
+  // 他のキーワードが並ぶ場合、エミッタはオブジェクトとして読むのではなく refine するため、
+  // パラメータは集められない。エミッタと一致する。
+  it.concurrent('does not read additionalProperties with minLength as an object', () => {
+    expect(
+      wireObject(
+        {
+          name: 'f',
+          in: 'query',
+          style: 'deepObject',
+          schema: { additionalProperties: { type: 'string' }, minLength: 2 },
+        },
+        schemas,
+      ),
+    ).toBeUndefined()
+  })
+
   // With no declared property the keys of an exploded object cannot be told from those of
   // other parameters.
   // プロパティの宣言がなければ、explode されたオブジェクトのキーを他のパラメータのキーと

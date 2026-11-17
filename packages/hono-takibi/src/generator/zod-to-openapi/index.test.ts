@@ -13391,6 +13391,22 @@ describe('untyped object', () => {
   })
 })
 
+// #444: `properties` beside a declared non-object type does not make an object: in JSON
+// Schema `properties` and `required` only apply to object values, so `type: string` with
+// `properties` is a string schema and its default is a string default
+describe('string type with properties', () => {
+  it.concurrent('codegen: type: string with properties emits z.string() with its default', () => {
+    expect(
+      zodToOpenAPI({
+        type: 'string',
+        properties: { link: { type: 'string' } },
+        required: ['page'],
+        default: '0',
+      }),
+    ).toBe('z.string().default("0").openapi({"required":["page"]})')
+  })
+})
+
 // #387: an object default keeps the keys its schema declares
 describe('object default', () => {
   it.concurrent('drops the keys the schema does not declare', () => {
