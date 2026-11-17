@@ -73,3 +73,20 @@ paths:
                     type: array
                     items:
                       type: string
+  # #443: a string enum on a boolean schema with a string default — the enum is
+  # emitted as string literals, so the default has to stay a string too, or the
+  # generated route does not type-check (TS2769).
+  /bool-enum:
+    get:
+      operationId: boolEnum
+      parameters:
+        - name: prefix
+          in: query
+          required: false
+          schema:
+            type: boolean
+            enum: ['false', 'true']
+            default: 'false'
+      responses:
+        '200':
+          description: ok

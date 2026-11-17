@@ -292,6 +292,53 @@ describe('wrap', () => {
       expect(wrap('z.int()', { type: 'integer', default: '10' })).toBe('z.int().default(10)')
       expect(wrap('z.string()', { type: 'string', default: 1 })).toBe('z.string().default("1")')
     })
+
+    // #443: the enum is emitted as the string literals it lists, so a default that
+    // names one of them has to stay a string — coercing it to a boolean would not
+    // type-check against the union (TS2769)
+    it.concurrent('keeps a string default that names a string member of a boolean enum', () => {
+      expect(
+        wrap("z.union([z.literal('false'),z.literal('true')])", {
+          type: 'boolean',
+          enum: ['false', 'true'],
+          default: 'false',
+        }),
+      ).toBe(`z.union([z.literal('false'),z.literal('true')]).default("false")`)
+      expect(
+        wrap("z.literal('false')", { type: 'boolean', enum: ['false'], default: 'false' }),
+      ).toBe(`z.literal('false').default("false")`)
+      // a mixed enum keeps the string member a string, the boolean member a boolean
+      expect(
+        wrap("z.union([z.literal('false'),z.literal(true)])", {
+          type: 'boolean',
+          enum: ['false', true],
+          default: 'false',
+        }),
+      ).toBe(`z.union([z.literal('false'),z.literal(true)]).default("false")`)
+    })
+
+    // #443, same class: a string `const` is emitted as a string literal too
+    it.concurrent('keeps a string default that names a string const of a boolean schema', () => {
+      expect(
+        wrap("z.literal('false')", { type: 'boolean', const: 'false', default: 'false' }),
+      ).toBe(`z.literal('false').default("false")`)
+    })
+
+    it.concurrent('still coerces a string default to a boolean with no enum or const', () => {
+      expect(wrap('z.boolean()', { type: 'boolean', default: 'true' })).toBe(
+        'z.boolean().default(true)',
+      )
+    })
+
+    it.concurrent('leaves a string default a boolean enum does not list to the document', () => {
+      expect(
+        wrap('z.union([z.literal(true),z.literal(false)])', {
+          type: 'boolean',
+          enum: [true, false],
+          default: 'false',
+        }),
+      ).toBe(`z.union([z.literal(true),z.literal(false)]).openapi({"default":"false"})`)
+    })
   })
 
   // #357: `default: null` on a schema that does not declare `null` otherwise
