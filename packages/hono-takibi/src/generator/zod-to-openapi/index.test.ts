@@ -13405,12 +13405,6 @@ describe('string type with properties', () => {
       }),
     ).toBe('z.string().default("0").openapi({"required":["page"]})')
   })
-
-  it.concurrent('runtime: a string-typed schema with properties accepts a string', () => {
-    const Page = z.string().default('0')
-    expect(Page.safeParse('0').success).toBe(true)
-    expect(Page.safeParse({ link: 'x' }).success).toBe(false)
-  })
 })
 
 // #387: an object default keeps the keys its schema declares

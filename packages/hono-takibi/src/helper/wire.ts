@@ -1,5 +1,5 @@
 import { COMPONENT_REF_PREFIX } from '../constants/index.js'
-import { isSchemaArray, isUntypedObject } from '../guard/index.js'
+import { isSchemaArray } from '../guard/index.js'
 import type { Parameter, Schema } from '../openapi/index.js'
 import { decodePercent, normalizeTypes } from '../utils/index.js'
 
@@ -528,8 +528,13 @@ function resolveObject(
   }
   // The same condition as the emitter's object branch, plus the type dispatch below it: a
   // declared `type: object` is an object even with no `properties`, while `properties`
-  // beside a declared non-object type is not one (`type: string` with `properties`, #444).
-  return normalizeTypes(schema.type).includes('object') || isUntypedObject(schema)
+  // beside a declared non-object type is not one (`type: string` with `properties`,
+  // #444). An untyped schema with `properties` is still an object even when another
+  // keyword stands beside them: the emitter reads those as objects (`allOf`/`oneOf`)
+  // or refines over them (`minLength`), so a deepObject parameter of that shape must
+  // still be gathered, or its value never reaches it.
+  return normalizeTypes(schema.type).includes('object') ||
+    (schema.type === undefined && schema.properties !== undefined)
     ? schema
     : undefined
 }

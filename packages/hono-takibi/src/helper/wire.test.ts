@@ -930,6 +930,60 @@ describe('wireObject', () => {
     ).toBeUndefined()
   })
 
+  // An untyped schema with `properties` is still an object even when another keyword
+  // stands beside them: the emitter reads those as objects (`allOf`/`oneOf`) or refines
+  // over them (`minLength`), so a deepObject parameter of that shape is still gathered.
+  // `properties` を持つ型なしスキーマは、他のキーワードが並んでいてもオブジェクトのまま
+  // である。エミッタはそれらをオブジェクトとして読む（`allOf`/`oneOf`）か、それらの上で
+  // refine する（`minLength`）ため、その形の deepObject パラメータは引き続き集められる。
+  it.concurrent('reads an untyped allOf with properties as an object', () => {
+    expect(
+      wireObject(
+        {
+          name: 'f',
+          in: 'query',
+          style: 'deepObject',
+          schema: {
+            allOf: [{ type: 'object', properties: { a: { type: 'string' } } }],
+            properties: { b: { type: 'string' } },
+          },
+        },
+        schemas,
+      ),
+    ).toStrictEqual({ name: 'f', how: 'deep', properties: ['b'] })
+  })
+
+  it.concurrent('reads an untyped oneOf with properties as an object', () => {
+    expect(
+      wireObject(
+        {
+          name: 'f',
+          in: 'query',
+          style: 'deepObject',
+          schema: {
+            oneOf: [{ type: 'object', properties: { a: { type: 'string' } } }],
+            properties: { b: { type: 'string' } },
+          },
+        },
+        schemas,
+      ),
+    ).toStrictEqual({ name: 'f', how: 'deep', properties: ['b'] })
+  })
+
+  it.concurrent('reads untyped properties with minLength as an object', () => {
+    expect(
+      wireObject(
+        {
+          name: 'f',
+          in: 'query',
+          style: 'deepObject',
+          schema: { properties: { b: { type: 'string' } }, minLength: 2 },
+        },
+        schemas,
+      ),
+    ).toStrictEqual({ name: 'f', how: 'deep', properties: ['b'] })
+  })
+
   // With no declared property the keys of an exploded object cannot be told from those of
   // other parameters.
   // プロパティの宣言がなければ、explode されたオブジェクトのキーを他のパラメータのキーと
