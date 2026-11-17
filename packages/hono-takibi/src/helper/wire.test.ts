@@ -984,6 +984,72 @@ describe('wireObject', () => {
     ).toStrictEqual({ name: 'f', how: 'deep', properties: ['b'] })
   })
 
+  // An untyped schema with only `additionalProperties` is an object too: the emitter
+  // reads it as a record, so a deepObject parameter of that shape is gathered, even
+  // though it declares no property — the name travels in every key.
+  // `additionalProperties` だけを持つ型なしスキーマもオブジェクトである。エミッタはそれを
+  // レコードとして読むため、その形の deepObject パラメータも集められる。プロパティの宣言
+  // がなくても、名前はすべてのキーに含まれる。
+  it.concurrent('reads untyped additionalProperties with a schema as an object', () => {
+    expect(
+      wireObject(
+        {
+          name: 'f',
+          in: 'query',
+          style: 'deepObject',
+          schema: { additionalProperties: { type: 'string' } },
+        },
+        schemas,
+      ),
+    ).toStrictEqual({ name: 'f', how: 'deep', properties: [] })
+  })
+
+  it.concurrent('reads untyped additionalProperties true as an object', () => {
+    expect(
+      wireObject(
+        {
+          name: 'f',
+          in: 'query',
+          style: 'deepObject',
+          schema: { additionalProperties: true },
+        },
+        schemas,
+      ),
+    ).toStrictEqual({ name: 'f', how: 'deep', properties: [] })
+  })
+
+  it.concurrent('reads untyped additionalProperties false as an object', () => {
+    expect(
+      wireObject(
+        {
+          name: 'f',
+          in: 'query',
+          style: 'deepObject',
+          schema: { additionalProperties: false },
+        },
+        schemas,
+      ),
+    ).toStrictEqual({ name: 'f', how: 'deep', properties: [] })
+  })
+
+  // With another keyword beside it the emitter refines instead of reading an object,
+  // so the parameter is not gathered — matching the emitter.
+  // 他のキーワードが並ぶ場合、エミッタはオブジェクトとして読むのではなく refine するため、
+  // パラメータは集められない。エミッタと一致する。
+  it.concurrent('does not read additionalProperties with minLength as an object', () => {
+    expect(
+      wireObject(
+        {
+          name: 'f',
+          in: 'query',
+          style: 'deepObject',
+          schema: { additionalProperties: { type: 'string' }, minLength: 2 },
+        },
+        schemas,
+      ),
+    ).toBeUndefined()
+  })
+
   // With no declared property the keys of an exploded object cannot be told from those of
   // other parameters.
   // プロパティの宣言がなければ、explode されたオブジェクトのキーを他のパラメータのキーと
