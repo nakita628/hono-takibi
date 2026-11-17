@@ -7,7 +7,9 @@
   ],
   "timezone": "Asia/Tokyo",
   "schedule": ["* * * * 6"],
-  "dependencyDashboardAutoclose": true,
+  "dependencyDashboard": {
+    "autoclose": true
+  },
   "osvVulnerabilityAlerts": true,
   "vulnerabilityAlerts": {
     "minimumReleaseAge": "1 day"
