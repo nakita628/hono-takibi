@@ -160,8 +160,14 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
           `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${dependentSchemasMessageField}})}}}`,
       )
     : []
+  // `additionalProperties` as a schema or `true` evaluates every key it applies to
+  // (all undeclared keys), so `unevaluatedProperties` has nothing left to reject
+  // (#462). With `additionalProperties: false` those keys already fail there, so the
+  // check stays.
   const unevaluatedPropertiesCheck =
-    schema.unevaluatedProperties === false
+    schema.unevaluatedProperties === false &&
+    schema.additionalProperties !== true &&
+    !isSchemaObject(schema.additionalProperties)
       ? forUndeclaredKeys(`ctx.addIssue(${issueObj(messageFor(schema, 'unevaluatedProperties'))})`)
       : undefined
 
@@ -396,9 +402,31 @@ function makePatternPropsStmt(sub: Schema) {
   return `for(const k of Object.keys(o)){for(const p of ${JSON.stringify(patterns)}){if(new RegExp(p).test(k)){e.add(k)}}}`
 }
 
-// The keys an `allOf` member evaluates: its own properties and pattern properties, and those
-// of its own `allOf`. A member that is a reference evaluates the keys of the component it
-// names (#405), read once however often it is reached.
+// The keys `additionalProperties` applies to, as evaluated (#462): every key that
+// neither `properties` nor `patternProperties` of the same schema declares. A schema
+// or `true` evaluates them; `false` evaluates nothing (those keys already fail
+// against `additionalProperties` itself).
+function makeAdditionalPropsStmt(sub: Schema) {
+  if (sub.additionalProperties !== true && !isSchemaObject(sub.additionalProperties)) {
+    return undefined
+  }
+  const ownKeys = sub.properties ? Object.keys(sub.properties) : []
+  const patterns = sub.patternProperties ? Object.keys(sub.patternProperties) : []
+  const guards = [
+    ...(ownKeys.length > 0 ? [`!${JSON.stringify(ownKeys)}.includes(k)`] : []),
+    ...(patterns.length > 0
+      ? [`!${JSON.stringify(patterns)}.some((p)=>new RegExp(p).test(k))`]
+      : []),
+  ]
+  return guards.length === 0
+    ? `for(const k of Object.keys(o)){e.add(k)}`
+    : `for(const k of Object.keys(o)){if(${guards.join('&&')}){e.add(k)}}`
+}
+
+// The keys an `allOf` member evaluates: its own properties, pattern properties and
+// additional properties, and those of its own `allOf`. A member that is a reference
+// evaluates the keys of the component it names (#405), read once however often it is
+// reached.
 function collectAllOfStmts(
   list: readonly Schema[],
   schemas: Schemas | undefined,
@@ -414,25 +442,24 @@ function collectAllOfStmts(
     return [
       makeOwnPropsStmt(sub),
       makePatternPropsStmt(sub),
+      makeAdditionalPropsStmt(sub),
       ...(sub.allOf ? collectAllOfStmts(sub.allOf, schemas, reading) : []),
     ].filter((s): s is string => s !== undefined)
   })
 }
 
 function conditionalBranchStmt(sub: Schema, recurse: (s: Schema) => string) {
-  if (!sub.properties && !sub.patternProperties) {
-    return undefined
-  }
-  const ifBody = [makeOwnPropsStmt(sub), makePatternPropsStmt(sub)]
+  const ifBody = [makeOwnPropsStmt(sub), makePatternPropsStmt(sub), makeAdditionalPropsStmt(sub)]
     .filter((s): s is string => s !== undefined)
     .join(';')
   return ifBody ? `if(${recurse(sub)}.safeParse(o).success){${ifBody}}` : undefined
 }
 
 // The statements that collect, into `e`, every key the schema evaluates: its own
-// properties and pattern properties, those of every `allOf` member, those of each `anyOf`
-// and `oneOf` branch that matches, the `if` / `then` / `else` properties the condition
-// selects, and those of each `dependentSchemas` entry whose key is present.
+// properties, pattern properties and additional properties, those of every `allOf`
+// member, those of each `anyOf` and `oneOf` branch that matches, the `if` / `then` /
+// `else` properties the condition selects, and those of each `dependentSchemas`
+// entry whose key is present.
 function makeUnevaluatedEvaluationStmts(
   schema: Schema,
   recurse: (s: Schema) => string,
@@ -444,41 +471,34 @@ function makeUnevaluatedEvaluationStmts(
           .map((sub) => conditionalBranchStmt(sub, recurse))
           .filter((s): s is string => s !== undefined)
       : []
+  // The evaluated-key statements for one subschema, gated on `cond` when given.
+  const gated = (sub: Schema | undefined, cond: string | undefined) => {
+    if (sub === undefined) return undefined
+    const body = [makeOwnPropsStmt(sub), makePatternPropsStmt(sub), makeAdditionalPropsStmt(sub)]
+      .filter((s): s is string => s !== undefined)
+      .join(';')
+    if (!body) return undefined
+    return cond === undefined ? body : `if(${cond}){${body}}`
+  }
   const ifSchema = schema.if
   const ifStmts = ifSchema
-    ? (() => {
-        const ifOkStmt = `const ifOk=${recurse(ifSchema)}.safeParse(o).success`
-        const ifKeys = ifSchema.properties ? Object.keys(ifSchema.properties) : []
-        const thenKeys = schema.then?.properties ? Object.keys(schema.then.properties) : []
-        const elseKeys = schema.else?.properties ? Object.keys(schema.else.properties) : []
-        return [
-          ifOkStmt,
-          ifKeys.length > 0
-            ? `if(ifOk){for(const k of ${JSON.stringify(ifKeys)}){e.add(k)}}`
-            : undefined,
-          thenKeys.length > 0
-            ? `if(ifOk){for(const k of ${JSON.stringify(thenKeys)}){e.add(k)}}`
-            : undefined,
-          elseKeys.length > 0
-            ? `if(!ifOk){for(const k of ${JSON.stringify(elseKeys)}){e.add(k)}}`
-            : undefined,
-        ].filter((s): s is string => s !== undefined)
-      })()
+    ? [
+        `const ifOk=${recurse(ifSchema)}.safeParse(o).success`,
+        gated(ifSchema, 'ifOk'),
+        gated(schema.then, 'ifOk'),
+        gated(schema.else, '!ifOk'),
+      ].filter((s): s is string => s !== undefined)
     : []
   const depSchemaStmts = schema.dependentSchemas
     ? Object.entries(schema.dependentSchemas)
-        .map(([key, sub]) => {
-          const keys = sub.properties ? Object.keys(sub.properties) : []
-          return keys.length > 0
-            ? `if(${JSON.stringify(key)} in o){for(const k of ${JSON.stringify(keys)}){e.add(k)}}`
-            : undefined
-        })
+        .map(([key, sub]) => gated(sub, `${JSON.stringify(key)} in o`))
         .filter((s): s is string => s !== undefined)
     : []
   return [
     'const e=new Set()',
     makeOwnPropsStmt(schema),
     makePatternPropsStmt(schema),
+    makeAdditionalPropsStmt(schema),
     ...(schema.allOf ? collectAllOfStmts(schema.allOf, schemas) : []),
     ...branchStmts(schema.anyOf),
     ...branchStmts(schema.oneOf),

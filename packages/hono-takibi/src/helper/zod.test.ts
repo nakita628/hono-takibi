@@ -387,6 +387,141 @@ describe('helper/zod', () => {
       )
     })
 
+    it('counts additionalProperties keys as evaluated (#462)', () => {
+      expect(
+        makeUnevaluatedProperties(
+          {
+            additionalProperties: { type: 'string' },
+            unevaluatedProperties: false,
+          },
+          recurse,
+        ),
+      ).toBe(
+        `.superRefine((o,ctx)=>{const e=new Set();for(const k of Object.keys(o)){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})`,
+      )
+    })
+
+    it('counts additionalProperties: true keys as evaluated (#462)', () => {
+      expect(
+        makeUnevaluatedProperties(
+          {
+            additionalProperties: true,
+            unevaluatedProperties: false,
+          },
+          recurse,
+        ),
+      ).toBe(
+        `.superRefine((o,ctx)=>{const e=new Set();for(const k of Object.keys(o)){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})`,
+      )
+    })
+
+    it('excludes declared properties from the additionalProperties stmt (#462)', () => {
+      expect(
+        makeUnevaluatedProperties(
+          {
+            properties: { a: { type: 'string' } },
+            additionalProperties: { type: 'string' },
+            unevaluatedProperties: false,
+          },
+          recurse,
+        ),
+      ).toBe(
+        `.superRefine((o,ctx)=>{const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){if(!["a"].includes(k)){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})`,
+      )
+    })
+
+    it('does not count additionalProperties: false keys as evaluated (#462)', () => {
+      expect(
+        makeUnevaluatedProperties(
+          {
+            additionalProperties: false,
+            unevaluatedProperties: false,
+          },
+          recurse,
+        ),
+      ).toBe(
+        `.superRefine((o,ctx)=>{const e=new Set();for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})`,
+      )
+    })
+
+    it('excludes pattern-matched keys from the additionalProperties stmt (#462)', () => {
+      expect(
+        makeUnevaluatedProperties(
+          {
+            patternProperties: { '^x_': { type: 'string' } },
+            additionalProperties: { type: 'string' },
+            unevaluatedProperties: false,
+          },
+          recurse,
+        ),
+      ).toBe(
+        `.superRefine((o,ctx)=>{const e=new Set();for(const k of Object.keys(o)){for(const p of ["^x_"]){if(new RegExp(p).test(k)){e.add(k)}}};for(const k of Object.keys(o)){if(!["^x_"].some((p)=>new RegExp(p).test(k))){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})`,
+      )
+    })
+
+    it('counts additionalProperties inside allOf / anyOf / oneOf branches (#462)', () => {
+      expect(
+        makeUnevaluatedProperties(
+          {
+            allOf: [{ additionalProperties: { type: 'string' } }],
+            anyOf: [{ type: 'object', additionalProperties: { type: 'string' } }],
+            oneOf: [{ type: 'object', additionalProperties: true }],
+            unevaluatedProperties: false,
+          },
+          recurse,
+        ),
+      ).toBe(
+        `.superRefine((o,ctx)=>{const e=new Set();for(const k of Object.keys(o)){e.add(k)};if(z.record(z.string(),z.string()).safeParse(o).success){for(const k of Object.keys(o)){e.add(k)}};if(z.looseObject({}).safeParse(o).success){for(const k of Object.keys(o)){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})`,
+      )
+    })
+
+    it('counts additionalProperties inside if / then / else (#462)', () => {
+      expect(
+        makeUnevaluatedProperties(
+          {
+            if: { type: 'object', additionalProperties: { type: 'string' } },
+            // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+            then: { type: 'object', additionalProperties: true },
+            else: { type: 'object', properties: { c: { type: 'string' } } },
+            unevaluatedProperties: false,
+          },
+          recurse,
+        ),
+      ).toBe(
+        `.superRefine((o,ctx)=>{const e=new Set();const ifOk=z.record(z.string(),z.string()).safeParse(o).success;if(ifOk){for(const k of Object.keys(o)){e.add(k)}};if(ifOk){for(const k of Object.keys(o)){e.add(k)}};if(!ifOk){for(const k of ["c"]){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})`,
+      )
+    })
+
+    it('counts additionalProperties inside dependentSchemas (#462)', () => {
+      expect(
+        makeUnevaluatedProperties(
+          {
+            dependentSchemas: {
+              e: { type: 'object', additionalProperties: { type: 'string' } },
+            },
+            unevaluatedProperties: false,
+          },
+          recurse,
+        ),
+      ).toBe(
+        `.superRefine((o,ctx)=>{const e=new Set();if("e" in o){for(const k of Object.keys(o)){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})`,
+      )
+    })
+
+    it('skips additionalProperties keys for the unevaluatedProperties schema form (#462)', () => {
+      expect(
+        makeUnevaluatedProperties(
+          {
+            additionalProperties: { type: 'string' },
+            unevaluatedProperties: { type: 'number' },
+          },
+          recurse,
+        ),
+      ).toBe(
+        `.superRefine((o,ctx)=>{const e=new Set();for(const k of Object.keys(o)){e.add(k)};const Schema=z.number();for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})`,
+      )
+    })
+
     it('emits anyOf / oneOf conditional branches and dependentSchemas', () => {
       expect(
         makeUnevaluatedProperties(
@@ -577,6 +712,30 @@ describe('helper/zod', () => {
       )
       expect(code).toContain(
         `else if(issue.code==='custom'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}`,
+      )
+    })
+
+    // #462: the keys a referenced allOf member's `additionalProperties` applies to
+    // are evaluated too, excluding the keys its own `properties` declares
+    it('evaluates the additionalProperties keys of a referenced allOf member', () => {
+      const schemas = {
+        Base: {
+          type: 'object',
+          properties: { meta: { type: 'string' } },
+          additionalProperties: { type: 'string' },
+        },
+      } as const
+      const code = makeUnevaluatedPropertiesCheck(
+        {
+          allOf: [{ $ref: '#/components/schemas/Base' }],
+          unevaluatedProperties: false,
+        },
+        recurse,
+        undefined,
+        schemas,
+      )
+      expect(code).toContain(
+        `const e=new Set();for(const k of ["meta"]){e.add(k)};for(const k of Object.keys(o)){if(!["meta"].includes(k)){e.add(k)}}`,
       )
     })
 

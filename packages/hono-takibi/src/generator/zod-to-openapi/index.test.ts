@@ -5588,6 +5588,134 @@ describe('zodToOpenAPI', () => {
             ])
           }
         })
+        // ----- unevaluatedProperties: false + additionalProperties (#462) -----
+        // JSON Schema 2020-12: a key `additionalProperties` applies to counts as
+        // evaluated, so `unevaluatedProperties` at the same level must not reject it.
+        it.concurrent('object: additionalProperties schema + unevaluatedProperties=false → additional keys evaluated', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'object',
+              additionalProperties: { type: 'string' },
+              unevaluatedProperties: false,
+            }),
+          ).toBe(
+            'z.record(z.string(),z.string()).superRefine((o,ctx)=>{const e=new Set();for(const k of Object.keys(o)){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})',
+          )
+          const runtime = z.record(z.string(), z.string()).superRefine((o, ctx) => {
+            const e = new Set<string>()
+            for (const k of Object.keys(o)) e.add(k)
+            for (const k of Object.keys(o)) {
+              if (!e.has(k)) {
+                ctx.addIssue({ code: 'custom', path: [k], message: `Unknown property: ${k}` })
+              }
+            }
+          })
+          expect(runtime.safeParse({ b: 'x' }).success).toBe(true)
+          const result = runtime.safeParse({ b: 1 })
+          expect(result.success).toBe(false)
+        })
+        it.concurrent('object: additionalProperties: true + unevaluatedProperties=false → additional keys evaluated', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'object',
+              additionalProperties: true,
+              unevaluatedProperties: false,
+            }),
+          ).toBe(
+            'z.looseObject({}).superRefine((o,ctx)=>{const e=new Set();for(const k of Object.keys(o)){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})',
+          )
+          const runtime = z.looseObject({}).superRefine((o, ctx) => {
+            const e = new Set<string>()
+            for (const k of Object.keys(o)) e.add(k)
+            for (const k of Object.keys(o)) {
+              if (!e.has(k)) {
+                ctx.addIssue({ code: 'custom', path: [k], message: `Unknown property: ${k}` })
+              }
+            }
+          })
+          expect(runtime.safeParse({ b: 'x' }).success).toBe(true)
+        })
+        it.concurrent('object: properties + additionalProperties schema + unevaluatedProperties=false → declared and additional keys evaluated', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'object',
+              properties: { a: { type: 'string' } },
+              additionalProperties: { type: 'string' },
+              unevaluatedProperties: false,
+            }),
+          ).toBe(
+            'z.object({a:z.string().exactOptional()}).catchall(z.string()).superRefine((o,ctx)=>{const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){if(!["a"].includes(k)){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}}).openapi({"required":[]})',
+          )
+          const runtime = z
+            .object({ a: z.string().exactOptional() })
+            .catchall(z.string())
+            .superRefine((o, ctx) => {
+              const e = new Set<string>()
+              for (const k of ['a']) e.add(k)
+              for (const k of Object.keys(o)) {
+                if (!['a'].includes(k)) e.add(k)
+              }
+              for (const k of Object.keys(o)) {
+                if (!e.has(k)) {
+                  ctx.addIssue({ code: 'custom', path: [k], message: `Unknown property: ${k}` })
+                }
+              }
+            })
+          expect(runtime.safeParse({ a: 'x' }).success).toBe(true)
+          expect(runtime.safeParse({ b: 'x' }).success).toBe(true)
+          expect(runtime.safeParse({ b: 1 }).success).toBe(false)
+        })
+        it.concurrent('no-type: additionalProperties schema + unevaluatedProperties=false → additional keys evaluated', () => {
+          expect(
+            zodToOpenAPI({
+              additionalProperties: { type: 'string' },
+              unevaluatedProperties: false,
+            }),
+          ).toBe(
+            'z.record(z.string(),z.string()).superRefine((o,ctx)=>{const e=new Set();for(const k of Object.keys(o)){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})',
+          )
+        })
+        it.concurrent('object: additionalProperties: false + unevaluatedProperties=false → additional keys still rejected', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'object',
+              additionalProperties: false,
+              unevaluatedProperties: false,
+            }),
+          ).toBe(
+            'z.strictObject({}).superRefine((o,ctx)=>{const e=new Set();for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})',
+          )
+          expect(z.strictObject({}).safeParse({ b: 'x' }).success).toBe(false)
+        })
+        it.concurrent('typeless: additionalProperties schema + unevaluatedProperties=false beside minLength → no unevaluated rejection', () => {
+          expect(
+            zodToOpenAPI({
+              additionalProperties: { type: 'string' },
+              unevaluatedProperties: false,
+              minLength: 1,
+            }),
+          ).toBe(
+            `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){{const Schema=z.string();for(const k of Object.keys(val)){if(!Schema.safeParse(Reflect.get(val,k)).success){ctx.addIssue({code:'custom'})}}}};if(typeof val==='string'){if([...val].length<1){ctx.addIssue({code:'custom'})}}})`,
+          )
+          const runtime = z.unknown().superRefine((val, ctx) => {
+            if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+              const Schema = z.string()
+              for (const k of Object.keys(val)) {
+                if (!Schema.safeParse(Reflect.get(val, k)).success) {
+                  ctx.addIssue({ code: 'custom' })
+                }
+              }
+            }
+            if (typeof val === 'string') {
+              // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
+              if ([...val].length === 0) {
+                ctx.addIssue({ code: 'custom' })
+              }
+            }
+          })
+          expect(runtime.safeParse({ b: 'x' }).success).toBe(true)
+          expect(runtime.safeParse({ b: 1 }).success).toBe(false)
+        })
         // ----- unevaluatedItems: false -----
         it.concurrent('array: prefixItems + unevaluatedItems=false → length-cap inside superRefine', () => {
           expect(
