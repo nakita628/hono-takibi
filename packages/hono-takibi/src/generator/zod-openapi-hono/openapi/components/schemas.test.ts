@@ -119,6 +119,9 @@ export type Item=z.infer<typeof ItemSchema>`,
   })
 
   // #402: a discriminator parent whose subtypes allOf-extend it is no cycle
+  // #461: the parent's own `properties` beside `oneOf` are an intersection
+  // with `z.object()` — the branches only accept objects, so the shape member
+  // rejects nothing they accept.
   it.concurrent('writes the subtypes of a self-extending parent without a cycle', () => {
     const components = {
       schemas: {
@@ -144,7 +147,7 @@ export type Item=z.infer<typeof ItemSchema>`,
     expect(schemasCode(components, false, false)).toBe(
       // in document order here; `componentsCode` sorts the declarations afterwards
       [
-        `const ConnectionSchema=z.xor([SampleConnectionSchema,KafkaConnectionSchema]).openapi({"discriminator":{"propertyName":"type"}}).openapi('Connection')`,
+        `const ConnectionSchema=z.xor([SampleConnectionSchema,KafkaConnectionSchema]).and(z.object({name:z.string().exactOptional()}).openapi({"required":[]})).openapi({"discriminator":{"propertyName":"type"}}).openapi('Connection')`,
         `const SampleConnectionSchema=z.object({name:z.string().exactOptional()}).openapi({"required":[]}).openapi('SampleConnection')`,
         `const KafkaConnectionSchema=z.object({name:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({bootstrapServers:z.string().exactOptional()}).openapi({"required":[]})).openapi('KafkaConnection')`,
       ].join('\n\n'),

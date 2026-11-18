@@ -13535,6 +13535,428 @@ describe('string type with properties', () => {
   })
 })
 
+// The shape check of #461, mirrored by hand for the runtime checks below.
+// A `.superRefine` on the combinator result would see the parsed output, and a
+// stripping object branch would have dropped the sibling keys before the refine
+// runs — so the check runs on the raw input, piped into the combinator.
+const shapeCheck461 = (ctx: { value: unknown; issues: { code: string; input?: unknown }[] }) => {
+  const val = ctx.value
+  if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+    if (Object.hasOwn(val, 'link')) {
+      if (!z.string().safeParse(Reflect.get(val, 'link')).success) {
+        ctx.issues.push({ code: 'custom', input: val })
+      }
+    }
+  }
+}
+
+const requiredCheck461 = (ctx: { value: unknown; issues: { code: string; input?: unknown }[] }) => {
+  const val = ctx.value
+  if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+    if (!Object.hasOwn(val, 'link')) {
+      ctx.issues.push({ code: 'custom', input: val })
+    }
+  }
+}
+
+// #461: `properties` beside `allOf` / `anyOf` or a multi-type is read as an object,
+// rejecting non-object values the schema accepts. In JSON Schema `properties` and
+// `required` only apply to object values, so the shape is a check on the raw input
+// piped into the combinator — a non-object value the combinator accepts passes,
+// an object must match the shape.
+describe('properties beside combinators', () => {
+  const shape = `(val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.addIssue({code:'custom'})}}}}`
+  const shapeCheck = `(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.issues.push({...{code:'custom'},input:val})}}}}`
+  const requiredCheck = `(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"link")){ctx.issues.push({...{code:'custom'},input:val})}}}`
+  const minLengthCheck = `(val,ctx)=>{if(typeof val==='string'){if([...val].length<1){ctx.addIssue({code:'custom'})}}}`
+  const maxLengthCheck = `(val,ctx)=>{if(typeof val==='string'){if([...val].length>5){ctx.addIssue({code:'custom'})}}}`
+
+  it.concurrent('codegen: anyOf string|object + properties checks the raw input, piped into the union', () => {
+    expect(
+      zodToOpenAPI({
+        anyOf: [{ type: 'string' }, { type: 'object' }],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(`z.unknown().check(${shapeCheck}).pipe(z.union([z.string(),z.looseObject({})]))`)
+  })
+
+  it.concurrent('codegen: allOf [string] + properties checks the raw input, piped into the intersection', () => {
+    expect(
+      zodToOpenAPI({
+        allOf: [{ type: 'string' }],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(`z.unknown().check(${shapeCheck}).pipe(z.string())`)
+  })
+
+  it.concurrent('codegen: type string + allOf [minLength] + properties keeps a string default', () => {
+    expect(
+      zodToOpenAPI({
+        type: 'string',
+        allOf: [{ minLength: 1 }],
+        properties: { link: { type: 'string' } },
+        default: '0',
+      }),
+    ).toBe(
+      `z.unknown().check(${shapeCheck}).pipe(z.unknown().superRefine(${minLengthCheck})).default("0")`,
+    )
+  })
+
+  it.concurrent('codegen: type string + anyOf [minLength, maxLength] + properties keeps a string default', () => {
+    expect(
+      zodToOpenAPI({
+        type: 'string',
+        anyOf: [{ minLength: 1 }, { maxLength: 5 }],
+        properties: { link: { type: 'string' } },
+        default: '0',
+      }),
+    ).toBe(
+      `z.unknown().check(${shapeCheck}).pipe(z.union([z.unknown().superRefine(${minLengthCheck}),z.unknown().superRefine(${maxLengthCheck})])).default("0")`,
+    )
+  })
+
+  it.concurrent('codegen: type [object, string] + properties unions the types', () => {
+    expect(
+      zodToOpenAPI({
+        type: ['object', 'string'],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(
+      'z.union([z.object({link:z.string().exactOptional()}).openapi({"required":[]}),z.string()])',
+    )
+  })
+
+  it.concurrent('codegen: type [object, string] + properties + required keeps the key required', () => {
+    expect(
+      zodToOpenAPI({
+        type: ['object', 'string'],
+        properties: { link: { type: 'string' } },
+        required: ['link'],
+      }),
+    ).toBe(
+      'z.union([z.object({link:z.string()}).openapi({"required":["link"]}),z.string().openapi({"required":["link"]})]).openapi({"required":["link"]})',
+    )
+  })
+
+  it.concurrent('codegen: allOf [] + properties refines z.any()', () => {
+    expect(zodToOpenAPI({ allOf: [], properties: { link: { type: 'string' } } })).toBe(
+      `z.any().superRefine(${shape})`,
+    )
+  })
+
+  it.concurrent('codegen: allOf [string] + empty properties constrains nothing', () => {
+    expect(zodToOpenAPI({ allOf: [{ type: 'string' }], properties: {} })).toBe('z.string()')
+  })
+
+  it.concurrent('codegen: type object + anyOf + properties still intersects with z.object()', () => {
+    // A declared object type means the value is an object, so the shape stays an
+    // intersection: that is what checks each property's type, with its path.
+    expect(
+      zodToOpenAPI({
+        type: 'object',
+        properties: { link: { type: 'string' } },
+        anyOf: [{ type: 'string' }, { type: 'object' }],
+      }),
+    ).toBe(
+      'z.union([z.string(),z.looseObject({})]).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]}))',
+    )
+  })
+
+  it.concurrent('codegen: type object + allOf + properties still intersects with z.object()', () => {
+    expect(
+      zodToOpenAPI({
+        type: 'object',
+        allOf: [{ minLength: 1 }],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(
+      "z.unknown().superRefine((val,ctx)=>{if(typeof val==='string'){if([...val].length<1){ctx.addIssue({code:'custom'})}}}).and(z.object({link:z.string().exactOptional()}).openapi({\"required\":[]}))",
+    )
+  })
+
+  it.concurrent('codegen: allOf [object member] + properties keeps the shape a member', () => {
+    // A member that only accepts objects already rejects every non-object, so
+    // the shape member rejects nothing the rest accepts — and keeping it is
+    // what merges the sibling properties into the inferred type.
+    expect(
+      zodToOpenAPI({
+        allOf: [
+          {
+            type: 'object',
+            properties: { id: { type: 'integer' } },
+            required: ['id'],
+          },
+        ],
+        properties: { label: { type: 'string' } },
+      }),
+    ).toBe(
+      'z.object({id:z.int()}).openapi({"required":["id"]}).and(z.object({label:z.string().exactOptional()}).openapi({"required":[]}))',
+    )
+  })
+
+  it.concurrent('codegen: allOf [$ref object] + properties keeps the shape a member', () => {
+    expect(
+      zodToOpenAPI(
+        {
+          allOf: [{ $ref: '#/components/schemas/BaseEntity' }],
+          properties: { label: { type: 'string' } },
+          required: ['label'],
+        },
+        undefined,
+        {
+          schemas: {
+            BaseEntity: {
+              type: 'object',
+              properties: { id: { type: 'integer' }, createdAt: { type: 'string' } },
+              required: ['id', 'createdAt'],
+            },
+          },
+        },
+      ),
+    ).toBe(
+      'BaseEntitySchema.and(z.object({label:z.string()}).openapi({"required":["label"]})).openapi({"required":["label"]})',
+    )
+  })
+
+  it.concurrent('codegen: anyOf all-object branches + properties still intersects', () => {
+    expect(
+      zodToOpenAPI({
+        anyOf: [
+          { type: 'object', properties: { a: { type: 'string' } } },
+          { type: 'object', properties: { b: { type: 'string' } } },
+        ],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(
+      'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}),z.object({b:z.string().exactOptional()}).openapi({"required":[]})]).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]}))',
+    )
+  })
+
+  it.concurrent('codegen: oneOf string|object + properties checks the raw input, piped into the xor', () => {
+    // The shape was dropped entirely beside oneOf: an object with a
+    // wrong-typed property passed. Same rule as anyOf now.
+    expect(
+      zodToOpenAPI({
+        oneOf: [{ type: 'string' }, { type: 'object' }],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(`z.unknown().check(${shapeCheck}).pipe(z.xor([z.string(),z.looseObject({})]))`)
+  })
+
+  it.concurrent('codegen: oneOf all-object branches + properties still intersects', () => {
+    expect(
+      zodToOpenAPI({
+        oneOf: [
+          { type: 'object', properties: { a: { type: 'string' } } },
+          { type: 'object', properties: { b: { type: 'string' } } },
+        ],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(
+      'z.xor([z.object({a:z.string().exactOptional()}).openapi({"required":[]}),z.object({b:z.string().exactOptional()}).openapi({"required":[]})]).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]}))',
+    )
+  })
+
+  it.concurrent('codegen: type object + oneOf + properties still intersects', () => {
+    expect(
+      zodToOpenAPI({
+        type: 'object',
+        oneOf: [{ type: 'string' }, { type: 'object' }],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(
+      'z.xor([z.string(),z.looseObject({})]).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]}))',
+    )
+  })
+
+  it.concurrent('codegen: allOf [annotation-only member] + properties refines z.any()', () => {
+    expect(
+      zodToOpenAPI({ allOf: [{ description: 'x' }], properties: { link: { type: 'string' } } }),
+    ).toBe(`z.any().superRefine(${shape}).openapi({"description":"x"})`)
+  })
+
+  it.concurrent('codegen: required beside combinators without properties is a check on the raw input', () => {
+    expect(
+      zodToOpenAPI({ anyOf: [{ type: 'string' }, { type: 'object' }], required: ['link'] }),
+    ).toBe(
+      `z.unknown().check(${requiredCheck}).pipe(z.union([z.string(),z.looseObject({})])).openapi({"required":["link"]})`,
+    )
+    expect(zodToOpenAPI({ allOf: [{ type: 'string' }], required: ['link'] })).toBe(
+      `z.unknown().check(${requiredCheck}).pipe(z.string()).openapi({"required":["link"]})`,
+    )
+    expect(
+      zodToOpenAPI({ oneOf: [{ type: 'string' }, { type: 'object' }], required: ['link'] }),
+    ).toBe(
+      `z.unknown().check(${requiredCheck}).pipe(z.xor([z.string(),z.looseObject({})])).openapi({"required":["link"]})`,
+    )
+  })
+
+  it.concurrent('codegen: type object + combinators + required only checks on top of the intersection', () => {
+    expect(zodToOpenAPI({ type: 'object', allOf: [{ minLength: 1 }], required: ['link'] })).toBe(
+      `z.unknown().check(${requiredCheck}).pipe(z.unknown().superRefine(${minLengthCheck})).openapi({"required":["link"]})`,
+    )
+    expect(
+      zodToOpenAPI({
+        type: 'object',
+        anyOf: [{ type: 'string' }, { type: 'object' }],
+        required: ['link'],
+      }),
+    ).toBe(
+      `z.unknown().check(${requiredCheck}).pipe(z.union([z.string(),z.looseObject({})]).and(z.looseObject({}).openapi({"required":["link"]}))).openapi({"required":["link"]})`,
+    )
+  })
+
+  it.concurrent('codegen: a stripping object branch does not hide the sibling shape', () => {
+    // A `.superRefine` on the union would see the parsed output, and the
+    // `z.object({a})` branch strips `link` before the refine runs — so a
+    // wrong-typed `link` passed and a present one read as missing. The check
+    // runs on the raw input, piped into the union.
+    expect(
+      zodToOpenAPI({
+        anyOf: [{ type: 'object', properties: { a: { type: 'string' } } }, { type: 'string' }],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(
+      `z.unknown().check(${shapeCheck}).pipe(z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}),z.string()]))`,
+    )
+    expect(
+      zodToOpenAPI({
+        oneOf: [{ type: 'object', properties: { a: { type: 'string' } } }, { type: 'string' }],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(
+      `z.unknown().check(${shapeCheck}).pipe(z.xor([z.object({a:z.string().exactOptional()}).openapi({"required":[]}),z.string()]))`,
+    )
+    expect(
+      zodToOpenAPI({
+        allOf: [
+          {
+            anyOf: [{ type: 'object', properties: { a: { type: 'string' } } }, { type: 'string' }],
+          },
+        ],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(
+      `z.unknown().check(${shapeCheck}).pipe(z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}),z.string()]))`,
+    )
+    expect(
+      zodToOpenAPI(
+        {
+          anyOf: [{ $ref: '#/components/schemas/Foo' }, { type: 'string' }],
+          properties: { link: { type: 'string' } },
+        },
+        undefined,
+        {
+          schemas: {
+            Foo: { type: 'object', properties: { a: { type: 'string' } } },
+          },
+        },
+      ),
+    ).toBe(`z.unknown().check(${shapeCheck}).pipe(z.union([FooSchema,z.string()]))`)
+  })
+
+  // Runtime checks: the equivalent Zod schemas are mirrored by hand in TS rather
+  // than evaluated from the generated string, so no `new Function` / `eval` is
+  // introduced here (repo convention, see string.test.ts).
+  it.concurrent('runtime: a non-object value passes the shape, an object must match it', () => {
+    const AnyOf = z
+      .unknown()
+      .check(shapeCheck461)
+      .pipe(z.union([z.string(), z.looseObject({})]))
+    expect(AnyOf.safeParse('0').success).toBe(true)
+    expect(AnyOf.safeParse({ link: 'x' }).success).toBe(true)
+    expect(AnyOf.safeParse({ link: 123 }).success).toBe(false)
+    const Multi = z.union([z.object({ link: z.string().exactOptional() }), z.string()])
+    expect(Multi.safeParse('0').success).toBe(true)
+    expect(Multi.safeParse({ link: 'x' }).success).toBe(true)
+    expect(Multi.safeParse({ link: 123 }).success).toBe(false)
+    expect(Multi.safeParse({}).success).toBe(true)
+    const AllOf = z.unknown().check(shapeCheck461).pipe(z.string())
+    expect(AllOf.safeParse('0').success).toBe(true)
+    expect(AllOf.safeParse({ link: 'x' }).success).toBe(false)
+    // A declared object type keeps the intersection: the property's type is checked
+    // with its path, so a wrong-typed property fails at that property.
+    const ObjectAnyOf = z
+      .union([z.string(), z.looseObject({})])
+      .and(z.object({ link: z.string().exactOptional() }))
+    expect(ObjectAnyOf.safeParse('0').success).toBe(false)
+    expect(ObjectAnyOf.safeParse({ link: 'x' }).success).toBe(true)
+    const badLink = ObjectAnyOf.safeParse({ link: 123 })
+    expect(badLink.success).toBe(false)
+    expect(badLink.error?.issues[0]?.path).toStrictEqual(['link'])
+  })
+
+  it.concurrent('runtime: a stripping object branch does not hide the sibling shape', () => {
+    // The branch `z.object({a})` strips `link` before a refine would see it;
+    // the check runs on the raw input, so the sibling is still enforced.
+    const Stripping = z
+      .unknown()
+      .check(shapeCheck461)
+      .pipe(z.union([z.object({ a: z.string() }), z.string()]))
+    expect(Stripping.safeParse({ a: 'x', link: 123 }).success).toBe(false)
+    expect(Stripping.safeParse({ a: 'x', link: 'y' }).success).toBe(true)
+    expect(Stripping.safeParse('0').success).toBe(true)
+    const StrippingOneOf = z
+      .unknown()
+      .check(shapeCheck461)
+      .pipe(z.xor([z.object({ a: z.string() }), z.string()]))
+    expect(StrippingOneOf.safeParse({ a: 'x', link: 123 }).success).toBe(false)
+    expect(StrippingOneOf.safeParse({ a: 'x', link: 'y' }).success).toBe(true)
+    // Required-only: a present sibling must pass — the check sees the raw input,
+    // not the stripped output.
+    const Required = z
+      .unknown()
+      .check(requiredCheck461)
+      .pipe(z.union([z.object({ a: z.string() }), z.string()]))
+    expect(Required.safeParse({ a: 'x', link: 'y' }).success).toBe(true)
+    expect(Required.safeParse({ a: 'x' }).success).toBe(false)
+    // A value failing both the shape and the base reports the shape first: the
+    // check runs before the pipe, so the base's issue is masked on doubly-invalid
+    // values (the reverse of the old refine order).
+    const doubly = Stripping.safeParse({ a: 123, link: 123 })
+    expect(doubly.success).toBe(false)
+    expect(doubly.error?.issues[0]?.code).toBe('custom')
+    expect(doubly.error?.issues[0]?.path).toStrictEqual([])
+  })
+
+  it.concurrent('runtime: oneOf beside properties now constrains objects, and the member case keeps the type merge', () => {
+    const OneOf = z
+      .unknown()
+      .check(shapeCheck461)
+      .pipe(z.xor([z.string(), z.looseObject({})]))
+    expect(OneOf.safeParse('0').success).toBe(true)
+    expect(OneOf.safeParse({ link: 'x' }).success).toBe(true)
+    expect(OneOf.safeParse({ link: 123 }).success).toBe(false)
+    // The shape member merges the sibling property into the inferred type:
+    // a value missing the required sibling key fails, with the key's path.
+    const Merged = z.object({ id: z.int() }).and(z.object({ label: z.string() }))
+    expect(Merged.safeParse({ id: 1, label: 'x' }).success).toBe(true)
+    expect(Merged.safeParse({ id: 1 }).success).toBe(false)
+    const badLabel = Merged.safeParse({ id: 1, label: 123 })
+    expect(badLabel.success).toBe(false)
+    expect(badLabel.error?.issues[0]?.path).toStrictEqual(['label'])
+  })
+
+  it.concurrent('runtime: a string default survives on the checked union', () => {
+    const Defaulted = z
+      .unknown()
+      .check(shapeCheck461)
+      .pipe(
+        z.unknown().superRefine((val, ctx) => {
+          // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
+          if (typeof val === 'string' && [...val].length === 0) {
+            ctx.addIssue({ code: 'custom' })
+          }
+        }),
+      )
+      .default('0')
+    expect(Defaulted.safeParse('0').success).toBe(true)
+    expect(Defaulted.safeParse('').success).toBe(false)
+    expect(Defaulted.safeParse(undefined).success).toBe(true)
+    expect(Defaulted.safeParse(undefined).data).toBe('0')
+  })
+})
+
 // #387: an object default keeps the keys its schema declares
 describe('object default', () => {
   it.concurrent('drops the keys the schema does not declare', () => {
