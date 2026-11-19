@@ -13934,6 +13934,42 @@ describe('properties beside combinators', () => {
     )
   })
 
+  it.concurrent('codegen: an untyped object branch is distributed, not checked', () => {
+    // Maintainer regression on #467 (round 2): an object branch with no `type`
+    // (the #385 form) still fell back to the check-pipe, dropping `link` from
+    // the output and the shape from the document. The branch is emitted as
+    // `z.object(...)`, which admits neither `null` nor `undefined` — so the
+    // null-guard must not treat it as possibly nullable (see
+    // `canAdmitNullOrUndefined`), and the shape distributes as `.and()` just
+    // like a typed object branch. Same for a `$ref` to such a component.
+    expect(
+      zodToOpenAPI({
+        anyOf: [{ type: 'string' }, { properties: { id: { type: 'string' } } }],
+        properties: { link: { type: 'string' } },
+        required: ['link'],
+      }),
+    ).toBe(
+      'z.union([z.string(),z.object({id:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string()}).openapi({"required":["link"]}))]).openapi({"required":["link"]})',
+    )
+    expect(
+      zodToOpenAPI(
+        {
+          anyOf: [{ type: 'string' }, { $ref: '#/components/schemas/UntypedObj' }],
+          properties: { link: { type: 'string' } },
+          required: ['link'],
+        },
+        undefined,
+        {
+          schemas: {
+            UntypedObj: { properties: { id: { type: 'string' } } },
+          },
+        },
+      ),
+    ).toBe(
+      'z.union([z.string(),UntypedObjSchema.and(z.object({link:z.string()}).openapi({"required":["link"]}))]).openapi({"required":["link"]})',
+    )
+  })
+
   it.concurrent('codegen: an opaque $ref the shape cannot be distributed into falls back to the check', () => {
     // A `$ref` to a multi-type component is a stripping union the distribution
     // cannot reach into (the component is shared): the check-pipe is kept for
@@ -14448,6 +14484,31 @@ describe('properties beside combinators', () => {
     expect(NullableParent.safeParse({ a: 'x', link: 'y' }).success).toBe(true)
     expect(NullableParent.safeParse({ b: 'x', link: 123 }).success).toBe(false)
     expect(NullableParent.safeParse('0').success).toBe(false)
+  })
+
+  it.concurrent('runtime: an untyped object branch keeps the sibling in the output', () => {
+    // Same regression as the codegen test above, as runtime mirrors: the
+    // object branch is a plain `z.object` (#385), so the shape distributes
+    // as `.and()` and the merge keeps `link`.
+    const UntypedInline = z.union([
+      z.string(),
+      z.object({ id: z.string().exactOptional() }).and(z.object({ link: z.string() })),
+    ])
+    expect(UntypedInline.safeParse('0').success).toBe(true)
+    const kept = UntypedInline.safeParse({ id: 'a', link: 'x' })
+    expect(kept.success).toBe(true)
+    expect(kept.data).toStrictEqual({ id: 'a', link: 'x' })
+    expect(UntypedInline.safeParse({ id: 'a', link: 123 }).success).toBe(false)
+    expect(UntypedInline.safeParse({ id: 'a' }).success).toBe(false)
+    expect(UntypedInline.safeParse(null).success).toBe(false)
+    const UntypedObjSchema = z.object({ id: z.string().exactOptional() })
+    const UntypedRef = z.union([z.string(), UntypedObjSchema.and(z.object({ link: z.string() }))])
+    expect(UntypedRef.safeParse('0').success).toBe(true)
+    const keptRef = UntypedRef.safeParse({ id: 'a', link: 'x' })
+    expect(keptRef.success).toBe(true)
+    expect(keptRef.data).toStrictEqual({ id: 'a', link: 'x' })
+    expect(UntypedRef.safeParse({ id: 'a', link: 123 }).success).toBe(false)
+    expect(UntypedRef.safeParse({ id: 'a' }).success).toBe(false)
   })
 
   it.concurrent('runtime: an untyped parent with properties + anyOf stays spec-correct', () => {

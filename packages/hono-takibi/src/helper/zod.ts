@@ -529,6 +529,13 @@ export function canAdmitNullOrUndefined(
   if (union !== undefined) {
     return union.some((branch) => canAdmitNullOrUndefined(branch, schemas, seen))
   }
+  // A schema the emitter reads as `z.object(...)` (#385: no `type`, but
+  // `properties` / `additionalProperties` and only object keywords) admits
+  // neither `null` nor `undefined` — the final `return true` below is for
+  // genuinely unconstrained schemas. Without this, `distribute` falls back
+  // to the check-pipe for untyped object branches, dropping sibling keys
+  // from the output and the shape from the document (#467 review).
+  if (isUntypedObject(schema)) return false
   return true
 }
 
