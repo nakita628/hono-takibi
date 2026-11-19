@@ -33,8 +33,11 @@ import {
   emitObjectShapeCheck,
   emitObjectShapeRefine,
   emitTypelessRefine,
+  emitsStrippingObject,
   makeIssueForwarding,
   makeUnevaluatedPropertiesCheck,
+  canAcceptObject,
+  canAdmitNullOrUndefined,
   requiresObject,
 } from '../../helper/zod.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
@@ -183,6 +186,88 @@ export function zodToOpenAPI(
     childOptions?.coerce !== true && s.$ref
       ? makeRef(s.$ref)
       : zodToOpenAPI(s, undefined, childOptions)
+  // Distribute a sibling shape (#461) into a combinator branch, as the maintainer
+  // asked: a branch that only accepts objects gets the shape as an intersection
+  // member (`.and(shapeZ)`) — that merges the sibling properties into the
+  // inferred type, keeps them in the parsed output, and keeps the branch in the
+  // document. A branch that also accepts other values gets the shape as a guarded
+  // refine on the branch itself, which is safe only when the branch passes objects
+  // through unchanged: a stripping object branch would have dropped the sibling
+  // keys before the refine runs. Returns null when the shape cannot be distributed
+  // into the branch — an opaque `$ref` to a stripping union, or a multi-type whose
+  // object alternative cannot be reached without rebuilding it: the caller falls
+  // back to the check-pipe for the whole combinator, which is always correct
+  // (the document just loses the structure for that rare shape).
+  const distribute = (
+    branch: Schema,
+    shapeZ: string,
+    shapeRefine: string | undefined,
+    shapeHasProperties: boolean,
+  ): string | null => {
+    if (shapeRefine === undefined) return child(branch)
+    if (requiresObject(branch, childOptions?.schemas)) {
+      // The intersection passes the RAW input to both sides, so a branch whose
+      // wrapping admits `null` or substitutes on `undefined` (`.nullable()`,
+      // `.default()`, `.prefault()`, `.catch()`, a user chain, or a `$ref` to
+      // one of those) would reject the very values the wrapping exists to
+      // admit: the shape member is a plain `z.object`. Fall back to the
+      // check-pipe, which is always correct there.
+      if (canAdmitNullOrUndefined(branch, childOptions?.schemas)) return null
+      const andZ = `${child(branch)}.and(${shapeZ})`
+      // A shape with `required` but no `properties` emits as a loose object,
+      // which enforces nothing — the required key has no property to be required
+      // through. The refine on the intersection enforces it: the loose object
+      // passes every key through, so the merged output still has the key for
+      // the refine to see (a stripping object branch alone would have dropped it).
+      return shapeHasProperties ? andZ : `${andZ}.superRefine(${shapeRefine})`
+    }
+    if (!canAcceptObject(branch, childOptions?.schemas)) return child(branch)
+    if (branch.allOf !== undefined) {
+      // An intersection hands out the merge of its members' outputs: a key
+      // survives when any member preserves it. When the intersection cannot
+      // strip, the refine sees the raw input; otherwise the shape cannot be
+      // distributed here.
+      return emitsStrippingObject(branch, childOptions?.schemas)
+        ? null
+        : `${child(branch)}.superRefine(${shapeRefine})`
+    }
+    if (branch.anyOf !== undefined && !(isBinaryFile(branch) && hasMimeAlternatives(branch))) {
+      if (branch.anyOf.length === 0) return child(branch)
+      const parts = branch.anyOf.map((b) => distribute(b, shapeZ, shapeRefine, shapeHasProperties))
+      if (parts.some((part) => part === null)) return null
+      const message =
+        branch['x-implication-message'] ?? branch['x-anyOf-message'] ?? branch['x-error-message']
+      // `wrap` re-applies what the branch's own `done()` would have added
+      // (`.nullable()`, `.openapi()` metadata, a default): the rebuilt union
+      // replaces the emission `child(branch)` would have produced, so it has
+      // to carry the same wrapping. The options are the nested call's — the
+      // parent's `isOptional` / wire reading must not leak into the branch.
+      return wrap(
+        `z.union([${parts.join(',')}]${message ? `,${error(message)}` : ''})`,
+        branch,
+        undefined,
+        childOptions?.schemas === undefined ? {} : { schemas: childOptions.schemas },
+      )
+    }
+    if (branch.oneOf !== undefined) {
+      if (branch.oneOf.length === 0) return child(branch)
+      const parts = branch.oneOf.map((b) => distribute(b, shapeZ, shapeRefine, shapeHasProperties))
+      if (parts.some((part) => part === null)) return null
+      const message = branch['x-oneOf-message'] ?? branch['x-error-message']
+      // A distributed branch is no longer a plain object, so `z.discriminatedUnion`
+      // cannot take it; `z.xor` is provably equivalent (see the oneOf path).
+      return wrap(
+        `z.xor([${parts.join(',')}]${message ? `,${error(message)}` : ''})`,
+        branch,
+        undefined,
+        childOptions?.schemas === undefined ? {} : { schemas: childOptions.schemas },
+      )
+    }
+    if (normalizeTypes(branch.type).filter((type) => type !== 'null').length > 1) return null
+    return emitsStrippingObject(branch, childOptions?.schemas)
+      ? null
+      : `${child(branch)}.superRefine(${shapeRefine})`
+  }
   if (schema.$ref !== undefined) {
     // A parameter that decorates the component it names — a default, `null` — is emitted as
     // the component written out, with the decoration beside it.
@@ -220,21 +305,29 @@ export function zodToOpenAPI(
     // rejects nothing the rest accepts, and keeping it is what merges the sibling
     // properties into the inferred type (a mock for `allOf: [$ref BaseEntity] +
     // properties {label}` must typecheck against `{id, createdAt, label}`) and
-    // what checks each property's type, with its path. Otherwise the shape is a
-    // check on the RAW input piped into the intersection, not a member the
-    // intersection has to satisfy — a non-object value the members accept must
-    // pass. A `.superRefine` on the intersection would see the parsed output,
-    // and a stripping object member would have dropped the sibling keys before
-    // the refine runs. The object member below is kept for `unevaluatedProperties`
-    // either way: the keys `properties` declares still count as evaluated.
+    // what checks each property's type, with its path. Otherwise the shape is
+    // distributed into the member that can take it (see `distribute`): an object
+    // value has to pass every member, so enforcing the shape on one member
+    // enforces it on the intersection — and the shape stays part of the output
+    // and the document instead of a check piped around them. When no member
+    // accepts an object at all the shape constrains nothing (row 2: `allOf:
+    // [{type: string}]` accepts no object), so it is dropped. Only when no
+    // member can take the shape does it fall back to a check on the raw input
+    // piped into the intersection — a `.superRefine` on the intersection would
+    // see the parsed output, and a stripping object member would have dropped
+    // the sibling keys before the refine runs. The object member below is kept
+    // for `unevaluatedProperties` either way: the keys `properties` declares
+    // still count as evaluated.
     // A shape with `required` but no `properties` has no member to keep — an
-    // empty object cannot check a key it has no property for — so it is always
-    // a check, on top of the member when there is one.
+    // empty object cannot check a key it has no property for — so it is
+    // distributed, or checked, on top of the member when there is one.
     const hasShape =
       (schema.properties !== undefined && Object.keys(schema.properties).length > 0) ||
       (Array.isArray(schema.required) && schema.required.length > 0)
+    // `type: 'null'` alone also satisfies the `every` below, but it accepts no
+    // object: require 'object' too, as `requiresObject` does.
     const objectOnly =
-      normalizeTypes(schema.type).length > 0 &&
+      normalizeTypes(schema.type).includes('object') &&
       normalizeTypes(schema.type).every((type) => type === 'object' || type === 'null')
     const membersRequireObject = schema.allOf.some((member) =>
       requiresObject(member, childOptions?.schemas),
@@ -308,7 +401,22 @@ export function zodToOpenAPI(
     const [only] = schemas
     if (isBareRef && only !== undefined) return done(only, emitted, true)
     const z = schemas.reduce((acc, s, i) => (i === 0 ? s : `${acc}.and(${s})`))
-    const shaped = shapeCheck === undefined ? z : `z.unknown().check(${shapeCheck}).pipe(${z})`
+    const shaped = (() => {
+      if (shapeSchema === undefined || shapeMember) return z
+      if (members.some((member) => !canAcceptObject(member, childOptions?.schemas))) return z
+      const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
+      for (let index = 0; index < members.length; index += 1) {
+        const member = members[index]
+        if (member === undefined) continue
+        const distributed = distribute(member, shapeZ, shapeRefine, schema.properties !== undefined)
+        if (distributed === null || distributed === schemas[index]) continue
+        const distributedSchemas = schemas.map((s, position) =>
+          position === index ? distributed : s,
+        )
+        return distributedSchemas.reduce((acc, s, i) => (i === 0 ? s : `${acc}.and(${s})`))
+      }
+      return shapeCheck === undefined ? z : `z.unknown().check(${shapeCheck}).pipe(${z})`
+    })()
     const allOfMessage = schema['x-allOf-message'] ?? schema['x-error-message']
     const unevalCheck = makeUnevaluatedPropertiesCheck(
       { ...schema, allOf: effectiveAllOf },
@@ -361,24 +469,41 @@ export function zodToOpenAPI(
       // rejects every non-object — a declared object type, or every branch only
       // accepting objects: that is what checks each property's type, with its
       // path, and what merges the sibling properties into the inferred type.
-      // Otherwise the shape is a check on the RAW input piped into the union —
-      // a `.superRefine` on the union would see the parsed output, and a
-      // stripping object branch would have dropped the sibling keys before the
-      // refine runs. A shape with `required` but no `properties` cannot be
-      // checked by an empty object, so it is checked on top of the intersection
-      // when there is one.
+      // Otherwise the shape is distributed into the branches that accept objects
+      // (see `distribute`): a branch that only accepts objects gets it as an
+      // intersection member, so the sibling properties stay in the parsed output
+      // and the inferred type and the union stays in the document — a check piped
+      // around the union would hide both, and a `.superRefine` on the union would
+      // see the parsed output, from which a stripping object branch had already
+      // dropped the sibling keys. Only when the shape cannot be distributed into
+      // some branch does it fall back to that check. A shape with `required` but
+      // no `properties` cannot be checked by an empty object, so it is checked on
+      // top of the intersection when there is one.
       const shapeSchema: Schema = {
         type: 'object',
         ...(schema.properties ? { properties: schema.properties } : {}),
         ...(schema.required ? { required: schema.required } : {}),
       }
+      // See the allOf path: `type: 'null'` alone must not count as object-only.
       const objectOnly =
-        normalizeTypes(schema.type).length > 0 &&
+        normalizeTypes(schema.type).includes('object') &&
         normalizeTypes(schema.type).every((type) => type === 'object' || type === 'null')
       const branchesRequireObject = schema.anyOf.every((branch) =>
         requiresObject(branch, childOptions?.schemas),
       )
-      if (objectOnly || branchesRequireObject) {
+      // Same guard as `distribute`, but only when the parent itself allows
+      // `null`: the member path puts the shape after the whole union, so it
+      // rejects the `null` a nullable or defaulted branch admits — and a
+      // declared object-only type already rejects `null` on its own. Skipping
+      // the member path for an object-typed parent would be wrong in the other
+      // direction: the shape's per-property type errors (with their paths) only
+      // survive as the intersection member — a refine on each branch fails every
+      // branch, so the union reports its own message (e.g. x-implication-message)
+      // instead of the property's type error.
+      const branchesAdmitNullOrUndefined =
+        (schema.type === undefined || normalizeTypes(schema.type).includes('null')) &&
+        schema.anyOf.some((branch) => canAdmitNullOrUndefined(branch, childOptions?.schemas))
+      if ((objectOnly || branchesRequireObject) && !branchesAdmitNullOrUndefined) {
         const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
         const andZ = `${unionZ}.and(${shapeZ})`
         if (schema.properties === undefined) {
@@ -389,6 +514,14 @@ export function zodToOpenAPI(
           )
         }
         return done(andZ, schema)
+      }
+      const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
+      const shapeRefine = emitObjectShapeRefine(shapeSchema, child)
+      const distributed = schema.anyOf.map((branch) =>
+        distribute(branch, shapeZ, shapeRefine, schema.properties !== undefined),
+      )
+      if (!distributed.some((part) => part === null)) {
+        return done(`z.union([${distributed.join(',')}]${anyOfErrorArg})`, schema)
       }
       const shapeCheck = emitObjectShapeCheck(shapeSchema, child)
       return done(
@@ -435,9 +568,11 @@ export function zodToOpenAPI(
     // the same class as beside `allOf` / `anyOf`: before this fix the shape was
     // dropped entirely, so an object with a wrong-typed property passed. Same rule
     // as `anyOf`: an intersection with `z.object()` when the branches already
-    // reject every non-object, a check on the raw input piped into the union
-    // otherwise — a `.superRefine` on the union would see the parsed output,
-    // and a stripping object branch would have dropped the sibling keys first.
+    // reject every non-object, the shape distributed into the object-accepting
+    // branches otherwise, and a check on the raw input piped into the union only
+    // when the shape cannot be distributed into some branch — a `.superRefine`
+    // on the union would see the parsed output, and a stripping object branch
+    // would have dropped the sibling keys first.
     const hasShape =
       (schema.properties !== undefined && Object.keys(schema.properties).length > 0) ||
       (Array.isArray(schema.required) && schema.required.length > 0)
@@ -447,13 +582,19 @@ export function zodToOpenAPI(
         ...(schema.properties ? { properties: schema.properties } : {}),
         ...(schema.required ? { required: schema.required } : {}),
       }
+      // See the allOf path: `type: 'null'` alone must not count as object-only.
       const objectOnly =
-        normalizeTypes(schema.type).length > 0 &&
+        normalizeTypes(schema.type).includes('object') &&
         normalizeTypes(schema.type).every((type) => type === 'object' || type === 'null')
       const branchesRequireObject = schema.oneOf.every((branch) =>
         requiresObject(branch, childOptions?.schemas),
       )
-      if (objectOnly || branchesRequireObject) {
+      // Same guard as `distribute`, but only when the parent itself allows
+      // `null` (see the anyOf member path).
+      const branchesAdmitNullOrUndefined =
+        (schema.type === undefined || normalizeTypes(schema.type).includes('null')) &&
+        schema.oneOf.some((branch) => canAdmitNullOrUndefined(branch, childOptions?.schemas))
+      if ((objectOnly || branchesRequireObject) && !branchesAdmitNullOrUndefined) {
         const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
         const andZ = `${z}.and(${shapeZ})`
         if (schema.properties === undefined) {
@@ -464,6 +605,16 @@ export function zodToOpenAPI(
           )
         }
         return done(andZ, schema)
+      }
+      const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
+      const shapeRefine = emitObjectShapeRefine(shapeSchema, child)
+      const distributed = schema.oneOf.map((branch) =>
+        distribute(branch, shapeZ, shapeRefine, schema.properties !== undefined),
+      )
+      if (!distributed.some((part) => part === null)) {
+        // Never `z.discriminatedUnion` here: a distributed branch is no longer
+        // a plain object, and `z.xor` is provably equivalent (see above).
+        return done(`z.xor([${distributed.join(',')}]${oneOfErrorArg})`, schema)
       }
       const shapeCheck = emitObjectShapeCheck(shapeSchema, child)
       return done(
@@ -638,8 +789,10 @@ export function zodToOpenAPI(
   // type emits. The keywords are handed to every branch, which reads the ones of its type.
   // A multi-type that includes `object` goes here too (#461): the object branch below
   // would drop the other types, so the shape applies to the object branch only. `required`
-  // is handed to the branches as well: `undecorated` drops it, and without it the object
-  // branch would read a required key as optional.
+  // is handed to the object branch as well: `undecorated` drops it, and without it the
+  // object branch would read a required key as optional. The other branches must not
+  // get it: a string branch would carry `.openapi({required: [...]})` into the document
+  // for a key it can never have.
   const alternatives = types.filter((type) => type !== 'null')
   if (alternatives.length > 1) {
     const { type: _type, ...rest } = undecorated(schema)
@@ -647,7 +800,9 @@ export function zodToOpenAPI(
       zodToOpenAPI(
         {
           ...rest,
-          ...(schema.required !== undefined ? { required: schema.required } : {}),
+          ...(type === 'object' && schema.required !== undefined
+            ? { required: schema.required }
+            : {}),
           type,
         },
         undefined,

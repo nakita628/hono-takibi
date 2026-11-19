@@ -428,6 +428,158 @@ export function requiresObject(
   return isUntypedObject(schema)
 }
 
+// Whether a schema CAN accept an object value: the dual of `requiresObject`,
+// used to decide where a sibling shape (#461) has to be enforced. Conservative
+// in the permissive direction — an over-approximation only adds a check that
+// turns out vacuous, while an under-approximation would leave an object value
+// unchecked. A declared type settles it; `enum` / `const` without an object
+// member do too; an untyped schema accepts everything, so it may accept an
+// object as well.
+export function canAcceptObject(
+  schema: Schema | boolean,
+  schemas?: Schemas,
+  seen: readonly string[] = [],
+): boolean {
+  if (typeof schema === 'boolean') return schema
+  if (schema.$ref !== undefined) {
+    if (seen.includes(schema.$ref)) return true
+    const target = resolveSchemaRef(schema.$ref, schemas)
+    return target === undefined ? true : canAcceptObject(target, schemas, [...seen, schema.$ref])
+  }
+  if (Array.isArray(schema.enum)) {
+    return schema.enum.some(
+      (member) => typeof member === 'object' && member !== null && !Array.isArray(member),
+    )
+  }
+  if (schema.const !== undefined) {
+    return typeof schema.const === 'object' && schema.const !== null && !Array.isArray(schema.const)
+  }
+  const types = normalizeTypes(schema.type)
+  if (types.length > 0) {
+    return types.includes('object')
+  }
+  if (schema.allOf !== undefined) {
+    // An empty `allOf` is a vacuous intersection: it accepts everything,
+    // including objects — `some` would say it accepts nothing.
+    return (
+      schema.allOf.length === 0 ||
+      schema.allOf.some((member) => canAcceptObject(member, schemas, seen))
+    )
+  }
+  const union = schema.anyOf ?? schema.oneOf
+  if (union !== undefined) {
+    return union.some((branch) => canAcceptObject(branch, schemas, seen))
+  }
+  return true
+}
+
+// Whether the emitted schema can answer `null`, or substitute a value for
+// `undefined`: the two ways a branch's wrapping admits a value its core
+// rejects. An intersection member (`.and(shapeZ)`, #461) passes the RAW input
+// to both sides, so a shape member that is a plain `z.object` rejects the very
+// values the wrapping exists to admit: `.nullable()` admits `null`,
+// `.default()` / `.prefault()` substitute on `undefined`, `.catch()` answers
+// every failure with its fallback, and a user chain (`x-preprocess` /
+// `x-transform` / `x-pipe` / `x-codec`) replaces the chain wholesale, so its
+// admission is unknowable. Conservative in the permissive direction —
+// over-approximating only falls back to the check-pipe, which is always
+// correct. A declared type settles null; `enum` / `const` without a null
+// member do too; an untyped schema accepts everything, so it may admit both.
+// An empty `allOf` accepts everything; a non-empty one admits a value only
+// when every member does, a union when some branch does.
+export function canAdmitNullOrUndefined(
+  schema: Schema | boolean,
+  schemas?: Schemas,
+  seen: readonly string[] = [],
+): boolean {
+  if (typeof schema === 'boolean') return schema
+  if (schema.$ref !== undefined) {
+    if (seen.includes(schema.$ref)) return true
+    const target = resolveSchemaRef(schema.$ref, schemas)
+    return target === undefined
+      ? true
+      : canAdmitNullOrUndefined(target, schemas, [...seen, schema.$ref])
+  }
+  if (
+    schema.default !== undefined ||
+    schema['x-prefault'] !== undefined ||
+    schema['x-catch'] !== undefined ||
+    schema['x-preprocess'] !== undefined ||
+    schema['x-transform'] !== undefined ||
+    schema['x-pipe'] !== undefined ||
+    schema['x-codec'] !== undefined
+  ) {
+    return true
+  }
+  if (schema.nullable === true) return true
+  if (Array.isArray(schema.enum)) {
+    return schema.enum.some((member) => member === null)
+  }
+  if (schema.const !== undefined) {
+    return schema.const === null
+  }
+  const types = normalizeTypes(schema.type)
+  if (types.length > 0) {
+    return types.includes('null')
+  }
+  if (schema.allOf !== undefined) {
+    return schema.allOf.every((member) => canAdmitNullOrUndefined(member, schemas, seen))
+  }
+  const union = schema.anyOf ?? schema.oneOf
+  if (union !== undefined) {
+    return union.some((branch) => canAdmitNullOrUndefined(branch, schemas, seen))
+  }
+  return true
+}
+
+// Whether the emitted schema may silently drop an undeclared key from an
+// object value it passes: only a plain `z.object(...)` does that. `z.looseObject`
+// and `z.object(...).catchall(...)` / `z.record(...)` pass every key through, and
+// `z.strictObject` rejects an object with an undeclared key outright instead of
+// stripping it — so for the question "would a refine on this output still see
+// the key", those do not strip. A union strips when some branch does (the
+// winning branch's output is used); an intersection strips only when every
+// member does (the output is the merge of the members' outputs).
+function isStrippingObject(schema: Schema): boolean {
+  return (
+    Object.keys(schema.properties ?? {}).length > 0 &&
+    schema.additionalProperties === undefined &&
+    schema.patternProperties === undefined &&
+    schema.propertyNames === undefined &&
+    schema.unevaluatedProperties === undefined
+  )
+}
+
+export function emitsStrippingObject(
+  schema: Schema | boolean,
+  schemas?: Schemas,
+  seen: readonly string[] = [],
+): boolean {
+  if (typeof schema === 'boolean') return false
+  if (schema.$ref !== undefined) {
+    if (seen.includes(schema.$ref)) return true
+    const target = resolveSchemaRef(schema.$ref, schemas)
+    return target === undefined
+      ? true
+      : emitsStrippingObject(target, schemas, [...seen, schema.$ref])
+  }
+  const types = normalizeTypes(schema.type)
+  if (types.length > 0) {
+    return types.includes('object') && isStrippingObject(schema)
+  }
+  if (schema.allOf !== undefined) {
+    return (
+      schema.allOf.length > 0 &&
+      schema.allOf.every((member) => emitsStrippingObject(member, schemas, seen))
+    )
+  }
+  const union = schema.anyOf ?? schema.oneOf
+  if (union !== undefined) {
+    return union.some((branch) => emitsStrippingObject(branch, schemas, seen))
+  }
+  return isUntypedObject(schema) && isStrippingObject(schema)
+}
+
 // The object keywords of a shape as a guarded refine: `properties` / `required` only
 // apply to object values in JSON Schema, so a value of another type passes them as is
 // (2020-12 §6.5). The checks are the typeless path's object block, guarded by the same
