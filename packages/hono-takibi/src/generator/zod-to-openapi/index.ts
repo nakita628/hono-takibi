@@ -45,6 +45,22 @@ import { baseError, error, makeStringLiteral, normalizeTypes } from '../../utils
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
 import { _enum, integer, number, object, string } from './z/index.js'
 
+// Wrap a union emission with the `unevaluatedProperties` check (#466). The
+// check runs on the raw input, piped into the union — a `.superRefine` on
+// the union would see the parsed output, from which a stripping object
+// branch had already dropped the unevaluated keys. The union's own issues
+// are forwarded inside the check, as the `allOf` path does: `pipe`
+// short-circuits once the check adds an issue, so without the forwarding a
+// declared-but-wrong-typed key would be reported only as "unevaluated"
+// instead of its real type error. The short-circuit also prevents
+// duplication: when the check forwarded issues, the pipe does not re-run
+// the union. Returns `zod` unchanged when the check is '' (keyword absent
+// or `true`), so schemas without it emit exactly what they did.
+function withUnevaluatedCheck(zod: string, unevalCheck: string): string {
+  if (unevalCheck === '') return zod
+  return `(()=>{const Schema=${zod};return z.unknown().check((ctx)=>{const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding('{...issue,input:issue.input}')}}};(${unevalCheck})(ctx)}).pipe(Schema)})()`
+}
+
 export function zodToOpenAPI(
   schema: Schema | boolean,
   meta?: {
@@ -242,8 +258,22 @@ export function zodToOpenAPI(
       // replaces the emission `child(branch)` would have produced, so it has
       // to carry the same wrapping. The options are the nested call's — the
       // parent's `isOptional` / wire reading must not leak into the branch.
+      // The branch's own `unevaluatedProperties` check (#466) is kept the
+      // same way: rebuilding the union bypasses the branch's anyOf path,
+      // which is where the check is applied, so without this wrap the check
+      // would be silently dropped whenever a shape is distributed into a
+      // nested combinator branch.
+      const branchUnevalCheck = makeUnevaluatedPropertiesCheck(
+        branch,
+        (s) => zodToOpenAPI(s, undefined, childOptions),
+        branch['x-error-message'],
+        childOptions?.schemas,
+      )
       return wrap(
-        `z.union([${parts.join(',')}]${message ? `,${error(message)}` : ''})`,
+        withUnevaluatedCheck(
+          `z.union([${parts.join(',')}]${message ? `,${error(message)}` : ''})`,
+          branchUnevalCheck,
+        ),
         branch,
         undefined,
         childOptions?.schemas === undefined ? {} : { schemas: childOptions.schemas },
@@ -256,8 +286,20 @@ export function zodToOpenAPI(
       const message = branch['x-oneOf-message'] ?? branch['x-error-message']
       // A distributed branch is no longer a plain object, so `z.discriminatedUnion`
       // cannot take it; `z.xor` is provably equivalent (see the oneOf path).
+      // The branch's own `unevaluatedProperties` check (#466) is kept, as in
+      // the anyOf arm above: rebuilding the union bypasses the branch's oneOf
+      // path, which is where the check is applied.
+      const branchUnevalCheck = makeUnevaluatedPropertiesCheck(
+        branch,
+        (s) => zodToOpenAPI(s, undefined, childOptions),
+        branch['x-error-message'],
+        childOptions?.schemas,
+      )
       return wrap(
-        `z.xor([${parts.join(',')}]${message ? `,${error(message)}` : ''})`,
+        withUnevaluatedCheck(
+          `z.xor([${parts.join(',')}]${message ? `,${error(message)}` : ''})`,
+          branchUnevalCheck,
+        ),
         branch,
         undefined,
         childOptions?.schemas === undefined ? {} : { schemas: childOptions.schemas },
@@ -460,6 +502,19 @@ export function zodToOpenAPI(
       schema['x-implication-message'] ?? schema['x-anyOf-message'] ?? schema['x-error-message']
     const anyOfErrorArg = anyOfMessage ? `,${error(anyOfMessage)}` : ''
     const unionZ = `z.union([${anyOfSchemas.join(',')}]${anyOfErrorArg})`
+    // `unevaluatedProperties` beside `anyOf` (#466): the union on its own drops
+    // the check — a stripping object branch has already removed the unevaluated
+    // keys before any refine on the union could see them — so the check runs on
+    // the raw input, piped into the union (see `withUnevaluatedCheck`, same
+    // pattern as the `allOf` path). `makeUnevaluatedPropertiesCheck` returns ''
+    // when the keyword is absent or `true`, so schemas without it emit exactly
+    // what they did.
+    const unevalCheck = makeUnevaluatedPropertiesCheck(
+      schema,
+      (s) => zodToOpenAPI(s, undefined, childOptions),
+      schema['x-error-message'],
+      childOptions?.schemas,
+    )
     const hasShape =
       (schema.properties !== undefined && Object.keys(schema.properties).length > 0) ||
       (Array.isArray(schema.required) && schema.required.length > 0)
@@ -509,11 +564,14 @@ export function zodToOpenAPI(
         if (schema.properties === undefined) {
           const shapeCheck = emitObjectShapeCheck(shapeSchema, child)
           return done(
-            shapeCheck === undefined ? andZ : `z.unknown().check(${shapeCheck}).pipe(${andZ})`,
+            withUnevaluatedCheck(
+              shapeCheck === undefined ? andZ : `z.unknown().check(${shapeCheck}).pipe(${andZ})`,
+              unevalCheck,
+            ),
             schema,
           )
         }
-        return done(andZ, schema)
+        return done(withUnevaluatedCheck(andZ, unevalCheck), schema)
       }
       const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
       const shapeRefine = emitObjectShapeRefine(shapeSchema, child)
@@ -521,15 +579,21 @@ export function zodToOpenAPI(
         distribute(branch, shapeZ, shapeRefine, schema.properties !== undefined),
       )
       if (!distributed.some((part) => part === null)) {
-        return done(`z.union([${distributed.join(',')}]${anyOfErrorArg})`, schema)
+        return done(
+          withUnevaluatedCheck(`z.union([${distributed.join(',')}]${anyOfErrorArg})`, unevalCheck),
+          schema,
+        )
       }
       const shapeCheck = emitObjectShapeCheck(shapeSchema, child)
       return done(
-        shapeCheck === undefined ? unionZ : `z.unknown().check(${shapeCheck}).pipe(${unionZ})`,
+        withUnevaluatedCheck(
+          shapeCheck === undefined ? unionZ : `z.unknown().check(${shapeCheck}).pipe(${unionZ})`,
+          unevalCheck,
+        ),
         schema,
       )
     }
-    return done(unionZ, schema)
+    return done(withUnevaluatedCheck(unionZ, unevalCheck), schema)
   }
   if (schema.oneOf !== undefined) {
     if (schema.oneOf.length === 0) return done('z.any()', schema)
@@ -564,6 +628,18 @@ export function zodToOpenAPI(
     const z = isDiscriminated
       ? `z.discriminatedUnion(${makeStringLiteral(discriminator)},[${oneOfSchemas.join(',')}]${oneOfErrorArg})`
       : `z.xor([${oneOfSchemas.join(',')}]${oneOfErrorArg})`
+    // `unevaluatedProperties` beside `oneOf` (#466): same check-pipe as the
+    // `anyOf` path above — the check runs on the raw input, piped into the
+    // union / xor / discriminated union (see `withUnevaluatedCheck`), because
+    // a stripping object branch would have removed the unevaluated keys before
+    // any refine could see them. Returns '' when the keyword is absent or
+    // `true`, so schemas without it emit exactly what they did.
+    const unevalCheck = makeUnevaluatedPropertiesCheck(
+      schema,
+      (s) => zodToOpenAPI(s, undefined, childOptions),
+      schema['x-error-message'],
+      childOptions?.schemas,
+    )
     // `properties` / `required` beside `oneOf` constrain only object values (#461),
     // the same class as beside `allOf` / `anyOf`: before this fix the shape was
     // dropped entirely, so an object with a wrong-typed property passed. Same rule
@@ -600,11 +676,14 @@ export function zodToOpenAPI(
         if (schema.properties === undefined) {
           const shapeCheck = emitObjectShapeCheck(shapeSchema, child)
           return done(
-            shapeCheck === undefined ? andZ : `z.unknown().check(${shapeCheck}).pipe(${andZ})`,
+            withUnevaluatedCheck(
+              shapeCheck === undefined ? andZ : `z.unknown().check(${shapeCheck}).pipe(${andZ})`,
+              unevalCheck,
+            ),
             schema,
           )
         }
-        return done(andZ, schema)
+        return done(withUnevaluatedCheck(andZ, unevalCheck), schema)
       }
       const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
       const shapeRefine = emitObjectShapeRefine(shapeSchema, child)
@@ -614,15 +693,21 @@ export function zodToOpenAPI(
       if (!distributed.some((part) => part === null)) {
         // Never `z.discriminatedUnion` here: a distributed branch is no longer
         // a plain object, and `z.xor` is provably equivalent (see above).
-        return done(`z.xor([${distributed.join(',')}]${oneOfErrorArg})`, schema)
+        return done(
+          withUnevaluatedCheck(`z.xor([${distributed.join(',')}]${oneOfErrorArg})`, unevalCheck),
+          schema,
+        )
       }
       const shapeCheck = emitObjectShapeCheck(shapeSchema, child)
       return done(
-        shapeCheck === undefined ? z : `z.unknown().check(${shapeCheck}).pipe(${z})`,
+        withUnevaluatedCheck(
+          shapeCheck === undefined ? z : `z.unknown().check(${shapeCheck}).pipe(${z})`,
+          unevalCheck,
+        ),
         schema,
       )
     }
-    return done(z, schema)
+    return done(withUnevaluatedCheck(z, unevalCheck), schema)
   }
   if (schema.not !== undefined) {
     const notMessage = schema['x-not-message'] ?? schema['x-error-message']

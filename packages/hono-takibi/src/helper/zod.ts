@@ -684,11 +684,83 @@ function collectAllOfStmts(
   })
 }
 
-function conditionalBranchStmt(sub: Schema, recurse: (s: Schema) => string) {
-  const ifBody = [makeOwnPropsStmt(sub), makePatternPropsStmt(sub), makeAdditionalPropsStmt(sub)]
+// The evaluated-key statements for one subschema, gated on `cond` when given.
+function makeGatedStmts(sub: Schema | undefined, cond: string | undefined) {
+  if (sub === undefined) return undefined
+  const body = [makeOwnPropsStmt(sub), makePatternPropsStmt(sub), makeAdditionalPropsStmt(sub)]
     .filter((s): s is string => s !== undefined)
     .join(';')
-  return ifBody ? `if(${recurse(sub)}.safeParse(o).success){${ifBody}}` : undefined
+  if (!body) return undefined
+  return cond === undefined ? body : `if(${cond}){${body}}`
+}
+
+function makeIfStmts(schema: Schema, recurse: (s: Schema) => string) {
+  const ifSchema = schema.if
+  if (!ifSchema) return []
+  return [
+    `const ifOk=${recurse(ifSchema)}.safeParse(o).success`,
+    makeGatedStmts(ifSchema, 'ifOk'),
+    makeGatedStmts(schema.then, 'ifOk'),
+    makeGatedStmts(schema.else, '!ifOk'),
+  ].filter((s): s is string => s !== undefined)
+}
+
+function makeDepSchemaStmts(schema: Schema) {
+  if (!schema.dependentSchemas) return []
+  return Object.entries(schema.dependentSchemas)
+    .map(([key, sub]) => makeGatedStmts(sub, `${JSON.stringify(key)} in o`))
+    .filter((s): s is string => s !== undefined)
+}
+
+// The statements that collect, into `e`, every key one branch evaluates —
+// without the `if (branch matches)` guard around them. A branch that only
+// names a component evaluates the keys of the component it names (#405 for
+// `allOf` members; same rule here), a branch with `allOf` evaluates its
+// members' keys, and a branch with a nested `anyOf` / `oneOf` evaluates the
+// keys of the nested branch that matches. Without this, a `$ref`, nested
+// combinator or `allOf` branch contributed no keys at all, so the check
+// rejected every key the branch evaluates (#466: the union path made the
+// gap visible for the most common branch shapes).
+function collectBranchBody(
+  sub: Schema,
+  recurse: (s: Schema) => string,
+  schemas: Schemas | undefined,
+  reading: ReadonlySet<string> = new Set(),
+): string | undefined {
+  if (sub.$ref !== undefined) {
+    const target = reading.has(sub.$ref) ? undefined : resolveSchemaRef(sub.$ref, schemas)
+    if (target === undefined) return undefined
+    return collectBranchBody(target, recurse, schemas, new Set([...reading, sub.$ref]))
+  }
+  const branchStmts = (branches: readonly Schema[] | undefined) =>
+    branches
+      ? branches
+          .map((branch) => conditionalBranchStmt(branch, recurse, schemas, reading))
+          .filter((s): s is string => s !== undefined)
+      : []
+  const body = [
+    makeOwnPropsStmt(sub),
+    makePatternPropsStmt(sub),
+    makeAdditionalPropsStmt(sub),
+    ...(sub.allOf ? collectAllOfStmts(sub.allOf, schemas, reading) : []),
+    ...branchStmts(sub.anyOf),
+    ...branchStmts(sub.oneOf),
+    ...makeIfStmts(sub, recurse),
+    ...makeDepSchemaStmts(sub),
+  ]
+    .filter((s): s is string => s !== undefined)
+    .join(';')
+  return body || undefined
+}
+
+function conditionalBranchStmt(
+  sub: Schema,
+  recurse: (s: Schema) => string,
+  schemas: Schemas | undefined,
+  reading: ReadonlySet<string> = new Set(),
+) {
+  const body = collectBranchBody(sub, recurse, schemas, reading)
+  return body ? `if(${recurse(sub)}.safeParse(o).success){${body}}` : undefined
 }
 
 // The statements that collect, into `e`, every key the schema evaluates: its own
@@ -704,32 +776,9 @@ function makeUnevaluatedEvaluationStmts(
   const branchStmts = (branches: readonly Schema[] | undefined) =>
     branches
       ? branches
-          .map((sub) => conditionalBranchStmt(sub, recurse))
+          .map((sub) => conditionalBranchStmt(sub, recurse, schemas))
           .filter((s): s is string => s !== undefined)
       : []
-  // The evaluated-key statements for one subschema, gated on `cond` when given.
-  const gated = (sub: Schema | undefined, cond: string | undefined) => {
-    if (sub === undefined) return undefined
-    const body = [makeOwnPropsStmt(sub), makePatternPropsStmt(sub), makeAdditionalPropsStmt(sub)]
-      .filter((s): s is string => s !== undefined)
-      .join(';')
-    if (!body) return undefined
-    return cond === undefined ? body : `if(${cond}){${body}}`
-  }
-  const ifSchema = schema.if
-  const ifStmts = ifSchema
-    ? [
-        `const ifOk=${recurse(ifSchema)}.safeParse(o).success`,
-        gated(ifSchema, 'ifOk'),
-        gated(schema.then, 'ifOk'),
-        gated(schema.else, '!ifOk'),
-      ].filter((s): s is string => s !== undefined)
-    : []
-  const depSchemaStmts = schema.dependentSchemas
-    ? Object.entries(schema.dependentSchemas)
-        .map(([key, sub]) => gated(sub, `${JSON.stringify(key)} in o`))
-        .filter((s): s is string => s !== undefined)
-    : []
   return [
     'const e=new Set()',
     makeOwnPropsStmt(schema),
@@ -738,8 +787,8 @@ function makeUnevaluatedEvaluationStmts(
     ...(schema.allOf ? collectAllOfStmts(schema.allOf, schemas) : []),
     ...branchStmts(schema.anyOf),
     ...branchStmts(schema.oneOf),
-    ...ifStmts,
-    ...depSchemaStmts,
+    ...makeIfStmts(schema, recurse),
+    ...makeDepSchemaStmts(schema),
   ].filter((s): s is string => s !== undefined)
 }
 
