@@ -1,6 +1,6 @@
-import { isSchemaObject, isSingleSchema } from '../guard/index.js'
+import { isSchemaObject, isSingleSchema, isUntypedObject } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
-import { error } from '../utils/index.js'
+import { error, normalizeTypes } from '../utils/index.js'
 import { resolveSchemaRef } from './wire.js'
 
 type Schemas = { readonly [k: string]: Schema }
@@ -74,7 +74,14 @@ function issueObj(messageExpr: string | undefined, pathExpr?: string) {
   return `{${parts.join(',')}}`
 }
 
-function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): readonly string[] {
+// `report` writes an issue into the surrounding check: `ctx.addIssue(...)` for a
+// refine (which sees the parsed value), `ctx.issues.push(...)` for `.check()`
+// (which sees the raw input — a refine would see a stripped object instead).
+function makeObjectChecks(
+  schema: Schema,
+  recurse: (s: Schema) => string,
+  report: (issue: string) => string = (issue) => `ctx.addIssue(${issue})`,
+): readonly string[] {
   const ownKeys = Object.keys(schema.properties ?? {})
   const patterns = Object.keys(schema.patternProperties ?? {})
   // The keys the schema declares, which `additionalProperties` and `unevaluatedProperties`
@@ -95,32 +102,32 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
     ? schema.required.map(
         (key) =>
           // JSON Schema 2020-12 §6.5.3: "own property" — `in` would include inherited.
-          `if(!Object.hasOwn(val,${JSON.stringify(key)})){ctx.addIssue(${issueObj(requiredMessage)})}`,
+          `if(!Object.hasOwn(val,${JSON.stringify(key)})){${report(issueObj(requiredMessage))}}`,
       )
     : []
   const minPropertiesCheck =
     typeof schema.minProperties === 'number'
-      ? `if(Object.keys(val).length<${schema.minProperties}){ctx.addIssue(${issueObj(messageFor(schema, 'minProperties'))})}`
+      ? `if(Object.keys(val).length<${schema.minProperties}){${report(issueObj(messageFor(schema, 'minProperties')))}}`
       : undefined
   const maxPropertiesCheck =
     typeof schema.maxProperties === 'number'
-      ? `if(Object.keys(val).length>${schema.maxProperties}){ctx.addIssue(${issueObj(messageFor(schema, 'maxProperties'))})}`
+      ? `if(Object.keys(val).length>${schema.maxProperties}){${report(issueObj(messageFor(schema, 'maxProperties')))}}`
       : undefined
   const propertiesMessage = messageFor(schema, 'properties')
   const propertyChecks = schema.properties
     ? Object.entries(schema.properties).map(
         ([key, sub]) =>
-          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};if(!Schema.safeParse(Reflect.get(val,${JSON.stringify(key)})).success){ctx.addIssue(${issueObj(propertiesMessage)})}}`,
+          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};if(!Schema.safeParse(Reflect.get(val,${JSON.stringify(key)})).success){${report(issueObj(propertiesMessage))}}}`,
       )
     : []
   const additionalPropertiesMessage = messageFor(schema, 'additionalProperties')
   const additionalPropertiesCheck = (() => {
     if (schema.additionalProperties === false) {
-      return forUndeclaredKeys(`ctx.addIssue(${issueObj(additionalPropertiesMessage)})`)
+      return forUndeclaredKeys(report(issueObj(additionalPropertiesMessage)))
     }
     if (isSchemaObject(schema.additionalProperties)) {
       const subZod = recurse(schema.additionalProperties)
-      return `{const Schema=${subZod};${forUndeclaredKeys(`if(!Schema.safeParse(Reflect.get(val,k)).success){ctx.addIssue(${issueObj(additionalPropertiesMessage)})}`)}}`
+      return `{const Schema=${subZod};${forUndeclaredKeys(`if(!Schema.safeParse(Reflect.get(val,k)).success){${report(issueObj(additionalPropertiesMessage))}}`)}}`
     }
     return undefined
   })()
@@ -128,11 +135,11 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
   const patternPropertiesChecks = schema.patternProperties
     ? Object.entries(schema.patternProperties).map(
         ([pattern, sub]) =>
-          `{const Schema=${recurse(sub)};for(const k of Object.keys(val)){if(new RegExp(${JSON.stringify(pattern)}).test(k)){if(!Schema.safeParse(Reflect.get(val,k)).success){ctx.addIssue(${issueObj(patternPropertiesMessage)})}}}}`,
+          `{const Schema=${recurse(sub)};for(const k of Object.keys(val)){if(new RegExp(${JSON.stringify(pattern)}).test(k)){if(!Schema.safeParse(Reflect.get(val,k)).success){${report(issueObj(patternPropertiesMessage))}}}}}`,
       )
     : []
   const propertyNamesCheck = schema.propertyNames?.pattern
-    ? `for(const k of Object.keys(val)){if(!new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k)){ctx.addIssue(${issueObj(messageFor(schema, 'propertyNames'))})}}`
+    ? `for(const k of Object.keys(val)){if(!new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k)){${report(issueObj(messageFor(schema, 'propertyNames')))}}}`
     : undefined
   const dependentRequiredMessage = messageFor(schema, 'dependentRequired')
   const dependentRequiredChecks = schema.dependentRequired
@@ -142,7 +149,7 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
             .map((dependency) => `Object.hasOwn(val,${JSON.stringify(dependency)})`)
             .join('&&')
           return depsCheck
-            ? `if(Object.hasOwn(val,${JSON.stringify(key)})){if(!(${depsCheck})){ctx.addIssue(${issueObj(dependentRequiredMessage)})}}`
+            ? `if(Object.hasOwn(val,${JSON.stringify(key)})){if(!(${depsCheck})){${report(issueObj(dependentRequiredMessage))}}}`
             : undefined
         })
         .filter((s): s is string => s !== undefined)
@@ -157,7 +164,7 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
   const dependentSchemasChecks = schema.dependentSchemas
     ? Object.entries(schema.dependentSchemas).map(
         ([key, sub]) =>
-          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${dependentSchemasMessageField}})}}}`,
+          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){${report(`{...issue,path:issue.path${dependentSchemasMessageField}}`)}}}}`,
       )
     : []
   // `additionalProperties` as a schema or `true` evaluates every key it applies to
@@ -168,7 +175,7 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
     schema.unevaluatedProperties === false &&
     schema.additionalProperties !== true &&
     !isSchemaObject(schema.additionalProperties)
-      ? forUndeclaredKeys(`ctx.addIssue(${issueObj(messageFor(schema, 'unevaluatedProperties'))})`)
+      ? forUndeclaredKeys(report(issueObj(messageFor(schema, 'unevaluatedProperties'))))
       : undefined
 
   return [
@@ -385,6 +392,235 @@ export function emitTypelessRefine(schema: Schema, recurse: (s: Schema) => strin
     return 'z.any()'
   }
   return `z.unknown().superRefine((val,ctx)=>{${blocks.join(';')}})`
+}
+
+// Whether a schema accepts only object values (plus `null`, which the outer
+// `nullable` / `type` handling re-allows): a declared type settles it; a
+// `$ref` is followed; `allOf` is object-only when some member is (the
+// intersection accepts a non-object only when every member does);
+// `anyOf` / `oneOf` when every branch is; an untyped schema with only object
+// keywords is read as an object by the emitter. Anything else — `not`,
+// `enum` / `const`, a foreign keyword beside `properties` — is conservatively
+// not object-only: the guarded refine is always correct there, it only loses
+// the type merge and the property paths an intersection would have given.
+export function requiresObject(
+  schema: Schema | boolean,
+  schemas?: Schemas,
+  seen: readonly string[] = [],
+): boolean {
+  if (typeof schema === 'boolean') return !schema
+  if (schema.$ref !== undefined) {
+    if (seen.includes(schema.$ref)) return false
+    const target = resolveSchemaRef(schema.$ref, schemas)
+    return target === undefined ? false : requiresObject(target, schemas, [...seen, schema.$ref])
+  }
+  const types = normalizeTypes(schema.type)
+  if (types.length > 0) {
+    return types.includes('object') && types.every((type) => type === 'object' || type === 'null')
+  }
+  if (schema.allOf !== undefined) {
+    return schema.allOf.some((member) => requiresObject(member, schemas, seen))
+  }
+  const union = schema.anyOf ?? schema.oneOf
+  if (union !== undefined) {
+    return union.length > 0 && union.every((branch) => requiresObject(branch, schemas, seen))
+  }
+  return isUntypedObject(schema)
+}
+
+// Whether a schema CAN accept an object value: the dual of `requiresObject`,
+// used to decide where a sibling shape (#461) has to be enforced. Conservative
+// in the permissive direction — an over-approximation only adds a check that
+// turns out vacuous, while an under-approximation would leave an object value
+// unchecked. A declared type settles it; `enum` / `const` without an object
+// member do too; an untyped schema accepts everything, so it may accept an
+// object as well.
+export function canAcceptObject(
+  schema: Schema | boolean,
+  schemas?: Schemas,
+  seen: readonly string[] = [],
+): boolean {
+  if (typeof schema === 'boolean') return schema
+  if (schema.$ref !== undefined) {
+    if (seen.includes(schema.$ref)) return true
+    const target = resolveSchemaRef(schema.$ref, schemas)
+    return target === undefined ? true : canAcceptObject(target, schemas, [...seen, schema.$ref])
+  }
+  if (Array.isArray(schema.enum)) {
+    return schema.enum.some(
+      (member) => typeof member === 'object' && member !== null && !Array.isArray(member),
+    )
+  }
+  if (schema.const !== undefined) {
+    return typeof schema.const === 'object' && schema.const !== null && !Array.isArray(schema.const)
+  }
+  const types = normalizeTypes(schema.type)
+  if (types.length > 0) {
+    return types.includes('object')
+  }
+  if (schema.allOf !== undefined) {
+    // An empty `allOf` is a vacuous intersection: it accepts everything,
+    // including objects — `some` would say it accepts nothing.
+    return (
+      schema.allOf.length === 0 ||
+      schema.allOf.some((member) => canAcceptObject(member, schemas, seen))
+    )
+  }
+  const union = schema.anyOf ?? schema.oneOf
+  if (union !== undefined) {
+    return union.some((branch) => canAcceptObject(branch, schemas, seen))
+  }
+  return true
+}
+
+// Whether the emitted schema can answer `null`, or substitute a value for
+// `undefined`: the two ways a branch's wrapping admits a value its core
+// rejects. An intersection member (`.and(shapeZ)`, #461) passes the RAW input
+// to both sides, so a shape member that is a plain `z.object` rejects the very
+// values the wrapping exists to admit: `.nullable()` admits `null`,
+// `.default()` / `.prefault()` substitute on `undefined`, `.catch()` answers
+// every failure with its fallback, and a user chain (`x-preprocess` /
+// `x-transform` / `x-pipe` / `x-codec`) replaces the chain wholesale, so its
+// admission is unknowable. Conservative in the permissive direction —
+// over-approximating only falls back to the check-pipe, which is always
+// correct. A declared type settles null; `enum` / `const` without a null
+// member do too; an untyped schema accepts everything, so it may admit both.
+// An empty `allOf` accepts everything; a non-empty one admits a value only
+// when every member does, a union when some branch does.
+export function canAdmitNullOrUndefined(
+  schema: Schema | boolean,
+  schemas?: Schemas,
+  seen: readonly string[] = [],
+): boolean {
+  if (typeof schema === 'boolean') return schema
+  if (schema.$ref !== undefined) {
+    if (seen.includes(schema.$ref)) return true
+    const target = resolveSchemaRef(schema.$ref, schemas)
+    return target === undefined
+      ? true
+      : canAdmitNullOrUndefined(target, schemas, [...seen, schema.$ref])
+  }
+  if (
+    schema.default !== undefined ||
+    schema['x-prefault'] !== undefined ||
+    schema['x-catch'] !== undefined ||
+    schema['x-preprocess'] !== undefined ||
+    schema['x-transform'] !== undefined ||
+    schema['x-pipe'] !== undefined ||
+    schema['x-codec'] !== undefined
+  ) {
+    return true
+  }
+  if (schema.nullable === true) return true
+  if (Array.isArray(schema.enum)) {
+    return schema.enum.some((member) => member === null)
+  }
+  if (schema.const !== undefined) {
+    return schema.const === null
+  }
+  const types = normalizeTypes(schema.type)
+  if (types.length > 0) {
+    return types.includes('null')
+  }
+  if (schema.allOf !== undefined) {
+    return schema.allOf.every((member) => canAdmitNullOrUndefined(member, schemas, seen))
+  }
+  const union = schema.anyOf ?? schema.oneOf
+  if (union !== undefined) {
+    return union.some((branch) => canAdmitNullOrUndefined(branch, schemas, seen))
+  }
+  // A schema the emitter reads as `z.object(...)` (#385: no `type`, but
+  // `properties` / `additionalProperties` and only object keywords) admits
+  // neither `null` nor `undefined` — the final `return true` below is for
+  // genuinely unconstrained schemas. Without this, `distribute` falls back
+  // to the check-pipe for untyped object branches, dropping sibling keys
+  // from the output and the shape from the document (#467 review).
+  if (isUntypedObject(schema)) return false
+  return true
+}
+
+// Whether the emitted schema may silently drop an undeclared key from an
+// object value it passes: only a plain `z.object(...)` does that. `z.looseObject`
+// and `z.object(...).catchall(...)` / `z.record(...)` pass every key through, and
+// `z.strictObject` rejects an object with an undeclared key outright instead of
+// stripping it — so for the question "would a refine on this output still see
+// the key", those do not strip. A union strips when some branch does (the
+// winning branch's output is used); an intersection strips only when every
+// member does (the output is the merge of the members' outputs).
+function isStrippingObject(schema: Schema): boolean {
+  return (
+    Object.keys(schema.properties ?? {}).length > 0 &&
+    schema.additionalProperties === undefined &&
+    schema.patternProperties === undefined &&
+    schema.propertyNames === undefined &&
+    schema.unevaluatedProperties === undefined
+  )
+}
+
+export function emitsStrippingObject(
+  schema: Schema | boolean,
+  schemas?: Schemas,
+  seen: readonly string[] = [],
+): boolean {
+  if (typeof schema === 'boolean') return false
+  if (schema.$ref !== undefined) {
+    if (seen.includes(schema.$ref)) return true
+    const target = resolveSchemaRef(schema.$ref, schemas)
+    return target === undefined
+      ? true
+      : emitsStrippingObject(target, schemas, [...seen, schema.$ref])
+  }
+  const types = normalizeTypes(schema.type)
+  if (types.length > 0) {
+    return types.includes('object') && isStrippingObject(schema)
+  }
+  if (schema.allOf !== undefined) {
+    return (
+      schema.allOf.length > 0 &&
+      schema.allOf.every((member) => emitsStrippingObject(member, schemas, seen))
+    )
+  }
+  const union = schema.anyOf ?? schema.oneOf
+  if (union !== undefined) {
+    return union.some((branch) => emitsStrippingObject(branch, schemas, seen))
+  }
+  return isUntypedObject(schema) && isStrippingObject(schema)
+}
+
+// The object keywords of a shape as a guarded refine: `properties` / `required` only
+// apply to object values in JSON Schema, so a value of another type passes them as is
+// (2020-12 §6.5). The checks are the typeless path's object block, guarded by the same
+// `typeof val === 'object'` test, so a combinator beside `properties` (#461) constrains
+// only the object values its branches accept, instead of intersecting with `z.object()`.
+// Same checks as `emitObjectShapeRefine`, but for `.check()` on `z.unknown()`,
+// which runs on the RAW input. A `.superRefine` on a combinator result sees the
+// parsed output instead: a stripping object branch (`z.object(...)`, any `$ref`
+// to a component) drops undeclared keys before the refine runs, so a wrong-typed
+// sibling passes and a present sibling reads as missing under `required` (#461).
+// Piped after the check, the combinator still produces the output.
+// The pushed issue carries `input: val`: a raw issue without `input` does not
+// typecheck under `tsc --strict` (`$ZodRawIssue` requires it), and the generated
+// code is typechecked per case.
+export function emitObjectShapeCheck(
+  schema: Schema,
+  recurse: (s: Schema) => string,
+): string | undefined {
+  const checks = makeObjectChecks(
+    schema,
+    recurse,
+    (issue) => `ctx.issues.push({...${issue},input:val})`,
+  )
+  if (checks.length === 0) return undefined
+  return `(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){${checks.join(';')}}}`
+}
+
+export function emitObjectShapeRefine(
+  schema: Schema,
+  recurse: (s: Schema) => string,
+): string | undefined {
+  const checks = makeObjectChecks(schema, recurse)
+  if (checks.length === 0) return undefined
+  return `(val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){${checks.join(';')}}}`
 }
 
 // `.refine()` for `unevaluatedProperties` per JSON Schema 2020-12 §11.2.
