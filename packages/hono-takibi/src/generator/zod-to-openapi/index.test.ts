@@ -5,6 +5,12 @@ import { JSON_BIGINT } from '../../helper/wire.js'
 import type { Schema } from '../../openapi/index.js'
 import { zodToOpenAPI } from './index.js'
 
+// The `z.preprocess` wrapper `withUnevaluatedCheck` emits: the check runs
+// only when the union succeeds, and the pipe stops once it adds an issue,
+// so no issue forwarding is needed.
+const withCheck = (union: string, check: string) =>
+  `(()=>{const Schema=${union};return z.preprocess((val,ctx)=>{const result=Schema.safeParse(val);if(result.success){(${check})(ctx)}return val},Schema)})()`
+
 describe('zodToOpenAPI', () => {
   describe('ref', () => {
     it.concurrent('codegen: bare $ref → ReferencedSchema identifier', () => {
@@ -13272,18 +13278,10 @@ describe('zodToOpenAPI', () => {
   // the same pattern the `allOf` path uses.
   describe('anyOf / oneOf + unevaluatedProperties (#466)', () => {
     const branch: Schema = { type: 'object', properties: { a: { type: 'string' } } }
-    // The union-issue forwarding every `withUnevaluatedCheck` wrapper emits
-    // (same per-code dispatch as the `allOf` path): the union's own issues are
-    // re-reported inside the check, because `pipe` short-circuits once the
-    // check adds an issue.
-    const forward =
-      "const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){if(issue.code==='invalid_type'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='too_big'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='too_small'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_format'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='not_multiple_of'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='unrecognized_keys'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_union'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_key'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_element'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_value'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='custom'){ctx.issues.push({...issue,input:issue.input})}}}"
     // The unevaluated check for the plain `branch` case.
     const branchCheck =
       '(ctx)=>{const o=ctx.value;if(typeof o!==\'object\'||o===null||Array.isArray(o))return;const e=new Set();if(z.object({a:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){for(const k of ["a"]){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}'
-    const withCheck = (union: string, check: string) =>
-      `(()=>{const Schema=${union};return z.unknown().check((ctx)=>{${forward};(${check})(ctx)}).pipe(Schema)})()`
-    it.concurrent('codegen: anyOf + unevaluatedProperties=false → check piped into z.union', () => {
+    it.concurrent('codegen: anyOf + unevaluatedProperties=false → preprocess wraps z.union', () => {
       expect(zodToOpenAPI({ type: 'object', anyOf: [branch], unevaluatedProperties: false })).toBe(
         withCheck(
           'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]})])',
@@ -13291,7 +13289,7 @@ describe('zodToOpenAPI', () => {
         ),
       )
     })
-    it.concurrent('codegen: oneOf + unevaluatedProperties=false → check piped into z.xor', () => {
+    it.concurrent('codegen: oneOf + unevaluatedProperties=false → preprocess wraps z.xor', () => {
       expect(zodToOpenAPI({ type: 'object', oneOf: [branch], unevaluatedProperties: false })).toBe(
         withCheck(
           'z.xor([z.object({a:z.string().exactOptional()}).openapi({"required":[]})])',
@@ -13312,7 +13310,7 @@ describe('zodToOpenAPI', () => {
         'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]})])',
       )
     })
-    it.concurrent('codegen: anyOf + sibling properties + unevaluatedProperties=false → check piped into the intersection', () => {
+    it.concurrent('codegen: anyOf + sibling properties + unevaluatedProperties=false → preprocess wraps the intersection', () => {
       expect(
         zodToOpenAPI({
           type: 'object',
@@ -13416,32 +13414,26 @@ describe('zodToOpenAPI', () => {
     })
     // Runtime checks: the equivalent Zod schemas are mirrored by hand in TS rather
     // than evaluated from the generated string, so no `new Function` / `eval` is
-    // introduced here (repo convention, see string.test.ts).
+    // introduced here (repo convention, see string.test.ts). The mirrors use the
+    // same `z.preprocess` shape the emitter produces, with the unevaluated check
+    // inlined in the callback — hence the object guard instead of the early
+    // `return` the emitted standalone check function uses.
     it.concurrent('runtime: anyOf rejects an unevaluated key, accepts a branch key', () => {
       const Schema = z.union([z.object({ a: z.string().exactOptional() })])
       const AnyOf = (() =>
-        z
-          .unknown()
-          .check((ctx) => {
-            const result = Schema.safeParse(ctx.value)
-            if (!result.success) {
-              for (const issue of result.error.issues) {
-                // Only `invalid_type` arises for the inputs below; the emitter
-                // generates the full per-code dispatch.
-                if (issue.code === 'invalid_type') {
-                  ctx.issues.push({ ...issue, input: issue.input })
-                }
+        z.preprocess((val, ctx) => {
+          if (Schema.safeParse(val).success) {
+            const o = ctx.value
+            if (typeof o === 'object' && o !== null && !Array.isArray(o)) {
+              const e = new Set<string>()
+              if (z.object({ a: z.string().exactOptional() }).safeParse(o).success) e.add('a')
+              for (const k of Object.keys(o)) {
+                if (!e.has(k)) ctx.issues.push({ code: 'custom', path: [k], input: o })
               }
             }
-            const o = ctx.value
-            if (typeof o !== 'object' || o === null || Array.isArray(o)) return
-            const e = new Set<string>()
-            if (z.object({ a: z.string().exactOptional() }).safeParse(o).success) e.add('a')
-            for (const k of Object.keys(o)) {
-              if (!e.has(k)) ctx.issues.push({ code: 'custom', path: [k], input: o })
-            }
-          })
-          .pipe(Schema))()
+          }
+          return val
+        }, Schema))()
       expect(AnyOf.safeParse({ a: 'x' }).success).toBe(true)
       const bad = AnyOf.safeParse({ a: 'x', c: 1 })
       expect(bad.success).toBe(false)
@@ -13453,79 +13445,54 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: oneOf rejects an unevaluated key, accepts a branch key', () => {
       const Schema = z.xor([z.object({ a: z.string().exactOptional() })])
       const OneOf = (() =>
-        z
-          .unknown()
-          .check((ctx) => {
-            const result = Schema.safeParse(ctx.value)
-            if (!result.success) {
-              for (const issue of result.error.issues) {
-                // Only `invalid_type` arises for the inputs below; the emitter
-                // generates the full per-code dispatch.
-                if (issue.code === 'invalid_type') {
-                  ctx.issues.push({ ...issue, input: issue.input })
-                }
+        z.preprocess((val, ctx) => {
+          if (Schema.safeParse(val).success) {
+            const o = ctx.value
+            if (typeof o === 'object' && o !== null && !Array.isArray(o)) {
+              const e = new Set<string>()
+              if (z.object({ a: z.string().exactOptional() }).safeParse(o).success) e.add('a')
+              for (const k of Object.keys(o)) {
+                if (!e.has(k)) ctx.issues.push({ code: 'custom', path: [k], input: o })
               }
             }
-            const o = ctx.value
-            if (typeof o !== 'object' || o === null || Array.isArray(o)) return
-            const e = new Set<string>()
-            if (z.object({ a: z.string().exactOptional() }).safeParse(o).success) e.add('a')
-            for (const k of Object.keys(o)) {
-              if (!e.has(k)) ctx.issues.push({ code: 'custom', path: [k], input: o })
-            }
-          })
-          .pipe(Schema))()
+          }
+          return val
+        }, Schema))()
       expect(OneOf.safeParse({ a: 'x' }).success).toBe(true)
       expect(OneOf.safeParse({ a: 'x', c: 1 }).success).toBe(false)
     })
-    it.concurrent('runtime: a wrong-typed declared key keeps its type error beside anyOf', () => {
+    it.concurrent('runtime: a wrong-typed declared key reports only its type error beside anyOf', () => {
       const Schema = z.union([z.object({ a: z.string().exactOptional() })])
       const AnyOf = (() =>
-        z
-          .unknown()
-          .check((ctx) => {
-            const result = Schema.safeParse(ctx.value)
-            if (!result.success) {
-              for (const issue of result.error.issues) {
-                if (issue.code === 'invalid_type') {
-                  ctx.issues.push({ ...issue, input: issue.input })
-                }
+        z.preprocess((val, ctx) => {
+          if (Schema.safeParse(val).success) {
+            const o = ctx.value
+            if (typeof o === 'object' && o !== null && !Array.isArray(o)) {
+              const e = new Set<string>()
+              if (z.object({ a: z.string().exactOptional() }).safeParse(o).success) e.add('a')
+              for (const k of Object.keys(o)) {
+                if (!e.has(k)) ctx.issues.push({ code: 'custom', path: [k], input: o })
               }
             }
-            const o = ctx.value
-            if (typeof o !== 'object' || o === null || Array.isArray(o)) return
-            const e = new Set<string>()
-            if (z.object({ a: z.string().exactOptional() }).safeParse(o).success) e.add('a')
-            for (const k of Object.keys(o)) {
-              if (!e.has(k)) ctx.issues.push({ code: 'custom', path: [k], input: o })
-            }
-          })
-          .pipe(Schema))()
-      // Without the forwarding inside the check, `pipe` would short-circuit
-      // and the type error would be replaced by a `custom` "unevaluated"
-      // issue for the same key.
+          }
+          return val
+        }, Schema))()
+      // The unevaluated check runs only when the union succeeds, so a key no
+      // branch matched is not also reported as unevaluated: the value is
+      // already invalid, and only the real type error is reported.
       const wrongType = AnyOf.safeParse({ a: 1 })
       expect(wrongType.success).toBe(false)
       if (!wrongType.success) {
-        expect(
-          wrongType.error.issues.some(
-            (issue) => issue.code === 'invalid_type' && issue.path.join('.') === 'a',
-          ),
-        ).toBe(true)
+        expect(wrongType.error.issues).toHaveLength(1)
+        expect(wrongType.error.issues[0]?.code).toBe('invalid_type')
+        expect(wrongType.error.issues[0]?.path).toStrictEqual(['a'])
       }
       const both = AnyOf.safeParse({ a: 1, c: 1 })
       expect(both.success).toBe(false)
       if (!both.success) {
-        expect(
-          both.error.issues.some(
-            (issue) => issue.code === 'invalid_type' && issue.path.join('.') === 'a',
-          ),
-        ).toBe(true)
-        expect(
-          both.error.issues.some(
-            (issue) => issue.code === 'custom' && issue.path.join('.') === 'c',
-          ),
-        ).toBe(true)
+        expect(both.error.issues).toHaveLength(1)
+        expect(both.error.issues[0]?.code).toBe('invalid_type')
+        expect(both.error.issues[0]?.path).toStrictEqual(['a'])
       }
       const unevaluatedOnly = AnyOf.safeParse({ a: 'x', c: 1 })
       expect(unevaluatedOnly.success).toBe(false)
@@ -13541,26 +13508,19 @@ describe('zodToOpenAPI', () => {
         z.string(),
       ])
       const Inner = (() =>
-        z
-          .unknown()
-          .check((ctx) => {
-            const result = Schema.safeParse(ctx.value)
-            if (!result.success) {
-              for (const issue of result.error.issues) {
-                if (issue.code === 'invalid_type') {
-                  ctx.issues.push({ ...issue, input: issue.input })
-                }
+        z.preprocess((val, ctx) => {
+          if (Schema.safeParse(val).success) {
+            const o = ctx.value
+            if (typeof o === 'object' && o !== null && !Array.isArray(o)) {
+              const e = new Set<string>()
+              if (z.object({ a: z.string().exactOptional() }).safeParse(o).success) e.add('a')
+              for (const k of Object.keys(o)) {
+                if (!e.has(k)) ctx.issues.push({ code: 'custom', path: [k], input: o })
               }
             }
-            const o = ctx.value
-            if (typeof o !== 'object' || o === null || Array.isArray(o)) return
-            const e = new Set<string>()
-            if (z.object({ a: z.string().exactOptional() }).safeParse(o).success) e.add('a')
-            for (const k of Object.keys(o)) {
-              if (!e.has(k)) ctx.issues.push({ code: 'custom', path: [k], input: o })
-            }
-          })
-          .pipe(Schema))()
+          }
+          return val
+        }, Schema))()
       const AnyOf = z.union([Inner])
       // `b` belongs to the outer schema object, so it is unevaluated w.r.t.
       // the nested branch — the distributed shape must not make it pass.
@@ -13569,99 +13529,103 @@ describe('zodToOpenAPI', () => {
       expect(AnyOf.safeParse('hello').success).toBe(true)
     })
     it.concurrent('runtime: sibling properties count as evaluated beside anyOf', () => {
-      const AnyOf = z
-        .unknown()
-        .check((ctx) => {
+      const Schema = z
+        .union([z.object({ a: z.string().exactOptional() })])
+        .and(z.object({ b: z.number().exactOptional() }))
+      const AnyOf = z.preprocess((val, ctx) => {
+        if (Schema.safeParse(val).success) {
           const o = ctx.value
-          if (typeof o !== 'object' || o === null || Array.isArray(o)) return
-          const e = new Set<string>(['b'])
-          if (z.object({ a: z.string().exactOptional() }).safeParse(o).success) e.add('a')
-          for (const k of Object.keys(o)) {
-            if (!e.has(k)) ctx.issues.push({ code: 'custom', path: [k], input: o })
+          if (typeof o === 'object' && o !== null && !Array.isArray(o)) {
+            const e = new Set<string>(['b'])
+            if (z.object({ a: z.string().exactOptional() }).safeParse(o).success) e.add('a')
+            for (const k of Object.keys(o)) {
+              if (!e.has(k)) ctx.issues.push({ code: 'custom', path: [k], input: o })
+            }
           }
-        })
-        .pipe(
-          z
-            .union([z.object({ a: z.string().exactOptional() })])
-            .and(z.object({ b: z.number().exactOptional() })),
-        )
+        }
+        return val
+      }, Schema)
       expect(AnyOf.safeParse({ a: 'x', b: 1 }).success).toBe(true)
       expect(AnyOf.safeParse({ a: 'x' }).success).toBe(true)
       expect(AnyOf.safeParse({ a: 'x', b: 1, c: 2 }).success).toBe(false)
       expect(AnyOf.safeParse({ a: 'x', b: 'nope' }).success).toBe(false)
     })
     it.concurrent('runtime: schema-form unevaluatedProperties validates the unevaluated value', () => {
-      const AnyOf = z
-        .unknown()
-        .check((ctx) => {
-          const o = ctx.value
-          if (typeof o !== 'object' || o === null || Array.isArray(o)) return
-          const e = new Set<string>()
-          if (z.object({ a: z.string().exactOptional() }).safeParse(o).success) e.add('a')
-          const Schema = z.string()
-          for (const [k, val] of Object.entries(o)) {
-            if (e.has(k)) continue
-            const result = Schema.safeParse(val)
-            if (!result.success) {
-              for (const issue of result.error.issues) {
-                // `z.string()` on a number only raises `invalid_type`; narrowing
-                // keeps the re-push assignable to the raw-issue union (same
-                // per-code dispatch the emitter generates).
-                if (issue.code === 'invalid_type') {
-                  ctx.issues.push({ ...issue, path: [k, ...issue.path], input: issue.input })
-                }
+      const Schema = z.union([z.object({ a: z.string().exactOptional() })])
+      // Early returns keep the nesting within the lint's max depth; the
+      // other mirrors use the nested form because their bodies are shallower.
+      const AnyOf = z.preprocess((val, ctx) => {
+        if (!Schema.safeParse(val).success) return val
+        const o = ctx.value
+        if (typeof o !== 'object' || o === null || Array.isArray(o)) return val
+        const e = new Set<string>()
+        if (z.object({ a: z.string().exactOptional() }).safeParse(o).success) e.add('a')
+        const ValueSchema = z.string()
+        for (const [k, val2] of Object.entries(o)) {
+          if (e.has(k)) continue
+          const result = ValueSchema.safeParse(val2)
+          if (!result.success) {
+            for (const issue of result.error.issues) {
+              // `z.string()` on a number only raises `invalid_type`; narrowing
+              // keeps the re-push assignable to the raw-issue union (same
+              // per-code dispatch the emitter generates).
+              if (issue.code === 'invalid_type') {
+                ctx.issues.push({ ...issue, path: [k, ...issue.path], input: issue.input })
               }
             }
           }
-        })
-        .pipe(z.union([z.object({ a: z.string().exactOptional() })]))
+        }
+        return val
+      }, Schema)
       expect(AnyOf.safeParse({ a: 'x', c: 's' }).success).toBe(true)
       expect(AnyOf.safeParse({ a: 'x', c: 1 }).success).toBe(false)
     })
     it.concurrent('runtime: a $ref branch counts its component keys as evaluated', () => {
       const ASchema = z.object({ a: z.string().exactOptional() })
-      const AnyOf = z
-        .unknown()
-        .check((ctx) => {
+      const Schema = z.union([ASchema])
+      const AnyOf = z.preprocess((val, ctx) => {
+        if (Schema.safeParse(val).success) {
           const o = ctx.value
-          if (typeof o !== 'object' || o === null || Array.isArray(o)) return
-          const e = new Set<string>()
-          if (ASchema.safeParse(o).success) e.add('a')
-          for (const k of Object.keys(o)) {
-            if (!e.has(k)) ctx.issues.push({ code: 'custom', path: [k], input: o })
+          if (typeof o === 'object' && o !== null && !Array.isArray(o)) {
+            const e = new Set<string>()
+            if (ASchema.safeParse(o).success) e.add('a')
+            for (const k of Object.keys(o)) {
+              if (!e.has(k)) ctx.issues.push({ code: 'custom', path: [k], input: o })
+            }
           }
-        })
-        .pipe(z.union([ASchema]))
+        }
+        return val
+      }, Schema)
       expect(AnyOf.safeParse({ a: 'x' }).success).toBe(true)
       expect(AnyOf.safeParse({ a: 'x', c: 1 }).success).toBe(false)
     })
     it.concurrent('runtime: a nested anyOf branch counts only its matching branch keys', () => {
-      const AnyOf = z
-        .unknown()
-        .check((ctx) => {
+      const Schema = z.union([
+        z.union([
+          z.object({ a: z.string().exactOptional() }),
+          z.object({ d: z.boolean().exactOptional() }),
+        ]),
+      ])
+      const AnyOf = z.preprocess((val, ctx) => {
+        if (Schema.safeParse(val).success) {
           const o = ctx.value
-          if (typeof o !== 'object' || o === null || Array.isArray(o)) return
-          const e = new Set<string>()
-          const nested = z.union([
-            z.object({ a: z.string().exactOptional() }),
-            z.object({ d: z.boolean().exactOptional() }),
-          ])
-          if (nested.safeParse(o).success) {
-            if (z.object({ a: z.string().exactOptional() }).safeParse(o).success) e.add('a')
-            if (z.object({ d: z.boolean().exactOptional() }).safeParse(o).success) e.add('d')
-          }
-          for (const k of Object.keys(o)) {
-            if (!e.has(k)) ctx.issues.push({ code: 'custom', path: [k], input: o })
-          }
-        })
-        .pipe(
-          z.union([
-            z.union([
+          if (typeof o === 'object' && o !== null && !Array.isArray(o)) {
+            const e = new Set<string>()
+            const nested = z.union([
               z.object({ a: z.string().exactOptional() }),
               z.object({ d: z.boolean().exactOptional() }),
-            ]),
-          ]),
-        )
+            ])
+            if (nested.safeParse(o).success) {
+              if (z.object({ a: z.string().exactOptional() }).safeParse(o).success) e.add('a')
+              if (z.object({ d: z.boolean().exactOptional() }).safeParse(o).success) e.add('d')
+            }
+            for (const k of Object.keys(o)) {
+              if (!e.has(k)) ctx.issues.push({ code: 'custom', path: [k], input: o })
+            }
+          }
+        }
+        return val
+      }, Schema)
       expect(AnyOf.safeParse({ a: 'x' }).success).toBe(true)
       expect(AnyOf.safeParse({ d: true }).success).toBe(true)
       expect(AnyOf.safeParse({ a: 'x', c: 1 }).success).toBe(false)

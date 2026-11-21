@@ -45,20 +45,23 @@ import { baseError, error, makeStringLiteral, normalizeTypes } from '../../utils
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
 import { _enum, integer, number, object, string } from './z/index.js'
 
-// Wrap a union emission with the `unevaluatedProperties` check (#466). The
-// check runs on the raw input, piped into the union — a `.superRefine` on
-// the union would see the parsed output, from which a stripping object
-// branch had already dropped the unevaluated keys. The union's own issues
-// are forwarded inside the check, as the `allOf` path does: `pipe`
-// short-circuits once the check adds an issue, so without the forwarding a
-// declared-but-wrong-typed key would be reported only as "unevaluated"
-// instead of its real type error. The short-circuit also prevents
-// duplication: when the check forwarded issues, the pipe does not re-run
-// the union. Returns `zod` unchanged when the check is '' (keyword absent
+// Wrap a union emission with the `unevaluatedProperties` check (#466).
+// `z.preprocess` runs on the raw input — a `.superRefine` on the union would
+// see the parsed output, from which a stripping object branch had already
+// dropped the unevaluated keys — and `@hono/zod-openapi` renders it by its
+// output side, so the generated OpenAPI document keeps the union (a
+// `z.unknown().check(...).pipe(Schema)` renders by its input side, i.e. `{}`).
+// The IIFE holds `Schema` so the callback can gate on it: the check runs only
+// when the union succeeds — when the union fails the value is already invalid,
+// and a wrong-typed declared key would otherwise also be reported as
+// unevaluated, since no branch matched to evaluate it. No issue forwarding is
+// needed: the pipe stops once the preprocess callback adds an issue, and when
+// the union fails there is no preprocess issue, so the union runs and reports
+// its own errors. Returns `zod` unchanged when the check is '' (keyword absent
 // or `true`), so schemas without it emit exactly what they did.
 function withUnevaluatedCheck(zod: string, unevalCheck: string): string {
   if (unevalCheck === '') return zod
-  return `(()=>{const Schema=${zod};return z.unknown().check((ctx)=>{const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding('{...issue,input:issue.input}')}}};(${unevalCheck})(ctx)}).pipe(Schema)})()`
+  return `(()=>{const Schema=${zod};return z.preprocess((val,ctx)=>{const result=Schema.safeParse(val);if(result.success){(${unevalCheck})(ctx)}return val},Schema)})()`
 }
 
 export function zodToOpenAPI(
@@ -505,10 +508,9 @@ export function zodToOpenAPI(
     // `unevaluatedProperties` beside `anyOf` (#466): the union on its own drops
     // the check — a stripping object branch has already removed the unevaluated
     // keys before any refine on the union could see them — so the check runs on
-    // the raw input, piped into the union (see `withUnevaluatedCheck`, same
-    // pattern as the `allOf` path). `makeUnevaluatedPropertiesCheck` returns ''
-    // when the keyword is absent or `true`, so schemas without it emit exactly
-    // what they did.
+    // the raw input, in a `z.preprocess` (see `withUnevaluatedCheck`).
+    // `makeUnevaluatedPropertiesCheck` returns '' when the keyword is absent
+    // or `true`, so schemas without it emit exactly what they did.
     const unevalCheck = makeUnevaluatedPropertiesCheck(
       schema,
       (s) => zodToOpenAPI(s, undefined, childOptions),
@@ -628,12 +630,12 @@ export function zodToOpenAPI(
     const z = isDiscriminated
       ? `z.discriminatedUnion(${makeStringLiteral(discriminator)},[${oneOfSchemas.join(',')}]${oneOfErrorArg})`
       : `z.xor([${oneOfSchemas.join(',')}]${oneOfErrorArg})`
-    // `unevaluatedProperties` beside `oneOf` (#466): same check-pipe as the
-    // `anyOf` path above — the check runs on the raw input, piped into the
-    // union / xor / discriminated union (see `withUnevaluatedCheck`), because
-    // a stripping object branch would have removed the unevaluated keys before
-    // any refine could see them. Returns '' when the keyword is absent or
-    // `true`, so schemas without it emit exactly what they did.
+    // `unevaluatedProperties` beside `oneOf` (#466): same `z.preprocess` as
+    // the `anyOf` path above — the check runs on the raw input (see
+    // `withUnevaluatedCheck`), because a stripping object branch would have
+    // removed the unevaluated keys before any refine could see them. Returns
+    // '' when the keyword is absent or `true`, so schemas without it emit
+    // exactly what they did.
     const unevalCheck = makeUnevaluatedPropertiesCheck(
       schema,
       (s) => zodToOpenAPI(s, undefined, childOptions),
