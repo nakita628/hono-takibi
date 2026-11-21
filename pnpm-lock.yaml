@@ -195,8 +195,8 @@ catalogs:
       specifier: ^1.17.0
       version: 1.18.0
     '@typespec/events':
-      specifier: ^0.87.0
-      version: 0.87.0
+      specifier: ^0.88.0
+      version: 0.88.0
     '@typespec/http':
       specifier: ^1.17.0
       version: 1.18.0
@@ -210,23 +210,23 @@ catalogs:
       specifier: ^1.17.0
       version: 1.18.0
     '@typespec/playground':
-      specifier: ^0.18.0
-      version: 0.18.0
+      specifier: ^0.19.0
+      version: 0.19.0
     '@typespec/rest':
-      specifier: ^0.87.0
-      version: 0.87.0
+      specifier: ^0.88.0
+      version: 0.88.0
     '@typespec/sse':
-      specifier: ^0.87.0
-      version: 0.87.0
+      specifier: ^0.88.0
+      version: 0.88.0
     '@typespec/streams':
-      specifier: ^0.87.0
-      version: 0.87.0
+      specifier: ^0.88.0
+      version: 0.88.0
     '@typespec/versioning':
-      specifier: ^0.87.0
-      version: 0.87.0
+      specifier: ^0.88.0
+      version: 0.88.0
     '@typespec/xml':
-      specifier: ^0.87.0
-      version: 0.87.0
+      specifier: ^0.88.0
+      version: 0.88.0
     cf:
       specifier: 1.0.0-beta.32
       version: 1.0.0-beta.32
@@ -278,13 +278,13 @@ importers:
         version: 10.6.0
       '@typespec/http':
         specifier: 'catalog:'
-        version: 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
+        version: 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
       '@typespec/openapi':
         specifier: 'catalog:'
-        version: 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
+        version: 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
       '@typespec/openapi3':
         specifier: 'catalog:'
-        version: 1.18.0(43fb99737d086957557a0c09c6f55d66)
+        version: 1.18.0(d6f8ee41fad49b4e3343fef79d73a2b1)
       cf:
         specifier: 'catalog:'
         version: 1.0.0-beta.32(@types/node@26.6.6)
@@ -308,7 +308,7 @@ importers:
         version: 1.18.0(@types/node@26.6.6)
       '@typespec/openapi3':
         specifier: 'catalog:'
-        version: 1.18.0(43fb99737d086957557a0c09c6f55d66)
+        version: 1.18.0(d6f8ee41fad49b4e3343fef79d73a2b1)
       effect:
         specifier: 4.1.4
         version: 4.1.4
@@ -330,10 +330,10 @@ importers:
         version: 26.6.6
       '@typespec/http':
         specifier: 'catalog:'
-        version: 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
+        version: 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
       '@typespec/rest':
         specifier: 'catalog:'
-        version: 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
+        version: 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
       hono:
         specifier: ^4.13.17
         version: 4.13.18
@@ -384,10 +384,10 @@ importers:
         version: 19.3.0(@types/react@19.3.0)
       '@typespec/http':
         specifier: 'catalog:'
-        version: 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
+        version: 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
       '@typespec/openapi':
         specifier: 'catalog:'
-        version: 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
+        version: 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
       happy-dom:
         specifier: ^21.0.4
         version: 21.0.4
@@ -459,37 +459,37 @@ importers:
         version: 1.18.0(@types/node@26.6.6)
       '@typespec/events':
         specifier: 'catalog:'
-        version: 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
+        version: 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
       '@typespec/http':
         specifier: 'catalog:'
-        version: 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
+        version: 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
       '@typespec/json-schema':
         specifier: 'catalog:'
         version: 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
       '@typespec/openapi':
         specifier: 'catalog:'
-        version: 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
+        version: 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
       '@typespec/openapi3':
         specifier: 'catalog:'
-        version: 1.18.0(43fb99737d086957557a0c09c6f55d66)
+        version: 1.18.0(d6f8ee41fad49b4e3343fef79d73a2b1)
       '@typespec/playground':
         specifier: 'catalog:'
-        version: 0.18.0(@types/node@26.6.6)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(@typespec/events@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/json-schema@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/sse@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/events@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/xml@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(scheduler@0.28.0)
+        version: 0.19.0(@types/node@26.6.6)(@types/react@19.3.0)(@typespec/events@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/json-schema@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/sse@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/events@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/xml@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(scheduler@0.28.0)
       '@typespec/rest':
         specifier: 'catalog:'
-        version: 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
+        version: 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
       '@typespec/sse':
         specifier: 'catalog:'
-        version: 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/events@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
+        version: 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/events@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
       '@typespec/streams':
         specifier: 'catalog:'
-        version: 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
+        version: 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
       '@typespec/versioning':
         specifier: 'catalog:'
-        version: 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
+        version: 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
       '@typespec/xml':
         specifier: 'catalog:'
-        version: 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
+        version: 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
       hono:
         specifier: 'catalog:'
         version: 4.13.18
@@ -992,13 +992,14 @@ packages:
       '@types/react':
         optional: true
 
-  '@fluentui/react-alert@9.0.2-0':
-    resolution: {integrity: sha512-EBDZINmZABgcusZiwd2tpr7A0ibUnNXzQXEEq654fdb9txhk0zDV+TotudbDmusSRmz69GHCjiUYyv1kUp3yCg==}
+  '@fluentui/react-alert@9.0.2-beta.1':
+    resolution: {integrity: sha512-LOsdMQxkh31DSaWUeq0NT5aPlycH4zqDABIC4kdfcxvfAyyQgWPggrDxr67fktMQDXZL8PTyVKewlAUW1en0Dg==}
     peerDependencies:
       '@types/react': '>=16.14.0 <20.0.0'
-      '@types/react-dom': '>=16.9.0 <20.0.0'
       react: '>=16.14.0 <20.0.0'
-      react-dom: '>=16.14.0 <20.0.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@fluentui/react-aria@9.17.16':
     resolution: {integrity: sha512-Jsv6u3LmbZD5Bt0vzpZlbrnQqWIKA937/yWWprQGFe0yOGd6v8fx0KfE2uDuhQI8dvbxG8vlsO8fTxiErKl2Qg==}
@@ -1091,13 +1092,14 @@ packages:
       '@types/react':
         optional: true
 
-  '@fluentui/react-components@9.74.7':
-    resolution: {integrity: sha512-6CsXxSnhr55zflwNOB7mD/iqtv5kmr8PXfQdlwJPLkbLOiZXniTtvjaJKXhRFaJcVtZGAJ5vh1leQRyK1R+DQQ==}
+  '@fluentui/react-components@9.75.2':
+    resolution: {integrity: sha512-UAltDsMYQwyr0eYvHwb9zbAzfnJHQWW2KIywKrw5GpnvVAsn5tNdutjlAE9D6V1Vb59tRnjvORylHeN6ZO7W7g==}
     peerDependencies:
       '@types/react': '>=16.14.0 <20.0.0'
-      '@types/react-dom': '>=16.9.0 <20.0.0'
       react: '>=16.14.0 <20.0.0'
-      react-dom: '>=16.14.0 <20.0.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@fluentui/react-context-selector@9.2.21':
     resolution: {integrity: sha512-pzVcMTosiP7tIZbqz+hs3BIIMKrjJCqeBGaGMcZC6AO0eaFORh/DuOTKLC8o692ltG/Qpkijo9V4qZiiodRvFg==}
@@ -1145,8 +1147,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@fluentui/react-icons@2.0.339':
-    resolution: {integrity: sha512-HbMdk4xAFus8i7B7i7IVf5Rr3bzMbumTkAcP/OwHqMNn+Yq7+96/mDprIyC/NuhQOG/gXCd4npr4fYUS/UI6QQ==}
+  '@fluentui/react-icons@2.0.347':
+    resolution: {integrity: sha512-cu5VrxrdT6ccwhUy2TKOMpIKt0Sm0PRcv7E2Ez9ko4RgiGhveP5CKyZFFhauYz6lpl/BmNlnJepnWETxTFRhHQ==}
     peerDependencies:
       react: '>=16.8.0 <20.0.0'
 
@@ -1159,13 +1161,14 @@ packages:
       '@types/react':
         optional: true
 
-  '@fluentui/react-infobutton@9.0.1-0':
-    resolution: {integrity: sha512-ZL34XO7sftGyOdr6DvJFW70eyleASyO647X9FLkAAjuoiZc5Qn7T4C391CZ7FrV+qqdYnVl5hQpSgHLzEPhBMA==}
+  '@fluentui/react-infobutton@9.0.1-beta.1':
+    resolution: {integrity: sha512-tBmGi6g4ae83lv8BBzq/oeqa89X6NrMlwoy9SyAjNm3OF/XXZnmN28SZVfbX2a8OdISkF6M2kX38ykVZw3G55g==}
     peerDependencies:
       '@types/react': '>=16.14.0 <20.0.0'
-      '@types/react-dom': '>=16.9.0 <20.0.0'
       react: '>=16.14.0 <20.0.0'
-      react-dom: '>=16.14.0 <20.0.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@fluentui/react-infolabel@9.4.28':
     resolution: {integrity: sha512-qJ3gyMuOwXjJEVS5ApMKIs9+W57CGlE/aBjPfwxvOKxgYJx3H5uCJHIeBJ9GH+1KKesFD0IJjMutgzUZ65XvKw==}
@@ -1211,14 +1214,6 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
-
-  '@fluentui/react-list@9.6.18':
-    resolution: {integrity: sha512-P//HDgG3ezE8tCU9GfFjEFBRF6Eln98JtZUY7eGAymR2RQ0hm1gHpUlImQ/LHURSGtRzLRrYtB+oVCY41CLRgA==}
-    peerDependencies:
-      '@types/react': '>=16.14.0 <20.0.0'
-      '@types/react-dom': '>=16.9.0 <20.0.0'
-      react: '>=16.14.0 <20.0.0'
-      react-dom: '>=16.14.0 <20.0.0'
 
   '@fluentui/react-list@9.7.0':
     resolution: {integrity: sha512-7aVYvUXp7ADFUPA00X/m5QYKcgfvKYi7hpeovvrWianXQFa6cbunfF86Hphkfmj0pMQOCuvLDkwuthUhUCWAlw==}
@@ -1559,13 +1554,15 @@ packages:
       '@types/react':
         optional: true
 
-  '@fluentui/react-virtualizer@9.0.0-alpha.115':
-    resolution: {integrity: sha512-8ZOFmt5eSkiH9jWYvfmMkef+2jGvWrDeXjUptZeesgn4VRXwQu4SUKPLWqZ+ETcYXX/0leGEDl6KItdp/XxbmA==}
+  '@fluentui/react-virtualizer@9.0.0-alpha.116':
+    resolution: {integrity: sha512-cANu8ImQh99D0Pdl33ZIhiAki9grvO6e1x4grCVjDYM3/1WLKmKAVfXHwEeGv7u0XUydCX98bfEUS8wTVE5Mfw==}
     peerDependencies:
       '@types/react': '>=16.14.0 <20.0.0'
-      '@types/react-dom': '>=16.9.0 <20.0.0'
       react: '>=16.14.0 <20.0.0'
       react-dom: '>=16.14.0 <20.0.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@fluentui/tokens@1.0.0-alpha.24':
     resolution: {integrity: sha512-YrjGQfnxBR+9o8wXyTflON3Ohsv7OrZWYLVRU+7RaiFO1gcu36iDm3WjudlVmYuWRLDO0Gmxotm6RQNhbZuEQQ==}
@@ -3640,17 +3637,17 @@ packages:
     engines: {node: '>=22.0.0'}
     hasBin: true
 
-  '@typespec/events@0.87.0':
-    resolution: {integrity: sha512-LZHZHnrqOZrQT9bokd9InaXpG35XoChHK4lZqAfJtTTx8zq0kzm5WIZ8fnXttUj332mjjgSNVtZyyrrZFzpKQw==}
+  '@typespec/events@0.88.0':
+    resolution: {integrity: sha512-DaHp76AQBhIdqBrQjcclQMoWc8iEzL3fVo4laxIxEpybyK3JpJu8Jyu7yofM5MB/YwzUKrK9wVOpx/tUCa4fqQ==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
-      '@typespec/compiler': ^1.17.0
+      '@typespec/compiler': ^1.18.0
 
-  '@typespec/html-program-viewer@0.87.0':
-    resolution: {integrity: sha512-o2ilQHPqX1X1m0etzmx4uT1RjNGIFjIeNIRlpv3uT19dKWQxcm0JuzuzG9Sknby1Rs2g5+jNgA4y3vINKIM8BQ==}
+  '@typespec/html-program-viewer@0.88.0':
+    resolution: {integrity: sha512-evtKybkw/g+4sHWQp/NmPGt9VWvRpKAnkA0boer2Hb7MrcpgbaHE55QBCk1HF8nZO73zxOgepMufmdKBLjo/mA==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
-      '@typespec/compiler': ^1.17.0
+      '@typespec/compiler': ^1.18.0
 
   '@typespec/http@1.18.0':
     resolution: {integrity: sha512-5RmsHcfJYIEKanRQDNYs4kRQQBtVDW46sCNdpbG1fgORzqjEP/Nkx+jFRHW99RlLwcAzX5VbrzM2TgzNCmcPfg==}
@@ -3703,48 +3700,48 @@ packages:
       '@typespec/compiler': ^1.18.0
       '@typespec/http': ^1.18.0
 
-  '@typespec/playground@0.18.0':
-    resolution: {integrity: sha512-gR2lIj1+p/HOjsAIkVOb85RSYO2utvMwIgDTP4srIzLsR5hAgyNyeupTUpfo7NZl4KtlEj9lWN6xjOO71rPdSw==}
+  '@typespec/playground@0.19.0':
+    resolution: {integrity: sha512-Hg9YI5EtQL9y0GrRon28+S4PvnVmtfhcsZx0xd6+9+n+q5vtJgzK0v1nlHgDiWav+OtJX4qhsUkUuWixh2stAQ==}
     engines: {node: '>=22.0.0'}
 
-  '@typespec/protobuf@0.87.0':
-    resolution: {integrity: sha512-fy1sZ+/JlB8gc60ospB3/RDSr7l+mfHFznAZAVEXXcf023VOkhqz6K7ww6GZrKnkxyDHXKNLliD5w9E7ffmAIw==}
+  '@typespec/protobuf@0.88.0':
+    resolution: {integrity: sha512-/iTCrZGkyvWkY9iIIbuIDpqVz6BOWNuhqG7hCoBKbe3Nrk0I8XrGP1qjCQ0Jx63SFzbrLEBdfg2Dylbu97z7sw==}
     peerDependencies:
-      '@typespec/compiler': ^1.17.0
+      '@typespec/compiler': ^1.18.0
 
-  '@typespec/rest@0.87.0':
-    resolution: {integrity: sha512-Oi47F6IJWyP/efMXf+OUwJTKRrfPpsXPzFZIxG5x2HpAgTwQ0xAUPkrQ6XoQ4rdmwN3XPm0nV54lw5GKljB9LQ==}
+  '@typespec/rest@0.88.0':
+    resolution: {integrity: sha512-xWJ+bZ5AEe+PGrzyjqBamaBqpgdCHDygJIPX9HP9NAFfwPoompuMV1WqohDEkH7htFs06vECWQ+UeX8cU5bcwg==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
-      '@typespec/compiler': ^1.17.0
-      '@typespec/http': ^1.17.0
+      '@typespec/compiler': ^1.18.0
+      '@typespec/http': ^1.18.0
 
-  '@typespec/sse@0.87.0':
-    resolution: {integrity: sha512-6bAe4zlL+ZYzPCbAXSurTnZ9Jkze1/FAlK2d0i8L81syDtyDs2xWm8quElLzyVks2LkttsO14vFdN2ek5vUJ+g==}
+  '@typespec/sse@0.88.0':
+    resolution: {integrity: sha512-urDijWfLLMjEenUmoZ6xYnv2kWHwyWPt7dgwTuXQSIgd81yp5f3PzbsTR5GPdy2OXkQOjpS+xhWEuc/lrN0DIA==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
-      '@typespec/compiler': ^1.17.0
-      '@typespec/events': ^0.87.0
-      '@typespec/http': ^1.17.0
-      '@typespec/streams': ^0.87.0
+      '@typespec/compiler': ^1.18.0
+      '@typespec/events': ^0.88.0
+      '@typespec/http': ^1.18.0
+      '@typespec/streams': ^0.88.0
 
-  '@typespec/streams@0.87.0':
-    resolution: {integrity: sha512-m7QLb6VuJiVNM4xuQZMTxoL5xyseLsgmOhUMpmg5HGtAp8toDWaT2N9fxen9BJ3swqdB4P5huQJSVO2BcFB96A==}
+  '@typespec/streams@0.88.0':
+    resolution: {integrity: sha512-LS4xQmATeNo6A3FXsLee/2y0a/gy64vwfU2XRVp7lHomqYsBDCxgdXXi8RAFQjWhlxLcKthb0mKE8ih4AsV7vw==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
-      '@typespec/compiler': ^1.17.0
+      '@typespec/compiler': ^1.18.0
 
-  '@typespec/versioning@0.87.0':
-    resolution: {integrity: sha512-GPL92BH29XAh10o0stg1LfW6RZyyQnlt8LAQ1i1Bfgnf6W0S32nCwbtVgHy8WX1u/g4sXWq74O3xi6Ng5+i68w==}
+  '@typespec/versioning@0.88.0':
+    resolution: {integrity: sha512-XhPJ4ItiqPwmpgo3esDKEbRU5UA5YRrNpWpyCdhFC/XYCJLUxXYHak392Yb1LzNjvseqjGNf/FXM2W03FhghKA==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
-      '@typespec/compiler': ^1.17.0
+      '@typespec/compiler': ^1.18.0
 
-  '@typespec/xml@0.87.0':
-    resolution: {integrity: sha512-wjcXyYGUEegtMnpqjZzEThhSjILNWuOhEdAriwok4gfxicXcZVNj0l+F+tQcnVjhua0u5dsZimhnohPF/kNqQQ==}
+  '@typespec/xml@0.88.0':
+    resolution: {integrity: sha512-SEWLR9yaMHzA+AlDZoHsm4lpVq2lATbN9WYZAd1MRT26m/oX2JFQBq/cVZUawMQWPDDAz1c3Xn9JRWtv3KJSzA==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
-      '@typespec/compiler': ^1.17.0
+      '@typespec/compiler': ^1.18.0
 
   '@ungap/structured-clone@1.4.0':
     resolution: {integrity: sha512-1mEZtMKPM09vDmQt5y7YvmN2+DFTP7Tg0EWXdic8/C6VRnpb33e4ghisCIE3WZjsE2N8mf+QV1Zqh7ZFYLWInQ==}
@@ -4351,9 +4348,6 @@ packages:
   dompurify@3.4.15:
     resolution: {integrity: sha512-EUBjM+B+lkDE41iE82DDSCfkoPGfXx8IxFxPMjNzm/Uk4xDet77rTN9wqlxlVg71kK7XGuUMv6wUxJUwwv+Xyw==}
 
-  dompurify@3.4.8:
-    resolution: {integrity: sha512-yb1cEmaOum7wFvOCSQxyfgVlv5D47Rc30iZWoMpbDIWTnJ6grDDQyu2KFJzB2k7u0pMuJcQ1zphH//fFnw2tjQ==}
-
   effect@4.1.4:
     resolution: {integrity: sha512-Tgrv/9FN+TZYyOn8XSli+fVqAfwDrDAkiX5Uu9vztINb675VTQdhD0gWI5Kzvhlh9QqzjZvw72iugqw5pwoghQ==}
 
@@ -4930,9 +4924,6 @@ packages:
 
   mlly@1.8.2:
     resolution: {integrity: sha512-d+ObxMQFmbt10sretNDytwt85VrbkhhUA/JBGm1MPaWJ65Cl4wOgLaB1NYvJSZ0Ef03MMEU/0xpPMXUIQ29UfA==}
-
-  monaco-editor@0.56.0:
-    resolution: {integrity: sha512-sXboRm3BeBeLm938eaiyLMe0OxzfXIlZvbv4ir/jVgQy1zDhWjgmny0WoN45fuDKhCCQsYMbBJrv/A6jd8aCUg==}
 
   monaco-editor@0.57.0:
     resolution: {integrity: sha512-5BkI9KGoqrNvBGUe15/QlZq3OooZ8WLg1AxTpaqHRCP3HNpzPPZKE2EDz8M7c+VRmCeUw1Brp4cx/PWm3kI/5A==}
@@ -5709,28 +5700,14 @@ packages:
     resolution: {integrity: sha512-USSfxg0vDIpTQqlQBGxF3mBARyoS8cU7LHLpbYNh6dOJt32dlskxPWB0Irrh5TllTmyf7oNLAvqDqzklbwwnpA==}
     engines: {node: '>=14.17.0'}
 
-  vscode-jsonrpc@9.0.3:
-    resolution: {integrity: sha512-qETYf9PCl1lVfwR+oBmMfc4vP2nqLNA35ABxorw3j06+xlKRgDVxbLgKm4Y/xPL0YWdeDjLoI4ImICIT3nB0zQ==}
-    engines: {node: '>=14.0.0'}
-
-  vscode-languageserver-protocol@3.18.4:
-    resolution: {integrity: sha512-CCXbyr99dafRJzJH/0Ryk7ly5T8XPmSR0//OuF2w4m+9JiOin7zcAT5iET8GRE7Z9taFBejb3GbM0a0mbjdbrg==}
-
   vscode-languageserver-protocol@3.18.5:
     resolution: {integrity: sha512-FW4fBMzZ99N8xeob4py0l050wgCoRgTpEq5Xcsb9lM1bc29UKGR/wSV+4knaqFxssFHajy7OzNiKP/m3U1ZEuA==}
 
   vscode-languageserver-textdocument@1.0.16:
     resolution: {integrity: sha512-qeNEuOi9a3qkqRf7Gfez2WL2VwlBTLCNekHBGO9kxPVUp9XuY15yfTJ9jwvOwKI0I2MhUUfZq95NSp+LK1CLQg==}
 
-  vscode-languageserver-types@3.18.4:
-    resolution: {integrity: sha512-nQsacoiijvl0fRf2q28uFDrAVwRhdCa3QveiF7/CX0r18mLR5FU/1WskSsCKOjmEbtteKUnY8x8Yzxop+k0zwg==}
-
   vscode-languageserver-types@3.18.5:
     resolution: {integrity: sha512-kPd6+JQNz3HMJvjKlqUxERSlZHAntl/aGpsk7ImwIh0ewDKDcjgAEyVSYciPiOJD3ftbK9IrfiqUeTZLSbCizw==}
-
-  vscode-languageserver@10.1.2:
-    resolution: {integrity: sha512-pXPWde3RytdeBVEs6PulOOT5OpeXC5GkWRpcT11f5rNn41jviQsAYPyAqJ/0oVGETQLKPJtYbHNiMPlfLb0NTQ==}
-    hasBin: true
 
   vscode-languageserver@11.0.0:
     resolution: {integrity: sha512-dOyMIyq0PNVJhTkj+FZoi3H8N3WffNSZEepfbQT+x2E16x1ONPacSx00DoVRqyVKO7PN35ixj/l2RQwQmStkNg==}
@@ -6329,7 +6306,7 @@ snapshots:
     dependencies:
       '@fluentui/react-aria': 9.17.16(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-context-selector': 9.2.21(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-motion': 9.16.5(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-motion-components-preview': 0.15.10(@types/react@19.3.0)(react@19.3.1)
@@ -6345,22 +6322,22 @@ snapshots:
     transitivePeerDependencies:
       - scheduler
 
-  '@fluentui/react-alert@9.0.2-0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)':
+  '@fluentui/react-alert@9.0.2-beta.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)':
     dependencies:
       '@fluentui/react-avatar': 9.11.10(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-button': 9.11.3(@types/react@19.3.0)(react@19.3.1)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-tabster': 9.26.19(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-theme': 9.2.2
       '@fluentui/react-utilities': 9.27.0(@types/react@19.3.0)(react@19.3.1)
       '@griffel/react': 1.7.8(react@19.3.1)
       '@swc/helpers': 0.5.24
-      '@types/react': 19.3.0
-      '@types/react-dom': 19.3.0(@types/react@19.3.0)
       react: 19.3.1
-      react-dom: 19.3.1(react@19.3.1)
+    optionalDependencies:
+      '@types/react': 19.3.0
     transitivePeerDependencies:
+      - react-dom
       - scheduler
 
   '@fluentui/react-aria@9.17.16(@types/react@19.3.0)(react@19.3.1)':
@@ -6379,7 +6356,7 @@ snapshots:
     dependencies:
       '@fluentui/react-badge': 9.5.8(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-context-selector': 9.2.21(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-popover': 9.14.10(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
@@ -6398,7 +6375,7 @@ snapshots:
 
   '@fluentui/react-badge@9.5.8(@types/react@19.3.0)(react@19.3.1)':
     dependencies:
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-theme': 9.2.2
@@ -6413,7 +6390,7 @@ snapshots:
     dependencies:
       '@fluentui/react-aria': 9.17.16(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-button': 9.11.3(@types/react@19.3.0)(react@19.3.1)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-link': 9.8.6(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
@@ -6430,7 +6407,7 @@ snapshots:
     dependencies:
       '@fluentui/keyboard-keys': 9.0.9
       '@fluentui/react-aria': 9.17.16(@types/react@19.3.0)(react@19.3.1)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-tabster': 9.26.19(@types/react@19.3.0)(react@19.3.1)
@@ -6462,7 +6439,7 @@ snapshots:
       '@fluentui/react-aria': 9.17.16(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-button': 9.11.3(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-context-selector': 9.2.21(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-tabster': 9.26.19(@types/react@19.3.0)(react@19.3.1)
@@ -6484,7 +6461,7 @@ snapshots:
   '@fluentui/react-checkbox@9.6.6(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)':
     dependencies:
       '@fluentui/react-field': 9.5.6(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-label': 9.4.6(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
@@ -6521,7 +6498,7 @@ snapshots:
       '@fluentui/react-aria': 9.17.16(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-context-selector': 9.2.21(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-field': 9.5.6(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-portal': 9.8.17(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@fluentui/react-positioning': 9.23.4(@types/react@19.3.0)(react@19.3.1)
@@ -6538,10 +6515,10 @@ snapshots:
     transitivePeerDependencies:
       - scheduler
 
-  '@fluentui/react-components@9.74.7(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)':
+  '@fluentui/react-components@9.75.2(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)':
     dependencies:
       '@fluentui/react-accordion': 9.12.5(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-alert': 9.0.2-0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
+      '@fluentui/react-alert': 9.0.2-beta.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-aria': 9.17.16(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-avatar': 9.11.10(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-badge': 9.5.8(@types/react@19.3.0)(react@19.3.1)
@@ -6557,7 +6534,7 @@ snapshots:
       '@fluentui/react-drawer': 9.13.5(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-field': 9.5.6(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-image': 9.4.6(@types/react@19.3.0)(react@19.3.1)
-      '@fluentui/react-infobutton': 9.0.1-0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
+      '@fluentui/react-infobutton': 9.0.1-beta.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-infolabel': 9.4.28(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-input': 9.8.9(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-label': 9.4.6(@types/react@19.3.0)(react@19.3.1)
@@ -6599,14 +6576,14 @@ snapshots:
       '@fluentui/react-tooltip': 9.10.8(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@fluentui/react-tree': 9.17.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-utilities': 9.27.0(@types/react@19.3.0)(react@19.3.1)
-      '@fluentui/react-virtualizer': 9.0.0-alpha.115(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@fluentui/react-virtualizer': 9.0.0-alpha.116(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@griffel/react': 1.7.8(react@19.3.1)
       '@swc/helpers': 0.5.24
-      '@types/react': 19.3.0
-      '@types/react-dom': 19.3.0(@types/react@19.3.0)
       react: 19.3.1
-      react-dom: 19.3.1(react@19.3.1)
+    optionalDependencies:
+      '@types/react': 19.3.0
     transitivePeerDependencies:
+      - react-dom
       - scheduler
 
   '@fluentui/react-context-selector@9.2.21(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)':
@@ -6623,7 +6600,7 @@ snapshots:
       '@fluentui/keyboard-keys': 9.0.9
       '@fluentui/react-aria': 9.17.16(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-context-selector': 9.2.21(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-motion': 9.16.5(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-motion-components-preview': 0.15.10(@types/react@19.3.0)(react@19.3.1)
@@ -6676,7 +6653,7 @@ snapshots:
   '@fluentui/react-field@9.5.6(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)':
     dependencies:
       '@fluentui/react-context-selector': 9.2.21(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-label': 9.4.6(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
@@ -6690,7 +6667,7 @@ snapshots:
     transitivePeerDependencies:
       - scheduler
 
-  '@fluentui/react-icons@2.0.339(react@19.3.1)':
+  '@fluentui/react-icons@2.0.347(react@19.3.1)':
     dependencies:
       '@griffel/react': 1.7.8(react@19.3.1)
       react: 19.3.1
@@ -6708,9 +6685,9 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  '@fluentui/react-infobutton@9.0.1-0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)':
+  '@fluentui/react-infobutton@9.0.1-beta.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)':
     dependencies:
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-label': 9.4.6(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-popover': 9.14.10(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
@@ -6719,16 +6696,16 @@ snapshots:
       '@fluentui/react-utilities': 9.27.0(@types/react@19.3.0)(react@19.3.1)
       '@griffel/react': 1.7.8(react@19.3.1)
       '@swc/helpers': 0.5.24
-      '@types/react': 19.3.0
-      '@types/react-dom': 19.3.0(@types/react@19.3.0)
       react: 19.3.1
-      react-dom: 19.3.1(react@19.3.1)
+    optionalDependencies:
+      '@types/react': 19.3.0
     transitivePeerDependencies:
+      - react-dom
       - scheduler
 
   '@fluentui/react-infolabel@9.4.28(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)':
     dependencies:
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-label': 9.4.6(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-popover': 9.14.10(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
@@ -6794,25 +6771,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  '@fluentui/react-list@9.6.18(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)':
-    dependencies:
-      '@fluentui/keyboard-keys': 9.0.9
-      '@fluentui/react-checkbox': 9.6.6(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-context-selector': 9.2.21(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
-      '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
-      '@fluentui/react-tabster': 9.26.19(@types/react@19.3.0)(react@19.3.1)
-      '@fluentui/react-theme': 9.2.2
-      '@fluentui/react-utilities': 9.27.0(@types/react@19.3.0)(react@19.3.1)
-      '@griffel/react': 1.7.8(react@19.3.1)
-      '@swc/helpers': 0.5.24
-      '@types/react': 19.3.0
-      '@types/react-dom': 19.3.0(@types/react@19.3.0)
-      react: 19.3.1
-      react-dom: 19.3.1(react@19.3.1)
-    transitivePeerDependencies:
-      - scheduler
-
   '@fluentui/react-list@9.7.0(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)':
     dependencies:
       '@fluentui/keyboard-keys': 9.0.9
@@ -6836,7 +6794,7 @@ snapshots:
       '@fluentui/keyboard-keys': 9.0.9
       '@fluentui/react-aria': 9.17.16(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-context-selector': 9.2.21(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-motion': 9.16.5(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-motion-components-preview': 0.15.10(@types/react@19.3.0)(react@19.3.1)
@@ -6858,7 +6816,7 @@ snapshots:
   '@fluentui/react-message-bar@9.7.9(@types/react@19.3.0)(react@19.3.1)':
     dependencies:
       '@fluentui/react-button': 9.11.3(@types/react@19.3.0)(react@19.3.1)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-link': 9.8.6(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-motion': 9.16.5(@types/react@19.3.0)(react@19.3.1)
@@ -6897,7 +6855,7 @@ snapshots:
       '@fluentui/react-context-selector': 9.2.21(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-divider': 9.7.6(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-drawer': 9.13.5(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-motion': 9.16.5(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-motion-components-preview': 0.15.10(@types/react@19.3.0)(react@19.3.1)
@@ -7011,7 +6969,7 @@ snapshots:
 
   '@fluentui/react-provider@9.22.23(@types/react@19.3.0)(react@19.3.1)':
     dependencies:
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-tabster': 9.26.19(@types/react@19.3.0)(react@19.3.1)
@@ -7043,7 +7001,7 @@ snapshots:
 
   '@fluentui/react-rating@9.4.8(@types/react@19.3.0)(react@19.3.1)':
     dependencies:
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-tabster': 9.26.19(@types/react@19.3.0)(react@19.3.1)
@@ -7057,7 +7015,7 @@ snapshots:
 
   '@fluentui/react-search@9.4.9(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)':
     dependencies:
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-input': 9.8.9(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
@@ -7074,7 +7032,7 @@ snapshots:
   '@fluentui/react-select@9.5.8(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)':
     dependencies:
       '@fluentui/react-field': 9.5.6(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-theme': 9.2.2
@@ -7130,7 +7088,7 @@ snapshots:
     dependencies:
       '@fluentui/keyboard-keys': 9.0.9
       '@fluentui/react-field': 9.5.6(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-theme': 9.2.2
@@ -7160,7 +7118,7 @@ snapshots:
     dependencies:
       '@fluentui/react-context-selector': 9.2.21(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-field': 9.5.6(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-tabster': 9.26.19(@types/react@19.3.0)(react@19.3.1)
@@ -7177,7 +7135,7 @@ snapshots:
   '@fluentui/react-switch@9.7.7(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)':
     dependencies:
       '@fluentui/react-field': 9.5.6(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-label': 9.4.6(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
@@ -7199,7 +7157,7 @@ snapshots:
       '@fluentui/react-avatar': 9.11.10(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-checkbox': 9.6.6(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-context-selector': 9.2.21(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-radio': 9.6.7(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
@@ -7251,7 +7209,7 @@ snapshots:
       '@fluentui/react-combobox': 9.17.9(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-context-selector': 9.2.21(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-field': 9.5.6(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-portal': 9.8.17(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@fluentui/react-positioning': 9.23.4(@types/react@19.3.0)(react@19.3.1)
@@ -7274,7 +7232,7 @@ snapshots:
       '@fluentui/keyboard-keys': 9.0.9
       '@fluentui/react-aria': 9.17.16(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-avatar': 9.11.10(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-tabster': 9.26.19(@types/react@19.3.0)(react@19.3.1)
@@ -7294,7 +7252,7 @@ snapshots:
       '@fluentui/react-aria': 9.17.16(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-button': 9.11.3(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-context-selector': 9.2.21(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-popover': 9.14.10(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
@@ -7347,7 +7305,7 @@ snapshots:
     dependencies:
       '@fluentui/keyboard-keys': 9.0.9
       '@fluentui/react-aria': 9.17.16(@types/react@19.3.0)(react@19.3.1)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-motion': 9.16.5(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-motion-components-preview': 0.15.10(@types/react@19.3.0)(react@19.3.1)
@@ -7409,7 +7367,7 @@ snapshots:
       '@fluentui/react-button': 9.11.3(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-checkbox': 9.6.6(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
       '@fluentui/react-context-selector': 9.2.21(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-motion': 9.16.5(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-motion-components-preview': 0.15.10(@types/react@19.3.0)(react@19.3.1)
@@ -7436,17 +7394,17 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  '@fluentui/react-virtualizer@9.0.0-alpha.115(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@fluentui/react-virtualizer@9.0.0-alpha.116(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@fluentui/react-jsx-runtime': 9.4.7(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-shared-contexts': 9.26.4(@types/react@19.3.0)(react@19.3.1)
       '@fluentui/react-utilities': 9.27.0(@types/react@19.3.0)(react@19.3.1)
       '@griffel/react': 1.7.8(react@19.3.1)
       '@swc/helpers': 0.5.24
-      '@types/react': 19.3.0
-      '@types/react-dom': 19.3.0(@types/react@19.3.0)
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
+    optionalDependencies:
+      '@types/react': 19.3.0
 
   '@fluentui/tokens@1.0.0-alpha.24':
     dependencies:
@@ -9294,29 +9252,28 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@typespec/events@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))':
+  '@typespec/events@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))':
     dependencies:
       '@typespec/compiler': 1.18.0(@types/node@26.6.6)
 
-  '@typespec/html-program-viewer@0.87.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(@typespec/compiler@1.18.0(@types/node@26.6.6))(scheduler@0.28.0)':
+  '@typespec/html-program-viewer@0.88.0(@types/react@19.3.0)(@typespec/compiler@1.18.0(@types/node@26.6.6))(scheduler@0.28.0)':
     dependencies:
-      '@fluentui/react-components': 9.74.7(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
-      '@fluentui/react-list': 9.6.18(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
+      '@fluentui/react-components': 9.75.2(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
+      '@fluentui/react-list': 9.7.0(@types/react@19.3.0)(react@19.3.1)(scheduler@0.28.0)
       '@typespec/compiler': 1.18.0(@types/node@26.6.6)
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
       react-hotkeys-hook: 5.4.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
     transitivePeerDependencies:
       - '@types/react'
-      - '@types/react-dom'
       - scheduler
 
-  '@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))':
+  '@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))':
     dependencies:
       '@typespec/compiler': 1.18.0(@types/node@26.6.6)
     optionalDependencies:
-      '@typespec/streams': 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
+      '@typespec/streams': 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
 
   '@typespec/json-schema@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))':
     dependencies:
@@ -9324,7 +9281,7 @@ snapshots:
       '@typespec/compiler': 1.18.0(@types/node@26.6.6)
       yaml: 2.9.1
 
-  '@typespec/openapi3@1.18.0(43fb99737d086957557a0c09c6f55d66)':
+  '@typespec/openapi3@1.18.0(d6f8ee41fad49b4e3343fef79d73a2b1)':
     dependencies:
       '@scalar/json-magic': 0.17.0
       '@scalar/openapi-parser': 0.29.22
@@ -9332,50 +9289,49 @@ snapshots:
       '@scalar/types': 0.25.2
       '@typespec/asset-emitter': 0.79.3(@typespec/compiler@1.18.0(@types/node@26.6.6))
       '@typespec/compiler': 1.18.0(@types/node@26.6.6)
-      '@typespec/http': 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
-      '@typespec/openapi': 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
+      '@typespec/http': 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
+      '@typespec/openapi': 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
       yaml: 2.9.1
     optionalDependencies:
-      '@typespec/events': 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
+      '@typespec/events': 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
       '@typespec/json-schema': 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
-      '@typespec/sse': 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/events@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
-      '@typespec/streams': 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
-      '@typespec/versioning': 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
-      '@typespec/xml': 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
+      '@typespec/sse': 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/events@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
+      '@typespec/streams': 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
+      '@typespec/versioning': 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
+      '@typespec/xml': 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
 
-  '@typespec/openapi@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))':
+  '@typespec/openapi@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))':
     dependencies:
       '@typespec/compiler': 1.18.0(@types/node@26.6.6)
-      '@typespec/http': 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
+      '@typespec/http': 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
 
-  '@typespec/playground@0.18.0(@types/node@26.6.6)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(@typespec/events@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/json-schema@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/sse@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/events@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/xml@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(scheduler@0.28.0)':
+  '@typespec/playground@0.19.0(@types/node@26.6.6)(@types/react@19.3.0)(@typespec/events@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/json-schema@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/sse@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/events@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/xml@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(scheduler@0.28.0)':
     dependencies:
-      '@fluentui/react-components': 9.74.7(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.339(react@19.3.1)
+      '@fluentui/react-components': 9.75.2(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(scheduler@0.28.0)
+      '@fluentui/react-icons': 2.0.347(react@19.3.1)
       '@typespec/bundler': 0.6.1(@types/node@26.6.6)
       '@typespec/compiler': 1.18.0(@types/node@26.6.6)
-      '@typespec/html-program-viewer': 0.87.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(@typespec/compiler@1.18.0(@types/node@26.6.6))(scheduler@0.28.0)
-      '@typespec/http': 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
-      '@typespec/openapi': 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
-      '@typespec/openapi3': 1.18.0(43fb99737d086957557a0c09c6f55d66)
-      '@typespec/protobuf': 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
-      '@typespec/rest': 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
-      '@typespec/versioning': 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
+      '@typespec/html-program-viewer': 0.88.0(@types/react@19.3.0)(@typespec/compiler@1.18.0(@types/node@26.6.6))(scheduler@0.28.0)
+      '@typespec/http': 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
+      '@typespec/openapi': 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
+      '@typespec/openapi3': 1.18.0(d6f8ee41fad49b4e3343fef79d73a2b1)
+      '@typespec/protobuf': 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
+      '@typespec/rest': 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
+      '@typespec/versioning': 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
       clsx: 2.1.1
       debounce: 3.0.0
       lzutf8: 0.6.3
-      monaco-editor: 0.56.0
+      monaco-editor: 0.57.0
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
       react-error-boundary: 6.1.6(@types/react@19.3.0)(react@19.3.1)
       swagger-ui-dist: 5.35.0
-      vscode-languageserver: 10.1.2
+      vscode-languageserver: 11.0.0
       vscode-languageserver-textdocument: 1.0.16
       yaml: 2.9.1
     transitivePeerDependencies:
       - '@types/node'
       - '@types/react'
-      - '@types/react-dom'
       - '@typespec/events'
       - '@typespec/json-schema'
       - '@typespec/sse'
@@ -9383,32 +9339,32 @@ snapshots:
       - '@typespec/xml'
       - scheduler
 
-  '@typespec/protobuf@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))':
+  '@typespec/protobuf@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))':
     dependencies:
       '@typespec/compiler': 1.18.0(@types/node@26.6.6)
       change-case: 5.4.4
 
-  '@typespec/rest@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))':
+  '@typespec/rest@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))':
     dependencies:
       '@typespec/compiler': 1.18.0(@types/node@26.6.6)
-      '@typespec/http': 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
+      '@typespec/http': 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
 
-  '@typespec/sse@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/events@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))':
+  '@typespec/sse@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/events@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))':
     dependencies:
       '@typespec/compiler': 1.18.0(@types/node@26.6.6)
-      '@typespec/events': 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
-      '@typespec/http': 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
-      '@typespec/streams': 0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
+      '@typespec/events': 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
+      '@typespec/http': 1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6)))
+      '@typespec/streams': 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))
 
-  '@typespec/streams@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))':
-    dependencies:
-      '@typespec/compiler': 1.18.0(@types/node@26.6.6)
-
-  '@typespec/versioning@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))':
+  '@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))':
     dependencies:
       '@typespec/compiler': 1.18.0(@types/node@26.6.6)
 
-  '@typespec/xml@0.87.0(@typespec/compiler@1.18.0(@types/node@26.6.6))':
+  '@typespec/versioning@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))':
+    dependencies:
+      '@typespec/compiler': 1.18.0(@types/node@26.6.6)
+
+  '@typespec/xml@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))':
     dependencies:
       '@typespec/compiler': 1.18.0(@types/node@26.6.6)
 
@@ -9932,10 +9888,6 @@ snapshots:
   dom-accessibility-api@0.5.16: {}
 
   dompurify@3.4.15:
-    optionalDependencies:
-      '@types/trusted-types': 2.0.7
-
-  dompurify@3.4.8:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
 
@@ -10745,11 +10697,6 @@ snapshots:
       pathe: 2.0.3
       pkg-types: 1.3.1
       ufo: 1.6.4
-
-  monaco-editor@0.56.0:
-    dependencies:
-      dompurify: 3.4.8
-      marked: 14.0.0
 
   monaco-editor@0.57.0:
     dependencies:
@@ -11764,13 +11711,6 @@ snapshots:
 
   vscode-jsonrpc@10.0.0: {}
 
-  vscode-jsonrpc@9.0.3: {}
-
-  vscode-languageserver-protocol@3.18.4:
-    dependencies:
-      vscode-jsonrpc: 9.0.3
-      vscode-languageserver-types: 3.18.4
-
   vscode-languageserver-protocol@3.18.5:
     dependencies:
       vscode-jsonrpc: 10.0.0
@@ -11778,13 +11718,7 @@ snapshots:
 
   vscode-languageserver-textdocument@1.0.16: {}
 
-  vscode-languageserver-types@3.18.4: {}
-
   vscode-languageserver-types@3.18.5: {}
-
-  vscode-languageserver@10.1.2:
-    dependencies:
-      vscode-languageserver-protocol: 3.18.4
 
   vscode-languageserver@11.0.0:
     dependencies:
