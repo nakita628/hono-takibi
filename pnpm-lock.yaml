@@ -199,8 +199,8 @@ catalogs:
       specifier: ^0.157.0
       version: 0.157.0
     '@oxc-transform/binding-wasm32-wasip1':
-      specifier: ^0.157.0
-      version: 0.157.0
+      specifier: ^0.158.0
+      version: 0.158.0
     '@scalar/api-reference':
       specifier: ^1.77.0
       version: 1.78.1
@@ -454,7 +454,7 @@ importers:
         version: 0.157.0
       '@oxc-transform/binding-wasm32-wasip1':
         specifier: 'catalog:'
-        version: 0.157.0
+        version: 0.158.0
       '@playwright/test':
         specifier: ^1.65.0
         version: 1.65.0
@@ -2455,8 +2455,8 @@ packages:
     cpu: [arm64]
     os: [openharmony]
 
-  '@oxc-transform/binding-wasm32-wasip1@0.157.0':
-    resolution: {integrity: sha512-9YJ8TaJuO1dK5zWPdYaWDJ1SrzDzXmjpU1nsmh0C4fnYGmsKEJ5Ne6wLdySJXX9xg1+6sB2WKR09Vbvs1BUc2Q==}
+  '@oxc-transform/binding-wasm32-wasip1@0.158.0':
+    resolution: {integrity: sha512-ic/z0wf5yMAuOcQX5ylGtuYE0mJKsfPzs9z610igTe5LpbH8aYez3owU1XngmtxopBf0DVGE4Yv6vY9xJ8W8QQ==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=23.5.0}
 
   '@oxc-transform/binding-win32-arm64-msvc@0.157.0':
@@ -8119,7 +8119,7 @@ snapshots:
   '@oxc-transform/binding-openharmony-arm64@0.157.0':
     optional: true
 
-  '@oxc-transform/binding-wasm32-wasip1@0.157.0':
+  '@oxc-transform/binding-wasm32-wasip1@0.158.0':
     dependencies:
       '@emnapi/core': 2.0.0-alpha.6
       '@emnapi/runtime': 2.0.0-alpha.6
