@@ -7,9 +7,10 @@ import { zodToOpenAPI } from './index.js'
 
 // The `z.preprocess` wrapper `withUnevaluatedCheck` emits: the check runs
 // only when the union succeeds, and the pipe stops once it adds an issue,
-// so no issue forwarding is needed.
+// so no issue forwarding is needed. The callback parameter is typed as the
+// union's input type, so `z.input` of the wrapped schema stays that type.
 const withCheck = (union: string, check: string) =>
-  `(()=>{const Schema=${union};return z.preprocess((val,ctx)=>{const result=Schema.safeParse(val);if(result.success){(${check})(ctx)}return val},Schema)})()`
+  `(()=>{const Schema=${union};return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const result=Schema.safeParse(val);if(result.success){(${check})(ctx)}return val},Schema)})()`
 
 describe('zodToOpenAPI', () => {
   describe('ref', () => {

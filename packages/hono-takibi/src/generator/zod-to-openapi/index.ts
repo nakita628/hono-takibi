@@ -59,9 +59,13 @@ import { _enum, integer, number, object, string } from './z/index.js'
 // the union fails there is no preprocess issue, so the union runs and reports
 // its own errors. Returns `zod` unchanged when the check is '' (keyword absent
 // or `true`), so schemas without it emit exactly what they did.
+// `val` is typed as the union's input type (`z.input<typeof Schema>`) so
+// `z.input` of the wrapped schema stays the union's input type instead of
+// degrading to `unknown` — an untyped callback would make RPC clients lose
+// the request type. The output type is unchanged.
 function withUnevaluatedCheck(zod: string, unevalCheck: string): string {
   if (unevalCheck === '') return zod
-  return `(()=>{const Schema=${zod};return z.preprocess((val,ctx)=>{const result=Schema.safeParse(val);if(result.success){(${unevalCheck})(ctx)}return val},Schema)})()`
+  return `(()=>{const Schema=${zod};return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const result=Schema.safeParse(val);if(result.success){(${unevalCheck})(ctx)}return val},Schema)})()`
 }
 
 export function zodToOpenAPI(
