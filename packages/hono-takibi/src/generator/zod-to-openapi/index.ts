@@ -51,21 +51,23 @@ import { _enum, integer, number, object, string } from './z/index.js'
 // dropped the unevaluated keys — and `@hono/zod-openapi` renders it by its
 // output side, so the generated OpenAPI document keeps the union (a
 // `z.unknown().check(...).pipe(Schema)` renders by its input side, i.e. `{}`).
-// The IIFE holds `Schema` so the callback can gate on it: the check runs only
-// when the union succeeds — when the union fails the value is already invalid,
-// and a wrong-typed declared key would otherwise also be reported as
-// unevaluated, since no branch matched to evaluate it. No issue forwarding is
-// needed: the pipe stops once the preprocess callback adds an issue, and when
-// the union fails there is no preprocess issue, so the union runs and reports
-// its own errors. Returns `zod` unchanged when the check is '' (keyword absent
-// or `true`), so schemas without it emit exactly what they did.
+// The check itself only reports when the union succeeds — it counts the
+// branch matches its own branch-match `safeParse` calls already decide (see
+// `makeUnevaluatedPropertiesCheck`) — so no separate success-gate parse is
+// needed here: a gate would re-parse the whole value, and on a recursive
+// schema each level would pay gate + pipe + branch-match, i.e. ~3^depth
+// (#480). No issue forwarding is needed: the pipe stops once the preprocess
+// callback adds an issue, and when the union fails the check adds none, so
+// the union runs and reports its own errors. Returns `zod` unchanged when
+// the check is '' (keyword absent or `true`), so schemas without it emit
+// exactly what they did.
 // `val` is typed as the union's input type (`z.input<typeof Schema>`) so
 // `z.input` of the wrapped schema stays the union's input type instead of
 // degrading to `unknown` — an untyped callback would make RPC clients lose
 // the request type. The output type is unchanged.
 function withUnevaluatedCheck(zod: string, unevalCheck: string): string {
   if (unevalCheck === '') return zod
-  return `(()=>{const Schema=${zod};return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const result=Schema.safeParse(val);if(result.success){(${unevalCheck})(ctx)}return val},Schema)})()`
+  return `(()=>{const Schema=${zod};return z.preprocess((val: z.input<typeof Schema>,ctx)=>{(${unevalCheck})(ctx);return val},Schema)})()`
 }
 
 export function zodToOpenAPI(
@@ -275,6 +277,7 @@ export function zodToOpenAPI(
         (s) => zodToOpenAPI(s, undefined, childOptions),
         branch['x-error-message'],
         childOptions?.schemas,
+        { anyOf: true },
       )
       return wrap(
         withUnevaluatedCheck(
@@ -301,6 +304,7 @@ export function zodToOpenAPI(
         (s) => zodToOpenAPI(s, undefined, childOptions),
         branch['x-error-message'],
         childOptions?.schemas,
+        { oneOf: true },
       )
       return wrap(
         withUnevaluatedCheck(
@@ -467,11 +471,16 @@ export function zodToOpenAPI(
       return shapeCheck === undefined ? z : `z.unknown().check(${shapeCheck}).pipe(${z})`
     })()
     const allOfMessage = schema['x-allOf-message'] ?? schema['x-error-message']
+    // No guard: this check runs in a `z.unknown().check(...).pipe(...)`
+    // after the intersection's own issues are forwarded, not inside a union
+    // wrapper — gating it on a combinator the intersection does not contain
+    // would be wrong for a schema carrying `allOf` beside `anyOf` / `oneOf`.
     const unevalCheck = makeUnevaluatedPropertiesCheck(
       { ...schema, allOf: effectiveAllOf },
       (s) => zodToOpenAPI(s, undefined, childOptions),
       schema['x-error-message'],
       childOptions?.schemas,
+      {},
     )
     if (allOfMessage || unevalCheck) {
       const safeParseBranches = (() => {
@@ -520,6 +529,7 @@ export function zodToOpenAPI(
       (s) => zodToOpenAPI(s, undefined, childOptions),
       schema['x-error-message'],
       childOptions?.schemas,
+      { anyOf: true },
     )
     const hasShape =
       (schema.properties !== undefined && Object.keys(schema.properties).length > 0) ||
@@ -645,6 +655,7 @@ export function zodToOpenAPI(
       (s) => zodToOpenAPI(s, undefined, childOptions),
       schema['x-error-message'],
       childOptions?.schemas,
+      { oneOf: true },
     )
     // `properties` / `required` beside `oneOf` constrain only object values (#461),
     // the same class as beside `allOf` / `anyOf`: before this fix the shape was

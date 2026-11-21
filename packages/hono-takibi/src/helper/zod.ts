@@ -758,9 +758,17 @@ function conditionalBranchStmt(
   recurse: (s: Schema) => string,
   schemas: Schemas | undefined,
   reading: ReadonlySet<string> = new Set(),
+  // When given, the branch-match also counts the match into this variable:
+  // a branch that matches but evaluates no keys (an empty schema) still
+  // counts, so the count is the number of matching branches, not the number
+  // of branches that contributed keys. Only the top-level branches of the
+  // `unevaluatedProperties` check pass it (see `makeUnevaluatedEvaluationStmts`).
+  countVar?: string,
 ) {
   const body = collectBranchBody(sub, recurse, schemas, reading)
-  return body ? `if(${recurse(sub)}.safeParse(o).success){${body}}` : undefined
+  if (body === undefined && countVar === undefined) return undefined
+  const counted = countVar === undefined ? '' : `${countVar}++;`
+  return `if(${recurse(sub)}.safeParse(o).success){${counted}${body ?? ''}}`
 }
 
 // The statements that collect, into `e`, every key the schema evaluates: its own
@@ -768,15 +776,22 @@ function conditionalBranchStmt(
 // member, those of each `anyOf` and `oneOf` branch that matches, the `if` / `then` /
 // `else` properties the condition selects, and those of each `dependentSchemas`
 // entry whose key is present.
+// `track` counts only the top-level branch matches into the given variables
+// (nested branches do not count: a nested match does not mean the top-level
+// union succeeded). Only `makeUnevaluatedPropertiesCheck` passes it, to gate
+// the final statement on the union succeeding (#480); the `.superRefine`
+// variant runs after a successful parse already, so it passes nothing and
+// its output is unchanged.
 function makeUnevaluatedEvaluationStmts(
   schema: Schema,
   recurse: (s: Schema) => string,
   schemas: Schemas | undefined,
+  track?: { readonly anyOf?: string; readonly oneOf?: string },
 ) {
-  const branchStmts = (branches: readonly Schema[] | undefined) =>
+  const branchStmts = (branches: readonly Schema[] | undefined, countVar?: string) =>
     branches
       ? branches
-          .map((sub) => conditionalBranchStmt(sub, recurse, schemas))
+          .map((sub) => conditionalBranchStmt(sub, recurse, schemas, undefined, countVar))
           .filter((s): s is string => s !== undefined)
       : []
   return [
@@ -785,8 +800,8 @@ function makeUnevaluatedEvaluationStmts(
     makePatternPropsStmt(schema),
     makeAdditionalPropsStmt(schema),
     ...(schema.allOf ? collectAllOfStmts(schema.allOf, schemas) : []),
-    ...branchStmts(schema.anyOf),
-    ...branchStmts(schema.oneOf),
+    ...branchStmts(schema.anyOf, track?.anyOf),
+    ...branchStmts(schema.oneOf, track?.oneOf),
     ...makeIfStmts(schema, recurse),
     ...makeDepSchemaStmts(schema),
   ].filter((s): s is string => s !== undefined)
@@ -857,6 +872,12 @@ export function makeUnevaluatedPropertiesCheck(
   recurse: (s: Schema) => string,
   messageOverride?: string,
   schemas?: Schemas,
+  // Which combinator the union this check wraps is: the final statement is
+  // gated on that union succeeding. Defaults to whichever lists the schema
+  // carries; the `anyOf` / `oneOf` paths pass just their own, because a
+  // schema carrying both emits only the `anyOf` union (the `oneOf` is
+  // dropped by the emitter), so gating on both would be wrong there.
+  guard?: { readonly anyOf?: boolean; readonly oneOf?: boolean },
 ) {
   const up = schema.unevaluatedProperties
   if (up === undefined || up === true) {
@@ -867,7 +888,36 @@ export function makeUnevaluatedPropertiesCheck(
     up === false
       ? `for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o${messageField}})}}`
       : `const Schema=${recurse(up)};for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding('{...issue,path:[k,...issue.path],input:issue.input}')}}}}`
-  return `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;${[...makeUnevaluatedEvaluationStmts(schema, recurse, schemas), finalStmt].join(';')}}`
+  // The final statement must only report when the union the check belongs to
+  // would have succeeded (#472: a wrong-typed declared key must not also be
+  // reported as unevaluated, since no branch matched to evaluate it). That
+  // used to be a separate `Schema.safeParse` gate in the `z.preprocess`
+  // wrapper — a full extra parse, which on a recursive schema made every
+  // level pay gate + pipe + branch-match, i.e. ~3^depth (#480). The
+  // branch-match `safeParse` calls above already decide whether each branch
+  // matched, so count them instead (`mA`: anyOf matches, `mO`: oneOf
+  // matches) and gate the final statement on the union succeeding — anyOf:
+  // at least one branch; oneOf: exactly one. No extra parse is needed, and
+  // a schema without a combinator (the `allOf` check-pipe) emits exactly
+  // what it did: no counters, no guard.
+  const hasAnyOf =
+    guard !== undefined
+      ? guard.anyOf === true
+      : schema.anyOf !== undefined && schema.anyOf.length > 0
+  const hasOneOf =
+    guard !== undefined
+      ? guard.oneOf === true
+      : schema.oneOf !== undefined && schema.oneOf.length > 0
+  const counters = `${hasAnyOf ? 'let mA=0;' : ''}${hasOneOf ? 'let mO=0;' : ''}`
+  const evalStmts = makeUnevaluatedEvaluationStmts(schema, recurse, schemas, {
+    ...(hasAnyOf ? { anyOf: 'mA' } : {}),
+    ...(hasOneOf ? { oneOf: 'mO' } : {}),
+  })
+  const guardedFinal =
+    !hasAnyOf && !hasOneOf
+      ? finalStmt
+      : `if(${[...(hasAnyOf ? ['mA>0'] : []), ...(hasOneOf ? ['mO===1'] : [])].join('&&')}){${finalStmt}}`
+  return `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;${counters}${[...evalStmts, guardedFinal].join(';')}}`
 }
 
 // The error arguments of a numeric bound, as Zod v4 `{error:"..."}` parameters: for the
