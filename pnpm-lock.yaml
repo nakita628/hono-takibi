@@ -196,8 +196,8 @@ catalogs:
       specifier: ^1.6.3
       version: 1.6.3
     '@oxc-parser/binding-wasm32-wasip1':
-      specifier: ^0.157.0
-      version: 0.157.0
+      specifier: ^0.158.0
+      version: 0.158.0
     '@oxc-transform/binding-wasm32-wasip1':
       specifier: ^0.158.0
       version: 0.158.0
@@ -451,7 +451,7 @@ importers:
         version: 1.6.3(hono@4.13.18)(zod@4.6.7)
       '@oxc-parser/binding-wasm32-wasip1':
         specifier: 'catalog:'
-        version: 0.157.0
+        version: 0.158.0
       '@oxc-transform/binding-wasm32-wasip1':
         specifier: 'catalog:'
         version: 0.158.0
@@ -2198,8 +2198,8 @@ packages:
     cpu: [arm64]
     os: [openharmony]
 
-  '@oxc-parser/binding-wasm32-wasip1@0.157.0':
-    resolution: {integrity: sha512-Ioo7hbYCVC/KU8iUD6vzh4iyWDNc3JsLCGjcOt/NuHQYzemFzgdFiLMpzFI2NVh4oBaw0ImffJZLP0sWTm4XpQ==}
+  '@oxc-parser/binding-wasm32-wasip1@0.158.0':
+    resolution: {integrity: sha512-gPJurIsBDX0ZECwZ1yJNj0S0gcyYSLGRfaPn/8hzEb0gdG29T5//6OZrmwpr2lwcbt7TXDCSD/10Gbmou6qmaA==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=23.5.0}
 
   '@oxc-parser/binding-win32-arm64-msvc@0.156.0':
@@ -7983,7 +7983,7 @@ snapshots:
   '@oxc-parser/binding-openharmony-arm64@0.158.0':
     optional: true
 
-  '@oxc-parser/binding-wasm32-wasip1@0.157.0':
+  '@oxc-parser/binding-wasm32-wasip1@0.158.0':
     dependencies:
       '@emnapi/core': 2.0.0-alpha.6
       '@emnapi/runtime': 2.0.0-alpha.6
