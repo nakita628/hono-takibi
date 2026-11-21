@@ -14140,6 +14140,7 @@ describe('properties beside combinators', () => {
   const shape = `(val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.addIssue({code:'custom'})}}}}`
   const shapeCheck = `(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.issues.push({...{code:'custom'},input:val})}}}}`
   const requiredCheck = `(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"link")){ctx.issues.push({...{code:'custom'},input:val})}}}`
+  const requiredShapeCheck = `(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"link")){ctx.issues.push({...{code:'custom'},input:val})};if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.issues.push({...{code:'custom'},input:val})}}}}`
   const requiredRefine = `(val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"link")){ctx.addIssue({code:'custom'})}}}`
   const minLengthCheck = `(val,ctx)=>{if(typeof val==='string'){if([...val].length<1){ctx.addIssue({code:'custom'})}}}`
   const maxLengthCheck = `(val,ctx)=>{if(typeof val==='string'){if([...val].length>5){ctx.addIssue({code:'custom'})}}}`
@@ -14599,12 +14600,13 @@ describe('properties beside combinators', () => {
     ).toBe(`z.union([z.any().superRefine(${shape}),z.string()])`)
   })
 
-  it.concurrent('codegen: a nullable or defaulted branch falls back to the check', () => {
+  it.concurrent('codegen: a nullable or defaulted branch distributes inside the wrapping (#471)', () => {
     // The intersection passes the RAW input to both sides, so `.and(shapeZ)`
     // after `.nullable()` / `.default()` would reject the `null` / `undefined`
-    // the wrapping exists to admit. The check-pipe is always correct there:
-    // the check runs on the raw input (and only constrains objects), the pipe
-    // admits what the branch admits.
+    // the wrapping exists to admit. The shape goes INSIDE the wrapping
+    // instead — `core.and(shape).nullable()` / `.default(...)` — so the
+    // sibling keys stay in the output, the inferred type and the document,
+    // while `null` / the default is still admitted.
     expect(
       zodToOpenAPI({
         anyOf: [
@@ -14614,7 +14616,7 @@ describe('properties beside combinators', () => {
         properties: { link: { type: 'string' } },
       }),
     ).toBe(
-      `z.unknown().check(${shapeCheck}).pipe(z.union([z.object({a:z.string().exactOptional()}).nullable().openapi({"required":[]}),z.string()]))`,
+      'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]})).nullable(),z.string()])',
     )
     expect(
       zodToOpenAPI({
@@ -14625,7 +14627,7 @@ describe('properties beside combinators', () => {
         properties: { link: { type: 'string' } },
       }),
     ).toBe(
-      `z.unknown().check(${shapeCheck}).pipe(z.xor([z.object({a:z.string().exactOptional()}).nullable().openapi({"required":[]}),z.string()]))`,
+      'z.xor([z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]})).nullable(),z.string()])',
     )
     expect(
       zodToOpenAPI({
@@ -14636,8 +14638,11 @@ describe('properties beside combinators', () => {
         properties: { link: { type: 'string' } },
       }),
     ).toBe(
-      `z.unknown().check(${shapeCheck}).pipe(z.union([z.object({a:z.string().exactOptional()}).default({"a":"d"}).openapi({"required":[]}),z.string()]))`,
+      'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]})).default({"a":"d"}),z.string()])',
     )
+    // An opaque `$ref` the shape cannot be distributed into still falls back
+    // to the check: the component is shared, and its target admits `null`
+    // itself — the wrapping cannot be re-applied around the identifier.
     expect(
       zodToOpenAPI(
         {
@@ -14652,8 +14657,29 @@ describe('properties beside combinators', () => {
         },
       ),
     ).toBe(`z.unknown().check(${shapeCheck}).pipe(z.union([NullObjSchema,z.string()]))`)
-    // The same guard applies to the member path: a nullable branch among
-    // object-only branches must not put the shape after the whole union.
+    // A `$ref` branch with its OWN wrapping distributes: the wrapping is on
+    // the branch, not the target — `canAdmitNullOrUndefined` follows the
+    // `$ref` and never sees it, so the branch's own wrapping is checked
+    // beside it.
+    expect(
+      zodToOpenAPI(
+        {
+          anyOf: [{ $ref: '#/components/schemas/PlainObj', nullable: true }, { type: 'string' }],
+          properties: { link: { type: 'string' } },
+        },
+        undefined,
+        {
+          schemas: {
+            PlainObj: { type: 'object', properties: { a: { type: 'string' } } },
+          },
+        },
+      ),
+    ).toBe(
+      'z.union([PlainObjSchema.and(z.object({link:z.string().exactOptional()}).openapi({"required":[]})).nullable(),z.string()])',
+    )
+    // The member path is still skipped when a branch admits `null` — the
+    // shape must not sit after the whole union — but the branches distribute
+    // now instead of falling back to the check.
     expect(
       zodToOpenAPI({
         anyOf: [
@@ -14663,10 +14689,12 @@ describe('properties beside combinators', () => {
         properties: { link: { type: 'string' } },
       }),
     ).toBe(
-      `z.unknown().check(${shapeCheck}).pipe(z.union([z.object({a:z.string().exactOptional()}).nullable().openapi({"required":[]}),z.object({b:z.string().exactOptional()}).openapi({"required":[]})]))`,
+      'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]})).nullable(),z.object({b:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]}))])',
     )
-    // `.catch()` answers every failure with its fallback, so the branch admits
-    // `null` and `undefined` too.
+    // `.catch()` answers every failure with its fallback, so a wrong-typed
+    // sibling is caught too once the shape is inside the catch — the fallback
+    // is a value of the merged shape, so the output stays valid. A catch
+    // whose value is not a value of the merged shape keeps the check-pipe.
     expect(
       zodToOpenAPI({
         anyOf: [
@@ -14676,8 +14704,22 @@ describe('properties beside combinators', () => {
         properties: { link: { type: 'string' } },
       }),
     ).toBe(
-      `z.unknown().check(${shapeCheck}).pipe(z.union([z.object({a:z.string().exactOptional()}).catch({"a":"c"}).openapi({"required":[]}),z.string()]))`,
+      'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]})).catch({"a":"c"}),z.string()])',
     )
+    expect(
+      zodToOpenAPI({
+        anyOf: [
+          { type: 'object', properties: { a: { type: 'string' } }, 'x-catch': { a: 'c' } },
+          { type: 'string' },
+        ],
+        properties: { link: { type: 'string' } },
+        required: ['link'],
+      }),
+    ).toBe(
+      `z.unknown().check(${requiredShapeCheck}).pipe(z.union([z.object({a:z.string().exactOptional()}).catch({"a":"c"}).openapi({"required":[]}),z.string()])).openapi({"required":["link"]})`,
+    )
+    // A shape with `required` but no `properties` is a refine on the
+    // distributed branch, as in the plain-object case.
     expect(
       zodToOpenAPI({
         anyOf: [
@@ -14687,7 +14729,157 @@ describe('properties beside combinators', () => {
         required: ['link'],
       }),
     ).toBe(
-      `z.unknown().check(${requiredCheck}).pipe(z.union([z.object({a:z.string().exactOptional()}).nullable().openapi({"required":[]}),z.string()])).openapi({"required":["link"]})`,
+      `z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.looseObject({}).openapi({"required":["link"]})).superRefine(${requiredRefine}).nullable(),z.string()]).openapi({"required":["link"]})`,
+    )
+    // `.prefault()` feeds its value through the merged schema, so the value
+    // is checked against the merged shape by the runtime itself. A prefault
+    // that is not a value of the merged shape is dropped, like a default.
+    expect(
+      zodToOpenAPI({
+        anyOf: [
+          { type: 'object', properties: { a: { type: 'string' } }, 'x-prefault': { a: 'p' } },
+          { type: 'string' },
+        ],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(
+      'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]})).prefault({"a":"p"}),z.string()])',
+    )
+    expect(
+      zodToOpenAPI({
+        anyOf: [
+          { type: 'object', properties: { a: { type: 'string' } }, 'x-prefault': { a: 'p' } },
+          { type: 'string' },
+        ],
+        properties: { link: { type: 'string' } },
+        required: ['link'],
+      }),
+    ).toBe(
+      'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string()}).openapi({"required":["link"]})),z.string()]).openapi({"required":["link"]})',
+    )
+    // Nullable and default compose in `wrap` order, and `default: null`
+    // keeps its `.nullable()` before `.default(null)`.
+    expect(
+      zodToOpenAPI({
+        anyOf: [
+          {
+            type: 'object',
+            properties: { a: { type: 'string' } },
+            nullable: true,
+            default: { a: 'd' },
+          },
+          { type: 'string' },
+        ],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(
+      'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]})).nullable().default({"a":"d"}),z.string()])',
+    )
+    expect(
+      zodToOpenAPI({
+        anyOf: [
+          { type: 'object', properties: { a: { type: 'string' } }, default: null },
+          { type: 'string' },
+        ],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(
+      'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]})).nullable().default(null),z.string()])',
+    )
+    // What cannot be distributed safely keeps the check-pipe: a user chain
+    // replaces the chain wholesale, and a refine is written against the
+    // branch's own output.
+    expect(
+      zodToOpenAPI({
+        anyOf: [
+          {
+            type: 'object',
+            properties: { a: { type: 'string' } },
+            nullable: true,
+            'x-preprocess': '(val) => val',
+          },
+          { type: 'string' },
+        ],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(
+      `z.unknown().check(${shapeCheck}).pipe(z.union([(val) => val.openapi({"required":[]}),z.string()]))`,
+    )
+    expect(
+      zodToOpenAPI({
+        anyOf: [
+          {
+            type: 'object',
+            properties: { a: { type: 'string' } },
+            nullable: true,
+            'x-refine': ".refine((val) => typeof val === 'object')",
+          },
+          { type: 'string' },
+        ],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(
+      `z.unknown().check(${shapeCheck}).pipe(z.union([z.object({a:z.string().exactOptional()}).nullable().refine((val) => typeof val === 'object').openapi({"required":[]}),z.string()]))`,
+    )
+  })
+
+  it.concurrent('codegen: #471 — the issue table distributes nullable and defaulted branches', () => {
+    // The repro table from the issue, with sibling `properties: {link}`,
+    // `required: [link]`, and `safeParse({"id":"a","link":"x"})`.
+    expect(
+      zodToOpenAPI({
+        anyOf: [{ type: 'string' }, { type: 'object', properties: { id: { type: 'string' } } }],
+        properties: { link: { type: 'string' } },
+        required: ['link'],
+      }),
+    ).toBe(
+      'z.union([z.string(),z.object({id:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string()}).openapi({"required":["link"]}))]).openapi({"required":["link"]})',
+    )
+    expect(
+      zodToOpenAPI({
+        anyOf: [
+          { type: 'string' },
+          { type: 'object', properties: { id: { type: 'string' } }, nullable: true },
+        ],
+        properties: { link: { type: 'string' } },
+        required: ['link'],
+      }),
+    ).toBe(
+      'z.union([z.string(),z.object({id:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string()}).openapi({"required":["link"]})).nullable()]).openapi({"required":["link"]})',
+    )
+    // The default `{}` is not a value of the merged shape (`link` is
+    // required), so no `.default()` is written on the merged branch — the
+    // same drop `wrap` applies to a default that is not a value of its
+    // schema — instead of a `.default({})` that would not type-check
+    // against the merged output type.
+    expect(
+      zodToOpenAPI({
+        anyOf: [
+          { type: 'string' },
+          { type: 'object', properties: { id: { type: 'string' } }, default: {} },
+        ],
+        properties: { link: { type: 'string' } },
+        required: ['link'],
+      }),
+    ).toBe(
+      'z.union([z.string(),z.object({id:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string()}).openapi({"required":["link"]}))]).openapi({"required":["link"]})',
+    )
+  })
+
+  it.concurrent('codegen: allOf with all-nullable members distributes into the members (#471)', () => {
+    // A shape member after the whole intersection would reject the `null`
+    // every member admits, so the member path gives way and the shape is
+    // distributed into the members, inside their own wrapping.
+    expect(
+      zodToOpenAPI({
+        allOf: [
+          { type: 'object', properties: { a: { type: 'string' } }, nullable: true },
+          { type: 'object', properties: { b: { type: 'string' } }, nullable: true },
+        ],
+        properties: { link: { type: 'string' } },
+      }),
+    ).toBe(
+      'z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]})).nullable().and(z.object({b:z.string().exactOptional()}).nullable().openapi({"required":[]}))',
     )
   })
 
@@ -14716,7 +14908,10 @@ describe('properties beside combinators', () => {
       `z.union([z.any().refine((val) => !z.object({hasLicense:z.literal(true)}).openapi({"required":["hasLicense"]}).safeParse(val).success),z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"licenseNumber")){ctx.addIssue({code:'custom'})}}}).openapi({"required":["licenseNumber"]})],{error:"licenseNumber is required when hasLicense is true"}).and(z.object({hasLicense:z.boolean().exactOptional(),licenseNumber:z.string().exactOptional()}).openapi({"required":[]})).openapi({"x-implication-message":"licenseNumber is required when hasLicense is true"})`,
     )
     // But when the parent type itself allows `null`, the member path must give
-    // way: `null` is valid here, and the shape would reject it.
+    // way: `null` is valid here, and the shape would reject it. The branches
+    // distribute instead (#471) — the shape inside the nullable branch's
+    // wrapping, as a member on the plain one — and the parent's own
+    // `.nullable()` still admits `null` around the union.
     expect(
       zodToOpenAPI({
         type: ['object', 'null'],
@@ -14727,7 +14922,7 @@ describe('properties beside combinators', () => {
         properties: { link: { type: 'string' } },
       }),
     ).toBe(
-      `z.unknown().check(${shapeCheck}).pipe(z.union([z.object({a:z.string().exactOptional()}).nullable().openapi({"required":[]}),z.object({b:z.string().exactOptional()}).openapi({"required":[]})])).nullable()`,
+      'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]})).nullable(),z.object({b:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]}))]).nullable()',
     )
   })
 
@@ -14922,38 +15117,100 @@ describe('properties beside combinators', () => {
   })
 
   it.concurrent('runtime: a nullable or defaulted branch still admits null and undefined', () => {
-    // The check-pipe fallback: the check only constrains objects, the pipe
-    // admits what the branch admits.
-    const Nullable = z
-      .unknown()
-      .check(shapeCheck461)
-      .pipe(z.union([z.object({ a: z.string().exactOptional() }).nullable(), z.string()]))
+    // The distributed form (#471): the shape is inside the wrapping, so the
+    // sibling key stays in the output — and `null` / the default is still
+    // admitted, because the wrapping sits outside the intersection.
+    const Nullable = z.union([
+      z
+        .object({ a: z.string().exactOptional() })
+        .and(z.object({ link: z.string().exactOptional() }))
+        .nullable(),
+      z.string(),
+    ])
     expect(Nullable.safeParse(null).success).toBe(true)
     expect(Nullable.safeParse('0').success).toBe(true)
     expect(Nullable.safeParse({ a: 'x', link: 123 }).success).toBe(false)
-    expect(Nullable.safeParse({ a: 'x', link: 'y' }).success).toBe(true)
-    const Defaulted = z
-      .unknown()
-      .check(shapeCheck461)
-      .pipe(z.union([z.object({ a: z.string().exactOptional() }).default({ a: 'd' }), z.string()]))
+    expect(Nullable.safeParse({ a: 'x', link: 'y' })).toStrictEqual({
+      success: true,
+      data: { a: 'x', link: 'y' },
+    })
+    const Defaulted = z.union([
+      z
+        .object({ a: z.string().exactOptional() })
+        .and(z.object({ link: z.string().exactOptional() }))
+        .default({ a: 'd' }),
+      z.string(),
+    ])
     const substituted = Defaulted.safeParse(undefined)
     expect(substituted.success).toBe(true)
     expect(substituted.data).toStrictEqual({ a: 'd' })
     expect(Defaulted.safeParse({ a: 'x', link: 123 }).success).toBe(false)
-    const Caught = z
-      .unknown()
-      .check(shapeCheck461)
-      .pipe(z.union([z.object({ a: z.string().exactOptional() }).catch({ a: 'c' }), z.string()]))
+    expect(Defaulted.safeParse({ a: 'x', link: 'y' })).toStrictEqual({
+      success: true,
+      data: { a: 'x', link: 'y' },
+    })
+    const Caught = z.union([
+      z
+        .object({ a: z.string().exactOptional() })
+        .and(z.object({ link: z.string().exactOptional() }))
+        .catch({ a: 'c' }),
+      z.string(),
+    ])
     expect(Caught.safeParse(null).success).toBe(true)
     expect(Caught.safeParse(null).data).toStrictEqual({ a: 'c' })
-    expect(Caught.safeParse({ a: 'x', link: 123 }).success).toBe(false)
-    const RequiredNullable = z
-      .unknown()
-      .check(requiredCheck461)
-      .pipe(z.union([z.object({ a: z.string().exactOptional() }).nullable(), z.string()]))
+    // A wrong-typed sibling is caught too now that the shape is inside the
+    // catch — the check-pipe used to report it before the branch ran. That
+    // is `.catch()` applied to the merged branch, and the fallback it answers
+    // with is a value of the merged shape.
+    expect(Caught.safeParse({ a: 'x', link: 123 })).toStrictEqual({
+      success: true,
+      data: { a: 'c' },
+    })
+    const RequiredNullable = z.union([
+      z
+        .object({ a: z.string().exactOptional() })
+        .and(z.looseObject({}))
+        .superRefine((val, ctx) => {
+          if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+            if (!Object.hasOwn(val, 'link')) ctx.addIssue({ code: 'custom' })
+          }
+        })
+        .nullable(),
+      z.string(),
+    ])
     expect(RequiredNullable.safeParse(null).success).toBe(true)
     expect(RequiredNullable.safeParse({ a: 'x' }).success).toBe(false)
-    expect(RequiredNullable.safeParse({ a: 'x', link: 'y' }).success).toBe(true)
+    expect(RequiredNullable.safeParse({ a: 'x', link: 'y' })).toStrictEqual({
+      success: true,
+      data: { a: 'x', link: 'y' },
+    })
+  })
+
+  it.concurrent('runtime: #471 — the issue table keeps the sibling key', () => {
+    // `safeParse({"id":"a","link":"x"})` on the three rows of the issue
+    // table: the plain branch (#467) and the nullable and defaulted ones.
+    const Nullable = z.union([
+      z.object({ id: z.string().exactOptional() }).and(z.object({ link: z.string() })).nullable(),
+      z.string(),
+    ])
+    expect(Nullable.safeParse({ id: 'a', link: 'x' })).toStrictEqual({
+      success: true,
+      data: { id: 'a', link: 'x' },
+    })
+    expect(Nullable.safeParse(null).success).toBe(true)
+    // The default `{}` is not a value of the merged shape (`link` is
+    // required), so `.default()` is dropped — an absent value now fails,
+    // the way a dropped default fails on a plain schema — while an object
+    // input keeps `link`.
+    const Defaulted = z.union([
+      z.object({ id: z.string().exactOptional() }).and(z.object({ link: z.string() })),
+      z.string(),
+    ])
+    expect(Defaulted.safeParse({ id: 'a', link: 'x' })).toStrictEqual({
+      success: true,
+      data: { id: 'a', link: 'x' },
+    })
+    expect(Defaulted.safeParse(undefined).success).toBe(false)
   })
 
   it.concurrent('runtime: the member path keeps the property type error', () => {
