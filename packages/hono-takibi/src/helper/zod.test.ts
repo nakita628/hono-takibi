@@ -677,7 +677,28 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){for(const p of ["^x_"]){if(new RegExp(p).test(k)){e.add(k)}}};for(const k of ["b"]){e.add(k)};if(z.object({c:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){for(const k of ["c"]){e.add(k)}};if(z.object({d:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){for(const k of ["d"]){e.add(k)}};const ifOk=z.object({x:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success;if(ifOk){for(const k of ["x"]){e.add(k)}};if(ifOk){for(const k of ["y"]){e.add(k)}};if(!ifOk){for(const k of ["z"]){e.add(k)}};if("e" in o){for(const k of ["f"]){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o,message:"unevaluated"})}}}`,
+        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;let mA=0;let mO=0;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){for(const p of ["^x_"]){if(new RegExp(p).test(k)){e.add(k)}}};for(const k of ["b"]){e.add(k)};if(z.object({c:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){mA++;for(const k of ["c"]){e.add(k)}};if(z.object({d:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){mO++;for(const k of ["d"]){e.add(k)}};const ifOk=z.object({x:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success;if(ifOk){for(const k of ["x"]){e.add(k)}};if(ifOk){for(const k of ["y"]){e.add(k)}};if(!ifOk){for(const k of ["z"]){e.add(k)}};if("e" in o){for(const k of ["f"]){e.add(k)}};if(mA>0&&mO===1){for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o,message:"unevaluated"})}}}}`,
+      )
+    })
+
+    // #480: with a schema-form `unevaluatedProperties`, the per-key validation
+    // is gated on the union succeeding too — here the `anyOf` guard only,
+    // because the caller passes `{ anyOf: true }`.
+    it('gates the schema-form final statement on the anyOf union succeeding', () => {
+      expect(
+        makeUnevaluatedPropertiesCheck(
+          {
+            properties: { a: { type: 'string' } },
+            anyOf: [{ type: 'object', properties: { c: { type: 'string' } } }],
+            unevaluatedProperties: { type: 'number' },
+          },
+          recurse,
+          undefined,
+          undefined,
+          { anyOf: true },
+        ),
+      ).toBe(
+        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;let mA=0;const e=new Set();for(const k of ["a"]){e.add(k)};if(z.object({c:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){mA++;for(const k of ["c"]){e.add(k)}};if(mA>0){const Schema=z.number();for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding('{...issue,path:[k,...issue.path],input:issue.input}')}}}}}}`,
       )
     })
 
