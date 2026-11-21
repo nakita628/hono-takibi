@@ -25,7 +25,7 @@ catalog:
   oxc-parser: ^0.157.0
   # The browser build of oxc-parser imports this binding and oxc-parser does not list it
   # itself; the website's playground needs it, at the version of oxc-parser.
-  '@oxc-parser/binding-wasm32-wasip1': ^0.157.0
+  '@oxc-parser/binding-wasm32-wasip1': ^0.158.0
   # oxc-transform strips the types off the playground's generated mock before the browser runs
   # it; its browser build imports this binding the same way oxc-parser does.
   oxc-transform: ^0.157.0
