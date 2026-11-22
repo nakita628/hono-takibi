@@ -44,11 +44,25 @@ jobs:
       - run: vp install --frozen-lockfile
 
       # Neither tool is an npm dependency, so Renovate does not see them and the versions are
-      # pinned here by hand. zizmor is a Rust tool published on PyPI; actionlint-py downloads the
-      # official actionlint release for its version and verifies the tarball's sha256. pipx is on
-      # the hosted runner.
-      - run: pipx install zizmor==1.30.0
-      - run: pipx install actionlint-py==1.7.12.24
+      # pinned here by hand, each with the sha256 of its linux x86_64 release tarball: the
+      # binary is taken from the tool's own GitHub release and checked before it is unpacked.
+      - name: Install actionlint
+        env:
+          ACTIONLINT_VERSION: 1.7.12
+          ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/actionlint.tar.gz" "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          echo "${ACTIONLINT_SHA256}  $RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check
+          sudo tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C /usr/local/bin actionlint
+
+      - name: Install zizmor
+        env:
+          ZIZMOR_VERSION: 1.30.0
+          ZIZMOR_SHA256: ec8c95cd800845abb9bbc5f377ec7c57d2eb8e2386a00a201d3a74ee4092e5ed
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/zizmor.tar.gz" "https://github.com/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/zizmor-x86_64-unknown-linux-gnu.tar.gz"
+          echo "${ZIZMOR_SHA256}  $RUNNER_TEMP/zizmor.tar.gz" | sha256sum --check
+          sudo tar -xzf "$RUNNER_TEMP/zizmor.tar.gz" -C /usr/local/bin zizmor
 
       # setup-vp puts `vp` on PATH, not `pnpm`; `vp run` hands its bundled pnpm to the script.
       - run: vp run lint
