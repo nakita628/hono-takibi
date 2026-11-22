@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.1](https://github.com/nakita628/hono-takibi/compare/v0.33.0...v0.33.1) (2026-11-22)
+
+
+### Bug Fixes
+
+* **routes:** declare the path parameters a template names and the document leaves out ([#514](https://github.com/nakita628/hono-takibi/issues/514)) ([9bb41e4](https://github.com/nakita628/hono-takibi/commit/9bb41e4b70565567aa40ac2a5131de2ec43e1a66))
+
 ## [0.33.0](https://github.com/nakita628/hono-takibi/compare/v0.32.7...v0.33.0) (2026-11-22)
 
 
