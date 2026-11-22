@@ -1,3 +1,4 @@
+import { ARROW_FUNCTION_PATTERN } from '../constants/index.js'
 import {
   ANNOTATION_KEYWORDS,
   hasNoUserChain,
@@ -796,9 +797,12 @@ export function emitsStrippingObject(
   return isUntypedObject(schema) && isStrippingObject(schema)
 }
 
-// An operand of an intersection, read through the references it names: what is written
-// beside a reference is read over the component. `undefined` for a reference that cannot be
-// resolved or that comes back to itself.
+// An operand of an intersection, read through the references it names. A reference is
+// emitted as the component, with only what `wrap` adds around it taken from what is written
+// beside the `$ref`: a keyword beside it (`properties`, `additionalProperties`) is not
+// emitted, so it says nothing about the keys the operand declares. `undefined` for a
+// reference that cannot be resolved or that comes back to itself, and for one whose own
+// wrapping reports nothing — a user chain replaces the emission, a catch answers the failure.
 function resolveOperand(
   schema: Schema,
   schemas: Schemas | undefined,
@@ -806,10 +810,9 @@ function resolveOperand(
 ): Schema | undefined {
   if (schema.$ref === undefined) return schema
   if (seen.includes(schema.$ref)) return undefined
+  if (!hasNoUserChain(schema) || schema['x-catch'] !== undefined) return undefined
   const target = resolveSchemaRef(schema.$ref, schemas)
-  if (target === undefined) return undefined
-  const { $ref: _ref, ...beside } = schema
-  return resolveOperand({ ...target, ...beside }, schemas, [...seen, schema.$ref])
+  return target === undefined ? undefined : resolveOperand(target, schemas, [...seen, schema.$ref])
 }
 
 // Whether a schema is emitted as an object that reports the keys it does not declare as
@@ -841,14 +844,14 @@ function leaksUnrecognizedKeys(
   schemas: Schemas | undefined,
   seen: readonly string[] = [],
 ): boolean {
+  if (!hasNoUserChain(schema) || schema['x-catch'] !== undefined) return false
   if (schema.$ref !== undefined) {
     if (seen.includes(schema.$ref)) return false
     const target = resolveSchemaRef(schema.$ref, schemas)
-    if (target === undefined) return false
-    const { $ref: _ref, ...beside } = schema
-    return leaksUnrecognizedKeys({ ...target, ...beside }, schemas, [...seen, schema.$ref])
+    return target === undefined
+      ? false
+      : leaksUnrecognizedKeys(target, schemas, [...seen, schema.$ref])
   }
-  if (!hasNoUserChain(schema) || schema['x-catch'] !== undefined) return false
   if (schema.allOf !== undefined) {
     const members = schema.allOf.filter(
       (member) => member.type !== 'null' && !isAnnotationOnly(member),
@@ -915,6 +918,62 @@ export function makeStrictOperandCheck(
   })
   if (stmts.length === 0) return ''
   return `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;${stmts.join(';')}}`
+}
+
+// The statement that reports the failure of a combinator checked on the raw input: one
+// `custom` issue, with a fixed text as its message or what an arrow function answers for it.
+function reportSibling(message: string | undefined) {
+  const field =
+    message === undefined
+      ? ''
+      : ARROW_FUNCTION_PATTERN.test(message)
+        ? `,message:(${message})({code:'custom',path:[],input:val})`
+        : `,message:${JSON.stringify(message)}`
+  return `ctx.issues.push({code:"custom",input:val${field}})`
+}
+
+// The combinators written beside the one a schema is emitted as, as a check on the raw
+// input (#469). JSON Schema ANDs sibling keywords, so `allOf` / `anyOf` / `oneOf` / `not`
+// at the same level all have to hold, and the emitter's paths each emit one of them.
+// The others are asked about the value as it arrives: intersected with what is emitted
+// (`A.and(z.union([...]))`) they would hand out a value of their own, which Zod cannot
+// merge with one the other side has transformed (a bigint, a trimmed string) and which
+// brings back the keys the other side stripped; and a refinement would see the parsed
+// output, from which a stripping object has dropped the very keys a `not` may be about.
+// Each failure is one `custom` issue, with the message of its own keyword
+// (`x-anyOf-message`, `x-oneOf-message`, `x-not-message`) or `x-error-message`.
+export function makeSiblingCombinatorCheck(
+  schema: Schema,
+  keys: readonly ('anyOf' | 'oneOf' | 'not')[],
+  recurse: (s: Schema) => string,
+) {
+  const errorMessage = schema['x-error-message']
+  const stmts = keys.flatMap((key) => {
+    if (key === 'anyOf') {
+      const branches = (schema.anyOf ?? []).map((sub) => `${recurse(sub)}.safeParse(val).success`)
+      const message = schema['x-implication-message'] ?? schema['x-anyOf-message'] ?? errorMessage
+      return branches.length === 0
+        ? []
+        : [`if(!(${branches.join('||')})){${reportSibling(message)}}`]
+    }
+    if (key === 'oneOf') {
+      const branches = (schema.oneOf ?? []).map(
+        (sub) => `(${recurse(sub)}.safeParse(val).success?1:0)`,
+      )
+      return branches.length === 0
+        ? []
+        : [
+            `if((${branches.join('+')})!==1){${reportSibling(schema['x-oneOf-message'] ?? errorMessage)}}`,
+          ]
+    }
+    return schema.not === undefined
+      ? []
+      : [
+          `if(${recurse(schema.not)}.safeParse(val).success){${reportSibling(schema['x-not-message'] ?? errorMessage)}}`,
+        ]
+  })
+  if (stmts.length === 0) return ''
+  return `(ctx)=>{const val=ctx.value;${stmts.join(';')}}`
 }
 
 // The object keywords of a shape as a guarded refine: `properties` / `required` only
@@ -992,33 +1051,24 @@ function makeAdditionalPropsStmt(sub: Schema) {
 // The keys an `allOf` member evaluates: its own properties, pattern properties and
 // additional properties, and those of its own `allOf`. A member that is a reference
 // evaluates the keys of the component it names (#405), read once however often it is
-// reached. A member that is an `anyOf` / `oneOf` — what a combinator beside the `allOf`
-// is emitted as (#469) — evaluates the keys of each branch that matches.
+// reached.
 function collectAllOfStmts(
   list: readonly Schema[],
   schemas: Schemas | undefined,
   reading: ReadonlySet<string> = new Set(),
-  recurse?: (s: Schema) => string,
 ): readonly string[] {
   return list.flatMap((sub) => {
     if (sub.$ref !== undefined) {
       const target = reading.has(sub.$ref) ? undefined : resolveSchemaRef(sub.$ref, schemas)
       return target === undefined
         ? []
-        : collectAllOfStmts([target], schemas, new Set([...reading, sub.$ref]), recurse)
+        : collectAllOfStmts([target], schemas, new Set([...reading, sub.$ref]))
     }
-    const branches =
-      recurse === undefined
-        ? []
-        : [...(sub.anyOf ?? []), ...(sub.oneOf ?? [])].map((branch) =>
-            conditionalBranchStmt(branch, recurse, schemas, reading),
-          )
     return [
       makeOwnPropsStmt(sub),
       makePatternPropsStmt(sub),
       makeAdditionalPropsStmt(sub),
-      ...(sub.allOf ? collectAllOfStmts(sub.allOf, schemas, reading, recurse) : []),
-      ...branches,
+      ...(sub.allOf ? collectAllOfStmts(sub.allOf, schemas, reading) : []),
     ].filter((s): s is string => s !== undefined)
   })
 }
@@ -1081,7 +1131,7 @@ function collectBranchBody(
     makeOwnPropsStmt(sub),
     makePatternPropsStmt(sub),
     makeAdditionalPropsStmt(sub),
-    ...(sub.allOf ? collectAllOfStmts(sub.allOf, schemas, reading, recurse) : []),
+    ...(sub.allOf ? collectAllOfStmts(sub.allOf, schemas, reading) : []),
     ...branchStmts(sub.anyOf),
     ...branchStmts(sub.oneOf),
     ...makeIfStmts(sub, recurse),
@@ -1138,7 +1188,7 @@ function makeUnevaluatedEvaluationStmts(
     makeOwnPropsStmt(schema),
     makePatternPropsStmt(schema),
     makeAdditionalPropsStmt(schema),
-    ...(schema.allOf ? collectAllOfStmts(schema.allOf, schemas, undefined, recurse) : []),
+    ...(schema.allOf ? collectAllOfStmts(schema.allOf, schemas) : []),
     ...branchStmts(schema.anyOf, track?.anyOf),
     ...branchStmts(schema.oneOf, track?.oneOf),
     ...makeIfStmts(schema, recurse),

@@ -22,9 +22,11 @@ const withCheck = (union: string, check: string) =>
 const withStatements = (schema: string, statements: string) =>
   `(()=>{const Schema=${schema};return z.preprocess((val: z.input<typeof Schema>,ctx)=>{${statements};return val},Schema)})()`
 
-// What `x-catch` emits (#492): a `z.preprocess` that replaces a value the
-// schema does not take by the fallback, which `@hono/zod-openapi` renders by
-// the schema inside it — a `.catch()` makes document generation throw.
+// What `x-catch` emits where the schema states no `type` the document could
+// be told (#492): a `z.preprocess` that replaces a value the schema does not
+// take by the fallback, which `@hono/zod-openapi` renders by the schema
+// inside it. A schema with a type keeps `.catch()` and states itself in
+// `.openapi()`.
 const caught = (schema: string, fallback: string) =>
   `(()=>{const Schema=${schema};return z.preprocess((val: z.input<typeof Schema>)=>Schema.safeParse(val).success?val:${fallback},Schema)})()`
 
@@ -5100,11 +5102,11 @@ describe('zodToOpenAPI', () => {
           }
         })
         // ----- P2: x-catch / x-prefault / x-readonly -----
-        it.concurrent('boolean: x-catch=false → a preprocess that answers false', () => {
+        it.concurrent('boolean: x-catch=false → z.boolean().catch(false)', () => {
           expect(zodToOpenAPI({ type: 'boolean', 'x-catch': false })).toBe(
-            caught('z.boolean()', 'false'),
+            'z.boolean().catch(false).openapi({"type":"boolean"})',
           )
-          const runtime = catching(z.boolean(), false)
+          const runtime = z.boolean().catch(false)
           expect(runtime.safeParse(true)).toStrictEqual({ success: true, data: true })
           // The type error is answered with false, as `.catch(false)` would.
           expect(runtime.safeParse('a')).toStrictEqual({ success: true, data: false })
@@ -5135,8 +5137,10 @@ describe('zodToOpenAPI', () => {
               default: true,
               'x-catch': false,
             }),
-          ).toBe(caught('z.boolean().default(true)', 'false'))
-          const runtime = catching(z.boolean().default(true), false)
+          ).toBe(
+            'z.boolean().default(true).catch(false).openapi({"type":"boolean","default":true})',
+          )
+          const runtime = z.boolean().default(true).catch(false)
           expect(runtime.safeParse(undefined)).toStrictEqual({ success: true, data: true })
           expect(runtime.safeParse('a')).toStrictEqual({ success: true, data: false })
         })
@@ -5147,8 +5151,8 @@ describe('zodToOpenAPI', () => {
               'x-prefault': true,
               'x-catch': false,
             }),
-          ).toBe(caught('z.boolean().prefault(true)', 'false'))
-          const runtime = catching(z.boolean().prefault(true), false)
+          ).toBe('z.boolean().prefault(true).catch(false).openapi({"type":"boolean"})')
+          const runtime = z.boolean().prefault(true).catch(false)
           expect(runtime.safeParse(undefined)).toStrictEqual({ success: true, data: true })
           expect(runtime.safeParse('a')).toStrictEqual({ success: true, data: false })
         })
@@ -5164,13 +5168,15 @@ describe('zodToOpenAPI', () => {
           const runtime = z.string().readonly()
           expect(runtime.safeParse('ok').success).toBe(true)
         })
-        it.concurrent('string: x-catch + x-brand → the catch, then .brand<"Tag">()', () => {
+        it.concurrent('string: x-catch + x-brand → catch("fallback").brand<"Tag">()', () => {
           const generated = zodToOpenAPI({
             type: 'string',
             'x-catch': 'fallback',
             'x-brand': 'Tag',
           })
-          expect(generated).toBe(`${caught('z.string()', '"fallback"')}.brand<"Tag">()`)
+          expect(generated).toBe(
+            'z.string().catch("fallback").brand<"Tag">().openapi({"type":"string"})',
+          )
           // runtime skipped: TS-only brand<> generic carries no runtime constraint
         })
         // ----- x-refine / x-superRefine -----
@@ -10054,18 +10060,20 @@ describe('zodToOpenAPI', () => {
   })
 
   describe('v3.2 x-catch: fallback on validation failure', () => {
-    it.concurrent('codegen: a preprocess that answers 0, not z.number().catch(0) (#492)', () => {
-      expect(zodToOpenAPI({ type: 'number', 'x-catch': 0 })).toBe(caught('z.number()', '0'))
+    it.concurrent('codegen: z.number().catch(0), with the type stated for the document (#492)', () => {
+      expect(zodToOpenAPI({ type: 'number', 'x-catch': 0 })).toBe(
+        'z.number().catch(0).openapi({"type":"number"})',
+      )
     })
     it.concurrent('runtime: invalid input "x" → returns 0', () => {
-      const valid = catching(z.number(), 0).safeParse('x')
+      const valid = z.number().catch(0).safeParse('x')
       expect(valid.success).toBe(true)
       if (valid.success) {
         expect(valid.data).toBe(0)
       }
     })
     it.concurrent('runtime: valid 5 → returns 5', () => {
-      const valid = catching(z.number(), 0).safeParse(5)
+      const valid = z.number().catch(0).safeParse(5)
       expect(valid.success).toBe(true)
       if (valid.success) {
         expect(valid.data).toBe(5)
@@ -12170,26 +12178,14 @@ describe('zodToOpenAPI', () => {
           }),
         ).toBe('z.stringbool().brand<"Flag">()')
       })
-      // `z.stringbool()` reads text alone, and the fallback is read by the schema
-      // (#492): it is written as the text the schema reads as that boolean.
-      it.concurrent('codegen: x-stringbool=true + x-catch=false → the fallback as text', () => {
+      it.concurrent('codegen: x-stringbool=true + x-catch=false → .catch(false)', () => {
         expect(
           zodToOpenAPI({
             type: 'boolean',
             'x-stringbool': true,
             'x-catch': false,
           }),
-        ).toBe(caught('z.stringbool()', '"false"'))
-        expect(
-          zodToOpenAPI({
-            type: 'boolean',
-            'x-stringbool': { truthy: ['yes'], falsy: ['no'] },
-            'x-catch': true,
-          }),
-        ).toBe(caught('z.stringbool({"truthy":["yes"],"falsy":["no"]})', '"yes"'))
-        const runtime = catching(z.stringbool(), 'false')
-        expect(runtime.safeParse('maybe')).toStrictEqual({ success: true, data: false })
-        expect(runtime.safeParse('true')).toStrictEqual({ success: true, data: true })
+        ).toBe('z.stringbool().catch(false).openapi({"type":"boolean"})')
       })
       it.concurrent('codegen: x-stringbool=true + x-prefault=true → .prefault(true)', () => {
         expect(
@@ -14743,7 +14739,7 @@ describe('properties beside combinators', () => {
       }),
     ).toBe(
       withCheck(
-        `z.union([${caught('z.object({a:z.string().exactOptional()})', '{"a":"c"}')}.openapi({"required":[]}),z.string()])`,
+        'z.union([z.object({a:z.string().exactOptional()}).catch({"a":"c"}).openapi({"type":"object","properties":{"a":{"type":"string"}},"required":[]}),z.string()])',
         shapeCheck,
       ),
     )
@@ -14758,7 +14754,7 @@ describe('properties beside combinators', () => {
       }),
     ).toBe(
       `${withCheck(
-        `z.union([${caught('z.object({a:z.string().exactOptional()})', '{"a":"c"}')}.openapi({"required":[]}),z.string()])`,
+        'z.union([z.object({a:z.string().exactOptional()}).catch({"a":"c"}).openapi({"type":"object","properties":{"a":{"type":"string"}},"required":[]}),z.string()])',
         requiredShapeCheck,
       )}.openapi({"required":["link"]})`,
     )
@@ -15222,7 +15218,7 @@ describe('properties beside combinators', () => {
     // it. The catch still answers the branch's own failures inside the pipe,
     // as before.
     const Caught = checked(
-      z.union([catching(z.object({ a: z.string().exactOptional() }), { a: 'c' }), z.string()]),
+      z.union([z.object({ a: z.string().exactOptional() }).catch({ a: 'c' }), z.string()]),
       shapeCheck461,
     )
     expect(Caught.safeParse(null).success).toBe(true)
@@ -15655,11 +15651,14 @@ describe('a declared type beside combinators (#468)', () => {
 })
 
 // #492: `.catch()` is a `ZodCatch`, which `@hono/zod-openapi` cannot render —
-// `getOpenAPIDocument()` throws as soon as a route uses the schema. The catch
-// is a `z.preprocess` instead (see `caught` above), which the document renders
-// by the schema inside it. test/runtime/x-transforms.valid.test.ts generates
-// the document from such a schema.
-describe('x-catch is a preprocess the document can render (#492)', () => {
+// `getOpenAPIDocument()` throws as soon as a route uses the schema, unless the
+// schema states its own `type`, which is then all the document reads. So the
+// catch stays a `.catch()`, exactly what it was at runtime, and `.openapi()`
+// states the schema the source declares. Where no type can be stated (a
+// combinator, a schema of any type) the catch is a `z.preprocess`, which the
+// document renders by the schema inside it (see `caught` above).
+// test/runtime/x-transforms.valid.test.ts generates the document.
+describe('x-catch states its schema for the document (#492)', () => {
   it.concurrent('codegen: the issue table', () => {
     expect(
       zodToOpenAPI({
@@ -15668,10 +15667,10 @@ describe('x-catch is a preprocess the document can render (#492)', () => {
         'x-catch': { a: 'c' },
       }),
     ).toBe(
-      `${caught('z.object({a:z.string().exactOptional()})', '{"a":"c"}')}.openapi({"required":[]})`,
+      'z.object({a:z.string().exactOptional()}).catch({"a":"c"}).openapi({"type":"object","properties":{"a":{"type":"string"}},"required":[]})',
     )
     expect(zodToOpenAPI({ type: 'string', 'x-catch': 'fallback' })).toBe(
-      caught('z.string()', '"fallback"'),
+      'z.string().catch("fallback").openapi({"type":"string"})',
     )
     expect(
       zodToOpenAPI({
@@ -15679,22 +15678,59 @@ describe('x-catch is a preprocess the document can render (#492)', () => {
         properties: { name: { type: 'string', 'x-catch': 'anon' } },
       }),
     ).toBe(
-      `z.object({name:${caught('z.string()', '"anon"')}.exactOptional()}).openapi({"required":[]})`,
+      'z.object({name:z.string().catch("anon").exactOptional().openapi({"type":"string"})}).openapi({"required":[]})',
     )
-    // An intersection member: nothing in it is a `ZodCatch` any more.
+  })
+
+  it.concurrent('codegen: what the chain would have said is stated as the source has it', () => {
+    // The keywords the chain expresses, the default, and what is not a keyword of Zod.
     expect(
       zodToOpenAPI({
-        allOf: [
-          { $ref: '#/components/schemas/A', 'x-catch': {} },
-          { $ref: '#/components/schemas/B', nullable: true },
-        ],
+        type: 'string',
+        minLength: 3,
+        default: 'abc',
+        description: 'd',
+        'x-catch': 'xyz',
+        'x-error-message': 'bad',
       }),
-    ).toBe(`${caught('ASchema', '{}')}.and(BSchema.nullable())`)
+    ).toBe(
+      'z.string({error:"bad"}).min(3,{error:"bad"}).default("abc").catch("xyz").openapi({"type":"string","minLength":3,"default":"abc","description":"d"})',
+    )
+    // A bigint: the bounds as JSON numbers, the fallback as a bigint.
+    expect(zodToOpenAPI({ type: 'integer', format: 'int64', minimum: 0, 'x-catch': 0 })).toBe(
+      `z.preprocess(${JSON_BIGINT},z.int64().min(0n)).catch(0n).openapi({"type":"integer","format":"int64","minimum":0})`,
+    )
+    // The emitter's own extensions are not the document's, at any level.
+    expect(
+      zodToOpenAPI({
+        type: 'object',
+        properties: { f: { type: 'boolean', 'x-stringbool': true } },
+        'x-catch': { f: false },
+      }),
+    ).toBe(
+      'z.object({f:z.stringbool().exactOptional()}).catch({"f":false}).openapi({"type":"object","properties":{"f":{"type":"boolean"}},"required":[]})',
+    )
+  })
+
+  it.concurrent('codegen: a reference is stated as the component it names', () => {
+    const schemas = { A: { type: 'object', properties: { a: { type: 'string' } } } } as const
+    expect(
+      zodToOpenAPI({ $ref: '#/components/schemas/A', 'x-catch': {} }, undefined, { schemas }),
+    ).toBe('ASchema.catch({}).openapi({"type":"object","properties":{"a":{"type":"string"}}})')
+  })
+
+  it.concurrent('codegen: no type to state → a preprocess the document renders', () => {
+    expect(zodToOpenAPI({ anyOf: [{ type: 'string' }, { type: 'number' }], 'x-catch': 'x' })).toBe(
+      caught('z.union([z.string(),z.number()])', '"x"'),
+    )
+    // A reference that cannot be read has no type either.
+    expect(zodToOpenAPI({ $ref: '#/components/schemas/A', 'x-catch': {} })).toBe(
+      caught('ASchema', '{}'),
+    )
   })
 
   it.concurrent('codegen: the catch stays where it was in the chain', () => {
-    // After `.nullable()`, `.default()` and `.prefault()`, before `.readonly()`
-    // and the refinements.
+    // After `.nullable()`, `.default()` and `.prefault()`, before `.readonly()`.
     expect(
       zodToOpenAPI({
         type: 'string',
@@ -15703,30 +15739,17 @@ describe('x-catch is a preprocess the document can render (#492)', () => {
         'x-catch': 'c',
         'x-readonly': true,
       }),
-    ).toBe(`${caught('z.string().nullable().default("d")', '"c"')}.readonly()`)
-    expect(zodToOpenAPI({ type: 'integer', 'x-catch': 0 }, undefined, { isOptional: true })).toBe(
-      `${caught('z.int()', '0')}.exactOptional()`,
+    ).toBe(
+      'z.string().nullable().default("d").catch("c").readonly().openapi({"type":["string","null"],"default":"d"})',
     )
   })
 
-  it.concurrent('runtime: answers every failure with the fallback, as .catch() does', () => {
-    const Caught = catching(z.object({ a: z.string().exactOptional() }), { a: 'c' })
-    expect(Caught.safeParse(1)).toStrictEqual({ success: true, data: { a: 'c' } })
-    expect(Caught.safeParse(null)).toStrictEqual({ success: true, data: { a: 'c' } })
-    expect(Caught.safeParse(undefined)).toStrictEqual({ success: true, data: { a: 'c' } })
-    expect(Caught.safeParse({ a: 1 })).toStrictEqual({ success: true, data: { a: 'c' } })
-    expect(Caught.safeParse({ a: 'x' })).toStrictEqual({ success: true, data: { a: 'x' } })
-    // A property with a catch is still not required of the object.
-    const WithProperty = z.object({ name: catching(z.string(), 'anon').exactOptional() })
-    expect(WithProperty.safeParse({ name: 1 })).toStrictEqual({
-      success: true,
-      data: { name: 'anon' },
-    })
-    expect(WithProperty.safeParse({})).toStrictEqual({ success: true, data: {} })
-    // What is inside still applies before the catch does: an absent value takes the default.
-    const Defaulted = catching(z.string().default('d'), 'c')
-    expect(Defaulted.safeParse(undefined)).toStrictEqual({ success: true, data: 'd' })
-    expect(Defaulted.safeParse(1)).toStrictEqual({ success: true, data: 'c' })
+  it.concurrent('runtime: the preprocess answers every failure with the fallback', () => {
+    const Caught = catching(z.union([z.string(), z.number()]), 'x')
+    expect(Caught.safeParse(true)).toStrictEqual({ success: true, data: 'x' })
+    expect(Caught.safeParse(null)).toStrictEqual({ success: true, data: 'x' })
+    expect(Caught.safeParse(undefined)).toStrictEqual({ success: true, data: 'x' })
+    expect(Caught.safeParse(5)).toStrictEqual({ success: true, data: 5 })
   })
 })
 
@@ -15738,7 +15761,7 @@ describe('x-catch: null / x-prefault: null make the schema nullable (#490)', () 
     expect(
       zodToOpenAPI({ type: 'object', properties: { a: { type: 'string' } }, 'x-catch': null }),
     ).toBe(
-      `${caught('z.object({a:z.string().exactOptional()}).nullable()', 'null')}.openapi({"required":[]})`,
+      'z.object({a:z.string().exactOptional()}).nullable().catch(null).openapi({"type":["object","null"],"properties":{"a":{"type":"string"}},"required":[]})',
     )
     expect(
       zodToOpenAPI({ type: 'object', properties: { a: { type: 'string' } }, 'x-prefault': null }),
@@ -15746,13 +15769,13 @@ describe('x-catch: null / x-prefault: null make the schema nullable (#490)', () 
       'z.object({a:z.string().exactOptional()}).nullable().prefault(null).openapi({"required":[]})',
     )
     expect(zodToOpenAPI({ type: 'string', 'x-catch': null })).toBe(
-      caught('z.string().nullable()', 'null'),
+      'z.string().nullable().catch(null).openapi({"type":["string","null"]})',
     )
   })
 
   it.concurrent('codegen: a schema that is nullable already is not made so twice', () => {
     expect(zodToOpenAPI({ type: ['string', 'null'], 'x-catch': null })).toBe(
-      caught('z.string().nullable()', 'null'),
+      'z.string().nullable().catch(null).openapi({"type":["string","null"]})',
     )
     expect(zodToOpenAPI({ type: 'string', nullable: true, 'x-prefault': null })).toBe(
       'z.string().nullable().prefault(null)',
@@ -15763,7 +15786,7 @@ describe('x-catch: null / x-prefault: null make the schema nullable (#490)', () 
   })
 
   it.concurrent('runtime: null is a value the schema answers with', () => {
-    const Caught = catching(z.object({ a: z.string().exactOptional() }).nullable(), null)
+    const Caught = z.object({ a: z.string().exactOptional() }).nullable().catch(null)
     expect(Caught.safeParse(1)).toStrictEqual({ success: true, data: null })
     const Prefaulted = z.object({ a: z.string().exactOptional() }).nullable().prefault(null)
     expect(Prefaulted.safeParse(undefined)).toStrictEqual({ success: true, data: null })
@@ -15815,7 +15838,9 @@ describe('an int64 inside an object / array default is a bigint (#491)', () => {
         items: { type: 'integer', format: 'int64' },
         'x-catch': [1],
       }),
-    ).toBe(caught(`z.array(${int64}${int64Meta})`, '[1n]'))
+    ).toBe(
+      `z.array(${int64}${int64Meta}).catch([1n]).openapi({"type":"array","items":{"type":"integer","format":"int64"}})`,
+    )
   })
 
   it.concurrent('codegen: each member is the literal of its own schema', () => {
@@ -16244,136 +16269,229 @@ const tooShort469 = (n: number) =>
   z.unknown().superRefine((val, ctx) => {
     if (typeof val === 'string' && val.length < n) ctx.addIssue({ code: 'custom' })
   })
+// The statements of the check `makeSiblingCombinatorCheck` emits, one per combinator.
+const anyOf469 = (branches: readonly string[], message = '') =>
+  `if(!(${branches.map((branch) => `${branch}.safeParse(val).success`).join('||')})){ctx.issues.push({code:"custom",input:val${message}})}`
+const oneOf469 = (branches: readonly string[], message = '') =>
+  `if((${branches.map((branch) => `(${branch}.safeParse(val).success?1:0)`).join('+')})!==1){ctx.issues.push({code:"custom",input:val${message}})}`
+const not469 = (excluded: string, message = '') =>
+  `if(${excluded}.safeParse(val).success){ctx.issues.push({code:"custom",input:val${message}})}`
+const siblings469 = (schema: string, statements: readonly string[]) =>
+  withCheck(schema, `(ctx)=>{const val=ctx.value;${statements.join(';')}}`)
+// The same by hand: the value is asked as it arrives, before the schema reads it.
+const asked469 = <T extends z.ZodType>(Schema: T, accepts: (val: unknown) => boolean) =>
+  checked(Schema, (ctx) => {
+    if (!accepts(ctx.value)) ctx.issues.push({ code: 'custom', input: ctx.value })
+  })
+
+// Exactly one of "at least 3 characters" and "at most 1": the `oneOf` of the issue table.
+const oneOf469Matches = (val: unknown) =>
+  (tooShort469(3).safeParse(val).success ? 1 : 0) +
+    (tooLong469(1).safeParse(val).success ? 1 : 0) ===
+  1
+const notX469 = (val: unknown) => !z.literal('x').safeParse(val).success
+const hasKey469 = (key: string) => (val: unknown) =>
+  typeof val === 'object' && val !== null && Object.hasOwn(val, key)
+
 // #469: JSON Schema ANDs sibling keywords, so `allOf` / `anyOf` / `oneOf` /
 // `not` at the same level all have to hold. Only the first one the emitter
-// checked was emitted, and the others were dropped without a word.
+// checked was emitted, and the others were dropped without a word. The paths
+// still emit one combinator each; the others are checked on the raw input,
+// around it, and the `anyOf` / `oneOf` among them are stated in the document.
+// They are not intersected with it: `A.and(z.union([...]))` cannot merge a
+// value one side has transformed (a bigint, a trimmed string) with the raw one
+// the other hands back, and brings back the keys an object has stripped.
 describe('several combinators at the same level (#469)', () => {
   const str = { type: 'string' } as const
+  const A = { type: 'object', properties: { a: str } } as const
+  const B = { type: 'object', properties: { b: str } } as const
+  const a = 'z.object({a:z.string().exactOptional()}).openapi({"required":[]})'
+  const b = 'z.object({b:z.string().exactOptional()}).openapi({"required":[]})'
 
   it.concurrent('codegen: the issue table', () => {
     expect(
       zodToOpenAPI({ allOf: [{ type: 'string', minLength: 1 }], anyOf: [{ maxLength: 3 }] }),
-    ).toBe(`z.string().min(1).and(z.union([${maxLengthRefine469(3)}]))`)
+    ).toBe(
+      `${siblings469('z.string().min(1)', [anyOf469([maxLengthRefine469(3)])])}.openapi({anyOf:[{"maxLength":3}]})`,
+    )
     expect(zodToOpenAPI({ allOf: [str], oneOf: [{ minLength: 3 }, { maxLength: 1 }] })).toBe(
-      `z.string().and(z.xor([${minLengthRefine469(3)},${maxLengthRefine469(1)}]))`,
+      `${siblings469('z.string()', [oneOf469([minLengthRefine469(3), maxLengthRefine469(1)])])}.openapi({oneOf:[{"minLength":3},{"maxLength":1}]})`,
     )
     expect(zodToOpenAPI({ anyOf: [str], oneOf: [{ minLength: 3 }, { maxLength: 1 }] })).toBe(
-      `z.union([z.string()]).and(z.xor([${minLengthRefine469(3)},${maxLengthRefine469(1)}]))`,
+      `${siblings469('z.union([z.string()])', [oneOf469([minLengthRefine469(3), maxLengthRefine469(1)])])}.openapi({oneOf:[{"minLength":3},{"maxLength":1}]})`,
     )
     expect(zodToOpenAPI({ allOf: [str], not: { const: 'x' } })).toBe(
-      'z.string().refine((val) => !z.literal("x").safeParse(val).success)',
+      siblings469('z.string()', [not469('z.literal("x")')]),
     )
     expect(zodToOpenAPI({ anyOf: [str], not: { const: 'x' } })).toBe(
-      'z.union([z.string()]).refine((val) => !z.literal("x").safeParse(val).success)',
+      siblings469('z.union([z.string()])', [not469('z.literal("x")')]),
     )
   })
 
-  it.concurrent('codegen: all three, and a not beside them', () => {
+  it.concurrent('codegen: all of them at once are one check', () => {
     expect(
       zodToOpenAPI({
         allOf: [str],
         anyOf: [{ minLength: 1 }],
         oneOf: [{ maxLength: 3 }, { minLength: 5 }],
+        not: { const: 'x' },
       }),
     ).toBe(
-      `z.string().and(z.union([${minLengthRefine469(1)}])).and(z.xor([${maxLengthRefine469(3)},${minLengthRefine469(5)}]))`,
-    )
-    expect(zodToOpenAPI({ allOf: [str], anyOf: [{ minLength: 1 }], not: { const: 'x' } })).toBe(
-      `z.string().and(z.union([${minLengthRefine469(1)}])).refine((val) => !z.literal("x").safeParse(val).success)`,
+      `${siblings469('z.string()', [
+        anyOf469([minLengthRefine469(1)]),
+        oneOf469([maxLengthRefine469(3), minLengthRefine469(5)]),
+        not469('z.literal("x")'),
+      ])}.openapi({anyOf:[{"minLength":1}],oneOf:[{"maxLength":3},{"minLength":5}]})`,
     )
   })
 
-  it.concurrent('codegen: a declared type is written into every combinator (#468)', () => {
-    expect(
-      zodToOpenAPI({ type: 'string', allOf: [{ minLength: 1 }], anyOf: [{ maxLength: 3 }] }),
-    ).toBe('z.string().min(1).and(z.union([z.string().max(3)]))')
-    expect(
-      zodToOpenAPI({
-        type: 'string',
-        anyOf: [{ minLength: 1 }],
-        not: { enum: ['x', 'y'] },
-        'x-not-message': 'no',
-      }),
-    ).toBe(
-      'z.union([z.string().min(1)]).refine((val) => !z.enum(["x","y"]).safeParse(val).success,{error:"no"})',
-    )
-  })
-
-  it.concurrent('codegen: each combinator keeps the message that is its own', () => {
+  it.concurrent('codegen: each combinator has the message that is its own', () => {
     expect(
       zodToOpenAPI({
         anyOf: [str],
         oneOf: [{ minLength: 3 }, { maxLength: 1 }],
+        not: { const: 'x' },
         'x-anyOf-message': 'any',
         'x-oneOf-message': 'one',
+        'x-not-message': '(iss) => `no ${String(iss.input)}`',
       }),
     ).toBe(
-      `z.union([z.string()],{error:"any"}).and(z.xor([${minLengthRefine469(3)},${maxLengthRefine469(1)}],{error:"one"}))`,
+      `${siblings469('z.union([z.string()],{error:"any"})', [
+        oneOf469([minLengthRefine469(3), maxLengthRefine469(1)], ',message:"one"'),
+        not469(
+          'z.literal("x")',
+          ",message:((iss) => `no ${String(iss.input)}`)({code:'custom',path:[],input:val})",
+        ),
+      ])}.openapi({oneOf:[{"minLength":3},{"maxLength":1}]})`,
+    )
+    // `x-error-message` is the message of a combinator that has none of its own.
+    expect(zodToOpenAPI({ anyOf: [str], not: { const: 'x' }, 'x-error-message': 'bad' })).toBe(
+      siblings469('z.union([z.string()],{error:"bad"})', [
+        not469('z.literal("x")', ',message:"bad"'),
+      ]),
     )
   })
 
   it.concurrent('codegen: what is beside the combinators still applies', () => {
-    const a = 'z.object({a:z.string().exactOptional()}).openapi({"required":[]})'
-    const b = 'z.object({b:z.string().exactOptional()}).openapi({"required":[]})'
-    const c = 'z.object({c:z.string().exactOptional()}).openapi({"required":[]})'
-    const linkZ = 'z.object({link:z.string().exactOptional()}).openapi({"required":[]})'
-    const A = { type: 'object', properties: { a: str } } as const
-    const B = { type: 'object', properties: { b: str } } as const
-    const C = { type: 'object', properties: { c: str } } as const
-    // A sibling shape (#461) is a member of the intersection.
-    expect(zodToOpenAPI({ allOf: [A], anyOf: [B, C], properties: { link: str } })).toBe(
-      `${a}.and(z.union([${b},${c}])).and(${linkZ})`,
+    // `required` beside the emitted `anyOf` is enforced as it is without a `not`.
+    const requiredA = `(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"a")){ctx.issues.push({...{code:'custom'},input:val})}}}`
+    const notZ = `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"z")){ctx.addIssue({code:'custom'})}}}).openapi({"required":["z"]})`
+    expect(zodToOpenAPI({ anyOf: [A, B], required: ['a'], not: { required: ['z'] } })).toBe(
+      `${siblings469(
+        withCheck(
+          `z.union([${a},${b}]).and(z.looseObject({}).openapi({"required":["a"]}))`,
+          requiredA,
+        ),
+        [not469(notZ)],
+      )}.openapi({"required":["a"]})`,
     )
-    // `unevaluatedProperties` counts the keys of the `anyOf` branch that matches.
-    expect(zodToOpenAPI({ allOf: [A], anyOf: [B], unevaluatedProperties: false })).toContain(
-      `const e=new Set();for(const k of ["a"]){e.add(k)};if(${b}.safeParse(o).success){for(const k of ["b"]){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){`,
-    )
-    // `nullable` is the outer handling's, after the `not`.
-    expect(zodToOpenAPI({ anyOf: [str], not: { const: 'x' }, nullable: true })).toBe(
-      'z.union([z.string()]).refine((val) => !z.literal("x").safeParse(val).success).nullable()',
-    )
+    // A discriminated `oneOf` stays one beside a `not`.
+    const cat = {
+      type: 'object',
+      properties: { kind: { const: 'cat' } },
+      required: ['kind'],
+    } as const
+    const dog = {
+      type: 'object',
+      properties: { kind: { const: 'dog' } },
+      required: ['kind'],
+    } as const
     expect(
-      zodToOpenAPI({ anyOf: [str, { type: 'number' }], not: { $ref: '#/components/schemas/A' } }),
-    ).toBe('z.union([z.string(),z.number()]).refine((val) => !ASchema.safeParse(val).success)')
+      zodToOpenAPI({
+        oneOf: [cat, dog],
+        discriminator: { propertyName: 'kind' },
+        not: { required: ['z'] },
+      }),
+    ).toContain(`const Schema=z.discriminatedUnion('kind',[`)
+    // `nullable` is the outer handling's, after the check.
+    expect(zodToOpenAPI({ anyOf: [str], not: { const: 'x' }, nullable: true })).toBe(
+      `${siblings469('z.union([z.string()])', [not469('z.literal("x")')])}.nullable()`,
+    )
+    // A reference in the check is the component; in the document it is written out.
+    expect(
+      zodToOpenAPI({ allOf: [A], anyOf: [{ $ref: '#/components/schemas/B' }] }, undefined, {
+        schemas: { B },
+      }),
+    ).toBe(
+      `${siblings469(a, [anyOf469(['BSchema'])])}.openapi({anyOf:[{"type":"object","properties":{"b":{"type":"string"}}}]})`,
+    )
   })
 
-  it.concurrent('codegen: an empty combinator is not one', () => {
+  it.concurrent('codegen: a schema with one combinator is as it was', () => {
+    expect(zodToOpenAPI({ allOf: [str, { type: 'string', minLength: 1 }] })).toBe(
+      'z.string().and(z.string().min(1))',
+    )
+    expect(zodToOpenAPI({ anyOf: [str] })).toBe('z.union([z.string()])')
+    // An empty combinator beside another accepts everything: nothing to check.
     expect(zodToOpenAPI({ allOf: [str], anyOf: [] })).toBe('z.string()')
     expect(zodToOpenAPI({ anyOf: [str], oneOf: [] })).toBe('z.union([z.string()])')
-    // `not: {}` matches nothing, whatever is beside it.
-    expect(zodToOpenAPI({ anyOf: [str], not: {} })).toBe('z.never()')
-    // An empty combinator accepts everything; the `not` beside it still applies.
+    // A `not` beside a type alone is the `not` path's.
+    expect(zodToOpenAPI({ type: 'string', not: { const: 'x' } })).toBe(
+      'z.string().refine((val) => val !== "x")',
+    )
+    // Nothing is read beside a `$ref`.
+    expect(zodToOpenAPI({ $ref: '#/components/schemas/A', not: { const: 'x' } })).toBe('ASchema')
+  })
+
+  it.concurrent('codegen: an empty allOf leaves the others to decide', () => {
     expect(zodToOpenAPI({ allOf: [], not: { const: 'x' } })).toBe(
-      'z.any().refine((val) => !z.literal("x").safeParse(val).success)',
+      siblings469('z.any()', [not469('z.literal("x")')]),
     )
   })
 
   it.concurrent('runtime: the issue table', () => {
-    const allOfAnyOf = z
-      .string()
-      .min(1)
-      .and(z.union([tooLong469(3)]))
+    const allOfAnyOf = asked469(z.string().min(1), (val) => tooLong469(3).safeParse(val).success)
     expect(allOfAnyOf.safeParse('abcdef').success).toBe(false)
     expect(allOfAnyOf.safeParse('ab')).toStrictEqual({ success: true, data: 'ab' })
     expect(allOfAnyOf.safeParse('').success).toBe(false)
 
-    const allOfOneOf = z.string().and(z.xor([tooShort469(3), tooLong469(1)]))
+    const allOfOneOf = asked469(z.string(), oneOf469Matches)
     expect(allOfOneOf.safeParse('ab').success).toBe(false)
     expect(allOfOneOf.safeParse('abc')).toStrictEqual({ success: true, data: 'abc' })
     expect(allOfOneOf.safeParse('a')).toStrictEqual({ success: true, data: 'a' })
     expect(allOfOneOf.safeParse(5).success).toBe(false)
 
-    const anyOfOneOf = z.union([z.string()]).and(z.xor([tooShort469(3), tooLong469(1)]))
+    const anyOfOneOf = asked469(z.union([z.string()]), oneOf469Matches)
     expect(anyOfOneOf.safeParse('ab').success).toBe(false)
     expect(anyOfOneOf.safeParse('abc')).toStrictEqual({ success: true, data: 'abc' })
 
-    const allOfNot = z.string().refine((val) => !z.literal('x').safeParse(val).success)
+    const allOfNot = asked469(z.string(), notX469)
     expect(allOfNot.safeParse('x').success).toBe(false)
     expect(allOfNot.safeParse('y')).toStrictEqual({ success: true, data: 'y' })
     expect(allOfNot.safeParse(5).success).toBe(false)
 
-    const anyOfNot = z.union([z.string()]).refine((val) => !z.literal('x').safeParse(val).success)
+    const anyOfNot = asked469(z.union([z.string()]), notX469)
     expect(anyOfNot.safeParse('x').success).toBe(false)
     expect(anyOfNot.safeParse('y')).toStrictEqual({ success: true, data: 'y' })
+  })
+
+  it.concurrent('runtime: the emitted schema keeps what it hands out', () => {
+    // A sibling `anyOf` of typeless branches beside an object that hands out a
+    // bigint and strips undeclared keys. As an intersection member it threw
+    // `Unmergable intersection` on `{id: 1}` and brought `extra` back.
+    const Base = z.object({
+      id: z
+        .preprocess((val) => (typeof val === 'number' ? BigInt(val) : val), z.int64())
+        .optional(),
+      name: z.string().optional(),
+    })
+    const Schema = asked469(Base, (val) => hasKey469('id')(val) || hasKey469('name')(val))
+    expect(Schema.safeParse({ id: 1 })).toStrictEqual({ success: true, data: { id: 1n } })
+    expect(Schema.safeParse({ name: 'a', extra: 1 })).toStrictEqual({
+      success: true,
+      data: { name: 'a' },
+    })
+    expect(Schema.safeParse({}).success).toBe(false)
+    // A `not` about a key the object strips still sees the key.
+    const NotZ = asked469(z.object({ a: z.string().optional() }), (val) => !hasKey469('z')(val))
+    expect(NotZ.safeParse({ a: 'x', z: 1 }).success).toBe(false)
+    expect(NotZ.safeParse({ a: 'x' })).toStrictEqual({ success: true, data: { a: 'x' } })
+    // A `not` beside an int64 is asked about the number that arrived.
+    const NotFive = asked469(
+      z.preprocess((val) => (typeof val === 'number' ? BigInt(val) : val), z.int64()),
+      (val) => !z.literal(5).safeParse(val).success,
+    )
+    expect(NotFive.safeParse(5).success).toBe(false)
+    expect(NotFive.safeParse(6)).toStrictEqual({ success: true, data: 6n })
   })
 })

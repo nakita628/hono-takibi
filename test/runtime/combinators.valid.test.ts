@@ -632,14 +632,16 @@ describe('the generated document keeps the combinators', () => {
     })
   })
 
-  // Both combinators of a property are in the document, as members of one allOf.
-  // プロパティが持つ2つのコンビネータは、どちらも1つの allOf のメンバーとしてドキュメントに残る。
+  // Both combinators of a property are in the document: the one the schema is emitted as,
+  // and the other beside it, as the source has it.
+  // プロパティが持つ2つのコンビネータは、どちらもドキュメントに残る。一方はスキーマとして
+  // 出力されたもの、もう一方は元の定義のまま、その横に記載される。
   it('keeps every combinator written at the same level', () => {
     expect(doc.components?.schemas?.Siblings).toMatchObject({
       properties: {
-        allOfAnyOf: { allOf: [{ type: 'string', minLength: 1 }, { anyOf: [{}, {}] }] },
-        allOfOneOf: { allOf: [{ type: 'string' }, { anyOf: [{}, {}] }] },
-        anyOfOneOf: { allOf: [{ anyOf: [{ type: 'string' }] }, { anyOf: [{}, {}] }] },
+        allOfAnyOf: { type: 'string', minLength: 1, anyOf: [{ maxLength: 3 }] },
+        allOfOneOf: { type: 'string', oneOf: [{ minLength: 3 }, { maxLength: 1 }] },
+        anyOfOneOf: { anyOf: [{ type: 'string' }], oneOf: [{ minLength: 3 }, { maxLength: 1 }] },
       },
     })
   })

@@ -1250,13 +1250,13 @@ describe('v26: contentEncoding and if / then / else', () => {
 })
 
 // What a fallback and a default are written as: `null` as a fallback makes the schema take
-// `null`, an int64 inside an object or an array default is a bigint, and a catch is a
-// `z.preprocess`, which the document can render (a `.catch()` made generating it throw).
+// `null`, an int64 inside an object or an array default is a bigint, and a schema with a
+// catch states itself for the document (a `.catch()` alone made generating it throw).
 // The host answers a bigint as the text of its literal (`1n`).
 // フォールバック値とデフォルト値の出力のされ方。フォールバック値が `null` であれば、スキーマは
 // `null` を受理する。オブジェクトや配列のデフォルト値に含まれる int64 は bigint になる。
-// catch は `z.preprocess` であり、ドキュメントとして描画できる(`.catch()` はドキュメント生成時に
-// 例外を投げていた)。ホストは、bigint をリテラルの文字列 (`1n`) として返す。
+// catch を持つスキーマは、ドキュメント用に自身の定義を明示する(`.catch()` だけでは
+// ドキュメント生成時に例外を投げていた)。ホストは、bigint をリテラルの文字列 (`1n`) として返す。
 describe('fallbacks: x-catch: null, x-prefault: null, int64 in a default', () => {
   // Nothing is sent: every property takes its fallback or its default.
   // 何も送信しない。すべてのプロパティが、フォールバック値またはデフォルト値になる。
@@ -1318,16 +1318,16 @@ describe('fallbacks: x-catch: null, x-prefault: null, int64 in a default', () =>
     })
   })
 
-  // The document is generated, and shows the schema inside each catch. A catch accepts every
-  // input, `null` among them, which is why the type lists it. The defaults are the JSON
-  // values of the source: a bigint could not be serialised.
-  // ドキュメントは生成でき、各 catch の内側のスキーマが描画される。catch は `null` を含む
-  // あらゆる入力を受理するため、type に `null` が含まれる。デフォルト値は、元の定義にある
-  // JSON の値である。bigint はシリアライズできない。
-  it('generates a document that renders the schema inside a catch', () => {
+  // The document is generated, and shows the schema of each catch as the source declares it:
+  // `null` is in the type only where the schema takes it (`x-catch: null`). The defaults are
+  // the JSON values of the source: a bigint could not be serialised.
+  // ドキュメントは生成でき、各 catch のスキーマが元の定義どおりに描画される。type に `null` が
+  // 含まれるのは、スキーマが `null` を受理する場合 (`x-catch: null`) だけである。デフォルト値は、
+  // 元の定義にある JSON の値である。bigint はシリアライズできない。
+  it('generates a document that states the schema of a catch', () => {
     const doc = app.getOpenAPI31Document({ openapi: '3.1.0', info: { title: 't', version: '1' } })
     expect(doc.components?.schemas?.P2Form).toMatchObject({
-      properties: { withCatch: { type: ['integer', 'null'] } },
+      properties: { withCatch: { type: 'integer' } },
     })
     expect(doc.components?.schemas?.FallbackForm).toStrictEqual({
       type: 'object',
@@ -1346,7 +1346,7 @@ describe('fallbacks: x-catch: null, x-prefault: null, int64 in a default', () =>
           default: [1, 2],
         },
         settings: {
-          type: ['object', 'null'],
+          type: 'object',
           properties: { theme: { type: 'string' } },
           required: [],
         },

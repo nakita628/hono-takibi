@@ -1129,9 +1129,11 @@ describe('allOf: a member with additionalProperties: false', () => {
 
 // Sibling keywords are ANDed (JSON Schema 2020-12). Each property below carries two
 // combinators, and each value satisfies the first one alone: it is the second one that
-// rejects it.
+// rejects it. The first is emitted as the schema; the second is checked on the value as it
+// arrives, and reports one `custom` issue.
 // 同じ階層のキーワードは AND で結合される (JSON Schema 2020-12)。以下の各プロパティは
-// 2つのコンビネータを持ち、各値は1つ目だけを満たす。拒否するのは2つ目である。
+// 2つのコンビネータを持ち、各値は1つ目だけを満たす。拒否するのは2つ目である。1つ目は
+// スキーマとして出力され、2つ目は届いた値そのものに対して検証され、1件の `custom` を報告する。
 describe('several combinators at the same level', () => {
   // The `allOf` accepts the string; no `anyOf` branch does (it is longer than 3).
   // `allOf` はこの文字列を受理するが、`anyOf` のどの分岐も受理しない(3文字を超える)。
@@ -1165,7 +1167,7 @@ describe('several combinators at the same level', () => {
       title: 'Unprocessable Content',
       status: 422,
       detail: 'Request validation failed',
-      errors: [{ pointer: '/allOfOneOf', detail: 'Invalid input', code: 'invalid_union' }],
+      errors: [{ pointer: '/allOfOneOf', detail: 'Invalid input', code: 'custom' }],
     })
   })
 
@@ -1183,7 +1185,7 @@ describe('several combinators at the same level', () => {
       title: 'Unprocessable Content',
       status: 422,
       detail: 'Request validation failed',
-      errors: [{ pointer: '/anyOfOneOf', detail: 'Invalid input', code: 'invalid_union' }],
+      errors: [{ pointer: '/anyOfOneOf', detail: 'Invalid input', code: 'custom' }],
     })
   })
 
@@ -1205,8 +1207,10 @@ describe('several combinators at the same level', () => {
     })
   })
 
-  // A string, as one `anyOf` branch asks, but the one `not` excludes.
-  // `anyOf` の分岐の1つが求める文字列ではあるが、`not` が除外する値である。
+  // A string, as one `anyOf` branch asks, but the one `not` excludes. The detail is what the
+  // arrow function of `x-not-message` returns for the issue.
+  // `anyOf` の分岐の1つが求める文字列ではあるが、`not` が除外する値である。detail は、
+  // `x-not-message` のアロー関数がその issue に対して返した文字列である。
   it('anyOf + not: rejects the value not excludes', async () => {
     const res = await app.request('/siblings', {
       method: 'POST',
@@ -1219,7 +1223,7 @@ describe('several combinators at the same level', () => {
       title: 'Unprocessable Content',
       status: 422,
       detail: 'Request validation failed',
-      errors: [{ pointer: '/anyOfNot', detail: 'Invalid input', code: 'custom' }],
+      errors: [{ pointer: '/anyOfNot', detail: 'anyOfNot cannot be "x"', code: 'custom' }],
     })
   })
 

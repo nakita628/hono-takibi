@@ -28,7 +28,7 @@ import {
   makeWrappedWire,
 } from '../../helper/wire.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
-import { conformDefault, undecorated, valueLiteral, wrap } from '../../helper/wrap.js'
+import { conformDefault, schemaList, undecorated, valueLiteral, wrap } from '../../helper/wrap.js'
 import {
   emitObjectShapeCheck,
   emitObjectShapeRefine,
@@ -36,6 +36,7 @@ import {
   narrowToDeclaredType,
   emitsStrippingObject,
   makeIssueForwarding,
+  makeSiblingCombinatorCheck,
   makeStrictOperandCheck,
   makeUnevaluatedPropertiesCheck,
   canAcceptObject,
@@ -50,7 +51,8 @@ import { _enum, integer, number, object, string } from './z/index.js'
 // Wrap an emission with a check on the raw input: the `unevaluatedProperties`
 // check of a union (#466), the sibling shape that could not be distributed
 // (#461), the message and `unevaluatedProperties` of an `allOf`, the
-// `additionalProperties: false` of an intersection operand (#470).
+// `additionalProperties: false` of an intersection operand (#470), the
+// combinators beside the emitted one (#469).
 // `z.preprocess` runs on the raw input — a `.superRefine` on the schema would
 // see the parsed output, from which a stripping object branch had already
 // dropped the keys the check is about — and `@hono/zod-openapi` renders it by
@@ -79,51 +81,6 @@ function withRawCheck(zod: string, check: string | undefined): string {
 // the `allOf` message, which parses the intersection to report its issues again.
 function withRawStatements(zod: string, statements: string): string {
   return `(()=>{const Schema=${zod};return z.preprocess((val: z.input<typeof Schema>,ctx)=>{${statements};return val},Schema)})()`
-}
-
-// The combinators a schema carries beside each other, as one `allOf` (#469).
-// JSON Schema ANDs sibling keywords (2020-12 §10.2.1), so `allOf` / `anyOf` /
-// `oneOf` at the same level all have to hold: the `anyOf` and the `oneOf`
-// become members of the `allOf`, each with the message and the discriminator
-// that are its own. The emitter's combinator paths each emit one combinator;
-// written this way the `allOf` path emits every one of them, intersected.
-function mergeCombinators(schema: Schema): Schema {
-  const {
-    allOf,
-    anyOf,
-    oneOf,
-    discriminator,
-    'x-anyOf-message': anyOfMessage,
-    'x-implication-message': implicationMessage,
-    'x-oneOf-message': oneOfMessage,
-    ...rest
-  } = schema
-  const anyOfMember: Schema | undefined =
-    anyOf === undefined || anyOf.length === 0
-      ? undefined
-      : {
-          anyOf,
-          ...(anyOfMessage === undefined ? {} : { 'x-anyOf-message': anyOfMessage }),
-          ...(implicationMessage === undefined
-            ? {}
-            : { 'x-implication-message': implicationMessage }),
-        }
-  const oneOfMember: Schema | undefined =
-    oneOf === undefined || oneOf.length === 0
-      ? undefined
-      : {
-          oneOf,
-          ...(discriminator === undefined ? {} : { discriminator }),
-          ...(oneOfMessage === undefined ? {} : { 'x-oneOf-message': oneOfMessage }),
-        }
-  return {
-    ...rest,
-    allOf: [
-      ...(allOf ?? []),
-      ...(anyOfMember === undefined ? [] : [anyOfMember]),
-      ...(oneOfMember === undefined ? [] : [oneOfMember]),
-    ],
-  }
 }
 
 // Whether a schema carries its own wrapping (`.nullable()`, `.default()`,
@@ -244,7 +201,53 @@ export function zodToOpenAPI(
     normalizeTypes(schema.type).includes('integer') &&
     (schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint') &&
     schema['x-coerce'] !== true
-  const done = (zod: string, emitted: Schema, named = false) => {
+  // The file's `anyOf` of media types is not a combinator (see the `anyOf` path).
+  const isMimeAnyOf = isBinaryFile(schema) && hasMimeAlternatives(schema)
+  // The combinators beside the one the paths below emit (#469). Sibling
+  // keywords are ANDed (JSON Schema 2020-12), so every one of them has to
+  // hold, but each path emits one combinator: `allOf` first, then `anyOf`, then
+  // `oneOf`, and `not` only when none of them is there. The others are checked
+  // on the raw input, around what the path emits (see
+  // `makeSiblingCombinatorCheck`), and the `anyOf` / `oneOf` among them are
+  // stated in the document beside the emitted one, as the source has them.
+  // Nothing is written beside a `$ref`: the component is emitted as it is.
+  const siblings: readonly ('anyOf' | 'oneOf' | 'not')[] = (() => {
+    if (schema.$ref !== undefined) return []
+    const hasAnyOf = schema.anyOf !== undefined && !isMimeAnyOf
+    const emitted =
+      schema.allOf !== undefined
+        ? 'allOf'
+        : hasAnyOf
+          ? 'anyOf'
+          : schema.oneOf !== undefined
+            ? 'oneOf'
+            : undefined
+    if (emitted === undefined) return []
+    return [
+      ...(emitted === 'allOf' && hasAnyOf && (schema.anyOf ?? []).length > 0
+        ? (['anyOf'] as const)
+        : []),
+      ...(emitted !== 'oneOf' && schema.oneOf !== undefined && schema.oneOf.length > 0
+        ? (['oneOf'] as const)
+        : []),
+      ...(schema.not === undefined ? [] : (['not'] as const)),
+    ]
+  })()
+  const withSiblings = (zod: string) => {
+    if (siblings.length === 0) return zod
+    const checked = withRawCheck(
+      zod,
+      makeSiblingCombinatorCheck(schema, siblings, (s) => zodToOpenAPI(s, undefined, childOptions)),
+    )
+    const stated = siblings.flatMap((key) => {
+      const list = key === 'not' ? undefined : schema[key]
+      return list === undefined ? [] : [`${key}:${schemaList(list, childOptions?.schemas)}`]
+    })
+    return stated.length === 0 ? checked : `${checked}.openapi({${stated.join(',')}})`
+  }
+  const done = (emittedZod: string, emitted: Schema, isNamed = false) => {
+    const zod = withSiblings(emittedZod)
+    const named = isNamed && siblings.length === 0
     const component = named && !isTriedSeveralWays
     const isFormArray = effective?.form === true && normalizeTypes(emitted.type).includes('array')
     // Text tried as several readings is tried as `null` among them, the last of all. That is
@@ -577,36 +580,14 @@ export function zodToOpenAPI(
     }
     return done(makeRef(schema.$ref), schema, true)
   }
-  // The file's `anyOf` of media types is not a combinator (see below).
-  const isMimeAnyOf = isBinaryFile(schema) && hasMimeAlternatives(schema)
-  // The combinators the schema carries. Sibling keywords are ANDed (JSON Schema
-  // 2020-12), so every one of them has to hold (#469) — the paths below each
-  // emit one. Several of `allOf` / `anyOf` / `oneOf` are written as one `allOf`
-  // first (see `mergeCombinators`), and a `not` beside any of them is left to
-  // the `not` path, which excludes its values from what the rest accepts.
-  const combinators = [
-    schema.allOf !== undefined && schema.allOf.length > 0,
-    schema.anyOf !== undefined && schema.anyOf.length > 0 && !isMimeAnyOf,
-    schema.oneOf !== undefined && schema.oneOf.length > 0,
-  ].filter(Boolean).length
-  // An empty combinator accepts everything, but it is still not what decides
-  // the schema: the `not` beside it does.
-  const isBesideNot =
-    schema.not !== undefined &&
-    (schema.allOf !== undefined ||
-      (schema.anyOf !== undefined && !isMimeAnyOf) ||
-      schema.oneOf !== undefined)
-  if (!isBesideNot && combinators > 1) {
-    return zodToOpenAPI(mergeCombinators(schema), meta, options)
-  }
   // A declared `type` beside a combinator is written into its members first
   // (#468, see `narrowToDeclaredType`): the paths below emit the combinator
-  // alone.
-  if (!isMimeAnyOf && !isBesideNot) {
+  // alone. The file's `anyOf` of media types is not a combinator (see below).
+  if (!isMimeAnyOf) {
     const narrowed = narrowToDeclaredType(schema, options?.schemas)
     if (narrowed !== schema) return zodToOpenAPI(narrowed, meta, options)
   }
-  if (schema.allOf !== undefined && !isBesideNot) {
+  if (schema.allOf !== undefined) {
     // `properties` / `required` beside `allOf` constrain only object values (#461).
     // The shape stays a member of the intersection when the intersection already
     // rejects every non-object — a declared object type, or any member that only
@@ -811,7 +792,7 @@ export function zodToOpenAPI(
   // `z.toJSONSchema()` writes `z.file().mime([...])` as an `anyOf` of `contentMediaType`
   // members under the file: those are the types the file may have, which the string
   // emitter reads, not branches to choose between.
-  if (schema.anyOf !== undefined && !isMimeAnyOf && !isBesideNot) {
+  if (schema.anyOf !== undefined && !isMimeAnyOf) {
     if (schema.anyOf.length === 0) return done('z.any()', schema)
     // `discriminator` is not consulted here on purpose. anyOf means "at least one
     // branch matches" (JSON Schema §10.2.1.2), and `z.union` already is exactly
@@ -916,7 +897,7 @@ export function zodToOpenAPI(
     }
     return done(withRawCheck(unionZ, unevalCheck), schema)
   }
-  if (schema.oneOf !== undefined && !isBesideNot) {
+  if (schema.oneOf !== undefined) {
     if (schema.oneOf.length === 0) return done('z.any()', schema)
     const oneOfSchemas = schema.oneOf.map(child)
     const discriminator = schema.discriminator?.propertyName
@@ -1046,15 +1027,11 @@ export function zodToOpenAPI(
     // `not` excludes values from what the rest of the schema accepts, so the keywords
     // beside it still apply: `type: integer, not: { const: 0 }` is an integer other than 0,
     // not anything other than 0. What `wrap` adds around a schema is left to the outer one.
-    // A combinator beside it is among those keywords (#469): what the `allOf` / `anyOf` /
-    // `oneOf` accepts is the base, with or without a declared type.
     const notBase = (() => {
       const types = normalizeTypes(schema.type).filter((type) => type !== 'null')
       const [first, ...others] = types
+      if (first === undefined) return 'z.any()'
       const { not: _not, ...rest } = undecorated(schema)
-      if (first === undefined) {
-        return isBesideNot ? zodToOpenAPI(rest, undefined, childOptions) : 'z.any()'
-      }
       return zodToOpenAPI(
         { ...rest, type: others.length === 0 ? first : [first, ...others] },
         undefined,
@@ -1087,20 +1064,6 @@ export function zodToOpenAPI(
       const refName = makeRef(schema.not.$ref)
       return done(
         `${notBase}.refine((val) => !${refName}.safeParse(val).success${notErrorArg})`,
-        schema,
-      )
-    }
-    // What a combinator hands out is not of one type the predicates below could be written
-    // for (`val !== "x"` does not type-check on a number), so the excluded schema is asked.
-    if (
-      isBesideNot &&
-      isRecord(schema.not) &&
-      schema.not.$ref === undefined &&
-      Object.keys(schema.not).length > 0
-    ) {
-      const zod = zodToOpenAPI(schema.not, undefined, childOptions)
-      return done(
-        `${notBase}.refine((val) => !${zod}.safeParse(val).success${notErrorArg})`,
         schema,
       )
     }

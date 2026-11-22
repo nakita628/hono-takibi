@@ -4,6 +4,7 @@ import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Schema } from '../openapi/index.js'
 import {
   emitTypelessRefine,
+  makeSiblingCombinatorCheck,
   makeStrictOperandCheck,
   makeUnevaluatedProperties,
   makeUnevaluatedPropertiesCheck,
@@ -922,11 +923,24 @@ describe('helper/zod: makeStrictOperandCheck (#470)', () => {
     ).toBe(`(ctx)=>{${strictGuard}${undeclaredKeys('["id"]')};${undeclaredKeys('["x","y"]')}}`)
   })
 
-  it('reads a reference as the component it names, and what is beside it over that', () => {
+  it('reads a reference as the component it names, not what is written beside it', () => {
     const schemas = { Strict: strict, Open: { type: 'object', properties: { id: str } } } as const
     expect(
       makeStrictOperandCheck(
         [{ schema: { $ref: '#/components/schemas/Strict' }, zod: 'StrictSchema' }],
+        schemas,
+      ),
+    ).toBe(`(ctx)=>{${strictGuard}${undeclaredKeys('["id"]')}}`)
+    // A keyword beside a `$ref` is not emitted — the operand is the component — so it
+    // neither adds to the keys the component declares nor makes an open one strict.
+    expect(
+      makeStrictOperandCheck(
+        [
+          {
+            schema: { $ref: '#/components/schemas/Strict', properties: { extra: str } },
+            zod: 'StrictSchema',
+          },
+        ],
         schemas,
       ),
     ).toBe(`(ctx)=>{${strictGuard}${undeclaredKeys('["id"]')}}`)
@@ -940,7 +954,14 @@ describe('helper/zod: makeStrictOperandCheck (#470)', () => {
         ],
         schemas,
       ),
-    ).toBe(`(ctx)=>{${strictGuard}${undeclaredKeys('["id"]')}}`)
+    ).toBe('')
+    // The wrapping beside it is emitted: a catch answers the failure.
+    expect(
+      makeStrictOperandCheck(
+        [{ schema: { $ref: '#/components/schemas/Strict', 'x-catch': {} }, zod: 'S' }],
+        schemas,
+      ),
+    ).toBe('')
     // A reference that cannot be resolved says nothing about its keys.
     expect(
       makeStrictOperandCheck([{ schema: { $ref: '#/components/schemas/Strict' }, zod: 'S' }]),
@@ -1029,5 +1050,64 @@ describe('helper/zod: makeStrictOperandCheck (#470)', () => {
         { schema: { allOf: [strict, { type: 'object', properties: { link: str } }] }, zod: 'I' },
       ]),
     ).toBe('')
+  })
+})
+
+// What a branch is emitted as, for the checks below.
+const emitBranch = (schema: Schema) => (schema.type === 'string' ? 'S' : 'N')
+
+describe('helper/zod: makeSiblingCombinatorCheck (#469)', () => {
+  const schema = {
+    anyOf: [{ type: 'string' }, { type: 'number' }],
+    oneOf: [{ type: 'string' }, { type: 'number' }],
+    not: { type: 'string' },
+  } as const
+
+  it('returns an empty string when there is nothing to check', () => {
+    expect(makeSiblingCombinatorCheck(schema, [], emitBranch)).toBe('')
+    expect(
+      makeSiblingCombinatorCheck({ anyOf: [], oneOf: [] }, ['anyOf', 'oneOf'], emitBranch),
+    ).toBe('')
+    expect(makeSiblingCombinatorCheck({}, ['not'], emitBranch)).toBe('')
+  })
+
+  it('asks at least one anyOf branch, exactly one oneOf branch, and no not', () => {
+    expect(makeSiblingCombinatorCheck(schema, ['anyOf'], emitBranch)).toBe(
+      '(ctx)=>{const val=ctx.value;if(!(S.safeParse(val).success||N.safeParse(val).success)){ctx.issues.push({code:"custom",input:val})}}',
+    )
+    expect(makeSiblingCombinatorCheck(schema, ['oneOf'], emitBranch)).toBe(
+      '(ctx)=>{const val=ctx.value;if(((S.safeParse(val).success?1:0)+(N.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}}',
+    )
+    expect(makeSiblingCombinatorCheck(schema, ['not'], emitBranch)).toBe(
+      '(ctx)=>{const val=ctx.value;if(S.safeParse(val).success){ctx.issues.push({code:"custom",input:val})}}',
+    )
+  })
+
+  it('checks only the combinators it is asked about, in one callback', () => {
+    expect(makeSiblingCombinatorCheck(schema, ['oneOf', 'not'], emitBranch)).toBe(
+      '(ctx)=>{const val=ctx.value;if(((S.safeParse(val).success?1:0)+(N.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})};if(S.safeParse(val).success){ctx.issues.push({code:"custom",input:val})}}',
+    )
+  })
+
+  it('takes the message of each keyword, x-error-message otherwise', () => {
+    expect(
+      makeSiblingCombinatorCheck(
+        { ...schema, 'x-anyOf-message': 'any', 'x-error-message': 'bad' },
+        ['anyOf', 'not'],
+        emitBranch,
+      ),
+    ).toBe(
+      '(ctx)=>{const val=ctx.value;if(!(S.safeParse(val).success||N.safeParse(val).success)){ctx.issues.push({code:"custom",input:val,message:"any"})};if(S.safeParse(val).success){ctx.issues.push({code:"custom",input:val,message:"bad"})}}',
+    )
+    // An arrow function is called with the issue it is the message of.
+    expect(
+      makeSiblingCombinatorCheck(
+        { ...schema, 'x-not-message': '(iss) => iss.code' },
+        ['not'],
+        emitBranch,
+      ),
+    ).toBe(
+      '(ctx)=>{const val=ctx.value;if(S.safeParse(val).success){ctx.issues.push({code:"custom",input:val,message:((iss) => iss.code)({code:\'custom\',path:[],input:val})})}}',
+    )
   })
 })

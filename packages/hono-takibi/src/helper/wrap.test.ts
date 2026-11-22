@@ -1848,36 +1848,34 @@ const caught = (schema: string, fallback: string) =>
   `(()=>{const Schema=${schema};return z.preprocess((val: z.input<typeof Schema>)=>Schema.safeParse(val).success?val:${fallback},Schema)})()`
 
 describe('wrap: x-catch, x-prefault and nested literals (#490, #491, #492)', () => {
-  it.concurrent('x-catch is a preprocess around what is before it in the chain', () => {
-    expect(wrap('z.string()', { type: 'string', 'x-catch': 'x' })).toBe(caught('z.string()', '"x"'))
-    expect(wrap('z.string()', { type: 'string', default: 'd', 'x-catch': 'x' })).toBe(
-      caught('z.string().default("d")', '"x"'),
+  it.concurrent('x-catch is a .catch() that states its schema for the document', () => {
+    expect(wrap('z.string()', { type: 'string', 'x-catch': 'x' })).toBe(
+      'z.string().catch("x").openapi({"type":"string"})',
     )
-    expect(wrap('z.int64()', { type: 'integer', format: 'int64', 'x-catch': 0 })).toBe(
-      `${caught('z.int64()', '0n')}.openapi({type:"integer",format:"int64"})`,
+    expect(wrap('z.string()', { type: 'string', default: 'd', 'x-catch': 'x' })).toBe(
+      'z.string().default("d").catch("x").openapi({"type":"string","default":"d"})',
+    )
+    expect(wrap('z.int64()', { type: 'integer', format: 'int64', const: 1, 'x-catch': 0 })).toBe(
+      'z.int64().catch(0n).openapi({"type":"integer","format":"int64","enum":[1]})',
+    )
+    // `z.stringbool()` hands out a boolean, which is what the fallback is.
+    expect(wrap('z.stringbool()', { type: 'boolean', 'x-stringbool': true, 'x-catch': true })).toBe(
+      'z.stringbool().catch(true).openapi({"type":"boolean"})',
     )
   })
 
-  it.concurrent('a boolean fallback of z.stringbool() is the text it reads', () => {
-    expect(wrap('z.stringbool()', { type: 'boolean', 'x-catch': true })).toBe(
-      caught('z.stringbool()', '"true"'),
+  it.concurrent('x-catch with no type to state is a preprocess', () => {
+    expect(wrap('z.any()', { 'x-catch': 'x' })).toBe(caught('z.any()', '"x"'))
+    expect(wrap('ASchema', { $ref: '#/components/schemas/A', 'x-catch': {} })).toBe(
+      caught('ASchema', '{}'),
     )
-    expect(
-      wrap('z.stringbool({"falsy":["off"]})', {
-        type: 'boolean',
-        'x-stringbool': { falsy: ['off'] },
-        'x-catch': false,
-      }),
-    ).toBe(caught('z.stringbool({"falsy":["off"]})', '"off"'))
-    // `z.boolean()` reads the boolean itself.
-    expect(wrap('z.boolean()', { type: 'boolean', 'x-catch': true })).toBe(
-      caught('z.boolean()', 'true'),
-    )
+    // A user chain replaces the generated one, the catch with it.
+    expect(wrap('z.string()', { type: 'string', 'x-catch': 'x', 'x-transform': 'T' })).toBe('T')
   })
 
   it.concurrent('a null fallback makes the schema nullable', () => {
     expect(wrap('z.string()', { type: 'string', 'x-catch': null })).toBe(
-      caught('z.string().nullable()', 'null'),
+      'z.string().nullable().catch(null).openapi({"type":["string","null"]})',
     )
     expect(wrap('z.string()', { type: 'string', 'x-prefault': null })).toBe(
       'z.string().nullable().prefault(null)',

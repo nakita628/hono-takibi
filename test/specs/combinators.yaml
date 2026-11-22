@@ -524,6 +524,7 @@ components:
             - type: integer
           not:
             const: x
+          x-not-message: '(iss) => `anyOfNot cannot be ${JSON.stringify(iss.input)}`'
 
     # ── A check on the raw input stays in the document (#479) ─
     # `required` with no `properties` beside a union is checked on the raw

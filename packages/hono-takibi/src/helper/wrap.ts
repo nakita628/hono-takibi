@@ -707,6 +707,49 @@ function typeOf(value: unknown) {
 }
 
 /**
+ * A schema without the vendor extensions the emitter turns into Zod (`x-error-message`,
+ * `x-catch`, `x-stringbool`), at every level: they say how the schema is emitted, not what
+ * it is, and the document does not carry them. An extension the emitter does not know stays.
+ */
+function withoutEmitterExtensions(schema: unknown): unknown {
+  if (!isRecord(schema)) return schema
+  return Object.fromEntries(
+    Object.entries(schema).flatMap(([key, value]): [string, unknown][] => {
+      if (key.startsWith('x-') && zodExpressedProps.has(key)) return []
+      if (SCHEMA_VALUED_KEYS.has(key)) return [[key, withoutEmitterExtensions(value)]]
+      if (SCHEMA_LIST_KEYS.has(key) && Array.isArray(value)) {
+        return [[key, value.map((sub: unknown) => withoutEmitterExtensions(sub))]]
+      }
+      if ((SCHEMA_MAP_KEYS.has(key) || key === 'patternProperties') && isRecord(value)) {
+        return [
+          [
+            key,
+            Object.fromEntries(
+              Object.entries(value).map(([name, sub]) => [name, withoutEmitterExtensions(sub)]),
+            ),
+          ],
+        ]
+      }
+      return [[key, value]]
+    }),
+  )
+}
+
+/**
+ * A list of schemas as the literal the document is handed: every reference written out as
+ * the component it names, since the document defines a component only where a route uses
+ * it, and only what a Schema Object has. It states the `anyOf` / `oneOf` written beside the
+ * combinator a schema is emitted as (#469), which nothing in the emitted schema renders.
+ */
+export function schemaList(list: readonly Schema[], schemas?: { readonly [k: string]: Schema }) {
+  return schemaLiteral(
+    list.map((sub) =>
+      pruneSchemaObject(withoutEmitterExtensions(inlineSchemaRefs(sub, schemas)), true),
+    ),
+  )
+}
+
+/**
  * What a value is read by: the schema itself, the component a reference names, the members
  * of its `allOf`, and the branch of a `oneOf` / `anyOf` that takes the value. A schema with a
  * user chain hands out what the chain does, which nothing here can tell, so it reads nothing.
@@ -885,15 +928,6 @@ export function wrap(
     }
     return JSON.stringify(v)
   }
-  // The fallback of `x-catch`, as what the schema reads. `z.stringbool()` reads text alone:
-  // a boolean fallback is the first text it reads as that boolean.
-  const catchLiteral = (v: unknown): string => {
-    if (typeof v !== 'boolean' || !zod.startsWith('z.stringbool(')) return formatLiteral(v)
-    const stringbool = schema['x-stringbool']
-    const texts =
-      typeof stringbool === 'object' ? (v ? stringbool.truthy : stringbool.falsy) : undefined
-    return JSON.stringify(texts?.[0] ?? `${v}`)
-  }
   // `.exactOptional()` fails the `safeParse(undefined)` probe @hono/zod-openapi derives
   // `required` from, so an optional parameter or header states `required: false` itself
   // (the spec default for everything but a path parameter).
@@ -940,6 +974,27 @@ export function wrap(
     defaultValue === null ||
     schema['x-prefault'] === null ||
     schema['x-catch'] === null
+  // What the document is told of a schema with `x-catch` (#492): the schema as the source
+  // declares it, every reference written out, with the `type` the document needs to read
+  // it at all. `null` is among the types when the schema takes it. `undefined` when no type
+  // can be stated, or when a user chain replaces the catch.
+  const catchDocument = (() => {
+    if (schema['x-catch'] === undefined || !hasNoUserChain(schema)) return undefined
+    const source = withoutEmitterExtensions(inlineSchemaRefs(schema, options?.schemas))
+    if (!isRecord(source)) return undefined
+    const declared = Array.isArray(source.type)
+      ? source.type.filter((type): type is string => typeof type === 'string')
+      : typeof source.type === 'string'
+        ? [source.type]
+        : isUntypedObject(schema)
+          ? ['object']
+          : []
+    if (declared.length === 0) return undefined
+    const types = isNullable && !declared.includes('null') ? [...declared, 'null'] : declared
+    const [only, ...others] = types
+    const { nullable: _nullable, ...rest } = source
+    return { ...rest, type: others.length === 0 ? only : types }
+  })()
   // `.nullable()` must precede `.default()` so `.default(null)` validates.
   const build = (core: string) => {
     const typed = isNullable ? `${acceptBothArities(core)}.nullable()` : acceptBothArities(core)
@@ -959,15 +1014,18 @@ export function wrap(
         ? `${defaulted}.prefault(${formatLiteral(schema['x-prefault'])})`
         : defaulted
     // `.catch()` is a `ZodCatch`, which `@hono/zod-openapi` cannot render: the document
-    // throws as soon as a route uses the schema (#492). What it does is written as a
+    // throws as soon as a route uses the schema (#492) — unless the schema states its own
+    // `type`, which is then all the document reads. So the catch is written as it is, and
+    // the document is told the schema the source declares (see `catchDocument` above).
+    // Where no type can be stated (a combinator, a schema of any type) the catch is a
     // `z.preprocess` instead, which the document renders by the schema inside it: a value
-    // the schema does not take is replaced by the fallback before the schema reads it. The
-    // fallback is read by the schema in turn, so where the schema reads text
-    // (`z.stringbool()`) it is the text of the fallback.
+    // the schema does not take is replaced by the fallback before the schema reads it.
     const caught =
-      schema['x-catch'] !== undefined
-        ? `(()=>{const Schema=${pf};return z.preprocess((val: z.input<typeof Schema>)=>Schema.safeParse(val).success?val:${catchLiteral(schema['x-catch'])},Schema)})()`
-        : pf
+      schema['x-catch'] === undefined
+        ? pf
+        : catchDocument === undefined && hasNoUserChain(schema)
+          ? `(()=>{const Schema=${pf};return z.preprocess((val: z.input<typeof Schema>)=>Schema.safeParse(val).success?val:${formatLiteral(schema['x-catch'])},Schema)})()`
+          : `${pf}.catch(${formatLiteral(schema['x-catch'])})`
     const fr = schema['x-readonly'] === true ? `${caught}.readonly()` : caught
     const refineChain = `${fr}${schema['x-refine'] ?? ''}`
     const superRefineChain = `${refineChain}${schema['x-superRefine'] ?? ''}`
@@ -1202,15 +1260,35 @@ export function wrap(
     )
     return parameter.required === true ? inside : `${inside}.exactOptional()`
   }
+  // A schema with a catch states the whole of itself (see `catchDocument`): the document
+  // reads nothing off a `ZodCatch`, so what the chain would have said is said here, as the
+  // source has it. A bigint's `const` is an enum of one member (see `bigintMetaProps`).
+  const catchMetaProps = (() => {
+    if (catchDocument === undefined) return undefined
+    const stated = Object.fromEntries(
+      Object.entries(catchDocument).flatMap(([key, value]): [string, unknown][] => {
+        if (headerDupKeys.has(key)) return []
+        if (isBigintInteger && key === 'const') {
+          return 'enum' in catchDocument ? [] : [['enum', [value]]]
+        }
+        return [[key, value]]
+      }),
+    )
+    return schemaLiteral(pruneSchemaObject(stated, true)).slice(1, -1)
+  })()
   const result = [
     parameter ? `param:${makeSerializedParam(parameter)}` : undefined,
     ...headerMetaProps,
     meta?.headers && meta.headers.required !== true ? 'param:{required:false}' : undefined,
-    ...fileMetaProps,
-    ...timeMetaProps,
-    ...bigintMetaProps,
-    ...patternMetaProps,
-    openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
+    ...(catchMetaProps === undefined
+      ? [
+          ...fileMetaProps,
+          ...timeMetaProps,
+          ...bigintMetaProps,
+          ...patternMetaProps,
+          openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
+        ]
+      : [catchMetaProps]),
   ].filter((v) => v !== undefined)
   // https://github.com/OAI/OpenAPI-Specification/issues/2385
   if (meta?.parameters || meta?.headers) {
