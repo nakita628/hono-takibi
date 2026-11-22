@@ -1,0 +1,36 @@
+name: Release PR
+
+# Keeps one pull request open that bumps the version in packages/hono-takibi/package.json and
+# writes packages/hono-takibi/CHANGELOG.md from the Conventional Commits on main since the last
+# tag: `fix` is a patch, `feat` a minor, and a breaking change a minor too while the version is
+# 0.x (release-please-config.json). Only commits that touch packages/hono-takibi count, so a
+# website or CI change opens nothing.
+#
+# Merging that pull request is the release decision. Nothing is tagged or published here
+# (`skip-github-release`): the merge lands the new version on main, Test runs, and release.yml
+# tags, publishes to npm and writes the GitHub release.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: release-pr
+  cancel-in-progress: false
+
+jobs:
+  release-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
