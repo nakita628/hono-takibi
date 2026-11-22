@@ -5,9 +5,13 @@ export default defineConfig({
   // workspace config, so `packages/hono-takibi` and `test` inherit these options and only
   // declare what is specific to them.
   //
-  // Do not add `fmt.ignorePatterns` here: it is inherited too, and a root-relative pattern
-  // such as `packages/**` makes the workspaces' own `vp check` exclude every file.
+  // `fmt.ignorePatterns` is inherited too, so a root-relative pattern such as `packages/**`
+  // makes the workspaces' own `vp check` exclude every file: only patterns that mean the same
+  // from any workspace (`**/…`) belong here.
   fmt: {
+    // release-please writes the changelog in its own Markdown style and rewrites it on every
+    // release; a format failure there would fail Test on main and stop the release.
+    ignorePatterns: ['**/CHANGELOG.md'],
     printWidth: 100,
     singleQuote: true,
     semi: false,

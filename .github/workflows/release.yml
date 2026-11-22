@@ -130,6 +130,7 @@ jobs:
     if: ${{ !cancelled() && needs.check.result == 'success' && needs.tag.result == 'success' && (needs.publish.result == 'success' || needs.publish.result == 'skipped') }}
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -143,3 +144,16 @@ jobs:
         run: |
           gh release view "v$VERSION" >/dev/null 2>&1 && { echo "release v$VERSION already exists; skip"; exit 0; }
           gh release create "v$VERSION" --verify-tag --generate-notes
+
+      # release-please (release-pr.yml) only opens the release PR; the tag and the release are
+      # written above. It labels a merged release PR `autorelease: pending` and opens no new
+      # one while that label is on a merged PR, so the label is moved once the release exists.
+      - name: Mark merged release PRs as released
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          for PR in $(gh pr list --state merged --label 'autorelease: pending' --json number --jq '.[].number'); do
+            gh pr edit "$PR" --remove-label 'autorelease: pending' --add-label 'autorelease: tagged'
+          done
