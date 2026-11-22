@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.32.7](https://github.com/nakita628/hono-takibi/compare/v0.32.6...v0.32.7) (2026-11-22)
+
+
+### Bug Fixes
+
+* **zod:** apply a declared type beside allOf / anyOf / oneOf ([#495](https://github.com/nakita628/hono-takibi/issues/495)) ([29a1684](https://github.com/nakita628/hono-takibi/commit/29a1684a240bf0b0e8e04439b01f2683bbd6ccea))
+* **zod:** apply sibling combinators and strict allOf members, and keep schemas in the document ([#496](https://github.com/nakita628/hono-takibi/issues/496)) ([a7330a8](https://github.com/nakita628/hono-takibi/commit/a7330a88bca0db3d43bcddca813284f499af17ba))
+
 ## [0.32.6](https://github.com/nakita628/hono-takibi/compare/v0.32.5...v0.32.6) (2026-11-22)
 
 
