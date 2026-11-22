@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.0](https://github.com/nakita628/hono-takibi/compare/v0.32.7...v0.33.0) (2026-11-22)
+
+
+### Features
+
+* **template:** name handler files in kebab case, by the first path segment ([#512](https://github.com/nakita628/hono-takibi/issues/512)) ([db5ec8f](https://github.com/nakita628/hono-takibi/commit/db5ec8f3070624f17d18f5e82ee311e09c5ea08a))
+
 ## [0.32.7](https://github.com/nakita628/hono-takibi/compare/v0.32.6...v0.32.7) (2026-11-22)
 
 
