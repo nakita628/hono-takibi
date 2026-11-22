@@ -254,6 +254,32 @@ paths:
         '200':
           description: OK
 
+  /strict-union:
+    post:
+      operationId: postStrictUnion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StrictUnion'
+      responses:
+        '200':
+          description: OK
+
+  /parent-strict:
+    post:
+      operationId: postParentStrict
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParentStrict'
+      responses:
+        '200':
+          description: OK
+
 components:
   schemas:
     # ── oneOf — exactly one variant must match ───────────────
@@ -489,6 +515,33 @@ components:
         - type: object
           properties:
             link: { type: string }
+
+    # A union hands the strict branch's issue on when no other branch takes the
+    # value; the union is asked on its own, declared once for the check and the
+    # intersection.
+    StrictUnion:
+      allOf:
+        - anyOf:
+            - type: object
+              properties:
+                id: { type: string }
+              additionalProperties: false
+            - type: string
+        - type: object
+          properties:
+            link: { type: string }
+
+    # `additionalProperties: false` beside an allOf applies to the keys the
+    # schema itself declares: it does not see what the members declare.
+    ParentStrict:
+      type: object
+      properties:
+        link: { type: string }
+      additionalProperties: false
+      allOf:
+        - type: object
+          properties:
+            a: { type: string }
 
     # ── Several combinators at the same level (#469) ─────────
     # Sibling keywords are ANDed: every one of them has to hold.

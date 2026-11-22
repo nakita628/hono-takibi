@@ -3,7 +3,9 @@ import { describe, expect, it } from 'vite-plus/test'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Schema } from '../openapi/index.js'
 import {
+  isAskedOperand,
   emitTypelessRefine,
+  makeParentStrictCheck,
   makeSiblingCombinatorCheck,
   makeStrictOperandCheck,
   makeUnevaluatedProperties,
@@ -886,14 +888,23 @@ describe('helper/zod: narrowToDeclaredType (#468)', () => {
 const strictGuard = `const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;`
 const undeclaredKeys = (list: string, message = '') =>
   `for(const k of Object.keys(o)){if(!${list}.includes(k)){ctx.issues.push({code:"custom",path:[k],input:o${message}})}}`
-const handOnOperand = (zod: string) =>
-  `{const result=${zod}.safeParse(o);if(!result.success&&result.error.issues.every((issue)=>issue.code==='unrecognized_keys'&&issue.path.length===0)){for(const issue of result.error.issues){if(issue.code==='unrecognized_keys'){for(const k of issue.keys){ctx.issues.push({code:"custom",path:[k],input:o,message:issue.message})}}}}}`
+const handOn = (parsed: string) =>
+  `{const result=${parsed};if(!result.success&&result.error.issues.every((issue)=>issue.code==='unrecognized_keys'&&issue.path.length===0)){for(const issue of result.error.issues){if(issue.code==='unrecognized_keys'){for(const k of issue.keys){ctx.issues.push({code:"custom",path:[k],input:o,message:issue.message})}}}}}`
+// A check that reports from the schema alone, and one that parses the operand `zod`.
+const told = (...statements: readonly string[]) => ({
+  sync: `(ctx)=>{${strictGuard}${statements.join(';')}}`,
+})
+const asked = (zod: string) => ({
+  sync: `(ctx)=>{${strictGuard}${handOn(`${zod}.safeParse(o)`)}}`,
+  async: `async(ctx)=>{${strictGuard}${handOn(`(await ${zod}.safeParseAsync(o))`)}}`,
+})
 
 describe('helper/zod: makeStrictOperandCheck (#470)', () => {
   const str = { type: 'string' } as const
   const strict = { type: 'object', properties: { id: str }, additionalProperties: false } as const
-  it('returns an empty string when no operand is strict', () => {
-    expect(makeStrictOperandCheck([])).toBe('')
+
+  it('returns undefined when no operand is strict', () => {
+    expect(makeStrictOperandCheck([])).toBeUndefined()
     expect(
       makeStrictOperandCheck([
         { schema: { type: 'object', properties: { id: str } }, zod: 'A' },
@@ -901,12 +912,12 @@ describe('helper/zod: makeStrictOperandCheck (#470)', () => {
         { schema: { type: 'object', additionalProperties: str }, zod: 'C' },
         { schema: { type: 'string' }, zod: 'D' },
       ]),
-    ).toBe('')
+    ).toBeUndefined()
   })
 
   it('reports the keys a strict object does not declare', () => {
-    expect(makeStrictOperandCheck([{ schema: strict, zod: 'A' }])).toBe(
-      `(ctx)=>{${strictGuard}${undeclaredKeys('["id"]')}}`,
+    expect(makeStrictOperandCheck([{ schema: strict, zod: 'A' }])).toStrictEqual(
+      told(undeclaredKeys('["id"]')),
     )
   })
 
@@ -920,7 +931,7 @@ describe('helper/zod: makeStrictOperandCheck (#470)', () => {
           zod: 'C',
         },
       ]),
-    ).toBe(`(ctx)=>{${strictGuard}${undeclaredKeys('["id"]')};${undeclaredKeys('["x","y"]')}}`)
+    ).toStrictEqual(told(undeclaredKeys('["id"]'), undeclaredKeys('["x","y"]')))
   })
 
   it('reads a reference as the component it names, not what is written beside it', () => {
@@ -930,7 +941,7 @@ describe('helper/zod: makeStrictOperandCheck (#470)', () => {
         [{ schema: { $ref: '#/components/schemas/Strict' }, zod: 'StrictSchema' }],
         schemas,
       ),
-    ).toBe(`(ctx)=>{${strictGuard}${undeclaredKeys('["id"]')}}`)
+    ).toStrictEqual(told(undeclaredKeys('["id"]')))
     // A keyword beside a `$ref` is not emitted — the operand is the component — so it
     // neither adds to the keys the component declares nor makes an open one strict.
     expect(
@@ -943,7 +954,7 @@ describe('helper/zod: makeStrictOperandCheck (#470)', () => {
         ],
         schemas,
       ),
-    ).toBe(`(ctx)=>{${strictGuard}${undeclaredKeys('["id"]')}}`)
+    ).toStrictEqual(told(undeclaredKeys('["id"]')))
     expect(
       makeStrictOperandCheck(
         [
@@ -954,18 +965,18 @@ describe('helper/zod: makeStrictOperandCheck (#470)', () => {
         ],
         schemas,
       ),
-    ).toBe('')
+    ).toBeUndefined()
     // The wrapping beside it is emitted: a catch answers the failure.
     expect(
       makeStrictOperandCheck(
         [{ schema: { $ref: '#/components/schemas/Strict', 'x-catch': {} }, zod: 'S' }],
         schemas,
       ),
-    ).toBe('')
+    ).toBeUndefined()
     // A reference that cannot be resolved says nothing about its keys.
     expect(
       makeStrictOperandCheck([{ schema: { $ref: '#/components/schemas/Strict' }, zod: 'S' }]),
-    ).toBe('')
+    ).toBeUndefined()
   })
 
   it('uses x-additionalProperties-message as the message of the keys', () => {
@@ -973,7 +984,7 @@ describe('helper/zod: makeStrictOperandCheck (#470)', () => {
       makeStrictOperandCheck([
         { schema: { ...strict, 'x-additionalProperties-message': 'no extras' }, zod: 'A' },
       ]),
-    ).toBe(`(ctx)=>{${strictGuard}${undeclaredKeys('["id"]', ',message:"no extras"')}}`)
+    ).toStrictEqual(told(undeclaredKeys('["id"]', ',message:"no extras"')))
   })
 
   it('takes an untyped object, and one of no property', () => {
@@ -981,13 +992,13 @@ describe('helper/zod: makeStrictOperandCheck (#470)', () => {
       makeStrictOperandCheck([
         { schema: { properties: { id: str }, additionalProperties: false }, zod: 'A' },
       ]),
-    ).toBe(`(ctx)=>{${strictGuard}${undeclaredKeys('["id"]')}}`)
+    ).toStrictEqual(told(undeclaredKeys('["id"]')))
     expect(
       makeStrictOperandCheck([
         { schema: { type: 'object', additionalProperties: false }, zod: 'A' },
       ]),
-    ).toBe(
-      `(ctx)=>{${strictGuard}for(const k of Object.keys(o)){ctx.issues.push({code:"custom",path:[k],input:o})}}`,
+    ).toStrictEqual(
+      told(`for(const k of Object.keys(o)){ctx.issues.push({code:"custom",path:[k],input:o})}`),
     )
   })
 
@@ -997,14 +1008,14 @@ describe('helper/zod: makeStrictOperandCheck (#470)', () => {
         { schema: { ...strict, 'x-transform': '(val) => val' }, zod: 'A' },
         { schema: { ...strict, 'x-catch': {} }, zod: 'B' },
       ]),
-    ).toBe('')
+    ).toBeUndefined()
   })
 
-  it('asks an operand that can only hand the issue on', () => {
+  it('asks an operand that can only hand the issue on, sync and async', () => {
     // A union, a multi-type, and an `allOf` of one member, which is emitted as the member.
-    expect(makeStrictOperandCheck([{ schema: { anyOf: [strict, str] }, zod: 'U' }])).toBe(
-      `(ctx)=>{${strictGuard}${handOnOperand('U')}}`,
-    )
+    const union = { anyOf: [strict, str] }
+    expect(makeStrictOperandCheck([{ schema: union, zod: 'U' }])).toStrictEqual(asked('U'))
+    expect(isAskedOperand(union)).toBe(true)
     expect(
       makeStrictOperandCheck([
         {
@@ -1016,32 +1027,63 @@ describe('helper/zod: makeStrictOperandCheck (#470)', () => {
           zod: 'M',
         },
       ]),
-    ).toBe(`(ctx)=>{${strictGuard}${handOnOperand('M')}}`)
-    expect(
-      makeStrictOperandCheck([{ schema: { allOf: [{ anyOf: [strict, str] }] }, zod: 'S' }]),
-    ).toBe(`(ctx)=>{${strictGuard}${handOnOperand('S')}}`)
+    ).toStrictEqual(asked('M'))
+    expect(makeStrictOperandCheck([{ schema: { allOf: [union] }, zod: 'S' }])).toStrictEqual(
+      asked('S'),
+    )
+    // What the schema alone tells is not asked.
+    expect(isAskedOperand(strict)).toBe(false)
+    expect(isAskedOperand({ type: 'string' })).toBe(false)
   })
 
-  it('asks a discriminated union, not an xor', () => {
-    const cat = {
-      type: 'object',
-      properties: { kind: { const: 'cat' } },
-      required: ['kind'],
-      additionalProperties: false,
-    } as const
-    const dog = {
-      type: 'object',
-      properties: { kind: { const: 'dog' } },
-      required: ['kind'],
-      additionalProperties: false,
-    } as const
+  const cat = {
+    type: 'object',
+    properties: { kind: { const: 'cat' }, meow: str },
+    required: ['kind'],
+    additionalProperties: false,
+  } as const
+  const dog = {
+    type: 'object',
+    properties: { kind: { enum: ['dog', 'puppy'] } },
+    required: ['kind'],
+    additionalProperties: false,
+  } as const
+  const bird = {
+    type: 'object',
+    properties: { kind: { const: 'bird' } },
+    required: ['kind'],
+  } as const
+  const pet = { oneOf: [cat, dog, bird], discriminator: { propertyName: 'kind' } } as const
+
+  it('looks up the keys of a discriminated union by its discriminator, parsing nothing', () => {
+    // A branch that is not strict has no entry: every key is its own to take.
+    expect(makeStrictOperandCheck([{ schema: pet, zod: 'Pet' }])).toStrictEqual(
+      told(
+        `{const own:{readonly [k:string]:readonly string[]}={"cat":["kind","meow"],"dog":["kind"],"puppy":["kind"]};const d=String(Reflect.get(o,"kind"));const keys=Object.hasOwn(own,d)?own[d]:undefined;if(keys!==undefined){for(const k of Object.keys(o)){if(!keys.includes(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}}`,
+      ),
+    )
+    expect(isAskedOperand(pet)).toBe(false)
+    // `z.xor` reports a branch that failed as `invalid_union`: nothing to hand on.
+    expect(makeStrictOperandCheck([{ schema: { oneOf: [cat, dog] }, zod: 'Xor' }])).toBeUndefined()
+    // No strict branch, nothing to check.
     expect(
       makeStrictOperandCheck([
-        { schema: { oneOf: [cat, dog], discriminator: { propertyName: 'kind' } }, zod: 'Pet' },
+        {
+          schema: {
+            oneOf: [bird, { ...bird, properties: { kind: { const: 'fish' } } }],
+            discriminator: { propertyName: 'kind' },
+          },
+          zod: 'P',
+        },
       ]),
-    ).toBe(`(ctx)=>{${strictGuard}${handOnOperand('Pet')}}`)
-    // `z.xor` reports a branch that failed as `invalid_union`.
-    expect(makeStrictOperandCheck([{ schema: { oneOf: [cat, dog] }, zod: 'Xor' }])).toBe('')
+    ).toBeUndefined()
+  })
+
+  it('asks a discriminated union whose strict branch needs more than its keys', () => {
+    const patterned = { ...cat, patternProperties: { '^x-': str } }
+    const union = { oneOf: [patterned, dog], discriminator: { propertyName: 'kind' } } as const
+    expect(makeStrictOperandCheck([{ schema: union, zod: 'Pet' }])).toStrictEqual(asked('Pet'))
+    expect(isAskedOperand(union)).toBe(true)
   })
 
   it('leaves an allOf of several members to its own check', () => {
@@ -1049,12 +1091,49 @@ describe('helper/zod: makeStrictOperandCheck (#470)', () => {
       makeStrictOperandCheck([
         { schema: { allOf: [strict, { type: 'object', properties: { link: str } }] }, zod: 'I' },
       ]),
-    ).toBe('')
+    ).toBeUndefined()
+  })
+})
+
+describe('helper/zod: makeParentStrictCheck', () => {
+  const str = { type: 'string' } as const
+
+  it('returns undefined unless additionalProperties is false', () => {
+    expect(makeParentStrictCheck({ properties: { a: str } })).toBeUndefined()
+    expect(makeParentStrictCheck({ additionalProperties: true })).toBeUndefined()
+    expect(makeParentStrictCheck({ additionalProperties: str })).toBeUndefined()
+  })
+
+  it('reports the keys the schema itself neither declares nor matches with a pattern', () => {
+    expect(
+      makeParentStrictCheck({ properties: { a: str }, additionalProperties: false }),
+    ).toStrictEqual(told(undeclaredKeys('["a"]')))
+    expect(
+      makeParentStrictCheck({
+        properties: { a: str },
+        patternProperties: { '^x-': str },
+        additionalProperties: false,
+        'x-additionalProperties-message': 'no extras',
+      }),
+    ).toStrictEqual(
+      told(
+        `for(const k of Object.keys(o)){if(!["a"].includes(k)&&!["^x-"].some((p)=>new RegExp(p).test(k))){ctx.issues.push({code:"custom",path:[k],input:o,message:"no extras"})}}`,
+      ),
+    )
+    // No property of its own: every key is undeclared.
+    expect(makeParentStrictCheck({ additionalProperties: false })).toStrictEqual(
+      told(`for(const k of Object.keys(o)){ctx.issues.push({code:"custom",path:[k],input:o})}`),
+    )
   })
 })
 
 // What a branch is emitted as, for the checks below.
 const emitBranch = (schema: Schema) => (schema.type === 'string' ? 'S' : 'N')
+// The check of sibling combinators, with each schema parsed synchronously and awaited.
+const siblingCheck = (statements: (parse: (zod: string) => string) => string) => ({
+  sync: `(ctx)=>{const val=ctx.value;${statements((zod) => `${zod}.safeParse(val)`)}}`,
+  async: `async(ctx)=>{const val=ctx.value;${statements((zod) => `(await ${zod}.safeParseAsync(val))`)}}`,
+})
 
 describe('helper/zod: makeSiblingCombinatorCheck (#469)', () => {
   const schema = {
@@ -1063,29 +1142,40 @@ describe('helper/zod: makeSiblingCombinatorCheck (#469)', () => {
     not: { type: 'string' },
   } as const
 
-  it('returns an empty string when there is nothing to check', () => {
-    expect(makeSiblingCombinatorCheck(schema, [], emitBranch)).toBe('')
+  it('returns undefined when there is nothing to check', () => {
+    expect(makeSiblingCombinatorCheck(schema, [], emitBranch)).toBeUndefined()
     expect(
       makeSiblingCombinatorCheck({ anyOf: [], oneOf: [] }, ['anyOf', 'oneOf'], emitBranch),
-    ).toBe('')
-    expect(makeSiblingCombinatorCheck({}, ['not'], emitBranch)).toBe('')
+    ).toBeUndefined()
+    expect(makeSiblingCombinatorCheck({}, ['not'], emitBranch)).toBeUndefined()
   })
 
   it('asks at least one anyOf branch, exactly one oneOf branch, and no not', () => {
-    expect(makeSiblingCombinatorCheck(schema, ['anyOf'], emitBranch)).toBe(
-      '(ctx)=>{const val=ctx.value;if(!(S.safeParse(val).success||N.safeParse(val).success)){ctx.issues.push({code:"custom",input:val})}}',
+    expect(makeSiblingCombinatorCheck(schema, ['anyOf'], emitBranch)).toStrictEqual(
+      siblingCheck(
+        (parse) =>
+          `if(!(${parse('S')}.success||${parse('N')}.success)){ctx.issues.push({code:"custom",input:val})}`,
+      ),
     )
-    expect(makeSiblingCombinatorCheck(schema, ['oneOf'], emitBranch)).toBe(
-      '(ctx)=>{const val=ctx.value;if(((S.safeParse(val).success?1:0)+(N.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}}',
+    expect(makeSiblingCombinatorCheck(schema, ['oneOf'], emitBranch)).toStrictEqual(
+      siblingCheck(
+        (parse) =>
+          `if(((${parse('S')}.success?1:0)+(${parse('N')}.success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}`,
+      ),
     )
-    expect(makeSiblingCombinatorCheck(schema, ['not'], emitBranch)).toBe(
-      '(ctx)=>{const val=ctx.value;if(S.safeParse(val).success){ctx.issues.push({code:"custom",input:val})}}',
+    expect(makeSiblingCombinatorCheck(schema, ['not'], emitBranch)).toStrictEqual(
+      siblingCheck(
+        (parse) => `if(${parse('S')}.success){ctx.issues.push({code:"custom",input:val})}`,
+      ),
     )
   })
 
   it('checks only the combinators it is asked about, in one callback', () => {
-    expect(makeSiblingCombinatorCheck(schema, ['oneOf', 'not'], emitBranch)).toBe(
-      '(ctx)=>{const val=ctx.value;if(((S.safeParse(val).success?1:0)+(N.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})};if(S.safeParse(val).success){ctx.issues.push({code:"custom",input:val})}}',
+    expect(makeSiblingCombinatorCheck(schema, ['oneOf', 'not'], emitBranch)).toStrictEqual(
+      siblingCheck(
+        (parse) =>
+          `if(((${parse('S')}.success?1:0)+(${parse('N')}.success?1:0))!==1){ctx.issues.push({code:"custom",input:val})};if(${parse('S')}.success){ctx.issues.push({code:"custom",input:val})}`,
+      ),
     )
   })
 
@@ -1096,8 +1186,11 @@ describe('helper/zod: makeSiblingCombinatorCheck (#469)', () => {
         ['anyOf', 'not'],
         emitBranch,
       ),
-    ).toBe(
-      '(ctx)=>{const val=ctx.value;if(!(S.safeParse(val).success||N.safeParse(val).success)){ctx.issues.push({code:"custom",input:val,message:"any"})};if(S.safeParse(val).success){ctx.issues.push({code:"custom",input:val,message:"bad"})}}',
+    ).toStrictEqual(
+      siblingCheck(
+        (parse) =>
+          `if(!(${parse('S')}.success||${parse('N')}.success)){ctx.issues.push({code:"custom",input:val,message:"any"})};if(${parse('S')}.success){ctx.issues.push({code:"custom",input:val,message:"bad"})}`,
+      ),
     )
     // An arrow function is called with the issue it is the message of.
     expect(
@@ -1106,8 +1199,11 @@ describe('helper/zod: makeSiblingCombinatorCheck (#469)', () => {
         ['not'],
         emitBranch,
       ),
-    ).toBe(
-      '(ctx)=>{const val=ctx.value;if(S.safeParse(val).success){ctx.issues.push({code:"custom",input:val,message:((iss) => iss.code)({code:\'custom\',path:[],input:val})})}}',
+    ).toStrictEqual(
+      siblingCheck(
+        (parse) =>
+          `if(${parse('S')}.success){ctx.issues.push({code:"custom",input:val,message:((iss) => iss.code)({code:'custom',path:[],input:val})})}`,
+      ),
     )
   })
 })

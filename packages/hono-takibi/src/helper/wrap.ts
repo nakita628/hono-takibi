@@ -1110,6 +1110,13 @@ export function wrap(
     ...(typeof schema.pattern === 'string' && (isFile || regexLiteral(schema.pattern) === undefined)
       ? [['pattern', schema.pattern] as const]
       : []),
+    // `not` is checked in a refinement, or on the raw input beside a combinator (#469), and
+    // the document derives nothing from either: it is stated as the source has it, every
+    // reference written out. Beside a `$ref` it is not emitted, so it is not stated, and a
+    // parameter states its schema already.
+    ...(schema.$ref === undefined && meta?.parameters === undefined && isRecord(schema.not)
+      ? [['not', withoutEmitterExtensions(inlineSchemaRefs(schema.not, options?.schemas))] as const]
+      : []),
   ])
   const args = pruneSchemaObject(baseArgs)
   // What a response header says about itself that is also schema metadata. `style`,

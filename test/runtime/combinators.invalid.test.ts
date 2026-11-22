@@ -1107,9 +1107,11 @@ describe('allOf: a member with additionalProperties: false', () => {
   })
 
   // A discriminated union hands on the issue of the strict branch it routes to, and the
-  // intersection would drop it. The detail is the message of that issue.
+  // intersection would drop it. The branch is told by the discriminator, so its keys are
+  // looked up and the others reported, without parsing the union a second time.
   // discriminated union は、振り分け先の strict な分岐の issue をそのまま渡すため、交差型が
-  // それを落としてしまう。detail は、その issue のメッセージである。
+  // それを落としてしまう。分岐は discriminator から決まるので、その分岐のキーを引いて
+  // それ以外を報告する。union を 2 回パースすることはない。
   it('rejects a key the branch of a discriminated union does not declare', async () => {
     const res = await app.request('/strict-branch', {
       method: 'POST',
@@ -1122,7 +1124,47 @@ describe('allOf: a member with additionalProperties: false', () => {
       title: 'Unprocessable Content',
       status: 422,
       detail: 'Request validation failed',
+      errors: [{ pointer: '/link', detail: 'Invalid input', code: 'custom' }],
+    })
+  })
+
+  // A union hands on the issue of the one branch that failed on nothing but its keys. The
+  // union is asked on its own, and the detail is the message of that issue.
+  // union は、キー以外に失敗のない唯一の分岐の issue をそのまま渡す。そのため union 単体に
+  // 問い合わせる。detail は、その issue のメッセージである。
+  it('rejects a key the strict branch of a union does not declare', async () => {
+    const res = await app.request('/strict-union', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'a', link: 'x' }),
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({
+      type: 'about:blank',
+      title: 'Unprocessable Content',
+      status: 422,
+      detail: 'Request validation failed',
       errors: [{ pointer: '/link', detail: 'Unrecognized key: "link"', code: 'custom' }],
+    })
+  })
+
+  // `additionalProperties: false` beside the `allOf` does not see what the member declares:
+  // `a` is the member's key, not the schema's own.
+  // `allOf` の横の `additionalProperties: false` は、メンバーの宣言を参照しない。`a` は
+  // メンバーのキーであり、スキーマ自身のキーではない。
+  it('rejects a key only an allOf member declares when the parent is strict', async () => {
+    const res = await app.request('/parent-strict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ a: 'x', link: 'y' }),
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({
+      type: 'about:blank',
+      title: 'Unprocessable Content',
+      status: 422,
+      detail: 'Request validation failed',
+      errors: [{ pointer: '/a', detail: 'Invalid input', code: 'custom' }],
     })
   })
 })

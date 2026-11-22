@@ -522,6 +522,30 @@ describe('allOf: a member with additionalProperties: false', () => {
     expect(await res.json()).toStrictEqual({})
   })
 
+  // The member is a union with a strict branch.
+  // メンバーは、strict な分岐を持つ union である。
+  it('accepts the strict branch of a union with its own keys', async () => {
+    const res = await app.request('/strict-union', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'a' }),
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({})
+  })
+
+  // Only the key the schema itself declares, beside a strict parent.
+  // strict な親の横で、スキーマ自身が宣言するキーだけを持つ。
+  it('accepts the keys a strict parent declares itself', async () => {
+    const res = await app.request('/parent-strict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ link: 'y' }),
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({})
+  })
+
   // The member is a discriminated union whose branches are strict.
   // メンバーは、各分岐が strict な discriminated union である。
   it('accepts a branch of a discriminated union with its own keys', async () => {
@@ -642,7 +666,18 @@ describe('the generated document keeps the combinators', () => {
         allOfAnyOf: { type: 'string', minLength: 1, anyOf: [{ maxLength: 3 }] },
         allOfOneOf: { type: 'string', oneOf: [{ minLength: 3 }, { maxLength: 1 }] },
         anyOfOneOf: { anyOf: [{ type: 'string' }], oneOf: [{ minLength: 3 }, { maxLength: 1 }] },
+        allOfNot: { type: 'string', not: { const: 'x' } },
+        anyOfNot: { anyOf: [{ type: 'string' }, { type: 'integer' }], not: { const: 'x' } },
       },
+    })
+  })
+
+  // `additionalProperties: false` beside the `allOf` is checked around it, and stated.
+  // `allOf` の横の `additionalProperties: false` は、その外側で検証され、ドキュメントにも記載される。
+  it('keeps additionalProperties: false written beside an allOf', () => {
+    expect(doc.components?.schemas?.ParentStrict).toMatchObject({
+      allOf: [{ type: 'object' }, { type: 'object' }],
+      additionalProperties: false,
     })
   })
 })

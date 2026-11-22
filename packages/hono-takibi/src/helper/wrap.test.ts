@@ -1198,7 +1198,7 @@ describe('wrap', () => {
         description: 'Schema with nested not',
       } as unknown as Schema
       const result = wrap('z.string()', schema)
-      expect(result).toBe('z.string().openapi({"description":"Schema with nested not"})')
+      expect(result).toBe('z.string().openapi({"description":"Schema with nested not","not":{}})')
     })
 
     it.concurrent('should keep not.not when inner not is object (not boolean)', () => {
@@ -1212,7 +1212,7 @@ describe('wrap', () => {
       const result = wrap('z.string()', schema)
       // not is filtered by zodExpressedProps, only description remains
       expect(result).toBe(
-        'z.string().openapi({"description":"Schema with non-boolean nested not"})',
+        'z.string().openapi({"description":"Schema with non-boolean nested not","not":{"not":{"type":"number"}}})',
       )
     })
   })
