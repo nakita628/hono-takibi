@@ -28,7 +28,7 @@ import {
   makeWrappedWire,
 } from '../../helper/wire.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
-import { undecorated, wrap } from '../../helper/wrap.js'
+import { conformDefault, undecorated, wrap } from '../../helper/wrap.js'
 import {
   emitObjectShapeCheck,
   emitObjectShapeRefine,
@@ -68,6 +68,20 @@ import { _enum, integer, number, object, string } from './z/index.js'
 function withUnevaluatedCheck(zod: string, unevalCheck: string): string {
   if (unevalCheck === '') return zod
   return `(()=>{const Schema=${zod};return z.preprocess((val: z.input<typeof Schema>,ctx)=>{(${unevalCheck})(ctx);return val},Schema)})()`
+}
+
+// Whether a schema carries its own wrapping (`.nullable()`, `.default()`,
+// `.prefault()`, `.catch()`) on itself. `canAdmitNullOrUndefined` follows a
+// `$ref` to its target and never sees the wrapping on the branch itself,
+// so a `$ref` branch with its own wrapping needs this check beside it.
+function hasOwnWrapping(branch: Schema): boolean {
+  return (
+    branch.nullable === true ||
+    normalizeTypes(branch.type).includes('null') ||
+    branch.default !== undefined ||
+    branch['x-prefault'] !== undefined ||
+    branch['x-catch'] !== undefined
+  )
 }
 
 export function zodToOpenAPI(
@@ -223,11 +237,133 @@ export function zodToOpenAPI(
   // object alternative cannot be reached without rebuilding it: the caller falls
   // back to the check-pipe for the whole combinator, which is always correct
   // (the document just loses the structure for that rare shape).
+  // A `default` / `prefault` value read against the MERGED shape (the branch
+  // core intersected with the sibling shape): it has to be a value of both,
+  // each read by its own schema — `conformDefault` on the `allOf` of the two
+  // would drop the keys the other declares, so the two readings are merged
+  // key-wise instead. Not-ok when the value is not a value of the merged
+  // shape (a required key missing, a wrong-typed property); a key the two
+  // readings coerce differently is a contradictory schema, not a value of it.
+  const conformMerged = (
+    coreSchema: Schema,
+    shapeSchema: Schema,
+    value: unknown,
+  ): { readonly ok: true; readonly value: unknown } | { readonly ok: false } => {
+    const core = conformDefault(coreSchema, value, childOptions?.schemas)
+    const shape = conformDefault(shapeSchema, value, childOptions?.schemas)
+    if (!core.ok || !shape.ok) return { ok: false }
+    // The two readings must agree on the value: records merge key-wise, and
+    // a key coerced differently by both sides is a contradictory schema, not
+    // a value of it. Anything else that disagrees is not a value of the
+    // merged shape either — returning one reading unchecked would write a
+    // `default` / `prefault` / `catch` the merged schema rejects.
+    if (JSON.stringify(core.value) !== JSON.stringify(shape.value)) {
+      if (isRecord(core.value) && isRecord(shape.value)) {
+        for (const key of Object.keys(core.value)) {
+          if (
+            Object.hasOwn(shape.value, key) &&
+            JSON.stringify(core.value[key]) !== JSON.stringify(shape.value[key])
+          ) {
+            return { ok: false }
+          }
+        }
+        return { ok: true, value: { ...core.value, ...shape.value } }
+      }
+      return { ok: false }
+    }
+    return core
+  }
+  // Distribute the shape into a branch whose own wrapping admits `null` or
+  // substitutes on `undefined` (#471): the shape goes INSIDE the wrapping,
+  // `core.and(shape).nullable()` / `.default(...)`, so the sibling keys stay
+  // in the output and the document while `null` / the default is still
+  // admitted. Only the wrappings the issue names are re-applied around the
+  // distributed core. A user chain replaces the chain wholesale, a refine /
+  // brand / readonly is written against the branch's own output (a refine
+  // moved inside would run on different values), and a `.catch()` branch
+  // keeps the check-pipe like a user chain: `@hono/zod-openapi` cannot
+  // render `.catch()` (document generation throws `Unknown zod object type`),
+  // and the catch would swallow violations of the parent's sibling
+  // properties. Branches whose CORE admits `null` or `undefined` itself (a
+  // `$ref` to a nullable component, a `null` enum member) also keep the
+  // check-pipe: that admission cannot be re-applied around the intersection.
+  // A `default` / `prefault` that is not a value of the merged shape is
+  // dropped — the way `wrap` already drops a default that is not a value of
+  // its schema — instead of being written as `.default()` on the merged
+  // shape, which would not type-check.
+  const distributeAdmitting = (
+    branch: Schema,
+    shapeZ: string,
+    shapeRefine: string,
+    shapeHasProperties: boolean,
+    shapeSchema: Schema,
+  ): string | null => {
+    if (
+      branch['x-preprocess'] !== undefined ||
+      branch['x-transform'] !== undefined ||
+      branch['x-pipe'] !== undefined ||
+      branch['x-codec'] !== undefined ||
+      branch['x-refine'] !== undefined ||
+      branch['x-superRefine'] !== undefined ||
+      branch['x-brand'] !== undefined ||
+      branch['x-readonly'] === true ||
+      branch['x-catch'] !== undefined
+    ) {
+      return null
+    }
+    // The branch without its own wrapping: the wrapping keys are omitted
+    // (rest destructuring, as `conformDefault` omits `$ref` / `default`),
+    // and `null` is stripped from the type.
+    const {
+      nullable: _nullable,
+      default: _default,
+      'x-prefault': _prefault,
+      'x-catch': _catch,
+      type: branchType,
+      ...coreRest
+    } = branch
+    // The branch's type without `null`: a conditional spread would type
+    // `type` as possibly `undefined`, which `exactOptionalPropertyTypes`
+    // rejects — build each branch whole. Splitting the filtered list keeps
+    // the value typed as `Type | [Type, ...Type[]]`, so no assertion is
+    // needed; a single remaining type stays a scalar, several stay a list.
+    const [first, ...rest] = normalizeTypes(branchType).filter((type) => type !== 'null')
+    const coreSchema: Schema =
+      first === undefined
+        ? { ...coreRest }
+        : { ...coreRest, type: rest.length === 0 ? first : [first, ...rest] }
+    if (canAdmitNullOrUndefined(coreSchema, childOptions?.schemas)) return null
+    const andZ = `${child(coreSchema)}.and(${shapeZ})`
+    const distributed = shapeHasProperties ? andZ : `${andZ}.superRefine(${shapeRefine})`
+    const mergedDefault =
+      branch.default === undefined
+        ? undefined
+        : conformMerged(coreSchema, shapeSchema, branch.default)
+    const mergedPrefault =
+      branch['x-prefault'] === undefined
+        ? undefined
+        : conformMerged(coreSchema, shapeSchema, branch['x-prefault'])
+    // `.nullable()` must precede `.default(null)` so `.default(null)` validates.
+    const defaultIsNull =
+      mergedDefault !== undefined && mergedDefault.ok && mergedDefault.value === null
+    const nullable =
+      branch.nullable === true || normalizeTypes(branch.type).includes('null') || defaultIsNull
+    let out = distributed
+    if (nullable) out = `${out}.nullable()`
+    if (mergedDefault?.ok) {
+      out = `${out}.default(${JSON.stringify(mergedDefault.value)})`
+    }
+    if (mergedPrefault?.ok) {
+      out = `${out}.prefault(${JSON.stringify(mergedPrefault.value)})`
+    }
+    return out
+  }
   const distribute = (
     branch: Schema,
     shapeZ: string,
     shapeRefine: string | undefined,
     shapeHasProperties: boolean,
+    shapeSchema: Schema,
   ): string | null => {
     if (shapeRefine === undefined) return child(branch)
     if (requiresObject(branch, childOptions?.schemas)) {
@@ -235,9 +371,18 @@ export function zodToOpenAPI(
       // wrapping admits `null` or substitutes on `undefined` (`.nullable()`,
       // `.default()`, `.prefault()`, `.catch()`, a user chain, or a `$ref` to
       // one of those) would reject the very values the wrapping exists to
-      // admit: the shape member is a plain `z.object`. Fall back to the
-      // check-pipe, which is always correct there.
-      if (canAdmitNullOrUndefined(branch, childOptions?.schemas)) return null
+      // admit: the shape member is a plain `z.object`. A branch wrapped only
+      // in what #471 names is distributed inside the wrapping instead
+      // (see `distributeAdmitting`); anything else falls back to the
+      // check-pipe, which is always correct there. The wrapping is the
+      // branch's own as well as what its target admits: without the
+      // `hasOwnWrapping` arm a `$ref` branch with its own `.nullable()` /
+      // `.default()` would take the plain `.and()` below, with the wrapping
+      // inside it (`ObjSchema.nullable().and(shape)`), rejecting the `null`
+      // the wrapping admits.
+      if (canAdmitNullOrUndefined(branch, childOptions?.schemas) || hasOwnWrapping(branch)) {
+        return distributeAdmitting(branch, shapeZ, shapeRefine, shapeHasProperties, shapeSchema)
+      }
       const andZ = `${child(branch)}.and(${shapeZ})`
       // A shape with `required` but no `properties` emits as a loose object,
       // which enforces nothing — the required key has no property to be required
@@ -258,7 +403,9 @@ export function zodToOpenAPI(
     }
     if (branch.anyOf !== undefined && !(isBinaryFile(branch) && hasMimeAlternatives(branch))) {
       if (branch.anyOf.length === 0) return child(branch)
-      const parts = branch.anyOf.map((b) => distribute(b, shapeZ, shapeRefine, shapeHasProperties))
+      const parts = branch.anyOf.map((b) =>
+        distribute(b, shapeZ, shapeRefine, shapeHasProperties, shapeSchema),
+      )
       if (parts.some((part) => part === null)) return null
       const message =
         branch['x-implication-message'] ?? branch['x-anyOf-message'] ?? branch['x-error-message']
@@ -291,7 +438,9 @@ export function zodToOpenAPI(
     }
     if (branch.oneOf !== undefined) {
       if (branch.oneOf.length === 0) return child(branch)
-      const parts = branch.oneOf.map((b) => distribute(b, shapeZ, shapeRefine, shapeHasProperties))
+      const parts = branch.oneOf.map((b) =>
+        distribute(b, shapeZ, shapeRefine, shapeHasProperties, shapeSchema),
+      )
       if (parts.some((part) => part === null)) return null
       const message = branch['x-oneOf-message'] ?? branch['x-error-message']
       // A distributed branch is no longer a plain object, so `z.discriminatedUnion`
@@ -392,7 +541,33 @@ export function zodToOpenAPI(
           ...(schema.required ? { required: schema.required } : {}),
         }
       : undefined
-    const shapeMember = (objectOnly || membersRequireObject) && schema.properties !== undefined
+    // A shape member after the whole intersection would reject the `null`
+    // the intersection admits when the parent type allows it, every member
+    // admits it, and the parent does not re-admit it (see `nullable` below):
+    // the shape is distributed into the members instead (#471), which now
+    // carry it inside their own wrapping. A declared parent type without
+    // `null` already rejects it, so the member path stays correct there. A
+    // member admits it through its own wrapping as well as through its
+    // target: a `$ref` member with its own `.nullable()` / `.default()` is
+    // not seen by `canAdmitNullOrUndefined`, which follows the `$ref`. The
+    // parent re-admission is the same check `nullable` makes, read off
+    // `schema.allOf` — the shape member itself is never an annotation-only
+    // nullable member, so it cannot change the result.
+    const intersectionAdmitsNullOrUndefined =
+      (schema.type === undefined || normalizeTypes(schema.type).includes('null')) &&
+      schema.allOf.length > 0 &&
+      schema.allOf.every(
+        (member) =>
+          canAdmitNullOrUndefined(member, childOptions?.schemas) || hasOwnWrapping(member),
+      )
+    const parentReAdmitsNull =
+      schema.nullable === true ||
+      normalizeTypes(schema.type).includes('null') ||
+      schema.allOf.some((s) => s.type === 'null' || (s.nullable === true && isAnnotationOnly(s)))
+    const shapeMember =
+      (objectOnly || membersRequireObject) &&
+      schema.properties !== undefined &&
+      !(intersectionAdmitsNullOrUndefined && !parentReAdmitsNull)
     const shapeRefine =
       shapeSchema === undefined || shapeMember
         ? undefined
@@ -461,7 +636,13 @@ export function zodToOpenAPI(
       for (let index = 0; index < members.length; index += 1) {
         const member = members[index]
         if (member === undefined) continue
-        const distributed = distribute(member, shapeZ, shapeRefine, schema.properties !== undefined)
+        const distributed = distribute(
+          member,
+          shapeZ,
+          shapeRefine,
+          schema.properties !== undefined,
+          shapeSchema,
+        )
         if (distributed === null || distributed === schemas[index]) continue
         const distributedSchemas = schemas.map((s, position) =>
           position === index ? distributed : s,
@@ -573,7 +754,10 @@ export function zodToOpenAPI(
       // instead of the property's type error.
       const branchesAdmitNullOrUndefined =
         (schema.type === undefined || normalizeTypes(schema.type).includes('null')) &&
-        schema.anyOf.some((branch) => canAdmitNullOrUndefined(branch, childOptions?.schemas))
+        schema.anyOf.some(
+          (branch) =>
+            canAdmitNullOrUndefined(branch, childOptions?.schemas) || hasOwnWrapping(branch),
+        )
       if ((objectOnly || branchesRequireObject) && !branchesAdmitNullOrUndefined) {
         const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
         const andZ = `${unionZ}.and(${shapeZ})`
@@ -592,7 +776,7 @@ export function zodToOpenAPI(
       const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
       const shapeRefine = emitObjectShapeRefine(shapeSchema, child)
       const distributed = schema.anyOf.map((branch) =>
-        distribute(branch, shapeZ, shapeRefine, schema.properties !== undefined),
+        distribute(branch, shapeZ, shapeRefine, schema.properties !== undefined, shapeSchema),
       )
       if (!distributed.some((part) => part === null)) {
         return done(
@@ -686,7 +870,10 @@ export function zodToOpenAPI(
       // `null` (see the anyOf member path).
       const branchesAdmitNullOrUndefined =
         (schema.type === undefined || normalizeTypes(schema.type).includes('null')) &&
-        schema.oneOf.some((branch) => canAdmitNullOrUndefined(branch, childOptions?.schemas))
+        schema.oneOf.some(
+          (branch) =>
+            canAdmitNullOrUndefined(branch, childOptions?.schemas) || hasOwnWrapping(branch),
+        )
       if ((objectOnly || branchesRequireObject) && !branchesAdmitNullOrUndefined) {
         const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
         const andZ = `${z}.and(${shapeZ})`
@@ -705,7 +892,7 @@ export function zodToOpenAPI(
       const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
       const shapeRefine = emitObjectShapeRefine(shapeSchema, child)
       const distributed = schema.oneOf.map((branch) =>
-        distribute(branch, shapeZ, shapeRefine, schema.properties !== undefined),
+        distribute(branch, shapeZ, shapeRefine, schema.properties !== undefined, shapeSchema),
       )
       if (!distributed.some((part) => part === null)) {
         // Never `z.discriminatedUnion` here: a distributed branch is no longer
