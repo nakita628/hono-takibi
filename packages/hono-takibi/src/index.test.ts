@@ -835,11 +835,89 @@ export const postItemsIdRoute = createRoute({
   method: 'post',
   path: '/items/{id}',
   operationId: 'createItem',
-  request: { body: ItemBodyRequestBody },
+  request: {
+    params: z.object({
+      id: z
+        .string()
+        .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } }),
+    }),
+    body: ItemBodyRequestBody,
+  },
   responses: { 201: { description: 'Created' } },
   callbacks: { onCreated: OnCreatedCallback },
 })
 `)
+  })
+
+  // #508: a path template parameter the document does not declare
+  it('declares the path parameters a template names and the document leaves out', () => {
+    const undeclaredOpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'undeclared-path-param-repro', version: '1.0.0' },
+      paths: {
+        '/users/{id}': { get: { responses: { 200: { description: 'ok' } } } },
+        '/users/{user_id}/messages/{message_id}': {
+          get: {
+            parameters: [
+              { name: 'user_id', in: 'path', required: true, schema: { type: 'string' } },
+            ],
+            responses: { 200: { description: 'ok' } },
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/undeclared.json', JSON.stringify(undeclaredOpenAPI))
+    fs.writeFileSync(
+      'tmp-cli-test/hono-takibi.config.ts',
+      `export default { input: 'undeclared.json', output: 'src/routes.ts', template: {}, client: { output: 'src/client.ts', baseUrl: '/' }, rpc: { output: 'src/rpc.ts', parseResponse: true } }`,
+    )
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
+      cwd: path.resolve('tmp-cli-test'),
+    })
+    expect(fs.readFileSync('tmp-cli-test/src/routes.ts', { encoding: 'utf8' }))
+      .toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const getUsersIdRoute = createRoute({
+  method: 'get',
+  path: '/users/{id}',
+  request: {
+    params: z.object({
+      id: z
+        .string()
+        .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } }),
+    }),
+  },
+  responses: { 200: { description: 'ok' } },
+})
+
+export const getUsersUserIdMessagesMessageIdRoute = createRoute({
+  method: 'get',
+  path: '/users/{user_id}/messages/{message_id}',
+  request: {
+    params: z.object({
+      user_id: z
+        .string()
+        .openapi({
+          param: { name: 'user_id', in: 'path', required: true, schema: { type: 'string' } },
+        }),
+      message_id: z
+        .string()
+        .openapi({
+          param: { name: 'message_id', in: 'path', required: true, schema: { type: 'string' } },
+        }),
+    }),
+  },
+  responses: { 200: { description: 'ok' } },
+})
+`)
+    expect(fs.readFileSync('tmp-cli-test/src/rpc.ts', { encoding: 'utf8' })).toContain(
+      `export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$get(args, options))
+}`,
+    )
   })
 
   it('error on missing input file', () => {
