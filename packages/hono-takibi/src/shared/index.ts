@@ -46,6 +46,7 @@ import {
   makeGeneratedImport,
   isInsideDirectory,
   normalizeOpenAPI,
+  templateParameterWarnings,
 } from '../helper/index.js'
 import type { Grouping } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
@@ -355,6 +356,15 @@ export function openAPI3(document: OpenAPI, input: string) {
   return Effect.succeed(
     normalizeOpenAPI(isObjectValue(document.paths) ? document : { ...document, paths: {} }),
   )
+}
+
+/**
+ * What a run says of the document beside what it wrote: a line per operation whose path
+ * template names a parameter the document does not declare (#508). Asked of the document as
+ * it was read, since `openAPI3` answers one that declares them.
+ */
+export function documentWarnings(document: OpenAPI): readonly string[] {
+  return templateParameterWarnings(document)
 }
 
 export function packageRoots(openAPI: OpenAPI, config: Config) {

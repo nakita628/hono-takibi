@@ -4,7 +4,13 @@ import { Effect } from 'effect'
 import { parseConfig } from '../config/index.js'
 import { FormatOptions } from '../format/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { cleanSplitOutputs, makeJob, openAPI3, packageRoots } from '../shared/index.js'
+import {
+  cleanSplitOutputs,
+  documentWarnings,
+  makeJob,
+  openAPI3,
+  packageRoots,
+} from '../shared/index.js'
 
 /**
  * Runs a config as the CLI runs `hono-takibi.config.ts`, for a program that generates code
@@ -22,13 +28,16 @@ import { cleanSplitOutputs, makeJob, openAPI3, packageRoots } from '../shared/in
 export function generate(config: unknown) {
   return Effect.gen(function* () {
     const parsed = yield* parseConfig(config)
-    const openAPI = yield* openAPI3(yield* parseOpenAPI(parsed.input), parsed.input)
+    const document = yield* parseOpenAPI(parsed.input)
+    const openAPI = yield* openAPI3(document, parsed.input)
     const jobs = makeJob(openAPI, parsed, yield* packageRoots(openAPI, parsed))
     yield* cleanSplitOutputs(jobs.filter((job) => job.split).map((job) => job.output))
     const messages = yield* Effect.forEach(jobs, (job) => job.run(job.output), {
       concurrency: 'unbounded',
     }).pipe(Effect.provideService(FormatOptions, parsed.format ?? {}))
-    return messages.filter((message) => message !== '').join('\n')
+    return [...messages, ...documentWarnings(document)]
+      .filter((message) => message !== '')
+      .join('\n')
   }).pipe(
     Effect.mapError((error) => new Error(error.message)),
     Effect.provide(NodeServices.layer),
