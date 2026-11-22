@@ -20,9 +20,18 @@
     "automerge": true,
     "schedule": ["* * * * 6"]
   },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "actionlint and zizmor, installed with pipx in the Lint workflow.",
+      "managerFilePatterns": ["/^\\.github/workflows/lint\\.yml$/"],
+      "matchStrings": ["pipx install (?<depName>[a-z0-9-]+)==(?<currentValue>[0-9.]+)"],
+      "datasourceTemplate": "pypi"
+    }
+  ],
   "packageRules": [
     {
-      "matchDatasources": ["npm", "github-actions"],
+      "matchDatasources": ["npm", "github-actions", "pypi"],
       "minimumReleaseAge": "7 days"
     },
     {
