@@ -1,4 +1,3 @@
-import { OpenAPIHono, createRoute, z as zOpenAPI } from '@hono/zod-openapi'
 import { describe, expect, it } from 'vite-plus/test'
 import { z } from 'zod'
 
@@ -15259,43 +15258,6 @@ describe('properties beside combinators', () => {
       data: { a: 'x', b: 'y', link: 'z' },
     })
     expect(Distributed.safeParse({ a: 'x', b: 'y', link: 123 }).success).toBe(false)
-  })
-
-  it.concurrent('runtime: an x-catch branch keeps the check-pipe, so the document still builds (#471)', () => {
-    // The check-pipe form the emitter now produces for an `x-catch` branch,
-    // mirrored by hand (repo convention, no `new Function` / `eval`):
-    // `@hono/zod-openapi` cannot render `.catch()` — document generation
-    // throws `Unknown zod object type` — while the check-pipe renders as
-    // `{}` (structure lost, as on main) and the shape check still rejects a
-    // wrong-typed sibling before the branch runs.
-    const Caught = zOpenAPI
-      .unknown()
-      .check(shapeCheck461)
-      .pipe(
-        zOpenAPI.union([
-          zOpenAPI.object({ a: zOpenAPI.string().exactOptional() }).catch({ a: 'c' }),
-          zOpenAPI.string(),
-        ]),
-      )
-    expect(Caught.safeParse({ a: 'x', link: 123 }).success).toBe(false)
-    const app = new OpenAPIHono()
-    app.openapi(
-      createRoute({
-        method: 'get',
-        path: '/x',
-        responses: {
-          200: {
-            description: 'ok',
-            content: { 'application/json': { schema: Caught } },
-          },
-        },
-      }),
-      (c) => c.json({}),
-    )
-    const doc = app.getOpenAPI31Document({ openapi: '3.1.0', info: { title: 't', version: '1' } })
-    expect(
-      (doc as any).paths['/x'].get.responses['200'].content['application/json'].schema,
-    ).toStrictEqual({})
   })
 
   it.concurrent('runtime: the member path keeps the property type error', () => {

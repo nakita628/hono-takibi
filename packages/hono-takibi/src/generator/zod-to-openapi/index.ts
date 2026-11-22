@@ -70,6 +70,20 @@ function withUnevaluatedCheck(zod: string, unevalCheck: string): string {
   return `(()=>{const Schema=${zod};return z.preprocess((val: z.input<typeof Schema>,ctx)=>{(${unevalCheck})(ctx);return val},Schema)})()`
 }
 
+// Whether a schema carries its own wrapping (`.nullable()`, `.default()`,
+// `.prefault()`, `.catch()`) on itself. `canAdmitNullOrUndefined` follows a
+// `$ref` to its target and never sees the wrapping on the branch itself,
+// so a `$ref` branch with its own wrapping needs this check beside it.
+function hasOwnWrapping(branch: Schema): boolean {
+  return (
+    branch.nullable === true ||
+    normalizeTypes(branch.type).includes('null') ||
+    branch.default !== undefined ||
+    branch['x-prefault'] !== undefined ||
+    branch['x-catch'] !== undefined
+  )
+}
+
 export function zodToOpenAPI(
   schema: Schema | boolean,
   meta?: {
@@ -259,16 +273,6 @@ export function zodToOpenAPI(
     }
     return core
   }
-  // Whether a schema carries its own wrapping (`.nullable()`, `.default()`,
-  // `.prefault()`, `.catch()`) on itself. `canAdmitNullOrUndefined` follows a
-  // `$ref` to its target and never sees the wrapping on the branch itself,
-  // so a `$ref` branch with its own wrapping needs this check beside it.
-  const hasOwnWrapping = (branch: Schema): boolean =>
-    branch.nullable === true ||
-    normalizeTypes(branch.type).includes('null') ||
-    branch.default !== undefined ||
-    branch['x-prefault'] !== undefined ||
-    branch['x-catch'] !== undefined
   // Distribute the shape into a branch whose own wrapping admits `null` or
   // substitutes on `undefined` (#471): the shape goes INSIDE the wrapping,
   // `core.and(shape).nullable()` / `.default(...)`, so the sibling keys stay
@@ -318,23 +322,16 @@ export function zodToOpenAPI(
       type: branchType,
       ...coreRest
     } = branch
-    const coreType =
-      branchType === undefined
-        ? undefined
-        : Array.isArray(branchType)
-          ? branchType.filter((type) => type !== 'null')
-          : branchType === 'null'
-            ? undefined
-            : branchType
-    // A conditional spread would type `type` as possibly `undefined`,
-    // which `exactOptionalPropertyTypes` rejects — build each branch whole.
-    // The length check guarantees a non-empty list at runtime, and
-    // `NonNullable` drops the `undefined` indexed access adds to the
-    // optional property's type.
+    // The branch's type without `null`: a conditional spread would type
+    // `type` as possibly `undefined`, which `exactOptionalPropertyTypes`
+    // rejects — build each branch whole. Splitting the filtered list keeps
+    // the value typed as `Type | [Type, ...Type[]]`, so no assertion is
+    // needed; a single remaining type stays a scalar, several stay a list.
+    const [first, ...rest] = normalizeTypes(branchType).filter((type) => type !== 'null')
     const coreSchema: Schema =
-      coreType === undefined || (Array.isArray(coreType) && coreType.length === 0)
+      first === undefined
         ? { ...coreRest }
-        : { ...coreRest, type: coreType as NonNullable<Schema['type']> }
+        : { ...coreRest, type: rest.length === 0 ? first : [first, ...rest] }
     if (canAdmitNullOrUndefined(coreSchema, childOptions?.schemas)) return null
     const andZ = `${child(coreSchema)}.and(${shapeZ})`
     const distributed = shapeHasProperties ? andZ : `${andZ}.superRefine(${shapeRefine})`
@@ -353,10 +350,10 @@ export function zodToOpenAPI(
       branch.nullable === true || normalizeTypes(branch.type).includes('null') || defaultIsNull
     let out = distributed
     if (nullable) out = `${out}.nullable()`
-    if (mergedDefault !== undefined && mergedDefault.ok) {
+    if (mergedDefault?.ok) {
       out = `${out}.default(${JSON.stringify(mergedDefault.value)})`
     }
-    if (mergedPrefault !== undefined && mergedPrefault.ok) {
+    if (mergedPrefault?.ok) {
       out = `${out}.prefault(${JSON.stringify(mergedPrefault.value)})`
     }
     return out
