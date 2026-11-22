@@ -231,8 +231,8 @@ describe('templateCode (sandbox)', () => {
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenAPIHono.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono-x.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zod-open-api-hono.ts'))).toBe(true)
       expect(result).toBe('🔥 Generated code and template files written')
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -258,8 +258,8 @@ describe('templateCode (sandbox)', () => {
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenAPIHono.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono-x.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zod-open-api-hono.ts'))).toBe(true)
 
       const appCode = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8')
       expect(appCode).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'

@@ -42,6 +42,7 @@ import {
   makeAppEntryImport,
   appEntryOutput,
   handlerGroupOf,
+  pathGroupOf,
   makeGeneratedImport,
   isInsideDirectory,
   normalizeOpenAPI,
@@ -498,11 +499,10 @@ export function makeJob(
   // routes themselves, which goes by the first tag, and the first segment of the path
   // otherwise. Both are named the way a handler file is.
   const isInline = config.template?.define === false && !config.template.routeHandler
-  const fileNameCase = config.template?.fileNameCase
   const grouping: Grouping | undefined = isSplit
     ? isInline
-      ? (endpoint, tags) => handlerGroupOf(endpoint, tags, fileNameCase)
-      : (endpoint) => handlerGroupOf(endpoint, undefined, fileNameCase)
+      ? handlerGroupOf
+      : (endpoint) => pathGroupOf(endpoint)
     : undefined
   // A client that is not an `index.ts` is re-exported by the `index.ts` beside it, and
   // imported through it — unless that file is what another generator writes.
@@ -958,7 +958,6 @@ export function makeJob(
                 packageRoot(from) !== packageRoot(componentsOutput)
                   ? config.components.package
                   : undefined,
-              fileNameCase,
             ),
         }
       : config.template && !defineOn && appOutput
@@ -977,7 +976,6 @@ export function makeJob(
                 config.template?.define === false ? config.template.routeHandler : false,
                 // config.template?.testFramework,
                 isSplit,
-                fileNameCase,
               ),
           }
         : undefined,

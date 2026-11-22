@@ -4,22 +4,21 @@ import { isHttpMethod, isOperation } from '../../../guard/index.js'
 import {
   entryNames,
   groupNameOf,
-  handlerGroupOf,
   handlerNameOf,
   makeHandlerFileName,
+  pathGroupOf,
 } from '../../../helper/index.js'
-import type { FileNameCase } from '../../../helper/index.js'
 import type { OpenAPI } from '../../../openapi/index.js'
 import { routeName as makeRouteName } from '../../../utils/index.js'
 
 /** The handler files the operations of a document are written to, in document order. */
-function handlerFilesOf(openapi: OpenAPI, fileNameCase: FileNameCase | undefined) {
+function handlerFilesOf(openapi: OpenAPI) {
   return [
     ...new Set(
       Object.entries(openapi.paths).flatMap(([path, pathItem]) =>
         Object.entries(pathItem).flatMap(([method, operation]) =>
           isHttpMethod(method) && isOperation(operation)
-            ? [makeHandlerFileName(path, operation.tags, fileNameCase)]
+            ? [makeHandlerFileName(path, operation.tags)]
             : [],
         ),
       ),
@@ -41,16 +40,15 @@ export function appGroups(
   inline: boolean,
   inlineHandlerFileNames: readonly string[] | undefined,
   split: boolean,
-  fileNameCase?: FileNameCase,
 ): readonly string[] {
   if (!split) return []
   const names = inline
-    ? (inlineHandlerFileNames ?? handlerFilesOf(openapi, fileNameCase)).map((file) =>
+    ? (inlineHandlerFileNames ?? handlerFilesOf(openapi)).map((file) =>
         groupNameOf(handlerNameOf(file)),
       )
     : Object.entries(openapi.paths).flatMap(([path, pathItem]) =>
         Object.keys(pathItem).flatMap((method) =>
-          isHttpMethod(method) ? [handlerGroupOf(path, undefined, fileNameCase)] : [],
+          isHttpMethod(method) ? [pathGroupOf(path)] : [],
         ),
       )
   return [...new Set(names)]
@@ -77,7 +75,6 @@ export function app(
   handlerModuleOverride?: string,
   inlineHandlerFileNames?: readonly string[],
   split = false,
-  fileNameCase?: FileNameCase,
 ) {
   const getRouteMaps = () => {
     const paths = openapi.paths
@@ -100,7 +97,7 @@ export function app(
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
   const inline = !define && !routeHandler
   // The entry binds `app` and `OpenAPIHono` for itself, under names no group has.
-  const groups = appGroups(openapi, inline, inlineHandlerFileNames, split, fileNameCase)
+  const groups = appGroups(openapi, inline, inlineHandlerFileNames, split)
   const { app: appVar, hono } = entryNames(groups)
   const honoImport = `import{${hono === 'OpenAPIHono' ? hono : `OpenAPIHono as ${hono}`}}from'@hono/zod-openapi'`
   const appInit =
@@ -122,7 +119,7 @@ export function app(
         const routes = [
           ...new Set(
             routeMappings
-              .filter(({ path }) => handlerGroupOf(path, undefined, fileNameCase) === name)
+              .filter(({ path }) => pathGroupOf(path) === name)
               .map(({ routeName }) => routeName),
           ),
         ]
@@ -137,7 +134,7 @@ export function app(
     return [importSection, appInit, apiInit, appExport].filter(Boolean).join('\n\n')
   }
   if (!routeHandler) {
-    const handlerFileNames = inlineHandlerFileNames ?? handlerFilesOf(openapi, fileNameCase)
+    const handlerFileNames = inlineHandlerFileNames ?? handlerFilesOf(openapi)
     // A handler file exports its sub-app under the name it goes by in code, which is its
     // base name in camel case whatever the case of the file.
     const files = [...new Set(handlerFileNames.map(handlerNameOf))]
@@ -191,7 +188,7 @@ export function app(
   const inits = groups.map(
     (name) =>
       `export const ${name}=${appVar}${routeMappings
-        .filter(({ path }) => handlerGroupOf(path, undefined, fileNameCase) === name)
+        .filter(({ path }) => pathGroupOf(path) === name)
         .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
         .join('\n')}`,
   )

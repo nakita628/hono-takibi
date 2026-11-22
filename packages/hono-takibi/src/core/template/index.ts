@@ -9,7 +9,6 @@ import {
   resolveInlineHandlerFileNames,
   zodOpenAPIHonoHandler,
 } from '../../helper/index.js'
-import type { FileNameCase } from '../../helper/index.js'
 import { mergeAppFile } from '../../merge/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
@@ -24,7 +23,6 @@ export function template(
   routeHandler: boolean,
   // testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
   split = false,
-  fileNameCase?: FileNameCase,
 ) {
   return Effect.gen(function* () {
     const target = makeAppEntryFile(output, false)
@@ -37,13 +35,12 @@ export function template(
       routeHandler,
       // basePath,
       // testFramework,
-      fileNameCase,
     )
     // Inline sub-routers are mounted by file name, so the app entry must follow the files the
     // handlers actually landed in (hand-written splits included), read back after writing.
     const inlineFiles = routeHandler
       ? undefined
-      : yield* resolveInlineHandlerFileNames(openAPI, output, pathAlias, routeImport, fileNameCase)
+      : yield* resolveInlineHandlerFileNames(openAPI, output, pathAlias, routeImport)
     const appCode = yield* fmt(
       app(
         openAPI,
@@ -56,7 +53,6 @@ export function template(
         undefined,
         inlineFiles,
         split,
-        fileNameCase,
       ),
     )
     const existing = yield* readFile(target)
@@ -65,7 +61,7 @@ export function template(
         ? mergeAppFile(
             existing,
             appCode,
-            entryNames(appGroups(openAPI, !routeHandler, inlineFiles, split, fileNameCase)),
+            entryNames(appGroups(openAPI, !routeHandler, inlineFiles, split)),
           )
         : appCode
     // A merge can produce source oxfmt rejects; the unformatted merge is still the

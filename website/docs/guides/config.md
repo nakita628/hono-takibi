@@ -96,7 +96,6 @@ export default defineConfig({
     routeHandler: false, // true: RouteHandler exports
     define: false, // true: defineOpenAPIRoute output
     split: false, // true: one exported group per first path segment
-    fileNameCase: 'camelCase', // 'kebab-case': handlers/real-time-events.ts
   },
 
   exportSchemas: true,

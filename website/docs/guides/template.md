@@ -38,29 +38,23 @@ Run it again after editing the spec. New operations get a stub, existing handler
 
 ## File names
 
-A handler file is named after the first tag of its operations, or the first path segment when there is no tag. `fileNameCase: 'kebab-case'` writes that name in kebab case. The default is `'camelCase'`.
+A handler file is named after the first tag of its operations, or the first path segment when there is no tag, in kebab-case.
 
-```ts
-export default defineConfig({
-  input: 'openapi.yaml',
-  output: './src/routes.ts',
-  template: { fileNameCase: 'kebab-case' },
-})
-```
+| Tag or path        | File                  | Export (`routeHandler: false`) |
+| ------------------ | --------------------- | ------------------------------ |
+| `Real-Time Events` | `real-time-events.ts` | `realTimeEventsHandler`        |
+| `API Keys`         | `api-keys.ts`         | `apiKeysHandler`               |
+| `/v2-public/ping`  | `v2-public.ts`        | `v2PublicHandler`              |
+| `/`                | `__root.ts`           | `__rootHandler`                |
 
-| Tag                | `'camelCase'`       | `'kebab-case'`        |
-| ------------------ | ------------------- | --------------------- |
-| `Real-Time Events` | `realTimeEvents.ts` | `real-time-events.ts` |
-| `API Keys`         | `apiKeys.ts`        | `api-keys.ts`         |
-
-Only the file name changes. Exports and `split` groups stay in camelCase: `real-time-events.ts` exports `realTimeEventsHandler`.
+Only the file name is kebab-case. Exports and `split` groups are camelCase.
 
 ```ts
 // src/handlers/real-time-events.ts
 export const realTimeEventsHandler = app.openapi(getEventsRoute, (c) => {})
 ```
 
-A file that already holds a handler keeps its name. Switching the option on an existing project renames nothing and duplicates nothing: new operations of a tag join the file that tag already has. Rename the files yourself if you want them in the new case, the generator follows them.
+A file that already holds a handler keeps its name. A project generated with camelCase names (`realTimeEvents.ts`) is not renamed, and new operations of a tag join the file that tag already has. Rename the files yourself if you want them in kebab-case, the generator follows them.
 
 ## Modes
 
