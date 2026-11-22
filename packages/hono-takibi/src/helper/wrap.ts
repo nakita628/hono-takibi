@@ -9,7 +9,7 @@ import {
   isUntypedObject,
 } from '../guard/index.js'
 import type { Header, Parameter, Schema, Type } from '../openapi/index.js'
-import { regexLiteral } from '../utils/index.js'
+import { normalizeTypes, regexLiteral } from '../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { makeExamples } from './openapi.js'
 import { WIRE_EMPTY, WIRE_INHERITED, WIRE_NULL, resolveSchemaRef, wireStyle } from './wire.js'
@@ -706,6 +706,107 @@ function typeOf(value: unknown) {
   return undefined
 }
 
+/**
+ * What a value is read by: the schema itself, the component a reference names, the members
+ * of its `allOf`, and the branch of a `oneOf` / `anyOf` that takes the value. A schema with a
+ * user chain hands out what the chain does, which nothing here can tell, so it reads nothing.
+ */
+function readersOf(
+  schema: Schema,
+  value: unknown,
+  schemas: { readonly [k: string]: Schema } | undefined,
+  reading: ReadonlySet<string> = new Set(),
+): readonly Schema[] {
+  if (!hasNoUserChain(schema)) return []
+  if (schema.$ref !== undefined) {
+    const target = reading.has(schema.$ref) ? undefined : resolveSchemaRef(schema.$ref, schemas)
+    if (target === undefined) return []
+    const { $ref: _ref, ...beside } = schema
+    return readersOf({ ...target, ...beside }, value, schemas, new Set([...reading, schema.$ref]))
+  }
+  const branch = (schema.oneOf ?? schema.anyOf)?.find(
+    (candidate) => conformDefault(candidate, value, schemas, reading).ok,
+  )
+  return [
+    schema,
+    ...(schema.allOf ?? []).flatMap((member) => readersOf(member, value, schemas, reading)),
+    ...(branch === undefined ? [] : readersOf(branch, value, schemas, reading)),
+  ]
+}
+
+/**
+ * A value as the literal of its schema, at every level (#491). JSON has one kind of number,
+ * and an `int64` / `uint64` / `bigint` integer is emitted as a bigint, so a number such a
+ * schema reads is written as one — `{"n":1n}`, `[1n,2n]` — wherever it stands in an object or
+ * an array; a `date` is written as the `Date` it names. Everything else is its JSON. `bigint`
+ * says whether the literal holds a bigint, which no document can.
+ */
+export function valueLiteral(
+  schema: Schema,
+  value: unknown,
+  schemas?: { readonly [k: string]: Schema },
+): { readonly code: string; readonly bigint: boolean } {
+  if (value === undefined) return { code: 'undefined', bigint: false }
+  if (value === null || typeof value === 'boolean') {
+    return { code: JSON.stringify(value), bigint: false }
+  }
+  const readers = readersOf(schema, value, schemas)
+  if (typeof value === 'number') {
+    // Only an integer of a 64-bit format is emitted as a bigint (`z.int64()`); a
+    // `type: number` with `format: int64` is `z.number()`, and takes a number (#412).
+    const format = Number.isInteger(value)
+      ? readers.find(
+          (reader) =>
+            normalizeTypes(reader.type).includes('integer') &&
+            (reader.format === 'int64' || reader.format === 'uint64' || reader.format === 'bigint'),
+        )?.format
+      : undefined
+    if (format === undefined) return { code: `${value}`, bigint: false }
+    return { code: format === 'bigint' ? `BigInt(${value})` : `${value}n`, bigint: true }
+  }
+  if (typeof value === 'string') {
+    return {
+      code: readers.some((reader) => reader.type === 'date')
+        ? `new Date(${JSON.stringify(value)})`
+        : JSON.stringify(value),
+      bigint: false,
+    }
+  }
+  if (Array.isArray(value)) {
+    const items = readers
+      .map((reader) => reader.items)
+      .find((item) => item !== undefined && typeof item !== 'boolean' && !isSchemaArray(item))
+    const members = value.map((member: unknown) =>
+      items === undefined || typeof items === 'boolean' || isSchemaArray(items)
+        ? valueLiteral({}, member, schemas)
+        : valueLiteral(items, member, schemas),
+    )
+    return {
+      code: `[${members.map((member) => member.code).join(',')}]`,
+      bigint: members.some((member) => member.bigint),
+    }
+  }
+  if (isRecord(value)) {
+    // A key is read by the property that declares it, or by what every other key is held to.
+    const members = Object.entries(value).flatMap(([key, member]) => {
+      if (member === undefined) return []
+      const additional = readers
+        .map((reader) => reader.additionalProperties)
+        .find((sub) => typeof sub === 'object')
+      const property =
+        readers.map((reader) => reader.properties?.[key]).find((sub) => sub !== undefined) ??
+        (typeof additional === 'object' ? additional : undefined)
+      const literal = valueLiteral(property ?? {}, member, schemas)
+      return [{ code: `${JSON.stringify(key)}:${literal.code}`, bigint: literal.bigint }]
+    })
+    return {
+      code: `{${members.map((member) => member.code).join(',')}}`,
+      bigint: members.some((member) => member.bigint),
+    }
+  }
+  return { code: JSON.stringify(value), bigint: false }
+}
+
 export function wrap(
   zod: string,
   schema: Schema,
@@ -777,7 +878,21 @@ export function wrap(
     if (typeList.includes('boolean') && (v === 'true' || v === 'false')) {
       return v
     }
+    // An object or an array is written member by member, each as the literal of its own
+    // schema: a number an int64 member reads is a bigint there too (#491).
+    if (Array.isArray(v) || isRecord(v)) {
+      return valueLiteral(schema, v, options?.schemas).code
+    }
     return JSON.stringify(v)
+  }
+  // The fallback of `x-catch`, as what the schema reads. `z.stringbool()` reads text alone:
+  // a boolean fallback is the first text it reads as that boolean.
+  const catchLiteral = (v: unknown): string => {
+    if (typeof v !== 'boolean' || !zod.startsWith('z.stringbool(')) return formatLiteral(v)
+    const stringbool = schema['x-stringbool']
+    const texts =
+      typeof stringbool === 'object' ? (v ? stringbool.truthy : stringbool.falsy) : undefined
+    return JSON.stringify(texts?.[0] ?? `${v}`)
   }
   // `.exactOptional()` fails the `safeParse(undefined)` probe @hono/zod-openapi derives
   // `required` from, so an optional parameter or header states `required: false` itself
@@ -804,10 +919,27 @@ export function wrap(
   const conformed = conformDefault(schema, schema.default, options?.schemas)
   const defaultValue = conformed.ok ? conformed.value : undefined
   const droppedDefault = schema.default !== undefined && !conformed.ok
+  // The document reads its `default` off `.default()` / `.prefault()`, and a bigint inside
+  // one cannot be serialised — serving the document throws. The JSON value is what the
+  // source declares, so the document states that instead (#491).
+  const documentedDefault = defaultValue === undefined ? schema['x-prefault'] : defaultValue
+  const statedDefault =
+    documentedDefault !== undefined &&
+    valueLiteral(schema, documentedDefault, options?.schemas).bigint
+      ? documentedDefault
+      : undefined
   // A schema that declares `null` nowhere but in `default: null` (a `oneOf`, a reference, a
   // string) still has to accept it: `.default(null)` on a non-nullable schema does not
   // type-check, and the default makes `null` a value the schema answers with.
-  const isNullable = schema.nullable === true || typeList.includes('null') || defaultValue === null
+  // `x-prefault: null` and `x-catch: null` say the same of their own value (#490):
+  // `.prefault(null)` hands `null` to the schema, which has to take it, and `null` is what
+  // the catch answers with.
+  const isNullable =
+    schema.nullable === true ||
+    typeList.includes('null') ||
+    defaultValue === null ||
+    schema['x-prefault'] === null ||
+    schema['x-catch'] === null
   // `.nullable()` must precede `.default()` so `.default(null)` validates.
   const build = (core: string) => {
     const typed = isNullable ? `${acceptBothArities(core)}.nullable()` : acceptBothArities(core)
@@ -826,8 +958,16 @@ export function wrap(
       schema['x-prefault'] !== undefined
         ? `${defaulted}.prefault(${formatLiteral(schema['x-prefault'])})`
         : defaulted
+    // `.catch()` is a `ZodCatch`, which `@hono/zod-openapi` cannot render: the document
+    // throws as soon as a route uses the schema (#492). What it does is written as a
+    // `z.preprocess` instead, which the document renders by the schema inside it: a value
+    // the schema does not take is replaced by the fallback before the schema reads it. The
+    // fallback is read by the schema in turn, so where the schema reads text
+    // (`z.stringbool()`) it is the text of the fallback.
     const caught =
-      schema['x-catch'] !== undefined ? `${pf}.catch(${formatLiteral(schema['x-catch'])})` : pf
+      schema['x-catch'] !== undefined
+        ? `(()=>{const Schema=${pf};return z.preprocess((val: z.input<typeof Schema>)=>Schema.safeParse(val).success?val:${catchLiteral(schema['x-catch'])},Schema)})()`
+        : pf
     const fr = schema['x-readonly'] === true ? `${caught}.readonly()` : caught
     const refineChain = `${fr}${schema['x-refine'] ?? ''}`
     const superRefineChain = `${refineChain}${schema['x-superRefine'] ?? ''}`
@@ -906,6 +1046,9 @@ export function wrap(
     // pattern that no JavaScript regex literal can stand for (#370) or that describes the
     // text of a file (#413). An int64 states its default below, once (#403).
     ...(droppedDefault && !isBigintInteger ? [['default', schema.default] as const] : []),
+    ...(statedDefault !== undefined && !isBigintInteger && !droppedDefault
+      ? [['default', statedDefault] as const]
+      : []),
     ...(typeof schema.pattern === 'string' && (isFile || regexLiteral(schema.pattern) === undefined)
       ? [['pattern', schema.pattern] as const]
       : []),

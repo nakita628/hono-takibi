@@ -4,6 +4,7 @@ import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Schema } from '../openapi/index.js'
 import {
   emitTypelessRefine,
+  makeStrictOperandCheck,
   makeUnevaluatedProperties,
   makeUnevaluatedPropertiesCheck,
   makeIssueForwarding,
@@ -877,5 +878,156 @@ describe('helper/zod: narrowToDeclaredType (#468)', () => {
       expect(narrowed).not.toBe(schema)
       expect(narrowToDeclaredType(narrowed)).toBe(narrowed)
     }
+  })
+})
+
+// The pieces of the check `makeStrictOperandCheck` emits.
+const strictGuard = `const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;`
+const undeclaredKeys = (list: string, message = '') =>
+  `for(const k of Object.keys(o)){if(!${list}.includes(k)){ctx.issues.push({code:"custom",path:[k],input:o${message}})}}`
+const handOnOperand = (zod: string) =>
+  `{const result=${zod}.safeParse(o);if(!result.success&&result.error.issues.every((issue)=>issue.code==='unrecognized_keys'&&issue.path.length===0)){for(const issue of result.error.issues){if(issue.code==='unrecognized_keys'){for(const k of issue.keys){ctx.issues.push({code:"custom",path:[k],input:o,message:issue.message})}}}}}`
+
+describe('helper/zod: makeStrictOperandCheck (#470)', () => {
+  const str = { type: 'string' } as const
+  const strict = { type: 'object', properties: { id: str }, additionalProperties: false } as const
+  it('returns an empty string when no operand is strict', () => {
+    expect(makeStrictOperandCheck([])).toBe('')
+    expect(
+      makeStrictOperandCheck([
+        { schema: { type: 'object', properties: { id: str } }, zod: 'A' },
+        { schema: { type: 'object', additionalProperties: true }, zod: 'B' },
+        { schema: { type: 'object', additionalProperties: str }, zod: 'C' },
+        { schema: { type: 'string' }, zod: 'D' },
+      ]),
+    ).toBe('')
+  })
+
+  it('reports the keys a strict object does not declare', () => {
+    expect(makeStrictOperandCheck([{ schema: strict, zod: 'A' }])).toBe(
+      `(ctx)=>{${strictGuard}${undeclaredKeys('["id"]')}}`,
+    )
+  })
+
+  it('checks every strict operand, each against its own keys', () => {
+    expect(
+      makeStrictOperandCheck([
+        { schema: strict, zod: 'A' },
+        { schema: { type: 'object', properties: { link: str } }, zod: 'B' },
+        {
+          schema: { type: 'object', properties: { x: str, y: str }, additionalProperties: false },
+          zod: 'C',
+        },
+      ]),
+    ).toBe(`(ctx)=>{${strictGuard}${undeclaredKeys('["id"]')};${undeclaredKeys('["x","y"]')}}`)
+  })
+
+  it('reads a reference as the component it names, and what is beside it over that', () => {
+    const schemas = { Strict: strict, Open: { type: 'object', properties: { id: str } } } as const
+    expect(
+      makeStrictOperandCheck(
+        [{ schema: { $ref: '#/components/schemas/Strict' }, zod: 'StrictSchema' }],
+        schemas,
+      ),
+    ).toBe(`(ctx)=>{${strictGuard}${undeclaredKeys('["id"]')}}`)
+    expect(
+      makeStrictOperandCheck(
+        [
+          {
+            schema: { $ref: '#/components/schemas/Open', additionalProperties: false },
+            zod: 'OpenSchema',
+          },
+        ],
+        schemas,
+      ),
+    ).toBe(`(ctx)=>{${strictGuard}${undeclaredKeys('["id"]')}}`)
+    // A reference that cannot be resolved says nothing about its keys.
+    expect(
+      makeStrictOperandCheck([{ schema: { $ref: '#/components/schemas/Strict' }, zod: 'S' }]),
+    ).toBe('')
+  })
+
+  it('uses x-additionalProperties-message as the message of the keys', () => {
+    expect(
+      makeStrictOperandCheck([
+        { schema: { ...strict, 'x-additionalProperties-message': 'no extras' }, zod: 'A' },
+      ]),
+    ).toBe(`(ctx)=>{${strictGuard}${undeclaredKeys('["id"]', ',message:"no extras"')}}`)
+  })
+
+  it('takes an untyped object, and one of no property', () => {
+    expect(
+      makeStrictOperandCheck([
+        { schema: { properties: { id: str }, additionalProperties: false }, zod: 'A' },
+      ]),
+    ).toBe(`(ctx)=>{${strictGuard}${undeclaredKeys('["id"]')}}`)
+    expect(
+      makeStrictOperandCheck([
+        { schema: { type: 'object', additionalProperties: false }, zod: 'A' },
+      ]),
+    ).toBe(
+      `(ctx)=>{${strictGuard}for(const k of Object.keys(o)){ctx.issues.push({code:"custom",path:[k],input:o})}}`,
+    )
+  })
+
+  it('leaves alone what reports nothing: a user chain, a catch', () => {
+    expect(
+      makeStrictOperandCheck([
+        { schema: { ...strict, 'x-transform': '(val) => val' }, zod: 'A' },
+        { schema: { ...strict, 'x-catch': {} }, zod: 'B' },
+      ]),
+    ).toBe('')
+  })
+
+  it('asks an operand that can only hand the issue on', () => {
+    // A union, a multi-type, and an `allOf` of one member, which is emitted as the member.
+    expect(makeStrictOperandCheck([{ schema: { anyOf: [strict, str] }, zod: 'U' }])).toBe(
+      `(ctx)=>{${strictGuard}${handOnOperand('U')}}`,
+    )
+    expect(
+      makeStrictOperandCheck([
+        {
+          schema: {
+            type: ['object', 'string'],
+            properties: { id: str },
+            additionalProperties: false,
+          },
+          zod: 'M',
+        },
+      ]),
+    ).toBe(`(ctx)=>{${strictGuard}${handOnOperand('M')}}`)
+    expect(
+      makeStrictOperandCheck([{ schema: { allOf: [{ anyOf: [strict, str] }] }, zod: 'S' }]),
+    ).toBe(`(ctx)=>{${strictGuard}${handOnOperand('S')}}`)
+  })
+
+  it('asks a discriminated union, not an xor', () => {
+    const cat = {
+      type: 'object',
+      properties: { kind: { const: 'cat' } },
+      required: ['kind'],
+      additionalProperties: false,
+    } as const
+    const dog = {
+      type: 'object',
+      properties: { kind: { const: 'dog' } },
+      required: ['kind'],
+      additionalProperties: false,
+    } as const
+    expect(
+      makeStrictOperandCheck([
+        { schema: { oneOf: [cat, dog], discriminator: { propertyName: 'kind' } }, zod: 'Pet' },
+      ]),
+    ).toBe(`(ctx)=>{${strictGuard}${handOnOperand('Pet')}}`)
+    // `z.xor` reports a branch that failed as `invalid_union`.
+    expect(makeStrictOperandCheck([{ schema: { oneOf: [cat, dog] }, zod: 'Xor' }])).toBe('')
+  })
+
+  it('leaves an allOf of several members to its own check', () => {
+    expect(
+      makeStrictOperandCheck([
+        { schema: { allOf: [strict, { type: 'object', properties: { link: str } }] }, zod: 'I' },
+      ]),
+    ).toBe('')
   })
 })

@@ -308,8 +308,15 @@ retries:
 ```
 
 ```ts
-z.int().catch(0)
+const Schema = z.int()
+z.preprocess((val: z.input<typeof Schema>) => (Schema.safeParse(val).success ? val : 0), Schema)
 ```
+
+A value the schema does not take is replaced by the fallback, as `z.int().catch(0)` does. It is written as a `z.preprocess` because `@hono/zod-openapi` cannot render a `.catch()`: generating the OpenAPI document would throw. This way the document shows the schema inside the catch.
+
+- A catch accepts every input, `null` and a missing value among them, so the document lists `null` in the type and does not require the property.
+- The fallback is read by the schema in turn, so it has to be a value the schema accepts.
+- `x-catch: null` (and `x-prefault: null`) makes the schema nullable.
 
 ### Immutability
 

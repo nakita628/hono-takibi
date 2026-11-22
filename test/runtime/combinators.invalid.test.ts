@@ -1034,3 +1034,228 @@ describe('request body', () => {
     expect(await res.text()).toBe('404 Not Found')
   })
 })
+
+// `additionalProperties: false` in an `allOf` member applies to that member alone (JSON
+// Schema 2020-12): the member does not see what the other members declare, so a key it
+// does not declare fails it, and the `allOf` with it. Zod's intersection alone reports a key
+// only when both sides reject it, so the keys are checked on the raw input and reported as
+// one `custom` issue each, under the key.
+// `allOf` のメンバーに書かれた `additionalProperties: false` は、そのメンバーだけに適用される
+// (JSON Schema 2020-12)。メンバーは他のメンバーの宣言を参照しないため、自身が宣言していない
+// キーがあれば失敗し、`allOf` 全体も失敗する。Zod の交差型だけでは、両側が拒否したキーしか
+// 報告されない。そのため、キーは生の入力に対して検証され、キーごとに1件の `custom` として、
+// そのキーの位置に報告される。
+describe('allOf: a member with additionalProperties: false', () => {
+  // `link` is declared by the other member, not by the strict one.
+  // `link` を宣言しているのは他方のメンバーであり、strict なメンバーではない。
+  it('rejects a key another member declares', async () => {
+    const res = await app.request('/strict-member', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'a', link: 'x' }),
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({
+      type: 'about:blank',
+      title: 'Unprocessable Content',
+      status: 422,
+      detail: 'Request validation failed',
+      errors: [{ pointer: '/link', detail: 'Invalid input', code: 'custom' }],
+    })
+  })
+
+  // No member declares `extra`.
+  // `extra` は、どのメンバーも宣言していない。
+  it('rejects a key no member declares', async () => {
+    const res = await app.request('/strict-member', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'a', extra: 1 }),
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({
+      type: 'about:blank',
+      title: 'Unprocessable Content',
+      status: 422,
+      detail: 'Request validation failed',
+      errors: [{ pointer: '/extra', detail: 'Invalid input', code: 'custom' }],
+    })
+  })
+
+  // Nothing is wrong with the keys, so the intersection reports its own issue.
+  // キーに問題はないため、交差型が自身の issue を報告する。
+  it('still reports a wrong-typed property as the intersection does', async () => {
+    const res = await app.request('/strict-member', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 1 }),
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({
+      type: 'about:blank',
+      title: 'Unprocessable Content',
+      status: 422,
+      detail: 'Request validation failed',
+      errors: [
+        {
+          pointer: '/id',
+          detail: 'Invalid input: expected string, received number',
+          code: 'invalid_type',
+        },
+      ],
+    })
+  })
+
+  // A discriminated union hands on the issue of the strict branch it routes to, and the
+  // intersection would drop it. The detail is the message of that issue.
+  // discriminated union は、振り分け先の strict な分岐の issue をそのまま渡すため、交差型が
+  // それを落としてしまう。detail は、その issue のメッセージである。
+  it('rejects a key the branch of a discriminated union does not declare', async () => {
+    const res = await app.request('/strict-branch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kind: 'cat', link: 'x' }),
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({
+      type: 'about:blank',
+      title: 'Unprocessable Content',
+      status: 422,
+      detail: 'Request validation failed',
+      errors: [{ pointer: '/link', detail: 'Unrecognized key: "link"', code: 'custom' }],
+    })
+  })
+})
+
+// Sibling keywords are ANDed (JSON Schema 2020-12). Each property below carries two
+// combinators, and each value satisfies the first one alone: it is the second one that
+// rejects it.
+// 同じ階層のキーワードは AND で結合される (JSON Schema 2020-12)。以下の各プロパティは
+// 2つのコンビネータを持ち、各値は1つ目だけを満たす。拒否するのは2つ目である。
+describe('several combinators at the same level', () => {
+  // The `allOf` accepts the string; no `anyOf` branch does (it is longer than 3).
+  // `allOf` はこの文字列を受理するが、`anyOf` のどの分岐も受理しない(3文字を超える)。
+  it('allOf + anyOf: rejects a value the anyOf does not accept', async () => {
+    const res = await app.request('/siblings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ allOfAnyOf: 'abcdef' }),
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({
+      type: 'about:blank',
+      title: 'Unprocessable Content',
+      status: 422,
+      detail: 'Request validation failed',
+      errors: [{ pointer: '/allOfAnyOf', detail: 'Invalid input', code: 'custom' }],
+    })
+  })
+
+  // Two characters: neither at least 3 nor at most 1, so no `oneOf` branch matches.
+  // 2文字は「3文字以上」でも「1文字以下」でもないため、`oneOf` のどの分岐にも一致しない。
+  it('allOf + oneOf: rejects a value no oneOf branch matches', async () => {
+    const res = await app.request('/siblings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ allOfOneOf: 'ab' }),
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({
+      type: 'about:blank',
+      title: 'Unprocessable Content',
+      status: 422,
+      detail: 'Request validation failed',
+      errors: [{ pointer: '/allOfOneOf', detail: 'Invalid input', code: 'invalid_union' }],
+    })
+  })
+
+  // The `anyOf` accepts the string; no `oneOf` branch matches.
+  // `anyOf` はこの文字列を受理するが、`oneOf` のどの分岐にも一致しない。
+  it('anyOf + oneOf: rejects a value no oneOf branch matches', async () => {
+    const res = await app.request('/siblings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ anyOfOneOf: 'ab' }),
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({
+      type: 'about:blank',
+      title: 'Unprocessable Content',
+      status: 422,
+      detail: 'Request validation failed',
+      errors: [{ pointer: '/anyOfOneOf', detail: 'Invalid input', code: 'invalid_union' }],
+    })
+  })
+
+  // A string, as the `allOf` asks, but the one `not` excludes.
+  // `allOf` が求める文字列ではあるが、`not` が除外する値である。
+  it('allOf + not: rejects the value not excludes', async () => {
+    const res = await app.request('/siblings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ allOfNot: 'x' }),
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({
+      type: 'about:blank',
+      title: 'Unprocessable Content',
+      status: 422,
+      detail: 'Request validation failed',
+      errors: [{ pointer: '/allOfNot', detail: 'Invalid input', code: 'custom' }],
+    })
+  })
+
+  // A string, as one `anyOf` branch asks, but the one `not` excludes.
+  // `anyOf` の分岐の1つが求める文字列ではあるが、`not` が除外する値である。
+  it('anyOf + not: rejects the value not excludes', async () => {
+    const res = await app.request('/siblings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ anyOfNot: 'x' }),
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({
+      type: 'about:blank',
+      title: 'Unprocessable Content',
+      status: 422,
+      detail: 'Request validation failed',
+      errors: [{ pointer: '/anyOfNot', detail: 'Invalid input', code: 'custom' }],
+    })
+  })
+
+  // The `anyOf` beside the `not` still applies: a boolean matches no branch.
+  // `not` の横の `anyOf` も引き続き適用される。真偽値はどの分岐にも一致しない。
+  it('anyOf + not: still rejects a value no anyOf branch accepts', async () => {
+    const res = await app.request('/siblings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ anyOfNot: true }),
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({
+      type: 'about:blank',
+      title: 'Unprocessable Content',
+      status: 422,
+      detail: 'Request validation failed',
+      errors: [{ pointer: '/anyOfNot', detail: 'Invalid input', code: 'invalid_union' }],
+    })
+  })
+
+  // `required` beside the `anyOf`: the object matches a branch, but lacks the key.
+  // `anyOf` の横の `required`。オブジェクトは分岐に一致するが、必須のキーを欠いている。
+  it('rejects an object without the key required beside the anyOf', async () => {
+    const res = await app.request('/required-only', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ b: 'x' }),
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({
+      type: 'about:blank',
+      title: 'Unprocessable Content',
+      status: 422,
+      detail: 'Request validation failed',
+      errors: [{ pointer: '/', detail: 'Invalid input', code: 'custom' }],
+    })
+  })
+})

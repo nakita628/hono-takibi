@@ -28,7 +28,7 @@ import {
   makeWrappedWire,
 } from '../../helper/wire.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
-import { conformDefault, undecorated, wrap } from '../../helper/wrap.js'
+import { conformDefault, undecorated, valueLiteral, wrap } from '../../helper/wrap.js'
 import {
   emitObjectShapeCheck,
   emitObjectShapeRefine,
@@ -36,6 +36,7 @@ import {
   narrowToDeclaredType,
   emitsStrippingObject,
   makeIssueForwarding,
+  makeStrictOperandCheck,
   makeUnevaluatedPropertiesCheck,
   canAcceptObject,
   canAdmitNullOrUndefined,
@@ -46,29 +47,83 @@ import { baseError, error, makeStringLiteral, normalizeTypes } from '../../utils
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
 import { _enum, integer, number, object, string } from './z/index.js'
 
-// Wrap a union emission with the `unevaluatedProperties` check (#466).
-// `z.preprocess` runs on the raw input — a `.superRefine` on the union would
+// Wrap an emission with a check on the raw input: the `unevaluatedProperties`
+// check of a union (#466), the sibling shape that could not be distributed
+// (#461), the message and `unevaluatedProperties` of an `allOf`, the
+// `additionalProperties: false` of an intersection operand (#470).
+// `z.preprocess` runs on the raw input — a `.superRefine` on the schema would
 // see the parsed output, from which a stripping object branch had already
-// dropped the unevaluated keys — and `@hono/zod-openapi` renders it by its
-// output side, so the generated OpenAPI document keeps the union (a
-// `z.unknown().check(...).pipe(Schema)` renders by its input side, i.e. `{}`).
-// The check itself only reports when the union succeeds — it counts the
-// branch matches its own branch-match `safeParse` calls already decide (see
-// `makeUnevaluatedPropertiesCheck`) — so no separate success-gate parse is
-// needed here: a gate would re-parse the whole value, and on a recursive
-// schema each level would pay gate + pipe + branch-match, i.e. ~3^depth
-// (#480). No issue forwarding is needed: the pipe stops once the preprocess
-// callback adds an issue, and when the union fails the check adds none, so
-// the union runs and reports its own errors. Returns `zod` unchanged when
-// the check is '' (keyword absent or `true`), so schemas without it emit
-// exactly what they did.
-// `val` is typed as the union's input type (`z.input<typeof Schema>`) so
-// `z.input` of the wrapped schema stays the union's input type instead of
-// degrading to `unknown` — an untyped callback would make RPC clients lose
-// the request type. The output type is unchanged.
-function withUnevaluatedCheck(zod: string, unevalCheck: string): string {
-  if (unevalCheck === '') return zod
-  return `(()=>{const Schema=${zod};return z.preprocess((val: z.input<typeof Schema>,ctx)=>{(${unevalCheck})(ctx);return val},Schema)})()`
+// dropped the keys the check is about — and `@hono/zod-openapi` renders it by
+// its output side, so the generated OpenAPI document keeps the schema (a
+// `z.unknown().check(...).pipe(Schema)` renders by its input side, i.e. `{}`,
+// #479). No issue forwarding is needed: the pipe stops once the preprocess
+// callback adds an issue, and when the check adds none the schema runs and
+// reports its own errors. Returns `zod` unchanged when the check is ''
+// (nothing to check), so schemas without it emit exactly what they did.
+// The `unevaluatedProperties` check itself only reports when the union
+// succeeds — it counts the branch matches its own branch-match `safeParse`
+// calls already decide (see `makeUnevaluatedPropertiesCheck`) — so no
+// separate success-gate parse is needed for it: a gate would re-parse the
+// whole value, and on a recursive schema each level would pay gate + pipe +
+// branch-match, i.e. ~3^depth (#480).
+// `val` is typed as the schema's input type (`z.input<typeof Schema>`) so
+// `z.input` of the wrapped schema stays that type instead of degrading to
+// `unknown` — an untyped callback would make RPC clients lose the request
+// type. The output type is unchanged.
+function withRawCheck(zod: string, check: string | undefined): string {
+  if (check === undefined || check === '') return zod
+  return withRawStatements(zod, `(${check})(ctx)`)
+}
+
+// The same wrapper around statements that read `ctx` and `Schema` themselves:
+// the `allOf` message, which parses the intersection to report its issues again.
+function withRawStatements(zod: string, statements: string): string {
+  return `(()=>{const Schema=${zod};return z.preprocess((val: z.input<typeof Schema>,ctx)=>{${statements};return val},Schema)})()`
+}
+
+// The combinators a schema carries beside each other, as one `allOf` (#469).
+// JSON Schema ANDs sibling keywords (2020-12 §10.2.1), so `allOf` / `anyOf` /
+// `oneOf` at the same level all have to hold: the `anyOf` and the `oneOf`
+// become members of the `allOf`, each with the message and the discriminator
+// that are its own. The emitter's combinator paths each emit one combinator;
+// written this way the `allOf` path emits every one of them, intersected.
+function mergeCombinators(schema: Schema): Schema {
+  const {
+    allOf,
+    anyOf,
+    oneOf,
+    discriminator,
+    'x-anyOf-message': anyOfMessage,
+    'x-implication-message': implicationMessage,
+    'x-oneOf-message': oneOfMessage,
+    ...rest
+  } = schema
+  const anyOfMember: Schema | undefined =
+    anyOf === undefined || anyOf.length === 0
+      ? undefined
+      : {
+          anyOf,
+          ...(anyOfMessage === undefined ? {} : { 'x-anyOf-message': anyOfMessage }),
+          ...(implicationMessage === undefined
+            ? {}
+            : { 'x-implication-message': implicationMessage }),
+        }
+  const oneOfMember: Schema | undefined =
+    oneOf === undefined || oneOf.length === 0
+      ? undefined
+      : {
+          oneOf,
+          ...(discriminator === undefined ? {} : { discriminator }),
+          ...(oneOfMessage === undefined ? {} : { 'x-oneOf-message': oneOfMessage }),
+        }
+  return {
+    ...rest,
+    allOf: [
+      ...(allOf ?? []),
+      ...(anyOfMember === undefined ? [] : [anyOfMember]),
+      ...(oneOfMember === undefined ? [] : [oneOfMember]),
+    ],
+  }
 }
 
 // Whether a schema carries its own wrapping (`.nullable()`, `.default()`,
@@ -226,6 +281,18 @@ export function zodToOpenAPI(
     childOptions?.coerce !== true && s.$ref
       ? makeRef(s.$ref)
       : zodToOpenAPI(s, undefined, childOptions)
+  // A branch intersected with the sibling shape. A branch that is a strict
+  // object would no longer reject the keys it does not declare — the shape
+  // beside it strips them, and the intersection reports a key only when both
+  // sides reject it — so its `additionalProperties: false` is checked on the
+  // raw input, around the intersection (#470, see `makeStrictOperandCheck`).
+  const intersected = (branch: Schema, shapeZ: string) => {
+    const branchZ = child(branch)
+    return withRawCheck(
+      `${branchZ}.and(${shapeZ})`,
+      makeStrictOperandCheck([{ schema: branch, zod: branchZ }], childOptions?.schemas),
+    )
+  }
   // Distribute a sibling shape (#461) into a combinator branch, as the maintainer
   // asked: a branch that only accepts objects gets the shape as an intersection
   // member (`.and(shapeZ)`) — that merges the sibling properties into the
@@ -281,13 +348,12 @@ export function zodToOpenAPI(
   // admitted. Only the wrappings the issue names are re-applied around the
   // distributed core. A user chain replaces the chain wholesale, a refine /
   // brand / readonly is written against the branch's own output (a refine
-  // moved inside would run on different values), and a `.catch()` branch
-  // keeps the check-pipe like a user chain: `@hono/zod-openapi` cannot
-  // render `.catch()` (document generation throws `Unknown zod object type`),
-  // and the catch would swallow violations of the parent's sibling
-  // properties. Branches whose CORE admits `null` or `undefined` itself (a
-  // `$ref` to a nullable component, a `null` enum member) also keep the
-  // check-pipe: that admission cannot be re-applied around the intersection.
+  // moved inside would run on different values), and an `x-catch` branch
+  // keeps the raw-input check like a user chain: the catch would swallow
+  // violations of the parent's sibling properties. Branches whose CORE
+  // admits `null` or `undefined` itself (a `$ref` to a nullable component, a
+  // `null` enum member) also keep the raw-input check: that admission cannot
+  // be re-applied around the intersection.
   // A `default` / `prefault` that is not a value of the merged shape is
   // dropped — the way `wrap` already drops a default that is not a value of
   // its schema — instead of being written as `.default()` on the merged
@@ -334,7 +400,7 @@ export function zodToOpenAPI(
         ? { ...coreRest }
         : { ...coreRest, type: rest.length === 0 ? first : [first, ...rest] }
     if (canAdmitNullOrUndefined(coreSchema, childOptions?.schemas)) return null
-    const andZ = `${child(coreSchema)}.and(${shapeZ})`
+    const andZ = intersected(coreSchema, shapeZ)
     const distributed = shapeHasProperties ? andZ : `${andZ}.superRefine(${shapeRefine})`
     const mergedDefault =
       branch.default === undefined
@@ -349,13 +415,24 @@ export function zodToOpenAPI(
       mergedDefault !== undefined && mergedDefault.ok && mergedDefault.value === null
     const nullable =
       branch.nullable === true || normalizeTypes(branch.type).includes('null') || defaultIsNull
+    // The value is written as the literal of the merged shape, member by
+    // member (#491). A bigint among them cannot be serialised, so the document
+    // is told the JSON value it reads its `default` from instead.
+    const literalOf = (value: unknown) =>
+      valueLiteral({ allOf: [coreSchema, shapeSchema] }, value, childOptions?.schemas)
     let out = distributed
     if (nullable) out = `${out}.nullable()`
     if (mergedDefault?.ok) {
-      out = `${out}.default(${JSON.stringify(mergedDefault.value)})`
+      const literal = literalOf(mergedDefault.value)
+      out = `${out}.default(${literal.code})`
+      if (literal.bigint) out = `${out}.openapi({default:${JSON.stringify(mergedDefault.value)}})`
     }
     if (mergedPrefault?.ok) {
-      out = `${out}.prefault(${JSON.stringify(mergedPrefault.value)})`
+      const literal = literalOf(mergedPrefault.value)
+      out = `${out}.prefault(${literal.code})`
+      if (literal.bigint && !mergedDefault?.ok) {
+        out = `${out}.openapi({default:${JSON.stringify(mergedPrefault.value)}})`
+      }
     }
     return out
   }
@@ -384,7 +461,7 @@ export function zodToOpenAPI(
       if (canAdmitNullOrUndefined(branch, childOptions?.schemas) || hasOwnWrapping(branch)) {
         return distributeAdmitting(branch, shapeZ, shapeRefine, shapeHasProperties, shapeSchema)
       }
-      const andZ = `${child(branch)}.and(${shapeZ})`
+      const andZ = intersected(branch, shapeZ)
       // A shape with `required` but no `properties` emits as a loose object,
       // which enforces nothing — the required key has no property to be required
       // through. The refine on the intersection enforces it: the loose object
@@ -428,7 +505,7 @@ export function zodToOpenAPI(
         { anyOf: true },
       )
       return wrap(
-        withUnevaluatedCheck(
+        withRawCheck(
           `z.union([${parts.join(',')}]${message ? `,${error(message)}` : ''})`,
           branchUnevalCheck,
         ),
@@ -457,7 +534,7 @@ export function zodToOpenAPI(
         { oneOf: true },
       )
       return wrap(
-        withUnevaluatedCheck(
+        withRawCheck(
           `z.xor([${parts.join(',')}]${message ? `,${error(message)}` : ''})`,
           branchUnevalCheck,
         ),
@@ -500,14 +577,36 @@ export function zodToOpenAPI(
     }
     return done(makeRef(schema.$ref), schema, true)
   }
+  // The file's `anyOf` of media types is not a combinator (see below).
+  const isMimeAnyOf = isBinaryFile(schema) && hasMimeAlternatives(schema)
+  // The combinators the schema carries. Sibling keywords are ANDed (JSON Schema
+  // 2020-12), so every one of them has to hold (#469) — the paths below each
+  // emit one. Several of `allOf` / `anyOf` / `oneOf` are written as one `allOf`
+  // first (see `mergeCombinators`), and a `not` beside any of them is left to
+  // the `not` path, which excludes its values from what the rest accepts.
+  const combinators = [
+    schema.allOf !== undefined && schema.allOf.length > 0,
+    schema.anyOf !== undefined && schema.anyOf.length > 0 && !isMimeAnyOf,
+    schema.oneOf !== undefined && schema.oneOf.length > 0,
+  ].filter(Boolean).length
+  // An empty combinator accepts everything, but it is still not what decides
+  // the schema: the `not` beside it does.
+  const isBesideNot =
+    schema.not !== undefined &&
+    (schema.allOf !== undefined ||
+      (schema.anyOf !== undefined && !isMimeAnyOf) ||
+      schema.oneOf !== undefined)
+  if (!isBesideNot && combinators > 1) {
+    return zodToOpenAPI(mergeCombinators(schema), meta, options)
+  }
   // A declared `type` beside a combinator is written into its members first
   // (#468, see `narrowToDeclaredType`): the paths below emit the combinator
-  // alone. The file's `anyOf` of media types is not a combinator (see below).
-  if (!(isBinaryFile(schema) && hasMimeAlternatives(schema))) {
+  // alone.
+  if (!isMimeAnyOf && !isBesideNot) {
     const narrowed = narrowToDeclaredType(schema, options?.schemas)
     if (narrowed !== schema) return zodToOpenAPI(narrowed, meta, options)
   }
-  if (schema.allOf !== undefined) {
+  if (schema.allOf !== undefined && !isBesideNot) {
     // `properties` / `required` beside `allOf` constrain only object values (#461).
     // The shape stays a member of the intersection when the intersection already
     // rejects every non-object — a declared object type, or any member that only
@@ -657,11 +756,22 @@ export function zodToOpenAPI(
         )
         return distributedSchemas.reduce((acc, s, i) => (i === 0 ? s : `${acc}.and(${s})`))
       }
-      return shapeCheck === undefined ? z : `z.unknown().check(${shapeCheck}).pipe(${z})`
+      return withRawCheck(z, shapeCheck)
     })()
+    // A member that is a strict object rejects the keys it does not declare,
+    // whatever the other members declare; the intersection alone would let
+    // them through (#470, see `makeStrictOperandCheck`). It runs first, around
+    // everything else: a key a member rejects is reported once, by this check.
+    const strictCheck =
+      schemas.length > 1
+        ? makeStrictOperandCheck(
+            members.map((member, index) => ({ schema: member, zod: schemas[index] ?? '' })),
+            childOptions?.schemas,
+          )
+        : ''
     const allOfMessage = schema['x-allOf-message'] ?? schema['x-error-message']
-    // No guard: this check runs in a `z.unknown().check(...).pipe(...)`
-    // after the intersection's own issues are forwarded, not inside a union
+    // No guard: this check runs in the `z.preprocess` below, after the
+    // intersection's own issues are forwarded, not inside a union
     // wrapper — gating it on a combinator the intersection does not contain
     // would be wrong for a schema carrying `allOf` beside `anyOf` / `oneOf`.
     const unevalCheck = makeUnevaluatedPropertiesCheck(
@@ -685,16 +795,23 @@ export function zodToOpenAPI(
         return `const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding(pushArg)}}}`
       })()
       const unevalCall = unevalCheck ? `;(${unevalCheck})(ctx)` : ''
-      const wrapped = `(()=>{const Schema=${shaped};return z.unknown().check((ctx)=>{${safeParseBranches}${unevalCall}}).pipe(Schema)})()`
-      return done(wrapped, emitted)
+      // A `z.preprocess`, not a check piped into the intersection: the
+      // document renders it by the intersection, and `z.input` stays its
+      // input type (#479, see `withRawCheck`).
+      const wrapped = withRawStatements(shaped, `${safeParseBranches}${unevalCall}`)
+      return done(withRawCheck(wrapped, strictCheck), emitted)
     }
     // One reference and nothing to intersect it with: what is emitted is the component.
-    return done(shaped, emitted, schemas.length === 1 && members.every(isRefOnly))
+    return done(
+      withRawCheck(shaped, strictCheck),
+      emitted,
+      schemas.length === 1 && members.every(isRefOnly),
+    )
   }
   // `z.toJSONSchema()` writes `z.file().mime([...])` as an `anyOf` of `contentMediaType`
   // members under the file: those are the types the file may have, which the string
   // emitter reads, not branches to choose between.
-  if (schema.anyOf !== undefined && !(isBinaryFile(schema) && hasMimeAlternatives(schema))) {
+  if (schema.anyOf !== undefined && !isMimeAnyOf && !isBesideNot) {
     if (schema.anyOf.length === 0) return done('z.any()', schema)
     // `discriminator` is not consulted here on purpose. anyOf means "at least one
     // branch matches" (JSON Schema §10.2.1.2), and `z.union` already is exactly
@@ -710,7 +827,7 @@ export function zodToOpenAPI(
     // `unevaluatedProperties` beside `anyOf` (#466): the union on its own drops
     // the check — a stripping object branch has already removed the unevaluated
     // keys before any refine on the union could see them — so the check runs on
-    // the raw input, in a `z.preprocess` (see `withUnevaluatedCheck`).
+    // the raw input, in a `z.preprocess` (see `withRawCheck`).
     // `makeUnevaluatedPropertiesCheck` returns '' when the keyword is absent
     // or `true`, so schemas without it emit exactly what they did.
     const unevalCheck = makeUnevaluatedPropertiesCheck(
@@ -768,18 +885,20 @@ export function zodToOpenAPI(
         )
       if ((objectOnly || branchesRequireObject) && !branchesAdmitNullOrUndefined) {
         const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
-        const andZ = `${unionZ}.and(${shapeZ})`
+        // A union hands on the `unrecognized_keys` of a strict branch that
+        // failed on nothing else, and the intersection would drop it (#470).
+        const andZ = withRawCheck(
+          `${unionZ}.and(${shapeZ})`,
+          makeStrictOperandCheck(
+            [{ schema: { anyOf: schema.anyOf }, zod: unionZ }],
+            childOptions?.schemas,
+          ),
+        )
         if (schema.properties === undefined) {
           const shapeCheck = emitObjectShapeCheck(shapeSchema, child)
-          return done(
-            withUnevaluatedCheck(
-              shapeCheck === undefined ? andZ : `z.unknown().check(${shapeCheck}).pipe(${andZ})`,
-              unevalCheck,
-            ),
-            schema,
-          )
+          return done(withRawCheck(withRawCheck(andZ, shapeCheck), unevalCheck), schema)
         }
-        return done(withUnevaluatedCheck(andZ, unevalCheck), schema)
+        return done(withRawCheck(andZ, unevalCheck), schema)
       }
       const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
       const shapeRefine = emitObjectShapeRefine(shapeSchema, child)
@@ -788,22 +907,16 @@ export function zodToOpenAPI(
       )
       if (!distributed.some((part) => part === null)) {
         return done(
-          withUnevaluatedCheck(`z.union([${distributed.join(',')}]${anyOfErrorArg})`, unevalCheck),
+          withRawCheck(`z.union([${distributed.join(',')}]${anyOfErrorArg})`, unevalCheck),
           schema,
         )
       }
       const shapeCheck = emitObjectShapeCheck(shapeSchema, child)
-      return done(
-        withUnevaluatedCheck(
-          shapeCheck === undefined ? unionZ : `z.unknown().check(${shapeCheck}).pipe(${unionZ})`,
-          unevalCheck,
-        ),
-        schema,
-      )
+      return done(withRawCheck(withRawCheck(unionZ, shapeCheck), unevalCheck), schema)
     }
-    return done(withUnevaluatedCheck(unionZ, unevalCheck), schema)
+    return done(withRawCheck(unionZ, unevalCheck), schema)
   }
-  if (schema.oneOf !== undefined) {
+  if (schema.oneOf !== undefined && !isBesideNot) {
     if (schema.oneOf.length === 0) return done('z.any()', schema)
     const oneOfSchemas = schema.oneOf.map(child)
     const discriminator = schema.discriminator?.propertyName
@@ -838,7 +951,7 @@ export function zodToOpenAPI(
       : `z.xor([${oneOfSchemas.join(',')}]${oneOfErrorArg})`
     // `unevaluatedProperties` beside `oneOf` (#466): same `z.preprocess` as
     // the `anyOf` path above — the check runs on the raw input (see
-    // `withUnevaluatedCheck`), because a stripping object branch would have
+    // `withRawCheck`), because a stripping object branch would have
     // removed the unevaluated keys before any refine could see them. Returns
     // '' when the keyword is absent or `true`, so schemas without it emit
     // exactly what they did.
@@ -884,18 +997,30 @@ export function zodToOpenAPI(
         )
       if ((objectOnly || branchesRequireObject) && !branchesAdmitNullOrUndefined) {
         const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
-        const andZ = `${z}.and(${shapeZ})`
+        // A discriminated union hands on the issues of the branch it routes
+        // to, a strict branch's `unrecognized_keys` among them (#470).
+        const andZ = withRawCheck(
+          `${z}.and(${shapeZ})`,
+          makeStrictOperandCheck(
+            [
+              {
+                schema: {
+                  oneOf: schema.oneOf,
+                  ...(schema.discriminator === undefined
+                    ? {}
+                    : { discriminator: schema.discriminator }),
+                },
+                zod: z,
+              },
+            ],
+            childOptions?.schemas,
+          ),
+        )
         if (schema.properties === undefined) {
           const shapeCheck = emitObjectShapeCheck(shapeSchema, child)
-          return done(
-            withUnevaluatedCheck(
-              shapeCheck === undefined ? andZ : `z.unknown().check(${shapeCheck}).pipe(${andZ})`,
-              unevalCheck,
-            ),
-            schema,
-          )
+          return done(withRawCheck(withRawCheck(andZ, shapeCheck), unevalCheck), schema)
         }
-        return done(withUnevaluatedCheck(andZ, unevalCheck), schema)
+        return done(withRawCheck(andZ, unevalCheck), schema)
       }
       const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
       const shapeRefine = emitObjectShapeRefine(shapeSchema, child)
@@ -906,20 +1031,14 @@ export function zodToOpenAPI(
         // Never `z.discriminatedUnion` here: a distributed branch is no longer
         // a plain object, and `z.xor` is provably equivalent (see above).
         return done(
-          withUnevaluatedCheck(`z.xor([${distributed.join(',')}]${oneOfErrorArg})`, unevalCheck),
+          withRawCheck(`z.xor([${distributed.join(',')}]${oneOfErrorArg})`, unevalCheck),
           schema,
         )
       }
       const shapeCheck = emitObjectShapeCheck(shapeSchema, child)
-      return done(
-        withUnevaluatedCheck(
-          shapeCheck === undefined ? z : `z.unknown().check(${shapeCheck}).pipe(${z})`,
-          unevalCheck,
-        ),
-        schema,
-      )
+      return done(withRawCheck(withRawCheck(z, shapeCheck), unevalCheck), schema)
     }
-    return done(withUnevaluatedCheck(z, unevalCheck), schema)
+    return done(withRawCheck(z, unevalCheck), schema)
   }
   if (schema.not !== undefined) {
     const notMessage = schema['x-not-message'] ?? schema['x-error-message']
@@ -927,11 +1046,15 @@ export function zodToOpenAPI(
     // `not` excludes values from what the rest of the schema accepts, so the keywords
     // beside it still apply: `type: integer, not: { const: 0 }` is an integer other than 0,
     // not anything other than 0. What `wrap` adds around a schema is left to the outer one.
+    // A combinator beside it is among those keywords (#469): what the `allOf` / `anyOf` /
+    // `oneOf` accepts is the base, with or without a declared type.
     const notBase = (() => {
       const types = normalizeTypes(schema.type).filter((type) => type !== 'null')
       const [first, ...others] = types
-      if (first === undefined) return 'z.any()'
       const { not: _not, ...rest } = undecorated(schema)
+      if (first === undefined) {
+        return isBesideNot ? zodToOpenAPI(rest, undefined, childOptions) : 'z.any()'
+      }
       return zodToOpenAPI(
         { ...rest, type: others.length === 0 ? first : [first, ...others] },
         undefined,
@@ -964,6 +1087,20 @@ export function zodToOpenAPI(
       const refName = makeRef(schema.not.$ref)
       return done(
         `${notBase}.refine((val) => !${refName}.safeParse(val).success${notErrorArg})`,
+        schema,
+      )
+    }
+    // What a combinator hands out is not of one type the predicates below could be written
+    // for (`val !== "x"` does not type-check on a number), so the excluded schema is asked.
+    if (
+      isBesideNot &&
+      isRecord(schema.not) &&
+      schema.not.$ref === undefined &&
+      Object.keys(schema.not).length > 0
+    ) {
+      const zod = zodToOpenAPI(schema.not, undefined, childOptions)
+      return done(
+        `${notBase}.refine((val) => !${zod}.safeParse(val).success${notErrorArg})`,
         schema,
       )
     }

@@ -1248,3 +1248,111 @@ describe('v26: contentEncoding and if / then / else', () => {
     })
   })
 })
+
+// What a fallback and a default are written as: `null` as a fallback makes the schema take
+// `null`, an int64 inside an object or an array default is a bigint, and a catch is a
+// `z.preprocess`, which the document can render (a `.catch()` made generating it throw).
+// The host answers a bigint as the text of its literal (`1n`).
+// フォールバック値とデフォルト値の出力のされ方。フォールバック値が `null` であれば、スキーマは
+// `null` を受理する。オブジェクトや配列のデフォルト値に含まれる int64 は bigint になる。
+// catch は `z.preprocess` であり、ドキュメントとして描画できる(`.catch()` はドキュメント生成時に
+// 例外を投げていた)。ホストは、bigint をリテラルの文字列 (`1n`) として返す。
+describe('fallbacks: x-catch: null, x-prefault: null, int64 in a default', () => {
+  // Nothing is sent: every property takes its fallback or its default.
+  // 何も送信しない。すべてのプロパティが、フォールバック値またはデフォルト値になる。
+  it('fills an empty body with the fallbacks and the defaults', async () => {
+    const res = await app.request('/fallbacks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      catchNull: null,
+      prefaultNull: null,
+      counter: { n: '1n' },
+      ids: ['1n', '2n'],
+      settings: { theme: 'light' },
+    })
+  })
+
+  // A value of the wrong type is replaced by the fallback of its catch; the rest is kept.
+  // 型の合わない値は catch のフォールバック値に置き換えられ、それ以外はそのまま残る。
+  it('replaces what a catch does not accept, and keeps the rest', async () => {
+    const res = await app.request('/fallbacks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        catchNull: 5,
+        prefaultNull: 'p',
+        counter: { n: 7 },
+        ids: [3],
+        settings: 'dark',
+      }),
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      catchNull: null,
+      prefaultNull: 'p',
+      counter: { n: '7n' },
+      ids: ['3n'],
+      settings: { theme: 'light' },
+    })
+  })
+
+  // Valid values pass through a catch as they are.
+  // 有効な値は、catch をそのまま通過する。
+  it('keeps the values a catch accepts', async () => {
+    const res = await app.request('/fallbacks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ catchNull: 's', settings: { theme: 'dark' } }),
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      catchNull: 's',
+      prefaultNull: null,
+      counter: { n: '1n' },
+      ids: ['1n', '2n'],
+      settings: { theme: 'dark' },
+    })
+  })
+
+  // The document is generated, and shows the schema inside each catch. A catch accepts every
+  // input, `null` among them, which is why the type lists it. The defaults are the JSON
+  // values of the source: a bigint could not be serialised.
+  // ドキュメントは生成でき、各 catch の内側のスキーマが描画される。catch は `null` を含む
+  // あらゆる入力を受理するため、type に `null` が含まれる。デフォルト値は、元の定義にある
+  // JSON の値である。bigint はシリアライズできない。
+  it('generates a document that renders the schema inside a catch', () => {
+    const doc = app.getOpenAPI31Document({ openapi: '3.1.0', info: { title: 't', version: '1' } })
+    expect(doc.components?.schemas?.P2Form).toMatchObject({
+      properties: { withCatch: { type: ['integer', 'null'] } },
+    })
+    expect(doc.components?.schemas?.FallbackForm).toStrictEqual({
+      type: 'object',
+      properties: {
+        catchNull: { type: ['string', 'null'] },
+        prefaultNull: { type: ['string', 'null'], default: null },
+        counter: {
+          type: 'object',
+          properties: { n: { type: 'integer', format: 'int64' } },
+          default: { n: 1 },
+          required: [],
+        },
+        ids: {
+          type: 'array',
+          items: { type: 'integer', format: 'int64' },
+          default: [1, 2],
+        },
+        settings: {
+          type: ['object', 'null'],
+          properties: { theme: { type: 'string' } },
+          required: [],
+        },
+      },
+      required: ['catchNull', 'prefaultNull', 'counter', 'ids', 'settings'],
+    })
+    expect(JSON.stringify(doc)).toContain('"FallbackForm"')
+  })
+})

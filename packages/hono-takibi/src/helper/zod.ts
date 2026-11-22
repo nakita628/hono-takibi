@@ -1,5 +1,6 @@
 import {
   ANNOTATION_KEYWORDS,
+  hasNoUserChain,
   isAnnotationOnly,
   isSchemaObject,
   isSingleSchema,
@@ -7,6 +8,7 @@ import {
 } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { error, normalizeTypes } from '../utils/index.js'
+import { discriminatedBranches } from './discriminator.js'
 import { resolveSchemaRef } from './wire.js'
 
 type Schemas = { readonly [k: string]: Schema }
@@ -794,6 +796,127 @@ export function emitsStrippingObject(
   return isUntypedObject(schema) && isStrippingObject(schema)
 }
 
+// An operand of an intersection, read through the references it names: what is written
+// beside a reference is read over the component. `undefined` for a reference that cannot be
+// resolved or that comes back to itself.
+function resolveOperand(
+  schema: Schema,
+  schemas: Schemas | undefined,
+  seen: readonly string[] = [],
+): Schema | undefined {
+  if (schema.$ref === undefined) return schema
+  if (seen.includes(schema.$ref)) return undefined
+  const target = resolveSchemaRef(schema.$ref, schemas)
+  if (target === undefined) return undefined
+  const { $ref: _ref, ...beside } = schema
+  return resolveOperand({ ...target, ...beside }, schemas, [...seen, schema.$ref])
+}
+
+// Whether a schema is emitted as an object that reports the keys it does not declare as
+// `unrecognized_keys`: `additionalProperties: false` on what the emitter reads as an object
+// (`z.strictObject`, or the loose object beside `patternProperties`, #447). A user chain
+// replaces the emission, and a catch answers the failure, so neither reports anything.
+function emitsStrictObject(schema: Schema): boolean {
+  return (
+    schema.additionalProperties === false &&
+    hasNoUserChain(schema) &&
+    schema['x-catch'] === undefined &&
+    schema.allOf === undefined &&
+    schema.anyOf === undefined &&
+    schema.oneOf === undefined &&
+    schema.enum === undefined &&
+    schema.const === undefined &&
+    (normalizeTypes(schema.type).includes('object') || isUntypedObject(schema))
+  )
+}
+
+// Whether what a schema is emitted as can fail on undeclared keys alone, with the
+// `unrecognized_keys` issue of a strict object reaching whatever it is an operand of: the
+// strict object itself, a `z.union` or a `z.discriminatedUnion` with such a branch (a union
+// hands on the issues of the one branch that failed on nothing else; `z.xor` does not), and
+// an `allOf` of one member, which is emitted as the member. An `allOf` of several members
+// is an intersection that checks its own operands (see `makeStrictOperandCheck`).
+function leaksUnrecognizedKeys(
+  schema: Schema,
+  schemas: Schemas | undefined,
+  seen: readonly string[] = [],
+): boolean {
+  if (schema.$ref !== undefined) {
+    if (seen.includes(schema.$ref)) return false
+    const target = resolveSchemaRef(schema.$ref, schemas)
+    if (target === undefined) return false
+    const { $ref: _ref, ...beside } = schema
+    return leaksUnrecognizedKeys({ ...target, ...beside }, schemas, [...seen, schema.$ref])
+  }
+  if (!hasNoUserChain(schema) || schema['x-catch'] !== undefined) return false
+  if (schema.allOf !== undefined) {
+    const members = schema.allOf.filter(
+      (member) => member.type !== 'null' && !isAnnotationOnly(member),
+    )
+    const [only, ...others] = members
+    return only !== undefined && others.length === 0
+      ? leaksUnrecognizedKeys(only, schemas, seen)
+      : false
+  }
+  if (schema.anyOf !== undefined) {
+    return schema.anyOf.some((branch) => leaksUnrecognizedKeys(branch, schemas, seen))
+  }
+  if (schema.oneOf !== undefined) {
+    return (
+      discriminatedBranches(schema, schemas) !== undefined &&
+      schema.oneOf.some((branch) => leaksUnrecognizedKeys(branch, schemas, seen))
+    )
+  }
+  return emitsStrictObject(schema)
+}
+
+// `additionalProperties: false` on an operand of an intersection, as a check on the raw
+// input (#470). Zod's intersection reconciles `unrecognized_keys` across its two sides and
+// reports a key only when BOTH reject it, so a strict object beside a plain one — which
+// strips the key instead of rejecting it — reports nothing at all. In JSON Schema the
+// keyword applies to its own member alone (2020-12 §10.3.2.3): the member does not see what
+// the other members declare, so a key it does not declare fails it, and the `allOf` with it.
+//
+// - An operand that is a strict object reports each key it neither declares nor matches
+//   with a pattern, like the `unevaluatedProperties` check: a `custom` issue under the
+//   key, which no enclosing intersection reconciles away.
+// - An operand that can only hand the issue on (a union or a discriminated union with a
+//   strict branch) is asked on its own: when it fails on undeclared keys and nothing else,
+//   that is the failure the intersection would drop, and its keys are reported the same way.
+//
+// Returns '' when no operand needs it, so an intersection without a strict member emits
+// exactly what it did.
+export function makeStrictOperandCheck(
+  operands: readonly { readonly schema: Schema; readonly zod: string }[],
+  schemas?: Schemas,
+) {
+  const stmts = operands.flatMap(({ schema, zod }) => {
+    const resolved = resolveOperand(schema, schemas)
+    if (resolved === undefined) return []
+    if (emitsStrictObject(resolved) && declaredTypes(resolved).length <= 1) {
+      const ownKeys = Object.keys(resolved.properties ?? {})
+      const patterns = Object.keys(resolved.patternProperties ?? {})
+      const undeclared = [
+        ...(ownKeys.length > 0 ? [`!${JSON.stringify(ownKeys)}.includes(k)`] : []),
+        ...(patterns.length > 0
+          ? [`!${JSON.stringify(patterns)}.some((p)=>new RegExp(p).test(k))`]
+          : []),
+      ]
+      const message = pickMessage(resolved, 'x-additionalProperties-message')
+      const report = `ctx.issues.push({code:"custom",path:[k],input:o${message === undefined ? '' : `,message:${message}`}})`
+      return [
+        `for(const k of Object.keys(o)){${undeclared.length === 0 ? report : `if(${undeclared.join('&&')}){${report}}`}}`,
+      ]
+    }
+    if (!leaksUnrecognizedKeys(schema, schemas)) return []
+    return [
+      `{const result=${zod}.safeParse(o);if(!result.success&&result.error.issues.every((issue)=>issue.code==='unrecognized_keys'&&issue.path.length===0)){for(const issue of result.error.issues){if(issue.code==='unrecognized_keys'){for(const k of issue.keys){ctx.issues.push({code:"custom",path:[k],input:o,message:issue.message})}}}}}`,
+    ]
+  })
+  if (stmts.length === 0) return ''
+  return `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;${stmts.join(';')}}`
+}
+
 // The object keywords of a shape as a guarded refine: `properties` / `required` only
 // apply to object values in JSON Schema, so a value of another type passes them as is
 // (2020-12 §6.5). The checks are the typeless path's object block, guarded by the same
@@ -869,24 +992,33 @@ function makeAdditionalPropsStmt(sub: Schema) {
 // The keys an `allOf` member evaluates: its own properties, pattern properties and
 // additional properties, and those of its own `allOf`. A member that is a reference
 // evaluates the keys of the component it names (#405), read once however often it is
-// reached.
+// reached. A member that is an `anyOf` / `oneOf` — what a combinator beside the `allOf`
+// is emitted as (#469) — evaluates the keys of each branch that matches.
 function collectAllOfStmts(
   list: readonly Schema[],
   schemas: Schemas | undefined,
   reading: ReadonlySet<string> = new Set(),
+  recurse?: (s: Schema) => string,
 ): readonly string[] {
   return list.flatMap((sub) => {
     if (sub.$ref !== undefined) {
       const target = reading.has(sub.$ref) ? undefined : resolveSchemaRef(sub.$ref, schemas)
       return target === undefined
         ? []
-        : collectAllOfStmts([target], schemas, new Set([...reading, sub.$ref]))
+        : collectAllOfStmts([target], schemas, new Set([...reading, sub.$ref]), recurse)
     }
+    const branches =
+      recurse === undefined
+        ? []
+        : [...(sub.anyOf ?? []), ...(sub.oneOf ?? [])].map((branch) =>
+            conditionalBranchStmt(branch, recurse, schemas, reading),
+          )
     return [
       makeOwnPropsStmt(sub),
       makePatternPropsStmt(sub),
       makeAdditionalPropsStmt(sub),
-      ...(sub.allOf ? collectAllOfStmts(sub.allOf, schemas, reading) : []),
+      ...(sub.allOf ? collectAllOfStmts(sub.allOf, schemas, reading, recurse) : []),
+      ...branches,
     ].filter((s): s is string => s !== undefined)
   })
 }
@@ -949,7 +1081,7 @@ function collectBranchBody(
     makeOwnPropsStmt(sub),
     makePatternPropsStmt(sub),
     makeAdditionalPropsStmt(sub),
-    ...(sub.allOf ? collectAllOfStmts(sub.allOf, schemas, reading) : []),
+    ...(sub.allOf ? collectAllOfStmts(sub.allOf, schemas, reading, recurse) : []),
     ...branchStmts(sub.anyOf),
     ...branchStmts(sub.oneOf),
     ...makeIfStmts(sub, recurse),
@@ -1006,7 +1138,7 @@ function makeUnevaluatedEvaluationStmts(
     makeOwnPropsStmt(schema),
     makePatternPropsStmt(schema),
     makeAdditionalPropsStmt(schema),
-    ...(schema.allOf ? collectAllOfStmts(schema.allOf, schemas) : []),
+    ...(schema.allOf ? collectAllOfStmts(schema.allOf, schemas, undefined, recurse) : []),
     ...branchStmts(schema.anyOf, track?.anyOf),
     ...branchStmts(schema.oneOf, track?.oneOf),
     ...makeIfStmts(schema, recurse),
