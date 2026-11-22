@@ -871,16 +871,9 @@ export const postItemsIdRoute = createRoute({
       'tmp-cli-test/hono-takibi.config.ts',
       `export default { input: 'undeclared.json', output: 'src/routes.ts', template: {}, client: { output: 'src/client.ts', baseUrl: '/' }, rpc: { output: 'src/rpc.ts', parseResponse: true } }`,
     )
-    const report = execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
-      encoding: 'utf8',
     })
-    expect(report).toContain(
-      '⚠️ GET /users/{id}: {id} is not declared in parameters; read as a required string path parameter.',
-    )
-    expect(report).toContain(
-      '⚠️ GET /users/{user_id}/messages/{message_id}: {message_id} is not declared in parameters; read as a required string path parameter.',
-    )
     expect(fs.readFileSync('tmp-cli-test/src/routes.ts', { encoding: 'utf8' }))
       .toBe(`import { createRoute, z } from '@hono/zod-openapi'
 

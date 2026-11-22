@@ -28,7 +28,7 @@ export function normalizeOpenAPI(document: OpenAPI): OpenAPI {
  * OpenAPI says every template expression MUST correspond to a path parameter, so such a
  * document is invalid, but it is met (Knock).
  */
-export function undeclaredTemplateParameters(document: OpenAPI): readonly {
+function undeclaredTemplateParameters(document: OpenAPI): readonly {
   readonly path: string
   readonly method: (typeof HTTP_METHODS)[number]
   readonly names: readonly string[]
@@ -48,17 +48,6 @@ export function undeclaredTemplateParameters(document: OpenAPI): readonly {
       return names.length === 0 ? [] : [{ path, method, names }]
     })
   })
-}
-
-/**
- * A line per operation `undeclaredTemplateParameters` finds, for the report of a run: the
- * parameter is generated, and the document should still declare it.
- */
-export function templateParameterWarnings(document: OpenAPI): readonly string[] {
-  return undeclaredTemplateParameters(document).map(
-    ({ path, method, names }) =>
-      `⚠️ ${method.toUpperCase()} ${path}: ${names.map((name) => `{${name}}`).join(', ')} ${names.length === 1 ? 'is' : 'are'} not declared in parameters; read as ${names.length === 1 ? 'a required string path parameter' : 'required string path parameters'}.`,
-  )
 }
 
 /**

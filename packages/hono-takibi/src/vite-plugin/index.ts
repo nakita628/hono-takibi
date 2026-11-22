@@ -14,7 +14,6 @@ import { appEntryOutput, isInsideDirectory } from '../helper/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import {
   cleanSplitOutputs,
-  documentWarnings,
   makeJob,
   openAPI3,
   outsideSources,
@@ -273,10 +272,7 @@ function runAllGenerationTasks(config: Config) {
       { concurrency: 'unbounded' },
     ).pipe(Effect.provideService(FormatOptions, config.format ?? {}))
     const afterSnapshot = yield* snapshotOutputs(outputPaths)
-    return {
-      logs: [...logs, ...documentWarnings(parsed.success)],
-      changed: !sameOutputSnapshot(beforeSnapshot, afterSnapshot),
-    }
+    return { logs, changed: !sameOutputSnapshot(beforeSnapshot, afterSnapshot) }
   })
 }
 

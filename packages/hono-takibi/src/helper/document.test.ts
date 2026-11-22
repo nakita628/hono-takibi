@@ -1,13 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../openapi/index.js'
-import {
-  normalizeOpenAPI,
-  templateParameterWarnings,
-  undeclaredTemplateParameters,
-  withoutExtensions,
-  withTemplateParameters,
-} from './document.js'
+import { normalizeOpenAPI, withoutExtensions, withTemplateParameters } from './document.js'
 
 // #416: an `x-` key of the Paths, Responses and Callback Objects is an extension, not an entry
 describe('withoutExtensions', () => {
@@ -157,16 +151,6 @@ describe('withTemplateParameters', () => {
     },
   } as unknown as OpenAPI
 
-  it.concurrent('names the operations and the parameters they leave out', () => {
-    expect(undeclaredTemplateParameters(doc)).toStrictEqual([
-      { path: '/users/{id}', method: 'get', names: ['id'] },
-      { path: '/users/{user_id}/messages/{message_id}', method: 'get', names: ['message_id'] },
-      { path: '/teams/{team_id}/members/{member_id}', method: 'get', names: ['member_id'] },
-      { path: '/search/{q}', method: 'get', names: ['q'] },
-      { path: '/shared/{id}', method: 'get', names: ['id'] },
-    ])
-  })
-
   it.concurrent('declares them as required string path parameters', () => {
     expect(withTemplateParameters(doc)).toStrictEqual({
       ...doc,
@@ -201,9 +185,8 @@ describe('withTemplateParameters', () => {
     })
   })
 
-  it.concurrent('leaves nothing undeclared, and a second pass changes nothing', () => {
+  it.concurrent('a second pass changes nothing', () => {
     const declared = withTemplateParameters(doc)
-    expect(undeclaredTemplateParameters(declared)).toStrictEqual([])
     expect(withTemplateParameters(declared)).toBe(declared)
   })
 
@@ -222,27 +205,10 @@ describe('withTemplateParameters', () => {
     } as unknown as OpenAPI
     expect(withTemplateParameters(valid)).toBe(valid)
     expect(normalizeOpenAPI(valid)).toBe(valid)
-    expect(templateParameterWarnings(valid)).toStrictEqual([])
   })
 
   it.concurrent('reads a document without paths', () => {
     const webhooksOnly = { openapi: '3.1.0', info: { title: 'w', version: '1' } } as OpenAPI
-    expect(undeclaredTemplateParameters(webhooksOnly)).toStrictEqual([])
     expect(withTemplateParameters(webhooksOnly)).toBe(webhooksOnly)
-  })
-
-  it.concurrent('warns of each operation', () => {
-    const two = {
-      openapi: '3.1.0',
-      info: { title: 'two', version: '1.0.0' },
-      paths: {
-        '/users/{id}': { get: { responses: { '200': ok } } },
-        '/a/{b}/c/{d}': { put: { responses: { '200': ok } } },
-      },
-    } as unknown as OpenAPI
-    expect(templateParameterWarnings(two)).toStrictEqual([
-      '⚠️ GET /users/{id}: {id} is not declared in parameters; read as a required string path parameter.',
-      '⚠️ PUT /a/{b}/c/{d}: {b}, {d} are not declared in parameters; read as required string path parameters.',
-    ])
   })
 })
