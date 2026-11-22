@@ -36,6 +36,32 @@ Run it again after editing the spec. New operations get a stub, existing handler
 - When an operation leaves the spec, its handler declaration is removed. The file stays, delete it by hand when it is empty.
 - Files under `handlers/` are never deleted. Only top-level files are scanned, not subdirectories.
 
+## File names
+
+A handler file is named after the first tag of its operations, or the first path segment when there is no tag. `fileNameCase: 'kebab-case'` writes that name in kebab case. The default is `'camelCase'`.
+
+```ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  output: './src/routes.ts',
+  template: { fileNameCase: 'kebab-case' },
+})
+```
+
+| Tag                | `'camelCase'`       | `'kebab-case'`        |
+| ------------------ | ------------------- | --------------------- |
+| `Real-Time Events` | `realTimeEvents.ts` | `real-time-events.ts` |
+| `API Keys`         | `apiKeys.ts`        | `api-keys.ts`         |
+
+Only the file name changes. Exports and `split` groups stay in camelCase: `real-time-events.ts` exports `realTimeEventsHandler`.
+
+```ts
+// src/handlers/real-time-events.ts
+export const realTimeEventsHandler = app.openapi(getEventsRoute, (c) => {})
+```
+
+A file that already holds a handler keeps its name. Switching the option on an existing project renames nothing and duplicates nothing: new operations of a tag join the file that tag already has. Rename the files yourself if you want them in the new case, the generator follows them.
+
 ## Modes
 
 ### `routeHandler: false` (default)
@@ -69,7 +95,7 @@ export default app
 ![routeHandler: false, regenerating on TypeSpec save](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/template/template-default.gif)
 
 ::: tip
-If you split routes into hand-written files, name each sub-router export `<fileBasename>Handler`, for example `sharesHandler` in `shares.ts`. That is the name the generator merges into.
+If you split routes into hand-written files, name each sub-router export `<fileBasename>Handler`, for example `sharesHandler` in `shares.ts`. That is the name the generator merges into. A kebab-case file goes by its camelCase name: `shareLinksHandler` in `share-links.ts`.
 :::
 
 ### `routeHandler: true`

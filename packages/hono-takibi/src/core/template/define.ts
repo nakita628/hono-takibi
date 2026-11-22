@@ -6,6 +6,7 @@ import { readFile, writeFile } from '../../file/index.js'
 import { fmt } from '../../format/index.js'
 import { app, appGroups } from '../../generator/zod-openapi-hono/app/index.js'
 import { entryNames, defineOpenAPIRouteHandler, makeModuleSpec } from '../../helper/index.js'
+import type { FileNameCase } from '../../helper/index.js'
 import { mergeAppFile } from '../../merge/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
@@ -22,6 +23,7 @@ export function defineTemplate(
   readonly?: boolean,
   split = false,
   componentsPackage?: (fromFile: string) => string | undefined,
+  fileNameCase?: FileNameCase,
 ) {
   const target = output.endsWith('.ts') ? output : path.join(output, 'index.ts')
   // The generated route/handler directory always sits next to the app entry
@@ -48,6 +50,7 @@ export function defineTemplate(
             handlerImport,
             undefined,
             split,
+            fileNameCase,
           ),
         ),
         defineOpenAPIRouteHandler(
@@ -60,6 +63,7 @@ export function defineTemplate(
           // testFramework,
           readonly,
           componentsPackage,
+          fileNameCase,
         ),
       ],
       { concurrency: 'unbounded' },
@@ -67,7 +71,11 @@ export function defineTemplate(
     const existing = yield* readFile(target)
     const merged =
       existing !== null
-        ? mergeAppFile(existing, appCode, entryNames(appGroups(openAPI, false, undefined, split)))
+        ? mergeAppFile(
+            existing,
+            appCode,
+            entryNames(appGroups(openAPI, false, undefined, split, fileNameCase)),
+          )
         : appCode
     // A merge can produce source oxfmt rejects; the unformatted merge is still the
     // right file to write.

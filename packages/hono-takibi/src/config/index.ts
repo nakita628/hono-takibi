@@ -111,6 +111,14 @@ const ConfigSchema = Schema.Struct({
           description:
             'Divide the routes into groups, each exported under its name, and the rest as `api`. Every group is registered on the one app; what is divided is the type, so that a client of one group resolves the routes of that group and not of the whole application. A group is the first segment of the path, `/books` and `/books/{id}` as `books` and `/v2-public/ping` as `v2Public` — or, where the handlers register their routes themselves (`routeHandler: false`), the handler file the app mounts, which goes by the first tag. The root belongs to no group.',
         }),
+        fileNameCase: Schema.Literals(['camelCase', 'kebab-case'])
+          .pipe(Schema.withDecodingDefault(Effect.succeed('camelCase' as const)))
+          .annotate({
+            title: 'Handler file name case',
+            description:
+              'How the generated handler files are named: `realTimeEvents.ts` (default) or `real-time-events.ts`. What the files export, and the groups of `split`, stay in camel case (`realTimeEventsHandler`). A file that already holds a handler keeps its name when the case is changed.',
+            examples: ['camelCase', 'kebab-case'],
+          }),
         // Test code generation is deprecated: hono-takibi no longer generates test files.
         // test: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
         //   description: 'Also scaffold a test file per handler.',
@@ -154,6 +162,14 @@ const ConfigSchema = Schema.Struct({
           description:
             'Divide the routes into groups, each exported under its name, and the rest as `api`. Every group is registered on the one app; what is divided is the type, so that a client of one group resolves the routes of that group and not of the whole application. A group is the first segment of the path, `/books` and `/books/{id}` as `books` and `/v2-public/ping` as `v2Public` — or, where the handlers register their routes themselves (`routeHandler: false`), the handler file the app mounts, which goes by the first tag. The root belongs to no group.',
         }),
+        fileNameCase: Schema.Literals(['camelCase', 'kebab-case'])
+          .pipe(Schema.withDecodingDefault(Effect.succeed('camelCase' as const)))
+          .annotate({
+            title: 'Handler file name case',
+            description:
+              'How the generated handler files are named: `realTimeEvents.ts` (default) or `real-time-events.ts`. What the files export, and the groups of `split`, stay in camel case (`realTimeEventsHandler`). A file that already holds a handler keeps its name when the case is changed.',
+            examples: ['camelCase', 'kebab-case'],
+          }),
         // Test code generation is deprecated: hono-takibi no longer generates test files.
         // test: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
         //   description: 'Also scaffold a test file per handler.',
@@ -192,11 +208,12 @@ const ConfigSchema = Schema.Struct({
           define: false,
           routeHandler: true,
           split: false,
+          fileNameCase: 'camelCase',
           // test: true,
           // testFramework: 'vitest',
         },
         // { define: true, split: false, test: true, testFramework: 'vitest' },
-        { define: true, split: false },
+        { define: true, split: false, fileNameCase: 'kebab-case' },
       ],
     }),
   ),

@@ -9,6 +9,7 @@ import { runGenerator } from '../testing/index.js'
 import {
   defineOpenAPIRouteHandler,
   handlerGroupOf,
+  handlerNameOf,
   makeHandlerFileName,
   zodOpenAPIHonoHandler,
 } from './handler.js'
@@ -264,6 +265,60 @@ describe('makeHandlerFileName (tags)', () => {
 })
 
 /* ─────────────────────────────── zodOpenAPIHonoHandler (stub) ─────────────────────────── */
+
+describe('makeHandlerFileName (kebab-case)', () => {
+  it('writes a tag of several words in kebab case', () => {
+    expect(makeHandlerFileName('/events', ['Real-Time Events'], 'kebab-case')).toBe(
+      'real-time-events.ts',
+    )
+    expect(makeHandlerFileName('/events', ['real_time_events'], 'kebab-case')).toBe(
+      'real-time-events.ts',
+    )
+  })
+
+  it('writes the path segment in kebab case when there is no tag', () => {
+    expect(makeHandlerFileName('/v2-public/ping', undefined, 'kebab-case')).toBe('v2-public.ts')
+    expect(makeHandlerFileName('/userProfile', undefined, 'kebab-case')).toBe('user-profile.ts')
+    expect(makeHandlerFileName('/Users', undefined, 'kebab-case')).toBe('users.ts')
+  })
+
+  it('keeps an acronym as one word', () => {
+    expect(makeHandlerFileName('/x', ['API Keys'], 'kebab-case')).toBe('api-keys.ts')
+    expect(makeHandlerFileName('/x', ['User API Keys'], 'kebab-case')).toBe('user-api-keys.ts')
+  })
+
+  it('leaves a name of one word, and the root, as they are', () => {
+    expect(makeHandlerFileName('/users', undefined, 'kebab-case')).toBe('users.ts')
+    expect(makeHandlerFileName('/', undefined, 'kebab-case')).toBe('__root.ts')
+  })
+
+  it('is camel case when the case is left out or camelCase', () => {
+    expect(makeHandlerFileName('/events', ['Real-Time Events'])).toBe('realTimeEvents.ts')
+    expect(makeHandlerFileName('/events', ['Real-Time Events'], 'camelCase')).toBe(
+      'realTimeEvents.ts',
+    )
+  })
+})
+
+describe('handlerNameOf', () => {
+  it('reads the hyphens of a kebab-case file as word breaks', () => {
+    expect(handlerNameOf('real-time-events.ts')).toBe('realTimeEvents')
+    expect(handlerNameOf('v2-public.ts')).toBe('v2Public')
+  })
+
+  it('is the base name of a file that has no hyphen', () => {
+    expect(handlerNameOf('realTimeEvents.ts')).toBe('realTimeEvents')
+    expect(handlerNameOf('users.ts')).toBe('users')
+    expect(handlerNameOf('__root.ts')).toBe('__root')
+  })
+
+  it('is the name of the file a kebab-case name was made from', () => {
+    for (const tag of ['Real-Time Events', 'API Keys', 'User API Keys', 'users', 'v2 public']) {
+      const file = makeHandlerFileName('/x', [tag], 'kebab-case')
+      expect(makeHandlerFileName('/x', [handlerNameOf(file)], 'kebab-case')).toBe(file)
+    }
+  })
+})
 
 describe('zodOpenAPIHonoHandler', () => {
   // Outside the (bind-mounted, eventually-consistent) workspace: see template tests.
@@ -867,6 +922,15 @@ describe('defineOpenAPIRouteHandler', () => {
 })
 
 describe('handlerGroupOf', () => {
+  // The file is named in kebab case; the group stays an identifier in camel case.
+  // ファイル名は kebab-case でも、グループは camelCase の識別子のままになる。
+  it.concurrent('is in camel case when the files are named in kebab case', () => {
+    expect(handlerGroupOf('/events', ['Real-Time Events'], 'kebab-case')).toBe('realTimeEvents')
+    expect(handlerGroupOf('/v2-public/ping', undefined, 'kebab-case')).toBe('v2Public')
+    expect(handlerGroupOf('/', undefined, 'kebab-case')).toBe('__root')
+    expect(handlerGroupOf('/delete', undefined, 'kebab-case')).toBe('__delete')
+  })
+
   // /books names books.
   // /books は books を指す。
   it.concurrent('is the first segment of the path', () => {
