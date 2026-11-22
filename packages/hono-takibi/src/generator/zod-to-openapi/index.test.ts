@@ -1,3 +1,4 @@
+import { OpenAPIHono, createRoute, z as zOpenAPI } from '@hono/zod-openapi'
 import { describe, expect, it } from 'vite-plus/test'
 import { z } from 'zod'
 
@@ -14691,10 +14692,13 @@ describe('properties beside combinators', () => {
     ).toBe(
       'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]})).nullable(),z.object({b:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]}))])',
     )
-    // `.catch()` answers every failure with its fallback, so a wrong-typed
-    // sibling is caught too once the shape is inside the catch — the fallback
-    // is a value of the merged shape, so the output stays valid. A catch
-    // whose value is not a value of the merged shape keeps the check-pipe.
+    // An `x-catch` branch keeps the check-pipe, like a user chain:
+    // `@hono/zod-openapi` cannot render `.catch()` — document generation
+    // throws `Unknown zod object type` — and the catch would swallow
+    // violations of the parent's sibling properties (`{a: 'x', link: 123}`
+    // would answer `{a: 'c'}`). The check on the raw input rejects those
+    // before the branch runs, and the catch still answers the branch's own
+    // failures inside the pipe.
     expect(
       zodToOpenAPI({
         anyOf: [
@@ -14704,7 +14708,7 @@ describe('properties beside combinators', () => {
         properties: { link: { type: 'string' } },
       }),
     ).toBe(
-      'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]})).catch({"a":"c"}),z.string()])',
+      `z.unknown().check(${shapeCheck}).pipe(z.union([z.object({a:z.string().exactOptional()}).catch({"a":"c"}).openapi({"required":[]}),z.string()]))`,
     )
     expect(
       zodToOpenAPI({
@@ -14880,6 +14884,35 @@ describe('properties beside combinators', () => {
       }),
     ).toBe(
       'z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]})).nullable().and(z.object({b:z.string().exactOptional()}).nullable().openapi({"required":[]}))',
+    )
+  })
+
+  it.concurrent('codegen: allOf with $ref members carrying their own nullable distributes (#471)', () => {
+    // The same class as the `anyOf` / `oneOf` fix: a `$ref` member with its
+    // own `.nullable()` admits `null` through its wrapping, not through its
+    // target — `canAdmitNullOrUndefined` follows the `$ref` and never sees
+    // it — so the member path would emit `A.nullable().and(B.nullable())`
+    // followed by the shape, rejecting the `null` the intersection admits.
+    // The shape distributes into the members instead, inside their wrapping.
+    expect(
+      zodToOpenAPI(
+        {
+          allOf: [
+            { $ref: '#/components/schemas/A', nullable: true },
+            { $ref: '#/components/schemas/B', nullable: true },
+          ],
+          properties: { link: { type: 'string' } },
+        },
+        undefined,
+        {
+          schemas: {
+            A: { type: 'object', properties: { a: { type: 'string' } } },
+            B: { type: 'object', properties: { b: { type: 'string' } } },
+          },
+        },
+      ),
+    ).toBe(
+      'ASchema.and(z.object({link:z.string().exactOptional()}).openapi({"required":[]})).nullable().and(BSchema.nullable())',
     )
   })
 
@@ -15149,23 +15182,19 @@ describe('properties beside combinators', () => {
       success: true,
       data: { a: 'x', link: 'y' },
     })
-    const Caught = z.union([
-      z
-        .object({ a: z.string().exactOptional() })
-        .and(z.object({ link: z.string().exactOptional() }))
-        .catch({ a: 'c' }),
-      z.string(),
-    ])
+    // An `x-catch` branch keeps the check-pipe: the check on the raw input
+    // rejects a wrong-typed sibling before the branch runs, so the catch
+    // never sees it — and `@hono/zod-openapi` cannot render `.catch()` at
+    // all. The catch still answers the branch's own failures inside the
+    // pipe, as before.
+    const Caught = z
+      .unknown()
+      .check(shapeCheck461)
+      .pipe(z.union([z.object({ a: z.string().exactOptional() }).catch({ a: 'c' }), z.string()]))
     expect(Caught.safeParse(null).success).toBe(true)
     expect(Caught.safeParse(null).data).toStrictEqual({ a: 'c' })
-    // A wrong-typed sibling is caught too now that the shape is inside the
-    // catch — the check-pipe used to report it before the branch ran. That
-    // is `.catch()` applied to the merged branch, and the fallback it answers
-    // with is a value of the merged shape.
-    expect(Caught.safeParse({ a: 'x', link: 123 })).toStrictEqual({
-      success: true,
-      data: { a: 'c' },
-    })
+    expect(Caught.safeParse({ a: 'x', link: 123 }).success).toBe(false)
+    expect(Caught.safeParse({ a: 'x', link: 'y' }).success).toBe(true)
     const RequiredNullable = z.union([
       z
         .object({ a: z.string().exactOptional() })
@@ -15190,7 +15219,10 @@ describe('properties beside combinators', () => {
     // `safeParse({"id":"a","link":"x"})` on the three rows of the issue
     // table: the plain branch (#467) and the nullable and defaulted ones.
     const Nullable = z.union([
-      z.object({ id: z.string().exactOptional() }).and(z.object({ link: z.string() })).nullable(),
+      z
+        .object({ id: z.string().exactOptional() })
+        .and(z.object({ link: z.string() }))
+        .nullable(),
       z.string(),
     ])
     expect(Nullable.safeParse({ id: 'a', link: 'x' })).toStrictEqual({
@@ -15211,6 +15243,59 @@ describe('properties beside combinators', () => {
       data: { id: 'a', link: 'x' },
     })
     expect(Defaulted.safeParse(undefined).success).toBe(false)
+  })
+
+  it.concurrent('runtime: allOf with $ref members carrying their own nullable still admits null (#471)', () => {
+    // The distributed form, mirrored by hand: the shape sits inside the
+    // first member's wrapping, and the second member keeps its own.
+    const Distributed = z
+      .object({ a: z.string().exactOptional() })
+      .and(z.object({ link: z.string().exactOptional() }))
+      .nullable()
+      .and(z.object({ b: z.string().exactOptional() }).nullable())
+    expect(Distributed.safeParse(null).success).toBe(true)
+    expect(Distributed.safeParse({ a: 'x', b: 'y', link: 'z' })).toStrictEqual({
+      success: true,
+      data: { a: 'x', b: 'y', link: 'z' },
+    })
+    expect(Distributed.safeParse({ a: 'x', b: 'y', link: 123 }).success).toBe(false)
+  })
+
+  it.concurrent('runtime: an x-catch branch keeps the check-pipe, so the document still builds (#471)', () => {
+    // The check-pipe form the emitter now produces for an `x-catch` branch,
+    // mirrored by hand (repo convention, no `new Function` / `eval`):
+    // `@hono/zod-openapi` cannot render `.catch()` — document generation
+    // throws `Unknown zod object type` — while the check-pipe renders as
+    // `{}` (structure lost, as on main) and the shape check still rejects a
+    // wrong-typed sibling before the branch runs.
+    const Caught = zOpenAPI
+      .unknown()
+      .check(shapeCheck461)
+      .pipe(
+        zOpenAPI.union([
+          zOpenAPI.object({ a: zOpenAPI.string().exactOptional() }).catch({ a: 'c' }),
+          zOpenAPI.string(),
+        ]),
+      )
+    expect(Caught.safeParse({ a: 'x', link: 123 }).success).toBe(false)
+    const app = new OpenAPIHono()
+    app.openapi(
+      createRoute({
+        method: 'get',
+        path: '/x',
+        responses: {
+          200: {
+            description: 'ok',
+            content: { 'application/json': { schema: Caught } },
+          },
+        },
+      }),
+      (c) => c.json({}),
+    )
+    const doc = app.getOpenAPI31Document({ openapi: '3.1.0', info: { title: 't', version: '1' } })
+    expect(
+      (doc as any).paths['/x'].get.responses['200'].content['application/json'].schema,
+    ).toStrictEqual({})
   })
 
   it.concurrent('runtime: the member path keeps the property type error', () => {

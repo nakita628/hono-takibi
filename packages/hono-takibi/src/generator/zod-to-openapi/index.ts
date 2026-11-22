@@ -223,14 +223,13 @@ export function zodToOpenAPI(
   // object alternative cannot be reached without rebuilding it: the caller falls
   // back to the check-pipe for the whole combinator, which is always correct
   // (the document just loses the structure for that rare shape).
-  // A `default` / `prefault` / `catch` value read against the MERGED shape
-  // (the branch core intersected with the sibling shape): it has to be a
-  // value of both, each read by its own schema — `conformDefault` on the
-  // `allOf` of the two would drop the keys the other declares, so the two
-  // readings are merged key-wise instead. Not-ok when the value is not a
-  // value of the merged shape (a required key missing, a wrong-typed
-  // property); a key the two readings coerce differently is a contradictory
-  // schema, not a value of it.
+  // A `default` / `prefault` value read against the MERGED shape (the branch
+  // core intersected with the sibling shape): it has to be a value of both,
+  // each read by its own schema — `conformDefault` on the `allOf` of the two
+  // would drop the keys the other declares, so the two readings are merged
+  // key-wise instead. Not-ok when the value is not a value of the merged
+  // shape (a required key missing, a wrong-typed property); a key the two
+  // readings coerce differently is a contradictory schema, not a value of it.
   const conformMerged = (
     coreSchema: Schema,
     shapeSchema: Schema,
@@ -277,15 +276,17 @@ export function zodToOpenAPI(
   // admitted. Only the wrappings the issue names are re-applied around the
   // distributed core. A user chain replaces the chain wholesale, a refine /
   // brand / readonly is written against the branch's own output (a refine
-  // moved inside would run on different values), and a `.catch()` whose
-  // value is not a value of the merged shape would answer failures with a
-  // value the merged schema rejects — those keep the check-pipe, as do
-  // branches whose CORE admits `null` or `undefined` itself (a `$ref` to a
-  // nullable component, a `null` enum member): that admission cannot be
-  // re-applied around the intersection. A `default` / `prefault` that is not
-  // a value of the merged shape is dropped — the way `wrap` already drops a
-  // default that is not a value of its schema — instead of being written as
-  // `.default()` on the merged shape, which would not type-check.
+  // moved inside would run on different values), and a `.catch()` branch
+  // keeps the check-pipe like a user chain: `@hono/zod-openapi` cannot
+  // render `.catch()` (document generation throws `Unknown zod object type`),
+  // and the catch would swallow violations of the parent's sibling
+  // properties. Branches whose CORE admits `null` or `undefined` itself (a
+  // `$ref` to a nullable component, a `null` enum member) also keep the
+  // check-pipe: that admission cannot be re-applied around the intersection.
+  // A `default` / `prefault` that is not a value of the merged shape is
+  // dropped — the way `wrap` already drops a default that is not a value of
+  // its schema — instead of being written as `.default()` on the merged
+  // shape, which would not type-check.
   const distributeAdmitting = (
     branch: Schema,
     shapeZ: string,
@@ -301,7 +302,8 @@ export function zodToOpenAPI(
       branch['x-refine'] !== undefined ||
       branch['x-superRefine'] !== undefined ||
       branch['x-brand'] !== undefined ||
-      branch['x-readonly'] === true
+      branch['x-readonly'] === true ||
+      branch['x-catch'] !== undefined
     ) {
       return null
     }
@@ -344,18 +346,11 @@ export function zodToOpenAPI(
       branch['x-prefault'] === undefined
         ? undefined
         : conformMerged(coreSchema, shapeSchema, branch['x-prefault'])
-    const mergedCatch =
-      branch['x-catch'] === undefined
-        ? undefined
-        : conformMerged(coreSchema, shapeSchema, branch['x-catch'])
-    if (mergedCatch !== undefined && !mergedCatch.ok) return null
     // `.nullable()` must precede `.default(null)` so `.default(null)` validates.
     const defaultIsNull =
       mergedDefault !== undefined && mergedDefault.ok && mergedDefault.value === null
     const nullable =
-      branch.nullable === true ||
-      normalizeTypes(branch.type).includes('null') ||
-      defaultIsNull
+      branch.nullable === true || normalizeTypes(branch.type).includes('null') || defaultIsNull
     let out = distributed
     if (nullable) out = `${out}.nullable()`
     if (mergedDefault !== undefined && mergedDefault.ok) {
@@ -363,9 +358,6 @@ export function zodToOpenAPI(
     }
     if (mergedPrefault !== undefined && mergedPrefault.ok) {
       out = `${out}.prefault(${JSON.stringify(mergedPrefault.value)})`
-    }
-    if (mergedCatch !== undefined && mergedCatch.ok) {
-      out = `${out}.catch(${JSON.stringify(mergedCatch.value)})`
     }
     return out
   }
@@ -391,10 +383,7 @@ export function zodToOpenAPI(
       // `.default()` would take the plain `.and()` below, with the wrapping
       // inside it (`ObjSchema.nullable().and(shape)`), rejecting the `null`
       // the wrapping admits.
-      if (
-        canAdmitNullOrUndefined(branch, childOptions?.schemas) ||
-        hasOwnWrapping(branch)
-      ) {
+      if (canAdmitNullOrUndefined(branch, childOptions?.schemas) || hasOwnWrapping(branch)) {
         return distributeAdmitting(branch, shapeZ, shapeRefine, shapeHasProperties, shapeSchema)
       }
       const andZ = `${child(branch)}.and(${shapeZ})`
@@ -560,20 +549,24 @@ export function zodToOpenAPI(
     // admits it, and the parent does not re-admit it (see `nullable` below):
     // the shape is distributed into the members instead (#471), which now
     // carry it inside their own wrapping. A declared parent type without
-    // `null` already rejects it, so the member path stays correct there. The
+    // `null` already rejects it, so the member path stays correct there. A
+    // member admits it through its own wrapping as well as through its
+    // target: a `$ref` member with its own `.nullable()` / `.default()` is
+    // not seen by `canAdmitNullOrUndefined`, which follows the `$ref`. The
     // parent re-admission is the same check `nullable` makes, read off
     // `schema.allOf` — the shape member itself is never an annotation-only
     // nullable member, so it cannot change the result.
     const intersectionAdmitsNullOrUndefined =
       (schema.type === undefined || normalizeTypes(schema.type).includes('null')) &&
       schema.allOf.length > 0 &&
-      schema.allOf.every((member) => canAdmitNullOrUndefined(member, childOptions?.schemas))
+      schema.allOf.every(
+        (member) =>
+          canAdmitNullOrUndefined(member, childOptions?.schemas) || hasOwnWrapping(member),
+      )
     const parentReAdmitsNull =
       schema.nullable === true ||
       normalizeTypes(schema.type).includes('null') ||
-      schema.allOf.some(
-        (s) => s.type === 'null' || (s.nullable === true && isAnnotationOnly(s)),
-      )
+      schema.allOf.some((s) => s.type === 'null' || (s.nullable === true && isAnnotationOnly(s)))
     const shapeMember =
       (objectOnly || membersRequireObject) &&
       schema.properties !== undefined &&
