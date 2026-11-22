@@ -1,0 +1,13 @@
+# Changelog
+
+## [0.32.6](https://github.com/nakita628/hono-takibi/compare/v0.32.5...v0.32.6) (2026-11-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency oxfmt to ^0.78.0 ([2e0a777](https://github.com/nakita628/hono-takibi/commit/2e0a77721feedfdf6295905d2288a140dd0a36bc))
+* **deps:** update dependency oxfmt to ^0.78.0 ([cbd224f](https://github.com/nakita628/hono-takibi/commit/cbd224f755d4874e85fe5595b947b4600cf23059))
+* **zod:** address review round 2 — type-aware lint and knip hints ([#471](https://github.com/nakita628/hono-takibi/issues/471)) ([a90ed11](https://github.com/nakita628/hono-takibi/commit/a90ed112019235347437348aa8db30943d602576))
+* **zod:** distribute sibling shape into nullable/defaulted branches ([#471](https://github.com/nakita628/hono-takibi/issues/471)) ([c6aead2](https://github.com/nakita628/hono-takibi/commit/c6aead2b0f2d623ae5830924523c2e773fa01610))
+* **zod:** drop the success-gate parse in the unevaluatedProperties check ([#480](https://github.com/nakita628/hono-takibi/issues/480)) ([d6a9c73](https://github.com/nakita628/hono-takibi/commit/d6a9c7367f7efb6558096511457f1af2e8a84e6d))
+* **zod:** keep check-pipe for x-catch branches; distribute allOf $ref nullable members ([#471](https://github.com/nakita628/hono-takibi/issues/471)) ([ed6757b](https://github.com/nakita628/hono-takibi/commit/ed6757bd4e6bf5d6baf9fd1ba76e2fb4f39b753c))
