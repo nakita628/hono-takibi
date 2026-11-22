@@ -1,7 +1,7 @@
 name: PR title
 
 # Pull requests are squash-merged with their title as the commit message, and release-please
-# reads those messages to decide the next version and write the changelog (release-pr.yml).
+# reads those messages to decide the next version and write the changelog (release.yml).
 # A title that is not a Conventional Commit would be left out of both, so it is checked here.
 # The types are the ones .github/pull_request_template.md lists, plus `revert`.
 
