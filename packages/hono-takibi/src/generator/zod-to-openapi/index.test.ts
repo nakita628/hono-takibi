@@ -13723,10 +13723,11 @@ describe('zodToOpenAPI', () => {
       )
     })
     it.concurrent('codegen: anyOf + empty branch → the match still counts, keys still unevaluated (#480)', () => {
+      // The empty branch takes the declared `type: object` (#468).
       expect(zodToOpenAPI({ type: 'object', anyOf: [{}], unevaluatedProperties: false })).toBe(
         withCheck(
-          'z.union([z.any()])',
-          '(ctx)=>{const o=ctx.value;if(typeof o!==\'object\'||o===null||Array.isArray(o))return;let mA=0;const e=new Set();if(z.any().safeParse(o).success){mA++;};if(mA>0){for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}}',
+          'z.union([z.looseObject({})])',
+          '(ctx)=>{const o=ctx.value;if(typeof o!==\'object\'||o===null||Array.isArray(o))return;let mA=0;const e=new Set();if(z.looseObject({}).safeParse(o).success){mA++;};if(mA>0){for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}}',
         ),
       )
     })
@@ -14143,7 +14144,6 @@ describe('properties beside combinators', () => {
   const requiredShapeCheck = `(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"link")){ctx.issues.push({...{code:'custom'},input:val})};if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.issues.push({...{code:'custom'},input:val})}}}}`
   const requiredRefine = `(val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"link")){ctx.addIssue({code:'custom'})}}}`
   const minLengthCheck = `(val,ctx)=>{if(typeof val==='string'){if([...val].length<1){ctx.addIssue({code:'custom'})}}}`
-  const maxLengthCheck = `(val,ctx)=>{if(typeof val==='string'){if([...val].length>5){ctx.addIssue({code:'custom'})}}}`
 
   it.concurrent('codegen: anyOf string|object + properties distributes the shape into the object branch', () => {
     // The loose object branch only accepts objects, so the shape is an
@@ -14170,8 +14170,8 @@ describe('properties beside combinators', () => {
   })
 
   it.concurrent('codegen: type string + allOf [minLength] + properties keeps a string default', () => {
-    // The shape is a refine on the member, which passes objects through
-    // unchanged, so it sees the raw input — and the default stays a string.
+    // The member takes the declared type (#468), so it accepts no object and
+    // the shape constrains nothing — and the default stays a string.
     expect(
       zodToOpenAPI({
         type: 'string',
@@ -14179,12 +14179,12 @@ describe('properties beside combinators', () => {
         properties: { link: { type: 'string' } },
         default: '0',
       }),
-    ).toBe(`z.unknown().superRefine(${minLengthCheck}).superRefine(${shape}).default("0")`)
+    ).toBe('z.string().min(1).default("0")')
   })
 
   it.concurrent('codegen: type string + anyOf [minLength, maxLength] + properties keeps a string default', () => {
-    // Both branches accept objects (and strings), so each gets the shape as a
-    // refine: an object has to match the shape whichever branch it takes.
+    // Both branches take the declared type (#468), so neither accepts an
+    // object and the shape constrains nothing.
     expect(
       zodToOpenAPI({
         type: 'string',
@@ -14192,9 +14192,7 @@ describe('properties beside combinators', () => {
         properties: { link: { type: 'string' } },
         default: '0',
       }),
-    ).toBe(
-      `z.union([z.unknown().superRefine(${minLengthCheck}).superRefine(${shape}),z.unknown().superRefine(${maxLengthCheck}).superRefine(${shape})]).default("0")`,
-    )
+    ).toBe('z.union([z.string().min(1),z.string().max(5)]).default("0")')
   })
 
   it.concurrent('codegen: type [object, string] + properties unions the types', () => {
@@ -14382,8 +14380,10 @@ describe('properties beside combinators', () => {
   })
 
   it.concurrent('codegen: type object + combinators + required only is distributed, or checked on top of the intersection', () => {
+    // No member settles `type: object`, so it becomes a member of its own
+    // (#468) — the object member the required-only shape is distributed into.
     expect(zodToOpenAPI({ type: 'object', allOf: [{ minLength: 1 }], required: ['link'] })).toBe(
-      `z.unknown().superRefine(${minLengthCheck}).superRefine(${requiredRefine}).openapi({"required":["link"]})`,
+      `z.looseObject({}).and(z.looseObject({}).openapi({"required":["link"]})).superRefine(${requiredRefine}).and(z.unknown().superRefine(${minLengthCheck})).openapi({"required":["link"]})`,
     )
     expect(
       zodToOpenAPI({
@@ -15448,5 +15448,176 @@ describe('object default', () => {
     expect(zodToOpenAPI({ $ref: '#/components/schemas/Filters', default: { other: 1 } })).toBe(
       'FiltersSchema.default({"other":1})',
     )
+  })
+})
+
+const ref = (name: string): Schema => ({ $ref: `#/components/schemas/${name}` })
+
+describe('a declared type beside combinators (#468)', () => {
+  const minLengthCheck = `(val,ctx)=>{if(typeof val==='string'){if([...val].length<1){ctx.addIssue({code:'custom'})}}}`
+  const requiredA = `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"a")){ctx.addIssue({code:'custom'})}}}).openapi({"required":["a"]})`
+  const schemas = {
+    Obj: { type: 'object', properties: { x: { type: 'string' } } },
+    Num: { type: 'number' },
+    Typeless: { minLength: 1 },
+  } as const
+
+  it.concurrent('codegen: typeless members of the declared type take the type', () => {
+    expect(zodToOpenAPI({ type: 'string', allOf: [{ minLength: 1 }] })).toBe('z.string().min(1)')
+    expect(zodToOpenAPI({ type: 'string', allOf: [{ minLength: 1 }, { maxLength: 5 }] })).toBe(
+      'z.string().min(1).and(z.string().max(5))',
+    )
+    expect(zodToOpenAPI({ type: 'string', anyOf: [{ minLength: 1 }, { maxLength: 5 }] })).toBe(
+      'z.union([z.string().min(1),z.string().max(5)])',
+    )
+    expect(zodToOpenAPI({ type: 'integer', allOf: [{ minimum: 1 }] })).toBe('z.int().min(1)')
+    expect(zodToOpenAPI({ type: 'string', oneOf: [{ minLength: 3 }, { maxLength: 1 }] })).toBe(
+      'z.xor([z.string().min(3),z.string().max(1)])',
+    )
+    expect(zodToOpenAPI({ type: 'array', anyOf: [{ minItems: 1 }, { maxItems: 0 }] })).toBe(
+      'z.union([z.array(z.any()).min(1),z.array(z.any()).max(0)])',
+    )
+  })
+
+  it.concurrent('codegen: null stays with the outer handling', () => {
+    expect(
+      zodToOpenAPI({ type: ['string', 'null'], anyOf: [{ minLength: 1 }, { maxLength: 5 }] }),
+    ).toBe('z.union([z.string().min(1),z.string().max(5)]).nullable()')
+    expect(zodToOpenAPI({ type: 'string', nullable: true, allOf: [{ minLength: 1 }] })).toBe(
+      'z.string().min(1).nullable()',
+    )
+    // `type: null` alone declares no type to narrow to
+    expect(zodToOpenAPI({ type: 'null', anyOf: [{ minLength: 1 }] })).toBe(
+      zodToOpenAPI({ anyOf: [{ minLength: 1 }], nullable: true }),
+    )
+  })
+
+  it.concurrent('codegen: members that already settle the type are left as they are', () => {
+    expect(zodToOpenAPI({ type: 'string', anyOf: [{ type: 'string' }, { const: 'a' }] })).toBe(
+      'z.union([z.string(),z.literal("a")])',
+    )
+    // an integer is a number
+    expect(zodToOpenAPI({ type: 'number', anyOf: [{ type: 'integer' }, { minimum: 0.5 }] })).toBe(
+      'z.union([z.int(),z.number().min(0.5)])',
+    )
+    // one settled member settles an intersection
+    expect(zodToOpenAPI({ type: 'string', allOf: [{ type: 'string' }, { pattern: '^a' }] })).toBe(
+      zodToOpenAPI({ allOf: [{ type: 'string' }, { type: 'string', pattern: '^a' }] }),
+    )
+    // an untyped object is read as an object already (#385)
+    expect(
+      zodToOpenAPI({ type: 'object', oneOf: [{ properties: { a: { type: 'number' } } }] }),
+    ).toBe(zodToOpenAPI({ oneOf: [{ properties: { a: { type: 'number' } } }] }))
+  })
+
+  it.concurrent('codegen: a reference is followed, and taken as conforming when it cannot be', () => {
+    expect(zodToOpenAPI({ type: 'object', allOf: [ref('Obj')] }, undefined, { schemas })).toBe(
+      'ObjSchema',
+    )
+    expect(zodToOpenAPI({ type: 'object', allOf: [ref('Obj')] })).toBe('ObjSchema')
+    expect(zodToOpenAPI({ type: 'string', allOf: [ref('Num')] }, undefined, { schemas })).toBe(
+      'z.string().and(NumSchema)',
+    )
+    expect(zodToOpenAPI({ type: 'string', allOf: [ref('Typeless')] }, undefined, { schemas })).toBe(
+      'z.string().and(TypelessSchema)',
+    )
+    expect(
+      zodToOpenAPI({ type: 'string', anyOf: [ref('Typeless'), { maxLength: 0 }] }, undefined, {
+        schemas,
+      }),
+    ).toBe('z.union([z.string().and(TypelessSchema),z.string().max(0)])')
+  })
+
+  it.concurrent('codegen: a branch that cannot take the type is intersected with it', () => {
+    // a typed object emits its shape from `properties`, so `required` alone
+    // stays a guarded refine beside the object
+    expect(zodToOpenAPI({ type: 'object', anyOf: [{ required: ['a'] }] })).toBe(
+      `z.union([z.looseObject({}).and(${requiredA})])`,
+    )
+    expect(zodToOpenAPI({ type: 'object', allOf: [{ required: ['a'] }] })).toBe(
+      `z.looseObject({}).and(${requiredA})`,
+    )
+    // a value of another type among the enum members
+    expect(zodToOpenAPI({ type: 'string', anyOf: [{ const: 'a' }, { enum: ['b', 5] }] })).toBe(
+      `z.union([z.literal("a"),z.string().and(z.union([z.literal('b'),z.literal(5)]))])`,
+    )
+    // a wider type on the branch
+    expect(zodToOpenAPI({ type: 'integer', oneOf: [{ type: 'number', minimum: 1 }] })).toBe(
+      'z.xor([z.int().and(z.number().min(1))])',
+    )
+    // several declared types
+    expect(zodToOpenAPI({ type: ['string', 'number'], allOf: [{ minLength: 1 }] })).toBe(
+      `z.union([z.string(),z.number()]).and(z.unknown().superRefine(${minLengthCheck}))`,
+    )
+  })
+
+  it.concurrent('codegen: nested combinators and not take the type', () => {
+    expect(
+      zodToOpenAPI({ type: 'string', allOf: [{ anyOf: [{ minLength: 4 }, { maxLength: 1 }] }] }),
+    ).toBe('z.union([z.string().min(4),z.string().max(1)])')
+    expect(zodToOpenAPI({ type: 'string', allOf: [{ not: { const: 'x' } }] })).toBe(
+      'z.string().refine((val) => val !== "x")',
+    )
+  })
+
+  it.concurrent('codegen: an annotation-only member takes the type as a branch, not as an allOf member', () => {
+    expect(zodToOpenAPI({ type: 'string', anyOf: [{ description: 'x' }, { minLength: 1 }] })).toBe(
+      'z.union([z.string().openapi({"description":"x"}),z.string().min(1)])',
+    )
+    expect(zodToOpenAPI({ type: 'string', allOf: [{ description: 'x' }] })).toBe(
+      'z.string().openapi({"description":"x"})',
+    )
+  })
+
+  it.concurrent('codegen: type object with a sibling shape is settled by the shape', () => {
+    const shaped = { properties: { a: { type: 'number' } } } as const
+    expect(zodToOpenAPI({ type: 'object', ...shaped, anyOf: [{ required: ['a'] }] })).toBe(
+      `z.union([${requiredA}]).and(z.object({a:z.number().exactOptional()}).openapi({"required":[]}))`,
+    )
+    expect(zodToOpenAPI({ type: 'object', ...shaped, allOf: [{ required: ['a'] }] })).toBe(
+      `${requiredA}.and(z.object({a:z.number().exactOptional()}).openapi({"required":[]}))`,
+    )
+  })
+
+  it.concurrent('runtime: the issue table — values of another type are rejected', () => {
+    const allOfString = z.string().min(1)
+    expect(allOfString.safeParse('a').success).toBe(true)
+    expect(allOfString.safeParse('').success).toBe(false)
+    expect(allOfString.safeParse(5).success).toBe(false)
+    expect(allOfString.safeParse({ a: 1 }).success).toBe(false)
+
+    const anyOfString = z.union([z.string().min(1), z.string().max(5)])
+    expect(anyOfString.safeParse('').success).toBe(true)
+    expect(anyOfString.safeParse('abcdefg').success).toBe(true)
+    expect(anyOfString.safeParse(5).success).toBe(false)
+    expect(anyOfString.safeParse({ a: 1 }).success).toBe(false)
+
+    const allOfInteger = z.int().min(1)
+    expect(allOfInteger.safeParse(5).success).toBe(true)
+    expect(allOfInteger.safeParse('x').success).toBe(false)
+    expect(allOfInteger.safeParse(1.5).success).toBe(false)
+    expect(allOfInteger.safeParse(0).success).toBe(false)
+
+    const oneOfString = z.xor([z.string().min(3), z.string().max(1)])
+    expect(oneOfString.safeParse('abc').success).toBe(true)
+    expect(oneOfString.safeParse('').success).toBe(true)
+    expect(oneOfString.safeParse('ab').success).toBe(false)
+    // both branches reject on the type now, not because both match
+    const result = oneOfString.safeParse(5)
+    expect(result.success).toBe(false)
+    expect(JSON.stringify(result.error?.issues)).toContain('"expected":"string"')
+  })
+
+  it.concurrent('runtime: the typed schema intersected with a typeless branch', () => {
+    const required = z.unknown().superRefine((val, ctx) => {
+      if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+        if (!Object.hasOwn(val, 'a')) ctx.addIssue({ code: 'custom' })
+      }
+    })
+    const Schema = z.union([z.looseObject({}).and(required)])
+    expect(Schema.safeParse({ a: 1, b: 2 })).toStrictEqual({ success: true, data: { a: 1, b: 2 } })
+    expect(Schema.safeParse({ b: 2 }).success).toBe(false)
+    expect(Schema.safeParse(5).success).toBe(false)
+    expect(Schema.safeParse([]).success).toBe(false)
   })
 })

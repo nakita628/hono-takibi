@@ -1,4 +1,10 @@
-import { isSchemaObject, isSingleSchema, isUntypedObject } from '../guard/index.js'
+import {
+  ANNOTATION_KEYWORDS,
+  isAnnotationOnly,
+  isSchemaObject,
+  isSingleSchema,
+  isUntypedObject,
+} from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { error, normalizeTypes } from '../utils/index.js'
 import { resolveSchemaRef } from './wire.js'
@@ -426,6 +432,207 @@ export function requiresObject(
     return union.length > 0 && union.every((branch) => requiresObject(branch, schemas, seen))
   }
   return isUntypedObject(schema)
+}
+
+// The JSON types a declared `type` names, without `null`: what the outer
+// `nullable` / `type` handling re-allows is not part of what a combinator
+// beside the type has to be narrowed to.
+type DeclaredType = Exclude<ReturnType<typeof normalizeTypes>[number], 'null'>
+
+function declaredTypes(schema: Schema): readonly DeclaredType[] {
+  return normalizeTypes(schema.type).filter((type): type is DeclaredType => type !== 'null')
+}
+
+function isValueOfType(value: unknown, type: DeclaredType): boolean {
+  switch (type) {
+    case 'string':
+      return typeof value === 'string'
+    case 'number':
+      return typeof value === 'number'
+    case 'integer':
+      return typeof value === 'number' && Number.isInteger(value)
+    case 'boolean':
+      return typeof value === 'boolean'
+    case 'array':
+      return Array.isArray(value)
+    case 'object':
+      return typeof value === 'object' && value !== null && !Array.isArray(value)
+    // `date` is not a JSON type: no `enum` / `const` value is one.
+    case 'date':
+      return false
+    default:
+      return false
+  }
+}
+
+// Whether a schema accepts only values of the declared types (plus `null`,
+// as in `requiresObject`): the generalisation of `requiresObject` to any
+// declared type (#468). A member's own type settles it (`integer` is a
+// `number`); `enum` / `const` when every value is of a declared type; an
+// untyped schema the emitter reads as `z.object(...)` when `object` is
+// declared; `allOf` when some member does, `anyOf` / `oneOf` when every
+// branch does. A `$ref` that cannot be resolved, or that comes back to
+// itself, is taken as conforming: `type: object` beside `allOf: [$ref]` is
+// how most documents write inheritance, and what it names is emitted as it is.
+function admitsOnlyTypes(
+  schema: Schema,
+  declared: readonly DeclaredType[],
+  schemas?: Schemas,
+  seen: readonly string[] = [],
+): boolean {
+  if (schema.$ref !== undefined) {
+    if (seen.includes(schema.$ref)) return true
+    const target = resolveSchemaRef(schema.$ref, schemas)
+    return target === undefined
+      ? true
+      : admitsOnlyTypes(target, declared, schemas, [...seen, schema.$ref])
+  }
+  const types = declaredTypes(schema)
+  if (types.length > 0) {
+    return types.every(
+      (type) => declared.includes(type) || (type === 'integer' && declared.includes('number')),
+    )
+  }
+  // `type: 'null'` alone: `null` is the outer handling's, as in `requiresObject`.
+  if (normalizeTypes(schema.type).length > 0) return true
+  const values = Array.isArray(schema.enum)
+    ? schema.enum
+    : schema.const !== undefined
+      ? [schema.const]
+      : undefined
+  if (values !== undefined) {
+    return values.every(
+      (value) => value === null || declared.some((type) => isValueOfType(value, type)),
+    )
+  }
+  if (schema.allOf !== undefined) {
+    return schema.allOf.some((member) => admitsOnlyTypes(member, declared, schemas, seen))
+  }
+  const union = schema.anyOf ?? schema.oneOf
+  if (union !== undefined) {
+    return (
+      union.length > 0 && union.every((branch) => admitsOnlyTypes(branch, declared, schemas, seen))
+    )
+  }
+  return declared.includes('object') && isUntypedObject(schema)
+}
+
+// The keywords that constrain values of one type alone. A typeless member of
+// these (and annotations, messages) beside a declared type is that type with
+// the keywords on it — `type: string` beside `allOf: [{ minLength: 1 }]` is
+// `z.string().min(1)`. `object` has none on purpose (only a member of
+// annotations alone takes it): a typed object emits its shape from
+// `properties`, so `required` alone would be dropped by the typed emitter
+// where the guarded refine checks it.
+const KEYWORDS_OF_TYPE: { readonly [k: string]: ReadonlySet<string> } = {
+  string: new Set(['minLength', 'maxLength', 'pattern']),
+  number: new Set(['minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum', 'multipleOf']),
+  integer: new Set(['minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum', 'multipleOf']),
+  boolean: new Set(),
+  object: new Set(),
+  array: new Set(['minItems', 'maxItems', 'items']),
+}
+
+// Whether the declared type can be written on the member itself: the member
+// has no type of its own, and either carries only keywords of the declared
+// type, or is itself a combinator / `not` — the type beside those is narrowed
+// by this same rule when the member is emitted.
+function canTakeType(member: Schema, type: DeclaredType): boolean {
+  if (
+    member.type !== undefined ||
+    member.$ref !== undefined ||
+    member.enum !== undefined ||
+    member.const !== undefined
+  ) {
+    return false
+  }
+  const keys = Object.keys(member).filter(
+    (key) => !ANNOTATION_KEYWORDS.has(key) && !/^x-.+-message$/u.test(key),
+  )
+  const combinators = new Set(['allOf', 'anyOf', 'oneOf', 'not'])
+  if (keys.length > 0 && keys.every((key) => combinators.has(key))) return true
+  const own = KEYWORDS_OF_TYPE[type]
+  return own !== undefined && keys.every((key) => own.has(key))
+}
+
+// A declared `type` beside `allOf` / `anyOf` / `oneOf` constrains the value as
+// a sibling of the combinator (JSON Schema 2020-12: sibling keywords are
+// ANDed). The combinator paths emit only the combinator, so the type is
+// written into the members here (#468), which is exact: `T ∧ (A ∨ B)` is
+// `(T ∧ A) ∨ (T ∧ B)`, "exactly one of `T ∧ Aᵢ`" is `T` and exactly one
+// `Aᵢ`, and `T ∧ A ∧ B` needs `T` on one member only.
+//
+// - A member that already accepts only the declared type is left as it is.
+// - A typeless member of the declared type's own keywords takes the type, so
+//   it is emitted as the typed schema (`z.string().min(1)`) instead of a
+//   guarded refine on `z.unknown()` — that is what narrows the inferred type.
+// - Any other union branch becomes `allOf: [{ type }, branch]`, the typed
+//   schema intersected with the branch. An `allOf` gets `{ type }` as a member
+//   of its own when no member settles the type.
+//
+// Returns the schema itself when nothing has to change — no declared type,
+// no combinator, or the type is already settled — so the caller can tell by
+// identity, and a rewritten schema comes back unchanged.
+export function narrowToDeclaredType(schema: Schema, schemas?: Schemas): Schema {
+  const declared = declaredTypes(schema)
+  const [single, ...others] = declared
+  if (single === undefined) return schema
+  const typeSchema: Schema = { type: others.length === 0 ? single : [single, ...others] }
+  const settled = (member: Schema) => admitsOnlyTypes(member, declared, schemas)
+  const takes = (member: Schema) => others.length === 0 && canTakeType(member, single)
+  // `type: object` with a sibling shape: the combinator paths intersect the
+  // combinator with the shape's own `z.object(...)` (#461), which settles the
+  // type already.
+  const objectOnly = others.length === 0 && single === 'object'
+  const hasShape =
+    (schema.properties !== undefined && Object.keys(schema.properties).length > 0) ||
+    (Array.isArray(schema.required) && schema.required.length > 0)
+  if (schema.allOf !== undefined) {
+    if (objectOnly && schema.properties !== undefined) return schema
+    // An annotation-only member describes the intersection and is not emitted
+    // as a member (#420): it is left alone.
+    const members = schema.allOf.map((member) =>
+      !settled(member) && !isAnnotationOnly(member) && takes(member)
+        ? { ...member, type: single }
+        : member,
+    )
+    if (members.some(settled)) {
+      return members.every((member, index) => member === schema.allOf?.[index])
+        ? schema
+        : { ...schema, allOf: members }
+    }
+    return { ...schema, allOf: [typeSchema, ...members] }
+  }
+  const key =
+    schema.anyOf !== undefined ? 'anyOf' : schema.oneOf !== undefined ? 'oneOf' : undefined
+  if (key === undefined) return schema
+  const branches = schema[key] ?? []
+  if (branches.length === 0) return schema
+  if (
+    objectOnly &&
+    hasShape &&
+    !(
+      normalizeTypes(schema.type).includes('null') &&
+      branches.some(
+        (branch) =>
+          canAdmitNullOrUndefined(branch, schemas) ||
+          branch.nullable === true ||
+          normalizeTypes(branch.type).includes('null') ||
+          branch.default !== undefined ||
+          branch['x-prefault'] !== undefined ||
+          branch['x-catch'] !== undefined,
+      )
+    )
+  ) {
+    return schema
+  }
+  if (branches.every(settled)) return schema
+  const typed = (branch: Schema): Schema =>
+    takes(branch) ? { ...branch, ...typeSchema } : { allOf: [typeSchema, branch] }
+  return {
+    ...schema,
+    [key]: branches.map((branch) => (settled(branch) ? branch : typed(branch))),
+  }
 }
 
 // Whether a schema CAN accept an object value: the dual of `requiresObject`,
