@@ -137,13 +137,30 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false
 
+      # The body is this version's section of packages/hono-takibi/CHANGELOG.md, which
+      # release-please wrote in the release PR, so the release page and the changelog say the
+      # same thing. A version bumped by hand has no section; GitHub's generated notes cover it.
       - name: Create release if missing
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.check.outputs.version }}
         run: |
+          set -euo pipefail
           gh release view "v$VERSION" >/dev/null 2>&1 && { echo "release v$VERSION already exists; skip"; exit 0; }
-          gh release create "v$VERSION" --verify-tag --generate-notes
+          NOTES="$RUNNER_TEMP/release-notes.md"
+          awk -v version="$VERSION" '
+            /^## / {
+              if (found) exit
+              found = index($0, "## [" version "]") == 1 || index($0, "## " version " ") == 1
+            }
+            found
+          ' packages/hono-takibi/CHANGELOG.md > "$NOTES"
+          if grep -q '[^[:space:]]' "$NOTES"; then
+            gh release create "v$VERSION" --verify-tag --title "v$VERSION" --notes-file "$NOTES"
+          else
+            echo "::warning::No section for $VERSION in packages/hono-takibi/CHANGELOG.md; using generated notes"
+            gh release create "v$VERSION" --verify-tag --generate-notes
+          fi
 
       # release-please (release-pr.yml) only opens the release PR; the tag and the release are
       # written above. It labels a merged release PR `autorelease: pending` and opens no new
