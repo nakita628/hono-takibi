@@ -7,6 +7,7 @@ import {
   makeUnevaluatedProperties,
   makeUnevaluatedPropertiesCheck,
   makeIssueForwarding,
+  narrowToDeclaredType,
 } from './zod.js'
 
 const recurse = zodToOpenAPI
@@ -796,5 +797,85 @@ describe('emitTypelessRefine array constraints', () => {
     expect(emitTypelessRefine({ items: { type: 'string' }, minItems: 2 }, recurse)).toBe(
       `z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){if(val.length<2){ctx.addIssue({code:'custom'})};{const Schema=z.string();for(let i=0;i<val.length;i++){if(!Schema.safeParse(val[i]).success){ctx.addIssue({code:'custom'})}}}}})`,
     )
+  })
+})
+
+describe('helper/zod: narrowToDeclaredType (#468)', () => {
+  it.concurrent('returns the schema itself when nothing has to change', () => {
+    const untyped: Schema = { anyOf: [{ minLength: 1 }] }
+    expect(narrowToDeclaredType(untyped)).toBe(untyped)
+    const noCombinator: Schema = { type: 'string', minLength: 1 }
+    expect(narrowToDeclaredType(noCombinator)).toBe(noCombinator)
+    const nullOnly: Schema = { type: 'null', anyOf: [{ minLength: 1 }] }
+    expect(narrowToDeclaredType(nullOnly)).toBe(nullOnly)
+    const settled: Schema = { type: 'number', oneOf: [{ type: 'integer' }, { const: 1.5 }] }
+    expect(narrowToDeclaredType(settled)).toBe(settled)
+    const unresolved: Schema = { type: 'object', allOf: [{ $ref: '#/components/schemas/A' }] }
+    expect(narrowToDeclaredType(unresolved)).toBe(unresolved)
+    const emptyUnion: Schema = { type: 'string', anyOf: [] }
+    expect(narrowToDeclaredType(emptyUnion)).toBe(emptyUnion)
+    const shaped: Schema = {
+      type: 'object',
+      properties: { a: { type: 'string' } },
+      anyOf: [{ required: ['a'] }],
+    }
+    expect(narrowToDeclaredType(shaped)).toBe(shaped)
+  })
+
+  it.concurrent('writes the type into the members that can take it', () => {
+    expect(
+      narrowToDeclaredType({ type: 'string', anyOf: [{ minLength: 1 }, { type: 'string' }] }),
+    ).toStrictEqual({
+      type: 'string',
+      anyOf: [{ minLength: 1, type: 'string' }, { type: 'string' }],
+    })
+    expect(
+      narrowToDeclaredType({ type: 'integer', allOf: [{ minimum: 1 }, { description: 'x' }] }),
+    ).toStrictEqual({
+      type: 'integer',
+      allOf: [{ minimum: 1, type: 'integer' }, { description: 'x' }],
+    })
+  })
+
+  it.concurrent('intersects the type with what cannot take it', () => {
+    expect(
+      narrowToDeclaredType({ type: ['string', 'null'], oneOf: [{ minimum: 1 }] }),
+    ).toStrictEqual({
+      type: ['string', 'null'],
+      oneOf: [{ allOf: [{ type: 'string' }, { minimum: 1 }] }],
+    })
+    expect(narrowToDeclaredType({ type: 'object', allOf: [{ required: ['a'] }] })).toStrictEqual({
+      type: 'object',
+      allOf: [{ type: 'object' }, { required: ['a'] }],
+    })
+    // a resolved reference that admits other types; a cycle is taken as conforming
+    const schemas: { readonly [k: string]: Schema } = {
+      Any: { minLength: 1 },
+      Loop: { allOf: [{ $ref: '#/components/schemas/Loop' }] },
+    }
+    expect(
+      narrowToDeclaredType(
+        { type: 'string', allOf: [{ $ref: '#/components/schemas/Any' }] },
+        schemas,
+      ),
+    ).toStrictEqual({
+      type: 'string',
+      allOf: [{ type: 'string' }, { $ref: '#/components/schemas/Any' }],
+    })
+    const loop: Schema = { type: 'string', allOf: [{ $ref: '#/components/schemas/Loop' }] }
+    expect(narrowToDeclaredType(loop, schemas)).toBe(loop)
+  })
+
+  it.concurrent('a narrowed schema comes back unchanged', () => {
+    const cases: readonly Schema[] = [
+      { type: 'string', anyOf: [{ minLength: 1 }, { enum: ['a', 1] }] },
+      { type: 'object', allOf: [{ required: ['a'] }] },
+      { type: ['string', 'number'], oneOf: [{ minLength: 1 }] },
+    ]
+    for (const schema of cases) {
+      const narrowed = narrowToDeclaredType(schema)
+      expect(narrowed).not.toBe(schema)
+      expect(narrowToDeclaredType(narrowed)).toBe(narrowed)
+    }
   })
 })

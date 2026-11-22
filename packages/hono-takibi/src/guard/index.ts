@@ -83,7 +83,7 @@ export function isRefOnly(s: Schema) {
  * the intersection and validates nothing: emitted as a schema it is `z.any()`, and
  * `X.and(z.any())` is `any` (#420).
  */
-const ANNOTATION_KEYWORDS = new Set([
+export const ANNOTATION_KEYWORDS: ReadonlySet<string> = new Set([
   'title',
   'description',
   'default',

@@ -33,6 +33,7 @@ import {
   emitObjectShapeCheck,
   emitObjectShapeRefine,
   emitTypelessRefine,
+  narrowToDeclaredType,
   emitsStrippingObject,
   makeIssueForwarding,
   makeUnevaluatedPropertiesCheck,
@@ -498,6 +499,13 @@ export function zodToOpenAPI(
       }
     }
     return done(makeRef(schema.$ref), schema, true)
+  }
+  // A declared `type` beside a combinator is written into its members first
+  // (#468, see `narrowToDeclaredType`): the paths below emit the combinator
+  // alone. The file's `anyOf` of media types is not a combinator (see below).
+  if (!(isBinaryFile(schema) && hasMimeAlternatives(schema))) {
+    const narrowed = narrowToDeclaredType(schema, options?.schemas)
+    if (narrowed !== schema) return zodToOpenAPI(narrowed, meta, options)
   }
   if (schema.allOf !== undefined) {
     // `properties` / `required` beside `allOf` constrain only object values (#461).
