@@ -5,9 +5,13 @@ import path from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
 import { handlerGroupOf } from '../../helper/index.js'
+import type { Grouping } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 import { runGenerator } from '../../testing/index.js'
 import { client } from './index.js'
+
+// A grouping that looks at the tags: the first tag, or else the handler file of the path.
+const byTag: Grouping = (route, tags) => tags?.[0]?.toLowerCase() ?? handlerGroupOf(route)
 
 const ok = { '200': { description: 'OK' } }
 
@@ -247,7 +251,7 @@ export const apiClient = hcApiWithType('/').api
   // GET /books には Library タグが付いているため、library のルートになる。/books の残りはタグがなく、パスで決まる。
   it('groups by the first tag where the grouping looks at tags', async () => {
     const file = path.join(makeDir(), 'client.ts')
-    await runGenerator(client(spec, file, './index', '/', '/api', handlerGroupOf))
+    await runGenerator(client(spec, file, './index', '/', '/api', byTag))
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
 import type { __root, library, books, v2Public, api } from './index'
 

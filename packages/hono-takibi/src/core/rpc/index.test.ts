@@ -5,9 +5,13 @@ import path from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
 import { handlerGroupOf } from '../../helper/index.js'
+import type { Grouping } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { rpc } from './index.js'
+
+// A grouping that looks at the tags: the first tag, or else the handler file of the path.
+const byTag: Grouping = (route, tags) => tags?.[0]?.toLowerCase() ?? handlerGroupOf(route)
 
 const openapi = {
   openapi: '3.1.0',
@@ -1271,7 +1275,7 @@ export async function getApiStatus(options?: ClientRequestOptions) {
   it('groups by the first tag where the grouping looks at tags', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rpc-groups-'))
     const out = path.join(dir, 'rpc.ts')
-    await runGenerator(rpc(spec, out, './client', 'client', false, '/api', false, handlerGroupOf))
+    await runGenerator(rpc(spec, out, './client', 'client', false, '/api', false, byTag))
     expect(fs.readFileSync(out, 'utf8'))
       .toBe(`import type { ClientRequestOptions } from 'hono/client'
 import { __rootClient, libraryClient, booksClient, v2PublicClient, apiClient } from './client'

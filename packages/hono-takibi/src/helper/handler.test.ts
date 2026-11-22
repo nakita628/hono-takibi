@@ -233,56 +233,19 @@ describe('makeHandlerFileName', () => {
   })
 })
 
-describe('makeHandlerFileName (tags)', () => {
-  it('uses the first tag over the path segment', () => {
-    expect(makeHandlerFileName('/books/{bookId}/reviews', ['reviews'])).toBe('reviews.ts')
-  })
-
-  it('falls back to the path segment when tags are empty', () => {
-    expect(makeHandlerFileName('/books', [])).toBe('books.ts')
-  })
-
-  it('sanitizes tag names like path segments, in kebab case', () => {
-    expect(makeHandlerFileName('/books', ['Pet Store'])).toBe('pet-store.ts')
-    expect(makeHandlerFileName('/zod-openapi-hono', ['ZodOpenAPIHono'])).toBe(
-      'zod-open-api-hono.ts',
-    )
-  })
-
-  it('falls back to the path segment when the tag sanitizes to nothing', () => {
-    expect(makeHandlerFileName('/books', ['!!!'])).toBe('books.ts')
-  })
-
-  it('uses __root when neither tag nor path yields a name', () => {
-    expect(makeHandlerFileName('/', ['!!!'])).toBe('__root.ts')
-  })
-
-  it('uses only the first tag', () => {
-    expect(makeHandlerFileName('/books/{bookId}/reviews', ['reviews', 'books'])).toBe('reviews.ts')
-  })
-
-  it('keeps an acronym as one word', () => {
-    expect(makeHandlerFileName('/api-keys', ['APIKeys'])).toBe('api-keys.ts')
-  })
-})
-
-/* ─────────────────────────────── zodOpenAPIHonoHandler (stub) ─────────────────────────── */
-
 describe('makeHandlerFileName (several words)', () => {
-  it('writes a tag of several words in kebab case', () => {
-    expect(makeHandlerFileName('/events', ['Real-Time Events'])).toBe('real-time-events.ts')
-    expect(makeHandlerFileName('/events', ['real_time_events'])).toBe('real-time-events.ts')
-  })
-
-  it('writes the path segment in kebab case when there is no tag', () => {
+  it('writes a segment of several words in kebab case', () => {
+    expect(makeHandlerFileName('/real-time-events/{id}')).toBe('real-time-events.ts')
+    expect(makeHandlerFileName('/real_time_events')).toBe('real-time-events.ts')
     expect(makeHandlerFileName('/v2-public/ping')).toBe('v2-public.ts')
     expect(makeHandlerFileName('/userProfile')).toBe('user-profile.ts')
     expect(makeHandlerFileName('/Users')).toBe('users.ts')
   })
 
   it('keeps an acronym as one word', () => {
-    expect(makeHandlerFileName('/x', ['API Keys'])).toBe('api-keys.ts')
-    expect(makeHandlerFileName('/x', ['User API Keys'])).toBe('user-api-keys.ts')
+    expect(makeHandlerFileName('/APIKeys')).toBe('api-keys.ts')
+    expect(makeHandlerFileName('/userAPIKeys')).toBe('user-api-keys.ts')
+    expect(makeHandlerFileName('/ZodOpenAPIHono')).toBe('zod-open-api-hono.ts')
   })
 
   it('leaves a name of one word, and the root, as they are', () => {
@@ -304,9 +267,9 @@ describe('handlerNameOf', () => {
   })
 
   it('is the name of the file a kebab-case name was made from', () => {
-    for (const tag of ['Real-Time Events', 'API Keys', 'User API Keys', 'users', 'v2 public']) {
-      const file = makeHandlerFileName('/x', [tag])
-      expect(makeHandlerFileName('/x', [handlerNameOf(file)])).toBe(file)
+    for (const segment of ['real-time-events', 'APIKeys', 'userAPIKeys', 'users', 'v2_public']) {
+      const file = makeHandlerFileName(`/${segment}`)
+      expect(makeHandlerFileName(`/${handlerNameOf(file)}`)).toBe(file)
     }
   })
 })
@@ -767,7 +730,7 @@ describe('zodOpenAPIHonoHandler', () => {
     )
   })
 
-  it('groups routeHandler files by tag, falling back to the path segment', async () => {
+  it('groups routeHandler files by the first path segment, whatever the tags', async () => {
     const openAPI = {
       openapi: '3.1.0',
       info: { title: 'Test', version: '1.0.0' },
@@ -795,17 +758,19 @@ describe('zodOpenAPIHonoHandler', () => {
     await runGenerator(
       zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, undefined, undefined, true),
     )
+    expect(fs.readdirSync(`${testDir}/handlers`).sort()).toStrictEqual([
+      'books.ts',
+      'health.ts',
+      'index.ts',
+    ])
     expect(fs.readFileSync(`${testDir}/handlers/books.ts`, 'utf8')).toBe(
-      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getBooksRoute } from '../routes'\n\nexport const getBooksRouteHandler: RouteHandler<typeof getBooksRoute> = async (c) => {}\n`,
-    )
-    expect(fs.readFileSync(`${testDir}/handlers/reviews.ts`, 'utf8')).toBe(
-      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getBooksBookIdReviewsRoute } from '../routes'\n\nexport const getBooksBookIdReviewsRouteHandler: RouteHandler<\n  typeof getBooksBookIdReviewsRoute\n> = async (c) => {}\n`,
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getBooksRoute, getBooksBookIdReviewsRoute } from '../routes'\n\nexport const getBooksRouteHandler: RouteHandler<typeof getBooksRoute> = async (c) => {}\n\nexport const getBooksBookIdReviewsRouteHandler: RouteHandler<\n  typeof getBooksBookIdReviewsRoute\n> = async (c) => {}\n`,
     )
     expect(fs.readFileSync(`${testDir}/handlers/health.ts`, 'utf8')).toBe(
       `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getHealthRoute } from '../routes'\n\nexport const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {}\n`,
     )
     expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf8')).toBe(
-      `export * from './books'\nexport * from './reviews'\nexport * from './health'\n`,
+      `export * from './books'\nexport * from './health'\n`,
     )
   })
 
@@ -916,7 +881,7 @@ describe('handlerGroupOf', () => {
   // The file is named in kebab case; the group stays an identifier in camel case.
   // ファイル名は kebab-case でも、グループは camelCase の識別子のままになる。
   it.concurrent('is in camel case, though the file is named in kebab case', () => {
-    expect(handlerGroupOf('/events', ['Real-Time Events'])).toBe('realTimeEvents')
+    expect(handlerGroupOf('/real-time-events/{id}')).toBe('realTimeEvents')
     expect(handlerGroupOf('/v2-public/ping')).toBe('v2Public')
     expect(handlerGroupOf('/')).toBe('__root')
     expect(handlerGroupOf('/delete')).toBe('__delete')
@@ -965,27 +930,9 @@ describe('handlerGroupOf', () => {
     expect(handlerGroupOf('/delete')).toBe('__delete')
   })
 
-  // A handler file goes by the first tag.
-  // ハンドラーファイルは、最初のタグで決まる。
-  it.concurrent('is the first tag when the operation has one', () => {
-    expect(handlerGroupOf('/books', ['Library'])).toBe('library')
-  })
-
-  // The tags after the first say nothing of the file.
-  // 2つ目以降のタグは、ファイルの決定に関与しない。
-  it.concurrent('is the first of several tags', () => {
-    expect(handlerGroupOf('/books', ['user profile', 'admin'])).toBe('userProfile')
-  })
-
-  // An empty list names no tag.
-  // 空のリストは、タグを指定していない。
-  it.concurrent('is the first segment when the list of tags is empty', () => {
-    expect(handlerGroupOf('/books', [])).toBe('books')
-  })
-
-  // A tag API is the group api, like the segment.
-  // API というタグは、セグメントと同じく api グループになる。
-  it.concurrent('is api for a tag API', () => {
-    expect(handlerGroupOf('/status', ['API'])).toBe('api')
+  // A segment written in capitals goes by its words, as its handler file does.
+  // 大文字で書かれたセグメントは、ハンドラーファイルと同じく単語ごとの名前になる。
+  it.concurrent('is api for /API', () => {
+    expect(handlerGroupOf('/API/status')).toBe('api')
   })
 })

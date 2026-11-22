@@ -109,7 +109,7 @@ const ConfigSchema = Schema.Struct({
         }),
         split: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
           description:
-            'Divide the routes into groups, each exported under its name, and the rest as `api`. Every group is registered on the one app; what is divided is the type, so that a client of one group resolves the routes of that group and not of the whole application. A group is the first segment of the path, `/books` and `/books/{id}` as `books` and `/v2-public/ping` as `v2Public` — or, where the handlers register their routes themselves (`routeHandler: false`), the handler file the app mounts, which goes by the first tag. The root belongs to no group.',
+            'Divide the routes into groups, each exported under its name, and the rest as `api`. Every group is registered on the one app; what is divided is the type, so that a client of one group resolves the routes of that group and not of the whole application. A group is the first segment of the path, `/books` and `/books/{id}` as `books` and `/v2-public/ping` as `v2Public`. The tags of an operation do not divide the routes. The root belongs to no group.',
         }),
         // Test code generation is deprecated: hono-takibi no longer generates test files.
         // test: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
@@ -152,7 +152,7 @@ const ConfigSchema = Schema.Struct({
         }),
         split: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
           description:
-            'Divide the routes into groups, each exported under its name, and the rest as `api`. Every group is registered on the one app; what is divided is the type, so that a client of one group resolves the routes of that group and not of the whole application. A group is the first segment of the path, `/books` and `/books/{id}` as `books` and `/v2-public/ping` as `v2Public` — or, where the handlers register their routes themselves (`routeHandler: false`), the handler file the app mounts, which goes by the first tag. The root belongs to no group.',
+            'Divide the routes into groups, each exported under its name, and the rest as `api`. Every group is registered on the one app; what is divided is the type, so that a client of one group resolves the routes of that group and not of the whole application. A group is the first segment of the path, `/books` and `/books/{id}` as `books` and `/v2-public/ping` as `v2Public`. The tags of an operation do not divide the routes. The root belongs to no group.',
         }),
         // Test code generation is deprecated: hono-takibi no longer generates test files.
         // test: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({

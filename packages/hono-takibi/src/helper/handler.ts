@@ -61,15 +61,13 @@ export function handlerNameOf(fileName: string) {
 }
 
 /**
- * Derives the handler file name for an operation, in kebab case: the first tag when present,
- * otherwise the first path segment (`/` → `__root`). `Real-Time Events` as
- * `real-time-events.ts`.
+ * Derives the handler file name for an operation, in kebab case: the first segment of its
+ * path (`/` → `__root`), `/real-time-events/{id}` as `real-time-events.ts`. The tags of the
+ * operation say nothing of the file.
  */
-export function makeHandlerFileName(path: string, tags?: readonly string[]): `${string}.ts` {
-  const tagName = kebabHandlerSegment(tags?.[0] ?? '')
-  const pathName = kebabHandlerSegment(path.replace(/^\/+/u, '').split('/')[0] ?? '')
-  const name = tagName !== '' ? tagName : pathName !== '' ? pathName : '__root'
-  return `${name}.ts` as const
+export function makeHandlerFileName(path: string): `${string}.ts` {
+  const name = kebabHandlerSegment(path.replace(/^\/+/u, '').split('/')[0] ?? '')
+  return `${name !== '' ? name : '__root'}.ts` as const
 }
 
 /**
@@ -77,8 +75,8 @@ export function makeHandlerFileName(path: string, tags?: readonly string[]): `${
  * code, `real-time-events.ts` as `realTimeEvents`, and the root `/` as `__root`. A name that
  * is a word of the language is prefixed the same way, `/delete` as `__delete`.
  */
-export function handlerGroupOf(path: string, tags?: readonly string[]) {
-  return groupNameOf(handlerNameOf(makeHandlerFileName(path, tags)))
+export function handlerGroupOf(path: string) {
+  return groupNameOf(handlerNameOf(makeHandlerFileName(path)))
 }
 
 /**
@@ -207,7 +205,6 @@ function makeHandlerInfo(
   paths: { readonly [k: string]: unknown },
   path: string,
   method: string,
-  operation: Operation,
   existing: {
     readonly fileNames: readonly `${string}.ts`[]
     readonly locations: ReadonlyMap<string, `${string}.ts`>
@@ -217,7 +214,7 @@ function makeHandlerInfo(
 ) {
   const routeId = routeName(method, path, paths)
   const fileName = resolveHandlerFileName(
-    makeHandlerFileName(path, operation.tags),
+    makeHandlerFileName(path),
     `${routeId}${member}`,
     existing,
   )
@@ -232,7 +229,6 @@ function makeInlineStubHandlerInfo(
   paths: { readonly [k: string]: unknown },
   path: string,
   method: string,
-  operation: Operation,
   existing: {
     readonly fileNames: readonly `${string}.ts`[]
     readonly locations: ReadonlyMap<string, `${string}.ts`>
@@ -242,7 +238,6 @@ function makeInlineStubHandlerInfo(
     paths,
     path,
     method,
-    operation,
     existing,
     'Route',
     (routeId) => `.openapi(${routeId}Route,(c)=>{})`,
@@ -269,7 +264,6 @@ function makeStubHandlerInfo(
   paths: { readonly [k: string]: unknown },
   path: string,
   method: string,
-  operation: Operation,
   existing: {
     readonly fileNames: readonly `${string}.ts`[]
     readonly locations: ReadonlyMap<string, `${string}.ts`>
@@ -279,7 +273,6 @@ function makeStubHandlerInfo(
     paths,
     path,
     method,
-    operation,
     existing,
     'RouteHandler',
     (routeId) =>
@@ -443,10 +436,10 @@ export function zodOpenAPIHonoHandler(
             (entry): entry is [string, Operation] =>
               isHttpMethod(entry[0]) && isOperation(entry[1]),
           )
-          .map(([method, operation]) =>
+          .map(([method]) =>
             routeHandler
-              ? makeStubHandlerInfo(paths, path, method, operation, existing)
-              : makeInlineStubHandlerInfo(paths, path, method, operation, existing),
+              ? makeStubHandlerInfo(paths, path, method, existing)
+              : makeInlineStubHandlerInfo(paths, path, method, existing),
           ),
       ),
     )
@@ -505,9 +498,9 @@ export function resolveInlineHandlerFileNames(
         .filter(
           (entry): entry is [string, Operation] => isHttpMethod(entry[0]) && isOperation(entry[1]),
         )
-        .map(([method, operation]) =>
+        .map(([method]) =>
           resolveHandlerFileName(
-            makeHandlerFileName(path, operation.tags),
+            makeHandlerFileName(path),
             `${routeName(method, path, openapi.paths)}Route`,
             existing,
           ),
@@ -555,7 +548,7 @@ export function defineOpenAPIRouteHandler(
       >
     >((acc, entry) => {
       const fileName = resolveHandlerFileName(
-        makeHandlerFileName(entry.path, entry.tags),
+        makeHandlerFileName(entry.path),
         `${entry.name}Route`,
         existing,
       )

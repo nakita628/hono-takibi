@@ -208,11 +208,11 @@ export default app`
   it.concurrent('app with routeHandler=false generates sub-router index', () => {
     const result = app(openapi, 'app.ts', '/api', undefined, undefined, false)
     const expected = `import{OpenAPIHono}from'@hono/zod-openapi'
-import{honoHandler,honoXHandler,zodOpenApiHonoHandler}from'./handlers'
+import{honoHandler,honoXHandler,zodOpenapiHonoHandler}from'./handlers'
 
 const app=new OpenAPIHono().basePath('/api')
 
-export const api=app.route('/',honoHandler).route('/',honoXHandler).route('/',zodOpenApiHonoHandler)
+export const api=app.route('/',honoHandler).route('/',honoXHandler).route('/',zodOpenapiHonoHandler)
 
 export default app`
     expect(result).toBe(expected)
@@ -221,11 +221,11 @@ export default app`
   it.concurrent('app with routeHandler=false and no basePath', () => {
     const result = app(openapi, 'routes.ts', '/', undefined, undefined, false)
     const expected = `import{OpenAPIHono}from'@hono/zod-openapi'
-import{honoHandler,honoXHandler,zodOpenApiHonoHandler}from'./handlers'
+import{honoHandler,honoXHandler,zodOpenapiHonoHandler}from'./handlers'
 
 const app=new OpenAPIHono()
 
-export const api=app.route('/',honoHandler).route('/',honoXHandler).route('/',zodOpenApiHonoHandler)
+export const api=app.route('/',honoHandler).route('/',honoXHandler).route('/',zodOpenapiHonoHandler)
 
 export default app`
     expect(result).toBe(expected)
@@ -234,11 +234,11 @@ export default app`
   it.concurrent('app with routeHandler=false and pathAlias', () => {
     const result = app(openapi, 'src/routes/index.ts', '/api', '@/src', undefined, false)
     const expected = `import{OpenAPIHono}from'@hono/zod-openapi'
-import{honoHandler,honoXHandler,zodOpenApiHonoHandler}from'@/src/handlers'
+import{honoHandler,honoXHandler,zodOpenapiHonoHandler}from'@/src/handlers'
 
 const app=new OpenAPIHono().basePath('/api')
 
-export const api=app.route('/',honoHandler).route('/',honoXHandler).route('/',zodOpenApiHonoHandler)
+export const api=app.route('/',honoHandler).route('/',honoXHandler).route('/',zodOpenapiHonoHandler)
 
 export default app`
     expect(result).toBe(expected)
@@ -247,11 +247,11 @@ export default app`
   it.concurrent('app with routeHandler=false and trailing slash pathAlias', () => {
     const result = app(openapi, 'src/routes.ts', '/api', '@/', undefined, false)
     const expected = `import{OpenAPIHono}from'@hono/zod-openapi'
-import{honoHandler,honoXHandler,zodOpenApiHonoHandler}from'@/handlers'
+import{honoHandler,honoXHandler,zodOpenapiHonoHandler}from'@/handlers'
 
 const app=new OpenAPIHono().basePath('/api')
 
-export const api=app.route('/',honoHandler).route('/',honoXHandler).route('/',zodOpenApiHonoHandler)
+export const api=app.route('/',honoHandler).route('/',honoXHandler).route('/',zodOpenapiHonoHandler)
 
 export default app`
     expect(result).toBe(expected)
@@ -260,11 +260,11 @@ export default app`
   it.concurrent('app with routeHandler=false and output ending in /index.ts', () => {
     const result = app(openapi, 'src/routes/index.ts', '/', undefined, undefined, false)
     const expected = `import{OpenAPIHono}from'@hono/zod-openapi'
-import{honoHandler,honoXHandler,zodOpenApiHonoHandler}from'./handlers'
+import{honoHandler,honoXHandler,zodOpenapiHonoHandler}from'./handlers'
 
 const app=new OpenAPIHono()
 
-export const api=app.route('/',honoHandler).route('/',honoXHandler).route('/',zodOpenApiHonoHandler)
+export const api=app.route('/',honoHandler).route('/',honoXHandler).route('/',zodOpenapiHonoHandler)
 
 export default app`
     expect(result).toBe(expected)
@@ -400,8 +400,8 @@ export const api=app.openapiRoutes([getApiStatusRoute] as const)
 export default app`)
   })
 
-  // A handler file goes by the first tag, so GET /books is mounted as library. __root is mounted as __root, api.ts as api.
-  // ハンドラーファイルは最初のタグで決まるため、GET /books は library としてマウントされる。__root.ts は __root、api.ts は api としてマウントされる。
+  // A handler file goes by the first segment of the path, whatever the tags: GET /books, tagged Library, is mounted with books. __root is mounted as __root, api.ts as api.
+  // ハンドラーファイルはタグに関係なくパスの最初のセグメントで決まる。Library タグ付きの GET /books も books としてマウントされる。__root.ts は __root、api.ts は api としてマウントされる。
   it('mounts each handler file as a group where the handlers register their routes', () => {
     expect(
       app(
@@ -417,13 +417,11 @@ export default app`)
         true,
       ),
     ).toBe(`import{OpenAPIHono}from'@hono/zod-openapi'
-import{__rootHandler,libraryHandler,booksHandler,v2PublicHandler,apiHandler}from'./handlers'
+import{__rootHandler,booksHandler,v2PublicHandler,apiHandler}from'./handlers'
 
 const app=new OpenAPIHono().basePath('/api')
 
 export const __root=app.route('/',__rootHandler)
-
-export const library=app.route('/',libraryHandler)
 
 export const books=app.route('/',booksHandler)
 
@@ -675,7 +673,6 @@ export default app2`)
     ])
     expect(appGroups(spec, true, undefined, true)).toStrictEqual([
       '__root',
-      'library',
       'books',
       'v2Public',
       'api',

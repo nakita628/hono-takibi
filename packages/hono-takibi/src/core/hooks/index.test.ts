@@ -5,9 +5,13 @@ import path from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
 import { handlerGroupOf } from '../../helper/index.js'
+import type { Grouping } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { hooks } from './index.js'
+
+// A grouping that looks at the tags: the first tag, or else the handler file of the path.
+const byTag: Grouping = (route, tags) => tags?.[0]?.toLowerCase() ?? handlerGroupOf(route)
 
 describe('swr hooks', () => {
   /** Simple OpenAPI spec for basic tests */
@@ -9403,7 +9407,7 @@ export function useSuspenseV2PublicPing<
   // GET /books is tagged Library, which a grouping by tag goes by.
   // GET /books には Library タグが付いており、タグによるグループ分けではこれに従う。
   it('groups by the first tag where the grouping looks at tags', async () => {
-    const code = await generateGrouped(spec, { grouping: handlerGroupOf, basePath: '/api' })
+    const code = await generateGrouped(spec, { grouping: byTag, basePath: '/api' })
     expect(code).toBe(`import {
   useQuery,
   useSuspenseQuery,

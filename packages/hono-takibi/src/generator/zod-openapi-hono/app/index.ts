@@ -17,9 +17,7 @@ function handlerFilesOf(openapi: OpenAPI) {
     ...new Set(
       Object.entries(openapi.paths).flatMap(([path, pathItem]) =>
         Object.entries(pathItem).flatMap(([method, operation]) =>
-          isHttpMethod(method) && isOperation(operation)
-            ? [makeHandlerFileName(path, operation.tags)]
-            : [],
+          isHttpMethod(method) && isOperation(operation) ? [makeHandlerFileName(path)] : [],
         ),
       ),
     ),

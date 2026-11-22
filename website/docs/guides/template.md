@@ -10,7 +10,7 @@ next:
 
 # Template
 
-Scaffolds the app entry and one handler file per tag around the generated routes.
+Scaffolds the app entry and one handler file per first path segment around the generated routes.
 
 ```ts
 import { defineConfig } from 'hono-takibi'
@@ -26,7 +26,7 @@ export default defineConfig({
 Generated files:
 
 - `src/index.ts`: app entry that registers every handler
-- `src/handlers/*.ts`: handler stubs, one file per tag
+- `src/handlers/*.ts`: handler stubs, one file per first path segment
 
 ## Re-running is safe
 
@@ -38,23 +38,23 @@ Run it again after editing the spec. New operations get a stub, existing handler
 
 ## File names
 
-A handler file is named after the first tag of its operations, or the first path segment when there is no tag, in kebab-case.
+A handler file is named after the first segment of the path, in kebab-case. Tags do not affect it: `/events` and `/events/{id}` go to `events.ts` whatever their tags.
 
-| Tag or path        | File                  | Export (`routeHandler: false`) |
-| ------------------ | --------------------- | ------------------------------ |
-| `Real-Time Events` | `real-time-events.ts` | `realTimeEventsHandler`        |
-| `API Keys`         | `api-keys.ts`         | `apiKeysHandler`               |
-| `/v2-public/ping`  | `v2-public.ts`        | `v2PublicHandler`              |
-| `/`                | `__root.ts`           | `__rootHandler`                |
+| Path                     | File                  | Export (`routeHandler: false`) |
+| ------------------------ | --------------------- | ------------------------------ |
+| `/real-time-events/{id}` | `real-time-events.ts` | `realTimeEventsHandler`        |
+| `/api_keys`              | `api-keys.ts`         | `apiKeysHandler`               |
+| `/v2-public/ping`        | `v2-public.ts`        | `v2PublicHandler`              |
+| `/`                      | `__root.ts`           | `__rootHandler`                |
 
 Only the file name is kebab-case. Exports and `split` groups are camelCase.
 
 ```ts
 // src/handlers/real-time-events.ts
-export const realTimeEventsHandler = app.openapi(getEventsRoute, (c) => {})
+export const realTimeEventsHandler = app.openapi(getRealTimeEventsRoute, (c) => {})
 ```
 
-A file that already holds a handler keeps its name. A project generated with camelCase names (`realTimeEvents.ts`) is not renamed, and new operations of a tag join the file that tag already has. Rename the files yourself if you want them in kebab-case, the generator follows them.
+A file that already holds a handler keeps its name. A project generated with camelCase names (`realTimeEvents.ts`), or with files named after tags, is not renamed and its handlers stay where they are. Only new operations are written to the file of their path. Rename the files yourself if you want them in kebab-case, the generator follows them.
 
 ## Modes
 
