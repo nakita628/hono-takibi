@@ -1,115 +1,64 @@
 name: release
 
-# Runs after Test has passed on main. `workflow_run` is the trigger zizmor warns about because
-# it hands a token to code from a pull request when misused; here every job checks out the
-# commit Test ran on (`head_sha`), only for a `push` to main, and the token stays read-only
-# except where a tag or a release is written from that same commit.
+# release-please does the bookkeeping, in the two steps its documentation describes.
+#
+# On every push to main it keeps one pull request open that bumps the version in
+# packages/hono-takibi/package.json and writes packages/hono-takibi/CHANGELOG.md from the
+# Conventional Commits since the last tag: `fix` is a patch, `feat` a minor, and a breaking
+# change a minor too while the version is 0.x (release-please-config.json). Only commits that
+# touch packages/hono-takibi count, so a website or CI change opens nothing.
+#
+# Merging that pull request is the release decision. The push it makes runs this workflow
+# again: release-please tags the merge commit, writes the GitHub release from the changelog
+# section, and `publish` sends that tag to npm. The main ruleset requires `test` and `lint` on
+# every pull request, the release one included, so nothing is tested a second time here.
+#
+# If `publish` fails, re-run the failed job: the tag and the release are already written and
+# the job publishes the same tag again.
+
 on:
-  workflow_run: # zizmor: ignore[dangerous-triggers]
-    workflows: [Test]
-    types: [completed]
-    branches: [main]
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 permissions: {}
 
 concurrency:
   group: release
-  queue: max
+  cancel-in-progress: false
 
 jobs:
-  check:
+  release-please:
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
-    permissions:
-      contents: read
-    outputs:
-      version: ${{ steps.ver.outputs.version }}
-      unpublished: ${{ steps.ver.outputs.unpublished }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
-          persist-credentials: false
-
-      - name: Check version and npm publish state
-        id: ver
-        run: |
-          set -euo pipefail
-          VERSION=$(jq -r .version packages/hono-takibi/package.json)
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          if ! VERSIONS=$(npm view hono-takibi versions --json); then
-            echo "::error::Failed to query the npm registry for hono-takibi versions. Check https://status.npmjs.org/ and re-run the workflow"
-            exit 1
-          fi
-          if ! PUBLISHED=$(echo "$VERSIONS" | jq --arg version "$VERSION" '[.] | flatten | index($version) != null'); then
-            echo "::error::Unexpected npm registry response. Re-run the workflow"
-            exit 1
-          fi
-          if [ "$PUBLISHED" = "true" ]; then
-            echo "unpublished=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "unpublished=true" >> "$GITHUB_OUTPUT"
-          fi
-
-  tag:
-    runs-on: ubuntu-latest
-    needs: check
     permissions:
       contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      released: ${{ steps.release.outputs['packages/hono-takibi--release_created'] }}
+      tag: ${{ steps.release.outputs['packages/hono-takibi--tag_name'] }}
     steps:
-      # The token stays in the checkout: the step below pushes the tag with it (.github/zizmor.yml
-      # excuses this one checkout from the artipacked audit).
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        id: release
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
-
-      - name: Create or verify tag
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ needs.check.outputs.version }}
-          UNPUBLISHED: ${{ needs.check.outputs.unpublished }}
-          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-        run: |
-          LS_STATUS=0
-          git ls-remote --exit-code origin "refs/tags/v$VERSION" >/dev/null || LS_STATUS=$?
-          if [ "$LS_STATUS" -eq 2 ]; then
-            if [ "$UNPUBLISHED" = "false" ]; then
-              echo "::error::hono-takibi@$VERSION is already published, but tag v$VERSION does not exist. Cannot safely determine the published commit. Tag the commit that was actually published (git tag v$VERSION <sha> && git push origin v$VERSION), or bump the version and push again"
-              exit 1
-            fi
-            git tag "v$VERSION" "$HEAD_SHA"
-            git push origin "v$VERSION"
-            exit 0
-          fi
-          if [ "$LS_STATUS" -ne 0 ]; then
-            echo "::error::Failed to query origin for tag v$VERSION (git ls-remote exited with $LS_STATUS). Check connectivity to GitHub and re-run the workflow"
-            exit 1
-          fi
-          git fetch --depth=1 origin "refs/tags/v$VERSION:refs/tags/v$VERSION"
-          TAG_SHA=$(git rev-parse "v$VERSION^{commit}")
-          if [ "$TAG_SHA" = "$HEAD_SHA" ]; then
-            echo "tag v$VERSION already points to $HEAD_SHA; skip"
-            exit 0
-          fi
-          if [ "$UNPUBLISHED" = "false" ] && gh release view "v$VERSION" >/dev/null 2>&1; then
-            echo "v$VERSION already fully released from $TAG_SHA; nothing to do for $HEAD_SHA"
-            exit 0
-          fi
-          echo "::error::v$VERSION already points to another commit ($TAG_SHA, expected $HEAD_SHA). Re-run the release workflow for $TAG_SHA, or bump the version in packages/hono-takibi/package.json and push again"
-          exit 1
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
 
   publish:
     runs-on: ubuntu-latest
-    needs: [check, tag]
-    if: needs.check.outputs.unpublished == 'true'
+    needs: release-please
+    if: needs.release-please.outputs.released == 'true'
     environment: release
     permissions:
       contents: read
       id-token: write
     steps:
+      # The tag, not the pushed commit: a run that waited in the queue may release a merge
+      # that an earlier push made.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ needs.release-please.outputs.tag }}
           persist-credentials: false
 
       - uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
@@ -123,54 +72,3 @@ jobs:
 
       # vp has no publish command; pnpm publishes with npm provenance (id-token: write).
       - run: corepack enable && pnpm -F hono-takibi publish --no-git-checks
-
-  release:
-    runs-on: ubuntu-latest
-    needs: [check, tag, publish]
-    if: ${{ !cancelled() && needs.check.result == 'success' && needs.tag.result == 'success' && (needs.publish.result == 'success' || needs.publish.result == 'skipped') }}
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
-          persist-credentials: false
-
-      # The body is this version's section of packages/hono-takibi/CHANGELOG.md, which
-      # release-please wrote in the release PR, so the release page and the changelog say the
-      # same thing. A version bumped by hand has no section; GitHub's generated notes cover it.
-      - name: Create release if missing
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ needs.check.outputs.version }}
-        run: |
-          set -euo pipefail
-          gh release view "v$VERSION" >/dev/null 2>&1 && { echo "release v$VERSION already exists; skip"; exit 0; }
-          NOTES="$RUNNER_TEMP/release-notes.md"
-          awk -v version="$VERSION" '
-            /^## / {
-              if (found) exit
-              found = index($0, "## [" version "]") == 1 || index($0, "## " version " ") == 1
-            }
-            found
-          ' packages/hono-takibi/CHANGELOG.md > "$NOTES"
-          if grep -q '[^[:space:]]' "$NOTES"; then
-            gh release create "v$VERSION" --verify-tag --title "v$VERSION" --notes-file "$NOTES"
-          else
-            echo "::warning::No section for $VERSION in packages/hono-takibi/CHANGELOG.md; using generated notes"
-            gh release create "v$VERSION" --verify-tag --generate-notes
-          fi
-
-      # release-please (release-pr.yml) only opens the release PR; the tag and the release are
-      # written above. It labels a merged release PR `autorelease: pending` and opens no new
-      # one while that label is on a merged PR, so the label is moved once the release exists.
-      - name: Mark merged release PRs as released
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          for PR in $(gh pr list --state merged --label 'autorelease: pending' --json number --jq '.[].number'); do
-            gh pr edit "$PR" --remove-label 'autorelease: pending' --add-label 'autorelease: tagged'
-          done

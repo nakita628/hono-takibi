@@ -10,7 +10,7 @@ export default defineConfig({
   // from any workspace (`**/…`) belong here.
   fmt: {
     // release-please writes the changelog in its own Markdown style and rewrites it on every
-    // release; a format failure there would fail Test on main and stop the release.
+    // release; a format failure there would fail Test on the release pull request.
     ignorePatterns: ['**/CHANGELOG.md'],
     printWidth: 100,
     singleQuote: true,
