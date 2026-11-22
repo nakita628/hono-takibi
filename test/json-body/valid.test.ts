@@ -33,7 +33,7 @@
 //   - types: a list of types
 import { describe, expect, it } from 'vite-plus/test'
 
-import { jsonBodyApp } from './app'
+import { app } from './app'
 
 // An int64 arrives as a bigint whichever way it was sent.
 // int64 は、どちらの形式で送信されても bigint として届く。
@@ -41,7 +41,7 @@ describe('int64: a number or a string of digits', () => {
   // The way a client sends an int64 that a number holds.
   // number で保持できる int64 を、クライアントが送信する際の形式。
   it('id reads a JSON number', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"id":5}',
@@ -58,7 +58,7 @@ describe('int64: a number or a string of digits', () => {
   // toJSON を持つ bigint を JSON.stringify が書き出す際の形式であり、
   // 大きな値のすべての桁を送信できる唯一の形式でもある。
   it('id reads a string of digits', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"id":"5"}',
@@ -73,7 +73,7 @@ describe('int64: a number or a string of digits', () => {
   // 9007199254740993 is 2^53 + 1. As a string of digits it arrives exact.
   // 9007199254740993 は 2^53 + 1 である。数字の文字列であれば、正確に届く。
   it('id keeps every digit of a value beyond 2^53', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"id":"9007199254740993"}',
@@ -88,7 +88,7 @@ describe('int64: a number or a string of digits', () => {
   // An int64 is signed.
   // int64 は符号付きである。
   it('id reads a negative number', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"id":-5}',
@@ -103,7 +103,7 @@ describe('int64: a number or a string of digits', () => {
   // unsigned is a uint64.
   // unsigned は uint64 である。
   it('unsigned reads a JSON number', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"unsigned":5}',
@@ -118,7 +118,7 @@ describe('int64: a number or a string of digits', () => {
   // ranged is an int64 from 1 to 100. The bounds are compared as bigints.
   // ranged は 1 から 100 までの int64 である。境界値は bigint として比較される。
   it('ranged accepts its minimum as a number', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"ranged":1}',
@@ -133,7 +133,7 @@ describe('int64: a number or a string of digits', () => {
   // The bounds apply whichever way the value was sent.
   // 境界値は、どちらの形式で送信された値にも適用される。
   it('ranged accepts its maximum as a string of digits', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"ranged":"100"}',
@@ -148,7 +148,7 @@ describe('int64: a number or a string of digits', () => {
   // level is an int64 enum of 1 and 2. Its members are bigints, like the value.
   // level は 1 と 2 の int64 enum である。メンバーは、値と同じく bigint である。
   it('excluded accepts an allowed int64', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"excluded":3}',
@@ -161,7 +161,7 @@ describe('int64: a number or a string of digits', () => {
   })
 
   it('level reads a member of an int64 enum', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"level":1}',
@@ -176,7 +176,7 @@ describe('int64: a number or a string of digits', () => {
   // The same member, sent as text.
   // 同じメンバーを、文字列として送信している。
   it('level reads a member sent as a string of digits', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"level":"2"}',
@@ -191,7 +191,7 @@ describe('int64: a number or a string of digits', () => {
   // version is an int64 with const: 5.
   // version は const: 5 の int64 である。
   it('version reads an int64 const', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"version":5}',
@@ -206,7 +206,7 @@ describe('int64: a number or a string of digits', () => {
   // cursor has a default of 0, which gives way to the value sent.
   // cursor のデフォルト値は 0 だが、送信された値が優先される。
   it('cursor reads a value over its default', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"cursor":7}',
@@ -220,7 +220,7 @@ describe('int64: a number or a string of digits', () => {
   // The default is a bigint too.
   // デフォルト値も bigint である。
   it('cursor falls back to its default as a bigint', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{}',
@@ -234,7 +234,7 @@ describe('int64: a number or a string of digits', () => {
   // maybe is type: [integer, null] with format: int64.
   // maybe は、format: int64 を持つ type: [integer, null] である。
   it('maybe reads null', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"maybe":null}',
@@ -249,7 +249,7 @@ describe('int64: a number or a string of digits', () => {
   // A value that is not null is read like any int64.
   // null でない値は、他の int64 と同じように読み取られる。
   it('maybe reads a number', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"maybe":5}',
@@ -264,7 +264,7 @@ describe('int64: a number or a string of digits', () => {
   // ids is an array of int64. A number and a string of digits may stand side by side.
   // ids は int64 の配列である。number と数字の文字列が混在していてもよい。
   it('ids reads every element, however it was sent', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"ids":[1,"2"]}',
@@ -282,7 +282,7 @@ describe('int64: a number or a string of digits', () => {
   // ref is a $ref to Id, an int64 with minimum: 0.
   // ref は Id への $ref である。Id は minimum: 0 の int64 である。
   it('ref reads an int64 component', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"ref":"5"}',
@@ -297,7 +297,7 @@ describe('int64: a number or a string of digits', () => {
   // small is an int32, which a number holds. It is validated as it is.
   // small は int32 であり、number で保持できる。そのまま検証される。
   it('small stays a number', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"small":5}',
@@ -316,7 +316,7 @@ describe('types: a list of types', () => {
   // either is type: [integer, string].
   // either は type: [integer, string] である。
   it('either accepts an integer', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"either":1}',
@@ -330,7 +330,7 @@ describe('types: a list of types', () => {
   // The other type of the list.
   // リストにあるもう一方の型。
   it('either accepts a string', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"either":"a"}',
@@ -344,7 +344,7 @@ describe('types: a list of types', () => {
   // flagged is type: [number, boolean, null].
   // flagged は type: [number, boolean, null] である。
   it('flagged accepts a number', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"flagged":1.5}',
@@ -358,7 +358,7 @@ describe('types: a list of types', () => {
   // The second type of the list.
   // リストにある2番目の型。
   it('flagged accepts a boolean', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"flagged":true}',
@@ -372,7 +372,7 @@ describe('types: a list of types', () => {
   // null in the list makes the field nullable.
   // リストに null があると、フィールドは nullable になる。
   it('flagged accepts null', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"flagged":null}',
@@ -388,7 +388,7 @@ describe('types: a list of types', () => {
   // bounded は、minimum: 1 と minLength: 2 を持つ type: [integer, string] である。
   // minimum は integer を制約する。
   it('bounded accepts an integer that meets the minimum', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"bounded":1}',
@@ -402,7 +402,7 @@ describe('types: a list of types', () => {
   // minLength bounds the string.
   // minLength は string を制約する。
   it('bounded accepts a string that meets minLength', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"bounded":"ab"}',
@@ -416,7 +416,7 @@ describe('types: a list of types', () => {
   // moment is format: date-time.
   // moment は format: date-time である。
   it('moment accepts a date-time in UTC', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"moment":"2020-01-02T03:04:05Z"}',
@@ -430,7 +430,7 @@ describe('types: a list of types', () => {
   // An offset instead of Z: RFC 3339 takes either.
   // Z ではなくオフセット。RFC 3339 はどちらも認める。
   it('moment accepts a date-time with an offset', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"moment":"2020-01-02T03:04:05+09:00"}',
@@ -444,7 +444,7 @@ describe('types: a list of types', () => {
   // clock is format: time, which ends in an offset as well.
   // clock は format: time であり、これもオフセットで終わる。
   it('clock accepts a time with an offset', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"clock":"12:34:56+09:00"}',
@@ -458,7 +458,7 @@ describe('types: a list of types', () => {
   // name is declared a string, and count, which nothing declares, is held to an integer.
   // name は string として宣言されている。どこにも宣言されていない count は、integer であることを求められる。
   it('labelled keeps a declared property beside an additional one', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"labelled":{"name":"a","count":2}}',
@@ -472,7 +472,7 @@ describe('types: a list of types', () => {
   // constructor is optional: what the object inherits under that name is not a value of it.
   // constructor は任意である。オブジェクトがその名前で継承しているものは、このプロパティの値ではない。
   it('inherited accepts an object without its constructor property', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"inherited":{"name":"a"}}',

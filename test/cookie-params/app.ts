@@ -65,7 +65,7 @@ function echoFields(fields: object) {
  * すべてのハンドラは `c.req.valid` が返した値だけを返す。テストが見る値は、生のリクエスト
  * ではなく、生成スキーマを通過したものになる。
  */
-export const cookieParamsApp = new OpenAPIHono({
+export const app = new OpenAPIHono({
   // A rejected request names the parameter that failed, so a test can tell which one did.
   // 拒否時は失敗したパラメータ名を返す。どのパラメータが原因かをテストで判別できる。
   defaultHook: (result, c) => {

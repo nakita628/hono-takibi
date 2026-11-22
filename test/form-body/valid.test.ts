@@ -40,7 +40,7 @@
 //   - component: a form body that is a component schema
 import { describe, expect, it } from 'vite-plus/test'
 
-import { formBodyApp } from './app'
+import { app } from './app'
 
 // One field at a time, so a failure names the kind that failed.
 // フィールドを1つずつ送信する。失敗した場合に、どの種類が原因かを特定できる。
@@ -48,7 +48,7 @@ describe('fields: every kind of field is read from text', () => {
   // A string is the text itself.
   // string は、文字列そのものである。
   it('name arrives as a string', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'name=alice',
@@ -63,7 +63,7 @@ describe('fields: every kind of field is read from text', () => {
   // In a form body a plus sign is a space.
   // フォームボディでは、プラス記号は空白を表す。
   it('name decodes a plus sign as a space', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'name=a+b',
@@ -78,7 +78,7 @@ describe('fields: every kind of field is read from text', () => {
   // age is an integer with minimum: 0.
   // age は minimum: 0 の integer である。
   it('age arrives as a number', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'age=5',
@@ -93,7 +93,7 @@ describe('fields: every kind of field is read from text', () => {
   // The constraint applies to the value that was read.
   // 制約は、読み取った値に適用される。
   it('age accepts its minimum', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'age=0',
@@ -108,7 +108,7 @@ describe('fields: every kind of field is read from text', () => {
   // ratio is a number.
   // ratio は number である。
   it('ratio arrives as a number', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'ratio=1.5',
@@ -123,7 +123,7 @@ describe('fields: every kind of field is read from text', () => {
   // big is an int64, read as a bigint without losing a digit.
   // big は int64 であり、桁落ちすることなく bigint として読み取られる。
   it('big arrives as a bigint', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'big=9007199254740993',
@@ -138,7 +138,7 @@ describe('fields: every kind of field is read from text', () => {
   // active is a boolean.
   // active は boolean である。
   it('active reads "true"', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'active=true',
@@ -153,7 +153,7 @@ describe('fields: every kind of field is read from text', () => {
   // A form field reads the spellings a parameter reads.
   // フォームのフィールドは、パラメータと同じ表記を読み取る。
   it('active reads "0" as false', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'active=0',
@@ -168,7 +168,7 @@ describe('fields: every kind of field is read from text', () => {
   // on is what a browser sends for a checked checkbox that has no value of its own.
   // on は、value を持たないチェックボックスがチェックされたときにブラウザが送る値である。
   it('active reads "on" as true', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'active=on',
@@ -183,7 +183,7 @@ describe('fields: every kind of field is read from text', () => {
   // level is an integer enum of 1 and 2.
   // level は 1 と 2 の integer enum である。
   it('level reads a member of an integer enum', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'level=1',
@@ -198,7 +198,7 @@ describe('fields: every kind of field is read from text', () => {
   // agreed is type: boolean with const: true.
   // agreed は type: boolean に const: true を加えたものである。
   it('agreed reads a boolean const', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'agreed=true',
@@ -213,7 +213,7 @@ describe('fields: every kind of field is read from text', () => {
   // limit has a default of 20, which gives way to the value sent.
   // limit のデフォルト値は 20 だが、送信された値が優先される。
   it('limit reads a value over its default', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'limit=5',
@@ -227,7 +227,7 @@ describe('fields: every kind of field is read from text', () => {
   // An empty body sends no field at all.
   // 空のボディは、フィールドを一切送らない。
   it('limit falls back to its default when it is not sent', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: '',
@@ -242,7 +242,7 @@ describe('fields: every kind of field is read from text', () => {
   // count は Count への $ref である。Count は z.int().min(0) であり、
   // 型付きの値を前提としている。
   it('count reads an integer component', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'count=5',
@@ -257,7 +257,7 @@ describe('fields: every kind of field is read from text', () => {
   // flag is a $ref to Flag, z.boolean().
   // flag は Flag への $ref である。Flag は z.boolean() である。
   it('flag reads a boolean component', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'flag=true',
@@ -272,7 +272,7 @@ describe('fields: every kind of field is read from text', () => {
   // A field that is not declared is left out of what the handler receives.
   // 宣言されていないフィールドは、ハンドラが受け取る値から除かれる。
   it('ignores a field the schema does not declare', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'unknown=1',
@@ -287,7 +287,7 @@ describe('fields: every kind of field is read from text', () => {
   // moment は format: date-time である。フォームが "+" を送るときと同じく、オフセットは
   // パーセントエンコードして送信する。
   it('moment accepts a date-time with an offset', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: `moment=${encodeURIComponent('2020-01-02T03:04:05+09:00')}`,
@@ -302,7 +302,7 @@ describe('fields: every kind of field is read from text', () => {
   // The field takes null and no string, so the text can mean nothing else. The body is compared as text throughout this group, which holds a field named constructor.
   // このフィールドは null を受理し文字列を受理しないため、このテキストに他の意味はない。このグループには constructor という名前のフィールドがあるため、ボディは一貫して文字列として比較する。
   it('maybe reads "null" as the value', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'maybe=null',
@@ -316,7 +316,7 @@ describe('fields: every kind of field is read from text', () => {
   // The same field with a number.
   // 同じフィールドに数値を送る。
   it('maybe reads "5" as a number', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'maybe=5',
@@ -330,7 +330,7 @@ describe('fields: every kind of field is read from text', () => {
   // A string takes every text, null included, as the text it is.
   // 文字列は、null を含むあらゆるテキストを、文字列のまま受理する。
   it('label keeps "null" a string', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'label=null',
@@ -344,7 +344,7 @@ describe('fields: every kind of field is read from text', () => {
   // clock is format: time, which ends in an offset as well.
   // clock は format: time であり、これもオフセットで終わる。
   it('clock accepts a time with an offset', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: `clock=${encodeURIComponent('12:34:56+09:00')}`,
@@ -358,7 +358,7 @@ describe('fields: every kind of field is read from text', () => {
   // A field under a name every object inherits is read like any other.
   // すべてのオブジェクトが継承する名前を持つフィールドも、他と同じように読まれる。
   it('constructor reads "5" as a number', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'constructor=5',
@@ -372,7 +372,7 @@ describe('fields: every kind of field is read from text', () => {
   // What the body inherits under the name is no value of the field.
   // ボディがその名前で継承しているものは、フィールドの値ではない。
   it('constructor is absent when it is not sent', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'name=alice',
@@ -392,7 +392,7 @@ describe('arrays: a field sent once or several times', () => {
   // tags is an array of strings.
   // tags は string の配列である。
   it('tags reads a single value as a one-element array', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'tags=x',
@@ -407,7 +407,7 @@ describe('arrays: a field sent once or several times', () => {
   // Two occurrences, two elements.
   // 2回の出現は、2要素になる。
   it('tags reads a repeated name as an array', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'tags=x&tags=y',
@@ -425,7 +425,7 @@ describe('arrays: a field sent once or several times', () => {
   // A form body has no serialisation style: a comma is part of the value.
   // フォームボディにはシリアライズ形式がない。カンマは値の一部である。
   it('tags keeps a comma inside an element', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'tags=x,y',
@@ -440,7 +440,7 @@ describe('arrays: a field sent once or several times', () => {
   // ids is an array of integers.
   // ids は integer の配列である。
   it('ids reads a single value as a one-element array', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'ids=1',
@@ -455,7 +455,7 @@ describe('arrays: a field sent once or several times', () => {
   // Each element is read from text.
   // 各要素が、文字列から読み取られる。
   it('ids reads every element as a number', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'ids=1&ids=2',
@@ -479,7 +479,7 @@ describe('multipart: a file beside fields read from text', () => {
   it('file arrives as a file', async () => {
     const body = new FormData()
     body.append('file', new File(['x'], 'a.txt'))
-    const res = await formBodyApp.request('/multipart', { method: 'POST', body })
+    const res = await app.request('/multipart', { method: 'POST', body })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       file: { valueType: 'file', valueText: 'a.txt' },
@@ -493,7 +493,7 @@ describe('multipart: a file beside fields read from text', () => {
     const body = new FormData()
     body.append('file', new File(['x'], 'a.txt'))
     body.append('age', '5')
-    const res = await formBodyApp.request('/multipart', { method: 'POST', body })
+    const res = await app.request('/multipart', { method: 'POST', body })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       file: { valueType: 'file', valueText: 'a.txt' },
@@ -507,7 +507,7 @@ describe('multipart: a file beside fields read from text', () => {
     const body = new FormData()
     body.append('file', new File(['x'], 'a.txt'))
     body.append('active', 'true')
-    const res = await formBodyApp.request('/multipart', { method: 'POST', body })
+    const res = await app.request('/multipart', { method: 'POST', body })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       file: { valueType: 'file', valueText: 'a.txt' },
@@ -522,7 +522,7 @@ describe('multipart: a file beside fields read from text', () => {
     body.append('file', new File(['x'], 'a.txt'))
     body.append('ids', '1')
     body.append('ids', '2')
-    const res = await formBodyApp.request('/multipart', { method: 'POST', body })
+    const res = await app.request('/multipart', { method: 'POST', body })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       file: { valueType: 'file', valueText: 'a.txt' },
@@ -539,7 +539,7 @@ describe('multipart: a file beside fields read from text', () => {
     const body = new FormData()
     body.append('file', new File(['x'], 'a.txt'))
     body.append('ids', '1')
-    const res = await formBodyApp.request('/multipart', { method: 'POST', body })
+    const res = await app.request('/multipart', { method: 'POST', body })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       file: { valueType: 'file', valueText: 'a.txt' },
@@ -558,7 +558,7 @@ describe('component: a form body that is a component schema', () => {
   // name stays text and price is read as a number.
   // name は文字列のままであり、price は number として読み取られる。
   it('reads the fields of a component from text', async () => {
-    const res = await formBodyApp.request('/component', {
+    const res = await app.request('/component', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'name=pen&price=5',
@@ -573,7 +573,7 @@ describe('component: a form body that is a component schema', () => {
   // stocked is optional and a boolean.
   // stocked は任意の boolean である。
   it('reads an optional field of a component', async () => {
-    const res = await formBodyApp.request('/component', {
+    const res = await app.request('/component', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'name=pen&price=5&stocked=true',
@@ -589,7 +589,7 @@ describe('component: a form body that is a component schema', () => {
   // The same component as a JSON body: the number is a number in the document already.
   // 同じコンポーネントを JSON ボディとして送る。数値は、文書の時点ですでに number である。
   it('a JSON body of the same component arrives typed', async () => {
-    const res = await formBodyApp.request('/json', {
+    const res = await app.request('/json', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"name":"pen","price":5}',

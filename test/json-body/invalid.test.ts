@@ -33,13 +33,13 @@
 //   - types: rejected values
 import { describe, expect, it } from 'vite-plus/test'
 
-import { jsonBodyApp } from './app'
+import { app } from './app'
 
 // What is not a whole number, or not one that arrived with every digit, is rejected.
 // 整数でない値や、すべての桁を保ったまま届いていない値は、拒否される。
 describe('int64: rejected values', () => {
   it('excluded rejects a forbidden int64 sent as a number', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"excluded":0}',
@@ -49,7 +49,7 @@ describe('int64: rejected values', () => {
   })
 
   it('excluded rejects a forbidden int64 sent as text', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"excluded":"2"}',
@@ -63,7 +63,7 @@ describe('int64: rejected values', () => {
   // 9007199254740993 は、JSON の number では保持できない。スキーマに届く前に、
   // 最後の桁が失われている。数字の文字列として送信する必要がある。
   it('id rejects a number beyond 2^53', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"id":9007199254740993}',
@@ -75,7 +75,7 @@ describe('int64: rejected values', () => {
   // A fraction is not an integer.
   // 小数は整数ではない。
   it('id rejects a fraction', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"id":1.5}',
@@ -87,7 +87,7 @@ describe('int64: rejected values', () => {
   // The same, as a string.
   // 同じ値を、文字列として送信している。
   it('id rejects a fraction sent as text', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"id":"1.5"}',
@@ -99,7 +99,7 @@ describe('int64: rejected values', () => {
   // A word is not a string of digits.
   // 単語は、数字の文字列ではない。
   it('id rejects a word', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"id":"abc"}',
@@ -111,7 +111,7 @@ describe('int64: rejected values', () => {
   // The empty string holds no digits.
   // 空文字列は、数字を含まない。
   it('id rejects an empty string', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"id":""}',
@@ -123,7 +123,7 @@ describe('int64: rejected values', () => {
   // A hexadecimal literal is not decimal.
   // 16進リテラルは10進表記ではない。
   it('id rejects a hexadecimal literal', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"id":"0x10"}',
@@ -135,7 +135,7 @@ describe('int64: rejected values', () => {
   // true is not a number.
   // true は数値ではない。
   it('id rejects a boolean', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"id":true}',
@@ -147,7 +147,7 @@ describe('int64: rejected values', () => {
   // id is not nullable.
   // id は nullable ではない。
   it('id rejects null', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"id":null}',
@@ -159,7 +159,7 @@ describe('int64: rejected values', () => {
   // One above the largest int64, 9223372036854775807.
   // int64 の最大値 9223372036854775807 を 1 超える。
   it('id rejects a value past the range of an int64', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"id":"9223372036854775808"}',
@@ -171,7 +171,7 @@ describe('int64: rejected values', () => {
   // A uint64 has no sign.
   // uint64 は符号を持たない。
   it('unsigned rejects a negative number', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"unsigned":-1}',
@@ -183,7 +183,7 @@ describe('int64: rejected values', () => {
   // One below the minimum.
   // 最小値を 1 下回る。
   it('ranged rejects a value below its minimum', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"ranged":0}',
@@ -195,7 +195,7 @@ describe('int64: rejected values', () => {
   // One above the maximum.
   // 最大値を 1 超える。
   it('ranged rejects a value above its maximum', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"ranged":101}',
@@ -207,7 +207,7 @@ describe('int64: rejected values', () => {
   // 3 is an int64, and not a member.
   // 3 は int64 だが、メンバーではない。
   it('level rejects a value that is not a member', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"level":3}',
@@ -219,7 +219,7 @@ describe('int64: rejected values', () => {
   // 6 is an int64, and not the constant.
   // 6 は int64 だが、定数とは異なる。
   it('version rejects another value', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"version":6}',
@@ -231,7 +231,7 @@ describe('int64: rejected values', () => {
   // The second element is not a string of digits.
   // 2番目の要素が、数字の文字列ではない。
   it('ids rejects a word among its elements', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"ids":[1,"x"]}',
@@ -243,7 +243,7 @@ describe('int64: rejected values', () => {
   // -1 is below the minimum of Id.
   // -1 は Id の最小値を下回る。
   it('ref rejects a value below the minimum of the component', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"ref":-1}',
@@ -255,7 +255,7 @@ describe('int64: rejected values', () => {
   // Only an int64 is read from a string. An int32 is a JSON number.
   // 文字列から読み取られるのは int64 だけである。int32 は JSON の number である。
   it('small rejects a string of digits', async () => {
-    const res = await jsonBodyApp.request('/numbers', {
+    const res = await app.request('/numbers', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"small":"5"}',
@@ -271,7 +271,7 @@ describe('types: rejected values', () => {
   // boolean is not in the list.
   // boolean はリストにない。
   it('either rejects a boolean', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"either":true}',
@@ -283,7 +283,7 @@ describe('types: rejected values', () => {
   // 1.5 is a number, and the list names integer.
   // 1.5 は number であり、リストにあるのは integer である。
   it('either rejects a fraction', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"either":1.5}',
@@ -295,7 +295,7 @@ describe('types: rejected values', () => {
   // string is not in the list.
   // string はリストにない。
   it('flagged rejects a string', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"flagged":"x"}',
@@ -307,7 +307,7 @@ describe('types: rejected values', () => {
   // One below the minimum.
   // 最小値を 1 下回る。
   it('bounded rejects an integer below the minimum', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"bounded":0}',
@@ -319,7 +319,7 @@ describe('types: rejected values', () => {
   // One below minLength.
   // minLength を 1 下回る。
   it('bounded rejects a string shorter than minLength', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"bounded":"a"}',
@@ -331,7 +331,7 @@ describe('types: rejected values', () => {
   // A date is not a date-time.
   // 日付は日時ではない。
   it('moment rejects a date', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"moment":"2020-01-02"}',
@@ -343,7 +343,7 @@ describe('types: rejected values', () => {
   // name is declared a string, whatever additionalProperties says of the other keys.
   // name は string として宣言されている。additionalProperties が他のキーについて何を定めていても、変わらない。
   it('labelled rejects a number for its declared string', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"labelled":{"name":1}}',
@@ -355,7 +355,7 @@ describe('types: rejected values', () => {
   // A key nothing declares is held to an integer.
   // どこにも宣言されていないキーは、integer であることを求められる。
   it('labelled rejects a word for an additional property', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"labelled":{"count":"x"}}',
@@ -367,7 +367,7 @@ describe('types: rejected values', () => {
   // Sent, the property is validated like any other.
   // 送信された場合、このプロパティは他のプロパティと同じように検証される。
   it('inherited rejects a word for its constructor property', async () => {
-    const res = await jsonBodyApp.request('/types', {
+    const res = await app.request('/types', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"inherited":{"constructor":"x"}}',
