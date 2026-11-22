@@ -11,7 +11,7 @@ import * as routes from './__generated__/routes'
  * 生成スキーマを通過したものであり、型もスキーマが与えたものである。拒否された
  * リクエストは 422 を返す。
  */
-const app = new OpenAPIHono({
+export const app = new OpenAPIHono({
   defaultHook: (result, c) => {
     if (!result.success) {
       return c.json({ issues: result.error.issues.map((issue) => issue.path.join('.')) }, 422)
@@ -37,5 +37,3 @@ for (const route of Object.values(routes)) {
     app.openapi(route, (c) => c.json(c.req.valid('param' as never)))
   }
 }
-
-export const conformanceApp = app

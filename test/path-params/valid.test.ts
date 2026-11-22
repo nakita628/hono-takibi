@@ -39,7 +39,7 @@
 //   - leniency: what is read beyond the plainest spelling (pinned, not endorsed)
 import { describe, expect, it } from 'vite-plus/test'
 
-import { pathParamsApp } from './app'
+import { app } from './app'
 
 // One canonical value per shape. The value is compared as well as the type: a coercion that
 // changes the value (a truncated int64, a re-serialised float) is as wrong as one that
@@ -50,7 +50,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An integer with no format arrives as a number.
   // フォーマット指定のない integer は number として届く。
   it('integer accepts "42"', async () => {
-    const res = await pathParamsApp.request('/integer/42')
+    const res = await app.request('/integer/42')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '42' })
   })
@@ -58,7 +58,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An int32 arrives as a number.
   // int32 は number として届く。
   it('int32 accepts "42"', async () => {
-    const res = await pathParamsApp.request('/int32/42')
+    const res = await app.request('/int32/42')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '42' })
   })
@@ -66,7 +66,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An int64 arrives as a bigint, exact past Number.MAX_SAFE_INTEGER.
   // int64 は bigint として届き、Number.MAX_SAFE_INTEGER を超えても桁落ちしない。
   it('int64 accepts "9007199254740993"', async () => {
-    const res = await pathParamsApp.request('/int64/9007199254740993')
+    const res = await app.request('/int64/9007199254740993')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'bigint', valueText: '9007199254740993' })
   })
@@ -74,7 +74,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: bigint arrives as a bigint.
   // format: bigint は bigint として届く。
   it('bigint accepts "9007199254740993"', async () => {
-    const res = await pathParamsApp.request('/bigint/9007199254740993')
+    const res = await app.request('/bigint/9007199254740993')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'bigint', valueText: '9007199254740993' })
   })
@@ -82,7 +82,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A uint32 arrives as a number, up to its maximum.
   // uint32 は最大値まで number として届く。
   it('uint32 accepts "4294967295"', async () => {
-    const res = await pathParamsApp.request('/uint32/4294967295')
+    const res = await app.request('/uint32/4294967295')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '4294967295' })
   })
@@ -90,7 +90,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A uint64 arrives as a bigint, up to its maximum, which no double can hold.
   // uint64 は最大値まで bigint として届く。この最大値は double では保持できない。
   it('uint64 accepts "18446744073709551615"', async () => {
-    const res = await pathParamsApp.request('/uint64/18446744073709551615')
+    const res = await app.request('/uint64/18446744073709551615')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'bigint',
@@ -101,7 +101,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A number with no format arrives as a number.
   // フォーマット指定のない number は number として届く。
   it('number accepts "1.5"', async () => {
-    const res = await pathParamsApp.request('/number/1.5')
+    const res = await app.request('/number/1.5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1.5' })
   })
@@ -109,7 +109,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: float arrives as a number.
   // format: float は number として届く。
   it('float accepts "1.5"', async () => {
-    const res = await pathParamsApp.request('/float/1.5')
+    const res = await app.request('/float/1.5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1.5' })
   })
@@ -117,7 +117,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: float32 arrives as a number.
   // format: float32 は number として届く。
   it('float32 accepts "1.5"', async () => {
-    const res = await pathParamsApp.request('/float32/1.5')
+    const res = await app.request('/float32/1.5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1.5' })
   })
@@ -125,7 +125,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: float64 arrives as a number.
   // format: float64 は number として届く。
   it('float64 accepts "1.5"', async () => {
-    const res = await pathParamsApp.request('/float64/1.5')
+    const res = await app.request('/float64/1.5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1.5' })
   })
@@ -133,7 +133,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: double arrives as a number.
   // format: double は number として届く。
   it('double accepts "1.5"', async () => {
-    const res = await pathParamsApp.request('/double/1.5')
+    const res = await app.request('/double/1.5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1.5' })
   })
@@ -141,7 +141,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: password on a number is an annotation; the value is still a number.
   // number に対する format: password は注釈にすぎず、値は number のまま届く。
   it('numpassword accepts "1.5"', async () => {
-    const res = await pathParamsApp.request('/numpassword/1.5')
+    const res = await app.request('/numpassword/1.5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1.5' })
   })
@@ -149,7 +149,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A boolean arrives as a boolean, not as the text "true".
   // boolean は文字列 "true" ではなく boolean として届く。
   it('boolean accepts "true"', async () => {
-    const res = await pathParamsApp.request('/boolean/true')
+    const res = await app.request('/boolean/true')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'true' })
   })
@@ -157,7 +157,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A string arrives unchanged.
   // string はそのまま届く。
   it('string accepts "plain"', async () => {
-    const res = await pathParamsApp.request('/string/plain')
+    const res = await app.request('/string/plain')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'plain' })
   })
@@ -165,7 +165,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A well-formed email address.
   // 正しい形式のメールアドレス。
   it('email accepts "user@example.com"', async () => {
-    const res = await pathParamsApp.request(`/email/${encodeURIComponent('user@example.com')}`)
+    const res = await app.request(`/email/${encodeURIComponent('user@example.com')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'user@example.com' })
   })
@@ -173,7 +173,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A UUID of any version (here version 7).
   // 任意バージョンの UUID(ここではバージョン 7)。
   it('uuid accepts "0190b1f4-0000-7000-8000-000000000000"', async () => {
-    const res = await pathParamsApp.request('/uuid/0190b1f4-0000-7000-8000-000000000000')
+    const res = await app.request('/uuid/0190b1f4-0000-7000-8000-000000000000')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -184,7 +184,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A version 4 UUID.
   // バージョン 4 の UUID。
   it('uuidv4 accepts "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"', async () => {
-    const res = await pathParamsApp.request('/uuidv4/a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d')
+    const res = await app.request('/uuidv4/a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -195,7 +195,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A version 7 UUID.
   // バージョン 7 の UUID。
   it('uuidv7 accepts "0190b1f4-0000-7000-8000-000000000000"', async () => {
-    const res = await pathParamsApp.request('/uuidv7/0190b1f4-0000-7000-8000-000000000000')
+    const res = await app.request('/uuidv7/0190b1f4-0000-7000-8000-000000000000')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -206,7 +206,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An absolute URL.
   // 絶対 URL。
   it('url accepts "https://example.com"', async () => {
-    const res = await pathParamsApp.request(`/url/${encodeURIComponent('https://example.com')}`)
+    const res = await app.request(`/url/${encodeURIComponent('https://example.com')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -217,7 +217,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: uri is validated like a URL.
   // format: uri は URL と同じ検証を受ける。
   it('uri accepts "https://example.com"', async () => {
-    const res = await pathParamsApp.request(`/uri/${encodeURIComponent('https://example.com')}`)
+    const res = await app.request(`/uri/${encodeURIComponent('https://example.com')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -228,7 +228,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An https URL.
   // https の URL。
   it('httpurl accepts "https://example.com"', async () => {
-    const res = await pathParamsApp.request(`/httpurl/${encodeURIComponent('https://example.com')}`)
+    const res = await app.request(`/httpurl/${encodeURIComponent('https://example.com')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -239,7 +239,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A host name.
   // ホスト名。
   it('hostname accepts "example.com"', async () => {
-    const res = await pathParamsApp.request('/hostname/example.com')
+    const res = await app.request('/hostname/example.com')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'example.com' })
   })
@@ -247,7 +247,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // Hexadecimal digits.
   // 16進数の文字列。
   it('hex accepts "deadbeef"', async () => {
-    const res = await pathParamsApp.request('/hex/deadbeef')
+    const res = await app.request('/hex/deadbeef')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'deadbeef' })
   })
@@ -255,7 +255,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A single emoji.
   // 絵文字1文字。
   it('emoji accepts "🔥"', async () => {
-    const res = await pathParamsApp.request(`/emoji/${encodeURIComponent('🔥')}`)
+    const res = await app.request(`/emoji/${encodeURIComponent('🔥')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '🔥' })
   })
@@ -263,7 +263,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // Base64 with padding.
   // パディング付きの Base64。
   it('base64 accepts "aGVsbG8="', async () => {
-    const res = await pathParamsApp.request(`/base64/${encodeURIComponent('aGVsbG8=')}`)
+    const res = await app.request(`/base64/${encodeURIComponent('aGVsbG8=')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'aGVsbG8=' })
   })
@@ -271,7 +271,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // Base64url, which has no padding.
   // パディングのない Base64url。
   it('base64url accepts "aGVsbG8"', async () => {
-    const res = await pathParamsApp.request('/base64url/aGVsbG8')
+    const res = await app.request('/base64url/aGVsbG8')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'aGVsbG8' })
   })
@@ -279,7 +279,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A 21-character Nano ID.
   // 21文字の Nano ID。
   it('nanoid accepts "V1StGXR8_Z5jdHi6B-myT"', async () => {
-    const res = await pathParamsApp.request('/nanoid/V1StGXR8_Z5jdHi6B-myT')
+    const res = await app.request('/nanoid/V1StGXR8_Z5jdHi6B-myT')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -290,7 +290,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A CUID2.
   // CUID2。
   it('cuid2 accepts "tz4a98xxat96iws9zmbrgj3a"', async () => {
-    const res = await pathParamsApp.request('/cuid2/tz4a98xxat96iws9zmbrgj3a')
+    const res = await app.request('/cuid2/tz4a98xxat96iws9zmbrgj3a')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -301,7 +301,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A 26-character ULID.
   // 26文字の ULID。
   it('ulid accepts "01ARZ3NDEKTSV4RRFFQ69G5FAV"', async () => {
-    const res = await pathParamsApp.request('/ulid/01ARZ3NDEKTSV4RRFFQ69G5FAV')
+    const res = await app.request('/ulid/01ARZ3NDEKTSV4RRFFQ69G5FAV')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -312,7 +312,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An IPv4 address.
   // IPv4 アドレス。
   it('ipv4 accepts "192.168.0.1"', async () => {
-    const res = await pathParamsApp.request('/ipv4/192.168.0.1')
+    const res = await app.request('/ipv4/192.168.0.1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '192.168.0.1' })
   })
@@ -320,7 +320,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An IPv6 address in compressed form.
   // 省略表記の IPv6 アドレス。
   it('ipv6 accepts "2001:db8::1"', async () => {
-    const res = await pathParamsApp.request(`/ipv6/${encodeURIComponent('2001:db8::1')}`)
+    const res = await app.request(`/ipv6/${encodeURIComponent('2001:db8::1')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '2001:db8::1' })
   })
@@ -328,7 +328,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An IPv4 CIDR block.
   // IPv4 の CIDR ブロック。
   it('cidrv4 accepts "192.168.0.0/24"', async () => {
-    const res = await pathParamsApp.request(`/cidrv4/${encodeURIComponent('192.168.0.0/24')}`)
+    const res = await app.request(`/cidrv4/${encodeURIComponent('192.168.0.0/24')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '192.168.0.0/24' })
   })
@@ -336,7 +336,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An IPv6 CIDR block.
   // IPv6 の CIDR ブロック。
   it('cidrv6 accepts "2001:db8::/32"', async () => {
-    const res = await pathParamsApp.request(`/cidrv6/${encodeURIComponent('2001:db8::/32')}`)
+    const res = await app.request(`/cidrv6/${encodeURIComponent('2001:db8::/32')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '2001:db8::/32' })
   })
@@ -344,7 +344,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An ISO 8601 date; it stays a string, it is not turned into a Date.
   // ISO 8601 の日付。Date には変換されず、文字列のまま届く。
   it('date accepts "2020-01-02"', async () => {
-    const res = await pathParamsApp.request('/date/2020-01-02')
+    const res = await app.request('/date/2020-01-02')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '2020-01-02' })
   })
@@ -352,7 +352,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An ISO 8601 time.
   // ISO 8601 の時刻。
   it('time accepts "12:34:56"', async () => {
-    const res = await pathParamsApp.request(`/time/${encodeURIComponent('12:34:56')}`)
+    const res = await app.request(`/time/${encodeURIComponent('12:34:56')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '12:34:56' })
   })
@@ -360,9 +360,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An ISO 8601 date-time in UTC; it stays a string.
   // UTC の ISO 8601 日時。文字列のまま届く。
   it('datetime accepts "2020-01-02T03:04:05Z"', async () => {
-    const res = await pathParamsApp.request(
-      `/datetime/${encodeURIComponent('2020-01-02T03:04:05Z')}`,
-    )
+    const res = await app.request(`/datetime/${encodeURIComponent('2020-01-02T03:04:05Z')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -373,7 +371,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An ISO 8601 duration with every component.
   // すべての要素を含む ISO 8601 の期間。
   it('duration accepts "P1Y2M3DT4H5M6S"', async () => {
-    const res = await pathParamsApp.request('/duration/P1Y2M3DT4H5M6S')
+    const res = await app.request('/duration/P1Y2M3DT4H5M6S')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'P1Y2M3DT4H5M6S' })
   })
@@ -381,7 +379,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: byte is an annotation; the text is passed through.
   // format: byte は注釈にすぎず、文字列はそのまま渡される。
   it('byte accepts "aGVsbG8="', async () => {
-    const res = await pathParamsApp.request(`/byte/${encodeURIComponent('aGVsbG8=')}`)
+    const res = await app.request(`/byte/${encodeURIComponent('aGVsbG8=')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'aGVsbG8=' })
   })
@@ -389,7 +387,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: password is an annotation; the text is passed through.
   // format: password は注釈にすぎず、文字列はそのまま渡される。
   it('strpassword accepts "hunter2"', async () => {
-    const res = await pathParamsApp.request('/strpassword/hunter2')
+    const res = await app.request('/strpassword/hunter2')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'hunter2' })
   })
@@ -397,7 +395,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A MAC address with colon separators.
   // コロン区切りの MAC アドレス。
   it('mac accepts "00:1a:2b:3c:4d:5e"', async () => {
-    const res = await pathParamsApp.request(`/mac/${encodeURIComponent('00:1a:2b:3c:4d:5e')}`)
+    const res = await app.request(`/mac/${encodeURIComponent('00:1a:2b:3c:4d:5e')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '00:1a:2b:3c:4d:5e' })
   })
@@ -405,7 +403,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An E.164 phone number.
   // E.164 形式の電話番号。
   it('e164 accepts "+14155552671"', async () => {
-    const res = await pathParamsApp.request(`/e164/${encodeURIComponent('+14155552671')}`)
+    const res = await app.request(`/e164/${encodeURIComponent('+14155552671')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '+14155552671' })
   })
@@ -413,7 +411,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A card number that passes the Luhn check.
   // Luhn チェックを通過するカード番号。
   it('creditcard accepts "4111111111111111"', async () => {
-    const res = await pathParamsApp.request('/creditcard/4111111111111111')
+    const res = await app.request('/creditcard/4111111111111111')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '4111111111111111' })
   })
@@ -421,7 +419,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An IBAN with a valid checksum.
   // チェックサムが正しい IBAN。
   it('iban accepts "DE89370400440532013000"', async () => {
-    const res = await pathParamsApp.request('/iban/DE89370400440532013000')
+    const res = await app.request('/iban/DE89370400440532013000')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -432,7 +430,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An ISO 4217 currency code.
   // ISO 4217 の通貨コード。
   it('currencycode accepts "USD"', async () => {
-    const res = await pathParamsApp.request('/currencycode/USD')
+    const res = await app.request('/currencycode/USD')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'USD' })
   })
@@ -440,7 +438,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A 27-character KSUID.
   // 27文字の KSUID。
   it('ksuid accepts "0ujsszwN8NRY24YaXiTIE2VWDTS"', async () => {
-    const res = await pathParamsApp.request('/ksuid/0ujsszwN8NRY24YaXiTIE2VWDTS')
+    const res = await app.request('/ksuid/0ujsszwN8NRY24YaXiTIE2VWDTS')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -451,7 +449,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A 20-character XID.
   // 20文字の XID。
   it('xid accepts "9m4e2mr0ui3e8a215n4g"', async () => {
-    const res = await pathParamsApp.request('/xid/9m4e2mr0ui3e8a215n4g')
+    const res = await app.request('/xid/9m4e2mr0ui3e8a215n4g')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -462,7 +460,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A GUID.
   // GUID。
   it('guid accepts "0190b1f4-0000-7000-8000-000000000000"', async () => {
-    const res = await pathParamsApp.request('/guid/0190b1f4-0000-7000-8000-000000000000')
+    const res = await app.request('/guid/0190b1f4-0000-7000-8000-000000000000')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -473,7 +471,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: trim leaves a value with no surrounding whitespace unchanged.
   // format: trim は、前後に空白のない値をそのまま通す。
   it('trim accepts "spaced"', async () => {
-    const res = await pathParamsApp.request('/trim/spaced')
+    const res = await app.request('/trim/spaced')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'spaced' })
   })
@@ -485,7 +483,7 @@ describe('integers: accepted boundaries', () => {
   // Zero.
   // ゼロ。
   it('integer accepts "0"', async () => {
-    const res = await pathParamsApp.request('/integer/0')
+    const res = await app.request('/integer/0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0' })
   })
@@ -493,7 +491,7 @@ describe('integers: accepted boundaries', () => {
   // A negative integer.
   // 負の整数。
   it('integer accepts "-1"', async () => {
-    const res = await pathParamsApp.request('/integer/-1')
+    const res = await app.request('/integer/-1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '-1' })
   })
@@ -501,7 +499,7 @@ describe('integers: accepted boundaries', () => {
   // Number.MAX_SAFE_INTEGER, the last integer a double holds exactly.
   // Number.MAX_SAFE_INTEGER。double が正確に保持できる最後の整数。
   it('integer accepts "9007199254740991"', async () => {
-    const res = await pathParamsApp.request('/integer/9007199254740991')
+    const res = await app.request('/integer/9007199254740991')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '9007199254740991' })
   })
@@ -509,7 +507,7 @@ describe('integers: accepted boundaries', () => {
   // Number.MIN_SAFE_INTEGER.
   // Number.MIN_SAFE_INTEGER。
   it('integer accepts "-9007199254740991"', async () => {
-    const res = await pathParamsApp.request('/integer/-9007199254740991')
+    const res = await app.request('/integer/-9007199254740991')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '-9007199254740991' })
   })
@@ -517,7 +515,7 @@ describe('integers: accepted boundaries', () => {
   // The int32 maximum, 2^31 - 1.
   // int32 の最大値(2^31 - 1)。
   it('int32 accepts "2147483647"', async () => {
-    const res = await pathParamsApp.request('/int32/2147483647')
+    const res = await app.request('/int32/2147483647')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '2147483647' })
   })
@@ -525,7 +523,7 @@ describe('integers: accepted boundaries', () => {
   // The int32 minimum, -2^31.
   // int32 の最小値(-2^31)。
   it('int32 accepts "-2147483648"', async () => {
-    const res = await pathParamsApp.request('/int32/-2147483648')
+    const res = await app.request('/int32/-2147483648')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '-2147483648' })
   })
@@ -533,7 +531,7 @@ describe('integers: accepted boundaries', () => {
   // Zero.
   // ゼロ。
   it('int32 accepts "0"', async () => {
-    const res = await pathParamsApp.request('/int32/0')
+    const res = await app.request('/int32/0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0' })
   })
@@ -541,7 +539,7 @@ describe('integers: accepted boundaries', () => {
   // The uint32 minimum.
   // uint32 の最小値。
   it('uint32 accepts "0"', async () => {
-    const res = await pathParamsApp.request('/uint32/0')
+    const res = await app.request('/uint32/0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0' })
   })
@@ -549,7 +547,7 @@ describe('integers: accepted boundaries', () => {
   // The uint32 maximum, 2^32 - 1.
   // uint32 の最大値(2^32 - 1)。
   it('uint32 accepts "4294967295"', async () => {
-    const res = await pathParamsApp.request('/uint32/4294967295')
+    const res = await app.request('/uint32/4294967295')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '4294967295' })
   })
@@ -557,7 +555,7 @@ describe('integers: accepted boundaries', () => {
   // The int64 maximum, 2^63 - 1, kept to the last digit.
   // int64 の最大値(2^63 - 1)。最後の桁まで保持される。
   it('int64 accepts "9223372036854775807"', async () => {
-    const res = await pathParamsApp.request('/int64/9223372036854775807')
+    const res = await app.request('/int64/9223372036854775807')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'bigint',
@@ -568,7 +566,7 @@ describe('integers: accepted boundaries', () => {
   // The int64 minimum, -2^63.
   // int64 の最小値(-2^63)。
   it('int64 accepts "-9223372036854775808"', async () => {
-    const res = await pathParamsApp.request('/int64/-9223372036854775808')
+    const res = await app.request('/int64/-9223372036854775808')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'bigint',
@@ -579,7 +577,7 @@ describe('integers: accepted boundaries', () => {
   // Zero is a bigint too.
   // ゼロも bigint として届く。
   it('int64 accepts "0"', async () => {
-    const res = await pathParamsApp.request('/int64/0')
+    const res = await app.request('/int64/0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'bigint', valueText: '0' })
   })
@@ -587,7 +585,7 @@ describe('integers: accepted boundaries', () => {
   // The uint64 minimum.
   // uint64 の最小値。
   it('uint64 accepts "0"', async () => {
-    const res = await pathParamsApp.request('/uint64/0')
+    const res = await app.request('/uint64/0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'bigint', valueText: '0' })
   })
@@ -595,7 +593,7 @@ describe('integers: accepted boundaries', () => {
   // The uint64 maximum, 2^64 - 1.
   // uint64 の最大値(2^64 - 1)。
   it('uint64 accepts "18446744073709551615"', async () => {
-    const res = await pathParamsApp.request('/uint64/18446744073709551615')
+    const res = await app.request('/uint64/18446744073709551615')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'bigint',
@@ -606,7 +604,7 @@ describe('integers: accepted boundaries', () => {
   // format: bigint has no upper bound.
   // format: bigint には上限がない。
   it('bigint accepts "99999999999999999999999999999"', async () => {
-    const res = await pathParamsApp.request('/bigint/99999999999999999999999999999')
+    const res = await app.request('/bigint/99999999999999999999999999999')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'bigint',
@@ -617,7 +615,7 @@ describe('integers: accepted boundaries', () => {
   // format: bigint has no lower bound.
   // format: bigint には下限がない。
   it('bigint accepts "-99999999999999999999999999999"', async () => {
-    const res = await pathParamsApp.request('/bigint/-99999999999999999999999999999')
+    const res = await app.request('/bigint/-99999999999999999999999999999')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'bigint',
@@ -630,7 +628,7 @@ describe('integers: accepted boundaries', () => {
   // 結果が整数になる指数表記は、整数である。
   // JSON Schema が見るのは値であり、表記ではない。
   it('int64 accepts "1e3"', async () => {
-    const res = await pathParamsApp.request('/int64/1e3')
+    const res = await app.request('/int64/1e3')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'bigint', valueText: '1000' })
   })
@@ -640,7 +638,7 @@ describe('integers: accepted boundaries', () => {
   // 小数部を持たない数値は、表記にかかわらず整数である。
   // JSON Schema は 1.0 を整数として扱う。
   it('bigint accepts "1.0"', async () => {
-    const res = await pathParamsApp.request('/bigint/1.0')
+    const res = await app.request('/bigint/1.0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'bigint', valueText: '1' })
   })
@@ -650,7 +648,7 @@ describe('integers: accepted boundaries', () => {
   // 結果が整数になる指数表記は、整数である。
   // JSON Schema が見るのは値であり、表記ではない。
   it('bigint accepts "1e3"', async () => {
-    const res = await pathParamsApp.request('/bigint/1e3')
+    const res = await app.request('/bigint/1e3')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'bigint', valueText: '1000' })
   })
@@ -660,7 +658,7 @@ describe('integers: accepted boundaries', () => {
   // 小数部を持たない数値は、表記にかかわらず整数である。
   // JSON Schema は 1.0 を整数として扱う。
   it('integer accepts "1.0"', async () => {
-    const res = await pathParamsApp.request('/integer/1.0')
+    const res = await app.request('/integer/1.0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
   })
@@ -670,7 +668,7 @@ describe('integers: accepted boundaries', () => {
   // 結果が整数になる指数表記は、整数である。
   // JSON Schema が見るのは値であり、表記ではない。
   it('integer accepts "1e3"', async () => {
-    const res = await pathParamsApp.request('/integer/1e3')
+    const res = await app.request('/integer/1e3')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1000' })
   })
@@ -680,7 +678,7 @@ describe('integers: accepted boundaries', () => {
   // 小数部を持たない数値は、表記にかかわらず整数である。
   // JSON Schema は 1.0 を整数として扱う。
   it('ienum accepts "1.0"', async () => {
-    const res = await pathParamsApp.request('/ienum/1.0')
+    const res = await app.request('/ienum/1.0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
   })
@@ -690,7 +688,7 @@ describe('integers: accepted boundaries', () => {
   // 結果が整数になる指数表記は、整数である。
   // JSON Schema が見るのは値であり、表記ではない。
   it('ienum accepts "1e0"', async () => {
-    const res = await pathParamsApp.request('/ienum/1e0')
+    const res = await app.request('/ienum/1e0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
   })
@@ -700,7 +698,7 @@ describe('integers: accepted boundaries', () => {
   // 小数部を持たない数値は、表記にかかわらず整数である。
   // JSON Schema は 1.0 を整数として扱う。
   it('iconst accepts "7.0"', async () => {
-    const res = await pathParamsApp.request('/iconst/7.0')
+    const res = await app.request('/iconst/7.0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '7' })
   })
@@ -712,7 +710,7 @@ describe('floats: accepted values', () => {
   // Zero.
   // ゼロ。
   it('number accepts "0"', async () => {
-    const res = await pathParamsApp.request('/number/0')
+    const res = await app.request('/number/0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0' })
   })
@@ -720,7 +718,7 @@ describe('floats: accepted values', () => {
   // A negative fraction.
   // 負の小数。
   it('number accepts "-1.5"', async () => {
-    const res = await pathParamsApp.request('/number/-1.5')
+    const res = await app.request('/number/-1.5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '-1.5' })
   })
@@ -728,7 +726,7 @@ describe('floats: accepted values', () => {
   // Exponent notation.
   // 指数表記。
   it('number accepts "1e3"', async () => {
-    const res = await pathParamsApp.request('/number/1e3')
+    const res = await app.request('/number/1e3')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1000' })
   })
@@ -736,7 +734,7 @@ describe('floats: accepted values', () => {
   // A negative exponent.
   // 負の指数。
   it('number accepts "1e-3"', async () => {
-    const res = await pathParamsApp.request('/number/1e-3')
+    const res = await app.request('/number/1e-3')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0.001' })
   })
@@ -744,7 +742,7 @@ describe('floats: accepted values', () => {
   // No digit before the decimal point.
   // 小数点の前の数字を省略した表記。
   it('number accepts ".5"', async () => {
-    const res = await pathParamsApp.request('/number/.5')
+    const res = await app.request('/number/.5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0.5' })
   })
@@ -752,7 +750,7 @@ describe('floats: accepted values', () => {
   // No digit after the decimal point.
   // 小数点の後の数字を省略した表記。
   it('number accepts "5."', async () => {
-    const res = await pathParamsApp.request('/number/5.')
+    const res = await app.request('/number/5.')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '5' })
   })
@@ -760,7 +758,7 @@ describe('floats: accepted values', () => {
   // The largest finite float32.
   // float32 の最大有限値。
   it('float32 accepts "3.4028234e38"', async () => {
-    const res = await pathParamsApp.request('/float32/3.4028234e38')
+    const res = await app.request('/float32/3.4028234e38')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '3.4028234e+38' })
   })
@@ -768,7 +766,7 @@ describe('floats: accepted values', () => {
   // The smallest finite float32.
   // float32 の最小有限値。
   it('float32 accepts "-3.4028234e38"', async () => {
-    const res = await pathParamsApp.request('/float32/-3.4028234e38')
+    const res = await app.request('/float32/-3.4028234e38')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '-3.4028234e+38' })
   })
@@ -776,7 +774,7 @@ describe('floats: accepted values', () => {
   // Too small for a float32 to represent: underflow is not a range error.
   // float32 では表現できないほど小さい値。アンダーフローは範囲エラーにならない。
   it('float32 accepts "1e-50"', async () => {
-    const res = await pathParamsApp.request('/float32/1e-50')
+    const res = await app.request('/float32/1e-50')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1e-50' })
   })
@@ -784,7 +782,7 @@ describe('floats: accepted values', () => {
   // A value a float32 cannot hold exactly is not rounded.
   // float32 で正確に表現できない値でも、丸められずに届く。
   it('float32 accepts "0.1"', async () => {
-    const res = await pathParamsApp.request('/float32/0.1')
+    const res = await app.request('/float32/0.1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0.1' })
   })
@@ -792,7 +790,7 @@ describe('floats: accepted values', () => {
   // Number.MAX_VALUE, the largest finite double.
   // Number.MAX_VALUE。double の最大有限値。
   it('float64 accepts "1.7976931348623157e308"', async () => {
-    const res = await pathParamsApp.request('/float64/1.7976931348623157e308')
+    const res = await app.request('/float64/1.7976931348623157e308')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'number',
@@ -803,7 +801,7 @@ describe('floats: accepted values', () => {
   // The smallest finite double.
   // double の最小有限値。
   it('double accepts "-1.7976931348623157e308"', async () => {
-    const res = await pathParamsApp.request('/double/-1.7976931348623157e308')
+    const res = await app.request('/double/-1.7976931348623157e308')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'number',
@@ -820,7 +818,7 @@ describe('booleans: accepted spellings', () => {
   // The literal true.
   // リテラルの true。
   it('boolean accepts "true"', async () => {
-    const res = await pathParamsApp.request('/boolean/true')
+    const res = await app.request('/boolean/true')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'true' })
   })
@@ -828,7 +826,7 @@ describe('booleans: accepted spellings', () => {
   // The literal false; a naive Boolean("false") would have been true.
   // リテラルの false。素朴な Boolean("false") では true になってしまう。
   it('boolean accepts "false"', async () => {
-    const res = await pathParamsApp.request('/boolean/false')
+    const res = await app.request('/boolean/false')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'false' })
   })
@@ -836,7 +834,7 @@ describe('booleans: accepted spellings', () => {
   // Upper case is read the same.
   // 大文字でも同じように読み取られる。
   it('boolean accepts "TRUE"', async () => {
-    const res = await pathParamsApp.request('/boolean/TRUE')
+    const res = await app.request('/boolean/TRUE')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'true' })
   })
@@ -844,7 +842,7 @@ describe('booleans: accepted spellings', () => {
   // Mixed case is read the same.
   // 大文字小文字が混在していても同じように読み取られる。
   it('boolean accepts "False"', async () => {
-    const res = await pathParamsApp.request('/boolean/False')
+    const res = await app.request('/boolean/False')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'false' })
   })
@@ -852,7 +850,7 @@ describe('booleans: accepted spellings', () => {
   // The digit 1 means true.
   // 数字の 1 は true を意味する。
   it('boolean accepts "1"', async () => {
-    const res = await pathParamsApp.request('/boolean/1')
+    const res = await app.request('/boolean/1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'true' })
   })
@@ -860,7 +858,7 @@ describe('booleans: accepted spellings', () => {
   // The digit 0 means false.
   // 数字の 0 は false を意味する。
   it('boolean accepts "0"', async () => {
-    const res = await pathParamsApp.request('/boolean/0')
+    const res = await app.request('/boolean/0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'false' })
   })
@@ -868,7 +866,7 @@ describe('booleans: accepted spellings', () => {
   // "yes" means true.
   // "yes" は true を意味する。
   it('boolean accepts "yes"', async () => {
-    const res = await pathParamsApp.request('/boolean/yes')
+    const res = await app.request('/boolean/yes')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'true' })
   })
@@ -876,7 +874,7 @@ describe('booleans: accepted spellings', () => {
   // "no" means false.
   // "no" は false を意味する。
   it('boolean accepts "no"', async () => {
-    const res = await pathParamsApp.request('/boolean/no')
+    const res = await app.request('/boolean/no')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'false' })
   })
@@ -884,7 +882,7 @@ describe('booleans: accepted spellings', () => {
   // "on" means true.
   // "on" は true を意味する。
   it('boolean accepts "on"', async () => {
-    const res = await pathParamsApp.request('/boolean/on')
+    const res = await app.request('/boolean/on')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'true' })
   })
@@ -892,7 +890,7 @@ describe('booleans: accepted spellings', () => {
   // "off" means false.
   // "off" は false を意味する。
   it('boolean accepts "off"', async () => {
-    const res = await pathParamsApp.request('/boolean/off')
+    const res = await app.request('/boolean/off')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'false' })
   })
@@ -900,7 +898,7 @@ describe('booleans: accepted spellings', () => {
   // "y" means true.
   // "y" は true を意味する。
   it('boolean accepts "y"', async () => {
-    const res = await pathParamsApp.request('/boolean/y')
+    const res = await app.request('/boolean/y')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'true' })
   })
@@ -908,7 +906,7 @@ describe('booleans: accepted spellings', () => {
   // "n" means false.
   // "n" は false を意味する。
   it('boolean accepts "n"', async () => {
-    const res = await pathParamsApp.request('/boolean/n')
+    const res = await app.request('/boolean/n')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'false' })
   })
@@ -916,7 +914,7 @@ describe('booleans: accepted spellings', () => {
   // "enabled" means true.
   // "enabled" は true を意味する。
   it('boolean accepts "enabled"', async () => {
-    const res = await pathParamsApp.request('/boolean/enabled')
+    const res = await app.request('/boolean/enabled')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'true' })
   })
@@ -924,7 +922,7 @@ describe('booleans: accepted spellings', () => {
   // "disabled" means false.
   // "disabled" は false を意味する。
   it('boolean accepts "disabled"', async () => {
-    const res = await pathParamsApp.request('/boolean/disabled')
+    const res = await app.request('/boolean/disabled')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'false' })
   })
@@ -936,7 +934,7 @@ describe('formats: what each string format accepts', () => {
   // Upper case is valid, and is not lower-cased.
   // 大文字も有効であり、小文字化はされない。
   it('email accepts "USER@EXAMPLE.COM"', async () => {
-    const res = await pathParamsApp.request(`/email/${encodeURIComponent('USER@EXAMPLE.COM')}`)
+    const res = await app.request(`/email/${encodeURIComponent('USER@EXAMPLE.COM')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'USER@EXAMPLE.COM' })
   })
@@ -944,7 +942,7 @@ describe('formats: what each string format accepts', () => {
   // A plus tag in the local part.
   // ローカル部にプラス記号のタグを含む。
   it('email accepts "user+tag@example.com"', async () => {
-    const res = await pathParamsApp.request(`/email/${encodeURIComponent('user+tag@example.com')}`)
+    const res = await app.request(`/email/${encodeURIComponent('user+tag@example.com')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -955,9 +953,7 @@ describe('formats: what each string format accepts', () => {
   // Dots in the local part and a multi-level domain.
   // ローカル部のドットと、多階層のドメイン。
   it('email accepts "first.last@sub.example.co.jp"', async () => {
-    const res = await pathParamsApp.request(
-      `/email/${encodeURIComponent('first.last@sub.example.co.jp')}`,
-    )
+    const res = await app.request(`/email/${encodeURIComponent('first.last@sub.example.co.jp')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -968,7 +964,7 @@ describe('formats: what each string format accepts', () => {
   // Upper-case hexadecimal digits.
   // 大文字の16進数。
   it('uuid accepts "0190B1F4-0000-7000-8000-000000000000"', async () => {
-    const res = await pathParamsApp.request('/uuid/0190B1F4-0000-7000-8000-000000000000')
+    const res = await app.request('/uuid/0190B1F4-0000-7000-8000-000000000000')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -979,7 +975,7 @@ describe('formats: what each string format accepts', () => {
   // The nil UUID, which carries no version.
   // バージョンを持たない nil UUID。
   it('uuid accepts "00000000-0000-0000-0000-000000000000"', async () => {
-    const res = await pathParamsApp.request('/uuid/00000000-0000-0000-0000-000000000000')
+    const res = await app.request('/uuid/00000000-0000-0000-0000-000000000000')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -990,7 +986,7 @@ describe('formats: what each string format accepts', () => {
   // The max UUID, which carries no version.
   // バージョンを持たない max UUID。
   it('uuid accepts "ffffffff-ffff-ffff-ffff-ffffffffffff"', async () => {
-    const res = await pathParamsApp.request('/uuid/ffffffff-ffff-ffff-ffff-ffffffffffff')
+    const res = await app.request('/uuid/ffffffff-ffff-ffff-ffff-ffffffffffff')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -1001,7 +997,7 @@ describe('formats: what each string format accepts', () => {
   // A GUID checks the 8-4-4-4-12 layout only, not the version or variant.
   // GUID は 8-4-4-4-12 の形だけを検証し、バージョンやバリアントは見ない。
   it('guid accepts "a1b2c3d4-e5f6-9a7b-0c9d-0e1f2a3b4c5d"', async () => {
-    const res = await pathParamsApp.request('/guid/a1b2c3d4-e5f6-9a7b-0c9d-0e1f2a3b4c5d')
+    const res = await app.request('/guid/a1b2c3d4-e5f6-9a7b-0c9d-0e1f2a3b4c5d')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -1012,7 +1008,7 @@ describe('formats: what each string format accepts', () => {
   // format: url takes any scheme, not only http.
   // format: url は http に限らず任意のスキームを受理する。
   it('url accepts "ftp://example.com"', async () => {
-    const res = await pathParamsApp.request(`/url/${encodeURIComponent('ftp://example.com')}`)
+    const res = await app.request(`/url/${encodeURIComponent('ftp://example.com')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'ftp://example.com' })
   })
@@ -1020,7 +1016,7 @@ describe('formats: what each string format accepts', () => {
   // A scheme with no authority.
   // オーソリティ部のないスキーム。
   it('url accepts "mailto:a@b.c"', async () => {
-    const res = await pathParamsApp.request(`/url/${encodeURIComponent('mailto:a@b.c')}`)
+    const res = await app.request(`/url/${encodeURIComponent('mailto:a@b.c')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'mailto:a@b.c' })
   })
@@ -1028,9 +1024,7 @@ describe('formats: what each string format accepts', () => {
   // A port, a path, a query and a fragment.
   // ポート・パス・クエリ・フラグメントを含む。
   it('url accepts "http://localhost:3000/a?b=c#d"', async () => {
-    const res = await pathParamsApp.request(
-      `/url/${encodeURIComponent('http://localhost:3000/a?b=c#d')}`,
-    )
+    const res = await app.request(`/url/${encodeURIComponent('http://localhost:3000/a?b=c#d')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -1041,7 +1035,7 @@ describe('formats: what each string format accepts', () => {
   // A URN is a URI.
   // URN も URI である。
   it('uri accepts "urn:isbn:0451450523"', async () => {
-    const res = await pathParamsApp.request(`/uri/${encodeURIComponent('urn:isbn:0451450523')}`)
+    const res = await app.request(`/uri/${encodeURIComponent('urn:isbn:0451450523')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -1052,7 +1046,7 @@ describe('formats: what each string format accepts', () => {
   // Plain http.
   // 暗号化なしの http。
   it('httpurl accepts "http://example.com"', async () => {
-    const res = await pathParamsApp.request(`/httpurl/${encodeURIComponent('http://example.com')}`)
+    const res = await app.request(`/httpurl/${encodeURIComponent('http://example.com')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'http://example.com' })
   })
@@ -1060,9 +1054,7 @@ describe('formats: what each string format accepts', () => {
   // A path and a query.
   // パスとクエリを含む。
   it('httpurl accepts "https://example.com/a/b?c=d"', async () => {
-    const res = await pathParamsApp.request(
-      `/httpurl/${encodeURIComponent('https://example.com/a/b?c=d')}`,
-    )
+    const res = await app.request(`/httpurl/${encodeURIComponent('https://example.com/a/b?c=d')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -1073,7 +1065,7 @@ describe('formats: what each string format accepts', () => {
   // A single label.
   // 単一ラベルのホスト名。
   it('hostname accepts "localhost"', async () => {
-    const res = await pathParamsApp.request('/hostname/localhost')
+    const res = await app.request('/hostname/localhost')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'localhost' })
   })
@@ -1081,7 +1073,7 @@ describe('formats: what each string format accepts', () => {
   // One-character labels.
   // 1文字のラベル。
   it('hostname accepts "a.b.c"', async () => {
-    const res = await pathParamsApp.request('/hostname/a.b.c')
+    const res = await app.request('/hostname/a.b.c')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'a.b.c' })
   })
@@ -1089,7 +1081,7 @@ describe('formats: what each string format accepts', () => {
   // An internationalised name in punycode.
   // Punycode で表記した国際化ドメイン名。
   it('hostname accepts "xn--r8jz45g.jp"', async () => {
-    const res = await pathParamsApp.request('/hostname/xn--r8jz45g.jp')
+    const res = await app.request('/hostname/xn--r8jz45g.jp')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'xn--r8jz45g.jp' })
   })
@@ -1097,7 +1089,7 @@ describe('formats: what each string format accepts', () => {
   // Upper-case digits.
   // 大文字の16進数。
   it('hex accepts "DEADBEEF"', async () => {
-    const res = await pathParamsApp.request('/hex/DEADBEEF')
+    const res = await app.request('/hex/DEADBEEF')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'DEADBEEF' })
   })
@@ -1105,7 +1097,7 @@ describe('formats: what each string format accepts', () => {
   // An odd number of digits.
   // 桁数が奇数の16進数。
   it('hex accepts "abc"', async () => {
-    const res = await pathParamsApp.request('/hex/abc')
+    const res = await app.request('/hex/abc')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'abc' })
   })
@@ -1113,7 +1105,7 @@ describe('formats: what each string format accepts', () => {
   // More than one emoji.
   // 複数の絵文字。
   it('emoji accepts "🔥🔥"', async () => {
-    const res = await pathParamsApp.request(`/emoji/${encodeURIComponent('🔥🔥')}`)
+    const res = await app.request(`/emoji/${encodeURIComponent('🔥🔥')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '🔥🔥' })
   })
@@ -1121,7 +1113,7 @@ describe('formats: what each string format accepts', () => {
   // A ZWJ sequence: one glyph, several code points.
   // ZWJ シーケンス。見た目は1文字だが、複数のコードポイントで構成される。
   it('emoji accepts "👨‍👩‍👧"', async () => {
-    const res = await pathParamsApp.request(`/emoji/${encodeURIComponent('👨‍👩‍👧')}`)
+    const res = await app.request(`/emoji/${encodeURIComponent('👨‍👩‍👧')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '👨‍👩‍👧' })
   })
@@ -1129,7 +1121,7 @@ describe('formats: what each string format accepts', () => {
   // "+" and "/" are what set base64 apart from base64url.
   // "+" と "/" は base64 と base64url を分ける文字である。
   it('base64 accepts "a+b/"', async () => {
-    const res = await pathParamsApp.request(`/base64/${encodeURIComponent('a+b/')}`)
+    const res = await app.request(`/base64/${encodeURIComponent('a+b/')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'a+b/' })
   })
@@ -1137,7 +1129,7 @@ describe('formats: what each string format accepts', () => {
   // Two padding characters.
   // パディングが2文字。
   it('base64 accepts "YQ=="', async () => {
-    const res = await pathParamsApp.request(`/base64/${encodeURIComponent('YQ==')}`)
+    const res = await app.request(`/base64/${encodeURIComponent('YQ==')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'YQ==' })
   })
@@ -1145,7 +1137,7 @@ describe('formats: what each string format accepts', () => {
   // "-" and "_" are the base64url alphabet.
   // "-" と "_" は base64url の文字である。
   it('base64url accepts "a-b_"', async () => {
-    const res = await pathParamsApp.request('/base64url/a-b_')
+    const res = await app.request('/base64url/a-b_')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'a-b_' })
   })
@@ -1153,7 +1145,7 @@ describe('formats: what each string format accepts', () => {
   // format: byte does not validate: text that is not base64 passes.
   // format: byte は検証を行わない。Base64 でない文字列も通る。
   it('byte accepts "!!!not-base64!!!"', async () => {
-    const res = await pathParamsApp.request('/byte/!!!not-base64!!!')
+    const res = await app.request('/byte/!!!not-base64!!!')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '!!!not-base64!!!' })
   })
@@ -1161,7 +1153,7 @@ describe('formats: what each string format accepts', () => {
   // format: password does not validate: reserved characters pass.
   // format: password は検証を行わない。予約文字も通る。
   it('strpassword accepts "p@ss/w0rd?#"', async () => {
-    const res = await pathParamsApp.request(`/strpassword/${encodeURIComponent('p@ss/w0rd?#')}`)
+    const res = await app.request(`/strpassword/${encodeURIComponent('p@ss/w0rd?#')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'p@ss/w0rd?#' })
   })
@@ -1169,7 +1161,7 @@ describe('formats: what each string format accepts', () => {
   // A ULID is case-insensitive.
   // ULID は大文字小文字を区別しない。
   it('ulid accepts "01arz3ndektsv4rrffq69g5fav"', async () => {
-    const res = await pathParamsApp.request('/ulid/01arz3ndektsv4rrffq69g5fav')
+    const res = await app.request('/ulid/01arz3ndektsv4rrffq69g5fav')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -1180,7 +1172,7 @@ describe('formats: what each string format accepts', () => {
   // Upper case is accepted.
   // 大文字も受理される。
   it('xid accepts "9M4E2MR0UI3E8A215N4G"', async () => {
-    const res = await pathParamsApp.request('/xid/9M4E2MR0UI3E8A215N4G')
+    const res = await app.request('/xid/9M4E2MR0UI3E8A215N4G')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -1191,7 +1183,7 @@ describe('formats: what each string format accepts', () => {
   // The lowest address.
   // 最小のアドレス。
   it('ipv4 accepts "0.0.0.0"', async () => {
-    const res = await pathParamsApp.request('/ipv4/0.0.0.0')
+    const res = await app.request('/ipv4/0.0.0.0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '0.0.0.0' })
   })
@@ -1199,7 +1191,7 @@ describe('formats: what each string format accepts', () => {
   // The highest address.
   // 最大のアドレス。
   it('ipv4 accepts "255.255.255.255"', async () => {
-    const res = await pathParamsApp.request('/ipv4/255.255.255.255')
+    const res = await app.request('/ipv4/255.255.255.255')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '255.255.255.255' })
   })
@@ -1207,7 +1199,7 @@ describe('formats: what each string format accepts', () => {
   // The unspecified address.
   // 未指定アドレス。
   it('ipv6 accepts "::"', async () => {
-    const res = await pathParamsApp.request(`/ipv6/${encodeURIComponent('::')}`)
+    const res = await app.request(`/ipv6/${encodeURIComponent('::')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '::' })
   })
@@ -1215,7 +1207,7 @@ describe('formats: what each string format accepts', () => {
   // The loopback address.
   // ループバックアドレス。
   it('ipv6 accepts "::1"', async () => {
-    const res = await pathParamsApp.request(`/ipv6/${encodeURIComponent('::1')}`)
+    const res = await app.request(`/ipv6/${encodeURIComponent('::1')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '::1' })
   })
@@ -1223,7 +1215,7 @@ describe('formats: what each string format accepts', () => {
   // The full form, nothing compressed.
   // 省略のない完全表記。
   it('ipv6 accepts "2001:0db8:0000:0000:0000:0000:0000:0001"', async () => {
-    const res = await pathParamsApp.request(
+    const res = await app.request(
       `/ipv6/${encodeURIComponent('2001:0db8:0000:0000:0000:0000:0000:0001')}`,
     )
     expect(res.status).toBe(200)
@@ -1236,7 +1228,7 @@ describe('formats: what each string format accepts', () => {
   // An IPv4-mapped address.
   // IPv4 射影アドレス。
   it('ipv6 accepts "::ffff:192.168.0.1"', async () => {
-    const res = await pathParamsApp.request(`/ipv6/${encodeURIComponent('::ffff:192.168.0.1')}`)
+    const res = await app.request(`/ipv6/${encodeURIComponent('::ffff:192.168.0.1')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '::ffff:192.168.0.1' })
   })
@@ -1244,7 +1236,7 @@ describe('formats: what each string format accepts', () => {
   // The shortest prefix, /0.
   // 最短のプレフィックス /0。
   it('cidrv4 accepts "0.0.0.0/0"', async () => {
-    const res = await pathParamsApp.request(`/cidrv4/${encodeURIComponent('0.0.0.0/0')}`)
+    const res = await app.request(`/cidrv4/${encodeURIComponent('0.0.0.0/0')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '0.0.0.0/0' })
   })
@@ -1252,7 +1244,7 @@ describe('formats: what each string format accepts', () => {
   // The longest prefix, /32.
   // 最長のプレフィックス /32。
   it('cidrv4 accepts "10.0.0.1/32"', async () => {
-    const res = await pathParamsApp.request(`/cidrv4/${encodeURIComponent('10.0.0.1/32')}`)
+    const res = await app.request(`/cidrv4/${encodeURIComponent('10.0.0.1/32')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '10.0.0.1/32' })
   })
@@ -1260,7 +1252,7 @@ describe('formats: what each string format accepts', () => {
   // The shortest prefix, /0.
   // 最短のプレフィックス /0。
   it('cidrv6 accepts "::/0"', async () => {
-    const res = await pathParamsApp.request(`/cidrv6/${encodeURIComponent('::/0')}`)
+    const res = await app.request(`/cidrv6/${encodeURIComponent('::/0')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '::/0' })
   })
@@ -1268,7 +1260,7 @@ describe('formats: what each string format accepts', () => {
   // The longest prefix, /128.
   // 最長のプレフィックス /128。
   it('cidrv6 accepts "2001:db8::/128"', async () => {
-    const res = await pathParamsApp.request(`/cidrv6/${encodeURIComponent('2001:db8::/128')}`)
+    const res = await app.request(`/cidrv6/${encodeURIComponent('2001:db8::/128')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '2001:db8::/128' })
   })
@@ -1276,7 +1268,7 @@ describe('formats: what each string format accepts', () => {
   // 29 February of a leap year.
   // うるう年の 2月29日。
   it('date accepts "2020-02-29"', async () => {
-    const res = await pathParamsApp.request('/date/2020-02-29')
+    const res = await app.request('/date/2020-02-29')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '2020-02-29' })
   })
@@ -1284,7 +1276,7 @@ describe('formats: what each string format accepts', () => {
   // Year zero.
   // 西暦 0 年。
   it('date accepts "0000-01-01"', async () => {
-    const res = await pathParamsApp.request('/date/0000-01-01')
+    const res = await app.request('/date/0000-01-01')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '0000-01-01' })
   })
@@ -1292,7 +1284,7 @@ describe('formats: what each string format accepts', () => {
   // The last four-digit date.
   // 4桁の年で表せる最後の日付。
   it('date accepts "9999-12-31"', async () => {
-    const res = await pathParamsApp.request('/date/9999-12-31')
+    const res = await app.request('/date/9999-12-31')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '9999-12-31' })
   })
@@ -1300,7 +1292,7 @@ describe('formats: what each string format accepts', () => {
   // Midnight.
   // 午前 0 時。
   it('time accepts "00:00:00"', async () => {
-    const res = await pathParamsApp.request(`/time/${encodeURIComponent('00:00:00')}`)
+    const res = await app.request(`/time/${encodeURIComponent('00:00:00')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '00:00:00' })
   })
@@ -1308,7 +1300,7 @@ describe('formats: what each string format accepts', () => {
   // The last second of the day.
   // 1日の最後の秒。
   it('time accepts "23:59:59"', async () => {
-    const res = await pathParamsApp.request(`/time/${encodeURIComponent('23:59:59')}`)
+    const res = await app.request(`/time/${encodeURIComponent('23:59:59')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '23:59:59' })
   })
@@ -1316,7 +1308,7 @@ describe('formats: what each string format accepts', () => {
   // Seconds may be left out.
   // 秒は省略できる。
   it('time accepts "12:34"', async () => {
-    const res = await pathParamsApp.request(`/time/${encodeURIComponent('12:34')}`)
+    const res = await app.request(`/time/${encodeURIComponent('12:34')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '12:34' })
   })
@@ -1324,7 +1316,7 @@ describe('formats: what each string format accepts', () => {
   // Fractional seconds.
   // 小数秒。
   it('time accepts "12:34:56.789"', async () => {
-    const res = await pathParamsApp.request(`/time/${encodeURIComponent('12:34:56.789')}`)
+    const res = await app.request(`/time/${encodeURIComponent('12:34:56.789')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '12:34:56.789' })
   })
@@ -1332,7 +1324,7 @@ describe('formats: what each string format accepts', () => {
   // A zone designator: `time` names an RFC 3339 full-time, which ends in one.
   // タイムゾーン指定子が付いている。`time` が指す RFC 3339 の full-time は、これで終わる。
   it('time accepts "12:34:56Z"', async () => {
-    const res = await pathParamsApp.request(`/time/${encodeURIComponent('12:34:56Z')}`)
+    const res = await app.request(`/time/${encodeURIComponent('12:34:56Z')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '12:34:56Z' })
   })
@@ -1340,7 +1332,7 @@ describe('formats: what each string format accepts', () => {
   // An offset in place of the zone designator.
   // タイムゾーン指定子の代わりにオフセットが付いている。
   it('time accepts "12:34:56+09:00"', async () => {
-    const res = await pathParamsApp.request(`/time/${encodeURIComponent('12:34:56+09:00')}`)
+    const res = await app.request(`/time/${encodeURIComponent('12:34:56+09:00')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '12:34:56+09:00' })
   })
@@ -1348,9 +1340,7 @@ describe('formats: what each string format accepts', () => {
   // Fractional seconds.
   // 小数秒。
   it('datetime accepts "2020-01-02T03:04:05.123Z"', async () => {
-    const res = await pathParamsApp.request(
-      `/datetime/${encodeURIComponent('2020-01-02T03:04:05.123Z')}`,
-    )
+    const res = await app.request(`/datetime/${encodeURIComponent('2020-01-02T03:04:05.123Z')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -1361,9 +1351,7 @@ describe('formats: what each string format accepts', () => {
   // An offset instead of Z: RFC 3339, which `date-time` names, takes either.
   // Z ではなくオフセット。`date-time` が指す RFC 3339 はどちらも認める。
   it('datetime accepts "2020-01-02T03:04:05+09:00"', async () => {
-    const res = await pathParamsApp.request(
-      `/datetime/${encodeURIComponent('2020-01-02T03:04:05+09:00')}`,
-    )
+    const res = await app.request(`/datetime/${encodeURIComponent('2020-01-02T03:04:05+09:00')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -1374,9 +1362,7 @@ describe('formats: what each string format accepts', () => {
   // The last second of a leap day.
   // うるう日の最後の秒。
   it('datetime accepts "2020-02-29T23:59:59Z"', async () => {
-    const res = await pathParamsApp.request(
-      `/datetime/${encodeURIComponent('2020-02-29T23:59:59Z')}`,
-    )
+    const res = await app.request(`/datetime/${encodeURIComponent('2020-02-29T23:59:59Z')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -1387,7 +1373,7 @@ describe('formats: what each string format accepts', () => {
   // A date component alone.
   // 日付要素のみ。
   it('duration accepts "P1Y"', async () => {
-    const res = await pathParamsApp.request('/duration/P1Y')
+    const res = await app.request('/duration/P1Y')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'P1Y' })
   })
@@ -1395,7 +1381,7 @@ describe('formats: what each string format accepts', () => {
   // A time component alone.
   // 時刻要素のみ。
   it('duration accepts "PT1S"', async () => {
-    const res = await pathParamsApp.request('/duration/PT1S')
+    const res = await app.request('/duration/PT1S')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'PT1S' })
   })
@@ -1403,7 +1389,7 @@ describe('formats: what each string format accepts', () => {
   // Weeks.
   // 週。
   it('duration accepts "P1W"', async () => {
-    const res = await pathParamsApp.request('/duration/P1W')
+    const res = await app.request('/duration/P1W')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'P1W' })
   })
@@ -1411,7 +1397,7 @@ describe('formats: what each string format accepts', () => {
   // Fractional seconds.
   // 小数秒。
   it('duration accepts "PT0.5S"', async () => {
-    const res = await pathParamsApp.request('/duration/PT0.5S')
+    const res = await app.request('/duration/PT0.5S')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'PT0.5S' })
   })
@@ -1419,7 +1405,7 @@ describe('formats: what each string format accepts', () => {
   // Upper-case digits.
   // 大文字の16進数。
   it('mac accepts "00:1A:2B:3C:4D:5E"', async () => {
-    const res = await pathParamsApp.request(`/mac/${encodeURIComponent('00:1A:2B:3C:4D:5E')}`)
+    const res = await app.request(`/mac/${encodeURIComponent('00:1A:2B:3C:4D:5E')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '00:1A:2B:3C:4D:5E' })
   })
@@ -1427,7 +1413,7 @@ describe('formats: what each string format accepts', () => {
   // Hyphens between groups; the Luhn check runs on the digits.
   // グループ間のハイフン。Luhn チェックは数字部分に対して行われる。
   it('creditcard accepts "4111-1111-1111-1111"', async () => {
-    const res = await pathParamsApp.request('/creditcard/4111-1111-1111-1111')
+    const res = await app.request('/creditcard/4111-1111-1111-1111')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -1438,9 +1424,7 @@ describe('formats: what each string format accepts', () => {
   // Spaces between groups.
   // グループ間の空白。
   it('creditcard accepts "4111 1111 1111 1111"', async () => {
-    const res = await pathParamsApp.request(
-      `/creditcard/${encodeURIComponent('4111 1111 1111 1111')}`,
-    )
+    const res = await app.request(`/creditcard/${encodeURIComponent('4111 1111 1111 1111')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -1451,7 +1435,7 @@ describe('formats: what each string format accepts', () => {
   // A 15-digit number.
   // 15桁のカード番号。
   it('creditcard accepts "378282246310005"', async () => {
-    const res = await pathParamsApp.request('/creditcard/378282246310005')
+    const res = await app.request('/creditcard/378282246310005')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '378282246310005' })
   })
@@ -1459,7 +1443,7 @@ describe('formats: what each string format accepts', () => {
   // Letters in the account part.
   // 口座部分に英字を含む。
   it('iban accepts "GB82WEST12345698765432"', async () => {
-    const res = await pathParamsApp.request('/iban/GB82WEST12345698765432')
+    const res = await app.request('/iban/GB82WEST12345698765432')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -1470,7 +1454,7 @@ describe('formats: what each string format accepts', () => {
   // Another ISO 4217 code.
   // 別の ISO 4217 コード。
   it('currencycode accepts "JPY"', async () => {
-    const res = await pathParamsApp.request('/currencycode/JPY')
+    const res = await app.request('/currencycode/JPY')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'JPY' })
   })
@@ -1478,7 +1462,7 @@ describe('formats: what each string format accepts', () => {
   // ISO 4217 reserves XXX for "no currency".
   // ISO 4217 は XXX を「通貨なし」として予約している。
   it('currencycode accepts "XXX"', async () => {
-    const res = await pathParamsApp.request('/currencycode/XXX')
+    const res = await app.request('/currencycode/XXX')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'XXX' })
   })
@@ -1491,7 +1475,7 @@ describe('transforms: x-* extensions and format: trim', () => {
   // x-toLowerCase lower-cases the value.
   // x-toLowerCase は値を小文字化する。
   it('txlower accepts "MiXeD"', async () => {
-    const res = await pathParamsApp.request('/txlower/MiXeD')
+    const res = await app.request('/txlower/MiXeD')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'mixed' })
   })
@@ -1499,7 +1483,7 @@ describe('transforms: x-* extensions and format: trim', () => {
   // Lower-casing is not limited to ASCII.
   // 小文字化は ASCII に限られない。
   it('txlower accepts "ÀB"', async () => {
-    const res = await pathParamsApp.request(`/txlower/${encodeURIComponent('ÀB')}`)
+    const res = await app.request(`/txlower/${encodeURIComponent('ÀB')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'àb' })
   })
@@ -1507,7 +1491,7 @@ describe('transforms: x-* extensions and format: trim', () => {
   // A transform is not a validator: lower-casing leaves the spaces where they were.
   // 変換はバリデータではない。小文字化しても空白はそのまま残る。
   it('txlower accepts " A "', async () => {
-    const res = await pathParamsApp.request(`/txlower/${encodeURIComponent(' A ')}`)
+    const res = await app.request(`/txlower/${encodeURIComponent(' A ')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: ' a ' })
   })
@@ -1515,7 +1499,7 @@ describe('transforms: x-* extensions and format: trim', () => {
   // Digits have no case and pass unchanged.
   // 数字には大文字小文字がなく、そのまま通る。
   it('txlower accepts "123"', async () => {
-    const res = await pathParamsApp.request('/txlower/123')
+    const res = await app.request('/txlower/123')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '123' })
   })
@@ -1523,7 +1507,7 @@ describe('transforms: x-* extensions and format: trim', () => {
   // x-toUpperCase upper-cases the value.
   // x-toUpperCase は値を大文字化する。
   it('txupper accepts "MiXeD"', async () => {
-    const res = await pathParamsApp.request('/txupper/MiXeD')
+    const res = await app.request('/txupper/MiXeD')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'MIXED' })
   })
@@ -1531,7 +1515,7 @@ describe('transforms: x-* extensions and format: trim', () => {
   // Upper-casing can change the length: ß becomes SS.
   // 大文字化で長さが変わることがある(ß → SS)。
   it('txupper accepts "straße"', async () => {
-    const res = await pathParamsApp.request(`/txupper/${encodeURIComponent('straße')}`)
+    const res = await app.request(`/txupper/${encodeURIComponent('straße')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'STRASSE' })
   })
@@ -1539,7 +1523,7 @@ describe('transforms: x-* extensions and format: trim', () => {
   // x-normalize: NFKC folds half-width kana to full width.
   // x-normalize: NFKC は半角カナを全角に正規化する。
   it('txnormalize accepts "ﾊﾝｶｸ"', async () => {
-    const res = await pathParamsApp.request(`/txnormalize/${encodeURIComponent('ﾊﾝｶｸ')}`)
+    const res = await app.request(`/txnormalize/${encodeURIComponent('ﾊﾝｶｸ')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'ハンカク' })
   })
@@ -1547,7 +1531,7 @@ describe('transforms: x-* extensions and format: trim', () => {
   // NFKC folds a full-width Latin letter to ASCII.
   // NFKC は全角英字を ASCII に正規化する。
   it('txnormalize accepts "Ａ"', async () => {
-    const res = await pathParamsApp.request(`/txnormalize/${encodeURIComponent('Ａ')}`)
+    const res = await app.request(`/txnormalize/${encodeURIComponent('Ａ')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'A' })
   })
@@ -1555,7 +1539,7 @@ describe('transforms: x-* extensions and format: trim', () => {
   // NFKC composes a letter and its combining accent into one code point.
   // NFKC は文字と結合アクセントを1つのコードポイントに合成する。
   it('txnormalize accepts "e\\u0301"', async () => {
-    const res = await pathParamsApp.request(`/txnormalize/${encodeURIComponent('e\u0301')}`)
+    const res = await app.request(`/txnormalize/${encodeURIComponent('e\u0301')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '\u00E9' })
   })
@@ -1563,7 +1547,7 @@ describe('transforms: x-* extensions and format: trim', () => {
   // NFKC expands a ligature.
   // NFKC は合字を展開する。
   it('txnormalize accepts "㍻"', async () => {
-    const res = await pathParamsApp.request(`/txnormalize/${encodeURIComponent('㍻')}`)
+    const res = await app.request(`/txnormalize/${encodeURIComponent('㍻')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '平成' })
   })
@@ -1571,7 +1555,7 @@ describe('transforms: x-* extensions and format: trim', () => {
   // NFKC folds a circled digit to a digit.
   // NFKC は丸数字を数字に正規化する。
   it('txnormalize accepts "①"', async () => {
-    const res = await pathParamsApp.request(`/txnormalize/${encodeURIComponent('①')}`)
+    const res = await app.request(`/txnormalize/${encodeURIComponent('①')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '1' })
   })
@@ -1579,7 +1563,7 @@ describe('transforms: x-* extensions and format: trim', () => {
   // A transform paired with a format: the value is lower-cased, then checked as an email.
   // 変換とフォーマットの組み合わせ。小文字化した後、メールアドレスとして検証される。
   it('txemail accepts "USER@EXAMPLE.COM"', async () => {
-    const res = await pathParamsApp.request(`/txemail/${encodeURIComponent('USER@EXAMPLE.COM')}`)
+    const res = await app.request(`/txemail/${encodeURIComponent('USER@EXAMPLE.COM')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'user@example.com' })
   })
@@ -1587,7 +1571,7 @@ describe('transforms: x-* extensions and format: trim', () => {
   // format: trim removes the spaces around the value.
   // format: trim は値の前後の空白を取り除く。
   it('trim accepts " spaced "', async () => {
-    const res = await pathParamsApp.request(`/trim/${encodeURIComponent(' spaced ')}`)
+    const res = await app.request(`/trim/${encodeURIComponent(' spaced ')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'spaced' })
   })
@@ -1595,7 +1579,7 @@ describe('transforms: x-* extensions and format: trim', () => {
   // A tab and a line feed are whitespace too.
   // タブと改行も空白として扱われる。
   it('trim accepts "\\tspaced\\n"', async () => {
-    const res = await pathParamsApp.request(`/trim/${encodeURIComponent('\tspaced\n')}`)
+    const res = await app.request(`/trim/${encodeURIComponent('\tspaced\n')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'spaced' })
   })
@@ -1603,7 +1587,7 @@ describe('transforms: x-* extensions and format: trim', () => {
   // U+3000, the ideographic space, is whitespace too.
   // 全角スペース(U+3000)も空白として扱われる。
   it('trim accepts "\\u3000全角\\u3000"', async () => {
-    const res = await pathParamsApp.request(`/trim/${encodeURIComponent('\u3000全角\u3000')}`)
+    const res = await app.request(`/trim/${encodeURIComponent('\u3000全角\u3000')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '全角' })
   })
@@ -1611,7 +1595,7 @@ describe('transforms: x-* extensions and format: trim', () => {
   // Only the ends are trimmed; the space inside stays.
   // トリムされるのは両端だけで、内側の空白は残る。
   it('trim accepts " a b "', async () => {
-    const res = await pathParamsApp.request(`/trim/${encodeURIComponent(' a b ')}`)
+    const res = await app.request(`/trim/${encodeURIComponent(' a b ')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'a b' })
   })
@@ -1625,7 +1609,7 @@ describe('literals: enum and const', () => {
   // type: [integer, null] accepts an integer.
   // type: [integer, null] は integer を受理する。
   it('inull accepts "3"', async () => {
-    const res = await pathParamsApp.request('/inull/3')
+    const res = await app.request('/inull/3')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '3' })
   })
@@ -1635,7 +1619,7 @@ describe('literals: enum and const', () => {
   // テキスト "null" は値 null である。スキーマは null を受理し文字列を受理しないため、
   // このセグメントに他の意味はない。
   it('inull accepts "null"', async () => {
-    const res = await pathParamsApp.request('/inull/null')
+    const res = await app.request('/inull/null')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'null', valueText: 'null' })
   })
@@ -1643,7 +1627,7 @@ describe('literals: enum and const', () => {
   // The first member of enum: [1, 2].
   // enum: [1, 2] の最初のメンバー。
   it('ienum accepts "1"', async () => {
-    const res = await pathParamsApp.request('/ienum/1')
+    const res = await app.request('/ienum/1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
   })
@@ -1651,7 +1635,7 @@ describe('literals: enum and const', () => {
   // The last member of enum: [1, 2].
   // enum: [1, 2] の最後のメンバー。
   it('ienum accepts "2"', async () => {
-    const res = await pathParamsApp.request('/ienum/2')
+    const res = await app.request('/ienum/2')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '2' })
   })
@@ -1659,7 +1643,7 @@ describe('literals: enum and const', () => {
   // A member of the number enum [0.5, 2.5].
   // number の enum [0.5, 2.5] のメンバー。
   it('nenum accepts "0.5"', async () => {
-    const res = await pathParamsApp.request('/nenum/0.5')
+    const res = await app.request('/nenum/0.5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0.5' })
   })
@@ -1667,7 +1651,7 @@ describe('literals: enum and const', () => {
   // The other member of the number enum.
   // number の enum のもう一方のメンバー。
   it('nenum accepts "2.5"', async () => {
-    const res = await pathParamsApp.request('/nenum/2.5')
+    const res = await app.request('/nenum/2.5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '2.5' })
   })
@@ -1675,7 +1659,7 @@ describe('literals: enum and const', () => {
   // The only member of the boolean enum [true].
   // boolean の enum [true] の唯一のメンバー。
   it('benum accepts "true"', async () => {
-    const res = await pathParamsApp.request('/benum/true')
+    const res = await app.request('/benum/true')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'true' })
   })
@@ -1683,7 +1667,7 @@ describe('literals: enum and const', () => {
   // The constant of const: 7.
   // const: 7 の定数値。
   it('iconst accepts "7"', async () => {
-    const res = await pathParamsApp.request('/iconst/7')
+    const res = await app.request('/iconst/7')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '7' })
   })
@@ -1691,7 +1675,7 @@ describe('literals: enum and const', () => {
   // A member of the string enum [asc, desc].
   // string の enum [asc, desc] のメンバー。
   it('senum accepts "asc"', async () => {
-    const res = await pathParamsApp.request('/senum/asc')
+    const res = await app.request('/senum/asc')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'asc' })
   })
@@ -1699,7 +1683,7 @@ describe('literals: enum and const', () => {
   // The other member of the string enum.
   // string の enum のもう一方のメンバー。
   it('senum accepts "desc"', async () => {
-    const res = await pathParamsApp.request('/senum/desc')
+    const res = await app.request('/senum/desc')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'desc' })
   })
@@ -1707,7 +1691,7 @@ describe('literals: enum and const', () => {
   // The constant of const: fixed.
   // const: fixed の定数値。
   it('sconst accepts "fixed"', async () => {
-    const res = await pathParamsApp.request('/sconst/fixed')
+    const res = await app.request('/sconst/fixed')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'fixed' })
   })
@@ -1715,7 +1699,7 @@ describe('literals: enum and const', () => {
   // A member of a string enum that looks like a number stays text.
   // 数値に見える string enum のメンバーは、文字列のまま届く。
   it('numericsenum accepts "1"', async () => {
-    const res = await pathParamsApp.request('/numericsenum/1')
+    const res = await app.request('/numericsenum/1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '1' })
   })
@@ -1723,7 +1707,7 @@ describe('literals: enum and const', () => {
   // The leading zero is part of the text and is kept.
   // 先頭のゼロは文字列の一部であり、保持される。
   it('numericsenum accepts "02"', async () => {
-    const res = await pathParamsApp.request('/numericsenum/02')
+    const res = await app.request('/numericsenum/02')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '02' })
   })
@@ -1731,7 +1715,7 @@ describe('literals: enum and const', () => {
   // A member that looks like a boolean stays text.
   // 真偽値に見えるメンバーも、文字列のまま届く。
   it('numericsenum accepts "true"', async () => {
-    const res = await pathParamsApp.request('/numericsenum/true')
+    const res = await app.request('/numericsenum/true')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'true' })
   })
@@ -1744,7 +1728,7 @@ describe('constraints: numeric and string', () => {
   // The minimum of minimum: 1, maximum: 10 is inclusive.
   // minimum: 1, maximum: 10 の最小値は範囲に含まれる。
   it('range accepts "1"', async () => {
-    const res = await pathParamsApp.request('/range/1')
+    const res = await app.request('/range/1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
   })
@@ -1752,7 +1736,7 @@ describe('constraints: numeric and string', () => {
   // Inside the range. Compared as text, "9" would sort after "10" and be refused.
   // 範囲内の値。文字列として比較すると "9" は "10" より後に並び、拒否されてしまう。
   it('range accepts "9"', async () => {
-    const res = await pathParamsApp.request('/range/9')
+    const res = await app.request('/range/9')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '9' })
   })
@@ -1760,7 +1744,7 @@ describe('constraints: numeric and string', () => {
   // The maximum is inclusive.
   // 最大値は範囲に含まれる。
   it('range accepts "10"', async () => {
-    const res = await pathParamsApp.request('/range/10')
+    const res = await app.request('/range/10')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '10' })
   })
@@ -1768,7 +1752,7 @@ describe('constraints: numeric and string', () => {
   // Just above exclusiveMinimum: 0.
   // exclusiveMinimum: 0 をわずかに超える値。
   it('exclusive accepts "0.0001"', async () => {
-    const res = await pathParamsApp.request('/exclusive/0.0001')
+    const res = await app.request('/exclusive/0.0001')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0.0001' })
   })
@@ -1776,7 +1760,7 @@ describe('constraints: numeric and string', () => {
   // Inside the range.
   // 範囲内の値。
   it('exclusive accepts "0.5"', async () => {
-    const res = await pathParamsApp.request('/exclusive/0.5')
+    const res = await app.request('/exclusive/0.5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0.5' })
   })
@@ -1784,7 +1768,7 @@ describe('constraints: numeric and string', () => {
   // Just below exclusiveMaximum: 1.
   // exclusiveMaximum: 1 をわずかに下回る値。
   it('exclusive accepts "0.9999"', async () => {
-    const res = await pathParamsApp.request('/exclusive/0.9999')
+    const res = await app.request('/exclusive/0.9999')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0.9999' })
   })
@@ -1792,7 +1776,7 @@ describe('constraints: numeric and string', () => {
   // A very small value in exponent notation is still above zero.
   // 指数表記のごく小さな値も、0 より大きい。
   it('exclusive accepts "1e-10"', async () => {
-    const res = await pathParamsApp.request('/exclusive/1e-10')
+    const res = await app.request('/exclusive/1e-10')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1e-10' })
   })
@@ -1800,7 +1784,7 @@ describe('constraints: numeric and string', () => {
   // Zero is a multiple of every number.
   // 0 はあらゆる数の倍数である。
   it('multiple accepts "0"', async () => {
-    const res = await pathParamsApp.request('/multiple/0')
+    const res = await app.request('/multiple/0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0' })
   })
@@ -1808,7 +1792,7 @@ describe('constraints: numeric and string', () => {
   // The step of multipleOf: 5 itself.
   // multipleOf: 5 のステップそのもの。
   it('multiple accepts "5"', async () => {
-    const res = await pathParamsApp.request('/multiple/5')
+    const res = await app.request('/multiple/5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '5' })
   })
@@ -1816,7 +1800,7 @@ describe('constraints: numeric and string', () => {
   // A negative multiple.
   // 負の倍数。
   it('multiple accepts "-5"', async () => {
-    const res = await pathParamsApp.request('/multiple/-5')
+    const res = await app.request('/multiple/-5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '-5' })
   })
@@ -1824,7 +1808,7 @@ describe('constraints: numeric and string', () => {
   // Twice the step.
   // ステップの2倍。
   it('multiple accepts "10"', async () => {
-    const res = await pathParamsApp.request('/multiple/10')
+    const res = await app.request('/multiple/10')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '10' })
   })
@@ -1832,7 +1816,7 @@ describe('constraints: numeric and string', () => {
   // The minimum of an int64 range; the bound is emitted as the bigint literal 1n.
   // int64 の範囲の最小値。境界値は bigint リテラル 1n として生成される。
   it('int64range accepts "1"', async () => {
-    const res = await pathParamsApp.request('/int64range/1')
+    const res = await app.request('/int64range/1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'bigint', valueText: '1' })
   })
@@ -1840,7 +1824,7 @@ describe('constraints: numeric and string', () => {
   // The maximum of an int64 range, emitted as 100n.
   // int64 の範囲の最大値。100n として生成される。
   it('int64range accepts "100"', async () => {
-    const res = await pathParamsApp.request('/int64range/100')
+    const res = await app.request('/int64range/100')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'bigint', valueText: '100' })
   })
@@ -1848,7 +1832,7 @@ describe('constraints: numeric and string', () => {
   // Exactly minLength: 2.
   // ちょうど minLength: 2 の長さ。
   it('length accepts "ab"', async () => {
-    const res = await pathParamsApp.request('/length/ab')
+    const res = await app.request('/length/ab')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'ab' })
   })
@@ -1856,7 +1840,7 @@ describe('constraints: numeric and string', () => {
   // Exactly maxLength: 4.
   // ちょうど maxLength: 4 の長さ。
   it('length accepts "abcd"', async () => {
-    const res = await pathParamsApp.request('/length/abcd')
+    const res = await app.request('/length/abcd')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'abcd' })
   })
@@ -1864,7 +1848,7 @@ describe('constraints: numeric and string', () => {
   // Two characters, though six bytes in UTF-8: length counts characters.
   // 2文字(UTF-8 では 6 バイト)。長さは文字数で数える。
   it('length accepts "あい"', async () => {
-    const res = await pathParamsApp.request(`/length/${encodeURIComponent('あい')}`)
+    const res = await app.request(`/length/${encodeURIComponent('あい')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'あい' })
   })
@@ -1872,7 +1856,7 @@ describe('constraints: numeric and string', () => {
   // Whitespace counts: nothing trims unless the schema says so.
   // 空白も長さに数える。スキーマが指定しない限りトリムは行われない。
   it('length accepts "  "', async () => {
-    const res = await pathParamsApp.request(`/length/${encodeURIComponent('  ')}`)
+    const res = await app.request(`/length/${encodeURIComponent('  ')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '  ' })
   })
@@ -1880,7 +1864,7 @@ describe('constraints: numeric and string', () => {
   // Two emoji are two characters, though four UTF-16 code units.
   // 絵文字2つは2文字である(UTF-16 では 4 コードユニット)。
   it('length accepts "🔥🔥"', async () => {
-    const res = await pathParamsApp.request(`/length/${encodeURIComponent('🔥🔥')}`)
+    const res = await app.request(`/length/${encodeURIComponent('🔥🔥')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '🔥🔥' })
   })
@@ -1888,7 +1872,7 @@ describe('constraints: numeric and string', () => {
   // Four emoji are four characters, within maxLength: 4.
   // 絵文字4つは4文字であり、maxLength: 4 に収まる。
   it('length accepts "🔥🔥🔥🔥"', async () => {
-    const res = await pathParamsApp.request(`/length/${encodeURIComponent('🔥🔥🔥🔥')}`)
+    const res = await app.request(`/length/${encodeURIComponent('🔥🔥🔥🔥')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '🔥🔥🔥🔥' })
   })
@@ -1896,7 +1880,7 @@ describe('constraints: numeric and string', () => {
   // Matches ^[a-z]+-\d{1,3}$ with one digit.
   // ^[a-z]+-\d{1,3}$ に数字1桁で一致する。
   it('pattern accepts "abc-1"', async () => {
-    const res = await pathParamsApp.request('/pattern/abc-1')
+    const res = await app.request('/pattern/abc-1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'abc-1' })
   })
@@ -1904,7 +1888,7 @@ describe('constraints: numeric and string', () => {
   // Matches with three digits, the most allowed.
   // 許容される最大の数字3桁で一致する。
   it('pattern accepts "abc-123"', async () => {
-    const res = await pathParamsApp.request('/pattern/abc-123')
+    const res = await app.request('/pattern/abc-123')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'abc-123' })
   })
@@ -1912,7 +1896,7 @@ describe('constraints: numeric and string', () => {
   // The shortest match.
   // 最短の一致。
   it('pattern accepts "z-0"', async () => {
-    const res = await pathParamsApp.request('/pattern/z-0')
+    const res = await app.request('/pattern/z-0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'z-0' })
   })
@@ -1926,7 +1910,7 @@ describe('combinators: oneOf and allOf', () => {
   // Matches the integer branch and arrives as a number.
   // integer 側に一致し、number として届く。
   it('oneof accepts "1"', async () => {
-    const res = await pathParamsApp.request('/oneof/1')
+    const res = await app.request('/oneof/1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
   })
@@ -1934,7 +1918,7 @@ describe('combinators: oneOf and allOf', () => {
   // A negative integer matches the integer branch.
   // 負の整数も integer 側に一致する。
   it('oneof accepts "-3"', async () => {
-    const res = await pathParamsApp.request('/oneof/-3')
+    const res = await app.request('/oneof/-3')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '-3' })
   })
@@ -1942,7 +1926,7 @@ describe('combinators: oneOf and allOf', () => {
   // Matches the string branch and arrives as a string.
   // string 側に一致し、string として届く。
   it('oneof accepts "all"', async () => {
-    const res = await pathParamsApp.request('/oneof/all')
+    const res = await app.request('/oneof/all')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'all' })
   })
@@ -1952,7 +1936,7 @@ describe('combinators: oneOf and allOf', () => {
   // allof は type: integer と minimum: 5 の allOf である。セグメントは allOf 全体の外側で
   // 1度だけ読み取られるため、両方の分岐が number の 10 を見る。
   it('allof accepts a value that meets both branches', async () => {
-    const res = await pathParamsApp.request('/allof/10')
+    const res = await app.request('/allof/10')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '10' })
   })
@@ -1962,7 +1946,7 @@ describe('combinators: oneOf and allOf', () => {
   // oneofis は integer または string の oneOf である。
   // 数字は number として読み取られ、integer 側の分岐だけがそれを受理する。
   it('oneofis reads digits as the integer branch', async () => {
-    const res = await pathParamsApp.request('/oneofis/1')
+    const res = await app.request('/oneofis/1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
   })
@@ -1970,7 +1954,7 @@ describe('combinators: oneOf and allOf', () => {
   // A word is not the text of an integer, so it stays text and only the string branch takes it.
   // 単語は整数の表記ではないため文字列のままとなり、string 側の分岐だけが受理する。
   it('oneofis reads a word as the string branch', async () => {
-    const res = await pathParamsApp.request('/oneofis/abc')
+    const res = await app.request('/oneofis/abc')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'abc' })
   })
@@ -1984,7 +1968,7 @@ describe('declarations: several parameters in one path', () => {
   // パスに integer・UUID・int64 の3つが含まれる。それぞれが他とは独立に、
   // 自身のスキーマで coerce される。
   it('coerces each of three parameters by its own schema', async () => {
-    const res = await pathParamsApp.request(
+    const res = await app.request(
       '/orgs/1/repos/0190b1f4-0000-7000-8000-000000000000/issues/9007199254740993',
     )
     expect(res.status).toBe(200)
@@ -1999,9 +1983,7 @@ describe('declarations: several parameters in one path', () => {
   // way round.
   // 値が位置をまたいで混ざらないこと。2 は orgId に、3 は issueId に入り、逆にはならない。
   it('keeps each value in its own position', async () => {
-    const res = await pathParamsApp.request(
-      '/orgs/2/repos/0190b1f4-0000-7000-8000-000000000000/issues/3',
-    )
+    const res = await app.request('/orgs/2/repos/0190b1f4-0000-7000-8000-000000000000/issues/3')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       orgId: { valueType: 'number', valueText: '2' },
@@ -2020,7 +2002,7 @@ describe('declarations: parameter names that are not identifiers', () => {
   // どちらの名前も、仕様の {name} から Hono のルートを経て検証済みオブジェクトに至るまで、
   // 保たれなければならない。
   it('keeps a hyphenated and an underscored name verbatim', async () => {
-    const res = await pathParamsApp.request('/named/5/true')
+    const res = await app.request('/named/5/true')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'user-id': { valueType: 'number', valueText: '5' },
@@ -2037,7 +2019,7 @@ describe('declarations: $ref and path-item level', () => {
   // パラメータは #/components/parameters/Id(int64)への $ref である。
   // 参照経由でも coerce が引き継がれなければならない。
   it('a parameter $ref coerces like an inline declaration', async () => {
-    const res = await pathParamsApp.request('/paramref/9007199254740993')
+    const res = await app.request('/paramref/9007199254740993')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'bigint',
@@ -2050,7 +2032,7 @@ describe('declarations: $ref and path-item level', () => {
   // パラメータはオペレーションではなくパスアイテムで1度だけ宣言されており、
   // 配下のすべてのオペレーションに適用される。
   it('a path-item parameter is validated for GET', async () => {
-    const res = await pathParamsApp.request('/shared/1')
+    const res = await app.request('/shared/1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
   })
@@ -2058,7 +2040,7 @@ describe('declarations: $ref and path-item level', () => {
   // The second operation of the same path item inherits the same parameter.
   // 同じパスアイテムの2つ目のオペレーションも、同じパラメータを継承する。
   it('a path-item parameter is validated for DELETE', async () => {
-    const res = await pathParamsApp.request('/shared/1', { method: 'DELETE' })
+    const res = await app.request('/shared/1', { method: 'DELETE' })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
   })
@@ -2068,7 +2050,7 @@ describe('declarations: $ref and path-item level', () => {
   // パスアイテムは id を string として、オペレーションは integer として宣言している。
   // オペレーション側が優先されるため、値は number として届く。
   it('an operation parameter overrides the path-item one', async () => {
-    const res = await pathParamsApp.request('/override/1')
+    const res = await app.request('/override/1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
   })
@@ -2080,7 +2062,7 @@ describe('declarations: $ref and path-item level', () => {
   // 宣言されている。コンポーネントスキーマ z.int().min(0) は型付きの値を前提としているため、
   // セグメントはコンポーネントに渡る前に文字列から読み取られる。
   it('a numeric schema behind a schema $ref coerces the segment', async () => {
-    const res = await pathParamsApp.request('/schemaref/5')
+    const res = await app.request('/schemaref/5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '5' })
   })
@@ -2088,7 +2070,7 @@ describe('declarations: $ref and path-item level', () => {
   // Zero is the minimum of the referenced schema.
   // 0 は参照先スキーマの最小値である。
   it('a schema $ref accepts the minimum of the referenced schema', async () => {
-    const res = await pathParamsApp.request('/schemaref/0')
+    const res = await app.request('/schemaref/0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0' })
   })
@@ -2102,7 +2084,7 @@ describe('wire: percent-encoding', () => {
   // エンコードされたスラッシュは、ルーターにとっては1つのセグメントであり、
   // ハンドラにはスラッシュとして届く。
   it('decodes a%2Fb to "a/b"', async () => {
-    const res = await pathParamsApp.request('/string/a%2Fb')
+    const res = await app.request('/string/a%2Fb')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'a/b' })
   })
@@ -2110,7 +2092,7 @@ describe('wire: percent-encoding', () => {
   // An encoded space.
   // エンコードされた空白。
   it('decodes a%20b to "a b"', async () => {
-    const res = await pathParamsApp.request('/string/a%20b')
+    const res = await app.request('/string/a%20b')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'a b' })
   })
@@ -2118,7 +2100,7 @@ describe('wire: percent-encoding', () => {
   // An encoded plus sign.
   // エンコードされたプラス記号。
   it('decodes a%2Bb to "a+b"', async () => {
-    const res = await pathParamsApp.request('/string/a%2Bb')
+    const res = await app.request('/string/a%2Bb')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'a+b' })
   })
@@ -2126,7 +2108,7 @@ describe('wire: percent-encoding', () => {
   // Unlike in a query string, a plus sign in a path is not read as a space.
   // クエリ文字列と違い、パスではプラス記号は空白として解釈されない。
   it('decodes a+b to "a+b"', async () => {
-    const res = await pathParamsApp.request('/string/a+b')
+    const res = await app.request('/string/a+b')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'a+b' })
   })
@@ -2134,7 +2116,7 @@ describe('wire: percent-encoding', () => {
   // An encoded question mark does not start the query string.
   // エンコードされた疑問符は、クエリ文字列の開始にならない。
   it('decodes a%3Fb to "a?b"', async () => {
-    const res = await pathParamsApp.request('/string/a%3Fb')
+    const res = await app.request('/string/a%3Fb')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'a?b' })
   })
@@ -2142,7 +2124,7 @@ describe('wire: percent-encoding', () => {
   // An encoded hash does not start the fragment.
   // エンコードされたハッシュ記号は、フラグメントの開始にならない。
   it('decodes a%23b to "a#b"', async () => {
-    const res = await pathParamsApp.request('/string/a%23b')
+    const res = await app.request('/string/a%23b')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'a#b' })
   })
@@ -2150,7 +2132,7 @@ describe('wire: percent-encoding', () => {
   // An encoded percent sign.
   // エンコードされたパーセント記号。
   it('decodes a%25b to "a%b"', async () => {
-    const res = await pathParamsApp.request('/string/a%25b')
+    const res = await app.request('/string/a%25b')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'a%b' })
   })
@@ -2158,7 +2140,7 @@ describe('wire: percent-encoding', () => {
   // A semicolon needs no encoding and is kept.
   // セミコロンはエンコード不要で、そのまま保持される。
   it('decodes a;b to "a;b"', async () => {
-    const res = await pathParamsApp.request('/string/a;b')
+    const res = await app.request('/string/a;b')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'a;b' })
   })
@@ -2166,7 +2148,7 @@ describe('wire: percent-encoding', () => {
   // Encoded "=" and "&" have no meaning in a path.
   // エンコードされた "=" と "&" は、パスでは特別な意味を持たない。
   it('decodes a%3Db%26c to "a=b&c"', async () => {
-    const res = await pathParamsApp.request('/string/a%3Db%26c')
+    const res = await app.request('/string/a%3Db%26c')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'a=b&c' })
   })
@@ -2174,7 +2156,7 @@ describe('wire: percent-encoding', () => {
   // A three-byte UTF-8 sequence.
   // 3バイトの UTF-8 シーケンス。
   it('decodes %E3%81%82 to "あ"', async () => {
-    const res = await pathParamsApp.request('/string/%E3%81%82')
+    const res = await app.request('/string/%E3%81%82')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'あ' })
   })
@@ -2182,7 +2164,7 @@ describe('wire: percent-encoding', () => {
   // A four-byte UTF-8 sequence, outside the Basic Multilingual Plane.
   // 基本多言語面の外にある、4バイトの UTF-8 シーケンス。
   it('decodes %F0%9F%94%A5 to "🔥"', async () => {
-    const res = await pathParamsApp.request('/string/%F0%9F%94%A5')
+    const res = await app.request('/string/%F0%9F%94%A5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '🔥' })
   })
@@ -2190,7 +2172,7 @@ describe('wire: percent-encoding', () => {
   // Lower-case hexadecimal digits decode the same.
   // 16進数が小文字でも同じようにデコードされる。
   it('decodes %e3%81%82 to "あ"', async () => {
-    const res = await pathParamsApp.request('/string/%e3%81%82')
+    const res = await app.request('/string/%e3%81%82')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'あ' })
   })
@@ -2198,7 +2180,7 @@ describe('wire: percent-encoding', () => {
   // An encoded NUL is delivered as the NUL character.
   // エンコードされた NUL は、NUL 文字として届く。
   it('decodes %00 to "\\u0000"', async () => {
-    const res = await pathParamsApp.request('/string/%00')
+    const res = await app.request('/string/%00')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '\u0000' })
   })
@@ -2206,7 +2188,7 @@ describe('wire: percent-encoding', () => {
   // The value is decoded once: %2520 is the encoding of "%20", not of a space.
   // デコードは1回だけ行われる。%2520 は "%20" のエンコードであり、空白のエンコードではない。
   it('decodes %2520 to "%20"', async () => {
-    const res = await pathParamsApp.request('/string/%2520')
+    const res = await app.request('/string/%2520')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '%20' })
   })
@@ -2214,7 +2196,7 @@ describe('wire: percent-encoding', () => {
   // A lone percent sign cannot be decoded and is delivered as it was sent.
   // 単独のパーセント記号はデコードできず、送信時のまま届く。
   it('decodes % to "%"', async () => {
-    const res = await pathParamsApp.request('/string/%')
+    const res = await app.request('/string/%')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '%' })
   })
@@ -2222,7 +2204,7 @@ describe('wire: percent-encoding', () => {
   // An escape that is not hexadecimal is delivered as it was sent.
   // 16進数でないエスケープは、送信時のまま届く。
   it('decodes %ZZ to "%ZZ"', async () => {
-    const res = await pathParamsApp.request('/string/%ZZ')
+    const res = await app.request('/string/%ZZ')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '%ZZ' })
   })
@@ -2230,7 +2212,7 @@ describe('wire: percent-encoding', () => {
   // A UTF-8 sequence cut short is delivered as it was sent.
   // 途中で切れた UTF-8 シーケンスは、送信時のまま届く。
   it('decodes %E3%81 to "%E3%81"', async () => {
-    const res = await pathParamsApp.request('/string/%E3%81')
+    const res = await app.request('/string/%E3%81')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '%E3%81' })
   })
@@ -2239,7 +2221,7 @@ describe('wire: percent-encoding', () => {
   // CIDR フォーマットが検証するのは、エンコードされた文字列ではなく、
   // デコード後の "192.168.0.0/24" である。
   it('validates the decoded value', async () => {
-    const res = await pathParamsApp.request('/cidrv4/192.168.0.0%2F24')
+    const res = await app.request('/cidrv4/192.168.0.0%2F24')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '192.168.0.0/24' })
   })
@@ -2247,7 +2229,7 @@ describe('wire: percent-encoding', () => {
   // %34%32 is "42": decoding happens before coercion.
   // %34%32 は "42" を表す。デコードは coerce より前に行われる。
   it('coerces percent-encoded digits like plain ones', async () => {
-    const res = await pathParamsApp.request('/integer/%34%32')
+    const res = await app.request('/integer/%34%32')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '42' })
   })
@@ -2259,7 +2241,7 @@ describe('wire: routing', () => {
   // "?value=2" is a query parameter; the path parameter is still 1.
   // "?value=2" はクエリパラメータである。パスパラメータは 1 のままである。
   it('ignores a query parameter of the same name', async () => {
-    const res = await pathParamsApp.request('/integer/1?value=2')
+    const res = await app.request('/integer/1?value=2')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
   })
@@ -2267,7 +2249,7 @@ describe('wire: routing', () => {
   // A query parameter the route does not declare is not validated.
   // ルートが宣言していないクエリパラメータは検証されない。
   it('ignores an invalid query parameter of the same name', async () => {
-    const res = await pathParamsApp.request('/integer/1?value=x')
+    const res = await app.request('/integer/1?value=x')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
   })
@@ -2275,7 +2257,7 @@ describe('wire: routing', () => {
   // The fragment is not part of the path.
   // フラグメントはパスの一部ではない。
   it('ignores the fragment', async () => {
-    const res = await pathParamsApp.request('/integer/1#2')
+    const res = await app.request('/integer/1#2')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
   })
@@ -2285,17 +2267,17 @@ describe('wire: routing', () => {
   // Hono は HEAD を GET のルートで処理するため、パラメータは同じように検証される。
   // 有効な値は受理される。
   it('validates a HEAD request like the GET it mirrors', async () => {
-    const res = await pathParamsApp.request('/integer/1', { method: 'HEAD' })
+    const res = await app.request('/integer/1', { method: 'HEAD' })
     expect(res.status).toBe(200)
   })
 
   // One request must not change the next: no state is kept between validations.
   // あるリクエストが次のリクエストに影響しないこと。検証間で状態は保持されない。
   it('gives the same answer to the same request, whatever came between', async () => {
-    const first = await pathParamsApp.request('/int64/9007199254740993')
-    const between = await pathParamsApp.request('/int64/not-a-value')
+    const first = await app.request('/int64/9007199254740993')
+    const between = await app.request('/int64/not-a-value')
     expect(between.status).toBe(422)
-    const second = await pathParamsApp.request('/int64/9007199254740993')
+    const second = await app.request('/int64/9007199254740993')
     expect(second.status).toBe(200)
     expect(await second.json()).toStrictEqual(await first.json())
   })
@@ -2314,7 +2296,7 @@ describe('styles: simple, label and matrix', () => {
   // style: simple serialises [1, 2, 3] as 1,2,3.
   // style: simple では、[1, 2, 3] は 1,2,3 としてシリアライズされる。
   it('simplearr splits a comma-separated segment', async () => {
-    const res = await pathParamsApp.request('/simplearr/1,2,3')
+    const res = await app.request('/simplearr/1,2,3')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '[1,2,3]' })
   })
@@ -2322,7 +2304,7 @@ describe('styles: simple, label and matrix', () => {
   // A one-element array has no separator to split on.
   // 1要素の配列には、分割すべき区切り文字がない。
   it('simplearr reads a single value as a one-element array', async () => {
-    const res = await pathParamsApp.request('/simplearr/7')
+    const res = await app.request('/simplearr/7')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '[7]' })
   })
@@ -2330,7 +2312,7 @@ describe('styles: simple, label and matrix', () => {
   // The comma is decoded before the segment is split.
   // カンマは、セグメントが分割される前にデコードされる。
   it('simplearr splits a percent-encoded comma', async () => {
-    const res = await pathParamsApp.request('/simplearr/1%2C2')
+    const res = await app.request('/simplearr/1%2C2')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '[1,2]' })
   })
@@ -2338,7 +2320,7 @@ describe('styles: simple, label and matrix', () => {
   // The same for an array of strings.
   // string の配列でも同様である。
   it('simplestrarr splits an array of strings', async () => {
-    const res = await pathParamsApp.request('/simplestrarr/a,b')
+    const res = await app.request('/simplestrarr/a,b')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '["a","b"]' })
   })
@@ -2347,7 +2329,7 @@ describe('styles: simple, label and matrix', () => {
   // style: label では、5 は .5 としてシリアライズされる。
   // このドットは接頭辞であり、小数点ではない。
   it('label strips the leading dot of a scalar', async () => {
-    const res = await pathParamsApp.request('/label/.5')
+    const res = await app.request('/label/.5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '5' })
   })
@@ -2355,7 +2337,7 @@ describe('styles: simple, label and matrix', () => {
   // A string behind its dot.
   // ドットに続く string。
   it('labelstr strips the leading dot of a string', async () => {
-    const res = await pathParamsApp.request('/labelstr/.abc')
+    const res = await app.request('/labelstr/.abc')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'abc' })
   })
@@ -2363,7 +2345,7 @@ describe('styles: simple, label and matrix', () => {
   // A string behind the name of the parameter.
   // パラメータ名に続く string。
   it('matrixstr strips the name of the parameter from a string', async () => {
-    const res = await pathParamsApp.request('/matrixstr/;value=abc')
+    const res = await app.request('/matrixstr/;value=abc')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'abc' })
   })
@@ -2371,7 +2353,7 @@ describe('styles: simple, label and matrix', () => {
   // style: matrix writes a value that holds nothing as the name alone, without the "=".
   // style: matrix は、空の値を "=" なしの名前だけで表記する。
   it('matrixstr reads the name alone as the empty string', async () => {
-    const res = await pathParamsApp.request('/matrixstr/;value')
+    const res = await app.request('/matrixstr/;value')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '' })
   })
@@ -2379,7 +2361,7 @@ describe('styles: simple, label and matrix', () => {
   // With explode: false the elements after the dot are separated by commas.
   // explode: false では、ドットに続く要素はカンマで区切られる。
   it('labelarr strips the dot and splits on commas', async () => {
-    const res = await pathParamsApp.request('/labelarr/.1,2,3')
+    const res = await app.request('/labelarr/.1,2,3')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '[1,2,3]' })
   })
@@ -2387,7 +2369,7 @@ describe('styles: simple, label and matrix', () => {
   // With explode: true every element carries the dot.
   // explode: true では、すべての要素にドットが付く。
   it('labelexplode splits on the dot', async () => {
-    const res = await pathParamsApp.request('/labelexplode/.1.2.3')
+    const res = await app.request('/labelexplode/.1.2.3')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '[1,2,3]' })
   })
@@ -2395,7 +2377,7 @@ describe('styles: simple, label and matrix', () => {
   // One element, one dot.
   // 要素が1つなら、ドットも1つである。
   it('labelexplode reads a single value as a one-element array', async () => {
-    const res = await pathParamsApp.request('/labelexplode/.7')
+    const res = await app.request('/labelexplode/.7')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '[7]' })
   })
@@ -2403,7 +2385,7 @@ describe('styles: simple, label and matrix', () => {
   // style: matrix serialises 5 as ;value=5.
   // style: matrix では、5 は ;value=5 としてシリアライズされる。
   it('matrix strips the name prefix of a scalar', async () => {
-    const res = await pathParamsApp.request('/matrix/;value=5')
+    const res = await app.request('/matrix/;value=5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '5' })
   })
@@ -2411,7 +2393,7 @@ describe('styles: simple, label and matrix', () => {
   // The segment is decoded before the prefix is stripped.
   // セグメントは、接頭辞が取り除かれる前にデコードされる。
   it('matrix strips a percent-encoded prefix', async () => {
-    const res = await pathParamsApp.request('/matrix/%3Bvalue=5')
+    const res = await app.request('/matrix/%3Bvalue=5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '5' })
   })
@@ -2419,7 +2401,7 @@ describe('styles: simple, label and matrix', () => {
   // With explode: false the name appears once and the elements are separated by commas.
   // explode: false では、名前は1度だけ現れ、要素はカンマで区切られる。
   it('matrixarr strips the prefix and splits on commas', async () => {
-    const res = await pathParamsApp.request('/matrixarr/;value=1,2,3')
+    const res = await app.request('/matrixarr/;value=1,2,3')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '[1,2,3]' })
   })
@@ -2427,7 +2409,7 @@ describe('styles: simple, label and matrix', () => {
   // With explode: true every element carries the name.
   // explode: true では、すべての要素に名前が付く。
   it('matrixexplode splits on the repeated name', async () => {
-    const res = await pathParamsApp.request('/matrixexplode/;value=1;value=2')
+    const res = await app.request('/matrixexplode/;value=1;value=2')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '[1,2]' })
   })
@@ -2444,7 +2426,7 @@ describe('objects: an object in one segment', () => {
   // style: simple serialises { a: 1, b: "x" } as a,1,b,x.
   // style: simple では、{ a: 1, b: "x" } は a,1,b,x としてシリアライズされる。
   it('simpleobj reads alternating names and values', async () => {
-    const res = await pathParamsApp.request('/simpleobj/a,1,b,x')
+    const res = await app.request('/simpleobj/a,1,b,x')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x"}' })
   })
@@ -2452,7 +2434,7 @@ describe('objects: an object in one segment', () => {
   // One name and one value.
   // 名前1つと値1つ。
   it('simpleobj reads a single pair', async () => {
-    const res = await pathParamsApp.request('/simpleobj/a,1')
+    const res = await app.request('/simpleobj/a,1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1}' })
   })
@@ -2460,7 +2442,7 @@ describe('objects: an object in one segment', () => {
   // c is not a property of the object.
   // c は、オブジェクトのプロパティではない。
   it('simpleobj drops a property it does not declare', async () => {
-    const res = await pathParamsApp.request('/simpleobj/c,1')
+    const res = await app.request('/simpleobj/c,1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{}' })
   })
@@ -2468,7 +2450,7 @@ describe('objects: an object in one segment', () => {
   // With explode: true the object is a=1,b=x.
   // explode: true では、オブジェクトは a=1,b=x になる。
   it('simpleobjx reads assignments', async () => {
-    const res = await pathParamsApp.request('/simpleobjx/a=1,b=x')
+    const res = await app.request('/simpleobjx/a=1,b=x')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x"}' })
   })
@@ -2476,7 +2458,7 @@ describe('objects: an object in one segment', () => {
   // style: label with explode: true serialises the object as .a=1.b=x.
   // style: label + explode: true では、オブジェクトは .a=1.b=x としてシリアライズされる。
   it('labelobjx reads assignments separated by dots', async () => {
-    const res = await pathParamsApp.request('/labelobjx/.a=1.b=x')
+    const res = await app.request('/labelobjx/.a=1.b=x')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x"}' })
   })
@@ -2486,7 +2468,7 @@ describe('objects: an object in one segment', () => {
   // ドットは代入同士を区切るが、値の中にも現れうる。"=" を持たない部分は、直前の値の
   // 続きである。そのため、x.y が b の値になる。
   it('labelobjx reads a value that holds a dot', async () => {
-    const res = await pathParamsApp.request('/labelobjx/.a=1.b=x.y')
+    const res = await app.request('/labelobjx/.a=1.b=x.y')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x.y"}' })
   })
@@ -2494,7 +2476,7 @@ describe('objects: an object in one segment', () => {
   // The comma separates the assignments and may stand in a value as well. A part with no "=" continues the value before it.
   // カンマは代入同士を区切るが、値の中にも現れうる。"=" を持たない部分は、直前の値の続きである。
   it('simpleobjx reads a value that holds a comma', async () => {
-    const res = await pathParamsApp.request('/simpleobjx/a=1,b=x,y')
+    const res = await app.request('/simpleobjx/a=1,b=x,y')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x,y"}' })
   })
@@ -2502,7 +2484,7 @@ describe('objects: an object in one segment', () => {
   // The same for the semicolon of an exploded matrix.
   // explode された matrix のセミコロンも同様である。
   it('matrixobjx reads a value that holds a semicolon', async () => {
-    const res = await pathParamsApp.request('/matrixobjx/;a=1;b=x;y')
+    const res = await app.request('/matrixobjx/;a=1;b=x;y')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x;y"}' })
   })
@@ -2510,7 +2492,7 @@ describe('objects: an object in one segment', () => {
   // The first "=" of a part ends the name; the ones after it belong to the value.
   // 各部分の最初の "=" が名前の終わりであり、それ以降の "=" は値に属する。
   it('labelobjx reads a value that holds an equals sign', async () => {
-    const res = await pathParamsApp.request('/labelobjx/.a=1.b=x=y')
+    const res = await app.request('/labelobjx/.a=1.b=x=y')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x=y"}' })
   })
@@ -2518,7 +2500,7 @@ describe('objects: an object in one segment', () => {
   // style: matrix serialises the object as ;value=a,1,b,x.
   // style: matrix では、オブジェクトは ;value=a,1,b,x としてシリアライズされる。
   it('matrixobj reads pairs behind the name of the parameter', async () => {
-    const res = await pathParamsApp.request('/matrixobj/;value=a,1,b,x')
+    const res = await app.request('/matrixobj/;value=a,1,b,x')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x"}' })
   })
@@ -2526,7 +2508,7 @@ describe('objects: an object in one segment', () => {
   // With explode: true every property carries its own name, ;a=1;b=x.
   // explode: true では、各プロパティが自身の名前を持つ(;a=1;b=x)。
   it('matrixobjx reads assignments separated by semicolons', async () => {
-    const res = await pathParamsApp.request('/matrixobjx/;a=1;b=x')
+    const res = await app.request('/matrixobjx/;a=1;b=x')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x"}' })
   })
@@ -2544,7 +2526,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // Negative zero is zero.
   // 負のゼロはゼロになる。
   it('integer accepts "-0"', async () => {
-    const res = await pathParamsApp.request('/integer/-0')
+    const res = await app.request('/integer/-0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0' })
   })
@@ -2552,7 +2534,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // Leading zeros are dropped; the value is not read as octal.
   // 先頭のゼロは無視される。8進数としては読まれない。
   it('integer accepts "007"', async () => {
-    const res = await pathParamsApp.request('/integer/007')
+    const res = await app.request('/integer/007')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '7' })
   })
@@ -2560,7 +2542,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // Negative zero is zero.
   // 負のゼロはゼロになる。
   it('int64 accepts "-0"', async () => {
-    const res = await pathParamsApp.request('/int64/-0')
+    const res = await app.request('/int64/-0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'bigint', valueText: '0' })
   })
@@ -2568,7 +2550,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // Leading zeros are dropped.
   // 先頭のゼロは無視される。
   it('int64 accepts "007"', async () => {
-    const res = await pathParamsApp.request('/int64/007')
+    const res = await app.request('/int64/007')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'bigint', valueText: '7' })
   })
@@ -2576,7 +2558,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // Negative zero is echoed as zero.
   // 負のゼロはゼロとして返る。
   it('number accepts "-0"', async () => {
-    const res = await pathParamsApp.request('/number/-0')
+    const res = await app.request('/number/-0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0' })
   })
@@ -2584,7 +2566,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // cuid2 is a pattern with no fixed length: one letter passes.
   // cuid2 は長さ固定のないパターンであり、1文字でも通る。
   it('cuid2 accepts "a"', async () => {
-    const res = await pathParamsApp.request('/cuid2/a')
+    const res = await app.request('/cuid2/a')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'a' })
   })
@@ -2592,7 +2574,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // cuid2 does not require a leading letter.
   // cuid2 は先頭が英字であることを要求しない。
   it('cuid2 accepts "1z4a98xxat96iws9zmbrgj3a"', async () => {
-    const res = await pathParamsApp.request('/cuid2/1z4a98xxat96iws9zmbrgj3a')
+    const res = await app.request('/cuid2/1z4a98xxat96iws9zmbrgj3a')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -2603,7 +2585,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // format: url takes the javascript: scheme; narrowing is the caller's to do.
   // format: url は javascript: スキームも受理する。絞り込みは利用側の責務である。
   it('url accepts "javascript:alert(1)"', async () => {
-    const res = await pathParamsApp.request(`/url/${encodeURIComponent('javascript:alert(1)')}`)
+    const res = await app.request(`/url/${encodeURIComponent('javascript:alert(1)')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       valueType: 'string',
@@ -2614,7 +2596,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // A trailing dot satisfies the hostname grammar.
   // 末尾のドットはホスト名の文法を満たす。
   it('hostname accepts "example.com."', async () => {
-    const res = await pathParamsApp.request('/hostname/example.com.')
+    const res = await app.request('/hostname/example.com.')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'example.com.' })
   })
@@ -2622,7 +2604,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // A dotted quad satisfies the hostname grammar.
   // ドット区切りの4数値はホスト名の文法を満たす。
   it('hostname accepts "192.168.0.1"', async () => {
-    const res = await pathParamsApp.request('/hostname/192.168.0.1')
+    const res = await app.request('/hostname/192.168.0.1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '192.168.0.1' })
   })
@@ -2630,7 +2612,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // A leading zero still names the member 1.
   // 先頭にゼロがあっても、メンバー 1 を指す。
   it('ienum accepts "01"', async () => {
-    const res = await pathParamsApp.request('/ienum/01')
+    const res = await app.request('/ienum/01')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
   })
@@ -2638,7 +2620,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // "0.5" without its leading zero.
   // 先頭のゼロを省略した "0.5"。
   it('nenum accepts ".5"', async () => {
-    const res = await pathParamsApp.request('/nenum/.5')
+    const res = await app.request('/nenum/.5')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0.5' })
   })
@@ -2646,7 +2628,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // "0.5" with a trailing zero.
   // 末尾にゼロを付けた "0.5"。
   it('nenum accepts "0.50"', async () => {
-    const res = await pathParamsApp.request('/nenum/0.50')
+    const res = await app.request('/nenum/0.50')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0.5' })
   })
@@ -2654,7 +2636,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // "0.5" in exponent notation.
   // 指数表記の "0.5"。
   it('nenum accepts "5e-1"', async () => {
-    const res = await pathParamsApp.request('/nenum/5e-1')
+    const res = await app.request('/nenum/5e-1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0.5' })
   })
@@ -2662,7 +2644,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // A leading zero still names the constant 7.
   // 先頭にゼロがあっても、定数 7 を指す。
   it('iconst accepts "07"', async () => {
-    const res = await pathParamsApp.request('/iconst/07')
+    const res = await app.request('/iconst/07')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '7' })
   })
@@ -2670,7 +2652,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // A boolean literal takes every spelling z.stringbool() reads as true: the digit 1.
   // 真偽値リテラルは、z.stringbool() が true と読むすべての表記を受理する。数字の 1。
   it('benum accepts "1"', async () => {
-    const res = await pathParamsApp.request('/benum/1')
+    const res = await app.request('/benum/1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'true' })
   })
@@ -2678,7 +2660,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // "yes" is read as true.
   // "yes" は true として読まれる。
   it('benum accepts "yes"', async () => {
-    const res = await pathParamsApp.request('/benum/yes')
+    const res = await app.request('/benum/yes')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'true' })
   })
@@ -2686,7 +2668,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // "on" is read as true.
   // "on" は true として読まれる。
   it('benum accepts "on"', async () => {
-    const res = await pathParamsApp.request('/benum/on')
+    const res = await app.request('/benum/on')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'true' })
   })
@@ -2694,7 +2676,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // Upper case is read as true.
   // 大文字も true として読まれる。
   it('benum accepts "TRUE"', async () => {
-    const res = await pathParamsApp.request('/benum/TRUE')
+    const res = await app.request('/benum/TRUE')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'boolean', valueText: 'true' })
   })
@@ -2704,7 +2686,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // 空白のみの値はトリム後に空文字列となり、受理される。
   // format: trim は最小長を設定しないためである。
   it('trim accepts " "', async () => {
-    const res = await pathParamsApp.request(`/trim/${encodeURIComponent(' ')}`)
+    const res = await app.request(`/trim/${encodeURIComponent(' ')}`)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '' })
   })

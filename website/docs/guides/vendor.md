@@ -308,8 +308,13 @@ retries:
 ```
 
 ```ts
-z.int().catch(0)
+z.int().catch(0).openapi({ type: 'integer' })
 ```
+
+A value the schema does not take is replaced by the fallback. `@hono/zod-openapi` cannot render a `.catch()` — generating the OpenAPI document would throw — so the schema is stated for the document in `.openapi()`, as the source declares it.
+
+- Where the schema has no `type` to state (a `oneOf` / `anyOf`, a schema of any type), the catch is written as a `z.preprocess` instead, which the document renders by the schema inside it. The fallback is then read by the schema in turn, so it has to be a value the schema accepts.
+- `x-catch: null` (and `x-prefault: null`) makes the schema nullable.
 
 ### Immutability
 

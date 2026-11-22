@@ -129,6 +129,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/V26Form'
 
+  /fallbacks:
+    post:
+      operationId: postFallbacks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FallbackForm'
+      responses:
+        '200':
+          description: OK
+
 components:
   schemas:
     StringForm:
@@ -396,3 +409,45 @@ components:
       else:
         type: object
         required: []
+
+    # What a fallback or a default is written as.
+    FallbackForm:
+      type: object
+      required:
+        - catchNull
+        - prefaultNull
+        - counter
+        - ids
+        - settings
+      properties:
+        # `null` is what the catch answers with: the schema takes it (#490)
+        catchNull:
+          type: string
+          x-catch: null
+        # `null` is handed to the schema, which takes it (#490)
+        prefaultNull:
+          type: string
+          x-prefault: null
+        # an int64 inside an object default is a bigint (#491)
+        counter:
+          type: object
+          properties:
+            n:
+              type: integer
+              format: int64
+          default:
+            n: 1
+        # an int64 inside an array default is a bigint (#491)
+        ids:
+          type: array
+          items:
+            type: integer
+            format: int64
+          default: [1, 2]
+        # a catch on an object: the fallback is the whole object (#492)
+        settings:
+          type: object
+          properties:
+            theme: { type: string }
+          x-catch:
+            theme: light

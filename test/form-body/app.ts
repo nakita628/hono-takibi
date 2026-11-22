@@ -61,7 +61,7 @@ function echoFields(fields: object) {
  * すべてのハンドラは `c.req.valid` が返した値だけを返す。テストが見る値は、生のリクエスト
  * ではなく、生成スキーマを通過したものになる。
  */
-export const formBodyApp = new OpenAPIHono({
+export const app = new OpenAPIHono({
   // A rejected request names the field that failed, so a test can tell which one did.
   // 拒否時は失敗したフィールド名を返す。どのフィールドが原因かをテストで判別できる。
   defaultHook: (result, c) => {

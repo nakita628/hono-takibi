@@ -16,6 +16,12 @@ import {
   postOneOfMsgRoute,
   postOneOfOverlapRoute,
   postOneOfRoute,
+  postParentStrictRoute,
+  postRequiredOnlyRoute,
+  postSiblingsRoute,
+  postStrictBranchRoute,
+  postStrictMemberRoute,
+  postStrictUnionRoute,
 } from '../__generated__/combinators/generated'
 
 const app = new OpenAPIHono({
@@ -56,5 +62,11 @@ app.openapi(postNotConstRoute, (c) => c.json({}, 200))
 app.openapi(postAllOfArrowRoute, (c) => c.json({}, 200))
 app.openapi(postOneOfArrowRoute, (c) => c.json({}, 200))
 app.openapi(postNotArrowRoute, (c) => c.json({}, 200))
+app.openapi(postStrictMemberRoute, (c) => c.json({}, 200))
+app.openapi(postStrictBranchRoute, (c) => c.json({}, 200))
+app.openapi(postSiblingsRoute, (c) => c.json({}, 200))
+app.openapi(postRequiredOnlyRoute, (c) => c.json({}, 200))
+app.openapi(postStrictUnionRoute, (c) => c.json({}, 200))
+app.openapi(postParentStrictRoute, (c) => c.json({}, 200))
 
 export default app

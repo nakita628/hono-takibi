@@ -3,6 +3,7 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import {
   postCoerceRoute,
   postCustomRoute,
+  postFallbacksRoute,
   postFormatsRoute,
   postP2Route,
   postStringsRoute,
@@ -82,6 +83,22 @@ app.openapi(postV26Route, (c) => {
   // レスポンスの型はエンコード済みの文字列を期待しているため、キャストしている。
   // biome-ignore lint/suspicious/noExplicitAny: response shape mismatch with decoded body
   return c.json(body as any, 200)
+})
+
+app.openapi(postFallbacksRoute, (c) => {
+  const body = c.req.valid('json')
+  // An int64 is a bigint, which JSON cannot hold: it is answered as the text of its literal
+  // (`1n`). A number in its place would not type-check here, nor be answered as `1n`.
+  // int64 は bigint であり、JSON では表現できない。そのため、リテラルの文字列 (`1n`) として
+  // 返す。number が入っていれば、ここで型チェックを通らず、`1n` としても返らない。
+  return c.json(
+    {
+      ...body,
+      counter: { n: body.counter.n === undefined ? undefined : `${body.counter.n}n` },
+      ids: body.ids.map((id) => `${id}n`),
+    },
+    200,
+  )
 })
 
 export default app

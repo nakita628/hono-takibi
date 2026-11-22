@@ -60,7 +60,7 @@
 //   - leniency: what is read beyond the plainest spelling (pinned, not endorsed)
 import { describe, expect, it } from 'vite-plus/test'
 
-import { headerParamsApp } from './app'
+import { app } from './app'
 
 // One canonical value per shape, sent alone as the header x-<shape>. The value is compared as
 // well as the type: a coercion that changes the value is as wrong as one that changes the
@@ -71,7 +71,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An integer with no format arrives as a number.
   // フォーマット指定のない integer は number として届く。
   it('x-integer accepts "42"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '42' } })
+    const res = await app.request('/headers', { headers: { 'x-integer': '42' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-integer': { valueType: 'number', valueText: '42' },
@@ -81,7 +81,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An int32 arrives as a number.
   // int32 は number として届く。
   it('x-int32 accepts "42"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-int32': '42' } })
+    const res = await app.request('/headers', { headers: { 'x-int32': '42' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int32': { valueType: 'number', valueText: '42' },
@@ -91,7 +91,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An int64 arrives as a bigint, exact past Number.MAX_SAFE_INTEGER.
   // int64 は bigint として届き、Number.MAX_SAFE_INTEGER を超えても桁落ちしない。
   it('x-int64 accepts "9007199254740993"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-int64': '9007199254740993' },
     })
     expect(res.status).toBe(200)
@@ -103,7 +103,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: bigint arrives as a bigint.
   // format: bigint は bigint として届く。
   it('x-bigint accepts "9007199254740993"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-bigint': '9007199254740993' },
     })
     expect(res.status).toBe(200)
@@ -115,7 +115,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A uint32 arrives as a number, up to its maximum.
   // uint32 は最大値まで number として届く。
   it('x-uint32 accepts "4294967295"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-uint32': '4294967295' } })
+    const res = await app.request('/headers', { headers: { 'x-uint32': '4294967295' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-uint32': { valueType: 'number', valueText: '4294967295' },
@@ -125,7 +125,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A uint64 arrives as a bigint, up to its maximum, which no double can hold.
   // uint64 は最大値まで bigint として届く。この最大値は double では保持できない。
   it('x-uint64 accepts "18446744073709551615"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-uint64': '18446744073709551615' },
     })
     expect(res.status).toBe(200)
@@ -137,7 +137,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A number with no format arrives as a number.
   // フォーマット指定のない number は number として届く。
   it('x-number accepts "1.5"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-number': '1.5' } })
+    const res = await app.request('/headers', { headers: { 'x-number': '1.5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-number': { valueType: 'number', valueText: '1.5' },
@@ -147,7 +147,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: float arrives as a number.
   // format: float は number として届く。
   it('x-float accepts "1.5"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-float': '1.5' } })
+    const res = await app.request('/headers', { headers: { 'x-float': '1.5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-float': { valueType: 'number', valueText: '1.5' },
@@ -157,7 +157,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: float32 arrives as a number.
   // format: float32 は number として届く。
   it('x-float32 accepts "1.5"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-float32': '1.5' } })
+    const res = await app.request('/headers', { headers: { 'x-float32': '1.5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-float32': { valueType: 'number', valueText: '1.5' },
@@ -167,7 +167,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: float64 arrives as a number.
   // format: float64 は number として届く。
   it('x-float64 accepts "1.5"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-float64': '1.5' } })
+    const res = await app.request('/headers', { headers: { 'x-float64': '1.5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-float64': { valueType: 'number', valueText: '1.5' },
@@ -177,7 +177,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: double arrives as a number.
   // format: double は number として届く。
   it('x-double accepts "1.5"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-double': '1.5' } })
+    const res = await app.request('/headers', { headers: { 'x-double': '1.5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-double': { valueType: 'number', valueText: '1.5' },
@@ -187,7 +187,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: password on a number is an annotation; the value is still a number.
   // number に対する format: password は注釈にすぎず、値は number のまま届く。
   it('x-numpassword accepts "1.5"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-numpassword': '1.5' } })
+    const res = await app.request('/headers', { headers: { 'x-numpassword': '1.5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-numpassword': { valueType: 'number', valueText: '1.5' },
@@ -197,7 +197,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A boolean arrives as a boolean, not as the text "true".
   // boolean は文字列 "true" ではなく boolean として届く。
   it('x-boolean accepts "true"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-boolean': 'true' } })
+    const res = await app.request('/headers', { headers: { 'x-boolean': 'true' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-boolean': { valueType: 'boolean', valueText: 'true' },
@@ -207,7 +207,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A string arrives unchanged.
   // string はそのまま届く。
   it('x-string accepts "plain"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-string': 'plain' } })
+    const res = await app.request('/headers', { headers: { 'x-string': 'plain' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-string': { valueType: 'string', valueText: 'plain' },
@@ -217,7 +217,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A well-formed email address.
   // 正しい形式のメールアドレス。
   it('x-email accepts "user@example.com"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-email': 'user@example.com' },
     })
     expect(res.status).toBe(200)
@@ -229,7 +229,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A UUID of any version (here version 7).
   // 任意バージョンの UUID(ここではバージョン 7)。
   it('x-uuid accepts "0190b1f4-0000-7000-8000-000000000000"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-uuid': '0190b1f4-0000-7000-8000-000000000000' },
     })
     expect(res.status).toBe(200)
@@ -241,7 +241,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A version 4 UUID.
   // バージョン 4 の UUID。
   it('x-uuidv4 accepts "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-uuidv4': 'a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d' },
     })
     expect(res.status).toBe(200)
@@ -253,7 +253,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A version 7 UUID.
   // バージョン 7 の UUID。
   it('x-uuidv7 accepts "0190b1f4-0000-7000-8000-000000000000"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-uuidv7': '0190b1f4-0000-7000-8000-000000000000' },
     })
     expect(res.status).toBe(200)
@@ -265,7 +265,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An absolute URL.
   // 絶対 URL。
   it('x-url accepts "https://example.com"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-url': 'https://example.com' },
     })
     expect(res.status).toBe(200)
@@ -277,7 +277,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: uri is validated like a URL.
   // format: uri は URL と同じ検証を受ける。
   it('x-uri accepts "https://example.com"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-uri': 'https://example.com' },
     })
     expect(res.status).toBe(200)
@@ -289,7 +289,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An https URL.
   // https の URL。
   it('x-httpurl accepts "https://example.com"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-httpurl': 'https://example.com' },
     })
     expect(res.status).toBe(200)
@@ -301,7 +301,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A host name.
   // ホスト名。
   it('x-hostname accepts "example.com"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-hostname': 'example.com' },
     })
     expect(res.status).toBe(200)
@@ -313,7 +313,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // Hexadecimal digits.
   // 16進数の文字列。
   it('x-hex accepts "deadbeef"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-hex': 'deadbeef' } })
+    const res = await app.request('/headers', { headers: { 'x-hex': 'deadbeef' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-hex': { valueType: 'string', valueText: 'deadbeef' },
@@ -323,7 +323,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // Base64 with padding.
   // パディング付きの Base64。
   it('x-base64 accepts "aGVsbG8="', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-base64': 'aGVsbG8=' } })
+    const res = await app.request('/headers', { headers: { 'x-base64': 'aGVsbG8=' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-base64': { valueType: 'string', valueText: 'aGVsbG8=' },
@@ -333,7 +333,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // Base64url, which has no padding.
   // パディングのない Base64url。
   it('x-base64url accepts "aGVsbG8"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-base64url': 'aGVsbG8' } })
+    const res = await app.request('/headers', { headers: { 'x-base64url': 'aGVsbG8' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-base64url': { valueType: 'string', valueText: 'aGVsbG8' },
@@ -343,7 +343,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A 21-character Nano ID.
   // 21文字の Nano ID。
   it('x-nanoid accepts "V1StGXR8_Z5jdHi6B-myT"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-nanoid': 'V1StGXR8_Z5jdHi6B-myT' },
     })
     expect(res.status).toBe(200)
@@ -355,7 +355,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A CUID2.
   // CUID2。
   it('x-cuid2 accepts "tz4a98xxat96iws9zmbrgj3a"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-cuid2': 'tz4a98xxat96iws9zmbrgj3a' },
     })
     expect(res.status).toBe(200)
@@ -367,7 +367,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A 26-character ULID.
   // 26文字の ULID。
   it('x-ulid accepts "01ARZ3NDEKTSV4RRFFQ69G5FAV"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-ulid': '01ARZ3NDEKTSV4RRFFQ69G5FAV' },
     })
     expect(res.status).toBe(200)
@@ -379,7 +379,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An IPv4 address.
   // IPv4 アドレス。
   it('x-ipv4 accepts "192.168.0.1"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-ipv4': '192.168.0.1' } })
+    const res = await app.request('/headers', { headers: { 'x-ipv4': '192.168.0.1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-ipv4': { valueType: 'string', valueText: '192.168.0.1' },
@@ -389,7 +389,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An IPv6 address in compressed form.
   // 省略表記の IPv6 アドレス。
   it('x-ipv6 accepts "2001:db8::1"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-ipv6': '2001:db8::1' } })
+    const res = await app.request('/headers', { headers: { 'x-ipv6': '2001:db8::1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-ipv6': { valueType: 'string', valueText: '2001:db8::1' },
@@ -399,7 +399,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An IPv4 CIDR block.
   // IPv4 の CIDR ブロック。
   it('x-cidrv4 accepts "192.168.0.0/24"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-cidrv4': '192.168.0.0/24' },
     })
     expect(res.status).toBe(200)
@@ -411,7 +411,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An IPv6 CIDR block.
   // IPv6 の CIDR ブロック。
   it('x-cidrv6 accepts "2001:db8::/32"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-cidrv6': '2001:db8::/32' },
     })
     expect(res.status).toBe(200)
@@ -423,7 +423,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An ISO 8601 date; it stays a string, it is not turned into a Date.
   // ISO 8601 の日付。Date には変換されず、文字列のまま届く。
   it('x-date accepts "2020-01-02"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-date': '2020-01-02' } })
+    const res = await app.request('/headers', { headers: { 'x-date': '2020-01-02' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-date': { valueType: 'string', valueText: '2020-01-02' },
@@ -433,7 +433,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An ISO 8601 time.
   // ISO 8601 の時刻。
   it('x-time accepts "12:34:56"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-time': '12:34:56' } })
+    const res = await app.request('/headers', { headers: { 'x-time': '12:34:56' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-time': { valueType: 'string', valueText: '12:34:56' },
@@ -443,7 +443,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An ISO 8601 date-time in UTC; it stays a string.
   // UTC の ISO 8601 日時。文字列のまま届く。
   it('x-datetime accepts "2020-01-02T03:04:05Z"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-datetime': '2020-01-02T03:04:05Z' },
     })
     expect(res.status).toBe(200)
@@ -455,7 +455,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An ISO 8601 duration with every component.
   // すべての要素を含む ISO 8601 の期間。
   it('x-duration accepts "P1Y2M3DT4H5M6S"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-duration': 'P1Y2M3DT4H5M6S' },
     })
     expect(res.status).toBe(200)
@@ -467,7 +467,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: byte is an annotation; the text is passed through.
   // format: byte は注釈にすぎず、文字列はそのまま渡される。
   it('x-byte accepts "aGVsbG8="', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-byte': 'aGVsbG8=' } })
+    const res = await app.request('/headers', { headers: { 'x-byte': 'aGVsbG8=' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-byte': { valueType: 'string', valueText: 'aGVsbG8=' },
@@ -477,7 +477,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: password is an annotation; the text is passed through.
   // format: password は注釈にすぎず、文字列はそのまま渡される。
   it('x-strpassword accepts "hunter2"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-strpassword': 'hunter2' },
     })
     expect(res.status).toBe(200)
@@ -489,7 +489,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A MAC address with colon separators.
   // コロン区切りの MAC アドレス。
   it('x-mac accepts "00:1a:2b:3c:4d:5e"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-mac': '00:1a:2b:3c:4d:5e' },
     })
     expect(res.status).toBe(200)
@@ -501,7 +501,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An E.164 phone number.
   // E.164 形式の電話番号。
   it('x-e164 accepts "+14155552671"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-e164': '+14155552671' } })
+    const res = await app.request('/headers', { headers: { 'x-e164': '+14155552671' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-e164': { valueType: 'string', valueText: '+14155552671' },
@@ -511,7 +511,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A card number that passes the Luhn check.
   // Luhn チェックを通過するカード番号。
   it('x-creditcard accepts "4111111111111111"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-creditcard': '4111111111111111' },
     })
     expect(res.status).toBe(200)
@@ -523,7 +523,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An IBAN with a valid checksum.
   // チェックサムが正しい IBAN。
   it('x-iban accepts "DE89370400440532013000"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-iban': 'DE89370400440532013000' },
     })
     expect(res.status).toBe(200)
@@ -535,7 +535,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An ISO 4217 currency code.
   // ISO 4217 の通貨コード。
   it('x-currencycode accepts "USD"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-currencycode': 'USD' } })
+    const res = await app.request('/headers', { headers: { 'x-currencycode': 'USD' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-currencycode': { valueType: 'string', valueText: 'USD' },
@@ -545,7 +545,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A 27-character KSUID.
   // 27文字の KSUID。
   it('x-ksuid accepts "0ujsszwN8NRY24YaXiTIE2VWDTS"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-ksuid': '0ujsszwN8NRY24YaXiTIE2VWDTS' },
     })
     expect(res.status).toBe(200)
@@ -557,7 +557,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A 20-character XID.
   // 20文字の XID。
   it('x-xid accepts "9m4e2mr0ui3e8a215n4g"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-xid': '9m4e2mr0ui3e8a215n4g' },
     })
     expect(res.status).toBe(200)
@@ -569,7 +569,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A GUID.
   // GUID。
   it('x-guid accepts "0190b1f4-0000-7000-8000-000000000000"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-guid': '0190b1f4-0000-7000-8000-000000000000' },
     })
     expect(res.status).toBe(200)
@@ -581,7 +581,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: trim leaves a value with no surrounding whitespace unchanged.
   // format: trim は、前後に空白のない値をそのまま通す。
   it('x-trim accepts "spaced"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-trim': 'spaced' } })
+    const res = await app.request('/headers', { headers: { 'x-trim': 'spaced' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-trim': { valueType: 'string', valueText: 'spaced' },
@@ -595,7 +595,7 @@ describe('integers: accepted boundaries', () => {
   // Zero.
   // ゼロ。
   it('x-integer accepts "0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '0' } })
+    const res = await app.request('/headers', { headers: { 'x-integer': '0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-integer': { valueType: 'number', valueText: '0' },
@@ -605,7 +605,7 @@ describe('integers: accepted boundaries', () => {
   // A negative integer.
   // 負の整数。
   it('x-integer accepts "-1"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '-1' } })
+    const res = await app.request('/headers', { headers: { 'x-integer': '-1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-integer': { valueType: 'number', valueText: '-1' },
@@ -615,7 +615,7 @@ describe('integers: accepted boundaries', () => {
   // Number.MAX_SAFE_INTEGER, the last integer a double holds exactly.
   // Number.MAX_SAFE_INTEGER。double が正確に保持できる最後の整数。
   it('x-integer accepts "9007199254740991"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-integer': '9007199254740991' },
     })
     expect(res.status).toBe(200)
@@ -627,7 +627,7 @@ describe('integers: accepted boundaries', () => {
   // Number.MIN_SAFE_INTEGER.
   // Number.MIN_SAFE_INTEGER。
   it('x-integer accepts "-9007199254740991"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-integer': '-9007199254740991' },
     })
     expect(res.status).toBe(200)
@@ -639,7 +639,7 @@ describe('integers: accepted boundaries', () => {
   // The int32 maximum, 2^31 - 1.
   // int32 の最大値(2^31 - 1)。
   it('x-int32 accepts "2147483647"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-int32': '2147483647' } })
+    const res = await app.request('/headers', { headers: { 'x-int32': '2147483647' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int32': { valueType: 'number', valueText: '2147483647' },
@@ -649,7 +649,7 @@ describe('integers: accepted boundaries', () => {
   // The int32 minimum, -2^31.
   // int32 の最小値(-2^31)。
   it('x-int32 accepts "-2147483648"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-int32': '-2147483648' } })
+    const res = await app.request('/headers', { headers: { 'x-int32': '-2147483648' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int32': { valueType: 'number', valueText: '-2147483648' },
@@ -659,7 +659,7 @@ describe('integers: accepted boundaries', () => {
   // Zero.
   // ゼロ。
   it('x-int32 accepts "0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-int32': '0' } })
+    const res = await app.request('/headers', { headers: { 'x-int32': '0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int32': { valueType: 'number', valueText: '0' },
@@ -669,7 +669,7 @@ describe('integers: accepted boundaries', () => {
   // The uint32 minimum.
   // uint32 の最小値。
   it('x-uint32 accepts "0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-uint32': '0' } })
+    const res = await app.request('/headers', { headers: { 'x-uint32': '0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-uint32': { valueType: 'number', valueText: '0' },
@@ -679,7 +679,7 @@ describe('integers: accepted boundaries', () => {
   // The uint32 maximum, 2^32 - 1.
   // uint32 の最大値(2^32 - 1)。
   it('x-uint32 accepts "4294967295"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-uint32': '4294967295' } })
+    const res = await app.request('/headers', { headers: { 'x-uint32': '4294967295' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-uint32': { valueType: 'number', valueText: '4294967295' },
@@ -689,7 +689,7 @@ describe('integers: accepted boundaries', () => {
   // The int64 maximum, 2^63 - 1, kept to the last digit.
   // int64 の最大値(2^63 - 1)。最後の桁まで保持される。
   it('x-int64 accepts "9223372036854775807"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-int64': '9223372036854775807' },
     })
     expect(res.status).toBe(200)
@@ -701,7 +701,7 @@ describe('integers: accepted boundaries', () => {
   // The int64 minimum, -2^63.
   // int64 の最小値(-2^63)。
   it('x-int64 accepts "-9223372036854775808"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-int64': '-9223372036854775808' },
     })
     expect(res.status).toBe(200)
@@ -713,7 +713,7 @@ describe('integers: accepted boundaries', () => {
   // Zero is a bigint too.
   // ゼロも bigint として届く。
   it('x-int64 accepts "0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-int64': '0' } })
+    const res = await app.request('/headers', { headers: { 'x-int64': '0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int64': { valueType: 'bigint', valueText: '0' },
@@ -723,7 +723,7 @@ describe('integers: accepted boundaries', () => {
   // The uint64 minimum.
   // uint64 の最小値。
   it('x-uint64 accepts "0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-uint64': '0' } })
+    const res = await app.request('/headers', { headers: { 'x-uint64': '0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-uint64': { valueType: 'bigint', valueText: '0' },
@@ -733,7 +733,7 @@ describe('integers: accepted boundaries', () => {
   // The uint64 maximum, 2^64 - 1.
   // uint64 の最大値(2^64 - 1)。
   it('x-uint64 accepts "18446744073709551615"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-uint64': '18446744073709551615' },
     })
     expect(res.status).toBe(200)
@@ -745,7 +745,7 @@ describe('integers: accepted boundaries', () => {
   // format: bigint has no upper bound.
   // format: bigint には上限がない。
   it('x-bigint accepts "99999999999999999999999999999"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-bigint': '99999999999999999999999999999' },
     })
     expect(res.status).toBe(200)
@@ -757,7 +757,7 @@ describe('integers: accepted boundaries', () => {
   // format: bigint has no lower bound.
   // format: bigint には下限がない。
   it('x-bigint accepts "-99999999999999999999999999999"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-bigint': '-99999999999999999999999999999' },
     })
     expect(res.status).toBe(200)
@@ -771,7 +771,7 @@ describe('integers: accepted boundaries', () => {
   // 結果が整数になる指数表記は、整数である。
   // JSON Schema が見るのは値であり、表記ではない。
   it('x-int64 accepts "1e3"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-int64': '1e3' } })
+    const res = await app.request('/headers', { headers: { 'x-int64': '1e3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int64': { valueType: 'bigint', valueText: '1000' },
@@ -783,7 +783,7 @@ describe('integers: accepted boundaries', () => {
   // 小数部を持たない数値は、表記にかかわらず整数である。
   // JSON Schema は 1.0 を整数として扱う。
   it('x-bigint accepts "1.0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-bigint': '1.0' } })
+    const res = await app.request('/headers', { headers: { 'x-bigint': '1.0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-bigint': { valueType: 'bigint', valueText: '1' },
@@ -795,7 +795,7 @@ describe('integers: accepted boundaries', () => {
   // 結果が整数になる指数表記は、整数である。
   // JSON Schema が見るのは値であり、表記ではない。
   it('x-bigint accepts "1e3"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-bigint': '1e3' } })
+    const res = await app.request('/headers', { headers: { 'x-bigint': '1e3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-bigint': { valueType: 'bigint', valueText: '1000' },
@@ -807,7 +807,7 @@ describe('integers: accepted boundaries', () => {
   // 小数部を持たない数値は、表記にかかわらず整数である。
   // JSON Schema は 1.0 を整数として扱う。
   it('x-integer accepts "1.0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '1.0' } })
+    const res = await app.request('/headers', { headers: { 'x-integer': '1.0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-integer': { valueType: 'number', valueText: '1' },
@@ -819,7 +819,7 @@ describe('integers: accepted boundaries', () => {
   // 結果が整数になる指数表記は、整数である。
   // JSON Schema が見るのは値であり、表記ではない。
   it('x-integer accepts "1e3"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '1e3' } })
+    const res = await app.request('/headers', { headers: { 'x-integer': '1e3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-integer': { valueType: 'number', valueText: '1000' },
@@ -833,7 +833,7 @@ describe('floats: accepted values', () => {
   // Zero.
   // ゼロ。
   it('x-number accepts "0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-number': '0' } })
+    const res = await app.request('/headers', { headers: { 'x-number': '0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-number': { valueType: 'number', valueText: '0' },
@@ -843,7 +843,7 @@ describe('floats: accepted values', () => {
   // A negative fraction.
   // 負の小数。
   it('x-number accepts "-1.5"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-number': '-1.5' } })
+    const res = await app.request('/headers', { headers: { 'x-number': '-1.5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-number': { valueType: 'number', valueText: '-1.5' },
@@ -853,7 +853,7 @@ describe('floats: accepted values', () => {
   // Exponent notation.
   // 指数表記。
   it('x-number accepts "1e3"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-number': '1e3' } })
+    const res = await app.request('/headers', { headers: { 'x-number': '1e3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-number': { valueType: 'number', valueText: '1000' },
@@ -863,7 +863,7 @@ describe('floats: accepted values', () => {
   // A negative exponent.
   // 負の指数。
   it('x-number accepts "1e-3"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-number': '1e-3' } })
+    const res = await app.request('/headers', { headers: { 'x-number': '1e-3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-number': { valueType: 'number', valueText: '0.001' },
@@ -873,7 +873,7 @@ describe('floats: accepted values', () => {
   // No digit before the decimal point.
   // 小数点の前の数字を省略した表記。
   it('x-number accepts ".5"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-number': '.5' } })
+    const res = await app.request('/headers', { headers: { 'x-number': '.5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-number': { valueType: 'number', valueText: '0.5' },
@@ -883,7 +883,7 @@ describe('floats: accepted values', () => {
   // No digit after the decimal point.
   // 小数点の後の数字を省略した表記。
   it('x-number accepts "5."', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-number': '5.' } })
+    const res = await app.request('/headers', { headers: { 'x-number': '5.' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-number': { valueType: 'number', valueText: '5' },
@@ -893,7 +893,7 @@ describe('floats: accepted values', () => {
   // The largest finite float32.
   // float32 の最大有限値。
   it('x-float32 accepts "3.4028234e38"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-float32': '3.4028234e38' },
     })
     expect(res.status).toBe(200)
@@ -905,7 +905,7 @@ describe('floats: accepted values', () => {
   // The smallest finite float32.
   // float32 の最小有限値。
   it('x-float32 accepts "-3.4028234e38"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-float32': '-3.4028234e38' },
     })
     expect(res.status).toBe(200)
@@ -917,7 +917,7 @@ describe('floats: accepted values', () => {
   // Too small for a float32 to represent: underflow is not a range error.
   // float32 では表現できないほど小さい値。アンダーフローは範囲エラーにならない。
   it('x-float32 accepts "1e-50"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-float32': '1e-50' } })
+    const res = await app.request('/headers', { headers: { 'x-float32': '1e-50' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-float32': { valueType: 'number', valueText: '1e-50' },
@@ -927,7 +927,7 @@ describe('floats: accepted values', () => {
   // A value a float32 cannot hold exactly is not rounded.
   // float32 で正確に表現できない値でも、丸められずに届く。
   it('x-float32 accepts "0.1"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-float32': '0.1' } })
+    const res = await app.request('/headers', { headers: { 'x-float32': '0.1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-float32': { valueType: 'number', valueText: '0.1' },
@@ -937,7 +937,7 @@ describe('floats: accepted values', () => {
   // Number.MAX_VALUE, the largest finite double.
   // Number.MAX_VALUE。double の最大有限値。
   it('x-float64 accepts "1.7976931348623157e308"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-float64': '1.7976931348623157e308' },
     })
     expect(res.status).toBe(200)
@@ -949,7 +949,7 @@ describe('floats: accepted values', () => {
   // The smallest finite double.
   // double の最小有限値。
   it('x-double accepts "-1.7976931348623157e308"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-double': '-1.7976931348623157e308' },
     })
     expect(res.status).toBe(200)
@@ -967,7 +967,7 @@ describe('booleans: accepted spellings', () => {
   // The literal true.
   // リテラルの true。
   it('x-boolean accepts "true"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-boolean': 'true' } })
+    const res = await app.request('/headers', { headers: { 'x-boolean': 'true' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-boolean': { valueType: 'boolean', valueText: 'true' },
@@ -977,7 +977,7 @@ describe('booleans: accepted spellings', () => {
   // The literal false; a naive Boolean("false") would have been true.
   // リテラルの false。素朴な Boolean("false") では true になってしまう。
   it('x-boolean accepts "false"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-boolean': 'false' } })
+    const res = await app.request('/headers', { headers: { 'x-boolean': 'false' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-boolean': { valueType: 'boolean', valueText: 'false' },
@@ -987,7 +987,7 @@ describe('booleans: accepted spellings', () => {
   // Upper case is read the same.
   // 大文字でも同じように読み取られる。
   it('x-boolean accepts "TRUE"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-boolean': 'TRUE' } })
+    const res = await app.request('/headers', { headers: { 'x-boolean': 'TRUE' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-boolean': { valueType: 'boolean', valueText: 'true' },
@@ -997,7 +997,7 @@ describe('booleans: accepted spellings', () => {
   // Mixed case is read the same.
   // 大文字小文字が混在していても同じように読み取られる。
   it('x-boolean accepts "False"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-boolean': 'False' } })
+    const res = await app.request('/headers', { headers: { 'x-boolean': 'False' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-boolean': { valueType: 'boolean', valueText: 'false' },
@@ -1007,7 +1007,7 @@ describe('booleans: accepted spellings', () => {
   // The digit 1 means true.
   // 数字の 1 は true を意味する。
   it('x-boolean accepts "1"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-boolean': '1' } })
+    const res = await app.request('/headers', { headers: { 'x-boolean': '1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-boolean': { valueType: 'boolean', valueText: 'true' },
@@ -1017,7 +1017,7 @@ describe('booleans: accepted spellings', () => {
   // The digit 0 means false.
   // 数字の 0 は false を意味する。
   it('x-boolean accepts "0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-boolean': '0' } })
+    const res = await app.request('/headers', { headers: { 'x-boolean': '0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-boolean': { valueType: 'boolean', valueText: 'false' },
@@ -1027,7 +1027,7 @@ describe('booleans: accepted spellings', () => {
   // "yes" means true.
   // "yes" は true を意味する。
   it('x-boolean accepts "yes"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-boolean': 'yes' } })
+    const res = await app.request('/headers', { headers: { 'x-boolean': 'yes' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-boolean': { valueType: 'boolean', valueText: 'true' },
@@ -1037,7 +1037,7 @@ describe('booleans: accepted spellings', () => {
   // "no" means false.
   // "no" は false を意味する。
   it('x-boolean accepts "no"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-boolean': 'no' } })
+    const res = await app.request('/headers', { headers: { 'x-boolean': 'no' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-boolean': { valueType: 'boolean', valueText: 'false' },
@@ -1047,7 +1047,7 @@ describe('booleans: accepted spellings', () => {
   // "on" means true.
   // "on" は true を意味する。
   it('x-boolean accepts "on"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-boolean': 'on' } })
+    const res = await app.request('/headers', { headers: { 'x-boolean': 'on' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-boolean': { valueType: 'boolean', valueText: 'true' },
@@ -1057,7 +1057,7 @@ describe('booleans: accepted spellings', () => {
   // "off" means false.
   // "off" は false を意味する。
   it('x-boolean accepts "off"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-boolean': 'off' } })
+    const res = await app.request('/headers', { headers: { 'x-boolean': 'off' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-boolean': { valueType: 'boolean', valueText: 'false' },
@@ -1067,7 +1067,7 @@ describe('booleans: accepted spellings', () => {
   // "y" means true.
   // "y" は true を意味する。
   it('x-boolean accepts "y"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-boolean': 'y' } })
+    const res = await app.request('/headers', { headers: { 'x-boolean': 'y' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-boolean': { valueType: 'boolean', valueText: 'true' },
@@ -1077,7 +1077,7 @@ describe('booleans: accepted spellings', () => {
   // "n" means false.
   // "n" は false を意味する。
   it('x-boolean accepts "n"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-boolean': 'n' } })
+    const res = await app.request('/headers', { headers: { 'x-boolean': 'n' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-boolean': { valueType: 'boolean', valueText: 'false' },
@@ -1087,7 +1087,7 @@ describe('booleans: accepted spellings', () => {
   // "enabled" means true.
   // "enabled" は true を意味する。
   it('x-boolean accepts "enabled"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-boolean': 'enabled' } })
+    const res = await app.request('/headers', { headers: { 'x-boolean': 'enabled' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-boolean': { valueType: 'boolean', valueText: 'true' },
@@ -1097,7 +1097,7 @@ describe('booleans: accepted spellings', () => {
   // "disabled" means false.
   // "disabled" は false を意味する。
   it('x-boolean accepts "disabled"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-boolean': 'disabled' } })
+    const res = await app.request('/headers', { headers: { 'x-boolean': 'disabled' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-boolean': { valueType: 'boolean', valueText: 'false' },
@@ -1111,7 +1111,7 @@ describe('formats: what each string format accepts', () => {
   // Upper case is valid, and is not lower-cased.
   // 大文字も有効であり、小文字化はされない。
   it('x-email accepts "USER@EXAMPLE.COM"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-email': 'USER@EXAMPLE.COM' },
     })
     expect(res.status).toBe(200)
@@ -1123,7 +1123,7 @@ describe('formats: what each string format accepts', () => {
   // A plus tag in the local part.
   // ローカル部にプラス記号のタグを含む。
   it('x-email accepts "user+tag@example.com"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-email': 'user+tag@example.com' },
     })
     expect(res.status).toBe(200)
@@ -1135,7 +1135,7 @@ describe('formats: what each string format accepts', () => {
   // Dots in the local part and a multi-level domain.
   // ローカル部のドットと、多階層のドメイン。
   it('x-email accepts "first.last@sub.example.co.jp"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-email': 'first.last@sub.example.co.jp' },
     })
     expect(res.status).toBe(200)
@@ -1147,7 +1147,7 @@ describe('formats: what each string format accepts', () => {
   // Upper-case hexadecimal digits.
   // 大文字の16進数。
   it('x-uuid accepts "0190B1F4-0000-7000-8000-000000000000"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-uuid': '0190B1F4-0000-7000-8000-000000000000' },
     })
     expect(res.status).toBe(200)
@@ -1159,7 +1159,7 @@ describe('formats: what each string format accepts', () => {
   // The nil UUID, which carries no version.
   // バージョンを持たない nil UUID。
   it('x-uuid accepts "00000000-0000-0000-0000-000000000000"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-uuid': '00000000-0000-0000-0000-000000000000' },
     })
     expect(res.status).toBe(200)
@@ -1171,7 +1171,7 @@ describe('formats: what each string format accepts', () => {
   // The max UUID, which carries no version.
   // バージョンを持たない max UUID。
   it('x-uuid accepts "ffffffff-ffff-ffff-ffff-ffffffffffff"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-uuid': 'ffffffff-ffff-ffff-ffff-ffffffffffff' },
     })
     expect(res.status).toBe(200)
@@ -1183,7 +1183,7 @@ describe('formats: what each string format accepts', () => {
   // A GUID checks the 8-4-4-4-12 layout only, not the version or variant.
   // GUID は 8-4-4-4-12 の形だけを検証し、バージョンやバリアントは見ない。
   it('x-guid accepts "a1b2c3d4-e5f6-9a7b-0c9d-0e1f2a3b4c5d"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-guid': 'a1b2c3d4-e5f6-9a7b-0c9d-0e1f2a3b4c5d' },
     })
     expect(res.status).toBe(200)
@@ -1195,7 +1195,7 @@ describe('formats: what each string format accepts', () => {
   // format: url takes any scheme, not only http.
   // format: url は http に限らず任意のスキームを受理する。
   it('x-url accepts "ftp://example.com"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-url': 'ftp://example.com' },
     })
     expect(res.status).toBe(200)
@@ -1207,7 +1207,7 @@ describe('formats: what each string format accepts', () => {
   // A scheme with no authority.
   // オーソリティ部のないスキーム。
   it('x-url accepts "mailto:a@b.c"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-url': 'mailto:a@b.c' } })
+    const res = await app.request('/headers', { headers: { 'x-url': 'mailto:a@b.c' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-url': { valueType: 'string', valueText: 'mailto:a@b.c' },
@@ -1217,7 +1217,7 @@ describe('formats: what each string format accepts', () => {
   // A port, a path, a query and a fragment.
   // ポート・パス・クエリ・フラグメントを含む。
   it('x-url accepts "http://localhost:3000/a?b=c#d"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-url': 'http://localhost:3000/a?b=c#d' },
     })
     expect(res.status).toBe(200)
@@ -1229,7 +1229,7 @@ describe('formats: what each string format accepts', () => {
   // A URN is a URI.
   // URN も URI である。
   it('x-uri accepts "urn:isbn:0451450523"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-uri': 'urn:isbn:0451450523' },
     })
     expect(res.status).toBe(200)
@@ -1241,7 +1241,7 @@ describe('formats: what each string format accepts', () => {
   // Plain http.
   // 暗号化なしの http。
   it('x-httpurl accepts "http://example.com"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-httpurl': 'http://example.com' },
     })
     expect(res.status).toBe(200)
@@ -1253,7 +1253,7 @@ describe('formats: what each string format accepts', () => {
   // A path and a query.
   // パスとクエリを含む。
   it('x-httpurl accepts "https://example.com/a/b?c=d"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-httpurl': 'https://example.com/a/b?c=d' },
     })
     expect(res.status).toBe(200)
@@ -1265,7 +1265,7 @@ describe('formats: what each string format accepts', () => {
   // A single label.
   // 単一ラベルのホスト名。
   it('x-hostname accepts "localhost"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-hostname': 'localhost' },
     })
     expect(res.status).toBe(200)
@@ -1277,7 +1277,7 @@ describe('formats: what each string format accepts', () => {
   // One-character labels.
   // 1文字のラベル。
   it('x-hostname accepts "a.b.c"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-hostname': 'a.b.c' } })
+    const res = await app.request('/headers', { headers: { 'x-hostname': 'a.b.c' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-hostname': { valueType: 'string', valueText: 'a.b.c' },
@@ -1287,7 +1287,7 @@ describe('formats: what each string format accepts', () => {
   // An internationalised name in punycode.
   // Punycode で表記した国際化ドメイン名。
   it('x-hostname accepts "xn--r8jz45g.jp"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-hostname': 'xn--r8jz45g.jp' },
     })
     expect(res.status).toBe(200)
@@ -1299,7 +1299,7 @@ describe('formats: what each string format accepts', () => {
   // Upper-case digits.
   // 大文字の16進数。
   it('x-hex accepts "DEADBEEF"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-hex': 'DEADBEEF' } })
+    const res = await app.request('/headers', { headers: { 'x-hex': 'DEADBEEF' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-hex': { valueType: 'string', valueText: 'DEADBEEF' },
@@ -1309,7 +1309,7 @@ describe('formats: what each string format accepts', () => {
   // An odd number of digits.
   // 桁数が奇数の16進数。
   it('x-hex accepts "abc"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-hex': 'abc' } })
+    const res = await app.request('/headers', { headers: { 'x-hex': 'abc' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-hex': { valueType: 'string', valueText: 'abc' },
@@ -1319,7 +1319,7 @@ describe('formats: what each string format accepts', () => {
   // "+" and "/" are what set base64 apart from base64url.
   // "+" と "/" は base64 と base64url を分ける文字である。
   it('x-base64 accepts "a+b/"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-base64': 'a+b/' } })
+    const res = await app.request('/headers', { headers: { 'x-base64': 'a+b/' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-base64': { valueType: 'string', valueText: 'a+b/' },
@@ -1329,7 +1329,7 @@ describe('formats: what each string format accepts', () => {
   // Two padding characters.
   // パディングが2文字。
   it('x-base64 accepts "YQ=="', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-base64': 'YQ==' } })
+    const res = await app.request('/headers', { headers: { 'x-base64': 'YQ==' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-base64': { valueType: 'string', valueText: 'YQ==' },
@@ -1339,7 +1339,7 @@ describe('formats: what each string format accepts', () => {
   // "-" and "_" are the base64url alphabet.
   // "-" と "_" は base64url の文字である。
   it('x-base64url accepts "a-b_"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-base64url': 'a-b_' } })
+    const res = await app.request('/headers', { headers: { 'x-base64url': 'a-b_' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-base64url': { valueType: 'string', valueText: 'a-b_' },
@@ -1349,7 +1349,7 @@ describe('formats: what each string format accepts', () => {
   // format: byte does not validate: text that is not base64 passes.
   // format: byte は検証を行わない。Base64 でない文字列も通る。
   it('x-byte accepts "!!!not-base64!!!"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-byte': '!!!not-base64!!!' },
     })
     expect(res.status).toBe(200)
@@ -1361,7 +1361,7 @@ describe('formats: what each string format accepts', () => {
   // format: password does not validate: reserved characters pass.
   // format: password は検証を行わない。予約文字も通る。
   it('x-strpassword accepts "p@ss/w0rd?#"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-strpassword': 'p@ss/w0rd?#' },
     })
     expect(res.status).toBe(200)
@@ -1373,7 +1373,7 @@ describe('formats: what each string format accepts', () => {
   // A ULID is case-insensitive.
   // ULID は大文字小文字を区別しない。
   it('x-ulid accepts "01arz3ndektsv4rrffq69g5fav"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-ulid': '01arz3ndektsv4rrffq69g5fav' },
     })
     expect(res.status).toBe(200)
@@ -1385,7 +1385,7 @@ describe('formats: what each string format accepts', () => {
   // Upper case is accepted.
   // 大文字も受理される。
   it('x-xid accepts "9M4E2MR0UI3E8A215N4G"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-xid': '9M4E2MR0UI3E8A215N4G' },
     })
     expect(res.status).toBe(200)
@@ -1397,7 +1397,7 @@ describe('formats: what each string format accepts', () => {
   // The lowest address.
   // 最小のアドレス。
   it('x-ipv4 accepts "0.0.0.0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-ipv4': '0.0.0.0' } })
+    const res = await app.request('/headers', { headers: { 'x-ipv4': '0.0.0.0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-ipv4': { valueType: 'string', valueText: '0.0.0.0' },
@@ -1407,7 +1407,7 @@ describe('formats: what each string format accepts', () => {
   // The highest address.
   // 最大のアドレス。
   it('x-ipv4 accepts "255.255.255.255"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-ipv4': '255.255.255.255' },
     })
     expect(res.status).toBe(200)
@@ -1419,7 +1419,7 @@ describe('formats: what each string format accepts', () => {
   // The unspecified address.
   // 未指定アドレス。
   it('x-ipv6 accepts "::"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-ipv6': '::' } })
+    const res = await app.request('/headers', { headers: { 'x-ipv6': '::' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-ipv6': { valueType: 'string', valueText: '::' },
@@ -1429,7 +1429,7 @@ describe('formats: what each string format accepts', () => {
   // The loopback address.
   // ループバックアドレス。
   it('x-ipv6 accepts "::1"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-ipv6': '::1' } })
+    const res = await app.request('/headers', { headers: { 'x-ipv6': '::1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-ipv6': { valueType: 'string', valueText: '::1' },
@@ -1439,7 +1439,7 @@ describe('formats: what each string format accepts', () => {
   // The full form, nothing compressed.
   // 省略のない完全表記。
   it('x-ipv6 accepts "2001:0db8:0000:0000:0000:0000:0000:0001"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-ipv6': '2001:0db8:0000:0000:0000:0000:0000:0001' },
     })
     expect(res.status).toBe(200)
@@ -1451,7 +1451,7 @@ describe('formats: what each string format accepts', () => {
   // An IPv4-mapped address.
   // IPv4 射影アドレス。
   it('x-ipv6 accepts "::ffff:192.168.0.1"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-ipv6': '::ffff:192.168.0.1' },
     })
     expect(res.status).toBe(200)
@@ -1463,7 +1463,7 @@ describe('formats: what each string format accepts', () => {
   // The shortest prefix, /0.
   // 最短のプレフィックス /0。
   it('x-cidrv4 accepts "0.0.0.0/0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-cidrv4': '0.0.0.0/0' } })
+    const res = await app.request('/headers', { headers: { 'x-cidrv4': '0.0.0.0/0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-cidrv4': { valueType: 'string', valueText: '0.0.0.0/0' },
@@ -1473,7 +1473,7 @@ describe('formats: what each string format accepts', () => {
   // The longest prefix, /32.
   // 最長のプレフィックス /32。
   it('x-cidrv4 accepts "10.0.0.1/32"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-cidrv4': '10.0.0.1/32' },
     })
     expect(res.status).toBe(200)
@@ -1485,7 +1485,7 @@ describe('formats: what each string format accepts', () => {
   // The shortest prefix, /0.
   // 最短のプレフィックス /0。
   it('x-cidrv6 accepts "::/0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-cidrv6': '::/0' } })
+    const res = await app.request('/headers', { headers: { 'x-cidrv6': '::/0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-cidrv6': { valueType: 'string', valueText: '::/0' },
@@ -1495,7 +1495,7 @@ describe('formats: what each string format accepts', () => {
   // The longest prefix, /128.
   // 最長のプレフィックス /128。
   it('x-cidrv6 accepts "2001:db8::/128"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-cidrv6': '2001:db8::/128' },
     })
     expect(res.status).toBe(200)
@@ -1507,7 +1507,7 @@ describe('formats: what each string format accepts', () => {
   // 29 February of a leap year.
   // うるう年の 2月29日。
   it('x-date accepts "2020-02-29"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-date': '2020-02-29' } })
+    const res = await app.request('/headers', { headers: { 'x-date': '2020-02-29' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-date': { valueType: 'string', valueText: '2020-02-29' },
@@ -1517,7 +1517,7 @@ describe('formats: what each string format accepts', () => {
   // Year zero.
   // 西暦 0 年。
   it('x-date accepts "0000-01-01"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-date': '0000-01-01' } })
+    const res = await app.request('/headers', { headers: { 'x-date': '0000-01-01' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-date': { valueType: 'string', valueText: '0000-01-01' },
@@ -1527,7 +1527,7 @@ describe('formats: what each string format accepts', () => {
   // The last four-digit date.
   // 4桁の年で表せる最後の日付。
   it('x-date accepts "9999-12-31"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-date': '9999-12-31' } })
+    const res = await app.request('/headers', { headers: { 'x-date': '9999-12-31' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-date': { valueType: 'string', valueText: '9999-12-31' },
@@ -1537,7 +1537,7 @@ describe('formats: what each string format accepts', () => {
   // Midnight.
   // 午前 0 時。
   it('x-time accepts "00:00:00"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-time': '00:00:00' } })
+    const res = await app.request('/headers', { headers: { 'x-time': '00:00:00' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-time': { valueType: 'string', valueText: '00:00:00' },
@@ -1547,7 +1547,7 @@ describe('formats: what each string format accepts', () => {
   // The last second of the day.
   // 1日の最後の秒。
   it('x-time accepts "23:59:59"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-time': '23:59:59' } })
+    const res = await app.request('/headers', { headers: { 'x-time': '23:59:59' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-time': { valueType: 'string', valueText: '23:59:59' },
@@ -1557,7 +1557,7 @@ describe('formats: what each string format accepts', () => {
   // Seconds may be left out.
   // 秒は省略できる。
   it('x-time accepts "12:34"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-time': '12:34' } })
+    const res = await app.request('/headers', { headers: { 'x-time': '12:34' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-time': { valueType: 'string', valueText: '12:34' },
@@ -1567,7 +1567,7 @@ describe('formats: what each string format accepts', () => {
   // Fractional seconds.
   // 小数秒。
   it('x-time accepts "12:34:56.789"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-time': '12:34:56.789' } })
+    const res = await app.request('/headers', { headers: { 'x-time': '12:34:56.789' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-time': { valueType: 'string', valueText: '12:34:56.789' },
@@ -1577,7 +1577,7 @@ describe('formats: what each string format accepts', () => {
   // A zone designator: `time` names an RFC 3339 full-time, which ends in one.
   // タイムゾーン指定子が付いている。`time` が指す RFC 3339 の full-time は、これで終わる。
   it('x-time accepts "12:34:56Z"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-time': '12:34:56Z' },
     })
     expect(res.status).toBe(200)
@@ -1589,7 +1589,7 @@ describe('formats: what each string format accepts', () => {
   // An offset in place of the zone designator.
   // タイムゾーン指定子の代わりにオフセットが付いている。
   it('x-time accepts "12:34:56+09:00"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-time': '12:34:56+09:00' },
     })
     expect(res.status).toBe(200)
@@ -1601,7 +1601,7 @@ describe('formats: what each string format accepts', () => {
   // Fractional seconds.
   // 小数秒。
   it('x-datetime accepts "2020-01-02T03:04:05.123Z"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-datetime': '2020-01-02T03:04:05.123Z' },
     })
     expect(res.status).toBe(200)
@@ -1613,7 +1613,7 @@ describe('formats: what each string format accepts', () => {
   // An offset instead of Z: RFC 3339, which `date-time` names, takes either.
   // Z ではなくオフセット。`date-time` が指す RFC 3339 はどちらも認める。
   it('x-datetime accepts "2020-01-02T03:04:05+09:00"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-datetime': '2020-01-02T03:04:05+09:00' },
     })
     expect(res.status).toBe(200)
@@ -1625,7 +1625,7 @@ describe('formats: what each string format accepts', () => {
   // The last second of a leap day.
   // うるう日の最後の秒。
   it('x-datetime accepts "2020-02-29T23:59:59Z"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-datetime': '2020-02-29T23:59:59Z' },
     })
     expect(res.status).toBe(200)
@@ -1637,7 +1637,7 @@ describe('formats: what each string format accepts', () => {
   // A date component alone.
   // 日付要素のみ。
   it('x-duration accepts "P1Y"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-duration': 'P1Y' } })
+    const res = await app.request('/headers', { headers: { 'x-duration': 'P1Y' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-duration': { valueType: 'string', valueText: 'P1Y' },
@@ -1647,7 +1647,7 @@ describe('formats: what each string format accepts', () => {
   // A time component alone.
   // 時刻要素のみ。
   it('x-duration accepts "PT1S"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-duration': 'PT1S' } })
+    const res = await app.request('/headers', { headers: { 'x-duration': 'PT1S' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-duration': { valueType: 'string', valueText: 'PT1S' },
@@ -1657,7 +1657,7 @@ describe('formats: what each string format accepts', () => {
   // Weeks.
   // 週。
   it('x-duration accepts "P1W"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-duration': 'P1W' } })
+    const res = await app.request('/headers', { headers: { 'x-duration': 'P1W' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-duration': { valueType: 'string', valueText: 'P1W' },
@@ -1667,7 +1667,7 @@ describe('formats: what each string format accepts', () => {
   // Fractional seconds.
   // 小数秒。
   it('x-duration accepts "PT0.5S"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-duration': 'PT0.5S' } })
+    const res = await app.request('/headers', { headers: { 'x-duration': 'PT0.5S' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-duration': { valueType: 'string', valueText: 'PT0.5S' },
@@ -1677,7 +1677,7 @@ describe('formats: what each string format accepts', () => {
   // Upper-case digits.
   // 大文字の16進数。
   it('x-mac accepts "00:1A:2B:3C:4D:5E"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-mac': '00:1A:2B:3C:4D:5E' },
     })
     expect(res.status).toBe(200)
@@ -1689,7 +1689,7 @@ describe('formats: what each string format accepts', () => {
   // Hyphens between groups; the Luhn check runs on the digits.
   // グループ間のハイフン。Luhn チェックは数字部分に対して行われる。
   it('x-creditcard accepts "4111-1111-1111-1111"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-creditcard': '4111-1111-1111-1111' },
     })
     expect(res.status).toBe(200)
@@ -1701,7 +1701,7 @@ describe('formats: what each string format accepts', () => {
   // Spaces between groups.
   // グループ間の空白。
   it('x-creditcard accepts "4111 1111 1111 1111"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-creditcard': '4111 1111 1111 1111' },
     })
     expect(res.status).toBe(200)
@@ -1713,7 +1713,7 @@ describe('formats: what each string format accepts', () => {
   // A 15-digit number.
   // 15桁のカード番号。
   it('x-creditcard accepts "378282246310005"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-creditcard': '378282246310005' },
     })
     expect(res.status).toBe(200)
@@ -1725,7 +1725,7 @@ describe('formats: what each string format accepts', () => {
   // Letters in the account part.
   // 口座部分に英字を含む。
   it('x-iban accepts "GB82WEST12345698765432"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-iban': 'GB82WEST12345698765432' },
     })
     expect(res.status).toBe(200)
@@ -1737,7 +1737,7 @@ describe('formats: what each string format accepts', () => {
   // Another ISO 4217 code.
   // 別の ISO 4217 コード。
   it('x-currencycode accepts "JPY"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-currencycode': 'JPY' } })
+    const res = await app.request('/headers', { headers: { 'x-currencycode': 'JPY' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-currencycode': { valueType: 'string', valueText: 'JPY' },
@@ -1747,7 +1747,7 @@ describe('formats: what each string format accepts', () => {
   // ISO 4217 reserves XXX for "no currency".
   // ISO 4217 は XXX を「通貨なし」として予約している。
   it('x-currencycode accepts "XXX"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-currencycode': 'XXX' } })
+    const res = await app.request('/headers', { headers: { 'x-currencycode': 'XXX' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-currencycode': { valueType: 'string', valueText: 'XXX' },
@@ -1761,7 +1761,7 @@ describe('literals, constraints and transforms', () => {
   // The first member of enum: [1, 2, 3].
   // enum: [1, 2, 3] の最初のメンバー。
   it('x-ienum accepts "1"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-ienum': '1' } })
+    const res = await app.request('/optional', { headers: { 'x-ienum': '1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-ienum': { valueType: 'number', valueText: '1' },
@@ -1771,7 +1771,7 @@ describe('literals, constraints and transforms', () => {
   // The last member of enum: [1, 2, 3].
   // enum: [1, 2, 3] の最後のメンバー。
   it('x-ienum accepts "3"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-ienum': '3' } })
+    const res = await app.request('/optional', { headers: { 'x-ienum': '3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-ienum': { valueType: 'number', valueText: '3' },
@@ -1781,7 +1781,7 @@ describe('literals, constraints and transforms', () => {
   // The only member of the boolean enum [true].
   // boolean の enum [true] の唯一のメンバー。
   it('x-benum accepts "true"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-benum': 'true' } })
+    const res = await app.request('/optional', { headers: { 'x-benum': 'true' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-benum': { valueType: 'boolean', valueText: 'true' },
@@ -1791,7 +1791,7 @@ describe('literals, constraints and transforms', () => {
   // The constant of const: 7.
   // const: 7 の定数値。
   it('x-iconst accepts "7"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-iconst': '7' } })
+    const res = await app.request('/optional', { headers: { 'x-iconst': '7' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-iconst': { valueType: 'number', valueText: '7' },
@@ -1801,7 +1801,7 @@ describe('literals, constraints and transforms', () => {
   // A member of the string enum [asc, desc].
   // string の enum [asc, desc] のメンバー。
   it('x-senum accepts "asc"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-senum': 'asc' } })
+    const res = await app.request('/optional', { headers: { 'x-senum': 'asc' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-senum': { valueType: 'string', valueText: 'asc' },
@@ -1811,7 +1811,7 @@ describe('literals, constraints and transforms', () => {
   // The other member of the string enum.
   // string の enum のもう一方のメンバー。
   it('x-senum accepts "desc"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-senum': 'desc' } })
+    const res = await app.request('/optional', { headers: { 'x-senum': 'desc' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-senum': { valueType: 'string', valueText: 'desc' },
@@ -1821,7 +1821,7 @@ describe('literals, constraints and transforms', () => {
   // oneOf an integer or "all": the integer branch coerces.
   // integer または "all" の oneOf。integer 側の分岐は coerce される。
   it('x-ioneof accepts "4"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-ioneof': '4' } })
+    const res = await app.request('/optional', { headers: { 'x-ioneof': '4' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-ioneof': { valueType: 'number', valueText: '4' },
@@ -1831,7 +1831,7 @@ describe('literals, constraints and transforms', () => {
   // The string branch needs no coercion and arrives as a string.
   // string 側は coerce 不要で、string として届く。
   it('x-ioneof accepts "all"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-ioneof': 'all' } })
+    const res = await app.request('/optional', { headers: { 'x-ioneof': 'all' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-ioneof': { valueType: 'string', valueText: 'all' },
@@ -1841,7 +1841,7 @@ describe('literals, constraints and transforms', () => {
   // The minimum of minimum: 1, maximum: 100 is inclusive.
   // minimum: 1, maximum: 100 の最小値は範囲に含まれる。
   it('x-range accepts "1"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-range': '1' } })
+    const res = await app.request('/optional', { headers: { 'x-range': '1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-range': { valueType: 'number', valueText: '1' },
@@ -1851,7 +1851,7 @@ describe('literals, constraints and transforms', () => {
   // Inside the range. Compared as text, "9" would sort after "100" and be refused.
   // 範囲内の値。文字列として比較すると "9" は "100" より後に並び、拒否されてしまう。
   it('x-range accepts "9"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-range': '9' } })
+    const res = await app.request('/optional', { headers: { 'x-range': '9' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-range': { valueType: 'number', valueText: '9' },
@@ -1861,7 +1861,7 @@ describe('literals, constraints and transforms', () => {
   // The maximum is inclusive.
   // 最大値は範囲に含まれる。
   it('x-range accepts "100"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-range': '100' } })
+    const res = await app.request('/optional', { headers: { 'x-range': '100' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-range': { valueType: 'number', valueText: '100' },
@@ -1871,7 +1871,7 @@ describe('literals, constraints and transforms', () => {
   // Exactly minLength: 2.
   // ちょうど minLength: 2 の長さ。
   it('x-length accepts "ab"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-length': 'ab' } })
+    const res = await app.request('/optional', { headers: { 'x-length': 'ab' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-length': { valueType: 'string', valueText: 'ab' },
@@ -1881,7 +1881,7 @@ describe('literals, constraints and transforms', () => {
   // Exactly maxLength: 4.
   // ちょうど maxLength: 4 の長さ。
   it('x-length accepts "abcd"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-length': 'abcd' } })
+    const res = await app.request('/optional', { headers: { 'x-length': 'abcd' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-length': { valueType: 'string', valueText: 'abcd' },
@@ -1891,7 +1891,7 @@ describe('literals, constraints and transforms', () => {
   // Matches ^[a-z]+-\d{1,3}$ with one digit.
   // ^[a-z]+-\d{1,3}$ に数字1桁で一致する。
   it('x-pattern accepts "abc-1"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-pattern': 'abc-1' } })
+    const res = await app.request('/optional', { headers: { 'x-pattern': 'abc-1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-pattern': { valueType: 'string', valueText: 'abc-1' },
@@ -1901,7 +1901,7 @@ describe('literals, constraints and transforms', () => {
   // Matches with three digits, the most allowed.
   // 許容される最大の数字3桁で一致する。
   it('x-pattern accepts "abc-123"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-pattern': 'abc-123' } })
+    const res = await app.request('/optional', { headers: { 'x-pattern': 'abc-123' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-pattern': { valueType: 'string', valueText: 'abc-123' },
@@ -1911,7 +1911,7 @@ describe('literals, constraints and transforms', () => {
   // x-toLowerCase lower-cases the value.
   // x-toLowerCase は値を小文字化する。
   it('x-tx-lower turns "MiXeD" into "mixed"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-tx-lower': 'MiXeD' } })
+    const res = await app.request('/optional', { headers: { 'x-tx-lower': 'MiXeD' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-tx-lower': { valueType: 'string', valueText: 'mixed' },
@@ -1921,7 +1921,7 @@ describe('literals, constraints and transforms', () => {
   // A transform paired with a format: the value is lower-cased, then checked as an email.
   // 変換とフォーマットの組み合わせ。小文字化した後、メールアドレスとして検証される。
   it('x-tx-email turns "USER@EXAMPLE.COM" into "user@example.com"', async () => {
-    const res = await headerParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { 'x-tx-email': 'USER@EXAMPLE.COM' },
     })
     expect(res.status).toBe(200)
@@ -1939,7 +1939,7 @@ describe('optional: absent and present', () => {
   // 省略された任意ヘッダーは、検証済みオブジェクトにも存在しない。
   // キー自体が無いことは exactOptional が保証するもので、値が undefined の場合とは異なる。
   it('answers nothing when nothing is sent', async () => {
-    const res = await headerParamsApp.request('/optional')
+    const res = await app.request('/optional')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({})
   })
@@ -1947,7 +1947,7 @@ describe('optional: absent and present', () => {
   // An optional integer that is sent is coerced.
   // 送信された任意の integer は coerce される。
   it('x-int-opt accepts "5"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-int-opt': '5' } })
+    const res = await app.request('/optional', { headers: { 'x-int-opt': '5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int-opt': { valueType: 'number', valueText: '5' },
@@ -1957,7 +1957,7 @@ describe('optional: absent and present', () => {
   // An optional int64 keeps its precision.
   // 任意の int64 も桁落ちしない。
   it('x-int64-opt accepts "9007199254740993"', async () => {
-    const res = await headerParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { 'x-int64-opt': '9007199254740993' },
     })
     expect(res.status).toBe(200)
@@ -1969,7 +1969,7 @@ describe('optional: absent and present', () => {
   // An optional boolean sent as false arrives as false, not as absent.
   // false として送信された任意の boolean は、省略扱いではなく false として届く。
   it('x-bool-opt accepts "false"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-bool-opt': 'false' } })
+    const res = await app.request('/optional', { headers: { 'x-bool-opt': 'false' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-bool-opt': { valueType: 'boolean', valueText: 'false' },
@@ -1979,7 +1979,7 @@ describe('optional: absent and present', () => {
   // An optional string.
   // 任意の string。
   it('x-str-opt accepts "s"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-str-opt': 's' } })
+    const res = await app.request('/optional', { headers: { 'x-str-opt': 's' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-str-opt': { valueType: 'string', valueText: 's' },
@@ -1989,7 +1989,7 @@ describe('optional: absent and present', () => {
   // Each header keeps its own value and type.
   // 各ヘッダーが自身の値と型を保つ。
   it('accepts several headers in one request', async () => {
-    const res = await headerParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { 'x-int-opt': '5', 'x-bool-opt': 'true', 'x-str-opt': 's' },
     })
     expect(res.status).toBe(200)
@@ -2005,7 +2005,7 @@ describe('optional: absent and present', () => {
   // 宣言されていないヘッダーは、拒否もされず、ハンドラにも渡されない。
   // あらゆるリクエストに付く標準ヘッダーについても同様である。
   it('ignores a header the spec does not declare', async () => {
-    const res = await headerParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: {
         'x-unknown': '1',
         'content-type': 'text/plain',
@@ -2026,7 +2026,7 @@ describe('defaults', () => {
   // デフォルトは型付きの値である。int64 の default: 5 は、
   // YAML 上の number ではなく bigint の 5n として届く。
   it('applies every default when nothing is sent', async () => {
-    const res = await headerParamsApp.request('/defaults')
+    const res = await app.request('/defaults')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int-def': { valueType: 'number', valueText: '20' },
@@ -2039,7 +2039,7 @@ describe('defaults', () => {
   // Only x-int-def changes; the other defaults still apply.
   // 変わるのは x-int-def だけで、他のデフォルトは引き続き適用される。
   it('lets a sent integer replace its default', async () => {
-    const res = await headerParamsApp.request('/defaults', { headers: { 'x-int-def': '1' } })
+    const res = await app.request('/defaults', { headers: { 'x-int-def': '1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int-def': { valueType: 'number', valueText: '1' },
@@ -2052,7 +2052,7 @@ describe('defaults', () => {
   // The sent value is coerced to a bigint like the default.
   // 送信された値は、デフォルトと同じく bigint に coerce される。
   it('lets a sent int64 replace its default', async () => {
-    const res = await headerParamsApp.request('/defaults', { headers: { 'x-int64-def': '8' } })
+    const res = await app.request('/defaults', { headers: { 'x-int64-def': '8' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int-def': { valueType: 'number', valueText: '20' },
@@ -2065,7 +2065,7 @@ describe('defaults', () => {
   // x-bool-def defaults to false.
   // x-bool-def のデフォルトは false である。
   it('lets true replace a default of false', async () => {
-    const res = await headerParamsApp.request('/defaults', { headers: { 'x-bool-def': 'true' } })
+    const res = await app.request('/defaults', { headers: { 'x-bool-def': 'true' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int-def': { valueType: 'number', valueText: '20' },
@@ -2078,7 +2078,7 @@ describe('defaults', () => {
   // A sent string replaces default: fallback.
   // 送信された string が default: fallback を置き換える。
   it('lets a sent string replace its default', async () => {
-    const res = await headerParamsApp.request('/defaults', { headers: { 'x-str-def': 'd' } })
+    const res = await app.request('/defaults', { headers: { 'x-str-def': 'd' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int-def': { valueType: 'number', valueText: '20' },
@@ -2091,7 +2091,7 @@ describe('defaults', () => {
   // Zero is a value, not an absence: the default must not win over it.
   // 0 は値であって欠落ではない。デフォルトがこれを上書きしてはならない。
   it('lets zero replace a default of 20', async () => {
-    const res = await headerParamsApp.request('/defaults', { headers: { 'x-int-def': '0' } })
+    const res = await app.request('/defaults', { headers: { 'x-int-def': '0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int-def': { valueType: 'number', valueText: '0' },
@@ -2109,7 +2109,7 @@ describe('required', () => {
   // The optional x-note is left out and is absent from the answer.
   // 任意の x-note は省略しており、応答にも含まれない。
   it('accepts a request that carries every required header', async () => {
-    const res = await headerParamsApp.request('/required', {
+    const res = await app.request('/required', {
       headers: { 'x-id': '1', 'x-big': '9007199254740993', 'x-flag': 'true', 'x-name': 'n' },
     })
     expect(res.status).toBe(200)
@@ -2124,7 +2124,7 @@ describe('required', () => {
   // x-note is declared without required: true.
   // x-note は required: true なしで宣言されている。
   it('accepts the optional header beside the required ones', async () => {
-    const res = await headerParamsApp.request('/required', {
+    const res = await app.request('/required', {
       headers: {
         'x-id': '1',
         'x-big': '9007199254740993',
@@ -2152,7 +2152,7 @@ describe('objects: a value that holds the separator', () => {
   // カンマは代入同士を区切るが、値の中にも現れうる。"=" を持たない部分は、直前の値の
   // 続きである。
   it('x-objx reads a value that holds a comma', async () => {
-    const res = await headerParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { 'x-objx': 'a=1,b=x,y' },
     })
     expect(res.status).toBe(200)
@@ -2171,7 +2171,7 @@ describe('null', () => {
   // The text "null" is the value null: the schema takes null and no string.
   // テキスト "null" は値 null である。スキーマは null を受理し、文字列を受理しない。
   it('x-inull accepts "null"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-inull': 'null' } })
+    const res = await app.request('/optional', { headers: { 'x-inull': 'null' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-inull': { valueType: 'null', valueText: 'null' },
@@ -2185,7 +2185,7 @@ describe('names', () => {
   // A name every object inherits, sent: it is read like any other parameter.
   // すべてのオブジェクトが継承する名前を送信する。他のパラメータと同じように読まれる。
   it('constructor accepts "5"', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { constructor: '5' } })
+    const res = await app.request('/optional', { headers: { constructor: '5' } })
     expect(res.status).toBe(200)
     // The body is compared as text: `toStrictEqual` compares the `constructor` of two
     // objects to tell their types apart, and here that is the key under test.
@@ -2199,7 +2199,7 @@ describe('names', () => {
   // 同じ名前を送信しない。リクエストオブジェクトがその名前で継承しているものは値ではない
   // ため、任意パラメータは存在しない扱いになる。
   it('constructor is absent when it is not sent', async () => {
-    const res = await headerParamsApp.request('/optional')
+    const res = await app.request('/optional')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({})
   })
@@ -2209,7 +2209,7 @@ describe('names', () => {
   // ヘッダー名はワイヤ上で大文字小文字を区別しない。クライアントがどう綴っても、
   // 宣言されたヘッダーとして扱われる。
   it('reads X-Int-Opt as the header declared in lower case', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'X-Int-Opt': '5' } })
+    const res = await app.request('/optional', { headers: { 'X-Int-Opt': '5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int-opt': { valueType: 'number', valueText: '5' },
@@ -2219,7 +2219,7 @@ describe('names', () => {
   // All upper case.
   // すべて大文字の場合。
   it('reads X-INT-OPT as the header declared in lower case', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'X-INT-OPT': '5' } })
+    const res = await app.request('/optional', { headers: { 'X-INT-OPT': '5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int-opt': { valueType: 'number', valueText: '5' },
@@ -2229,7 +2229,7 @@ describe('names', () => {
   // Arbitrary mixed case.
   // 任意の大文字小文字混在の場合。
   it('reads x-InT-oPt as the header declared in lower case', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-InT-oPt': '5' } })
+    const res = await app.request('/optional', { headers: { 'x-InT-oPt': '5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int-opt': { valueType: 'number', valueText: '5' },
@@ -2240,7 +2240,7 @@ describe('names', () => {
   // 仕様では X-Request-Id と大文字小文字混在で宣言している。ハンドラは、
   // まさにその名前で読み取る。
   it('hands X-Request-Id over under its declared name, sent as declared', async () => {
-    const res = await headerParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { 'X-Request-Id': '0190b1f4-0000-7000-8000-000000000000' },
     })
     expect(res.status).toBe(200)
@@ -2252,7 +2252,7 @@ describe('names', () => {
   // The wire lower-cases the name; the handler still reads it under the name the spec gave.
   // ワイヤ上では名前が小文字化されるが、ハンドラは仕様どおりの名前で読み取る。
   it('hands X-Request-Id over under its declared name, sent in lower case', async () => {
-    const res = await headerParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { 'x-request-id': '0190b1f4-0000-7000-8000-000000000000' },
     })
     expect(res.status).toBe(200)
@@ -2264,7 +2264,7 @@ describe('names', () => {
   // All upper case reaches the same header.
   // すべて大文字で送っても、同じヘッダーに届く。
   it('hands X-Request-Id over under its declared name, sent in upper case', async () => {
-    const res = await headerParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { 'X-REQUEST-ID': '0190b1f4-0000-7000-8000-000000000000' },
     })
     expect(res.status).toBe(200)
@@ -2276,7 +2276,7 @@ describe('names', () => {
   // X-Rate-Limit is an integer and arrives as a number.
   // X-Rate-Limit は integer であり、number として届く。
   it('coerces a header declared in mixed case', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-rate-limit': '9' } })
+    const res = await app.request('/optional', { headers: { 'x-rate-limit': '9' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'X-Rate-Limit': { valueType: 'number', valueText: '9' },
@@ -2286,7 +2286,7 @@ describe('names', () => {
   // accept-version is a header like any other.
   // accept-version も他と同じくヘッダーである。
   it('keeps a name with no x- prefix', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'accept-version': '2' } })
+    const res = await app.request('/optional', { headers: { 'accept-version': '2' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'accept-version': { valueType: 'number', valueText: '2' },
@@ -2296,7 +2296,7 @@ describe('names', () => {
   // x_underscore holds an underscore where the others hold a hyphen.
   // x_underscore は、他のヘッダーがハイフンを使う位置にアンダースコアを含む。
   it('keeps a name with an underscore', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { x_underscore: '3' } })
+    const res = await app.request('/optional', { headers: { x_underscore: '3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       x_underscore: { valueType: 'number', valueText: '3' },
@@ -2308,7 +2308,7 @@ describe('names', () => {
   // x-underscore と accept_version は、宣言された x_underscore と accept-version ではない。
   // 互いに読み替えられることはない。
   it('does not confuse a hyphen with an underscore', async () => {
-    const res = await headerParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { 'x-underscore': '3', accept_version: '2' },
     })
     expect(res.status).toBe(200)
@@ -2323,7 +2323,7 @@ describe('wire: what a header value carries', () => {
   // request is built.
   // ヘッダー値の前後の空白は値の一部ではない。Fetch API がリクエスト構築の時点で取り除く。
   it('strips the spaces around an integer', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '  42  ' } })
+    const res = await app.request('/headers', { headers: { 'x-integer': '  42  ' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-integer': { valueType: 'number', valueText: '42' },
@@ -2333,7 +2333,7 @@ describe('wire: what a header value carries', () => {
   // A tab is stripped like a space.
   // タブも空白と同じく取り除かれる。
   it('strips the tabs around an integer', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '\t42\t' } })
+    const res = await app.request('/headers', { headers: { 'x-integer': '\t42\t' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-integer': { valueType: 'number', valueText: '42' },
@@ -2343,7 +2343,7 @@ describe('wire: what a header value carries', () => {
   // This is why a padded boolean passes here and is rejected in a path.
   // 前後に空白のある boolean が、パスでは拒否され、ここでは通るのはこのためである。
   it('strips the spaces around a boolean', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-boolean': ' true ' } })
+    const res = await app.request('/headers', { headers: { 'x-boolean': ' true ' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-boolean': { valueType: 'boolean', valueText: 'true' },
@@ -2353,7 +2353,7 @@ describe('wire: what a header value carries', () => {
   // Only the ends are stripped.
   // 取り除かれるのは両端だけである。
   it('strips the spaces around a string, not the one inside', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-string': '  a b  ' } })
+    const res = await app.request('/headers', { headers: { 'x-string': '  a b  ' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-string': { valueType: 'string', valueText: 'a b' },
@@ -2363,7 +2363,7 @@ describe('wire: what a header value carries', () => {
   // The format sees the stripped value.
   // フォーマット検証は、空白を取り除いた後の値に対して行われる。
   it('strips the spaces around a UUID before the format check', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-uuid': ' 0190b1f4-0000-7000-8000-000000000000 ' },
     })
     expect(res.status).toBe(200)
@@ -2375,7 +2375,7 @@ describe('wire: what a header value carries', () => {
   // A header value is not percent-decoded: what is sent is what arrives.
   // ヘッダー値はパーセントデコードされない。送信した文字列がそのまま届く。
   it('delivers "a%20b" verbatim', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-string': 'a%20b' } })
+    const res = await app.request('/headers', { headers: { 'x-string': 'a%20b' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-string': { valueType: 'string', valueText: 'a%20b' },
@@ -2385,7 +2385,7 @@ describe('wire: what a header value carries', () => {
   // A plus sign is a plus sign.
   // プラス記号はプラス記号のまま届く。
   it('delivers "a+b" verbatim', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-string': 'a+b' } })
+    const res = await app.request('/headers', { headers: { 'x-string': 'a+b' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-string': { valueType: 'string', valueText: 'a+b' },
@@ -2395,7 +2395,7 @@ describe('wire: what a header value carries', () => {
   // An encoded UTF-8 sequence stays encoded.
   // エンコードされた UTF-8 シーケンスは、エンコードされたまま届く。
   it('delivers "%E3%81%82" verbatim', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-string': '%E3%81%82' } })
+    const res = await app.request('/headers', { headers: { 'x-string': '%E3%81%82' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-string': { valueType: 'string', valueText: '%E3%81%82' },
@@ -2405,7 +2405,7 @@ describe('wire: what a header value carries', () => {
   // A lone percent sign is just a character.
   // 単独のパーセント記号は、ただの文字である。
   it('delivers "%" verbatim', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-string': '%' } })
+    const res = await app.request('/headers', { headers: { 'x-string': '%' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-string': { valueType: 'string', valueText: '%' },
@@ -2415,7 +2415,7 @@ describe('wire: what a header value carries', () => {
   // "=" and ";" have no meaning in a plain header value.
   // "=" と ";" は、通常のヘッダー値では特別な意味を持たない。
   it('delivers "a=b;c=d" verbatim', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-string': 'a=b;c=d' } })
+    const res = await app.request('/headers', { headers: { 'x-string': 'a=b;c=d' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-string': { valueType: 'string', valueText: 'a=b;c=d' },
@@ -2425,7 +2425,7 @@ describe('wire: what a header value carries', () => {
   // A comma is part of a string value.
   // カンマは文字列値の一部である。
   it('delivers "a,b" verbatim', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-string': 'a,b' } })
+    const res = await app.request('/headers', { headers: { 'x-string': 'a,b' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-string': { valueType: 'string', valueText: 'a,b' },
@@ -2435,7 +2435,7 @@ describe('wire: what a header value carries', () => {
   // Double quotes are kept.
   // 二重引用符は保持される。
   it('delivers ""quoted"" verbatim', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-string': '"quoted"' } })
+    const res = await app.request('/headers', { headers: { 'x-string': '"quoted"' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-string': { valueType: 'string', valueText: '"quoted"' },
@@ -2445,7 +2445,7 @@ describe('wire: what a header value carries', () => {
   // U+00E9 is within the ByteString range, so it can be sent and arrives intact.
   // U+00E9 は ByteString の範囲内なので送信でき、そのまま届く。
   it('carries a Latin-1 character', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-string': 'caf\u00E9' } })
+    const res = await app.request('/headers', { headers: { 'x-string': 'caf\u00E9' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-string': { valueType: 'string', valueText: 'caf\u00E9' },
@@ -2457,7 +2457,7 @@ describe('wire: what a header value carries', () => {
   // Hono は HEAD を GET のルートで処理するため、ヘッダーは同じように検証される。
   // 有効な値は受理される。
   it('validates a HEAD request like the GET it mirrors', async () => {
-    const res = await headerParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       method: 'HEAD',
       headers: { 'x-int-opt': '1' },
     })
@@ -2467,14 +2467,14 @@ describe('wire: what a header value carries', () => {
   // One request must not change the next: no state is kept between validations.
   // あるリクエストが次のリクエストに影響しないこと。検証間で状態は保持されない。
   it('gives the same answer to the same request, whatever came between', async () => {
-    const first = await headerParamsApp.request('/headers', {
+    const first = await app.request('/headers', {
       headers: { 'x-int64': '9007199254740993' },
     })
-    const between = await headerParamsApp.request('/headers', {
+    const between = await app.request('/headers', {
       headers: { 'x-int64': 'not-a-value' },
     })
     expect(between.status).toBe(422)
-    const second = await headerParamsApp.request('/headers', {
+    const second = await app.request('/headers', {
       headers: { 'x-int64': '9007199254740993' },
     })
     expect(second.status).toBe(200)
@@ -2484,7 +2484,7 @@ describe('wire: what a header value carries', () => {
   // A header is read from the headers and nowhere else.
   // ヘッダーは、ヘッダーからのみ読み取られる。
   it('does not read a header from the query string', async () => {
-    const res = await headerParamsApp.request('/optional?x-int-opt=1')
+    const res = await app.request('/optional?x-int-opt=1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({})
   })
@@ -2498,7 +2498,7 @@ describe('arrays', () => {
   // 1回だけ送られたヘッダーは素の文字列として届く。
   // 生成された配列スキーマがその形を受理するからこそ、パースが成立する。
   it('reads a single integer as a one-element array', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-ids': '7' } })
+    const res = await app.request('/headers', { headers: { 'x-ids': '7' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-ids': [{ valueType: 'number', valueText: '7' }],
@@ -2508,7 +2508,7 @@ describe('arrays', () => {
   // The same for an array of strings.
   // string の配列でも同様である。
   it('reads a single string as a one-element array', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-str-arr': 'a' } })
+    const res = await app.request('/optional', { headers: { 'x-str-arr': 'a' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-str-arr': [{ valueType: 'string', valueText: 'a' }],
@@ -2520,7 +2520,7 @@ describe('arrays', () => {
   // ヘッダーの配列は style: simple でシリアライズされる。1つのヘッダーに値をカンマ区切りで
   // 並べる形式である。生成されるスキーマは、値をカンマで分割する。
   it('splits a comma-separated value', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-ids': '1,2,3' } })
+    const res = await app.request('/headers', { headers: { 'x-ids': '1,2,3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-ids': [
@@ -2534,7 +2534,7 @@ describe('arrays', () => {
   // HTTP allows optional whitespace after each comma, which is not part of a value.
   // HTTP では、各カンマの後に任意の空白を置くことができる。空白は値の一部ではない。
   it('splits a comma-separated value with spaces', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-ids': '1, 2, 3' } })
+    const res = await app.request('/headers', { headers: { 'x-ids': '1, 2, 3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-ids': [
@@ -2553,7 +2553,7 @@ describe('arrays', () => {
     headers.append('x-ids', '1')
     headers.append('x-ids', '2')
     headers.append('x-ids', '3')
-    const res = await headerParamsApp.request('/headers', { headers })
+    const res = await app.request('/headers', { headers })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-ids': [
@@ -2567,7 +2567,7 @@ describe('arrays', () => {
   // The same for an array of strings: "a,b" is two elements, not one that holds a comma.
   // string の配列でも同様である。"a,b" は2要素であり、カンマを含む1要素ではない。
   it('splits a comma-separated string array', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-str-arr': 'a,b' } })
+    const res = await app.request('/optional', { headers: { 'x-str-arr': 'a,b' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-str-arr': [
@@ -2588,7 +2588,7 @@ describe('objects: an object in one header', () => {
   // { a: 1, b: "x" } is sent as a,1,b,x.
   // { a: 1, b: "x" } は a,1,b,x として送信される。
   it('x-obj reads alternating names and values', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-obj': 'a,1,b,x' } })
+    const res = await app.request('/optional', { headers: { 'x-obj': 'a,1,b,x' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-obj': {
@@ -2601,7 +2601,7 @@ describe('objects: an object in one header', () => {
   // The whitespace after a comma is not part of a name or a value.
   // カンマの後の空白は、名前や値の一部ではない。
   it('x-obj reads names and values with spaces', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-obj': 'a, 1, b, x' } })
+    const res = await app.request('/optional', { headers: { 'x-obj': 'a, 1, b, x' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-obj': {
@@ -2614,7 +2614,7 @@ describe('objects: an object in one header', () => {
   // With explode: true the object is a=1,b=x.
   // explode: true では、オブジェクトは a=1,b=x になる。
   it('x-objx reads assignments', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-objx': 'a=1,b=x' } })
+    const res = await app.request('/optional', { headers: { 'x-objx': 'a=1,b=x' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-objx': {
@@ -2635,7 +2635,7 @@ describe('references: a schema behind $ref', () => {
   // Count is an integer with minimum: 0.
   // Count は minimum: 0 の integer である。
   it('x-ref-int coerces an integer component', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-ref-int': '5' } })
+    const res = await app.request('/optional', { headers: { 'x-ref-int': '5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-ref-int': { valueType: 'number', valueText: '5' },
@@ -2646,7 +2646,7 @@ describe('references: a schema behind $ref', () => {
   // read.
   // 0 は Count の最小値である。コンポーネントの制約は、読み取った値に適用される。
   it('x-ref-int accepts the minimum of the component', async () => {
-    const res = await headerParamsApp.request('/optional', { headers: { 'x-ref-int': '0' } })
+    const res = await app.request('/optional', { headers: { 'x-ref-int': '0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-ref-int': { valueType: 'number', valueText: '0' },
@@ -2666,7 +2666,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // Negative zero is zero.
   // 負のゼロはゼロになる。
   it('x-integer accepts "-0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '-0' } })
+    const res = await app.request('/headers', { headers: { 'x-integer': '-0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-integer': { valueType: 'number', valueText: '0' },
@@ -2676,7 +2676,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // Leading zeros are dropped; the value is not read as octal.
   // 先頭のゼロは無視される。8進数としては読まれない。
   it('x-integer accepts "007"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-integer': '007' } })
+    const res = await app.request('/headers', { headers: { 'x-integer': '007' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-integer': { valueType: 'number', valueText: '7' },
@@ -2686,7 +2686,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // Negative zero is zero.
   // 負のゼロはゼロになる。
   it('x-int64 accepts "-0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-int64': '-0' } })
+    const res = await app.request('/headers', { headers: { 'x-int64': '-0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int64': { valueType: 'bigint', valueText: '0' },
@@ -2696,7 +2696,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // Leading zeros are dropped.
   // 先頭のゼロは無視される。
   it('x-int64 accepts "007"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-int64': '007' } })
+    const res = await app.request('/headers', { headers: { 'x-int64': '007' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int64': { valueType: 'bigint', valueText: '7' },
@@ -2706,7 +2706,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // Negative zero is echoed as zero.
   // 負のゼロはゼロとして返る。
   it('x-number accepts "-0"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-number': '-0' } })
+    const res = await app.request('/headers', { headers: { 'x-number': '-0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-number': { valueType: 'number', valueText: '0' },
@@ -2716,7 +2716,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // cuid2 is a pattern with no fixed length: one letter passes.
   // cuid2 は長さ固定のないパターンであり、1文字でも通る。
   it('x-cuid2 accepts "a"', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-cuid2': 'a' } })
+    const res = await app.request('/headers', { headers: { 'x-cuid2': 'a' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-cuid2': { valueType: 'string', valueText: 'a' },
@@ -2726,7 +2726,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // cuid2 does not require a leading letter.
   // cuid2 は先頭が英字であることを要求しない。
   it('x-cuid2 accepts "1z4a98xxat96iws9zmbrgj3a"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-cuid2': '1z4a98xxat96iws9zmbrgj3a' },
     })
     expect(res.status).toBe(200)
@@ -2738,7 +2738,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // format: url takes the javascript: scheme; narrowing is the caller's to do.
   // format: url は javascript: スキームも受理する。絞り込みは利用側の責務である。
   it('x-url accepts "javascript:alert(1)"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-url': 'javascript:alert(1)' },
     })
     expect(res.status).toBe(200)
@@ -2750,7 +2750,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // A trailing dot satisfies the hostname grammar.
   // 末尾のドットはホスト名の文法を満たす。
   it('x-hostname accepts "example.com."', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-hostname': 'example.com.' },
     })
     expect(res.status).toBe(200)
@@ -2762,7 +2762,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // A dotted quad satisfies the hostname grammar.
   // ドット区切りの4数値はホスト名の文法を満たす。
   it('x-hostname accepts "192.168.0.1"', async () => {
-    const res = await headerParamsApp.request('/headers', {
+    const res = await app.request('/headers', {
       headers: { 'x-hostname': '192.168.0.1' },
     })
     expect(res.status).toBe(200)
@@ -2774,7 +2774,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // A string with no minLength accepts it.
   // minLength のない string は、空文字列を受理する。
   it('reads an empty string as the empty string', async () => {
-    const res = await headerParamsApp.request('/headers', { headers: { 'x-string': '' } })
+    const res = await app.request('/headers', { headers: { 'x-string': '' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-string': { valueType: 'string', valueText: '' },
@@ -2784,7 +2784,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // An empty string is a string: the default gives way to it.
   // 空文字列も文字列である。デフォルトより優先される。
   it('reads an empty string over its default', async () => {
-    const res = await headerParamsApp.request('/defaults', { headers: { 'x-str-def': '' } })
+    const res = await app.request('/defaults', { headers: { 'x-str-def': '' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'x-int-def': { valueType: 'number', valueText: '20' },
@@ -2797,7 +2797,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // An empty x-name satisfies required: true.
   // 空の x-name でも、required: true を満たす。
   it('reads an empty required string as present', async () => {
-    const res = await headerParamsApp.request('/required', {
+    const res = await app.request('/required', {
       headers: { 'x-id': '1', 'x-big': '9007199254740993', 'x-flag': 'true', 'x-name': '' },
     })
     expect(res.status).toBe(200)

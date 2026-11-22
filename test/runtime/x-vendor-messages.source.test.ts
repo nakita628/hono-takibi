@@ -57,23 +57,29 @@ describe('messages written as an arrow function', () => {
 })
 
 // An intersection has no issue of its own to carry a message. So `x-allOf-message` is
-// emitted as a wrapper: the intersection is parsed inside a `.check()`, every issue it
-// reports is added again with the configured message, and `.pipe(Schema)` hands the value
-// on with its type.
+// emitted as a wrapper: the intersection is parsed inside the callback of a
+// `z.preprocess`, every issue it reports is added again with the configured message, and
+// the value is handed on to the intersection, which the pipe reaches only when nothing was
+// reported. A `z.preprocess` is what the OpenAPI document renders by the schema inside it;
+// a check piped into the intersection would be rendered as `{}` (#479).
 // 交差型には、メッセージを持たせるための固有の issue がない。そのため `x-allOf-message` は
-// ラッパーとして出力される。`.check()` の中で交差型をパースし、報告された各 issue を、
-// 設定されたメッセージで追加し直す。その後、`.pipe(Schema)` が型を保ったまま値を引き渡す。
+// ラッパーとして出力される。`z.preprocess` のコールバックの中で交差型をパースし、報告された
+// 各 issue を、設定されたメッセージで追加し直す。値はそのまま交差型に引き渡されるが、
+// 何も報告されなかった場合にのみパイプは交差型に到達する。`z.preprocess` は、OpenAPI
+// ドキュメント上で内側のスキーマとして描画される。交差型へパイプする check は `{}` として
+// 描画されてしまう (#479)。
 describe('x-allOf-message', () => {
   // The wrapper is an immediately invoked function, so that the inner schema is declared
-  // once and shared by the check and the pipe.
-  // ラッパーは即時実行関数である。内側のスキーマを1度だけ宣言し、check と pipe の両方で
-  // 共有するためである。
+  // once and shared by the callback and the pipe.
+  // ラッパーは即時実行関数である。内側のスキーマを1度だけ宣言し、コールバックとパイプの
+  // 両方で共有するためである。
   it('wraps the intersection in an immediately invoked function', () => {
     expect(generatedSrc).toContain('const MergedSchema = (() =>')
     expect(generatedSrc).toContain('const Schema = z')
-    expect(generatedSrc).toContain('.check((ctx) =>')
+    expect(generatedSrc).toContain('return z.preprocess((val: z.input<typeof Schema>, ctx) =>')
     expect(generatedSrc).toContain('Schema.safeParse(ctx.value)')
-    expect(generatedSrc).toContain('.pipe(Schema)')
+    expect(generatedSrc).toContain('}, Schema)')
+    expect(generatedSrc).not.toContain('z.unknown().check(')
   })
 
   // The text of the extension is the message of every issue that is added again.

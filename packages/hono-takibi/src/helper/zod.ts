@@ -1,5 +1,7 @@
+import { ARROW_FUNCTION_PATTERN } from '../constants/index.js'
 import {
   ANNOTATION_KEYWORDS,
+  hasNoUserChain,
   isAnnotationOnly,
   isSchemaObject,
   isSingleSchema,
@@ -7,6 +9,7 @@ import {
 } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { error, normalizeTypes } from '../utils/index.js'
+import { discriminatedBranches } from './discriminator.js'
 import { resolveSchemaRef } from './wire.js'
 
 type Schemas = { readonly [k: string]: Schema }
@@ -792,6 +795,295 @@ export function emitsStrippingObject(
     return union.some((branch) => emitsStrippingObject(branch, schemas, seen))
   }
   return isUntypedObject(schema) && isStrippingObject(schema)
+}
+
+// An operand of an intersection, read through the references it names. A reference is
+// emitted as the component, with only what `wrap` adds around it taken from what is written
+// beside the `$ref`: a keyword beside it (`properties`, `additionalProperties`) is not
+// emitted, so it says nothing about the keys the operand declares. `undefined` for a
+// reference that cannot be resolved or that comes back to itself, and for one whose own
+// wrapping reports nothing — a user chain replaces the emission, a catch answers the failure.
+function resolveOperand(
+  schema: Schema,
+  schemas: Schemas | undefined,
+  seen: readonly string[] = [],
+): Schema | undefined {
+  if (schema.$ref === undefined) return schema
+  if (seen.includes(schema.$ref)) return undefined
+  if (!hasNoUserChain(schema) || schema['x-catch'] !== undefined) return undefined
+  const target = resolveSchemaRef(schema.$ref, schemas)
+  return target === undefined ? undefined : resolveOperand(target, schemas, [...seen, schema.$ref])
+}
+
+// Whether a schema is emitted as an object that reports the keys it does not declare as
+// `unrecognized_keys`: `additionalProperties: false` on what the emitter reads as an object
+// (`z.strictObject`, or the loose object beside `patternProperties`, #447). A user chain
+// replaces the emission, and a catch answers the failure, so neither reports anything.
+function emitsStrictObject(schema: Schema): boolean {
+  return (
+    schema.additionalProperties === false &&
+    hasNoUserChain(schema) &&
+    schema['x-catch'] === undefined &&
+    schema.allOf === undefined &&
+    schema.anyOf === undefined &&
+    schema.oneOf === undefined &&
+    schema.enum === undefined &&
+    schema.const === undefined &&
+    (normalizeTypes(schema.type).includes('object') || isUntypedObject(schema))
+  )
+}
+
+// Whether what a schema is emitted as can fail on undeclared keys alone, with the
+// `unrecognized_keys` issue of a strict object reaching whatever it is an operand of: the
+// strict object itself, a `z.union` or a `z.discriminatedUnion` with such a branch (a union
+// hands on the issues of the one branch that failed on nothing else; `z.xor` does not), and
+// an `allOf` of one member, which is emitted as the member. An `allOf` of several members
+// is an intersection that checks its own operands (see `makeStrictOperandCheck`).
+function leaksUnrecognizedKeys(
+  schema: Schema,
+  schemas: Schemas | undefined,
+  seen: readonly string[] = [],
+): boolean {
+  if (!hasNoUserChain(schema) || schema['x-catch'] !== undefined) return false
+  if (schema.$ref !== undefined) {
+    if (seen.includes(schema.$ref)) return false
+    const target = resolveSchemaRef(schema.$ref, schemas)
+    return target === undefined
+      ? false
+      : leaksUnrecognizedKeys(target, schemas, [...seen, schema.$ref])
+  }
+  if (schema.allOf !== undefined) {
+    const members = schema.allOf.filter(
+      (member) => member.type !== 'null' && !isAnnotationOnly(member),
+    )
+    const [only, ...others] = members
+    return only !== undefined && others.length === 0
+      ? leaksUnrecognizedKeys(only, schemas, seen)
+      : false
+  }
+  if (schema.anyOf !== undefined) {
+    return schema.anyOf.some((branch) => leaksUnrecognizedKeys(branch, schemas, seen))
+  }
+  if (schema.oneOf !== undefined) {
+    return (
+      discriminatedBranches(schema, schemas) !== undefined &&
+      schema.oneOf.some((branch) => leaksUnrecognizedKeys(branch, schemas, seen))
+    )
+  }
+  return emitsStrictObject(schema)
+}
+
+// A check on the raw input, as the source of a callback that takes the payload (`ctx`).
+// `async` is the same check for a parse that is asynchronous: a check that parses a schema
+// of the document (`safeParse`) throws when that schema has an asynchronous refinement, so
+// it is run again with `safeParseAsync` (see `withRawCheck` in the schema emitter). A check
+// that parses nothing has no asynchronous form.
+export type RawCheck = { readonly sync: string; readonly async?: string }
+
+// How a schema is parsed inside a check: synchronously, or awaited.
+type Parse = (zod: string, value: string) => string
+const parseSync: Parse = (zod, value) => `${zod}.safeParse(${value})`
+const parseAsync: Parse = (zod, value) => `(await ${zod}.safeParseAsync(${value}))`
+
+// The statement that reports each key of `o` the listed keys and patterns do not declare:
+// a `custom` issue under the key, like the `unevaluatedProperties` check.
+function undeclaredKeysStmt(schema: Schema) {
+  const ownKeys = Object.keys(schema.properties ?? {})
+  const patterns = Object.keys(schema.patternProperties ?? {})
+  const undeclared = [
+    ...(ownKeys.length > 0 ? [`!${JSON.stringify(ownKeys)}.includes(k)`] : []),
+    ...(patterns.length > 0
+      ? [`!${JSON.stringify(patterns)}.some((p)=>new RegExp(p).test(k))`]
+      : []),
+  ]
+  const message = pickMessage(schema, 'x-additionalProperties-message')
+  const report = `ctx.issues.push({code:"custom",path:[k],input:o${message === undefined ? '' : `,message:${message}`}})`
+  return `for(const k of Object.keys(o)){${undeclared.length === 0 ? report : `if(${undeclared.join('&&')}){${report}}`}}`
+}
+
+// Whether a schema is a strict object whose undeclared keys can be told from the schema
+// alone: one type, the object.
+function isStrictObjectOperand(schema: Schema) {
+  return emitsStrictObject(schema) && declaredTypes(schema).length <= 1
+}
+
+// A discriminated union whose strict branches can be told from the discriminator alone:
+// the statement that looks up the keys of the branch the value is routed to, and reports
+// the others. `undefined` when the union is not discriminated, when no branch is strict, or
+// when a strict branch needs more than its key list (a pattern, a message, a wrapping).
+function discriminatedKeysStmt(schema: Schema, schemas: Schemas | undefined) {
+  const discriminator = schema.discriminator?.propertyName
+  const branches = discriminatedBranches(schema, schemas)
+  if (discriminator === undefined || branches === undefined) return undefined
+  const strict = branches.filter(({ branch }) => leaksUnrecognizedKeys(branch, schemas))
+  if (strict.length === 0) return undefined
+  const isPlain = strict.every(
+    ({ branch }) =>
+      isStrictObjectOperand(branch) &&
+      branch.patternProperties === undefined &&
+      branch['x-additionalProperties-message'] === undefined,
+  )
+  if (!isPlain) return undefined
+  const keysByValue = Object.fromEntries(
+    strict.flatMap(({ branch }) => {
+      const property = branch.properties?.[discriminator]
+      const values =
+        typeof property?.const === 'string'
+          ? [property.const]
+          : (property?.enum ?? []).filter((value) => typeof value === 'string')
+      return values.map((value) => [value, Object.keys(branch.properties ?? {})] as const)
+    }),
+  )
+  return `{const own:{readonly [k:string]:readonly string[]}=${JSON.stringify(keysByValue)};const d=String(Reflect.get(o,${JSON.stringify(discriminator)}));const keys=Object.hasOwn(own,d)?own[d]:undefined;if(keys!==undefined){for(const k of Object.keys(o)){if(!keys.includes(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}}`
+}
+
+// What the check has to do for one operand of an intersection: nothing, report keys the
+// schema alone tells (`statement`), or ask the operand itself (`ask`).
+function strictOperandKind(
+  schema: Schema,
+  schemas: Schemas | undefined,
+):
+  | { readonly kind: 'none' }
+  | { readonly kind: 'statement'; readonly statement: string }
+  | { readonly kind: 'ask' } {
+  const resolved = resolveOperand(schema, schemas)
+  if (resolved === undefined) return { kind: 'none' }
+  if (isStrictObjectOperand(resolved)) {
+    return { kind: 'statement', statement: undeclaredKeysStmt(resolved) }
+  }
+  if (!leaksUnrecognizedKeys(schema, schemas)) return { kind: 'none' }
+  const discriminated = hasNoUserChain(resolved)
+    ? discriminatedKeysStmt(resolved, schemas)
+    : undefined
+  return discriminated === undefined
+    ? { kind: 'ask' }
+    : { kind: 'statement', statement: discriminated }
+}
+
+// Whether the check of an intersection operand parses the operand itself (see
+// `makeStrictOperandCheck`). The emitter then declares the operand once and hands its name
+// to both the intersection and the check, instead of building the schema again on every
+// parse.
+export function isAskedOperand(schema: Schema, schemas?: Schemas) {
+  return strictOperandKind(schema, schemas).kind === 'ask'
+}
+
+// `additionalProperties: false` on an operand of an intersection, as a check on the raw
+// input (#470). Zod's intersection reconciles `unrecognized_keys` across its two sides and
+// reports a key only when BOTH reject it, so a strict object beside a plain one — which
+// strips the key instead of rejecting it — reports nothing at all. In JSON Schema the
+// keyword applies to its own member alone (2020-12 §10.3.2.3): the member does not see what
+// the other members declare, so a key it does not declare fails it, and the `allOf` with it.
+//
+// - An operand that is a strict object reports each key it neither declares nor matches
+//   with a pattern, like the `unevaluatedProperties` check: a `custom` issue under the
+//   key, which no enclosing intersection reconciles away.
+// - A discriminated union with strict branches hands on the issue of the branch it routes
+//   to. The branch is told by the discriminator, so its keys are looked up and reported the
+//   same way, without parsing anything.
+// - Any other operand that can only hand the issue on (a union with a strict branch) is
+//   asked on its own: when it fails on undeclared keys and nothing else, that is the
+//   failure the intersection would drop, and its keys are reported. This is the one case
+//   that parses the operand a second time.
+//
+// Returns `undefined` when no operand needs it, so an intersection without a strict member
+// emits exactly what it did.
+export function makeStrictOperandCheck(
+  operands: readonly { readonly schema: Schema; readonly zod: string }[],
+  schemas?: Schemas,
+): RawCheck | undefined {
+  const kinds = operands.map(({ schema, zod }) => ({ zod, ...strictOperandKind(schema, schemas) }))
+  const stmts = (parse: Parse) =>
+    kinds.flatMap((operand) => {
+      if (operand.kind === 'none') return []
+      if (operand.kind === 'statement') return [operand.statement]
+      return [
+        `{const result=${parse(operand.zod, 'o')};if(!result.success&&result.error.issues.every((issue)=>issue.code==='unrecognized_keys'&&issue.path.length===0)){for(const issue of result.error.issues){if(issue.code==='unrecognized_keys'){for(const k of issue.keys){ctx.issues.push({code:"custom",path:[k],input:o,message:issue.message})}}}}}`,
+      ]
+    })
+  const sync = stmts(parseSync)
+  if (sync.length === 0) return undefined
+  const guard = `const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;`
+  return {
+    sync: `(ctx)=>{${guard}${sync.join(';')}}`,
+    ...(kinds.some((operand) => operand.kind === 'ask')
+      ? { async: `async(ctx)=>{${guard}${stmts(parseAsync).join(';')}}` }
+      : {}),
+  }
+}
+
+// `additionalProperties: false` written beside a combinator, as a check on the raw input.
+// The keyword applies to the keys its own schema neither declares in `properties` nor
+// matches with `patternProperties` (JSON Schema 2020-12 §10.3.2.3): it does not see what
+// the members of an `allOf` or the branches of a union declare, so a key only they declare
+// fails it. The combinator paths emit the combinator and the sibling shape, neither of
+// which is strict, so the keys are checked around them.
+export function makeParentStrictCheck(schema: Schema): RawCheck | undefined {
+  if (schema.additionalProperties !== false) return undefined
+  return {
+    sync: `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;${undeclaredKeysStmt(schema)}}`,
+  }
+}
+
+// The statement that reports the failure of a combinator checked on the raw input: one
+// `custom` issue, with a fixed text as its message or what an arrow function answers for it.
+function reportSibling(message: string | undefined) {
+  const field =
+    message === undefined
+      ? ''
+      : ARROW_FUNCTION_PATTERN.test(message)
+        ? `,message:(${message})({code:'custom',path:[],input:val})`
+        : `,message:${JSON.stringify(message)}`
+  return `ctx.issues.push({code:"custom",input:val${field}})`
+}
+
+// The combinators written beside the one a schema is emitted as, as a check on the raw
+// input (#469). JSON Schema ANDs sibling keywords, so `allOf` / `anyOf` / `oneOf` / `not`
+// at the same level all have to hold, and the emitter's paths each emit one of them.
+// The others are asked about the value as it arrives: intersected with what is emitted
+// (`A.and(z.union([...]))`) they would hand out a value of their own, which Zod cannot
+// merge with one the other side has transformed (a bigint, a trimmed string) and which
+// brings back the keys the other side stripped; and a refinement would see the parsed
+// output, from which a stripping object has dropped the very keys a `not` may be about.
+// Each failure is one `custom` issue, with the message of its own keyword
+// (`x-anyOf-message`, `x-oneOf-message`, `x-not-message`) or `x-error-message`.
+export function makeSiblingCombinatorCheck(
+  schema: Schema,
+  keys: readonly ('anyOf' | 'oneOf' | 'not')[],
+  recurse: (s: Schema) => string,
+): RawCheck | undefined {
+  const errorMessage = schema['x-error-message']
+  const stmts = (parse: Parse) =>
+    keys.flatMap((key) => {
+      if (key === 'anyOf') {
+        const branches = (schema.anyOf ?? []).map((sub) => `${parse(recurse(sub), 'val')}.success`)
+        const message = schema['x-implication-message'] ?? schema['x-anyOf-message'] ?? errorMessage
+        return branches.length === 0
+          ? []
+          : [`if(!(${branches.join('||')})){${reportSibling(message)}}`]
+      }
+      if (key === 'oneOf') {
+        const branches = (schema.oneOf ?? []).map(
+          (sub) => `(${parse(recurse(sub), 'val')}.success?1:0)`,
+        )
+        return branches.length === 0
+          ? []
+          : [
+              `if((${branches.join('+')})!==1){${reportSibling(schema['x-oneOf-message'] ?? errorMessage)}}`,
+            ]
+      }
+      return schema.not === undefined
+        ? []
+        : [
+            `if(${parse(recurse(schema.not), 'val')}.success){${reportSibling(schema['x-not-message'] ?? errorMessage)}}`,
+          ]
+    })
+  const sync = stmts(parseSync)
+  if (sync.length === 0) return undefined
+  return {
+    sync: `(ctx)=>{const val=ctx.value;${sync.join(';')}}`,
+    async: `async(ctx)=>{const val=ctx.value;${stmts(parseAsync).join(';')}}`,
+  }
 }
 
 // The object keywords of a shape as a guarded refine: `properties` / `required` only

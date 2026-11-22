@@ -125,7 +125,7 @@ function echoValue(value: unknown): Echo {
  * 生成されたルートごとにハンドラを1つ。必ず `c.req.valid` 経由で読むので、テストが見る値は
  * 生成スキーマだけを通過したものになる。
  */
-export const pathParamsApp = new OpenAPIHono({
+export const app = new OpenAPIHono({
   // A rejected request names the parameter that failed, so a test can tell which one did.
   // 拒否時は失敗したパラメータ名を返す。どのパラメータが原因かをテストで判別できる。
   defaultHook: (result, c) => {

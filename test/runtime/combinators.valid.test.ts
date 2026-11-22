@@ -504,3 +504,180 @@ describe('messages written as an arrow function', () => {
     expect(await res.json()).toStrictEqual({})
   })
 })
+
+// `additionalProperties: false` in an `allOf` member applies to that member alone (JSON
+// Schema 2020-12): a value the member accepts on its own is accepted.
+// `allOf` のメンバーに書かれた `additionalProperties: false` は、そのメンバーだけに適用される
+// (JSON Schema 2020-12)。メンバー単体で受理される値は、そのまま受理される。
+describe('allOf: a member with additionalProperties: false', () => {
+  // Only the key the strict member declares.
+  // strict なメンバーが宣言するキーだけを持つ。
+  it('accepts an object of the keys the strict member declares', async () => {
+    const res = await app.request('/strict-member', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'a' }),
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({})
+  })
+
+  // The member is a union with a strict branch.
+  // メンバーは、strict な分岐を持つ union である。
+  it('accepts the strict branch of a union with its own keys', async () => {
+    const res = await app.request('/strict-union', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'a' }),
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({})
+  })
+
+  // Only the key the schema itself declares, beside a strict parent.
+  // strict な親の横で、スキーマ自身が宣言するキーだけを持つ。
+  it('accepts the keys a strict parent declares itself', async () => {
+    const res = await app.request('/parent-strict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ link: 'y' }),
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({})
+  })
+
+  // The member is a discriminated union whose branches are strict.
+  // メンバーは、各分岐が strict な discriminated union である。
+  it('accepts a branch of a discriminated union with its own keys', async () => {
+    const res = await app.request('/strict-branch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kind: 'cat' }),
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({})
+  })
+})
+
+// Sibling keywords are ANDed (JSON Schema 2020-12): a value that satisfies every combinator
+// at the same level is accepted.
+// 同じ階層のキーワードは AND で結合される (JSON Schema 2020-12)。同じ階層にあるすべての
+// コンビネータを満たす値は、受理される。
+describe('several combinators at the same level', () => {
+  // Each property carries two combinators, and each value satisfies both.
+  // 各プロパティは2つのコンビネータを持ち、各値はその両方を満たす。
+  it('accepts values that satisfy every combinator', async () => {
+    const res = await app.request('/siblings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        allOfAnyOf: 'ab',
+        allOfOneOf: 'abc',
+        anyOfOneOf: 'a',
+        allOfNot: 'y',
+        anyOfNot: 1,
+      }),
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({})
+  })
+
+  // `required` beside the `anyOf` is satisfied.
+  // `anyOf` の横に書かれた `required` を満たしている。
+  it('accepts an object with the key required beside the anyOf', async () => {
+    const res = await app.request('/required-only', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ a: 'x' }),
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({})
+  })
+})
+
+// The document generated back from the routes keeps the combinators. A check on the raw
+// input is a `z.preprocess`, which is rendered by the schema inside it; a check piped into
+// the schema was rendered as `{}`.
+// ルートから再生成したドキュメントには、コンビネータが残る。生の入力に対する検証は
+// `z.preprocess` であり、内側のスキーマとして描画される。スキーマへパイプする check は
+// `{}` として描画されていた。
+describe('the generated document keeps the combinators', () => {
+  const doc = app.getOpenAPI31Document({ openapi: '3.1.0', info: { title: 't', version: '1' } })
+  const name = { type: 'object', properties: { name: { type: 'string', minLength: 3 } } }
+  const age = { type: 'object', properties: { age: { type: 'integer', minimum: 0 } } }
+
+  // `x-allOf-message` wraps the intersection; the document still has it.
+  // `x-allOf-message` は交差型をラップするが、ドキュメントには交差型が残る。
+  it('keeps the allOf of a schema with x-allOf-message', () => {
+    expect(doc.components?.schemas?.AllOfArrowMessage).toStrictEqual({
+      allOf: [
+        { ...name, required: ['name'] },
+        { ...age, required: ['age'] },
+      ],
+    })
+  })
+
+  // The check of the strict member is around the intersection, not in place of it.
+  // strict なメンバーの検証は交差型の外側にあり、交差型を置き換えるものではない。
+  it('keeps the allOf of a schema with a strict member', () => {
+    expect(doc.components?.schemas?.StrictMember).toStrictEqual({
+      allOf: [
+        {
+          type: 'object',
+          properties: { id: { type: 'string' } },
+          required: [],
+          additionalProperties: false,
+        },
+        { type: 'object', properties: { link: { type: 'string' } }, required: [] },
+      ],
+    })
+    expect(doc.components?.schemas?.StrictBranch).toStrictEqual({
+      allOf: [
+        { $ref: '#/components/schemas/Pet' },
+        { type: 'object', properties: { link: { type: 'string' } }, required: [] },
+      ],
+    })
+  })
+
+  // `required` beside an `anyOf` is checked on the raw input; the `anyOf` is still there.
+  // `anyOf` の横の `required` は生の入力に対して検証されるが、`anyOf` は残る。
+  it('keeps the anyOf beside a required-only shape', () => {
+    expect(doc.components?.schemas?.RequiredOnly).toMatchObject({
+      allOf: [
+        {
+          anyOf: [
+            { type: 'object', properties: { a: { type: 'string' } } },
+            { type: 'object', properties: { b: { type: 'string' } } },
+          ],
+        },
+        { type: 'object' },
+      ],
+      required: ['a'],
+    })
+  })
+
+  // Both combinators of a property are in the document: the one the schema is emitted as,
+  // and the other beside it, as the source has it.
+  // プロパティが持つ2つのコンビネータは、どちらもドキュメントに残る。一方はスキーマとして
+  // 出力されたもの、もう一方は元の定義のまま、その横に記載される。
+  it('keeps every combinator written at the same level', () => {
+    expect(doc.components?.schemas?.Siblings).toMatchObject({
+      properties: {
+        allOfAnyOf: { type: 'string', minLength: 1, anyOf: [{ maxLength: 3 }] },
+        allOfOneOf: { type: 'string', oneOf: [{ minLength: 3 }, { maxLength: 1 }] },
+        anyOfOneOf: { anyOf: [{ type: 'string' }], oneOf: [{ minLength: 3 }, { maxLength: 1 }] },
+        allOfNot: { type: 'string', not: { const: 'x' } },
+        anyOfNot: { anyOf: [{ type: 'string' }, { type: 'integer' }], not: { const: 'x' } },
+      },
+    })
+  })
+
+  // `additionalProperties: false` beside the `allOf` is checked around it, and stated.
+  // `allOf` の横の `additionalProperties: false` は、その外側で検証され、ドキュメントにも記載される。
+  it('keeps additionalProperties: false written beside an allOf', () => {
+    expect(doc.components?.schemas?.ParentStrict).toMatchObject({
+      allOf: [{ type: 'object' }, { type: 'object' }],
+      additionalProperties: false,
+    })
+  })
+})

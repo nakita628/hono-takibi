@@ -40,7 +40,7 @@
 //   - component: rejected values
 import { describe, expect, it } from 'vite-plus/test'
 
-import { formBodyApp } from './app'
+import { app } from './app'
 
 // A field is read with the grammar a parameter is read with, and what is not that grammar is
 // rejected under the name of the field.
@@ -50,7 +50,7 @@ describe('fields: rejected values', () => {
   // A word is not an integer.
   // 単語は整数ではない。
   it('age rejects a word', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'age=x',
@@ -64,7 +64,7 @@ describe('fields: rejected values', () => {
   // 空のフィールドは、未入力の入力欄に対してブラウザが送る値であり、数字を含まない。
   // 0 として読まれることはない。
   it('age rejects an empty value', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'age=',
@@ -76,7 +76,7 @@ describe('fields: rejected values', () => {
   // -1 is an integer, and below the minimum.
   // -1 は整数だが、最小値を下回る。
   it('age rejects a value below its minimum', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'age=-1',
@@ -88,7 +88,7 @@ describe('fields: rejected values', () => {
   // A hexadecimal literal is not decimal.
   // 16進リテラルは10進表記ではない。
   it('age rejects a hexadecimal literal', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'age=0x10',
@@ -100,7 +100,7 @@ describe('fields: rejected values', () => {
   // A fraction is not an integer.
   // 小数は整数ではない。
   it('age rejects a fraction', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'age=1.5',
@@ -114,7 +114,7 @@ describe('fields: rejected values', () => {
   // スカラーを2回送ると配列として届き、スカラースキーマは配列を拒否する。
   // 先頭や末尾の値を黙って採用することはない。
   it('age rejects a field sent twice', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'age=1&age=2',
@@ -126,7 +126,7 @@ describe('fields: rejected values', () => {
   // A word is not a number.
   // 単語は数値ではない。
   it('ratio rejects a word', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'ratio=x',
@@ -138,7 +138,7 @@ describe('fields: rejected values', () => {
   // A fraction is not an int64.
   // 小数は int64 ではない。
   it('big rejects a fraction', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'big=1.5',
@@ -150,7 +150,7 @@ describe('fields: rejected values', () => {
   // maybe is not a boolean spelling.
   // maybe は真偽値の表記ではない。
   it('active rejects a word', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'active=maybe',
@@ -162,7 +162,7 @@ describe('fields: rejected values', () => {
   // The empty string is not a boolean spelling.
   // 空文字列は真偽値の表記ではない。
   it('active rejects an empty value', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'active=',
@@ -174,7 +174,7 @@ describe('fields: rejected values', () => {
   // 3 is an integer, and not a member.
   // 3 は整数だが、メンバーではない。
   it('level rejects a value that is not a member', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'level=3',
@@ -186,7 +186,7 @@ describe('fields: rejected values', () => {
   // false is a boolean, and not the constant.
   // false は boolean だが、定数とは異なる。
   it('agreed rejects the other boolean', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'agreed=false',
@@ -200,7 +200,7 @@ describe('fields: rejected values', () => {
   // フィールド自体は送信されているため、デフォルトの 20 は適用されない。
   // 空の値は数値ではない。
   it('limit rejects an empty value instead of falling back to its default', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'limit=',
@@ -212,7 +212,7 @@ describe('fields: rejected values', () => {
   // -1 is below the minimum of Count.
   // -1 は Count の最小値を下回る。
   it('count rejects a value below the minimum of the component', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'count=-1',
@@ -224,7 +224,7 @@ describe('fields: rejected values', () => {
   // x is not a boolean spelling.
   // x は真偽値の表記ではない。
   it('flag rejects a word', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'flag=x',
@@ -236,7 +236,7 @@ describe('fields: rejected values', () => {
   // The text that stands for null is the one JSON spells, in lower case.
   // null を表すテキストは、JSON の表記どおり小文字である。
   it('maybe rejects "NULL"', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'maybe=NULL',
@@ -248,7 +248,7 @@ describe('fields: rejected values', () => {
   // The empty value is neither null nor an integer.
   // 空の値は、null でも整数でもない。
   it('maybe rejects an empty value', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'maybe=',
@@ -260,7 +260,7 @@ describe('fields: rejected values', () => {
   // An offset is written with a colon.
   // オフセットはコロン付きで表記する。
   it('clock rejects an offset without a colon', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: `clock=${encodeURIComponent('12:34:56+0900')}`,
@@ -272,7 +272,7 @@ describe('fields: rejected values', () => {
   // Sent, the field is validated like any other.
   // 送信された場合、このフィールドは他のフィールドと同じように検証される。
   it('constructor rejects a word', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'constructor=abc',
@@ -288,7 +288,7 @@ describe('arrays: rejected values', () => {
   // The second element is not an integer.
   // 2番目の要素が整数ではない。
   it('ids rejects a word among its elements', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'ids=1&ids=x',
@@ -300,7 +300,7 @@ describe('arrays: rejected values', () => {
   // A form body has no serialisation style: 1,2 is one element, and not an integer.
   // フォームボディにはシリアライズ形式がない。1,2 は1つの要素であり、整数ではない。
   it('ids does not split on a comma', async () => {
-    const res = await formBodyApp.request('/urlencoded', {
+    const res = await app.request('/urlencoded', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'ids=1,2',
@@ -318,7 +318,7 @@ describe('multipart: rejected values', () => {
   it('reports a missing file', async () => {
     const body = new FormData()
     body.append('age', '5')
-    const res = await formBodyApp.request('/multipart', { method: 'POST', body })
+    const res = await app.request('/multipart', { method: 'POST', body })
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['file'] })
   })
@@ -328,7 +328,7 @@ describe('multipart: rejected values', () => {
   it('rejects text where a file is declared', async () => {
     const body = new FormData()
     body.append('file', 'text')
-    const res = await formBodyApp.request('/multipart', { method: 'POST', body })
+    const res = await app.request('/multipart', { method: 'POST', body })
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['file'] })
   })
@@ -339,7 +339,7 @@ describe('multipart: rejected values', () => {
     const body = new FormData()
     body.append('file', new File(['x'], 'a.txt'))
     body.append('age', 'x')
-    const res = await formBodyApp.request('/multipart', { method: 'POST', body })
+    const res = await app.request('/multipart', { method: 'POST', body })
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['age'] })
   })
@@ -351,7 +351,7 @@ describe('multipart: rejected values', () => {
     body.append('file', new File(['x'], 'a.txt'))
     body.append('ids', '1')
     body.append('ids', 'x')
-    const res = await formBodyApp.request('/multipart', { method: 'POST', body })
+    const res = await app.request('/multipart', { method: 'POST', body })
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['ids.1'] })
   })
@@ -365,7 +365,7 @@ describe('component: rejected values', () => {
   // price is an integer.
   // price は integer である。
   it('rejects a word where the component declares an integer', async () => {
-    const res = await formBodyApp.request('/component', {
+    const res = await app.request('/component', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'name=pen&price=x',
@@ -377,7 +377,7 @@ describe('component: rejected values', () => {
   // price is required.
   // price は必須である。
   it('reports a missing required field of the component', async () => {
-    const res = await formBodyApp.request('/component', {
+    const res = await app.request('/component', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'name=pen',
@@ -389,7 +389,7 @@ describe('component: rejected values', () => {
   // price has minimum: 0.
   // price は minimum: 0 である。
   it('rejects a value below the minimum the component declares', async () => {
-    const res = await formBodyApp.request('/component', {
+    const res = await app.request('/component', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: 'name=pen&price=-1',
@@ -402,7 +402,7 @@ describe('component: rejected values', () => {
   // JSON では "5" は string である。number としては読み取られない。
   // 型を決めるのは文書自身である。
   it('a JSON body rejects a string where an integer is declared', async () => {
-    const res = await formBodyApp.request('/json', {
+    const res = await app.request('/json', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"name":"pen","price":"5"}',
@@ -414,7 +414,7 @@ describe('component: rejected values', () => {
   // In JSON "true" is a string.
   // JSON では "true" は string である。
   it('a JSON body rejects a string where a boolean is declared', async () => {
-    const res = await formBodyApp.request('/json', {
+    const res = await app.request('/json', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"name":"pen","price":5,"stocked":"true"}',

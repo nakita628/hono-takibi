@@ -45,7 +45,7 @@
 //   その文字列は受理されるものとする。
 import { describe, expect, it } from 'vite-plus/test'
 
-import { conformanceApp } from './app'
+import { app } from './app'
 import document from './openapi.json'
 import type { Json } from './oracle'
 import { accepts, isSame, mentioned, resolve } from './oracle'
@@ -309,7 +309,7 @@ describe('query: a text is accepted when the document accepts what it stands for
         false,
         (sentTexts) => {
           const search = new URLSearchParams(sentTexts.map((text) => [parameter.name, text]))
-          return conformanceApp.request(`/query?${search.toString()}`)
+          return app.request(`/query?${search.toString()}`)
         },
       )
       expect(disagreements).toStrictEqual([])
@@ -325,7 +325,7 @@ describe('form: a field is accepted when the document accepts what it stands for
         parameter.name,
         false,
         (sentTexts) =>
-          conformanceApp.request('/form', {
+          app.request('/form', {
             method: 'POST',
             headers: { 'content-type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams(sentTexts.map((text) => [parameter.name, text])).toString(),
@@ -346,7 +346,7 @@ describe('path: a segment is accepted when the document accepts what it stands f
         if (hasComma(sentTexts) || segment === '' || segment === '.' || segment === '..') {
           return undefined
         }
-        return conformanceApp.request(`/path/${parameter.name}/${encodeURIComponent(segment)}`)
+        return app.request(`/path/${parameter.name}/${encodeURIComponent(segment)}`)
       })
       expect(disagreements).toStrictEqual([])
     }, 60_000)
@@ -365,7 +365,7 @@ describe('header: a header is accepted when the document accepts what it stands 
         if (hasComma(sentTexts) || sentTexts.some((text) => text !== text.trim())) {
           return undefined
         }
-        return conformanceApp.request('/header', { headers: { [name]: sentTexts.join(',') } })
+        return app.request('/header', { headers: { [name]: sentTexts.join(',') } })
       })
       expect(disagreements).toStrictEqual([])
     }, 60_000)
@@ -382,7 +382,7 @@ describe('cookie: a cookie is accepted when the document accepts what it stands 
         (sentTexts) => {
           if (hasComma(sentTexts)) return undefined
           const value = encodeURIComponent(sentTexts.join(','))
-          return conformanceApp.request('/cookie', {
+          return app.request('/cookie', {
             headers: { Cookie: `${parameter.name}=${value}` },
           })
         },
@@ -429,7 +429,7 @@ describe('json: a value is accepted when the document accepts it, and arrives un
       for (const value of typed) {
         const isValid = accepts(schema, value, schemas)
         // oxlint-disable-next-line no-await-in-loop -- one request at a time keeps the report in order
-        const res = await conformanceApp.request('/json', {
+        const res = await app.request('/json', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ [name]: value }),
@@ -520,7 +520,7 @@ function requiredKeys(schema: unknown): readonly string[] {
 }
 
 describe('document: what the source says about an object is what the served document says', () => {
-  const served = conformanceApp.getOpenAPI31Document({
+  const served = app.getOpenAPI31Document({
     openapi: '3.1.0',
     info: { title: 'Conformance', version: '0.0.0' },
   })

@@ -55,7 +55,7 @@
 //   - leniency: what is read beyond the plainest spelling (pinned, not endorsed)
 import { describe, expect, it } from 'vite-plus/test'
 
-import { cookieParamsApp } from './app'
+import { app } from './app'
 
 // One canonical value per shape, sent alone as the cookie <shape>. The value is compared as
 // well as the type: a coercion that changes the value is as wrong as one that changes the
@@ -66,7 +66,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An integer with no format arrives as a number.
   // フォーマット指定のない integer は number として届く。
   it('integer accepts "42"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=42' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'integer=42' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       integer: { valueType: 'number', valueText: '42' },
@@ -76,7 +76,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An int32 arrives as a number.
   // int32 は number として届く。
   it('int32 accepts "42"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'int32=42' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'int32=42' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       int32: { valueType: 'number', valueText: '42' },
@@ -86,7 +86,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An int64 arrives as a bigint, exact past Number.MAX_SAFE_INTEGER.
   // int64 は bigint として届き、Number.MAX_SAFE_INTEGER を超えても桁落ちしない。
   it('int64 accepts "9007199254740993"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'int64=9007199254740993' },
     })
     expect(res.status).toBe(200)
@@ -98,7 +98,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: bigint arrives as a bigint.
   // format: bigint は bigint として届く。
   it('bigint accepts "9007199254740993"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'bigint=9007199254740993' },
     })
     expect(res.status).toBe(200)
@@ -110,7 +110,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A uint32 arrives as a number, up to its maximum.
   // uint32 は最大値まで number として届く。
   it('uint32 accepts "4294967295"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'uint32=4294967295' },
     })
     expect(res.status).toBe(200)
@@ -122,7 +122,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A uint64 arrives as a bigint, up to its maximum, which no double can hold.
   // uint64 は最大値まで bigint として届く。この最大値は double では保持できない。
   it('uint64 accepts "18446744073709551615"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'uint64=18446744073709551615' },
     })
     expect(res.status).toBe(200)
@@ -134,7 +134,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A number with no format arrives as a number.
   // フォーマット指定のない number は number として届く。
   it('number accepts "1.5"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'number=1.5' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'number=1.5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       number: { valueType: 'number', valueText: '1.5' },
@@ -144,7 +144,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: float arrives as a number.
   // format: float は number として届く。
   it('float accepts "1.5"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'float=1.5' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'float=1.5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       float: { valueType: 'number', valueText: '1.5' },
@@ -154,7 +154,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: float32 arrives as a number.
   // format: float32 は number として届く。
   it('float32 accepts "1.5"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'float32=1.5' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'float32=1.5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       float32: { valueType: 'number', valueText: '1.5' },
@@ -164,7 +164,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: float64 arrives as a number.
   // format: float64 は number として届く。
   it('float64 accepts "1.5"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'float64=1.5' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'float64=1.5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       float64: { valueType: 'number', valueText: '1.5' },
@@ -174,7 +174,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: double arrives as a number.
   // format: double は number として届く。
   it('double accepts "1.5"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'double=1.5' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'double=1.5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       double: { valueType: 'number', valueText: '1.5' },
@@ -184,7 +184,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: password on a number is an annotation; the value is still a number.
   // number に対する format: password は注釈にすぎず、値は number のまま届く。
   it('numpassword accepts "1.5"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'numpassword=1.5' },
     })
     expect(res.status).toBe(200)
@@ -196,7 +196,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A boolean arrives as a boolean, not as the text "true".
   // boolean は文字列 "true" ではなく boolean として届く。
   it('boolean accepts "true"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'boolean=true' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'boolean=true' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       boolean: { valueType: 'boolean', valueText: 'true' },
@@ -206,7 +206,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A string arrives unchanged.
   // string はそのまま届く。
   it('string accepts "plain"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'string=plain' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'string=plain' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       string: { valueType: 'string', valueText: 'plain' },
@@ -216,7 +216,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A well-formed email address.
   // 正しい形式のメールアドレス。
   it('email accepts "user@example.com"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `email=${encodeURIComponent('user@example.com')}` },
     })
     expect(res.status).toBe(200)
@@ -228,7 +228,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A UUID of any version (here version 7).
   // 任意バージョンの UUID(ここではバージョン 7)。
   it('uuid accepts "0190b1f4-0000-7000-8000-000000000000"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'uuid=0190b1f4-0000-7000-8000-000000000000' },
     })
     expect(res.status).toBe(200)
@@ -240,7 +240,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A version 4 UUID.
   // バージョン 4 の UUID。
   it('uuidv4 accepts "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'uuidv4=a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d' },
     })
     expect(res.status).toBe(200)
@@ -252,7 +252,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A version 7 UUID.
   // バージョン 7 の UUID。
   it('uuidv7 accepts "0190b1f4-0000-7000-8000-000000000000"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'uuidv7=0190b1f4-0000-7000-8000-000000000000' },
     })
     expect(res.status).toBe(200)
@@ -264,7 +264,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An absolute URL.
   // 絶対 URL。
   it('url accepts "https://example.com"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `url=${encodeURIComponent('https://example.com')}` },
     })
     expect(res.status).toBe(200)
@@ -276,7 +276,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: uri is validated like a URL.
   // format: uri は URL と同じ検証を受ける。
   it('uri accepts "https://example.com"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `uri=${encodeURIComponent('https://example.com')}` },
     })
     expect(res.status).toBe(200)
@@ -288,7 +288,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An https URL.
   // https の URL。
   it('httpurl accepts "https://example.com"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `httpurl=${encodeURIComponent('https://example.com')}` },
     })
     expect(res.status).toBe(200)
@@ -300,7 +300,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A host name.
   // ホスト名。
   it('hostname accepts "example.com"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'hostname=example.com' },
     })
     expect(res.status).toBe(200)
@@ -312,7 +312,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // Hexadecimal digits.
   // 16進数の文字列。
   it('hex accepts "deadbeef"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'hex=deadbeef' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'hex=deadbeef' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       hex: { valueType: 'string', valueText: 'deadbeef' },
@@ -322,7 +322,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A single emoji.
   // 絵文字1文字。
   it('emoji accepts "🔥"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `emoji=${encodeURIComponent('🔥')}` },
     })
     expect(res.status).toBe(200)
@@ -334,7 +334,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // Base64 with padding.
   // パディング付きの Base64。
   it('base64 accepts "aGVsbG8="', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `base64=${encodeURIComponent('aGVsbG8=')}` },
     })
     expect(res.status).toBe(200)
@@ -346,7 +346,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // Base64url, which has no padding.
   // パディングのない Base64url。
   it('base64url accepts "aGVsbG8"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'base64url=aGVsbG8' },
     })
     expect(res.status).toBe(200)
@@ -358,7 +358,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A 21-character Nano ID.
   // 21文字の Nano ID。
   it('nanoid accepts "V1StGXR8_Z5jdHi6B-myT"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'nanoid=V1StGXR8_Z5jdHi6B-myT' },
     })
     expect(res.status).toBe(200)
@@ -370,7 +370,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A CUID2.
   // CUID2。
   it('cuid2 accepts "tz4a98xxat96iws9zmbrgj3a"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'cuid2=tz4a98xxat96iws9zmbrgj3a' },
     })
     expect(res.status).toBe(200)
@@ -382,7 +382,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A 26-character ULID.
   // 26文字の ULID。
   it('ulid accepts "01ARZ3NDEKTSV4RRFFQ69G5FAV"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'ulid=01ARZ3NDEKTSV4RRFFQ69G5FAV' },
     })
     expect(res.status).toBe(200)
@@ -394,7 +394,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An IPv4 address.
   // IPv4 アドレス。
   it('ipv4 accepts "192.168.0.1"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'ipv4=192.168.0.1' },
     })
     expect(res.status).toBe(200)
@@ -406,7 +406,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An IPv6 address in compressed form.
   // 省略表記の IPv6 アドレス。
   it('ipv6 accepts "2001:db8::1"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `ipv6=${encodeURIComponent('2001:db8::1')}` },
     })
     expect(res.status).toBe(200)
@@ -418,7 +418,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An IPv4 CIDR block.
   // IPv4 の CIDR ブロック。
   it('cidrv4 accepts "192.168.0.0/24"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `cidrv4=${encodeURIComponent('192.168.0.0/24')}` },
     })
     expect(res.status).toBe(200)
@@ -430,7 +430,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An IPv6 CIDR block.
   // IPv6 の CIDR ブロック。
   it('cidrv6 accepts "2001:db8::/32"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `cidrv6=${encodeURIComponent('2001:db8::/32')}` },
     })
     expect(res.status).toBe(200)
@@ -442,7 +442,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An ISO 8601 date; it stays a string, it is not turned into a Date.
   // ISO 8601 の日付。Date には変換されず、文字列のまま届く。
   it('date accepts "2020-01-02"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'date=2020-01-02' },
     })
     expect(res.status).toBe(200)
@@ -454,7 +454,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An ISO 8601 time.
   // ISO 8601 の時刻。
   it('time accepts "12:34:56"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `time=${encodeURIComponent('12:34:56')}` },
     })
     expect(res.status).toBe(200)
@@ -466,7 +466,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An ISO 8601 date-time in UTC; it stays a string.
   // UTC の ISO 8601 日時。文字列のまま届く。
   it('datetime accepts "2020-01-02T03:04:05Z"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `datetime=${encodeURIComponent('2020-01-02T03:04:05Z')}` },
     })
     expect(res.status).toBe(200)
@@ -478,7 +478,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An ISO 8601 duration with every component.
   // すべての要素を含む ISO 8601 の期間。
   it('duration accepts "P1Y2M3DT4H5M6S"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'duration=P1Y2M3DT4H5M6S' },
     })
     expect(res.status).toBe(200)
@@ -490,7 +490,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: byte is an annotation; the text is passed through.
   // format: byte は注釈にすぎず、文字列はそのまま渡される。
   it('byte accepts "aGVsbG8="', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `byte=${encodeURIComponent('aGVsbG8=')}` },
     })
     expect(res.status).toBe(200)
@@ -502,7 +502,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: password is an annotation; the text is passed through.
   // format: password は注釈にすぎず、文字列はそのまま渡される。
   it('strpassword accepts "hunter2"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'strpassword=hunter2' },
     })
     expect(res.status).toBe(200)
@@ -514,7 +514,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A MAC address with colon separators.
   // コロン区切りの MAC アドレス。
   it('mac accepts "00:1a:2b:3c:4d:5e"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `mac=${encodeURIComponent('00:1a:2b:3c:4d:5e')}` },
     })
     expect(res.status).toBe(200)
@@ -526,7 +526,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An E.164 phone number.
   // E.164 形式の電話番号。
   it('e164 accepts "+14155552671"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `e164=${encodeURIComponent('+14155552671')}` },
     })
     expect(res.status).toBe(200)
@@ -538,7 +538,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A card number that passes the Luhn check.
   // Luhn チェックを通過するカード番号。
   it('creditcard accepts "4111111111111111"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'creditcard=4111111111111111' },
     })
     expect(res.status).toBe(200)
@@ -550,7 +550,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An IBAN with a valid checksum.
   // チェックサムが正しい IBAN。
   it('iban accepts "DE89370400440532013000"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'iban=DE89370400440532013000' },
     })
     expect(res.status).toBe(200)
@@ -562,7 +562,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // An ISO 4217 currency code.
   // ISO 4217 の通貨コード。
   it('currencycode accepts "USD"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'currencycode=USD' },
     })
     expect(res.status).toBe(200)
@@ -574,7 +574,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A 27-character KSUID.
   // 27文字の KSUID。
   it('ksuid accepts "0ujsszwN8NRY24YaXiTIE2VWDTS"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'ksuid=0ujsszwN8NRY24YaXiTIE2VWDTS' },
     })
     expect(res.status).toBe(200)
@@ -586,7 +586,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A 20-character XID.
   // 20文字の XID。
   it('xid accepts "9m4e2mr0ui3e8a215n4g"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'xid=9m4e2mr0ui3e8a215n4g' },
     })
     expect(res.status).toBe(200)
@@ -598,7 +598,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // A GUID.
   // GUID。
   it('guid accepts "0190b1f4-0000-7000-8000-000000000000"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'guid=0190b1f4-0000-7000-8000-000000000000' },
     })
     expect(res.status).toBe(200)
@@ -610,7 +610,7 @@ describe('shapes: every supported shape accepts its own value', () => {
   // format: trim leaves a value with no surrounding whitespace unchanged.
   // format: trim は、前後に空白のない値をそのまま通す。
   it('trim accepts "spaced"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'trim=spaced' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'trim=spaced' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       trim: { valueType: 'string', valueText: 'spaced' },
@@ -624,7 +624,7 @@ describe('integers: accepted boundaries', () => {
   // Zero.
   // ゼロ。
   it('integer accepts "0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=0' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'integer=0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       integer: { valueType: 'number', valueText: '0' },
@@ -634,7 +634,7 @@ describe('integers: accepted boundaries', () => {
   // A negative integer.
   // 負の整数。
   it('integer accepts "-1"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=-1' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'integer=-1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       integer: { valueType: 'number', valueText: '-1' },
@@ -644,7 +644,7 @@ describe('integers: accepted boundaries', () => {
   // Number.MAX_SAFE_INTEGER, the last integer a double holds exactly.
   // Number.MAX_SAFE_INTEGER。double が正確に保持できる最後の整数。
   it('integer accepts "9007199254740991"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'integer=9007199254740991' },
     })
     expect(res.status).toBe(200)
@@ -656,7 +656,7 @@ describe('integers: accepted boundaries', () => {
   // Number.MIN_SAFE_INTEGER.
   // Number.MIN_SAFE_INTEGER。
   it('integer accepts "-9007199254740991"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'integer=-9007199254740991' },
     })
     expect(res.status).toBe(200)
@@ -668,7 +668,7 @@ describe('integers: accepted boundaries', () => {
   // The int32 maximum, 2^31 - 1.
   // int32 の最大値(2^31 - 1)。
   it('int32 accepts "2147483647"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'int32=2147483647' },
     })
     expect(res.status).toBe(200)
@@ -680,7 +680,7 @@ describe('integers: accepted boundaries', () => {
   // The int32 minimum, -2^31.
   // int32 の最小値(-2^31)。
   it('int32 accepts "-2147483648"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'int32=-2147483648' },
     })
     expect(res.status).toBe(200)
@@ -692,7 +692,7 @@ describe('integers: accepted boundaries', () => {
   // Zero.
   // ゼロ。
   it('int32 accepts "0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'int32=0' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'int32=0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       int32: { valueType: 'number', valueText: '0' },
@@ -702,7 +702,7 @@ describe('integers: accepted boundaries', () => {
   // The uint32 minimum.
   // uint32 の最小値。
   it('uint32 accepts "0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'uint32=0' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'uint32=0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       uint32: { valueType: 'number', valueText: '0' },
@@ -712,7 +712,7 @@ describe('integers: accepted boundaries', () => {
   // The uint32 maximum, 2^32 - 1.
   // uint32 の最大値(2^32 - 1)。
   it('uint32 accepts "4294967295"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'uint32=4294967295' },
     })
     expect(res.status).toBe(200)
@@ -724,7 +724,7 @@ describe('integers: accepted boundaries', () => {
   // The int64 maximum, 2^63 - 1, kept to the last digit.
   // int64 の最大値(2^63 - 1)。最後の桁まで保持される。
   it('int64 accepts "9223372036854775807"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'int64=9223372036854775807' },
     })
     expect(res.status).toBe(200)
@@ -736,7 +736,7 @@ describe('integers: accepted boundaries', () => {
   // The int64 minimum, -2^63.
   // int64 の最小値(-2^63)。
   it('int64 accepts "-9223372036854775808"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'int64=-9223372036854775808' },
     })
     expect(res.status).toBe(200)
@@ -748,7 +748,7 @@ describe('integers: accepted boundaries', () => {
   // Zero is a bigint too.
   // ゼロも bigint として届く。
   it('int64 accepts "0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'int64=0' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'int64=0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       int64: { valueType: 'bigint', valueText: '0' },
@@ -758,7 +758,7 @@ describe('integers: accepted boundaries', () => {
   // The uint64 minimum.
   // uint64 の最小値。
   it('uint64 accepts "0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'uint64=0' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'uint64=0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       uint64: { valueType: 'bigint', valueText: '0' },
@@ -768,7 +768,7 @@ describe('integers: accepted boundaries', () => {
   // The uint64 maximum, 2^64 - 1.
   // uint64 の最大値(2^64 - 1)。
   it('uint64 accepts "18446744073709551615"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'uint64=18446744073709551615' },
     })
     expect(res.status).toBe(200)
@@ -780,7 +780,7 @@ describe('integers: accepted boundaries', () => {
   // format: bigint has no upper bound.
   // format: bigint には上限がない。
   it('bigint accepts "99999999999999999999999999999"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'bigint=99999999999999999999999999999' },
     })
     expect(res.status).toBe(200)
@@ -792,7 +792,7 @@ describe('integers: accepted boundaries', () => {
   // format: bigint has no lower bound.
   // format: bigint には下限がない。
   it('bigint accepts "-99999999999999999999999999999"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'bigint=-99999999999999999999999999999' },
     })
     expect(res.status).toBe(200)
@@ -806,7 +806,7 @@ describe('integers: accepted boundaries', () => {
   // 結果が整数になる指数表記は、整数である。
   // JSON Schema が見るのは値であり、表記ではない。
   it('int64 accepts "1e3"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'int64=1e3' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'int64=1e3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       int64: { valueType: 'bigint', valueText: '1000' },
@@ -818,7 +818,7 @@ describe('integers: accepted boundaries', () => {
   // 小数部を持たない数値は、表記にかかわらず整数である。
   // JSON Schema は 1.0 を整数として扱う。
   it('bigint accepts "1.0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'bigint=1.0' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'bigint=1.0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       bigint: { valueType: 'bigint', valueText: '1' },
@@ -830,7 +830,7 @@ describe('integers: accepted boundaries', () => {
   // 結果が整数になる指数表記は、整数である。
   // JSON Schema が見るのは値であり、表記ではない。
   it('bigint accepts "1e3"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'bigint=1e3' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'bigint=1e3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       bigint: { valueType: 'bigint', valueText: '1000' },
@@ -842,7 +842,7 @@ describe('integers: accepted boundaries', () => {
   // 小数部を持たない数値は、表記にかかわらず整数である。
   // JSON Schema は 1.0 を整数として扱う。
   it('integer accepts "1.0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=1.0' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'integer=1.0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       integer: { valueType: 'number', valueText: '1' },
@@ -854,7 +854,7 @@ describe('integers: accepted boundaries', () => {
   // 結果が整数になる指数表記は、整数である。
   // JSON Schema が見るのは値であり、表記ではない。
   it('integer accepts "1e3"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=1e3' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'integer=1e3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       integer: { valueType: 'number', valueText: '1000' },
@@ -868,7 +868,7 @@ describe('floats: accepted values', () => {
   // Zero.
   // ゼロ。
   it('number accepts "0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'number=0' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'number=0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       number: { valueType: 'number', valueText: '0' },
@@ -878,7 +878,7 @@ describe('floats: accepted values', () => {
   // A negative fraction.
   // 負の小数。
   it('number accepts "-1.5"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'number=-1.5' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'number=-1.5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       number: { valueType: 'number', valueText: '-1.5' },
@@ -888,7 +888,7 @@ describe('floats: accepted values', () => {
   // Exponent notation.
   // 指数表記。
   it('number accepts "1e3"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'number=1e3' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'number=1e3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       number: { valueType: 'number', valueText: '1000' },
@@ -898,7 +898,7 @@ describe('floats: accepted values', () => {
   // A negative exponent.
   // 負の指数。
   it('number accepts "1e-3"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'number=1e-3' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'number=1e-3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       number: { valueType: 'number', valueText: '0.001' },
@@ -908,7 +908,7 @@ describe('floats: accepted values', () => {
   // No digit before the decimal point.
   // 小数点の前の数字を省略した表記。
   it('number accepts ".5"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'number=.5' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'number=.5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       number: { valueType: 'number', valueText: '0.5' },
@@ -918,7 +918,7 @@ describe('floats: accepted values', () => {
   // No digit after the decimal point.
   // 小数点の後の数字を省略した表記。
   it('number accepts "5."', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'number=5.' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'number=5.' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       number: { valueType: 'number', valueText: '5' },
@@ -928,7 +928,7 @@ describe('floats: accepted values', () => {
   // The largest finite float32.
   // float32 の最大有限値。
   it('float32 accepts "3.4028234e38"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'float32=3.4028234e38' },
     })
     expect(res.status).toBe(200)
@@ -940,7 +940,7 @@ describe('floats: accepted values', () => {
   // The smallest finite float32.
   // float32 の最小有限値。
   it('float32 accepts "-3.4028234e38"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'float32=-3.4028234e38' },
     })
     expect(res.status).toBe(200)
@@ -952,7 +952,7 @@ describe('floats: accepted values', () => {
   // Too small for a float32 to represent: underflow is not a range error.
   // float32 では表現できないほど小さい値。アンダーフローは範囲エラーにならない。
   it('float32 accepts "1e-50"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'float32=1e-50' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'float32=1e-50' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       float32: { valueType: 'number', valueText: '1e-50' },
@@ -962,7 +962,7 @@ describe('floats: accepted values', () => {
   // A value a float32 cannot hold exactly is not rounded.
   // float32 で正確に表現できない値でも、丸められずに届く。
   it('float32 accepts "0.1"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'float32=0.1' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'float32=0.1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       float32: { valueType: 'number', valueText: '0.1' },
@@ -972,7 +972,7 @@ describe('floats: accepted values', () => {
   // Number.MAX_VALUE, the largest finite double.
   // Number.MAX_VALUE。double の最大有限値。
   it('float64 accepts "1.7976931348623157e308"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'float64=1.7976931348623157e308' },
     })
     expect(res.status).toBe(200)
@@ -984,7 +984,7 @@ describe('floats: accepted values', () => {
   // The smallest finite double.
   // double の最小有限値。
   it('double accepts "-1.7976931348623157e308"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'double=-1.7976931348623157e308' },
     })
     expect(res.status).toBe(200)
@@ -1002,7 +1002,7 @@ describe('booleans: accepted spellings', () => {
   // The literal true.
   // リテラルの true。
   it('boolean accepts "true"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'boolean=true' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'boolean=true' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       boolean: { valueType: 'boolean', valueText: 'true' },
@@ -1012,7 +1012,7 @@ describe('booleans: accepted spellings', () => {
   // The literal false; a naive Boolean("false") would have been true.
   // リテラルの false。素朴な Boolean("false") では true になってしまう。
   it('boolean accepts "false"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'boolean=false' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'boolean=false' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       boolean: { valueType: 'boolean', valueText: 'false' },
@@ -1022,7 +1022,7 @@ describe('booleans: accepted spellings', () => {
   // Upper case is read the same.
   // 大文字でも同じように読み取られる。
   it('boolean accepts "TRUE"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'boolean=TRUE' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'boolean=TRUE' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       boolean: { valueType: 'boolean', valueText: 'true' },
@@ -1032,7 +1032,7 @@ describe('booleans: accepted spellings', () => {
   // Mixed case is read the same.
   // 大文字小文字が混在していても同じように読み取られる。
   it('boolean accepts "False"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'boolean=False' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'boolean=False' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       boolean: { valueType: 'boolean', valueText: 'false' },
@@ -1042,7 +1042,7 @@ describe('booleans: accepted spellings', () => {
   // The digit 1 means true.
   // 数字の 1 は true を意味する。
   it('boolean accepts "1"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'boolean=1' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'boolean=1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       boolean: { valueType: 'boolean', valueText: 'true' },
@@ -1052,7 +1052,7 @@ describe('booleans: accepted spellings', () => {
   // The digit 0 means false.
   // 数字の 0 は false を意味する。
   it('boolean accepts "0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'boolean=0' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'boolean=0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       boolean: { valueType: 'boolean', valueText: 'false' },
@@ -1062,7 +1062,7 @@ describe('booleans: accepted spellings', () => {
   // "yes" means true.
   // "yes" は true を意味する。
   it('boolean accepts "yes"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'boolean=yes' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'boolean=yes' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       boolean: { valueType: 'boolean', valueText: 'true' },
@@ -1072,7 +1072,7 @@ describe('booleans: accepted spellings', () => {
   // "no" means false.
   // "no" は false を意味する。
   it('boolean accepts "no"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'boolean=no' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'boolean=no' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       boolean: { valueType: 'boolean', valueText: 'false' },
@@ -1082,7 +1082,7 @@ describe('booleans: accepted spellings', () => {
   // "on" means true.
   // "on" は true を意味する。
   it('boolean accepts "on"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'boolean=on' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'boolean=on' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       boolean: { valueType: 'boolean', valueText: 'true' },
@@ -1092,7 +1092,7 @@ describe('booleans: accepted spellings', () => {
   // "off" means false.
   // "off" は false を意味する。
   it('boolean accepts "off"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'boolean=off' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'boolean=off' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       boolean: { valueType: 'boolean', valueText: 'false' },
@@ -1102,7 +1102,7 @@ describe('booleans: accepted spellings', () => {
   // "y" means true.
   // "y" は true を意味する。
   it('boolean accepts "y"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'boolean=y' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'boolean=y' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       boolean: { valueType: 'boolean', valueText: 'true' },
@@ -1112,7 +1112,7 @@ describe('booleans: accepted spellings', () => {
   // "n" means false.
   // "n" は false を意味する。
   it('boolean accepts "n"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'boolean=n' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'boolean=n' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       boolean: { valueType: 'boolean', valueText: 'false' },
@@ -1122,7 +1122,7 @@ describe('booleans: accepted spellings', () => {
   // "enabled" means true.
   // "enabled" は true を意味する。
   it('boolean accepts "enabled"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'boolean=enabled' },
     })
     expect(res.status).toBe(200)
@@ -1134,7 +1134,7 @@ describe('booleans: accepted spellings', () => {
   // "disabled" means false.
   // "disabled" は false を意味する。
   it('boolean accepts "disabled"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'boolean=disabled' },
     })
     expect(res.status).toBe(200)
@@ -1150,7 +1150,7 @@ describe('formats: what each string format accepts', () => {
   // Upper case is valid, and is not lower-cased.
   // 大文字も有効であり、小文字化はされない。
   it('email accepts "USER@EXAMPLE.COM"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `email=${encodeURIComponent('USER@EXAMPLE.COM')}` },
     })
     expect(res.status).toBe(200)
@@ -1162,7 +1162,7 @@ describe('formats: what each string format accepts', () => {
   // A plus tag in the local part.
   // ローカル部にプラス記号のタグを含む。
   it('email accepts "user+tag@example.com"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `email=${encodeURIComponent('user+tag@example.com')}` },
     })
     expect(res.status).toBe(200)
@@ -1174,7 +1174,7 @@ describe('formats: what each string format accepts', () => {
   // Dots in the local part and a multi-level domain.
   // ローカル部のドットと、多階層のドメイン。
   it('email accepts "first.last@sub.example.co.jp"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `email=${encodeURIComponent('first.last@sub.example.co.jp')}` },
     })
     expect(res.status).toBe(200)
@@ -1186,7 +1186,7 @@ describe('formats: what each string format accepts', () => {
   // Upper-case hexadecimal digits.
   // 大文字の16進数。
   it('uuid accepts "0190B1F4-0000-7000-8000-000000000000"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'uuid=0190B1F4-0000-7000-8000-000000000000' },
     })
     expect(res.status).toBe(200)
@@ -1198,7 +1198,7 @@ describe('formats: what each string format accepts', () => {
   // The nil UUID, which carries no version.
   // バージョンを持たない nil UUID。
   it('uuid accepts "00000000-0000-0000-0000-000000000000"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'uuid=00000000-0000-0000-0000-000000000000' },
     })
     expect(res.status).toBe(200)
@@ -1210,7 +1210,7 @@ describe('formats: what each string format accepts', () => {
   // The max UUID, which carries no version.
   // バージョンを持たない max UUID。
   it('uuid accepts "ffffffff-ffff-ffff-ffff-ffffffffffff"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'uuid=ffffffff-ffff-ffff-ffff-ffffffffffff' },
     })
     expect(res.status).toBe(200)
@@ -1222,7 +1222,7 @@ describe('formats: what each string format accepts', () => {
   // A GUID checks the 8-4-4-4-12 layout only, not the version or variant.
   // GUID は 8-4-4-4-12 の形だけを検証し、バージョンやバリアントは見ない。
   it('guid accepts "a1b2c3d4-e5f6-9a7b-0c9d-0e1f2a3b4c5d"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'guid=a1b2c3d4-e5f6-9a7b-0c9d-0e1f2a3b4c5d' },
     })
     expect(res.status).toBe(200)
@@ -1234,7 +1234,7 @@ describe('formats: what each string format accepts', () => {
   // format: url takes any scheme, not only http.
   // format: url は http に限らず任意のスキームを受理する。
   it('url accepts "ftp://example.com"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `url=${encodeURIComponent('ftp://example.com')}` },
     })
     expect(res.status).toBe(200)
@@ -1246,7 +1246,7 @@ describe('formats: what each string format accepts', () => {
   // A scheme with no authority.
   // オーソリティ部のないスキーム。
   it('url accepts "mailto:a@b.c"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `url=${encodeURIComponent('mailto:a@b.c')}` },
     })
     expect(res.status).toBe(200)
@@ -1258,7 +1258,7 @@ describe('formats: what each string format accepts', () => {
   // A port, a path, a query and a fragment.
   // ポート・パス・クエリ・フラグメントを含む。
   it('url accepts "http://localhost:3000/a?b=c#d"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `url=${encodeURIComponent('http://localhost:3000/a?b=c#d')}` },
     })
     expect(res.status).toBe(200)
@@ -1270,7 +1270,7 @@ describe('formats: what each string format accepts', () => {
   // A URN is a URI.
   // URN も URI である。
   it('uri accepts "urn:isbn:0451450523"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `uri=${encodeURIComponent('urn:isbn:0451450523')}` },
     })
     expect(res.status).toBe(200)
@@ -1282,7 +1282,7 @@ describe('formats: what each string format accepts', () => {
   // Plain http.
   // 暗号化なしの http。
   it('httpurl accepts "http://example.com"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `httpurl=${encodeURIComponent('http://example.com')}` },
     })
     expect(res.status).toBe(200)
@@ -1294,7 +1294,7 @@ describe('formats: what each string format accepts', () => {
   // A path and a query.
   // パスとクエリを含む。
   it('httpurl accepts "https://example.com/a/b?c=d"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `httpurl=${encodeURIComponent('https://example.com/a/b?c=d')}` },
     })
     expect(res.status).toBe(200)
@@ -1306,7 +1306,7 @@ describe('formats: what each string format accepts', () => {
   // A single label.
   // 単一ラベルのホスト名。
   it('hostname accepts "localhost"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'hostname=localhost' },
     })
     expect(res.status).toBe(200)
@@ -1318,7 +1318,7 @@ describe('formats: what each string format accepts', () => {
   // One-character labels.
   // 1文字のラベル。
   it('hostname accepts "a.b.c"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'hostname=a.b.c' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'hostname=a.b.c' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       hostname: { valueType: 'string', valueText: 'a.b.c' },
@@ -1328,7 +1328,7 @@ describe('formats: what each string format accepts', () => {
   // An internationalised name in punycode.
   // Punycode で表記した国際化ドメイン名。
   it('hostname accepts "xn--r8jz45g.jp"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'hostname=xn--r8jz45g.jp' },
     })
     expect(res.status).toBe(200)
@@ -1340,7 +1340,7 @@ describe('formats: what each string format accepts', () => {
   // Upper-case digits.
   // 大文字の16進数。
   it('hex accepts "DEADBEEF"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'hex=DEADBEEF' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'hex=DEADBEEF' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       hex: { valueType: 'string', valueText: 'DEADBEEF' },
@@ -1350,7 +1350,7 @@ describe('formats: what each string format accepts', () => {
   // An odd number of digits.
   // 桁数が奇数の16進数。
   it('hex accepts "abc"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'hex=abc' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'hex=abc' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       hex: { valueType: 'string', valueText: 'abc' },
@@ -1360,7 +1360,7 @@ describe('formats: what each string format accepts', () => {
   // More than one emoji.
   // 複数の絵文字。
   it('emoji accepts "🔥🔥"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `emoji=${encodeURIComponent('🔥🔥')}` },
     })
     expect(res.status).toBe(200)
@@ -1372,7 +1372,7 @@ describe('formats: what each string format accepts', () => {
   // A ZWJ sequence: one glyph, several code points.
   // ZWJ シーケンス。見た目は1文字だが、複数のコードポイントで構成される。
   it('emoji accepts "👨‍👩‍👧"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `emoji=${encodeURIComponent('👨‍👩‍👧')}` },
     })
     expect(res.status).toBe(200)
@@ -1384,7 +1384,7 @@ describe('formats: what each string format accepts', () => {
   // "+" and "/" are what set base64 apart from base64url.
   // "+" と "/" は base64 と base64url を分ける文字である。
   it('base64 accepts "a+b/"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `base64=${encodeURIComponent('a+b/')}` },
     })
     expect(res.status).toBe(200)
@@ -1396,7 +1396,7 @@ describe('formats: what each string format accepts', () => {
   // Two padding characters.
   // パディングが2文字。
   it('base64 accepts "YQ=="', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `base64=${encodeURIComponent('YQ==')}` },
     })
     expect(res.status).toBe(200)
@@ -1408,7 +1408,7 @@ describe('formats: what each string format accepts', () => {
   // "-" and "_" are the base64url alphabet.
   // "-" と "_" は base64url の文字である。
   it('base64url accepts "a-b_"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'base64url=a-b_' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'base64url=a-b_' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       base64url: { valueType: 'string', valueText: 'a-b_' },
@@ -1418,7 +1418,7 @@ describe('formats: what each string format accepts', () => {
   // format: byte does not validate: text that is not base64 passes.
   // format: byte は検証を行わない。Base64 でない文字列も通る。
   it('byte accepts "!!!not-base64!!!"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'byte=!!!not-base64!!!' },
     })
     expect(res.status).toBe(200)
@@ -1430,7 +1430,7 @@ describe('formats: what each string format accepts', () => {
   // format: password does not validate: reserved characters pass.
   // format: password は検証を行わない。予約文字も通る。
   it('strpassword accepts "p@ss/w0rd?#"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `strpassword=${encodeURIComponent('p@ss/w0rd?#')}` },
     })
     expect(res.status).toBe(200)
@@ -1442,7 +1442,7 @@ describe('formats: what each string format accepts', () => {
   // A ULID is case-insensitive.
   // ULID は大文字小文字を区別しない。
   it('ulid accepts "01arz3ndektsv4rrffq69g5fav"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'ulid=01arz3ndektsv4rrffq69g5fav' },
     })
     expect(res.status).toBe(200)
@@ -1454,7 +1454,7 @@ describe('formats: what each string format accepts', () => {
   // Upper case is accepted.
   // 大文字も受理される。
   it('xid accepts "9M4E2MR0UI3E8A215N4G"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'xid=9M4E2MR0UI3E8A215N4G' },
     })
     expect(res.status).toBe(200)
@@ -1466,7 +1466,7 @@ describe('formats: what each string format accepts', () => {
   // The lowest address.
   // 最小のアドレス。
   it('ipv4 accepts "0.0.0.0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'ipv4=0.0.0.0' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'ipv4=0.0.0.0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       ipv4: { valueType: 'string', valueText: '0.0.0.0' },
@@ -1476,7 +1476,7 @@ describe('formats: what each string format accepts', () => {
   // The highest address.
   // 最大のアドレス。
   it('ipv4 accepts "255.255.255.255"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'ipv4=255.255.255.255' },
     })
     expect(res.status).toBe(200)
@@ -1488,7 +1488,7 @@ describe('formats: what each string format accepts', () => {
   // The unspecified address.
   // 未指定アドレス。
   it('ipv6 accepts "::"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `ipv6=${encodeURIComponent('::')}` },
     })
     expect(res.status).toBe(200)
@@ -1500,7 +1500,7 @@ describe('formats: what each string format accepts', () => {
   // The loopback address.
   // ループバックアドレス。
   it('ipv6 accepts "::1"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `ipv6=${encodeURIComponent('::1')}` },
     })
     expect(res.status).toBe(200)
@@ -1512,7 +1512,7 @@ describe('formats: what each string format accepts', () => {
   // The full form, nothing compressed.
   // 省略のない完全表記。
   it('ipv6 accepts "2001:0db8:0000:0000:0000:0000:0000:0001"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `ipv6=${encodeURIComponent('2001:0db8:0000:0000:0000:0000:0000:0001')}` },
     })
     expect(res.status).toBe(200)
@@ -1524,7 +1524,7 @@ describe('formats: what each string format accepts', () => {
   // An IPv4-mapped address.
   // IPv4 射影アドレス。
   it('ipv6 accepts "::ffff:192.168.0.1"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `ipv6=${encodeURIComponent('::ffff:192.168.0.1')}` },
     })
     expect(res.status).toBe(200)
@@ -1536,7 +1536,7 @@ describe('formats: what each string format accepts', () => {
   // The shortest prefix, /0.
   // 最短のプレフィックス /0。
   it('cidrv4 accepts "0.0.0.0/0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `cidrv4=${encodeURIComponent('0.0.0.0/0')}` },
     })
     expect(res.status).toBe(200)
@@ -1548,7 +1548,7 @@ describe('formats: what each string format accepts', () => {
   // The longest prefix, /32.
   // 最長のプレフィックス /32。
   it('cidrv4 accepts "10.0.0.1/32"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `cidrv4=${encodeURIComponent('10.0.0.1/32')}` },
     })
     expect(res.status).toBe(200)
@@ -1560,7 +1560,7 @@ describe('formats: what each string format accepts', () => {
   // The shortest prefix, /0.
   // 最短のプレフィックス /0。
   it('cidrv6 accepts "::/0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `cidrv6=${encodeURIComponent('::/0')}` },
     })
     expect(res.status).toBe(200)
@@ -1572,7 +1572,7 @@ describe('formats: what each string format accepts', () => {
   // The longest prefix, /128.
   // 最長のプレフィックス /128。
   it('cidrv6 accepts "2001:db8::/128"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `cidrv6=${encodeURIComponent('2001:db8::/128')}` },
     })
     expect(res.status).toBe(200)
@@ -1584,7 +1584,7 @@ describe('formats: what each string format accepts', () => {
   // 29 February of a leap year.
   // うるう年の 2月29日。
   it('date accepts "2020-02-29"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'date=2020-02-29' },
     })
     expect(res.status).toBe(200)
@@ -1596,7 +1596,7 @@ describe('formats: what each string format accepts', () => {
   // Year zero.
   // 西暦 0 年。
   it('date accepts "0000-01-01"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'date=0000-01-01' },
     })
     expect(res.status).toBe(200)
@@ -1608,7 +1608,7 @@ describe('formats: what each string format accepts', () => {
   // The last four-digit date.
   // 4桁の年で表せる最後の日付。
   it('date accepts "9999-12-31"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'date=9999-12-31' },
     })
     expect(res.status).toBe(200)
@@ -1620,7 +1620,7 @@ describe('formats: what each string format accepts', () => {
   // Midnight.
   // 午前 0 時。
   it('time accepts "00:00:00"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `time=${encodeURIComponent('00:00:00')}` },
     })
     expect(res.status).toBe(200)
@@ -1632,7 +1632,7 @@ describe('formats: what each string format accepts', () => {
   // The last second of the day.
   // 1日の最後の秒。
   it('time accepts "23:59:59"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `time=${encodeURIComponent('23:59:59')}` },
     })
     expect(res.status).toBe(200)
@@ -1644,7 +1644,7 @@ describe('formats: what each string format accepts', () => {
   // Seconds may be left out.
   // 秒は省略できる。
   it('time accepts "12:34"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `time=${encodeURIComponent('12:34')}` },
     })
     expect(res.status).toBe(200)
@@ -1656,7 +1656,7 @@ describe('formats: what each string format accepts', () => {
   // Fractional seconds.
   // 小数秒。
   it('time accepts "12:34:56.789"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `time=${encodeURIComponent('12:34:56.789')}` },
     })
     expect(res.status).toBe(200)
@@ -1668,7 +1668,7 @@ describe('formats: what each string format accepts', () => {
   // A zone designator: `time` names an RFC 3339 full-time, which ends in one.
   // タイムゾーン指定子が付いている。`time` が指す RFC 3339 の full-time は、これで終わる。
   it('time accepts "12:34:56Z"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `time=${encodeURIComponent('12:34:56Z')}` },
     })
     expect(res.status).toBe(200)
@@ -1680,7 +1680,7 @@ describe('formats: what each string format accepts', () => {
   // An offset in place of the zone designator.
   // タイムゾーン指定子の代わりにオフセットが付いている。
   it('time accepts "12:34:56+09:00"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `time=${encodeURIComponent('12:34:56+09:00')}` },
     })
     expect(res.status).toBe(200)
@@ -1692,7 +1692,7 @@ describe('formats: what each string format accepts', () => {
   // Fractional seconds.
   // 小数秒。
   it('datetime accepts "2020-01-02T03:04:05.123Z"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `datetime=${encodeURIComponent('2020-01-02T03:04:05.123Z')}` },
     })
     expect(res.status).toBe(200)
@@ -1704,7 +1704,7 @@ describe('formats: what each string format accepts', () => {
   // An offset instead of Z: RFC 3339, which `date-time` names, takes either.
   // Z ではなくオフセット。`date-time` が指す RFC 3339 はどちらも認める。
   it('datetime accepts "2020-01-02T03:04:05+09:00"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `datetime=${encodeURIComponent('2020-01-02T03:04:05+09:00')}` },
     })
     expect(res.status).toBe(200)
@@ -1716,7 +1716,7 @@ describe('formats: what each string format accepts', () => {
   // The last second of a leap day.
   // うるう日の最後の秒。
   it('datetime accepts "2020-02-29T23:59:59Z"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `datetime=${encodeURIComponent('2020-02-29T23:59:59Z')}` },
     })
     expect(res.status).toBe(200)
@@ -1728,7 +1728,7 @@ describe('formats: what each string format accepts', () => {
   // A date component alone.
   // 日付要素のみ。
   it('duration accepts "P1Y"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'duration=P1Y' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'duration=P1Y' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       duration: { valueType: 'string', valueText: 'P1Y' },
@@ -1738,7 +1738,7 @@ describe('formats: what each string format accepts', () => {
   // A time component alone.
   // 時刻要素のみ。
   it('duration accepts "PT1S"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'duration=PT1S' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'duration=PT1S' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       duration: { valueType: 'string', valueText: 'PT1S' },
@@ -1748,7 +1748,7 @@ describe('formats: what each string format accepts', () => {
   // Weeks.
   // 週。
   it('duration accepts "P1W"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'duration=P1W' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'duration=P1W' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       duration: { valueType: 'string', valueText: 'P1W' },
@@ -1758,7 +1758,7 @@ describe('formats: what each string format accepts', () => {
   // Fractional seconds.
   // 小数秒。
   it('duration accepts "PT0.5S"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'duration=PT0.5S' },
     })
     expect(res.status).toBe(200)
@@ -1770,7 +1770,7 @@ describe('formats: what each string format accepts', () => {
   // Upper-case digits.
   // 大文字の16進数。
   it('mac accepts "00:1A:2B:3C:4D:5E"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `mac=${encodeURIComponent('00:1A:2B:3C:4D:5E')}` },
     })
     expect(res.status).toBe(200)
@@ -1782,7 +1782,7 @@ describe('formats: what each string format accepts', () => {
   // Hyphens between groups; the Luhn check runs on the digits.
   // グループ間のハイフン。Luhn チェックは数字部分に対して行われる。
   it('creditcard accepts "4111-1111-1111-1111"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'creditcard=4111-1111-1111-1111' },
     })
     expect(res.status).toBe(200)
@@ -1794,7 +1794,7 @@ describe('formats: what each string format accepts', () => {
   // Spaces between groups.
   // グループ間の空白。
   it('creditcard accepts "4111 1111 1111 1111"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `creditcard=${encodeURIComponent('4111 1111 1111 1111')}` },
     })
     expect(res.status).toBe(200)
@@ -1806,7 +1806,7 @@ describe('formats: what each string format accepts', () => {
   // A 15-digit number.
   // 15桁のカード番号。
   it('creditcard accepts "378282246310005"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'creditcard=378282246310005' },
     })
     expect(res.status).toBe(200)
@@ -1818,7 +1818,7 @@ describe('formats: what each string format accepts', () => {
   // Letters in the account part.
   // 口座部分に英字を含む。
   it('iban accepts "GB82WEST12345698765432"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'iban=GB82WEST12345698765432' },
     })
     expect(res.status).toBe(200)
@@ -1830,7 +1830,7 @@ describe('formats: what each string format accepts', () => {
   // Another ISO 4217 code.
   // 別の ISO 4217 コード。
   it('currencycode accepts "JPY"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'currencycode=JPY' },
     })
     expect(res.status).toBe(200)
@@ -1842,7 +1842,7 @@ describe('formats: what each string format accepts', () => {
   // ISO 4217 reserves XXX for "no currency".
   // ISO 4217 は XXX を「通貨なし」として予約している。
   it('currencycode accepts "XXX"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'currencycode=XXX' },
     })
     expect(res.status).toBe(200)
@@ -1858,7 +1858,7 @@ describe('literals, constraints and transforms', () => {
   // The first member of enum: [1, 2, 3].
   // enum: [1, 2, 3] の最初のメンバー。
   it('ienum accepts "1"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'ienum=1' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'ienum=1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       ienum: { valueType: 'number', valueText: '1' },
@@ -1868,7 +1868,7 @@ describe('literals, constraints and transforms', () => {
   // The last member of enum: [1, 2, 3].
   // enum: [1, 2, 3] の最後のメンバー。
   it('ienum accepts "3"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'ienum=3' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'ienum=3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       ienum: { valueType: 'number', valueText: '3' },
@@ -1878,7 +1878,7 @@ describe('literals, constraints and transforms', () => {
   // The only member of the boolean enum [true].
   // boolean の enum [true] の唯一のメンバー。
   it('benum accepts "true"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'benum=true' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'benum=true' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       benum: { valueType: 'boolean', valueText: 'true' },
@@ -1888,7 +1888,7 @@ describe('literals, constraints and transforms', () => {
   // The constant of const: 7.
   // const: 7 の定数値。
   it('iconst accepts "7"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'iconst=7' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'iconst=7' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       iconst: { valueType: 'number', valueText: '7' },
@@ -1898,7 +1898,7 @@ describe('literals, constraints and transforms', () => {
   // A member of the string enum [asc, desc].
   // string の enum [asc, desc] のメンバー。
   it('senum accepts "asc"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'senum=asc' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'senum=asc' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       senum: { valueType: 'string', valueText: 'asc' },
@@ -1908,7 +1908,7 @@ describe('literals, constraints and transforms', () => {
   // The other member of the string enum.
   // string の enum のもう一方のメンバー。
   it('senum accepts "desc"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'senum=desc' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'senum=desc' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       senum: { valueType: 'string', valueText: 'desc' },
@@ -1918,7 +1918,7 @@ describe('literals, constraints and transforms', () => {
   // oneOf an integer or "all": the integer branch coerces.
   // integer または "all" の oneOf。integer 側の分岐は coerce される。
   it('ioneof accepts "4"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'ioneof=4' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'ioneof=4' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       ioneof: { valueType: 'number', valueText: '4' },
@@ -1928,7 +1928,7 @@ describe('literals, constraints and transforms', () => {
   // The string branch needs no coercion and arrives as a string.
   // string 側は coerce 不要で、string として届く。
   it('ioneof accepts "all"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'ioneof=all' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'ioneof=all' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       ioneof: { valueType: 'string', valueText: 'all' },
@@ -1938,7 +1938,7 @@ describe('literals, constraints and transforms', () => {
   // The minimum of minimum: 1, maximum: 100 is inclusive.
   // minimum: 1, maximum: 100 の最小値は範囲に含まれる。
   it('range accepts "1"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'range=1' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'range=1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       range: { valueType: 'number', valueText: '1' },
@@ -1948,7 +1948,7 @@ describe('literals, constraints and transforms', () => {
   // Inside the range. Compared as text, "9" would sort after "100" and be refused.
   // 範囲内の値。文字列として比較すると "9" は "100" より後に並び、拒否されてしまう。
   it('range accepts "9"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'range=9' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'range=9' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       range: { valueType: 'number', valueText: '9' },
@@ -1958,7 +1958,7 @@ describe('literals, constraints and transforms', () => {
   // The maximum is inclusive.
   // 最大値は範囲に含まれる。
   it('range accepts "100"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'range=100' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'range=100' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       range: { valueType: 'number', valueText: '100' },
@@ -1968,7 +1968,7 @@ describe('literals, constraints and transforms', () => {
   // Exactly minLength: 2.
   // ちょうど minLength: 2 の長さ。
   it('length accepts "ab"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'length=ab' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'length=ab' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       length: { valueType: 'string', valueText: 'ab' },
@@ -1978,7 +1978,7 @@ describe('literals, constraints and transforms', () => {
   // Exactly maxLength: 4.
   // ちょうど maxLength: 4 の長さ。
   it('length accepts "abcd"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'length=abcd' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'length=abcd' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       length: { valueType: 'string', valueText: 'abcd' },
@@ -1988,7 +1988,7 @@ describe('literals, constraints and transforms', () => {
   // Two emoji are two characters, though four UTF-16 code units: length counts characters.
   // 絵文字2つは2文字である(UTF-16 では 4 コードユニット)。長さは文字数で数える。
   it('length accepts "🔥🔥"', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: `length=${encodeURIComponent('🔥🔥')}` },
     })
     expect(res.status).toBe(200)
@@ -2000,7 +2000,7 @@ describe('literals, constraints and transforms', () => {
   // Matches ^[a-z]+-\d{1,3}$ with one digit.
   // ^[a-z]+-\d{1,3}$ に数字1桁で一致する。
   it('pattern accepts "abc-1"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'pattern=abc-1' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'pattern=abc-1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       pattern: { valueType: 'string', valueText: 'abc-1' },
@@ -2010,7 +2010,7 @@ describe('literals, constraints and transforms', () => {
   // Matches with three digits, the most allowed.
   // 許容される最大の数字3桁で一致する。
   it('pattern accepts "abc-123"', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'pattern=abc-123' },
     })
     expect(res.status).toBe(200)
@@ -2022,7 +2022,7 @@ describe('literals, constraints and transforms', () => {
   // x-toLowerCase lower-cases the value.
   // x-toLowerCase は値を小文字化する。
   it('tx_lower turns "MiXeD" into "mixed"', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'tx_lower=MiXeD' },
     })
     expect(res.status).toBe(200)
@@ -2034,7 +2034,7 @@ describe('literals, constraints and transforms', () => {
   // A transform paired with a format: the value is lower-cased, then checked as an email.
   // 変換とフォーマットの組み合わせ。小文字化した後、メールアドレスとして検証される。
   it('tx_email turns "USER@EXAMPLE.COM" into "user@example.com"', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: `tx_email=${encodeURIComponent('USER@EXAMPLE.COM')}` },
     })
     expect(res.status).toBe(200)
@@ -2052,7 +2052,7 @@ describe('optional: absent and present', () => {
   // 省略された任意 Cookie は、検証済みオブジェクトにも存在しない。
   // キー自体が無いことは exactOptional が保証するもので、値が undefined の場合とは異なる。
   it('answers nothing when there is no Cookie header', async () => {
-    const res = await cookieParamsApp.request('/optional')
+    const res = await app.request('/optional')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({})
   })
@@ -2060,7 +2060,7 @@ describe('optional: absent and present', () => {
   // An empty header holds no cookie.
   // 空のヘッダーには Cookie が1つも含まれない。
   it('answers nothing when the Cookie header is empty', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: '' } })
+    const res = await app.request('/optional', { headers: { Cookie: '' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({})
   })
@@ -2068,7 +2068,7 @@ describe('optional: absent and present', () => {
   // "; ;" holds no pair.
   // "; ;" にはペアが1つも含まれない。
   it('answers nothing when the Cookie header holds separators only', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: '; ;' } })
+    const res = await app.request('/optional', { headers: { Cookie: '; ;' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({})
   })
@@ -2076,7 +2076,7 @@ describe('optional: absent and present', () => {
   // An optional integer that is sent is coerced.
   // 送信された任意の integer は coerce される。
   it('int_opt accepts "5"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'int_opt=5' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'int_opt=5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       int_opt: { valueType: 'number', valueText: '5' },
@@ -2086,7 +2086,7 @@ describe('optional: absent and present', () => {
   // An optional int64 keeps its precision.
   // 任意の int64 も桁落ちしない。
   it('int64_opt accepts "9007199254740993"', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'int64_opt=9007199254740993' },
     })
     expect(res.status).toBe(200)
@@ -2098,7 +2098,7 @@ describe('optional: absent and present', () => {
   // An optional boolean sent as false arrives as false, not as absent.
   // false として送信された任意の boolean は、省略扱いではなく false として届く。
   it('bool_opt accepts "false"', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'bool_opt=false' },
     })
     expect(res.status).toBe(200)
@@ -2110,7 +2110,7 @@ describe('optional: absent and present', () => {
   // An optional string.
   // 任意の string。
   it('str_opt accepts "s"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'str_opt=s' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'str_opt=s' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       str_opt: { valueType: 'string', valueText: 's' },
@@ -2120,7 +2120,7 @@ describe('optional: absent and present', () => {
   // Each cookie keeps its own value and type.
   // 各 Cookie が自身の値と型を保つ。
   it('accepts several cookies in one request', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'int_opt=5; bool_opt=true; str_opt=s' },
     })
     expect(res.status).toBe(200)
@@ -2134,7 +2134,7 @@ describe('optional: absent and present', () => {
   // An undeclared cookie is neither rejected nor passed on to the handler.
   // 宣言されていない Cookie は、拒否もされず、ハンドラにも渡されない。
   it('ignores a cookie the spec does not declare', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'unknown=1; session=abc' },
     })
     expect(res.status).toBe(200)
@@ -2150,7 +2150,7 @@ describe('defaults', () => {
   // デフォルトは型付きの値である。int64 の default: 5 は、
   // YAML 上の number ではなく bigint の 5n として届く。
   it('applies every default when nothing is sent', async () => {
-    const res = await cookieParamsApp.request('/defaults')
+    const res = await app.request('/defaults')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       int_def: { valueType: 'number', valueText: '20' },
@@ -2163,7 +2163,7 @@ describe('defaults', () => {
   // Only int_def changes; the other defaults still apply.
   // 変わるのは int_def だけで、他のデフォルトは引き続き適用される。
   it('lets a sent integer replace its default', async () => {
-    const res = await cookieParamsApp.request('/defaults', { headers: { Cookie: 'int_def=1' } })
+    const res = await app.request('/defaults', { headers: { Cookie: 'int_def=1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       int_def: { valueType: 'number', valueText: '1' },
@@ -2176,7 +2176,7 @@ describe('defaults', () => {
   // The sent value is coerced to a bigint like the default.
   // 送信された値は、デフォルトと同じく bigint に coerce される。
   it('lets a sent int64 replace its default', async () => {
-    const res = await cookieParamsApp.request('/defaults', { headers: { Cookie: 'int64_def=8' } })
+    const res = await app.request('/defaults', { headers: { Cookie: 'int64_def=8' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       int_def: { valueType: 'number', valueText: '20' },
@@ -2189,7 +2189,7 @@ describe('defaults', () => {
   // bool_def defaults to false.
   // bool_def のデフォルトは false である。
   it('lets true replace a default of false', async () => {
-    const res = await cookieParamsApp.request('/defaults', { headers: { Cookie: 'bool_def=true' } })
+    const res = await app.request('/defaults', { headers: { Cookie: 'bool_def=true' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       int_def: { valueType: 'number', valueText: '20' },
@@ -2202,7 +2202,7 @@ describe('defaults', () => {
   // A sent string replaces default: fallback.
   // 送信された string が default: fallback を置き換える。
   it('lets a sent string replace its default', async () => {
-    const res = await cookieParamsApp.request('/defaults', { headers: { Cookie: 'str_def=d' } })
+    const res = await app.request('/defaults', { headers: { Cookie: 'str_def=d' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       int_def: { valueType: 'number', valueText: '20' },
@@ -2215,7 +2215,7 @@ describe('defaults', () => {
   // Zero is a value, not an absence: the default must not win over it.
   // 0 は値であって欠落ではない。デフォルトがこれを上書きしてはならない。
   it('lets zero replace a default of 20', async () => {
-    const res = await cookieParamsApp.request('/defaults', { headers: { Cookie: 'int_def=0' } })
+    const res = await app.request('/defaults', { headers: { Cookie: 'int_def=0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       int_def: { valueType: 'number', valueText: '0' },
@@ -2233,7 +2233,7 @@ describe('required', () => {
   // The optional note is left out and is absent from the answer.
   // 任意の note は省略しており、応答にも含まれない。
   it('accepts a request that carries every required cookie', async () => {
-    const res = await cookieParamsApp.request('/required', {
+    const res = await app.request('/required', {
       headers: { Cookie: 'id=1; big=9007199254740993; flag=true; name=n' },
     })
     expect(res.status).toBe(200)
@@ -2248,7 +2248,7 @@ describe('required', () => {
   // note is declared without required: true.
   // note は required: true なしで宣言されている。
   it('accepts the optional cookie beside the required ones', async () => {
-    const res = await cookieParamsApp.request('/required', {
+    const res = await app.request('/required', {
       headers: { Cookie: 'id=1; big=9007199254740993; flag=true; name=n; note=5' },
     })
     expect(res.status).toBe(200)
@@ -2271,7 +2271,7 @@ describe('open: an object that takes additional properties', () => {
   // Every cookie finds its place.
   // すべての Cookie が、それぞれの場所に振り分けられる。
   it('bag takes the cookies nothing else declares', async () => {
-    const res = await cookieParamsApp.request('/open', {
+    const res = await app.request('/open', {
       headers: { Cookie: 'page=2; known=k; other=7; more=8' },
     })
     expect(res.status).toBe(200)
@@ -2288,7 +2288,7 @@ describe('open: an object that takes additional properties', () => {
   // Without a cookie for it, bag is absent.
   // bag に属する Cookie がなければ、bag は存在しない。
   it('bag is absent when no cookie belongs to it', async () => {
-    const res = await cookieParamsApp.request('/open', { headers: { Cookie: 'page=2' } })
+    const res = await app.request('/open', { headers: { Cookie: 'page=2' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       page: { valueType: 'number', valueText: '2' },
@@ -2302,7 +2302,7 @@ describe('null', () => {
   // The text "null" is the value null: the schema takes null and no string.
   // テキスト "null" は値 null である。スキーマは null を受理し、文字列を受理しない。
   it('inull accepts "null"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'inull=null' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'inull=null' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       inull: { valueType: 'null', valueText: 'null' },
@@ -2316,7 +2316,7 @@ describe('names', () => {
   // A name every object inherits, sent: it is read like any other parameter.
   // すべてのオブジェクトが継承する名前を送信する。他のパラメータと同じように読まれる。
   it('constructor accepts "5"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'constructor=5' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'constructor=5' } })
     expect(res.status).toBe(200)
     // The body is compared as text: `toStrictEqual` compares the `constructor` of two
     // objects to tell their types apart, and here that is the key under test.
@@ -2330,7 +2330,7 @@ describe('names', () => {
   // 同じ名前を送信しない。リクエストオブジェクトがその名前で継承しているものは値ではない
   // ため、任意パラメータは存在しない扱いになる。
   it('constructor is absent when it is not sent', async () => {
-    const res = await cookieParamsApp.request('/optional')
+    const res = await app.request('/optional')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({})
   })
@@ -2339,7 +2339,7 @@ describe('names', () => {
   // ハイフンを含む名前。JavaScript の識別子ではないため、
   // 生成されるキーは引用符で囲む必要がある。
   it('session-id accepts "4"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'session-id=4' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'session-id=4' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'session-id': { valueType: 'number', valueText: '4' },
@@ -2349,7 +2349,7 @@ describe('names', () => {
   // A dot.
   // ドットを含む名前。
   it('user.id accepts "5"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'user.id=5' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'user.id=5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       'user.id': { valueType: 'number', valueText: '5' },
@@ -2361,7 +2361,7 @@ describe('names', () => {
   // ヘッダー名と違い、Cookie 名は大文字小文字を区別する。仕様は両方を宣言しており、
   // 一方は integer、もう一方は string である。
   it('treats int_opt and Int_Opt as two cookies', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'Int_Opt=a; int_opt=6' },
     })
     expect(res.status).toBe(200)
@@ -2374,7 +2374,7 @@ describe('names', () => {
   // A name in a case the spec does not declare is an undeclared cookie.
   // 仕様で宣言されていない大文字小文字の名前は、未宣言の Cookie である。
   it('ignores INT_OPT, which is neither', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'INT_OPT=5' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'INT_OPT=5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({})
   })
@@ -2388,7 +2388,7 @@ describe('wire: the Cookie header', () => {
   // An encoded space.
   // エンコードされた空白。
   it('decodes str_opt=a%20b to "a b"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'str_opt=a%20b' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'str_opt=a%20b' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       str_opt: { valueType: 'string', valueText: 'a b' },
@@ -2398,7 +2398,7 @@ describe('wire: the Cookie header', () => {
   // An encoded semicolon is part of the value, not a separator.
   // エンコードされたセミコロンは値の一部であり、区切り文字ではない。
   it('decodes str_opt=a%3Bb to "a;b"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'str_opt=a%3Bb' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'str_opt=a%3Bb' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       str_opt: { valueType: 'string', valueText: 'a;b' },
@@ -2408,7 +2408,7 @@ describe('wire: the Cookie header', () => {
   // An encoded comma.
   // エンコードされたカンマ。
   it('decodes str_opt=a%2Cb to "a,b"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'str_opt=a%2Cb' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'str_opt=a%2Cb' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       str_opt: { valueType: 'string', valueText: 'a,b' },
@@ -2418,7 +2418,7 @@ describe('wire: the Cookie header', () => {
   // An encoded equals sign.
   // エンコードされた等号。
   it('decodes str_opt=a%3Db to "a=b"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'str_opt=a%3Db' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'str_opt=a%3Db' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       str_opt: { valueType: 'string', valueText: 'a=b' },
@@ -2428,7 +2428,7 @@ describe('wire: the Cookie header', () => {
   // An encoded plus sign.
   // エンコードされたプラス記号。
   it('decodes str_opt=a%2Bb to "a+b"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'str_opt=a%2Bb' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'str_opt=a%2Bb' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       str_opt: { valueType: 'string', valueText: 'a+b' },
@@ -2438,7 +2438,7 @@ describe('wire: the Cookie header', () => {
   // Unlike in a query string, a plus sign is a plus sign.
   // クエリ文字列と違い、プラス記号はプラス記号のまま届く。
   it('decodes str_opt=a+b to "a+b"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'str_opt=a+b' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'str_opt=a+b' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       str_opt: { valueType: 'string', valueText: 'a+b' },
@@ -2448,7 +2448,7 @@ describe('wire: the Cookie header', () => {
   // A three-byte UTF-8 sequence.
   // 3バイトの UTF-8 シーケンス。
   it('decodes str_opt=%E3%81%82 to "あ"', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'str_opt=%E3%81%82' },
     })
     expect(res.status).toBe(200)
@@ -2460,7 +2460,7 @@ describe('wire: the Cookie header', () => {
   // A four-byte UTF-8 sequence.
   // 4バイトの UTF-8 シーケンス。
   it('decodes str_opt=%F0%9F%94%A5 to "🔥"', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'str_opt=%F0%9F%94%A5' },
     })
     expect(res.status).toBe(200)
@@ -2472,7 +2472,7 @@ describe('wire: the Cookie header', () => {
   // Lower-case hexadecimal digits decode the same.
   // 16進数が小文字でも同じようにデコードされる。
   it('decodes str_opt=%e3%81%82 to "あ"', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'str_opt=%e3%81%82' },
     })
     expect(res.status).toBe(200)
@@ -2484,7 +2484,7 @@ describe('wire: the Cookie header', () => {
   // The value is decoded once: %2520 is the encoding of "%20", not of a space.
   // デコードは1回だけ行われる。%2520 は "%20" のエンコードであり、空白のエンコードではない。
   it('decodes str_opt=%2520 to "%20"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'str_opt=%2520' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'str_opt=%2520' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       str_opt: { valueType: 'string', valueText: '%20' },
@@ -2494,7 +2494,7 @@ describe('wire: the Cookie header', () => {
   // Only the first "=" separates the name from the value.
   // 名前と値を区切るのは最初の "=" だけである。
   it('decodes str_opt=a=b to "a=b"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'str_opt=a=b' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'str_opt=a=b' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       str_opt: { valueType: 'string', valueText: 'a=b' },
@@ -2504,7 +2504,7 @@ describe('wire: the Cookie header', () => {
   // Base64 padding survives for the same reason.
   // Base64 のパディングも、同じ理由でそのまま届く。
   it('decodes str_opt=YQ== to "YQ=="', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'str_opt=YQ==' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'str_opt=YQ==' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       str_opt: { valueType: 'string', valueText: 'YQ==' },
@@ -2514,7 +2514,7 @@ describe('wire: the Cookie header', () => {
   // Double quotes around a value are part of the cookie syntax, not of the value.
   // 値を囲む二重引用符は Cookie の構文の一部であり、値には含まれない。
   it('decodes str_opt="quoted" to "quoted"', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'str_opt="quoted"' },
     })
     expect(res.status).toBe(200)
@@ -2526,7 +2526,7 @@ describe('wire: the Cookie header', () => {
   // A colon, a slash and a question mark need no encoding.
   // コロン・スラッシュ・疑問符は、エンコード不要である。
   it('decodes str_opt=a:b/c?d to "a:b/c?d"', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'str_opt=a:b/c?d' },
     })
     expect(res.status).toBe(200)
@@ -2538,7 +2538,7 @@ describe('wire: the Cookie header', () => {
   // An escape that is not hexadecimal is delivered as it was sent.
   // 16進数でないエスケープは、送信時のまま届く。
   it('decodes str_opt=%ZZ to "%ZZ"', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'str_opt=%ZZ' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'str_opt=%ZZ' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       str_opt: { valueType: 'string', valueText: '%ZZ' },
@@ -2548,7 +2548,7 @@ describe('wire: the Cookie header', () => {
   // An empty value is the empty string, not an absent cookie.
   // 空の値は空文字列であり、Cookie の省略ではない。
   it('decodes str_opt= to ""', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'str_opt=' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'str_opt=' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       str_opt: { valueType: 'string', valueText: '' },
@@ -2558,7 +2558,7 @@ describe('wire: the Cookie header', () => {
   // %35 is "5": decoding happens before coercion.
   // %35 は "5" を表す。デコードは coerce より前に行われる。
   it('coerces percent-encoded digits like plain ones', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'int_opt=%35' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'int_opt=%35' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       int_opt: { valueType: 'number', valueText: '5' },
@@ -2568,7 +2568,7 @@ describe('wire: the Cookie header', () => {
   // The quotes are removed before coercion.
   // 引用符は coerce の前に取り除かれる。
   it('coerces a quoted number', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'int_opt="42"' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'int_opt="42"' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       int_opt: { valueType: 'number', valueText: '42' },
@@ -2578,7 +2578,7 @@ describe('wire: the Cookie header', () => {
   // The MAC format sees the decoded colons.
   // MAC フォーマットの検証は、デコード後のコロンに対して行われる。
   it('validates the decoded value', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'mac=00%3A1a%3A2b%3A3c%3A4d%3A5e' },
     })
     expect(res.status).toBe(200)
@@ -2590,7 +2590,7 @@ describe('wire: the Cookie header', () => {
   // A colon is not a separator of the Cookie header, so a MAC address can be sent as it is.
   // コロンは Cookie ヘッダーの区切り文字ではないため、MAC アドレスはそのまま送信できる。
   it('reads a colon-separated value unencoded', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'mac=00:1a:2b:3c:4d:5e' },
     })
     expect(res.status).toBe(200)
@@ -2603,7 +2603,7 @@ describe('wire: the Cookie header', () => {
   // エンコードされていない ";" は値の終端となる。"b" は別のペアだが、
   // "=" がないため Cookie にはならない。
   it('ends a value at an unencoded semicolon', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'str_opt=a;b' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'str_opt=a;b' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       str_opt: { valueType: 'string', valueText: 'a' },
@@ -2613,7 +2613,7 @@ describe('wire: the Cookie header', () => {
   // The standard separator.
   // 標準の区切り。
   it('separates pairs by a semicolon and a space', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'int_opt=1; str_opt=a' },
     })
     expect(res.status).toBe(200)
@@ -2626,7 +2626,7 @@ describe('wire: the Cookie header', () => {
   // The space is optional.
   // 空白は省略できる。
   it('separates pairs by a semicolon with no space', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'int_opt=1;str_opt=a' },
     })
     expect(res.status).toBe(200)
@@ -2639,7 +2639,7 @@ describe('wire: the Cookie header', () => {
   // Extra spaces are skipped.
   // 余分な空白は無視される。
   it('separates pairs by a semicolon with extra spaces', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'int_opt=1;   str_opt=a' },
     })
     expect(res.status).toBe(200)
@@ -2652,7 +2652,7 @@ describe('wire: the Cookie header', () => {
   // An empty pair at the end is skipped.
   // 末尾の空のペアは無視される。
   it('separates pairs by a trailing semicolon', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'int_opt=1; str_opt=a;' },
     })
     expect(res.status).toBe(200)
@@ -2665,7 +2665,7 @@ describe('wire: the Cookie header', () => {
   // An empty pair at the start is skipped.
   // 先頭の空のペアは無視される。
   it('separates pairs by a leading semicolon', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: '; int_opt=1; str_opt=a' },
     })
     expect(res.status).toBe(200)
@@ -2678,7 +2678,7 @@ describe('wire: the Cookie header', () => {
   // A name sent twice keeps its first value; the second does not replace it.
   // 同じ名前が2回送られた場合、最初の値が採用される。2つ目が上書きすることはない。
   it('keeps the first of a name sent twice', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'int_opt=1; int_opt=2' },
     })
     expect(res.status).toBe(200)
@@ -2690,7 +2690,7 @@ describe('wire: the Cookie header', () => {
   // The invalid second value is never read, so it cannot fail the request.
   // 不正な2つ目の値は読み取られないため、リクエストを失敗させることもない。
   it('does not validate the second of a name sent twice', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'int_opt=1; int_opt=x' },
     })
     expect(res.status).toBe(200)
@@ -2702,7 +2702,7 @@ describe('wire: the Cookie header', () => {
   // Two Cookie headers reach the server joined, and both cookies are read.
   // 2つの Cookie ヘッダーは連結されてサーバーに届き、両方の Cookie が読み取られる。
   it('reads two Cookie headers as one', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: [
         ['Cookie', 'int_opt=1'],
         ['Cookie', 'str_opt=a'],
@@ -2718,7 +2718,7 @@ describe('wire: the Cookie header', () => {
   // A query parameter, a header and a Set-Cookie header of the same name are not the cookie.
   // 同名のクエリパラメータ・ヘッダー・Set-Cookie ヘッダーは、いずれも Cookie ではない。
   it('does not read a cookie from anywhere but the Cookie header', async () => {
-    const res = await cookieParamsApp.request('/optional?int_opt=1', {
+    const res = await app.request('/optional?int_opt=1', {
       headers: { int_opt: '2', 'Set-Cookie': 'int_opt=3' },
     })
     expect(res.status).toBe(200)
@@ -2730,7 +2730,7 @@ describe('wire: the Cookie header', () => {
   // Hono は HEAD を GET のルートで処理するため、Cookieは同じように検証される。
   // 有効な値は受理される。
   it('validates a HEAD request like the GET it mirrors', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       method: 'HEAD',
       headers: { Cookie: 'int_opt=1' },
     })
@@ -2740,14 +2740,14 @@ describe('wire: the Cookie header', () => {
   // One request must not change the next: no state is kept between validations.
   // あるリクエストが次のリクエストに影響しないこと。検証間で状態は保持されない。
   it('gives the same answer to the same request, whatever came between', async () => {
-    const first = await cookieParamsApp.request('/cookies', {
+    const first = await app.request('/cookies', {
       headers: { Cookie: 'int64=9007199254740993' },
     })
-    const between = await cookieParamsApp.request('/cookies', {
+    const between = await app.request('/cookies', {
       headers: { Cookie: 'int64=not-a-value' },
     })
     expect(between.status).toBe(422)
-    const second = await cookieParamsApp.request('/cookies', {
+    const second = await app.request('/cookies', {
       headers: { Cookie: 'int64=9007199254740993' },
     })
     expect(second.status).toBe(200)
@@ -2763,7 +2763,7 @@ describe('arrays', () => {
   // Cookie 名は1度しか現れないため、配列の Cookie は常に単一値として届く。
   // 生成された配列スキーマは、この形を受理できなければならない。
   it('reads a single value as a one-element array', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'ids=7' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'ids=7' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       ids: [{ valueType: 'number', valueText: '7' }],
@@ -2773,7 +2773,7 @@ describe('arrays', () => {
   // Repeating the name does not build an array: the first value is the only one read.
   // 名前を繰り返しても配列にはならない。読み取られるのは最初の値だけである。
   it('reads only the first of a repeated name', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'ids=7; ids=8' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'ids=7; ids=8' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       ids: [{ valueType: 'number', valueText: '7' }],
@@ -2785,7 +2785,7 @@ describe('arrays', () => {
   // Cookie 名は1度しか現れないため、複数の値は1つの Cookie にカンマ区切りで並べて運ばれる。
   // ここでは、Cookie 値の規則に従ってカンマをパーセントエンコードしている。
   it('splits an encoded comma-separated value', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'ids=1%2C2%2C3' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'ids=1%2C2%2C3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       ids: [
@@ -2799,7 +2799,7 @@ describe('arrays', () => {
   // The same with the commas sent as they are.
   // カンマをそのまま送信した場合も同様である。
   it('splits an unencoded comma-separated value', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'ids=1,2,3' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'ids=1,2,3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       ids: [
@@ -2821,7 +2821,7 @@ describe('objects: an object in cookies', () => {
   // theme and size are cookies of their own, gathered into prefs.
   // theme と size は独立した Cookie であり、prefs にまとめられる。
   it('prefs gathers the cookies that are its properties', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'theme=dark; size=5' },
     })
     expect(res.status).toBe(200)
@@ -2836,7 +2836,7 @@ describe('objects: an object in cookies', () => {
   // One property is enough for the object to be there.
   // プロパティが1つあれば、オブジェクトは存在することになる。
   it('prefs gathers a single property', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'size=5' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'size=5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       prefs: {
@@ -2848,7 +2848,7 @@ describe('objects: an object in cookies', () => {
   // int_opt is a cookie of its own and theme a property of prefs.
   // int_opt は独立した Cookie であり、theme は prefs のプロパティである。
   it('prefs arrives beside a cookie of its own', async () => {
-    const res = await cookieParamsApp.request('/optional', {
+    const res = await app.request('/optional', {
       headers: { Cookie: 'int_opt=1; theme=dark' },
     })
     expect(res.status).toBe(200)
@@ -2863,7 +2863,7 @@ describe('objects: an object in cookies', () => {
   // { a: 1, b: "x" } is sent as one cookie, a,1,b,x.
   // { a: 1, b: "x" } は、1つの Cookie a,1,b,x として送信される。
   it('obj reads alternating names and values', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'obj=a,1,b,x' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'obj=a,1,b,x' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       obj: {
@@ -2876,7 +2876,7 @@ describe('objects: an object in cookies', () => {
   // The comma is percent-encoded, as a cookie value requires.
   // Cookie 値の規則に従って、カンマをパーセントエンコードしている。
   it('obj reads percent-encoded commas', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'obj=a%2C1' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'obj=a%2C1' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       obj: {
@@ -2896,7 +2896,7 @@ describe('references: a schema behind $ref', () => {
   // Count is an integer with minimum: 0.
   // Count は minimum: 0 の integer である。
   it('ref_int coerces an integer component', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'ref_int=5' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'ref_int=5' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       ref_int: { valueType: 'number', valueText: '5' },
@@ -2907,7 +2907,7 @@ describe('references: a schema behind $ref', () => {
   // read.
   // 0 は Count の最小値である。コンポーネントの制約は、読み取った値に適用される。
   it('ref_int accepts the minimum of the component', async () => {
-    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'ref_int=0' } })
+    const res = await app.request('/optional', { headers: { Cookie: 'ref_int=0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       ref_int: { valueType: 'number', valueText: '0' },
@@ -2927,7 +2927,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // Negative zero is zero.
   // 負のゼロはゼロになる。
   it('integer accepts "-0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=-0' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'integer=-0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       integer: { valueType: 'number', valueText: '0' },
@@ -2937,7 +2937,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // Leading zeros are dropped; the value is not read as octal.
   // 先頭のゼロは無視される。8進数としては読まれない。
   it('integer accepts "007"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=007' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'integer=007' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       integer: { valueType: 'number', valueText: '7' },
@@ -2947,7 +2947,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // Negative zero is zero.
   // 負のゼロはゼロになる。
   it('int64 accepts "-0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'int64=-0' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'int64=-0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       int64: { valueType: 'bigint', valueText: '0' },
@@ -2957,7 +2957,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // Leading zeros are dropped.
   // 先頭のゼロは無視される。
   it('int64 accepts "007"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'int64=007' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'int64=007' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       int64: { valueType: 'bigint', valueText: '7' },
@@ -2967,7 +2967,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // Negative zero is echoed as zero.
   // 負のゼロはゼロとして返る。
   it('number accepts "-0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'number=-0' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'number=-0' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       number: { valueType: 'number', valueText: '0' },
@@ -2977,7 +2977,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // cuid2 is a pattern with no fixed length: one letter passes.
   // cuid2 は長さ固定のないパターンであり、1文字でも通る。
   it('cuid2 accepts "a"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'cuid2=a' } })
+    const res = await app.request('/cookies', { headers: { Cookie: 'cuid2=a' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       cuid2: { valueType: 'string', valueText: 'a' },
@@ -2987,7 +2987,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // cuid2 does not require a leading letter.
   // cuid2 は先頭が英字であることを要求しない。
   it('cuid2 accepts "1z4a98xxat96iws9zmbrgj3a"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'cuid2=1z4a98xxat96iws9zmbrgj3a' },
     })
     expect(res.status).toBe(200)
@@ -2999,7 +2999,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // format: url takes the javascript: scheme; narrowing is the caller's to do.
   // format: url は javascript: スキームも受理する。絞り込みは利用側の責務である。
   it('url accepts "javascript:alert(1)"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: `url=${encodeURIComponent('javascript:alert(1)')}` },
     })
     expect(res.status).toBe(200)
@@ -3011,7 +3011,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // A trailing dot satisfies the hostname grammar.
   // 末尾のドットはホスト名の文法を満たす。
   it('hostname accepts "example.com."', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'hostname=example.com.' },
     })
     expect(res.status).toBe(200)
@@ -3023,7 +3023,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // A dotted quad satisfies the hostname grammar.
   // ドット区切りの4数値はホスト名の文法を満たす。
   it('hostname accepts "192.168.0.1"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
+    const res = await app.request('/cookies', {
       headers: { Cookie: 'hostname=192.168.0.1' },
     })
     expect(res.status).toBe(200)
@@ -3035,7 +3035,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // An empty string is a string: the default gives way to it.
   // 空文字列も文字列である。デフォルトより優先される。
   it('reads an empty string over its default', async () => {
-    const res = await cookieParamsApp.request('/defaults', { headers: { Cookie: 'str_def=' } })
+    const res = await app.request('/defaults', { headers: { Cookie: 'str_def=' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       int_def: { valueType: 'number', valueText: '20' },
@@ -3048,7 +3048,7 @@ describe('leniency: what is read beyond the plainest spelling (pinned, not endor
   // An empty name satisfies required: true.
   // 空の name でも、required: true を満たす。
   it('reads an empty required string as present', async () => {
-    const res = await cookieParamsApp.request('/required', {
+    const res = await app.request('/required', {
       headers: { Cookie: 'id=1; big=1; flag=true; name=' },
     })
     expect(res.status).toBe(200)

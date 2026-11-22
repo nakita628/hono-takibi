@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { Header, Parameter, Schema } from '../openapi/index.js'
-import { conformDefault, wrap } from './wrap.js'
+import { conformDefault, valueLiteral, wrap } from './wrap.js'
 
 // #369: a default that is not a value of its schema
 describe('conformDefault', () => {
@@ -1198,7 +1198,7 @@ describe('wrap', () => {
         description: 'Schema with nested not',
       } as unknown as Schema
       const result = wrap('z.string()', schema)
-      expect(result).toBe('z.string().openapi({"description":"Schema with nested not"})')
+      expect(result).toBe('z.string().openapi({"description":"Schema with nested not","not":{}})')
     })
 
     it.concurrent('should keep not.not when inner not is object (not boolean)', () => {
@@ -1212,7 +1212,7 @@ describe('wrap', () => {
       const result = wrap('z.string()', schema)
       // not is filtered by zodExpressedProps, only description remains
       expect(result).toBe(
-        'z.string().openapi({"description":"Schema with non-boolean nested not"})',
+        'z.string().openapi({"description":"Schema with non-boolean nested not","not":{"not":{"type":"number"}}})',
       )
     })
   })
@@ -1747,5 +1747,159 @@ describe('filterUnsupportedProps (required coercion + nested boolean schemas)', 
         definitions: { Bar: { type: 'string' } },
       } as unknown as Schema),
     ).toBe('z.looseObject({}).openapi({"title":"T"})')
+  })
+})
+
+describe('valueLiteral (#491)', () => {
+  const int64 = { type: 'integer', format: 'int64' } as const
+
+  it.concurrent.each<[string, Schema, unknown, string, boolean]>([
+    ['a number', { type: 'number' }, 1.5, '1.5', false],
+    ['an int32', { type: 'integer', format: 'int32' }, 1, '1', false],
+    ['an int64', int64, 1, '1n', true],
+    ['a uint64', { type: 'integer', format: 'uint64' }, 2, '2n', true],
+    ['a bigint', { type: 'integer', format: 'bigint' }, 3, 'BigInt(3)', true],
+    // `type: number` with `format: int64` is `z.number()` (#412).
+    ['a number of format int64', { type: 'number', format: 'int64' }, 1, '1', false],
+    // A fraction is no bigint literal.
+    ['a fraction for an int64', int64, 1.5, '1.5', false],
+    ['a string', { type: 'string' }, 'a"b', '"a\\"b"', false],
+    ['a date', { type: 'date' }, '2020-01-01', 'new Date("2020-01-01")', false],
+    ['null', int64, null, 'null', false],
+    ['undefined', int64, undefined, 'undefined', false],
+    ['a boolean', { type: 'boolean' }, false, 'false', false],
+    ['an array of int64', { type: 'array', items: int64 }, [1, 2], '[1n,2n]', true],
+    ['an array of strings', { type: 'array', items: { type: 'string' } }, ['a'], '["a"]', false],
+    ['an array with no items', { type: 'array' }, [1, 'a'], '[1,"a"]', false],
+    [
+      'an object',
+      { type: 'object', properties: { n: int64, s: { type: 'string' } } },
+      { n: 1, s: 'x', other: 2 },
+      '{"n":1n,"s":"x","other":2}',
+      true,
+    ],
+    [
+      'a nested object',
+      {
+        type: 'object',
+        properties: {
+          o: { type: 'object', properties: { list: { type: 'array', items: int64 } } },
+        },
+      },
+      { o: { list: [1] } },
+      '{"o":{"list":[1n]}}',
+      true,
+    ],
+    [
+      'additionalProperties',
+      { type: 'object', additionalProperties: int64 },
+      { a: 1 },
+      '{"a":1n}',
+      true,
+    ],
+    [
+      'an allOf',
+      { allOf: [{ type: 'object', properties: { n: int64 } }, { type: 'object' }] },
+      { n: 1 },
+      '{"n":1n}',
+      true,
+    ],
+    [
+      'the branch of a oneOf that takes the value',
+      { oneOf: [{ type: 'string' }, { type: 'object', properties: { n: int64 } }] },
+      { n: 1 },
+      '{"n":1n}',
+      true,
+    ],
+    // What a user chain hands out cannot be told: the value is its JSON.
+    [
+      'a property with a user chain',
+      { type: 'object', properties: { n: { ...int64, 'x-transform': '(val) => Number(val)' } } },
+      { n: 1 },
+      '{"n":1}',
+      false,
+    ],
+  ])('%s', (_name, schema, value, code, bigint) => {
+    expect(valueLiteral(schema, value)).toStrictEqual({ code, bigint })
+  })
+
+  it.concurrent('reads a reference as the component it names', () => {
+    const schemas = { Big: { type: 'object', properties: { n: int64 } } } as const
+    expect(valueLiteral({ $ref: '#/components/schemas/Big' }, { n: 1 }, schemas)).toStrictEqual({
+      code: '{"n":1n}',
+      bigint: true,
+    })
+    // Not resolved, or naming itself: the value is its JSON.
+    expect(valueLiteral({ $ref: '#/components/schemas/Big' }, { n: 1 })).toStrictEqual({
+      code: '{"n":1}',
+      bigint: false,
+    })
+    const cyclic = { Node: { $ref: '#/components/schemas/Node' } } as const
+    expect(valueLiteral({ $ref: '#/components/schemas/Node' }, { n: 1 }, cyclic)).toStrictEqual({
+      code: '{"n":1}',
+      bigint: false,
+    })
+  })
+})
+
+// What `x-catch` emits (#492): a `z.preprocess` that replaces a value the schema does not
+// take by the fallback.
+const caught = (schema: string, fallback: string) =>
+  `(()=>{const Schema=${schema};return z.preprocess((val: z.input<typeof Schema>)=>Schema.safeParse(val).success?val:${fallback},Schema)})()`
+
+describe('wrap: x-catch, x-prefault and nested literals (#490, #491, #492)', () => {
+  it.concurrent('x-catch is a .catch() that states its schema for the document', () => {
+    expect(wrap('z.string()', { type: 'string', 'x-catch': 'x' })).toBe(
+      'z.string().catch("x").openapi({"type":"string"})',
+    )
+    expect(wrap('z.string()', { type: 'string', default: 'd', 'x-catch': 'x' })).toBe(
+      'z.string().default("d").catch("x").openapi({"type":"string","default":"d"})',
+    )
+    expect(wrap('z.int64()', { type: 'integer', format: 'int64', const: 1, 'x-catch': 0 })).toBe(
+      'z.int64().catch(0n).openapi({"type":"integer","format":"int64","enum":[1]})',
+    )
+    // `z.stringbool()` hands out a boolean, which is what the fallback is.
+    expect(wrap('z.stringbool()', { type: 'boolean', 'x-stringbool': true, 'x-catch': true })).toBe(
+      'z.stringbool().catch(true).openapi({"type":"boolean"})',
+    )
+  })
+
+  it.concurrent('x-catch with no type to state is a preprocess', () => {
+    expect(wrap('z.any()', { 'x-catch': 'x' })).toBe(caught('z.any()', '"x"'))
+    expect(wrap('ASchema', { $ref: '#/components/schemas/A', 'x-catch': {} })).toBe(
+      caught('ASchema', '{}'),
+    )
+    // A user chain replaces the generated one, the catch with it.
+    expect(wrap('z.string()', { type: 'string', 'x-catch': 'x', 'x-transform': 'T' })).toBe('T')
+  })
+
+  it.concurrent('a null fallback makes the schema nullable', () => {
+    expect(wrap('z.string()', { type: 'string', 'x-catch': null })).toBe(
+      'z.string().nullable().catch(null).openapi({"type":["string","null"]})',
+    )
+    expect(wrap('z.string()', { type: 'string', 'x-prefault': null })).toBe(
+      'z.string().nullable().prefault(null)',
+    )
+  })
+
+  it.concurrent('the document is told the JSON of a default that holds a bigint', () => {
+    const schema = {
+      type: 'object',
+      properties: { n: { type: 'integer', format: 'int64' } },
+    } as const
+    expect(wrap('Z', { ...schema, default: { n: 1 } })).toBe(
+      'Z.default({"n":1n}).openapi({"default":{"n":1}})',
+    )
+    expect(wrap('Z', { ...schema, 'x-prefault': { n: 1 } })).toBe(
+      'Z.prefault({"n":1n}).openapi({"default":{"n":1}})',
+    )
+    // The document reads `.default()` before `.prefault()`.
+    expect(wrap('Z', { ...schema, default: {}, 'x-prefault': { n: 1 } })).toBe(
+      'Z.default({}).prefault({"n":1n})',
+    )
+    // Nothing to tell when no bigint is written.
+    expect(
+      wrap('Z', { type: 'object', properties: { s: { type: 'string' } }, default: { s: 'x' } }),
+    ).toBe('Z.default({"s":"x"})')
   })
 })
