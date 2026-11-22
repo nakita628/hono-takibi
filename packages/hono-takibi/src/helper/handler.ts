@@ -18,7 +18,7 @@ import {
   // mergeTestFile,
 } from '../merge/index.js'
 import type { OpenAPI, Operation } from '../openapi/index.js'
-import { routeName, uncapitalizeWord } from '../utils/index.js'
+import { routeName } from '../utils/index.js'
 // import { makeImports, makeModuleSpec } from './code.js'
 import { makeImports, makeModuleSpec } from './code.js'
 import { groupNameOf } from './group.js'
@@ -34,24 +34,59 @@ function sanitizeHandlerSegment(segment: string) {
 }
 
 /**
- * Derives the handler file name for an operation: the first tag (lower camel case) when
- * present, otherwise the first path segment (`/` → `__root`).
+ * A tag or a path segment in kebab case: every run of what is no letter or digit is a word
+ * break, and so is a change of case, an acronym being one word. `Real-Time Events` as
+ * `real-time-events`, `userAPIKeys` as `user-api-keys`, `{org_id}` as `org-id`.
  */
-export function makeHandlerFileName(path: string, tags?: readonly string[]): `${string}.ts` {
-  const tagName = uncapitalizeWord(sanitizeHandlerSegment(tags?.[0] ?? ''))
-  const pathName = sanitizeHandlerSegment(path.replace(/^\/+/u, '').split('/')[0] ?? '')
-  const name = tagName !== '' ? tagName : pathName !== '' ? pathName : '__root'
-  return `${name}.ts` as const
+function kebabHandlerSegment(segment: string) {
+  return segment
+    .replaceAll(/\{([^}]+)\}/gu, '$1')
+    .replaceAll(/[^0-9A-Za-z]+/gu, '-')
+    .replaceAll(/([a-z0-9])([A-Z])/gu, '$1-$2')
+    .replaceAll(/([A-Z])([A-Z][a-z])/gu, '$1-$2')
+    .replaceAll(/^-+|-+$/gu, '')
+    .toLowerCase()
 }
 
 /**
- * The group an operation belongs to: the name of the handler file it is written to, the
- * first tag or else the first segment of the path, `/v2-public/ping` as `v2Public`, and the
- * root `/` as `__root`. A segment that is a word of the language is prefixed the same way,
- * `/delete` as `__delete`.
+ * The name a handler file goes by in code, whatever the case of the file: the base name with
+ * its hyphens read as word breaks, `real-time-events.ts` as `realTimeEvents`. A file named in
+ * camel case goes by its base name as it is. The export of an inline handler file
+ * (`realTimeEventsHandler`) and its group are made of this name.
  */
-export function handlerGroupOf(path: string, tags?: readonly string[]) {
-  return groupNameOf(makeHandlerFileName(path, tags).replace(/\.ts$/u, ''))
+export function handlerNameOf(fileName: string) {
+  return basename(fileName, '.ts').replaceAll(/-+([0-9A-Za-z_]?)/gu, (_, char: string) =>
+    char.toUpperCase(),
+  )
+}
+
+/**
+ * Derives the handler file name for an operation, in kebab case: the first segment of its
+ * path (`/` → `__root`), `/real-time-events/{id}` as `real-time-events.ts`. The tags of the
+ * operation say nothing of the file.
+ */
+export function makeHandlerFileName(path: string): `${string}.ts` {
+  const name = kebabHandlerSegment(path.replace(/^\/+/u, '').split('/')[0] ?? '')
+  return `${name !== '' ? name : '__root'}.ts` as const
+}
+
+/**
+ * The group of the handler file an operation is written to: the name that file goes by in
+ * code, `real-time-events.ts` as `realTimeEvents`, and the root `/` as `__root`. A name that
+ * is a word of the language is prefixed the same way, `/delete` as `__delete`.
+ */
+export function handlerGroupOf(path: string) {
+  return groupNameOf(handlerNameOf(makeHandlerFileName(path)))
+}
+
+/**
+ * The group of a path where the app registers the routes itself and no handler file stands
+ * for the group: the first segment in camel case as it is written, `/v2-public/ping` as
+ * `v2Public`, with the same prefix for the root and for a word of the language.
+ */
+export function pathGroupOf(path: string) {
+  const name = sanitizeHandlerSegment(path.replace(/^\/+/u, '').split('/')[0] ?? '')
+  return groupNameOf(name !== '' ? name : '__root')
 }
 
 function isTsFileName(file: string): file is `${string}.ts` {
@@ -103,8 +138,10 @@ function scanExistingHandlerFiles(
 
 /**
  * Picks the file a generated export goes to: the file that already holds it, else the
- * expected name when that file exists, else an existing file whose name matches
- * case-insensitively (case-insensitive filesystems), else the expected name.
+ * expected name when that file exists, else an existing file that goes by the same name in
+ * code whatever its case (`realTimeEvents.ts` for `real-time-events.ts`, and a file that
+ * differs by case alone, as on a case-insensitive filesystem), else the expected name. A
+ * project whose files were written in camel case keeps them.
  */
 function resolveHandlerFileName(
   expected: `${string}.ts`,
@@ -117,8 +154,8 @@ function resolveHandlerFileName(
   const located = existing.locations.get(key)
   if (located) return located
   if (existing.fileNames.includes(expected)) return expected
-  const lower = expected.toLowerCase()
-  return existing.fileNames.find((file) => file.toLowerCase() === lower) ?? expected
+  const name = handlerNameOf(expected).toLowerCase()
+  return existing.fileNames.find((file) => handlerNameOf(file).toLowerCase() === name) ?? expected
 }
 
 /**
@@ -168,7 +205,6 @@ function makeHandlerInfo(
   paths: { readonly [k: string]: unknown },
   path: string,
   method: string,
-  operation: Operation,
   existing: {
     readonly fileNames: readonly `${string}.ts`[]
     readonly locations: ReadonlyMap<string, `${string}.ts`>
@@ -178,7 +214,7 @@ function makeHandlerInfo(
 ) {
   const routeId = routeName(method, path, paths)
   const fileName = resolveHandlerFileName(
-    makeHandlerFileName(path, operation.tags),
+    makeHandlerFileName(path),
     `${routeId}${member}`,
     existing,
   )
@@ -193,7 +229,6 @@ function makeInlineStubHandlerInfo(
   paths: { readonly [k: string]: unknown },
   path: string,
   method: string,
-  operation: Operation,
   existing: {
     readonly fileNames: readonly `${string}.ts`[]
     readonly locations: ReadonlyMap<string, `${string}.ts`>
@@ -203,7 +238,6 @@ function makeInlineStubHandlerInfo(
     paths,
     path,
     method,
-    operation,
     existing,
     'Route',
     (routeId) => `.openapi(${routeId}Route,(c)=>{})`,
@@ -218,7 +252,7 @@ function makeInlineStubFileContent(
   },
   importFrom: string,
 ) {
-  const exportName = `${basename(handler.fileName, '.ts')}Handler`
+  const exportName = `${handlerNameOf(handler.fileName)}Handler`
   const routeImports = [...new Set(handler.routeNames)].join(', ')
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
   const importStatements = `import { OpenAPIHono } from '@hono/zod-openapi'\n${importRoutes}`
@@ -230,7 +264,6 @@ function makeStubHandlerInfo(
   paths: { readonly [k: string]: unknown },
   path: string,
   method: string,
-  operation: Operation,
   existing: {
     readonly fileNames: readonly `${string}.ts`[]
     readonly locations: ReadonlyMap<string, `${string}.ts`>
@@ -240,7 +273,6 @@ function makeStubHandlerInfo(
     paths,
     path,
     method,
-    operation,
     existing,
     'RouteHandler',
     (routeId) =>
@@ -404,10 +436,10 @@ export function zodOpenAPIHonoHandler(
             (entry): entry is [string, Operation] =>
               isHttpMethod(entry[0]) && isOperation(entry[1]),
           )
-          .map(([method, operation]) =>
+          .map(([method]) =>
             routeHandler
-              ? makeStubHandlerInfo(paths, path, method, operation, existing)
-              : makeInlineStubHandlerInfo(paths, path, method, operation, existing),
+              ? makeStubHandlerInfo(paths, path, method, existing)
+              : makeInlineStubHandlerInfo(paths, path, method, existing),
           ),
       ),
     )
@@ -466,9 +498,9 @@ export function resolveInlineHandlerFileNames(
         .filter(
           (entry): entry is [string, Operation] => isHttpMethod(entry[0]) && isOperation(entry[1]),
         )
-        .map(([method, operation]) =>
+        .map(([method]) =>
           resolveHandlerFileName(
-            makeHandlerFileName(path, operation.tags),
+            makeHandlerFileName(path),
             `${routeName(method, path, openapi.paths)}Route`,
             existing,
           ),
@@ -516,7 +548,7 @@ export function defineOpenAPIRouteHandler(
       >
     >((acc, entry) => {
       const fileName = resolveHandlerFileName(
-        makeHandlerFileName(entry.path, entry.tags),
+        makeHandlerFileName(entry.path),
         `${entry.name}Route`,
         existing,
       )

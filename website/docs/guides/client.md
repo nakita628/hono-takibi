@@ -155,7 +155,7 @@ export const vaultsClient = hcVaultsWithType('/').api
 | `/v2-public/ping`         | `v2Public` | `v2PublicClient` |
 | `/`                       | `__root`   | `__rootClient`   |
 
-Every route belongs to a group, named after its handler file: the first tag, or else the first path segment. The root `/` is written to `__root.ts` and is the group `__root`; a segment that cannot be an export, a word of the language like `/delete`, is prefixed the same way, `__delete`. A resource is named with letters and digits alone, so a name that starts with `__` never collides with one, and `/root` is the group `root` beside `__root`. Any other identifier is a group under its own name, `client` and `api` included: the entry and the file of clients bind nothing that can take it. The two names they keep for themselves, the `app` the routes are registered on and the `OpenAPIHono` import, yield to a group of the same name as `app2` and `OpenAPIHono2`.
+Every route belongs to a group, named after its handler file: the first path segment. The root `/` is written to `__root.ts` and is the group `__root`; a segment that cannot be an export, a word of the language like `/delete`, is prefixed the same way, `__delete`. A resource is named with letters and digits alone, so a name that starts with `__` never collides with one, and `/root` is the group `root` beside `__root`. Any other identifier is a group under its own name, `client` and `api` included: the entry and the file of clients bind nothing that can take it. The two names they keep for themselves, the `app` the routes are registered on and the `OpenAPIHono` import, yield to a group of the same name as `app2` and `OpenAPIHono2`.
 
 ## RPC
 

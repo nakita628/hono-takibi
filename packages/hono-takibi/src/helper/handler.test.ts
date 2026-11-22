@@ -9,6 +9,7 @@ import { runGenerator } from '../testing/index.js'
 import {
   defineOpenAPIRouteHandler,
   handlerGroupOf,
+  handlerNameOf,
   makeHandlerFileName,
   zodOpenAPIHonoHandler,
 } from './handler.js'
@@ -49,34 +50,34 @@ describe('makeHandlerFileName', () => {
     expect(makeHandlerFileName('/123numeric')).toBe('123numeric.ts')
   })
 
-  it('should convert special characters to camelCase', () => {
-    expect(makeHandlerFileName('/special-chars_test.route')).toBe('specialCharsTestRoute.ts')
+  it('should convert special characters to kebab-case', () => {
+    expect(makeHandlerFileName('/special-chars_test.route')).toBe('special-chars-test-route.ts')
   })
 
   // Edge case: first segment is a brace parameter
   it.concurrent('should strip braces when first segment is a brace parameter like /{orgId}/users', () => {
-    expect(makeHandlerFileName('/{orgId}/users')).toBe('orgId.ts')
+    expect(makeHandlerFileName('/{orgId}/users')).toBe('org-id.ts')
   })
 
   it.concurrent('should strip braces for a lone parameter path /{id}', () => {
     expect(makeHandlerFileName('/{id}')).toBe('id.ts')
   })
 
-  it.concurrent('should strip braces and camelCase hyphenated parameter /{org-name}/repos', () => {
-    expect(makeHandlerFileName('/{org-name}/repos')).toBe('orgName.ts')
+  it.concurrent('should strip braces and kebab-case hyphenated parameter /{org-name}/repos', () => {
+    expect(makeHandlerFileName('/{org-name}/repos')).toBe('org-name.ts')
   })
 
   // Edge case: multiple hyphens/dots in sequence
   it.concurrent('should handle consecutive hyphens between words', () => {
-    expect(makeHandlerFileName('/a--b')).toBe('a-B.ts')
+    expect(makeHandlerFileName('/a--b')).toBe('a-b.ts')
   })
 
   it.concurrent('should handle consecutive dots between words', () => {
-    expect(makeHandlerFileName('/a..b')).toBe('a.B.ts')
+    expect(makeHandlerFileName('/a..b')).toBe('a-b.ts')
   })
 
-  it.concurrent('should camelCase each hyphen-letter pair in /a-b-c', () => {
-    expect(makeHandlerFileName('/a-b-c')).toBe('aBC.ts')
+  it.concurrent('should kebab-case each hyphen-letter pair in /a-b-c', () => {
+    expect(makeHandlerFileName('/a-b-c')).toBe('a-b-c.ts')
   })
 
   // Edge case: path with only special characters (underscores are in [._-], all stripped)
@@ -90,17 +91,17 @@ describe('makeHandlerFileName', () => {
   })
 
   // Edge case: path with URL-encoded characters (% replaced with _, leading _ stripped, then camelCased)
-  it.concurrent('should sanitize URL-encoded path segment to camelCase', () => {
-    expect(makeHandlerFileName('/%E4%B8%AD%E6%96%87/path')).toBe('E4B8ADE69687.ts')
+  it.concurrent('should sanitize URL-encoded path segment to kebab-case', () => {
+    expect(makeHandlerFileName('/%E4%B8%AD%E6%96%87/path')).toBe('e4-b8-ad-e6-96-87.ts')
   })
 
   // Edge case: mixed case first segment
-  it.concurrent('should preserve mixed case in /MyEndpoint/action', () => {
-    expect(makeHandlerFileName('/MyEndpoint/action')).toBe('MyEndpoint.ts')
+  it.concurrent('should lower-case and split /MyEndpoint/action', () => {
+    expect(makeHandlerFileName('/MyEndpoint/action')).toBe('my-endpoint.ts')
   })
 
-  it.concurrent('should preserve PascalCase in /UserProfile', () => {
-    expect(makeHandlerFileName('/UserProfile')).toBe('UserProfile.ts')
+  it.concurrent('should lower-case and split /UserProfile', () => {
+    expect(makeHandlerFileName('/UserProfile')).toBe('user-profile.ts')
   })
 
   // Edge case: path starting with double slashes
@@ -114,11 +115,11 @@ describe('makeHandlerFileName', () => {
 
   // Edge case: path that is just a parameter
   it.concurrent('should handle path with only brace parameter /{userId}', () => {
-    expect(makeHandlerFileName('/{userId}')).toBe('userId.ts')
+    expect(makeHandlerFileName('/{userId}')).toBe('user-id.ts')
   })
 
-  it.concurrent('should handle brace parameter with underscores /{user_id} and camelCase it', () => {
-    expect(makeHandlerFileName('/{user_id}')).toBe('userId.ts')
+  it.concurrent('should handle brace parameter with underscores /{user_id} and kebab-case it', () => {
+    expect(makeHandlerFileName('/{user_id}')).toBe('user-id.ts')
   })
 
   // Additional edge cases
@@ -153,15 +154,15 @@ describe('makeHandlerFileName', () => {
 
   // Edge case: special characters replaced with underscore then collapsed
   it.concurrent('should sanitize @ symbol in path /user@domain', () => {
-    expect(makeHandlerFileName('/user@domain')).toBe('userDomain.ts')
+    expect(makeHandlerFileName('/user@domain')).toBe('user-domain.ts')
   })
 
   it.concurrent('should sanitize + symbol in path /a+b', () => {
-    expect(makeHandlerFileName('/a+b')).toBe('aB.ts')
+    expect(makeHandlerFileName('/a+b')).toBe('a-b.ts')
   })
 
   it.concurrent('should sanitize ~ symbol in path /home~user', () => {
-    expect(makeHandlerFileName('/home~user')).toBe('homeUser.ts')
+    expect(makeHandlerFileName('/home~user')).toBe('home-user.ts')
   })
 
   it.concurrent('should sanitize ! symbol in path /alert!', () => {
@@ -193,13 +194,13 @@ describe('makeHandlerFileName', () => {
   })
 
   // Edge case: underscore between words should camelCase
-  it.concurrent('should camelCase underscore-separated words /get_all_users', () => {
-    expect(makeHandlerFileName('/get_all_users')).toBe('getAllUsers.ts')
+  it.concurrent('should kebab-case underscore-separated words /get_all_users', () => {
+    expect(makeHandlerFileName('/get_all_users')).toBe('get-all-users.ts')
   })
 
   // Edge case: mixed separators in first segment
-  it.concurrent('should camelCase mixed separators /get-all_users.list', () => {
-    expect(makeHandlerFileName('/get-all_users.list')).toBe('getAllUsersList.ts')
+  it.concurrent('should kebab-case mixed separators /get-all_users.list', () => {
+    expect(makeHandlerFileName('/get-all_users.list')).toBe('get-all-users-list.ts')
   })
 
   // Edge case: single special char paths
@@ -213,7 +214,7 @@ describe('makeHandlerFileName', () => {
 
   // Edge case: whitespace in path (replaced with _)
   it.concurrent('should sanitize space in path /my path', () => {
-    expect(makeHandlerFileName('/my path')).toBe('myPath.ts')
+    expect(makeHandlerFileName('/my path')).toBe('my-path.ts')
   })
 
   // Edge case: very long first segment still works
@@ -223,47 +224,55 @@ describe('makeHandlerFileName', () => {
 
   // Edge case: first segment starting with number then hyphen
   it.concurrent('should handle segment starting with number then hyphen /1-test', () => {
-    expect(makeHandlerFileName('/1-test')).toBe('1Test.ts')
+    expect(makeHandlerFileName('/1-test')).toBe('1-test.ts')
   })
 
   // Edge case: multiple consecutive underscores collapsed
-  it.concurrent('should collapse multiple special chars into single camelCase /a@@b', () => {
-    expect(makeHandlerFileName('/a@@b')).toBe('aB.ts')
+  it.concurrent('should collapse multiple special chars into single kebab-case /a@@b', () => {
+    expect(makeHandlerFileName('/a@@b')).toBe('a-b.ts')
   })
 })
 
-describe('makeHandlerFileName (tags)', () => {
-  it('uses the first tag over the path segment', () => {
-    expect(makeHandlerFileName('/books/{bookId}/reviews', ['reviews'])).toBe('reviews.ts')
+describe('makeHandlerFileName (several words)', () => {
+  it('writes a segment of several words in kebab case', () => {
+    expect(makeHandlerFileName('/real-time-events/{id}')).toBe('real-time-events.ts')
+    expect(makeHandlerFileName('/real_time_events')).toBe('real-time-events.ts')
+    expect(makeHandlerFileName('/v2-public/ping')).toBe('v2-public.ts')
+    expect(makeHandlerFileName('/userProfile')).toBe('user-profile.ts')
+    expect(makeHandlerFileName('/Users')).toBe('users.ts')
   })
 
-  it('falls back to the path segment when tags are empty', () => {
-    expect(makeHandlerFileName('/books', [])).toBe('books.ts')
+  it('keeps an acronym as one word', () => {
+    expect(makeHandlerFileName('/APIKeys')).toBe('api-keys.ts')
+    expect(makeHandlerFileName('/userAPIKeys')).toBe('user-api-keys.ts')
+    expect(makeHandlerFileName('/ZodOpenAPIHono')).toBe('zod-open-api-hono.ts')
   })
 
-  it('sanitizes tag names like path segments and lower-cases the first letter', () => {
-    expect(makeHandlerFileName('/books', ['Pet Store'])).toBe('petStore.ts')
-    expect(makeHandlerFileName('/zod-openapi-hono', ['ZodOpenAPIHono'])).toBe('zodOpenAPIHono.ts')
-  })
-
-  it('falls back to the path segment when the tag sanitizes to nothing', () => {
-    expect(makeHandlerFileName('/books', ['!!!'])).toBe('books.ts')
-  })
-
-  it('uses __root when neither tag nor path yields a name', () => {
-    expect(makeHandlerFileName('/', ['!!!'])).toBe('__root.ts')
-  })
-
-  it('uses only the first tag', () => {
-    expect(makeHandlerFileName('/books/{bookId}/reviews', ['reviews', 'books'])).toBe('reviews.ts')
-  })
-
-  it('keeps a leading acronym whole when lower-casing', () => {
-    expect(makeHandlerFileName('/api-keys', ['APIKeys'])).toBe('apiKeys.ts')
+  it('leaves a name of one word, and the root, as they are', () => {
+    expect(makeHandlerFileName('/users')).toBe('users.ts')
+    expect(makeHandlerFileName('/')).toBe('__root.ts')
   })
 })
 
-/* ─────────────────────────────── zodOpenAPIHonoHandler (stub) ─────────────────────────── */
+describe('handlerNameOf', () => {
+  it('reads the hyphens of a kebab-case file as word breaks', () => {
+    expect(handlerNameOf('real-time-events.ts')).toBe('realTimeEvents')
+    expect(handlerNameOf('v2-public.ts')).toBe('v2Public')
+  })
+
+  it('is the base name of a file that has no hyphen', () => {
+    expect(handlerNameOf('realTimeEvents.ts')).toBe('realTimeEvents')
+    expect(handlerNameOf('users.ts')).toBe('users')
+    expect(handlerNameOf('__root.ts')).toBe('__root')
+  })
+
+  it('is the name of the file a kebab-case name was made from', () => {
+    for (const segment of ['real-time-events', 'APIKeys', 'userAPIKeys', 'users', 'v2_public']) {
+      const file = makeHandlerFileName(`/${segment}`)
+      expect(makeHandlerFileName(`/${handlerNameOf(file)}`)).toBe(file)
+    }
+  })
+})
 
 describe('zodOpenAPIHonoHandler', () => {
   // Outside the (bind-mounted, eventually-consistent) workspace: see template tests.
@@ -570,7 +579,7 @@ describe('zodOpenAPIHonoHandler', () => {
       },
     } as OpenAPI
     await runGenerator(zodOpenAPIHonoHandler(tagged, `${testDir}/routes.ts`))
-    expect(fs.existsSync(`${testDir}/handlers/userManagement.ts`)).toBe(false)
+    expect(fs.existsSync(`${testDir}/handlers/user-management.ts`)).toBe(false)
     expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf8')).toBe(implemented)
     expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf8')).toBe(
       `export * from './users'\n`,
@@ -721,7 +730,7 @@ describe('zodOpenAPIHonoHandler', () => {
     )
   })
 
-  it('groups routeHandler files by tag, falling back to the path segment', async () => {
+  it('groups routeHandler files by the first path segment, whatever the tags', async () => {
     const openAPI = {
       openapi: '3.1.0',
       info: { title: 'Test', version: '1.0.0' },
@@ -749,17 +758,19 @@ describe('zodOpenAPIHonoHandler', () => {
     await runGenerator(
       zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, undefined, undefined, true),
     )
+    expect(fs.readdirSync(`${testDir}/handlers`).sort()).toStrictEqual([
+      'books.ts',
+      'health.ts',
+      'index.ts',
+    ])
     expect(fs.readFileSync(`${testDir}/handlers/books.ts`, 'utf8')).toBe(
-      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getBooksRoute } from '../routes'\n\nexport const getBooksRouteHandler: RouteHandler<typeof getBooksRoute> = async (c) => {}\n`,
-    )
-    expect(fs.readFileSync(`${testDir}/handlers/reviews.ts`, 'utf8')).toBe(
-      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getBooksBookIdReviewsRoute } from '../routes'\n\nexport const getBooksBookIdReviewsRouteHandler: RouteHandler<\n  typeof getBooksBookIdReviewsRoute\n> = async (c) => {}\n`,
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getBooksRoute, getBooksBookIdReviewsRoute } from '../routes'\n\nexport const getBooksRouteHandler: RouteHandler<typeof getBooksRoute> = async (c) => {}\n\nexport const getBooksBookIdReviewsRouteHandler: RouteHandler<\n  typeof getBooksBookIdReviewsRoute\n> = async (c) => {}\n`,
     )
     expect(fs.readFileSync(`${testDir}/handlers/health.ts`, 'utf8')).toBe(
       `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getHealthRoute } from '../routes'\n\nexport const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {}\n`,
     )
     expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf8')).toBe(
-      `export * from './books'\nexport * from './reviews'\nexport * from './health'\n`,
+      `export * from './books'\nexport * from './health'\n`,
     )
   })
 
@@ -867,6 +878,15 @@ describe('defineOpenAPIRouteHandler', () => {
 })
 
 describe('handlerGroupOf', () => {
+  // The file is named in kebab case; the group stays an identifier in camel case.
+  // ファイル名は kebab-case でも、グループは camelCase の識別子のままになる。
+  it.concurrent('is in camel case, though the file is named in kebab case', () => {
+    expect(handlerGroupOf('/real-time-events/{id}')).toBe('realTimeEvents')
+    expect(handlerGroupOf('/v2-public/ping')).toBe('v2Public')
+    expect(handlerGroupOf('/')).toBe('__root')
+    expect(handlerGroupOf('/delete')).toBe('__delete')
+  })
+
   // /books names books.
   // /books は books を指す。
   it.concurrent('is the first segment of the path', () => {
@@ -910,27 +930,9 @@ describe('handlerGroupOf', () => {
     expect(handlerGroupOf('/delete')).toBe('__delete')
   })
 
-  // A handler file goes by the first tag.
-  // ハンドラーファイルは、最初のタグで決まる。
-  it.concurrent('is the first tag when the operation has one', () => {
-    expect(handlerGroupOf('/books', ['Library'])).toBe('library')
-  })
-
-  // The tags after the first say nothing of the file.
-  // 2つ目以降のタグは、ファイルの決定に関与しない。
-  it.concurrent('is the first of several tags', () => {
-    expect(handlerGroupOf('/books', ['user profile', 'admin'])).toBe('userProfile')
-  })
-
-  // An empty list names no tag.
-  // 空のリストは、タグを指定していない。
-  it.concurrent('is the first segment when the list of tags is empty', () => {
-    expect(handlerGroupOf('/books', [])).toBe('books')
-  })
-
-  // A tag API is the group api, like the segment.
-  // API というタグは、セグメントと同じく api グループになる。
-  it.concurrent('is api for a tag API', () => {
-    expect(handlerGroupOf('/status', ['API'])).toBe('api')
+  // A segment written in capitals goes by its words, as its handler file does.
+  // 大文字で書かれたセグメントは、ハンドラーファイルと同じく単語ごとの名前になる。
+  it.concurrent('is api for /API', () => {
+    expect(handlerGroupOf('/API/status')).toBe('api')
   })
 })

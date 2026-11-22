@@ -42,6 +42,7 @@ import {
   makeAppEntryImport,
   appEntryOutput,
   handlerGroupOf,
+  pathGroupOf,
   makeGeneratedImport,
   isInsideDirectory,
   normalizeOpenAPI,
@@ -494,14 +495,14 @@ export function makeJob(
   const defineOn = config.template?.define === true
   const appOutput = appEntryOutput(config)
   const isSplit = config.template?.split === true
-  // What divides a split application: the handler file where the handlers register their
-  // routes themselves, which goes by the first tag, and the first segment of the path
-  // otherwise. Both are named the way a handler file is.
+  // What divides a split application: the first segment of the path. Where the handlers
+  // register their routes themselves the group is the handler file of that segment, under
+  // the name the file goes by in code; otherwise the segment as it is written.
   const isInline = config.template?.define === false && !config.template.routeHandler
   const grouping: Grouping | undefined = isSplit
     ? isInline
-      ? handlerGroupOf
-      : (endpoint) => handlerGroupOf(endpoint)
+      ? (endpoint) => handlerGroupOf(endpoint)
+      : (endpoint) => pathGroupOf(endpoint)
     : undefined
   // A client that is not an `index.ts` is re-exported by the `index.ts` beside it, and
   // imported through it — unless that file is what another generator writes.

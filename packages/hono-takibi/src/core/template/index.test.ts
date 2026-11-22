@@ -247,6 +247,104 @@ export default app
     )
   })
 
+  const realTime = {
+    openapi: '3.1.0',
+    info: { title: 'Example', version: '1.0.0' },
+    paths: {
+      '/real-time-events': {
+        get: { tags: ['Events'], responses: { '200': { description: 'OK' } } },
+      },
+    },
+  } as OpenAPI
+
+  const realTimeTwo = {
+    ...realTime,
+    paths: {
+      ...realTime.paths,
+      '/real-time-events/{id}': {
+        delete: { tags: ['Queues'], responses: { '200': { description: 'OK' } } },
+      },
+    },
+  } as OpenAPI
+
+  it('names handler files after the path in kebab case, whatever the tags, and keeps the export in camel case', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-kebab-'))
+    const output = path.join(tmpDir, 'routes.ts')
+    const run = () => runGenerator(template(realTime, output, '/', undefined, undefined, false))
+    await run()
+    expect(fs.readdirSync(path.join(tmpDir, 'handlers')).sort()).toStrictEqual([
+      'index.ts',
+      'real-time-events.ts',
+    ])
+    expect(fs.readFileSync(path.join(tmpDir, 'handlers', 'real-time-events.ts'), 'utf8')).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getRealTimeEventsRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const realTimeEventsHandler = app.openapi(getRealTimeEventsRoute, (c) => {})\n`,
+    )
+    expect(fs.readFileSync(path.join(tmpDir, 'handlers', 'index.ts'), 'utf8')).toBe(
+      `export * from './real-time-events'\n`,
+    )
+    const app = `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { realTimeEventsHandler } from './handlers'\n\nconst app = new OpenAPIHono()\n\nexport const api = app.route('/', realTimeEventsHandler)\n\nexport default app\n`
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8')).toBe(app)
+
+    // Re-running keeps the implementation written into the kebab-case file.
+    const implemented = `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getRealTimeEventsRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const realTimeEventsHandler = app.openapi(getRealTimeEventsRoute, (c) => {\n  return c.json({ events: [] }, 200)\n})\n`
+    fs.writeFileSync(path.join(tmpDir, 'handlers', 'real-time-events.ts'), implemented)
+    await run()
+    expect(fs.readdirSync(path.join(tmpDir, 'handlers')).sort()).toStrictEqual([
+      'index.ts',
+      'real-time-events.ts',
+    ])
+    expect(fs.readFileSync(path.join(tmpDir, 'handlers', 'real-time-events.ts'), 'utf8')).toBe(
+      implemented,
+    )
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8')).toBe(app)
+  })
+
+  it('keeps an existing camel-case handler file, and adds new routes of its path to it', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-kebab-switch-'))
+    const output = path.join(tmpDir, 'routes.ts')
+    fs.mkdirSync(path.join(tmpDir, 'handlers'))
+    const implemented = `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getRealTimeEventsRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const realTimeEventsHandler = app.openapi(getRealTimeEventsRoute, (c) => {\n  return c.json({ events: [] }, 200)\n})\n`
+    fs.writeFileSync(path.join(tmpDir, 'handlers', 'realTimeEvents.ts'), implemented)
+
+    // A new route under the same segment joins the file that is there: no second file, no rename.
+    await runGenerator(template(realTimeTwo, output, '/', undefined, undefined, false))
+    expect(fs.readdirSync(path.join(tmpDir, 'handlers')).sort()).toStrictEqual([
+      'index.ts',
+      'realTimeEvents.ts',
+    ])
+    expect(fs.readFileSync(path.join(tmpDir, 'handlers', 'realTimeEvents.ts'), 'utf8')).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { deleteRealTimeEventsIdRoute, getRealTimeEventsRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const realTimeEventsHandler = app\n  .openapi(getRealTimeEventsRoute, (c) => {\n    return c.json({ events: [] }, 200)\n  })\n  .openapi(deleteRealTimeEventsIdRoute, (c) => {})\n`,
+    )
+    expect(fs.readFileSync(path.join(tmpDir, 'handlers', 'index.ts'), 'utf8')).toBe(
+      `export * from './realTimeEvents'\n`,
+    )
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8')).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { realTimeEventsHandler } from './handlers'\n\nconst app = new OpenAPIHono()\n\nexport const api = app.route('/', realTimeEventsHandler)\n\nexport default app\n`,
+    )
+  })
+
+  it('names the group of a kebab-case handler file in camel case when split', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-kebab-split-'))
+    const output = path.join(tmpDir, 'routes.ts')
+    await runGenerator(template(realTime, output, '/', undefined, undefined, false, true))
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8')).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { realTimeEventsHandler } from './handlers'\n\nconst app = new OpenAPIHono()\n\nexport const realTimeEvents = app.route('/', realTimeEventsHandler)\n\nexport default app\n`,
+    )
+  })
+
+  it('names routeHandler files in kebab case', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-kebab-rh-'))
+    const output = path.join(tmpDir, 'routes.ts')
+    await runGenerator(template(realTime, output, '/', undefined, undefined, true))
+    expect(fs.readdirSync(path.join(tmpDir, 'handlers')).sort()).toStrictEqual([
+      'index.ts',
+      'real-time-events.ts',
+    ])
+    expect(fs.readFileSync(path.join(tmpDir, 'handlers', 'index.ts'), 'utf8')).toBe(
+      `export * from './real-time-events'\n`,
+    )
+  })
+
   it('propagates the error when the app target cannot be read', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-unreadable-'))
     const output = path.join(tmpDir, 'routes.ts')
