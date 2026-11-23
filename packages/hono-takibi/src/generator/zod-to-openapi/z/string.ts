@@ -304,7 +304,7 @@ export function string(
   const postTrim = trimX && !baseHasTrim ? '.trim()' : ''
   const postLower = lowerX && !baseHasLower ? '.toLowerCase()' : ''
   const postUpper = upperX && !baseHasUpper ? '.toUpperCase()' : ''
-  const postNormalize = normalizeX ? `.normalize("${normalizeX}")` : ''
+  const postNormalize = normalizeX ? `.normalize(${JSON.stringify(normalizeX)})` : ''
 
   // Per-keyword precedence: `x-<keyword>-message` > `x-error-message` > Zod default.
   // The `x-error-message` already flows into the `z.string({error})` constructor via

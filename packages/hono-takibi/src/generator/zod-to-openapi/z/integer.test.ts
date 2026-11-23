@@ -20,6 +20,8 @@ describe('integer', () => {
       [{ type: 'integer', maximum: 100, exclusiveMaximum: true }, 'z.int().lt(100)'],
       [{ type: 'integer', exclusiveMaximum: 100 }, 'z.int().lt(100)'],
       [{ type: 'integer', multipleOf: 2 }, 'z.int().multipleOf(2)'],
+      [{ type: 'integer', minimum: 5, exclusiveMinimum: 10 }, 'z.int().min(5).gt(10)'],
+      [{ type: 'integer', maximum: 10, exclusiveMaximum: 5 }, 'z.int().max(10).lt(5)'],
     ])('integer(%o) → %s', (input, expected) => {
       expect(integer(input)).toBe(expected)
     })

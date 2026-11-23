@@ -8,6 +8,7 @@ import { GenerateError } from '../../error/index.js'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../../guard/index.js'
 import {
   formatPath,
+  isReservedWord,
   makeGroupClientName,
   makeOperationDeps,
   operationHasArgs,
@@ -61,7 +62,11 @@ function makeOperationCode(
   // through the client of the application when it belongs to none.
   const group = grouping?.(path, operationTags(operation))
   const deps = group === undefined ? base : { ...base, client: makeGroupClientName(group) }
-  const funcName = routeName(method, path, paths)
+  // The operations of the root path are named after the bare method, and `delete` is a word
+  // of the language: it takes the `$` the client calls it by (`$delete`), which no path
+  // name begins with.
+  const name = routeName(method, path, paths)
+  const funcName = isReservedWord(name) ? `$${name}` : name
   const pathResult = formatPath(path, hasBasePath)
   const hasArgs = operationHasArgs(item, operation, deps)
   const inferType = makeInferRequestType(deps.client, pathResult, method)

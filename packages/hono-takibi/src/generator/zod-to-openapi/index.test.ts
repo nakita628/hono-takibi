@@ -5769,6 +5769,34 @@ describe('zodToOpenAPI', () => {
           expect(runtime.safeParse({ b: 1 }).success).toBe(false)
         })
         // ----- unevaluatedItems: false -----
+        // items evaluates every element, so unevaluatedItems: false rejects nothing.
+        // items は全要素を評価するので、unevaluatedItems: false は何も拒否しない。
+        it.concurrent('array: items + unevaluatedItems=false → items alone', () => {
+          expect(
+            zodToOpenAPI({ type: 'array', items: { type: 'string' }, unevaluatedItems: false }),
+          ).toBe('z.array(z.string())')
+        })
+        // Without type the same holds: only the items check is written.
+        // type がなくても同じで、items の検査だけが書かれる。
+        it.concurrent('typeless: items + unevaluatedItems=false → items alone', () => {
+          expect(zodToOpenAPI({ items: { type: 'string' }, unevaluatedItems: false })).toBe(
+            "z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){{const Schema=z.string();for(let i=0;i<val.length;i++){if(!Schema.safeParse(val[i]).success){ctx.addIssue({code:'custom'})}}}}})",
+          )
+        })
+        // Beside prefixItems, items checks the rest and nothing caps the length.
+        // prefixItems と並ぶと、items が残りを検査し、長さの上限は付かない。
+        it.concurrent('array: prefixItems + items + unevaluatedItems=false → rest checked by items', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'array',
+              prefixItems: [{ type: 'string' }],
+              items: { type: 'number' },
+              unevaluatedItems: false,
+            }),
+          ).toBe(
+            'z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[z.string()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]})}}};const Rest=z.number();for(const [i,val] of arr.slice(Prefix.length).entries()){const result=Rest.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]})}}}})',
+          )
+        })
         it.concurrent('array: prefixItems + unevaluatedItems=false → length-cap inside superRefine', () => {
           expect(
             zodToOpenAPI({

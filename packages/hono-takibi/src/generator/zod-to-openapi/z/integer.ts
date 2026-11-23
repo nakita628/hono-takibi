@@ -92,6 +92,11 @@ export function integer(
     }
     return undefined
   })()
+  // In 3.1 `minimum` and a numeric `exclusiveMinimum` are two keywords, and both apply.
+  const exclusiveMinimum =
+    typeof schema.minimum === 'number' && typeof schema.exclusiveMinimum === 'number'
+      ? `.gt(${lit(schema.exclusiveMinimum)}${exMinErrorPart})`
+      : undefined
   const {
     arg: maxErrorArg,
     part: maxErrorPart,
@@ -120,15 +125,24 @@ export function integer(
     }
     return undefined
   })()
+  // In 3.1 `maximum` and a numeric `exclusiveMaximum` are two keywords, and both apply.
+  const exclusiveMaximum =
+    typeof schema.maximum === 'number' && typeof schema.exclusiveMaximum === 'number'
+      ? `.lt(${lit(schema.exclusiveMaximum)}${exMaxErrorPart})`
+      : undefined
   const multipleOfMessage = schema['x-multipleOf-message'] ?? errorMessage
   const multipleOfErrorArg = multipleOfMessage ? `,${error(multipleOfMessage)}` : ''
   const multipleOf =
     schema.multipleOf !== undefined && typeof schema.multipleOf === 'number'
       ? `.multipleOf(${lit(schema.multipleOf)}${multipleOfErrorArg})`
       : undefined
-  const innerChain = [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
+  const innerChain = [base, minimum, exclusiveMinimum, maximum, exclusiveMaximum, multipleOf]
+    .filter((v) => v !== undefined)
+    .join('')
   if (numberChain) {
-    const constraints = [minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
+    const constraints = [minimum, exclusiveMinimum, maximum, exclusiveMaximum, multipleOf]
+      .filter((v) => v !== undefined)
+      .join('')
     const intErrorArg = errorMessage ? error(errorMessage) : ''
     return `z.coerce.number(${baseErrorArg}).int(${intErrorArg})${constraints}`
   }
