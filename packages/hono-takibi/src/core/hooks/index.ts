@@ -21,14 +21,6 @@ const QUERY_CLIENT_ACCESSOR_TAIL = {
   mutation: '()=>QueryClient',
   imports: ['QueryClient'],
 } as const
-const INJECT_OPTIONS_TAIL = {
-  name: 'injectOptions',
-  query: 'InjectQueryOptions',
-  infinite: 'InjectInfiniteQueryOptions',
-  mutation: 'InjectMutationOptions',
-  imports: ['InjectQueryOptions', 'InjectInfiniteQueryOptions', 'InjectMutationOptions'],
-} as const
-
 const HOOK_CONFIGS = {
   swr: {
     packageName: 'swr',
@@ -153,8 +145,9 @@ const HOOK_CONFIGS = {
   },
   'angular-query': {
     errorType: DEFAULT_ERROR,
-    hookTail: INJECT_OPTIONS_TAIL,
-    packageName: '@tanstack/angular-query-experimental',
+    // No hookTail: the stable package dropped the `{ injector }` argument. Its helpers run in the
+    // caller's injection context, so a caller wraps the hook in `runInInjectionContext` instead.
+    packageName: '@tanstack/angular-query',
     frameworkName: 'Angular Query',
     hookPrefix: 'inject',
     queryFn: 'injectQuery',

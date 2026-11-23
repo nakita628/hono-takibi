@@ -179,6 +179,8 @@ Per-request options, headers for example, are passed to each generated function 
 
 Supported: `swr`, `tanstack-query`, `preact-query`, `solid-query`, `vue-query`, `svelte-query`, `angular-query`.
 
+`angular-query` generates for `@tanstack/angular-query`, the stable package that replaces `@tanstack/angular-query-experimental`. Its hooks take no `{ injector }` argument: call them in an injection context, or wrap the call in `runInInjectionContext(injector, () => injectUsers())`.
+
 ```ts
 export default defineConfig({
   input: 'openapi.yaml',
