@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.34.0](https://github.com/nakita628/hono-takibi/compare/v0.33.7...v0.34.0) (2026-11-23)
+
+
+### Features
+
+* **template:** with a # pathAlias, write fully specified imports so the output runs on Node ([#549](https://github.com/nakita628/hono-takibi/issues/549)) ([1927c3e](https://github.com/nakita628/hono-takibi/commit/1927c3ed9447e40762ffdb829e478da5d8396c75))
+
 ## [0.33.7](https://github.com/nakita628/hono-takibi/compare/v0.33.6...v0.33.7) (2026-11-23)
 
 
