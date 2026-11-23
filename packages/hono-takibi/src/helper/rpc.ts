@@ -8,6 +8,7 @@ import {
   isSchemaProperty,
   isValidIdent,
 } from '../guard/index.js'
+import { toHonoPath } from '../utils/index.js'
 
 function makeEscaped(s: string) {
   return s.replaceAll('\\', '\\\\').replaceAll("'", "\\'")
@@ -73,9 +74,10 @@ export function formatPath(p: string, hasBasePath?: boolean) {
       hasBracket: false,
     } as const
   }
-  const segs = p.replace(/^\/+/u, '').split('/').filter(Boolean)
-  if (p !== '/' && p.endsWith('/')) segs.push('index')
-  const honoSegs = segs.map((seg) => seg.replaceAll(/\{([^}]+)\}/gu, ':$1'))
+  // The client type is keyed by the path @hono/zod-openapi registers, which converts only a
+  // parameter that opens a segment: `v{version}` stays `v{version}`.
+  const honoSegs = toHonoPath(p).replace(/^\/+/u, '').split('/').filter(Boolean)
+  if (p !== '/' && p.endsWith('/')) honoSegs.push('index')
   const firstBracketIdx = honoSegs.findIndex((seg) => !isValidIdent(seg))
   const hasBracket = firstBracketIdx !== -1
   const runtimeParts = honoSegs.map((seg) =>

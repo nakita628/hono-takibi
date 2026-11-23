@@ -19,6 +19,7 @@ import {
   renderNamedImport,
   requestParamsArray,
   statusCodeToNumber,
+  toHonoPath,
   toIdentifierPascalCase,
   uncapitalize,
   uncapitalizeWord,
@@ -80,6 +81,20 @@ describe('utils', () => {
     })
   })
   // methodPath
+  // The path @hono/zod-openapi registers: only a parameter that opens a segment is converted.
+  describe('toHonoPath', () => {
+    it.concurrent.each([
+      ['/', '/'],
+      ['/users/{id}', '/users/:id'],
+      ['/users/{userId}/posts/{postId}', '/users/:userId/posts/:postId'],
+      ['/api/v{version}/items/{id}', '/api/v{version}/items/:id'],
+      ['/{section}.{format}', '/:section.{format}'],
+      ['/files/{name}/', '/files/:name/'],
+    ])('toHonoPath(%s) → %s', (input, expected) => {
+      expect(toHonoPath(input)).toBe(expected)
+    })
+  })
+
   describe('methodPath', () => {
     it.concurrent.each([
       ['get', '/', 'get'],

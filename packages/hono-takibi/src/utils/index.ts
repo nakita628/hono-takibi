@@ -22,6 +22,17 @@ export function normalizeTypes(
 }
 
 /**
+ * The Hono path @hono/zod-openapi registers for an OpenAPI path, and the key its client type
+ * is built from. It converts only a `{name}` that opens a segment (`ConvertPathType` at the
+ * type level, `replaceAll(/\/{(.+?)}/g, '/:$1')` at runtime), so a parameter inside a segment
+ * stays as written: `/api/v{version}/{id}` → `/api/v{version}/:id`, `/{section}.{format}` →
+ * `/:section.{format}`.
+ */
+export function toHonoPath(openApiPath: string) {
+  return openApiPath.replaceAll(/\/\{([^}]+)\}/gu, '/:$1')
+}
+
+/**
  * Generates a PascalCase route name from HTTP method and path.
  *
  *

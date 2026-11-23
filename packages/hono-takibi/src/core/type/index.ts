@@ -27,7 +27,12 @@ import type {
   Responses,
   Schema,
 } from '../../openapi/index.js'
-import { makeSafeKey, statusCodeToNumber, toIdentifierPascalCase } from '../../utils/index.js'
+import {
+  makeSafeKey,
+  statusCodeToNumber,
+  toHonoPath,
+  toIdentifierPascalCase,
+} from '../../utils/index.js'
 
 /**
  * DeepReadonly utility type that recursively makes all properties readonly.
@@ -114,7 +119,7 @@ function aliasOf(schemaName: string, schema: Schema, aliases: Aliases) {
 function makeHonoSchemaType(openAPI: OpenAPI, aliases: Aliases) {
   const paths: OpenAPIPaths = isOpenAPIPaths(openAPI.paths) ? openAPI.paths : {}
   const pathEntries = Object.entries(paths).flatMap(([openApiPath, pathItem]) => {
-    const honoPath = makeHonoPath(openApiPath)
+    const honoPath = toHonoPath(openApiPath)
     const pathLevelParams = isParameterArray(pathItem.parameters) ? pathItem.parameters : []
     const methods = Object.entries(pathItem)
       .filter((entry): entry is [string, Operation] => {
@@ -132,10 +137,6 @@ function makeHonoSchemaType(openAPI: OpenAPI, aliases: Aliases) {
   return pathEntries.length === 0
     ? '{}'
     : pathEntries.map(({ path: p, methods }) => `{'${p}':{${methods}}}`).join('&')
-}
-
-function makeHonoPath(openApiPath: string) {
-  return openApiPath.replaceAll(/\{([^}]+)\}/gu, ':$1')
 }
 
 function makeMethodType(

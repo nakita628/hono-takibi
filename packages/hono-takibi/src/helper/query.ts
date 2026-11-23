@@ -7,7 +7,7 @@ import { emit } from '../emit/index.js'
 import { GenerateError } from '../error/index.js'
 import { hasNoContentResponse, isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
-import { capitalize, routeName, toIdentifierPascalCase } from '../utils/index.js'
+import { capitalize, routeName, toHonoPath, toIdentifierPascalCase } from '../utils/index.js'
 import { makeGroupClientName, operationTags } from './group.js'
 import type { Grouping } from './group.js'
 import { formatPath, makeOperationDeps, operationHasArgs, parsePathItem } from './rpc.js'
@@ -996,7 +996,7 @@ function makeHookCode(
   // parseResponse returns undefined for 204/205 No Content responses
   const hasNoContent = hasNoContentResponse(op)
   // Convert {param} to :param for key path display
-  const honoPath = pathStr.replaceAll(/\{([^}]+)\}/gu, ':$1')
+  const honoPath = toHonoPath(pathStr)
   // SWR: simpler pattern without options getter
   if (config.isSWR) {
     if (isQuery) {
