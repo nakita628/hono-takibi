@@ -47,13 +47,6 @@ import {
 import { inlineWireRefs, isEmptyAbsent, WIRE_FORM, makeWireGather, wireObject } from './wire.js'
 
 export function makeRef($ref: string) {
-  const propertiesMatch = /^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/u.exec($ref)
-  if (propertiesMatch) {
-    const parentSchema = toIdentifierPascalCase(
-      ensureSuffix(decodePercent(propertiesMatch[1] ?? ''), 'Schema'),
-    )
-    return `z.lazy(()=>${parentSchema})`
-  }
   const rawRef = $ref.split('/').at(-1)
   if (!rawRef) return 'Schema'
   const decodedRef = decodePercent(rawRef)

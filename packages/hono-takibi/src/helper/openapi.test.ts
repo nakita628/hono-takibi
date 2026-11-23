@@ -43,8 +43,6 @@ describe('openapi helper', () => {
       ['', 'Schema'],
       ['#/components/schemas/TestSchema', 'TestSchemaSchema'],
       ['#/components/parameters/TestParamsSchema', 'TestParamsSchemaParamsSchema'],
-      ['#/components/schemas/User/properties/parent', 'z.lazy(()=>UserSchema)'],
-      ['#/components/schemas/UserSchema/properties/children', 'z.lazy(()=>UserSchemaSchema)'],
       ['#/unknown/path/Test', 'TestSchema'],
       ['#/components/schemas/my-test-schema', 'MyTestSchemaSchema'],
       ['#/components/schemas/my_test_schema', 'MyTestSchemaSchema'],
@@ -52,10 +50,6 @@ describe('openapi helper', () => {
       ['#/components/headers/RateLimitHeaderSchema', 'RateLimitHeaderSchemaHeaderSchema'],
       ['#/components/responses/ErrorResponse', 'ErrorResponseResponse'],
       ['#/components/callbacks/EventCallback', 'EventCallbackCallback'],
-      [
-        '#/components/schemas/Category/properties/subcategories/items',
-        'z.lazy(()=>CategorySchema)',
-      ],
     ])('makeRef(%s) -> %s', ($ref, expected) => {
       expect(makeRef($ref)).toBe(expected)
     })

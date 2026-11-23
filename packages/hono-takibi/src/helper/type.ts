@@ -105,14 +105,6 @@ function isNullMember(member: Schema) {
 }
 
 function makeRefTypeString(ref: string, selfTypeName: string) {
-  const propertiesMatch = /^#\/components\/schemas\/([^/]+)\/properties\//u.exec(ref)
-  if (propertiesMatch) {
-    const parentName = toIdentifierPascalCase(decodePercent(propertiesMatch[1] ?? ''))
-    if (parentName === selfTypeName) {
-      return `${parentName}Type`
-    }
-    return `z.infer<typeof ${parentName}Schema>`
-  }
   const rawRef = ref.split('/').at(-1) ?? ''
   const refName = toIdentifierPascalCase(decodePercent(rawRef))
   if (refName === selfTypeName) {

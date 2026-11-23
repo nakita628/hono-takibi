@@ -113,7 +113,7 @@ describe('inlinePointerRefs', () => {
     })
   })
 
-  it.concurrent('leaves a $ref to a component, and to a property of a component schema, as written', () => {
+  it.concurrent('leaves a $ref to a component, and a pointer the document does not resolve, as written', () => {
     const result = inlinePointerRefs(spec)
     expect(result.components?.schemas).toStrictEqual(spec.components?.schemas)
     expect(
@@ -128,6 +128,75 @@ describe('inlinePointerRefs', () => {
         'schema',
       ),
     ).toStrictEqual(body)
+  })
+
+  // #499: a pointer that goes on inside a component schema names the schema found there.
+  it.concurrent('inlines a $ref that points inside a component schema', () => {
+    const doc = {
+      openapi: '3.1.0',
+      info: { title: 'deep-pointer', version: '1.0.0' },
+      paths: {
+        '/a': {
+          get: {
+            responses: {
+              '200': {
+                description: 'ok',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        fee: {
+                          $ref: '#/components/schemas/Block/properties/fee',
+                          description: 'The fee',
+                        },
+                        tag: { $ref: '#/components/schemas/Block/properties/tags/items' },
+                        base: { $ref: '#/components/schemas/Derived/allOf/0' },
+                        block: { $ref: '#/components/schemas/Block' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Block: {
+            type: 'object',
+            properties: {
+              fee: { type: 'string', pattern: '^[0-9]+$' },
+              tags: { type: 'array', items: { type: 'string', pattern: '^[a-z]+$' } },
+              total: { $ref: '#/components/schemas/Block/properties/fee' },
+            },
+          },
+          Derived: {
+            allOf: [
+              { type: 'object', properties: { id: { type: 'string' } } },
+              { type: 'object', properties: { extra: { type: 'string' } } },
+            ],
+          },
+        },
+      },
+    } as OpenAPI
+    const result = inlinePointerRefs(doc)
+    expect(
+      at(result, 'paths', '/a', 'get', 'responses', '200', 'content', 'application/json', 'schema'),
+    ).toStrictEqual({
+      type: 'object',
+      properties: {
+        fee: { type: 'string', pattern: '^[0-9]+$', description: 'The fee' },
+        tag: { type: 'string', pattern: '^[a-z]+$' },
+        base: { type: 'object', properties: { id: { type: 'string' } } },
+        block: { $ref: '#/components/schemas/Block' },
+      },
+    })
+    expect(at(result, 'components', 'schemas', 'Block', 'properties', 'total')).toStrictEqual({
+      type: 'string',
+      pattern: '^[0-9]+$',
+    })
   })
 
   it.concurrent('inlines a $ref to the schema of a component parameter', () => {
@@ -344,6 +413,41 @@ describe('hoistRecursivePointers', () => {
     ).toStrictEqual({
       type: 'array',
       items: { $ref: body },
+    })
+  })
+
+  // #499: a property of a component schema that reaches itself is declared as a component too.
+  it.concurrent('declares a recursive property of a component schema as a component', () => {
+    const children = '#/components/schemas/Node/properties/children'
+    const tree = {
+      openapi: '3.1.0',
+      info: { title: 'tree', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Node: {
+            type: 'object',
+            properties: {
+              children: {
+                type: 'array',
+                items: { type: 'object', properties: { children: { $ref: children } } },
+              },
+            },
+          },
+        },
+      },
+    } as OpenAPI
+    const result = inlinePointerRefs(hoistRecursivePointers(tree))
+    const hoisted = {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { children: { $ref: '#/components/schemas/children' } },
+      },
+    }
+    expect(result.components?.schemas).toStrictEqual({
+      Node: { type: 'object', properties: { children: hoisted } },
+      children: hoisted,
     })
   })
 

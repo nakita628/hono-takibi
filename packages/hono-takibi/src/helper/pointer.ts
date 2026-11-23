@@ -54,15 +54,16 @@ function hasInlinePointer(node: unknown): boolean {
   return Object.values(node).some(hasInlinePointer)
 }
 
-/** A local pointer that does not name a component, nor a property of a component schema. */
+/**
+ * A local pointer that does not name a component: anything but `#/components/<section>/<name>`.
+ * A pointer that goes on inside a component schema (`#/components/schemas/Block/properties/fee`,
+ * `.../properties/tags/items`, `.../allOf/0`) names the schema found there, not `Block` (#499):
+ * a bundler writes one wherever an external fragment is used a second time.
+ */
 function isInlinePointer(ref: string) {
   if (!ref.startsWith('#/')) return false
   const segments = pointerSegments(ref)
-  if (segments[0] !== 'components') return true
-  // `#/components/<section>/<name>` is the component itself, and
-  // `#/components/schemas/<name>/properties/...` is emitted through its schema.
-  if (segments.length === 3) return false
-  return !(segments[1] === 'schemas' && segments[3] === 'properties' && segments.length > 4)
+  return !(segments[0] === 'components' && segments.length === 3)
 }
 
 /** The segments of a JSON Pointer fragment, decoded: percent-encoding, then `~1` and `~0` (RFC 6901 §6). */

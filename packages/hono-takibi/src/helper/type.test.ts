@@ -128,18 +128,6 @@ describe('makeTypeString', () => {
       )
     })
 
-    it('should handle properties $ref', () => {
-      expect(makeTypeString({ $ref: '#/components/schemas/User/properties/name' }, 'Test')).toBe(
-        'z.infer<typeof UserSchema>',
-      )
-    })
-
-    it('should handle properties $ref with self-reference', () => {
-      expect(makeTypeString({ $ref: '#/components/schemas/User/properties/name' }, 'User')).toBe(
-        'UserType',
-      )
-    })
-
     it('should handle URL-encoded $ref', () => {
       expect(makeTypeString({ $ref: '#/components/schemas/User%20Profile' }, 'Test')).toBe(
         'z.infer<typeof UserProfileSchema>',
@@ -647,24 +635,6 @@ describe('makeTypeString', () => {
       expect(makeTypeString({ $ref: '#/components/schemas/My%20Schema' }, 'Test')).toBe(
         'z.infer<typeof MySchemaSchema>',
       )
-    })
-
-    it('should handle properties $ref for array items', () => {
-      expect(
-        makeTypeString(
-          { type: 'array', items: { $ref: '#/components/schemas/User/properties/tags' } },
-          'Test',
-        ),
-      ).toBe('z.infer<typeof UserSchema>[]')
-    })
-
-    it('should handle properties $ref for self-referencing array items', () => {
-      expect(
-        makeTypeString(
-          { type: 'array', items: { $ref: '#/components/schemas/Node/properties/children' } },
-          'Node',
-        ),
-      ).toBe('NodeType[]')
     })
   })
 })

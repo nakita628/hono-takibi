@@ -668,3 +668,59 @@ describe('zodOpenAPIHono bodies read the components', () => {
     expect(code).toContain("schema:z.discriminatedUnion('kind',[LeafSchema,NodeSchema])")
   })
 })
+
+// #499: a `$ref` that points inside a component schema is the schema found there, not the component.
+describe('zodOpenAPIHono with a $ref into a component schema', () => {
+  const document = {
+    openapi: '3.1.0',
+    info: { title: 'deep-pointer-repro', version: '1.0.0' },
+    paths: {
+      '/a': {
+        get: {
+          responses: {
+            '200': {
+              description: 'ok',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      fee: { $ref: '#/components/schemas/Block/properties/fee' },
+                      tag: { $ref: '#/components/schemas/Block/properties/tags/items' },
+                      base: { $ref: '#/components/schemas/Derived/allOf/0' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    components: {
+      schemas: {
+        Block: {
+          type: 'object',
+          properties: {
+            fee: { type: 'string', pattern: '^[0-9]+$' },
+            tags: { type: 'array', items: { type: 'string', pattern: '^[a-z]+$' } },
+          },
+        },
+        Derived: {
+          allOf: [
+            { type: 'object', properties: { id: { type: 'string' } } },
+            { type: 'object', properties: { extra: { type: 'string' } } },
+          ],
+        },
+      },
+    },
+  } as OpenAPI
+
+  it.concurrent('emits the property, the items and the allOf member the pointer names', () => {
+    const code = zodOpenAPIHono(document)
+    const route = code.slice(code.indexOf('export const getARoute'))
+    expect(route).toBe(
+      `export const getARoute=createRoute({method:"get",path:"/a",responses:{200:{description:"ok",content:{'application/json':{schema:z.object({fee:z.string().regex(/^[0-9]+$/).exactOptional(),tag:z.string().regex(/^[a-z]+$/).exactOptional(),base:z.object({id:z.string().exactOptional()}).exactOptional().openapi({"required":[]})}).openapi({"required":[]})}}}}})`,
+    )
+  })
+})
