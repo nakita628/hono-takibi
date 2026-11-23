@@ -74,12 +74,39 @@ function pointerSegments(ref: string): readonly string[] {
     .map((segment) => decodePercent(segment).replaceAll('~1', '/').replaceAll('~0', '~'))
 }
 
+/**
+ * The value a pointer names in the document. A segment that the node does not have is read
+ * through the node's own `$ref`: a bundler points at the first use of a fragment, by the path
+ * it was read along, and that path may cross a node it has itself written as a reference
+ * (`#/paths/.../schema/anyOf/1/properties/kzg_proofs/items`, where `anyOf/1` is
+ * `{ $ref: '#/components/schemas/Fulu.SignedBlockContents' }`, Ethereum Beacon API, #499).
+ * A chain of references that comes back to itself names nothing.
+ */
 function resolvePointer(document: OpenAPI, ref: string): unknown {
-  return pointerSegments(ref).reduce<unknown>((node, segment) => {
-    if (Array.isArray(node)) return node[Number(segment)]
-    if (isRecord(node)) return Object.hasOwn(node, segment) ? node[segment] : undefined
-    return undefined
-  }, document)
+  return resolveThrough(document, ref, new Set([ref]))
+}
+
+function resolveThrough(document: OpenAPI, pointer: string, seen: ReadonlySet<string>): unknown {
+  return pointerSegments(pointer).reduce<unknown>(
+    (node, segment) => member(document, node, segment, seen),
+    document,
+  )
+}
+
+/** `node[segment]`, read through the `$ref` of a node that has no such member. */
+function member(
+  document: OpenAPI,
+  node: unknown,
+  segment: string,
+  seen: ReadonlySet<string>,
+): unknown {
+  if (Array.isArray(node)) return node[Number(segment)]
+  if (!isRecord(node)) return undefined
+  if (Object.hasOwn(node, segment)) return node[segment]
+  const { $ref } = node
+  if (typeof $ref !== 'string' || !$ref.startsWith('#/') || seen.has($ref)) return undefined
+  const through = new Set([...seen, $ref])
+  return member(document, resolveThrough(document, $ref, through), segment, through)
 }
 
 /**

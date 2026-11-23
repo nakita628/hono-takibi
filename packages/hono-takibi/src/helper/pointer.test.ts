@@ -199,6 +199,68 @@ describe('inlinePointerRefs', () => {
     })
   })
 
+  // #499: a bundler points along the path it read, across a node it wrote as a `$ref`.
+  it.concurrent('reads a pointer through a $ref on its way', () => {
+    const through = {
+      openapi: '3.1.0',
+      info: { title: 'through', version: '1.0.0' },
+      paths: {
+        '/blocks': {
+          post: {
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: { anyOf: [{ $ref: '#/components/schemas/Contents' }] },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'ok',
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/paths/~1blocks/post/requestBody/content/application~1json/schema/anyOf/0/properties/proofs/items',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Contents: { $ref: '#/components/schemas/Fulu' },
+          Fulu: {
+            type: 'object',
+            properties: { proofs: { type: 'array', items: { type: 'string', pattern: '^0x' } } },
+          },
+          Loop: { $ref: '#/components/schemas/Loop' },
+          Lost: { $ref: '#/components/schemas/Loop/properties/id' },
+        },
+      },
+    } as OpenAPI
+    const result = inlinePointerRefs(through)
+    expect(
+      at(
+        result,
+        'paths',
+        '/blocks',
+        'post',
+        'responses',
+        '200',
+        'content',
+        'application/json',
+        'schema',
+      ),
+    ).toStrictEqual({ type: 'string', pattern: '^0x' })
+    // A chain of references that comes back to itself names nothing: left as written.
+    expect(at(result, 'components', 'schemas', 'Lost')).toStrictEqual({
+      $ref: '#/components/schemas/Loop/properties/id',
+    })
+  })
+
   it.concurrent('inlines a $ref to the schema of a component parameter', () => {
     const doc = {
       ...spec,
