@@ -75,16 +75,23 @@ export function handlerExportOf(fileName: string) {
  * Derives the handler file name for an operation, in kebab case: the first segment of its
  * path (`/` → `__root`), `/real-time-events/{id}` as `real-time-events.ts`. The tags of the
  * operation say nothing of the file.
+ *
+ * `index.ts` is the barrel that re-exports every handler file, so the segment `index`
+ * (`/index/docs`, `/{index}/docs`) is written to `__index.ts` instead (#546): a segment in
+ * kebab case never starts with `__`, so that name is no other segment's.
  */
 export function makeHandlerFileName(path: string): `${string}.ts` {
   const name = kebabHandlerSegment(path.replace(/^\/+/u, '').split('/')[0] ?? '')
-  return `${name !== '' ? name : '__root'}.ts` as const
+  if (name === '') return '__root.ts'
+  if (name === 'index') return '__index.ts'
+  return `${name}.ts` as const
 }
 
 /**
  * The group of the handler file an operation is written to: the name that file goes by in
- * code, `real-time-events.ts` as `realTimeEvents`, and the root `/` as `__root`. A name that
- * is a word of the language is prefixed the same way, `/delete` as `__delete`.
+ * code, `real-time-events.ts` as `realTimeEvents`, the root `/` as `__root` and the segment
+ * `index` as `__index`. A name that is a word of the language is prefixed the same way,
+ * `/delete` as `__delete`.
  */
 export function handlerGroupOf(path: string) {
   return groupNameOf(handlerNameOf(makeHandlerFileName(path)))

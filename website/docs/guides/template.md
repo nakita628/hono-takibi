@@ -86,6 +86,9 @@ A handler file is named after the first segment of the path, in kebab-case. Tags
 | `/api_keys`              | `api-keys.ts`         | `apiKeysHandler`               |
 | `/v2-public/ping`        | `v2-public.ts`        | `v2PublicHandler`              |
 | `/`                      | `__root.ts`           | `__rootHandler`                |
+| `/index`, `/{index}`     | `__index.ts`          | `__indexHandler`               |
+
+`index.ts` is the barrel that re-exports every handler file, so the segment `index` is written to `__index.ts`.
 
 Only the file name is kebab-case. Exports and `split` groups are camelCase.
 
