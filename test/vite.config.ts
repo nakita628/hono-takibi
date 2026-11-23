@@ -177,9 +177,15 @@ export default defineConfig({
         },
       ],
       'custom/no-partial-assertion': 'error',
+      // Purpose: keep a comment from pointing at a Markdown file that does not exist.
+      // oxlint-disable-next-line custom/no-dangling-doc-reference -- the NG example names a missing file on purpose
+      // NG:      // `as OpenAPI` is allowed (CLAUDE.md type safety #1).   <- no CLAUDE.md
+      // OK:      // `as OpenAPI` is the single sanctioned cast in `src`.
       'custom/no-dangling-doc-reference': 'error',
-      // An object is always truthy: `if (result)` on a `safeParse` result never skips the
-      // assertion behind it. `any` stays allowed as a condition, as `any` is allowed here.
+      // Purpose: catch a condition that is always true, which hides the assertion behind it.
+      //          `any` stays allowed as a condition, as `any` is allowed here.
+      // NG:      if (result) expect(result.data).toBe('x')   // a safeParse result is an object
+      // OK:      if (result.success) expect(result.data).toBe('x')
       'typescript/strict-boolean-expressions': [
         'error',
         {

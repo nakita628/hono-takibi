@@ -524,6 +524,10 @@ export default {
         }
       },
     },
+    // Purpose: keep a comment from pointing at a Markdown file that does not exist.
+    // oxlint-disable-next-line custom/no-dangling-doc-reference -- the NG example names a missing file on purpose
+    // NG:      // `as OpenAPI` is allowed (CLAUDE.md type safety #1).   <- no CLAUDE.md
+    // OK:      // `as OpenAPI` is the single sanctioned cast in `src`.
     'no-dangling-doc-reference': {
       meta: { docs: { description: 'a comment names only Markdown files that exist' } },
       create(context) {

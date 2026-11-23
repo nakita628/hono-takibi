@@ -47,6 +47,10 @@ export default defineConfig({
     // `categories` above and are not restated; this list only adds rules from the
     // pedantic / style / restriction / nursery categories, which no category enables.
     rules: {
+      // Purpose: keep a comment from pointing at a Markdown file that does not exist.
+      // oxlint-disable-next-line custom/no-dangling-doc-reference -- the NG example names a missing file on purpose
+      // NG:      // `as OpenAPI` is allowed (CLAUDE.md type safety #1).   <- no CLAUDE.md
+      // OK:      // `as OpenAPI` is the single sanctioned cast in `src`.
       'custom/no-dangling-doc-reference': 'error',
       // Vue. oxlint reads the `<script>` block of a `.vue` file, so these are the rules of a
       // component's script: its props, emits and macros, its lifecycle and what Vue 3 retired.

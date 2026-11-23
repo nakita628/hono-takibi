@@ -136,6 +136,10 @@ export default defineConfig({
       'custom/no-effect-run': 'error',
       'custom/effect-promise-import': 'error',
       'custom/type-pascal-case': 'error',
+      // Purpose: keep a comment from pointing at a Markdown file that does not exist.
+      // oxlint-disable-next-line custom/no-dangling-doc-reference -- the NG example names a missing file on purpose
+      // NG:      // `as OpenAPI` is allowed (CLAUDE.md type safety #1).   <- no CLAUDE.md
+      // OK:      // `as OpenAPI` is the single sanctioned cast in `src`.
       'custom/no-dangling-doc-reference': 'error',
       eqeqeq: 'error',
       'no-var': 'error',
@@ -889,8 +893,10 @@ export default defineConfig({
           'typescript/no-explicit-any': 'off',
           'typescript/consistent-type-assertions': 'off',
           'typescript/no-unsafe-type-assertion': 'off',
-          // `strict-boolean-expressions` stays on: `if (result)` on a `safeParse` result is
-          // always true, and an assertion behind it reads as a check that never fails.
+          // `strict-boolean-expressions` stays on, as set for `src` above.
+          // Purpose: catch a condition that is always true, which hides the assertion behind it.
+          // NG:      if (result) expect(result.data).toBe('x')   // a safeParse result is an object
+          // OK:      if (result.success) expect(result.data).toBe('x')
           // `no-unnecessary-condition` is off: test files sit outside tsconfig.json, so the
           // checker reads them without `noUncheckedIndexedAccess`, and every guard on an
           // indexed value (`if (lines[0] === undefined)`) would read as dead.
