@@ -744,3 +744,48 @@ describe('makeTypeString: an enum of arrays (#504)', () => {
     ).toBe('[]|["a"]')
   })
 })
+
+describe('makeTypeString: a nullable member of an allOf (#527)', () => {
+  it('applies the null of a `nullable: true` member to the whole intersection', () => {
+    expect(
+      makeTypeString(
+        {
+          allOf: [
+            { type: 'object', properties: { name: { type: 'string' } } },
+            { description: 'Details about the classification.' },
+            { nullable: true },
+          ],
+        },
+        'Folder',
+      ),
+    ).toBe('({name?:string}|null)')
+  })
+  it('keeps the intersection of the other members', () => {
+    expect(
+      makeTypeString(
+        {
+          allOf: [
+            { $ref: '#/components/schemas/A' },
+            { $ref: '#/components/schemas/Folder' },
+            { description: 'd', nullable: true },
+          ],
+        },
+        'Folder',
+      ),
+    ).toBe('((z.infer<typeof ASchema>&FolderType)|null)')
+  })
+  it('applies the null of a `type: null` member to the whole intersection', () => {
+    expect(makeTypeString({ allOf: [{ type: 'string' }, { type: 'null' }] }, 'Test')).toBe(
+      '(string|null)',
+    )
+  })
+  it('leaves a member that validates and is nullable inside the intersection', () => {
+    expect(
+      makeTypeString({ allOf: [{ type: 'string', nullable: true }, { type: 'string' }] }, 'Test'),
+    ).toBe('((string|null)&string)')
+  })
+  it('is unknown, or null, when no member validates', () => {
+    expect(makeTypeString({ allOf: [{ description: 'd' }] }, 'Test')).toBe('unknown')
+    expect(makeTypeString({ allOf: [{ nullable: true }] }, 'Test')).toBe('(unknown|null)')
+  })
+})
