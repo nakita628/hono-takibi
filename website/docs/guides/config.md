@@ -72,6 +72,7 @@ Prefer a Vite dev server? Use the [Vite plugin](/docs/guides/vite-plugin) instea
 - A `split` directory belongs to the generator: its `.ts` files are removed before each run. Keep hand-written code elsewhere.
 - `basePath` must start with `/`. `client.import` and every `package` must be module specifiers.
 - Generated files import one another relatively, under `pathAlias` when the target is in the directory of the app entry, and by the target's `package` from another package. A target in another package without a `package` is an error.
+- A `pathAlias` starting with `#` is read as package.json `imports`, the alias Node resolves itself. Node, tsc and esbuild do not search for extensions or resolve a directory to its `index.ts` through `imports`, so every import between generated files is written fully specified: `#/handlers/index.ts`, `#/routes.ts`, `export * from './users.ts'`. See [`#` path alias](./template.md#path-alias-with-imports).
 - The `client` block needs `template`.
 - `rpc` and the hooks need the `client` block: they import the generated client, relatively or by `client.package` from another package.
 
@@ -88,7 +89,8 @@ export default defineConfig({
   readonly: true,
   // Import prefix the generated files of this package use for one another, `@/routes` instead
   // of `../routes`. Map it in tsconfig (`"@/*": ["./src/*"]`). Files written into another
-  // package never use it.
+  // package never use it. A prefix starting with `#` is package.json "imports": the imports
+  // are then fully specified (`#/routes/index.ts`, `./users.ts`) so the output runs on Node.
   pathAlias: '@/',
   // format: {}, // oxfmt FormatConfig
 

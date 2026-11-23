@@ -38,6 +38,7 @@ import { GenerateError } from '../error/index.js'
 import type { FormatError } from '../error/index.js'
 import { exists, readdir, unlink } from '../file/index.js'
 import {
+  appEntryDirectory,
   makeAppEntryFile,
   makeAppEntryImport,
   appEntryOutput,
@@ -49,6 +50,7 @@ import {
 } from '../helper/index.js'
 import type { Grouping } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
+import { ImportStyle, isImportsAlias, respecifyWritten } from '../specifier/index.js'
 
 type Job = {
   readonly name: string
@@ -483,6 +485,39 @@ export function packageRoots(openAPI: OpenAPI, config: Config) {
     }
     return packageRoot
   })
+}
+
+/**
+ * Runs the jobs of a config under the import style its `pathAlias` asks for. A `#` alias is
+ * package.json `imports`, which Node resolves without searching for extensions or resolving a
+ * directory, so every specifier of a generated file is completed to its file
+ * (`#/handlers/index.ts`, `./users.ts`), and once every file exists the ones written before
+ * their target are completed too. Any other config runs as it is.
+ */
+export function withImportStyle<Value, Failure, Requirements>(
+  config: Config,
+  run: Effect.Effect<Value, Failure, Requirements>,
+) {
+  if (!isImportsAlias(config.pathAlias)) return run
+  const pathAlias = config.pathAlias ?? ''
+  const appOutput = appEntryOutput(config)
+  const alias =
+    appOutput === undefined
+      ? undefined
+      : {
+          prefix: pathAlias.endsWith('/') ? pathAlias : `${pathAlias}/`,
+          directory: path.resolve(appEntryDirectory(appOutput, config.template?.define === true)),
+        }
+  const style = {
+    fullySpecified: true,
+    written: new Set<string>(),
+    ...(alias === undefined ? {} : { alias }),
+  }
+  return Effect.gen(function* () {
+    const result = yield* run
+    yield* respecifyWritten()
+    return result
+  }).pipe(Effect.provideService(ImportStyle, style))
 }
 
 export function makeJob(

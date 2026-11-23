@@ -70,7 +70,7 @@ function runJobs(config: Effect.Success<ReturnType<typeof loadConfig>>) {
     const [
       { parseOpenAPI },
       { FormatOptions },
-      { cleanSplitOutputs, makeJob, openAPI3, packageRoots },
+      { cleanSplitOutputs, makeJob, openAPI3, packageRoots, withImportStyle },
     ] = yield* Effect.promise(() =>
       Promise.all([
         import('../openapi/index.js'),
@@ -81,9 +81,10 @@ function runJobs(config: Effect.Success<ReturnType<typeof loadConfig>>) {
     const openAPI = yield* openAPI3(yield* parseOpenAPI(config.input), config.input)
     const jobs = makeJob(openAPI, config, yield* packageRoots(openAPI, config))
     yield* cleanSplitOutputs(jobs.filter((job) => job.split).map((job) => job.output))
-    const messages = yield* Effect.forEach(jobs, (job) => job.run(job.output), {
-      concurrency: 'unbounded',
-    }).pipe(Effect.provideService(FormatOptions, config.format ?? {}))
+    const messages = yield* withImportStyle(
+      config,
+      Effect.forEach(jobs, (job) => job.run(job.output), { concurrency: 'unbounded' }),
+    ).pipe(Effect.provideService(FormatOptions, config.format ?? {}))
     return messages.filter((message) => message !== '').join('\n')
   })
 }

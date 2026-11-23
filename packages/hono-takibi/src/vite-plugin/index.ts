@@ -15,6 +15,7 @@ import { parseOpenAPI } from '../openapi/index.js'
 import {
   cleanSplitOutputs,
   makeJob,
+  withImportStyle,
   openAPI3,
   outsideSources,
   packageRoots,
@@ -259,17 +260,20 @@ function runAllGenerationTasks(config: Config) {
     )
     // `Effect.result` per job is what keeps a failure from cancelling its siblings — a
     // dev server keeps running — so the array that comes back is one log line per job.
-    const logs = yield* Effect.all(
-      targets.map(({ job, absOutput }) =>
-        Effect.result(job.run(absOutput)).pipe(
-          Effect.map((result) =>
-            Result.isSuccess(result)
-              ? `✅ ${job.name}${job.split ? '(split)' : ''} -> ${absOutput}`
-              : `❌ ${job.name}: ${result.failure.message}`,
+    const logs = yield* withImportStyle(
+      config,
+      Effect.all(
+        targets.map(({ job, absOutput }) =>
+          Effect.result(job.run(absOutput)).pipe(
+            Effect.map((result) =>
+              Result.isSuccess(result)
+                ? `✅ ${job.name}${job.split ? '(split)' : ''} -> ${absOutput}`
+                : `❌ ${job.name}: ${result.failure.message}`,
+            ),
           ),
         ),
+        { concurrency: 'unbounded' },
       ),
-      { concurrency: 'unbounded' },
     ).pipe(Effect.provideService(FormatOptions, config.format ?? {}))
     const afterSnapshot = yield* snapshotOutputs(outputPaths)
     return { logs, changed: !sameOutputSnapshot(beforeSnapshot, afterSnapshot) }

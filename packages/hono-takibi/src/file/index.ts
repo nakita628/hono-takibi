@@ -1,5 +1,7 @@
 import { Effect, FileSystem } from 'effect'
 
+import { ImportStyle, fullySpecify } from '../specifier/index.js'
+
 export function unlink(path: string) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
@@ -46,11 +48,20 @@ export function readFile(path: string) {
   })
 }
 
+/**
+ * Writes `content` to `path` unless the file already holds it. Under a fully specified
+ * import style (a `#` `pathAlias`) a module's specifiers are completed to their files first,
+ * and the file is recorded for the pass that completes the ones whose target came later.
+ */
 export function writeFile(path: string, content: string) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
+    const style = yield* ImportStyle
+    const isModule = style.fullySpecified && path.endsWith('.ts')
+    const final = isModule ? yield* fullySpecify(content, path, style.alias) : content
+    if (isModule) style.written?.add(path)
     const existing = yield* fs.readFileString(path).pipe(Effect.orElseSucceed(() => null))
-    if (existing === content) return
-    yield* fs.writeFileString(path, content)
+    if (existing === final) return
+    yield* fs.writeFileString(path, final)
   })
 }
