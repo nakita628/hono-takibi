@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.2](https://github.com/nakita628/hono-takibi/compare/v0.35.1...v0.35.2) (2026-11-23)
+
+
+### Bug Fixes
+
+* **template:** write the segment index to __index.ts, not over the barrel index.ts ([#557](https://github.com/nakita628/hono-takibi/issues/557)) ([dbadbd9](https://github.com/nakita628/hono-takibi/commit/dbadbd925cbf46cb69fcee9e015d722ffa408406))
+
 ## [0.35.1](https://github.com/nakita628/hono-takibi/compare/v0.35.0...v0.35.1) (2026-11-23)
 
 
