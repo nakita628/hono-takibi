@@ -8,7 +8,9 @@ import { readFile } from '../../file/index.js'
 import { isHttpMethod, isOpenAPIPaths, isOperation, isValidIdent } from '../../guard/index.js'
 import { freeName, makeGroupClientName, operationTags } from '../../helper/index.js'
 import type { Grouping } from '../../helper/index.js'
+import { mergeBarrelFile } from '../../merge/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
+import { ImportStyle } from '../../specifier/index.js'
 
 // `books` to `Books`, and `__root` to `__Root`: the letter is what is capitalized.
 function capitalizeFirst(name: string) {
@@ -193,11 +195,14 @@ export function client(
     yield* emit(code, path.dirname(output), output)
     if (barrel !== undefined) {
       // A barrel that is there already keeps what it exports and gains the client.
-      const line = `export * from './${path.basename(output, '.ts')}'` as const
+      // Compared by module, so `./client.ts` written there counts as the client. Under a `#`
+      // alias it is written even when nothing is added: writing is what completes its
+      // specifiers. Otherwise a barrel that already exports the client is left as it is.
+      const line = `export * from './${path.basename(output, '.ts')}'\n` as const
       const existing = (yield* readFile(barrel)) ?? ''
-      const lines = existing.split('\n').map((text) => text.trim().replace(/;$/u, ''))
-      if (!lines.some((text) => text.replaceAll('"', "'") === line)) {
-        yield* emit(`${existing.trimEnd()}\n${line}\n`, path.dirname(barrel), barrel)
+      const merged = mergeBarrelFile(existing, line)
+      if (merged !== existing || (yield* ImportStyle).fullySpecified) {
+        yield* emit(merged, path.dirname(barrel), barrel)
       }
     }
     return `Generated client code written to ${output}` as const

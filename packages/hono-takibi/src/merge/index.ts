@@ -16,6 +16,7 @@ import {
   parseSource,
   textOf,
 } from '../helper/syntax.js'
+import { canonicalSpecifier } from '../specifier/index.js'
 import { escapeRegexLiteral } from '../utils/index.js'
 
 /**
@@ -565,7 +566,7 @@ function mergeImports(existingFile: Source, generatedFile: Source, dropStaleAuto
     dropStaleAutoNames,
   )
   const importMap = mergeImportEntries([...filteredExisting, ...generatedImports])
-  return [...importMap.entries()].flatMap(([spec, info]) => formatImportLine(spec, info))
+  return [...importMap.values()].flatMap((info) => formatImportLine(info.spelling, info))
 }
 
 function parseImportDeclarations(source: Source) {
@@ -661,17 +662,25 @@ function filterExistingImports(
     const defaultIsStale =
       entry.defaultImport !== undefined &&
       index.defaultImportModules.has(entry.defaultImport) &&
-      index.defaultImportModules.get(entry.defaultImport) !== entry.moduleSpecifier
+      !isSameModule(index.defaultImportModules.get(entry.defaultImport), entry.moduleSpecifier)
     return {
       ...entry,
       defaultImport: defaultIsStale ? undefined : entry.defaultImport,
       namedImports: entry.namedImports.filter((named) => {
         if (!isAutoName(named.name) || !dropStaleAutoNames) return true
         const canonical = index.autoNameModules.get(named.name)
-        return canonical !== undefined && canonical === entry.moduleSpecifier
+        return isSameModule(canonical, entry.moduleSpecifier)
       }),
     }
   })
+}
+
+/**
+ * Whether two specifiers name one module, however each spells it: `./users` and
+ * `./users.ts`, `#/routes` and `#/routes/index.ts`.
+ */
+function isSameModule(a: string | undefined, b: string) {
+  return a !== undefined && canonicalSpecifier(a) === canonicalSpecifier(b)
 }
 
 /**
@@ -694,9 +703,12 @@ function mergeImportEntries(
     readonly isSideEffectOnly: boolean
   }[],
 ) {
+  // Keyed by the module, spelled as its first entry spells it: the existing file comes first,
+  // so `./users.ts` written there is kept over the generated `./users`.
   const map = new Map<
     string,
     {
+      spelling: string
       namedImports: Map<string, { readonly name: string; readonly isTypeOnly: boolean }>
       namespaceImports: readonly { readonly name: string; readonly isTypeOnly: boolean }[]
       // Type-only flag of the default/named line; undefined until an entry contributes to it.
@@ -706,7 +718,8 @@ function mergeImportEntries(
     }
   >()
   for (const entry of entries) {
-    const prev = map.get(entry.moduleSpecifier)
+    const key = canonicalSpecifier(entry.moduleSpecifier)
+    const prev = map.get(key)
     const namedImports = new Map(prev?.namedImports)
     for (const named of entry.namedImports) {
       const local = named.alias ?? named.name
@@ -730,7 +743,8 @@ function mergeImportEntries(
           : [...prevNamespaces, { name: entry.namespaceImport, isTypeOnly: entry.isTypeOnlyImport }]
     const contributesToNamedLine =
       entry.namedImports.length > 0 || entry.defaultImport !== undefined
-    map.set(entry.moduleSpecifier, {
+    map.set(key, {
+      spelling: prev?.spelling ?? entry.moduleSpecifier,
       namedImports,
       namespaceImports,
       isTypeOnlyImport: contributesToNamedLine
@@ -1040,12 +1054,12 @@ export function mergeBarrelFile(existingCode: string, generatedCode: string) {
     exportDeclarations(existingFile)
       .map((declaration) => declaration.specifier)
       .filter((spec): spec is string => spec !== undefined)
-      .map((spec) => spec.replace(/\.(?:js|ts)$/u, '')),
+      .map((spec) => canonicalSpecifier(spec)),
   )
   const missingExports = exportDeclarations(generatedFile)
     .filter((declaration) => {
       const spec = declaration.specifier
-      return spec !== undefined && !existingModules.has(spec.replace(/\.(?:js|ts)$/u, ''))
+      return spec !== undefined && !existingModules.has(canonicalSpecifier(spec))
     })
     .map((declaration) => declaration.text)
   if (missingExports.length === 0) return existingCode

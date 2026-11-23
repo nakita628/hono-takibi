@@ -1677,6 +1677,35 @@ export default app
   })
 
   describe('mergeImports edge cases', () => {
+    // An existing file that names the module fully (`#/routes/index.ts`) and a generated one
+    // that names its directory (`#/routes`) import one module: one line, spelled as written.
+    // モジュールをファイルまで書いた既存ファイル(`#/routes/index.ts`)と、ディレクトリで書いた
+    // 生成ファイル(`#/routes`)は同じモジュールを import する。1 行にまとめ、既存の書き方を残す。
+    it('merges two spellings of one module into the existing one', () => {
+      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '#/routes/index.ts'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  return c.json({ id: '1' }, 200)
+}
+`
+
+      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute, postUserRoute } from '#/routes'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {}
+
+export const postUserRouteHandler: RouteHandler<typeof postUserRoute> = async (c) => {}
+`
+
+      const result = mergeHandlerFile(existing, generated)
+      expect(result.match(/from '#\/routes[^']*'/gu)).toStrictEqual(["from '#/routes/index.ts'"])
+      expect(result).toContain(
+        "import type { getUserRoute, postUserRoute } from '#/routes/index.ts'",
+      )
+      expect(result).toContain("return c.json({ id: '1' }, 200)")
+    })
+
     it('handles namespace imports', () => {
       const existing = `import * as routes from './routes'
 import type { RouteHandler } from '@hono/zod-openapi'
@@ -1932,6 +1961,26 @@ export const deleteUserRouteHandler: RouteHandler<typeof deleteUserRoute> = asyn
   })
 
   describe('mergeBarrelFile', () => {
+    // Under a `#` alias the written barrel names its files (`./users.ts`); the generator
+    // still writes `./users`. One module, so nothing is appended twice.
+    // `#` エイリアスでは書かれたバレルがファイル名(`./users.ts`)で指すが、生成器は `./users`
+    // と書く。同じモジュールなので、二重に追記しない。
+    it('counts ./users.ts and ./lib/index.ts as the modules ./users and ./lib', () => {
+      const existing = `export * from './users.ts'
+export * from './lib/index.ts'
+`
+
+      const generated = `export * from './users'
+export * from './lib'
+export * from './pets'
+`
+
+      expect(mergeBarrelFile(existing, generated)).toBe(`export * from './users.ts'
+export * from './lib/index.ts'
+export * from './pets'
+`)
+    })
+
     it('keeps existing exports the generator did not produce (hand-written modules)', () => {
       const existing = `export * from './users'
 export * from './pets'

@@ -28,6 +28,46 @@ Generated files:
 - `src/index.ts`: app entry that registers every handler
 - `src/handlers/*.ts`: handler stubs, one file per first path segment
 
+## Path alias with `imports`
+
+A `pathAlias` that starts with `#` is package.json `imports`, the alias Node resolves without a bundler. Write the mapping once, as the Node and TypeScript docs do:
+
+```json
+// package.json
+{ "imports": { "#/*": "./src/*" } }
+```
+
+```json
+// tsconfig.json
+{ "compilerOptions": { "allowImportingTsExtensions": true } }
+```
+
+```ts
+// hono-takibi.config.ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  output: './src/routes.ts',
+  pathAlias: '#/',
+  template: { routeHandler: true },
+})
+```
+
+Through `imports`, Node, tsc and esbuild neither add an extension nor resolve a directory to its `index.ts`. So every import between generated files names its file:
+
+| `@/` alias                | `#/` alias                   |
+| ------------------------- | ---------------------------- |
+| `from '@/routes'`         | `from '#/routes.ts'`         |
+| `from '@/handlers'`       | `from '#/handlers/index.ts'` |
+| `from '@/index'`          | `from '#/index.ts'`          |
+| `export * from './users'` | `export * from './users.ts'` |
+
+The app then runs on Node from its sources (`node src/index.ts`), under tsc with `moduleResolution: "nodenext"`, and in Vite or esbuild alike.
+
+- `allowImportingTsExtensions` is what lets tsc accept a `.ts` specifier. Code you write against a `#` alias needs it as well.
+- Map the alias without an extension (`"./src/*"`). A mapping that ends in `.ts` (`"./src/*.ts"`) would double it.
+- A `#/` prefix needs Node 24.14 or 25.4 and later. On older Node, name the prefix (`"#src/*": "./src/*"`, `pathAlias: '#src/'`).
+- An alias declared only in tsconfig `paths` should not start with `#`: `#` is reserved for package.json `imports`. Use `@/` or `~/` for it.
+
 ## Re-running is safe
 
 Run it again after editing the spec. New operations get a stub, existing handlers keep the code you wrote.
