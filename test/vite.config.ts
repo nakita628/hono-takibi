@@ -176,6 +176,10 @@ export default defineConfig({
           ),
         },
       ],
+      // Purpose: make a test compare the whole value, so a regression in the rest cannot pass.
+      // NG:      expect(code.includes('z.string()')).toBe(true)
+      // NG:      expect(result).toStrictEqual(expect.objectContaining({ ok: true }))
+      // OK:      expect(code).toBe("export const NameSchema = z.string()")
       'custom/no-partial-assertion': 'error',
       // Purpose: keep a comment from pointing at a Markdown file that does not exist.
       // oxlint-disable-next-line custom/no-dangling-doc-reference -- the NG example names a missing file on purpose
