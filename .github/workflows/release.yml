@@ -23,12 +23,22 @@ name: release
 #
 # If `publish` fails, re-run the failed job: the tag and the release are already written and
 # the job publishes the same tag again.
+#
+# If `publish` never ran — `release-please` failed after it wrote the tag — a re-run does not
+# help: release-please finds the release already made and reports none. Run this workflow by
+# hand on main with the tag (`gh workflow run release.yml -f tag=v0.33.4`), and `publish`
+# sends that tag to npm.
 
 on:
   push:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      tag:
+        description: A tag that is released but not on npm (v0.33.4). Empty for a normal run.
+        type: string
+        required: false
 
 permissions: {}
 
@@ -73,17 +83,18 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs: release-please
-    if: needs.release-please.outputs.released == 'true'
+    if: needs.release-please.outputs.released == 'true' || inputs.tag != ''
     environment: release
     permissions:
       contents: read
       id-token: write
     steps:
       # The tag, not the pushed commit: a run that waited in the queue may release a merge
-      # that an earlier push made.
+      # that an earlier push made. A tag given by hand comes first; `refs/tags/` keeps it
+      # from naming a branch.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ needs.release-please.outputs.tag }}
+          ref: refs/tags/${{ inputs.tag || needs.release-please.outputs.tag }}
           persist-credentials: false
 
       - uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
