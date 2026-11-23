@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.3](https://github.com/nakita628/hono-takibi/compare/v0.33.2...v0.33.3) (2026-11-23)
+
+
+### Bug Fixes
+
+* type output keys, enums and status codes, schema-less response content, api export, digit-led handler names, long handler chains, repeated sibling references ([#525](https://github.com/nakita628/hono-takibi/issues/525)) ([c6b3125](https://github.com/nakita628/hono-takibi/commit/c6b3125dc0d6f1e4759cf3282814a4cdeb538019))
+
 ## [0.33.2](https://github.com/nakita628/hono-takibi/compare/v0.33.1...v0.33.2) (2026-11-23)
 
 
