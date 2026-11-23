@@ -70,9 +70,17 @@ describe('canonicalSpecifier', () => {
   })
 })
 
-describe('fullySpecify', () => {
-  const alias = (dir: string) => ({ prefix: '#/', directory: path.join(dir, 'src') })
+/** The alias `#/` standing for `src` under `dir`. */
+function aliasOf(dir: string) {
+  return { prefix: '#/', directory: path.join(dir, 'src') }
+}
 
+/** `fullySpecify` run to its result. */
+function specify(code: string, file: string, alias: Parameters<typeof fullySpecify>[2]) {
+  return runGenerator(fullySpecify(code, file, alias))
+}
+
+describe('fullySpecify', () => {
   // A file gets its extension, a directory its index.ts.
   // ファイルには拡張子を、ディレクトリには index.ts を補う。
   it('completes relative specifiers to the file they name', async () => {
@@ -83,9 +91,7 @@ describe('fullySpecify', () => {
       "export { a } from './users'",
       "import type { B } from './users'",
     ].join('\n')
-    expect(
-      await runGenerator(fullySpecify(code, path.join(dir, 'src/handlers/index.ts'), undefined)),
-    ).toBe(
+    await expect(specify(code, path.join(dir, 'src/handlers/index.ts'), undefined)).resolves.toBe(
       [
         "export * from './users.ts'",
         "import { client } from '../lib/index.ts'",
@@ -102,9 +108,7 @@ describe('fullySpecify', () => {
       "import { s } from '#/components/schemas'",
       "import type { api } from '#/index'",
     ].join('\n')
-    expect(
-      await runGenerator(fullySpecify(code, path.join(dir, 'src/lib/client.ts'), alias(dir))),
-    ).toBe(
+    await expect(specify(code, path.join(dir, 'src/lib/client.ts'), aliasOf(dir))).resolves.toBe(
       [
         "import { r } from '#/routes/index.ts'",
         "import { s } from '#/components/schemas.ts'",
@@ -119,18 +123,16 @@ describe('fullySpecify', () => {
     const dir = setup(['src/api/index.ts'])
     const code = "import type { api } from '#/api'"
     const nested = { prefix: '#/api/', directory: path.join(dir, 'src/api') }
-    expect(
-      await runGenerator(fullySpecify(code, path.join(dir, 'src/lib/client.ts'), nested)),
-    ).toBe("import type { api } from '#/api/index.ts'")
+    await expect(specify(code, path.join(dir, 'src/lib/client.ts'), nested)).resolves.toBe(
+      "import type { api } from '#/api/index.ts'",
+    )
   })
 
   it('completes . to ./index.ts', async () => {
     const dir = setup(['src/index.ts'])
-    expect(
-      await runGenerator(
-        fullySpecify("import app from '.'", path.join(dir, 'src/x.ts'), undefined),
-      ),
-    ).toBe("import app from './index.ts'")
+    await expect(
+      specify("import app from '.'", path.join(dir, 'src/x.ts'), undefined),
+    ).resolves.toBe("import app from './index.ts'")
   })
 
   // Packages, specifiers with an extension and ones that name nothing on disk are not ours.
@@ -144,24 +146,20 @@ describe('fullySpecify', () => {
       "import { m } from './missing'",
       "import { n } from '#/missing'",
     ].join('\n')
-    expect(await runGenerator(fullySpecify(code, path.join(dir, 'src/x.ts'), alias(dir)))).toBe(
-      code,
-    )
+    await expect(specify(code, path.join(dir, 'src/x.ts'), aliasOf(dir))).resolves.toBe(code)
   })
 
   it('keeps the quote the source uses', async () => {
     const dir = setup(['src/users.ts'])
-    expect(
-      await runGenerator(
-        fullySpecify('export * from "./users"', path.join(dir, 'src/x.ts'), undefined),
-      ),
-    ).toBe('export * from "./users.ts"')
+    await expect(
+      specify('export * from "./users"', path.join(dir, 'src/x.ts'), undefined),
+    ).resolves.toBe('export * from "./users.ts"')
   })
 
   it('leaves a module that does not parse as it is', async () => {
     const dir = setup(['src/users.ts'])
     const code = "export * from './users'\nconst = ;"
-    expect(await runGenerator(fullySpecify(code, path.join(dir, 'src/x.ts'), undefined))).toBe(code)
+    await expect(specify(code, path.join(dir, 'src/x.ts'), undefined)).resolves.toBe(code)
   })
 })
 
