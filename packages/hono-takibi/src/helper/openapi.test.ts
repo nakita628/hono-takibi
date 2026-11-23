@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import type { Schema } from '../openapi/index.js'
+import type { Media, Schema } from '../openapi/index.js'
 import {
   makeCallback,
   makeCallbacks,
@@ -167,6 +167,23 @@ describe('openapi helper', () => {
     it.concurrent('generates response with summary', () => {
       const result = makeResponses({ summary: 'Success summary', description: 'Desc' })
       expect(result).toBe('{summary:"Success summary",description:"Desc"}')
+    })
+    it.concurrent('leaves content out when no media type has a schema (#507)', () => {
+      expect(
+        makeResponses({
+          description: 'No Content',
+          content: { 'application/json': {} as Media },
+        }),
+      ).toBe('{description:"No Content"}')
+      expect(
+        makeResponses({
+          description: 'ok',
+          content: {
+            'application/json': {} as Media,
+            'text/plain': { schema: { type: 'string' } },
+          },
+        }),
+      ).toBe('{description:"ok",content:{\'text/plain\':{schema:z.string()}}}')
     })
     it.concurrent('generates response with headers', () => {
       const result = makeResponses({

@@ -188,14 +188,18 @@ export function makeResponses(
   if (responses.$ref) {
     return makeRef(responses.$ref)
   }
+  // A media type without a schema is not written. When none is left, `content` is left
+  // out too: with `content: {}` @hono/zod-openapi types the response as `never`, and the
+  // operation is missing from the app's type (#507).
+  const content = responses.content
+    ? makeContent(responses.content, readonly, undefined, schemas)
+    : []
   const result = [
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
     // OpenAPI 3.0 §Response Object: description is REQUIRED
     `description:${JSON.stringify(responses.description ?? '')}`,
     // Keys follow `openapi/index.ts` `Responses` declaration order: content before headers.
-    responses.content
-      ? `content:{${makeContent(responses.content, readonly, undefined, schemas).join(',')}}`
-      : undefined,
+    content.length > 0 ? `content:{${content.join(',')}}` : undefined,
     responses.headers ? `headers:${makeHeaderResponses(responses.headers, readonly)}` : undefined,
     responses.links
       ? `links:{${Object.entries(responses.links)
