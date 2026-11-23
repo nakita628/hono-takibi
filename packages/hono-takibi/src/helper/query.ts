@@ -7,7 +7,13 @@ import { emit } from '../emit/index.js'
 import { GenerateError } from '../error/index.js'
 import { hasNoContentResponse, isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
-import { capitalize, routeName, toHonoPath, toIdentifierPascalCase } from '../utils/index.js'
+import {
+  capitalize,
+  makeStringLiteral,
+  routeName,
+  toHonoPath,
+  toIdentifierPascalCase,
+} from '../utils/index.js'
 import { makeGroupClientName, operationTags } from './group.js'
 import type { Grouping } from './group.js'
 import { formatPath, makeOperationDeps, operationHasArgs, parsePathItem } from './rpc.js'
@@ -179,9 +185,17 @@ function makeMutationKeyGetterName(
   return `get${capitalize(routeName(method, pathStr, paths))}MutationKey`
 }
 
+// The head every key shares: the first path segment, e.g. '/pet/findByStatus' → 'pet', then
+// the path. Both come from the document, and an OData path such as
+// `/messages/getDetails(address='{address}')` carries a `'`, so they are written as escaped
+// literals rather than between bare quotes.
+function makeKeyHead(honoPath: string) {
+  const prefix = honoPath.replace(/^\//u, '').split('/')[0] ?? ''
+  return `${makeStringLiteral(prefix)},${makeStringLiteral(honoPath)}` as const
+}
+
 function makeMutationKeyGetterCode(keyGetterName: string, method: string, honoPath: string) {
-  const prefix = honoPath.replace(/^\//u, '').split('/')[0]
-  return `export function ${keyGetterName}(){return['${prefix}','${honoPath}','${method.toUpperCase()}']as const}`
+  return `export function ${keyGetterName}(){return[${makeKeyHead(honoPath)},'${method.toUpperCase()}']as const}`
 }
 
 function makeInfiniteQueryKeyGetterName(
@@ -237,18 +251,16 @@ function makeQueryKeyGetterCode(
   excluded: readonly KeyExcludedArg[] = [],
   method = 'get',
 ) {
-  // First path segment, e.g. '/pet/findByStatus' → 'pet'
-  const prefix = honoPath.replace(/^\//u, '').split('/')[0]
   const methodKey = method === 'get' ? '' : `,'${method.toUpperCase()}'`
   if (!hasArgs) {
-    return `export function ${keyGetterName}(){return['${prefix}','${honoPath}'${methodKey}]as const}`
+    return `export function ${keyGetterName}(){return[${makeKeyHead(honoPath)}${methodKey}]as const}`
   }
   if (config.isVueQuery) {
     const { declaration, value } = makeKeyArgs(excluded, 'toValue(args)')
-    return `export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${declaration}return['${prefix}','${honoPath}'${methodKey},${value}]as const}`
+    return `export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${declaration}return[${makeKeyHead(honoPath)}${methodKey},${value}]as const}`
   }
   const { declaration, value } = makeKeyArgs(excluded, 'args')
-  return `export function ${keyGetterName}(args:${argsType}){${declaration}return['${prefix}','${honoPath}'${methodKey},${value}]as const}`
+  return `export function ${keyGetterName}(args:${argsType}){${declaration}return[${makeKeyHead(honoPath)}${methodKey},${value}]as const}`
 }
 
 // Same as makeQueryKeyGetterCode with an 'infinite' segment after the path and before the args:
@@ -264,17 +276,16 @@ function makeInfiniteQueryKeyGetterCode(
   excluded: readonly KeyExcludedArg[] = [],
   method = 'get',
 ) {
-  const prefix = honoPath.replace(/^\//u, '').split('/')[0]
   const methodKey = method === 'get' ? '' : `,'${method.toUpperCase()}'`
   if (!hasArgs) {
-    return `export function ${keyGetterName}(){return['${prefix}','${honoPath}'${methodKey},'infinite']as const}` as const
+    return `export function ${keyGetterName}(){return[${makeKeyHead(honoPath)}${methodKey},'infinite']as const}` as const
   }
   if (config.isVueQuery) {
     const { declaration, value } = makeKeyArgs(excluded, 'toValue(args)')
-    return `export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${declaration}return['${prefix}','${honoPath}'${methodKey},'infinite',${value}]as const}` as const
+    return `export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${declaration}return[${makeKeyHead(honoPath)}${methodKey},'infinite',${value}]as const}` as const
   }
   const { declaration, value } = makeKeyArgs(excluded, 'args')
-  return `export function ${keyGetterName}(args:${argsType}){${declaration}return['${prefix}','${honoPath}'${methodKey},'infinite',${value}]as const}` as const
+  return `export function ${keyGetterName}(args:${argsType}){${declaration}return[${makeKeyHead(honoPath)}${methodKey},'infinite',${value}]as const}` as const
 }
 
 /**
@@ -824,7 +835,7 @@ function makeInfiniteQueryHookCode(
  */
 function makePrefixKeyCode(prefix: string) {
   const funcName = `get${toIdentifierPascalCase(prefix)}Key` as const
-  return `export function ${funcName}(){return['${prefix}']as const}` as const
+  return `export function ${funcName}(){return[${makeStringLiteral(prefix)}]as const}` as const
 }
 
 /**
