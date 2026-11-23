@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.2](https://github.com/nakita628/hono-takibi/compare/v0.33.1...v0.33.2) (2026-11-23)
+
+
+### Bug Fixes
+
+* type-check contentSchema strings, in-segment path parameters, and GET hooks named like library imports ([#523](https://github.com/nakita628/hono-takibi/issues/523)) ([d3de6d1](https://github.com/nakita628/hono-takibi/commit/d3de6d1ccd0400400a8f327ebefb28548afca942))
+
 ## [0.33.1](https://github.com/nakita628/hono-takibi/compare/v0.33.0...v0.33.1) (2026-11-22)
 
 
