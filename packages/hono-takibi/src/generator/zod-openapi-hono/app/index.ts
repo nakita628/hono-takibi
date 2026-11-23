@@ -46,8 +46,8 @@ export function appGroups(
         groupNameOf(handlerNameOf(file)),
       )
     : Object.entries(openapi.paths).flatMap(([path, pathItem]) =>
-        Object.keys(pathItem).flatMap((method) =>
-          isHttpMethod(method) ? [pathGroupOf(path)] : [],
+        Object.entries(pathItem).flatMap(([method, operation]) =>
+          isHttpMethod(method) && isOperation(operation) ? [pathGroupOf(path)] : [],
         ),
       )
   return [...new Set(names)]
@@ -78,8 +78,10 @@ export function app(
   const getRouteMaps = () => {
     const paths = openapi.paths
     return Object.entries(paths).flatMap(([path, pathItem]) =>
-      Object.entries(pathItem).flatMap(([method]) => {
-        if (!isHttpMethod(method)) return [] as const
+      Object.entries(pathItem).flatMap(([method, operation]) => {
+        // routes.ts declares no route for an operation without `responses`, nor `handlers/` a
+        // handler for it, so the app registers none either (#545).
+        if (!(isHttpMethod(method) && isOperation(operation))) return [] as const
         return {
           routeName: `${makeRouteName(method, path, paths)}Route`,
           handlerName: `${makeRouteName(method, path, paths)}RouteHandler`,
