@@ -61,6 +61,17 @@ export function handlerNameOf(fileName: string) {
 }
 
 /**
+ * The export of an inline handler file: the name the file goes by in code, followed by
+ * `Handler`, `real-time-events.ts` as `realTimeEventsHandler`. A name that starts with a
+ * digit is no identifier, so it is prefixed the way its group is: `2020-05-31.ts` as
+ * `__20200531Handler` (#506).
+ */
+export function handlerExportOf(fileName: string) {
+  const name = handlerNameOf(fileName)
+  return /^[0-9]/u.test(name) ? (`__${name}Handler` as const) : (`${name}Handler` as const)
+}
+
+/**
  * Derives the handler file name for an operation, in kebab case: the first segment of its
  * path (`/` → `__root`), `/real-time-events/{id}` as `real-time-events.ts`. The tags of the
  * operation say nothing of the file.
@@ -252,7 +263,7 @@ function makeInlineStubFileContent(
   },
   importFrom: string,
 ) {
-  const exportName = `${handlerNameOf(handler.fileName)}Handler`
+  const exportName = handlerExportOf(handler.fileName)
   const routeImports = [...new Set(handler.routeNames)].join(', ')
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
   const importStatements = `import { OpenAPIHono } from '@hono/zod-openapi'\n${importRoutes}`

@@ -4,6 +4,7 @@ import { isHttpMethod, isOperation } from '../../../guard/index.js'
 import {
   entryNames,
   groupNameOf,
+  handlerExportOf,
   handlerNameOf,
   makeHandlerFileName,
   pathGroupOf,
@@ -125,18 +126,19 @@ export function app(
       })
       return [importSection, appInit, ...inits, appExport].join('\n\n')
     }
+    // `api` is exported even when there is nothing to route: the client imports it (#518).
     const apiInit =
       routeNames.length > 0
         ? `export const api=${appVar}.openapiRoutes([${routeNames.join(',')}] as const)`
-        : ''
-    return [importSection, appInit, apiInit, appExport].filter(Boolean).join('\n\n')
+        : `export const api=${appVar}`
+    return [importSection, appInit, apiInit, appExport].join('\n\n')
   }
   if (!routeHandler) {
     const handlerFileNames = inlineHandlerFileNames ?? handlerFilesOf(openapi)
     // A handler file exports its sub-app under the name it goes by in code, which is its
     // base name in camel case whatever the case of the file.
     const files = [...new Set(handlerFileNames.map(handlerNameOf))]
-    const handlerExportNames = files.map((file) => `${file}Handler`)
+    const handlerExportNames = files.map(handlerExportOf)
     const handlerModule =
       handlerModuleOverride ?? (aliasPrefix ? `${aliasPrefix}/handlers` : './handlers')
     const handlerImport =
@@ -152,7 +154,7 @@ export function app(
         (name) =>
           `export const ${name}=${appVar}${files
             .filter((file) => groupNameOf(file) === name)
-            .map((file) => `.route('/',${file}Handler)`)
+            .map((file) => `.route('/',${handlerExportOf(file)})`)
             .join('')}`,
       )
       return [importSection, appInit, ...inits, appExport].join('\n\n')
@@ -160,8 +162,8 @@ export function app(
     const apiInit =
       handlerExportNames.length > 0
         ? `export const api=${appVar}${handlerExportNames.map((name) => `.route('/',${name})`).join('')}`
-        : ''
-    return [importSection, appInit, apiInit, appExport].filter(Boolean).join('\n\n')
+        : `export const api=${appVar}`
+    return [importSection, appInit, apiInit, appExport].join('\n\n')
   }
   const routeNames = [...new Set(routeMappings.map((m) => m.routeName))]
   const routeModule =
