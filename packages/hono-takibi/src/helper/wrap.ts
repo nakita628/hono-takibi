@@ -312,6 +312,64 @@ function inlineSchemaRefs(
 }
 
 /**
+ * How many schemas one statement in the document may copy out of the components. A
+ * reference is written out as the component it names, a copy for each reference at each
+ * level, so a component referenced twice at every level doubles the copy with each level
+ * (#510): 26 levels are 2^26 schemas. Past this, the statement is not made.
+ */
+const WRITTEN_OUT_LIMIT = 1000
+
+/**
+ * What is left of `left` once `inlineSchemaRefs` has written `schema` out: each schema it
+ * copies out of a component takes one, and a schema the source has in place takes none.
+ * Below zero nothing more is read, so the count costs no more than the limit.
+ */
+function leftAfterWritingOut(
+  schema: unknown,
+  schemas: { readonly [k: string]: Schema } | undefined,
+  left: number,
+  reading: ReadonlySet<string> = new Set(),
+): number {
+  if (!isRecord(schema) || left < 0) return left
+  const ref = schema.$ref
+  if (typeof ref === 'string') {
+    if (reading.has(ref)) return left
+    const target = resolveSchemaRef(ref, schemas)
+    if (target === undefined) return left
+    const { $ref: _ref, ...beside } = schema
+    return leftAfterWritingOut({ ...target, ...beside }, schemas, left, new Set([...reading, ref]))
+  }
+  const inside = Object.entries(schema).flatMap(([key, value]): readonly unknown[] => {
+    if (SCHEMA_VALUED_KEYS.has(key)) return [value]
+    if (SCHEMA_LIST_KEYS.has(key) && Array.isArray(value)) return value
+    if ((SCHEMA_MAP_KEYS.has(key) || key === 'patternProperties') && isRecord(value)) {
+      return Object.values(value)
+    }
+    return []
+  })
+  return inside.reduce<number>(
+    (rest, sub) => leftAfterWritingOut(sub, schemas, rest, reading),
+    reading.size > 0 ? left - 1 : left,
+  )
+}
+
+/**
+ * Schemas with every reference written out (see `inlineSchemaRefs`), all of them out of
+ * one `WRITTEN_OUT_LIMIT`: they make one statement. `undefined` when they copy more than
+ * that out of the components, so that what is written stays in proportion to the source.
+ */
+function writtenOut(
+  list: readonly unknown[],
+  schemas: { readonly [k: string]: Schema } | undefined,
+): readonly unknown[] | undefined {
+  const left = list.reduce<number>(
+    (rest, sub) => leftAfterWritingOut(sub, schemas, rest),
+    WRITTEN_OUT_LIMIT,
+  )
+  return left < 0 ? undefined : list.map((sub) => inlineSchemaRefs(sub, schemas))
+}
+
+/**
  * `examples` as the Schema Object has it, a list of values: a list is taken as it is, and a
  * map of Example Objects (the 3.0 shape of a Header or Parameter Object, #398) is reduced to
  * the values its entries carry. A map whose entries carry none (`externalValue`, `$ref`) has
@@ -740,13 +798,13 @@ function withoutEmitterExtensions(schema: unknown): unknown {
  * the component it names, since the document defines a component only where a route uses
  * it, and only what a Schema Object has. It states the `anyOf` / `oneOf` written beside the
  * combinator a schema is emitted as (#469), which nothing in the emitted schema renders.
+ * `undefined` when the list copies too much out of the components to be stated (#510).
  */
 export function schemaList(list: readonly Schema[], schemas?: { readonly [k: string]: Schema }) {
-  return schemaLiteral(
-    list.map((sub) =>
-      pruneSchemaObject(withoutEmitterExtensions(inlineSchemaRefs(sub, schemas)), true),
-    ),
-  )
+  const written = writtenOut(list, schemas)
+  return written === undefined
+    ? undefined
+    : schemaLiteral(written.map((sub) => pruneSchemaObject(withoutEmitterExtensions(sub), true)))
 }
 
 /**
@@ -977,10 +1035,13 @@ export function wrap(
   // What the document is told of a schema with `x-catch` (#492): the schema as the source
   // declares it, every reference written out, with the `type` the document needs to read
   // it at all. `null` is among the types when the schema takes it. `undefined` when no type
-  // can be stated, or when a user chain replaces the catch.
+  // can be stated, when a user chain replaces the catch, or when writing the references
+  // out copies too much (#510).
   const catchDocument = (() => {
     if (schema['x-catch'] === undefined || !hasNoUserChain(schema)) return undefined
-    const source = withoutEmitterExtensions(inlineSchemaRefs(schema, options?.schemas))
+    const written = writtenOut([schema], options?.schemas)
+    if (written === undefined) return undefined
+    const source = withoutEmitterExtensions(written[0])
     if (!isRecord(source)) return undefined
     const declared = Array.isArray(source.type)
       ? source.type.filter((type): type is string => typeof type === 'string')
@@ -1112,10 +1173,12 @@ export function wrap(
       : []),
     // `not` is checked in a refinement, or on the raw input beside a combinator (#469), and
     // the document derives nothing from either: it is stated as the source has it, every
-    // reference written out. Beside a `$ref` it is not emitted, so it is not stated, and a
-    // parameter states its schema already.
+    // reference written out, unless that copies too much (#510). Beside a `$ref` it is not
+    // emitted, so it is not stated, and a parameter states its schema already.
     ...(schema.$ref === undefined && meta?.parameters === undefined && isRecord(schema.not)
-      ? [['not', withoutEmitterExtensions(inlineSchemaRefs(schema.not, options?.schemas))] as const]
+      ? (writtenOut([schema.not], options?.schemas) ?? []).map(
+          (not) => ['not', withoutEmitterExtensions(not)] as const,
+        )
       : []),
   ])
   const args = pruneSchemaObject(baseArgs)
@@ -1215,33 +1278,42 @@ export function wrap(
   // is handed whatever the metadata holds. `additionalProperties` is stated beside it when
   // it is `false` or a schema, since the object is then loose for the refinements to see
   // the keys (#447, #454).
-  const patternMetaProps =
-    meta?.parameters === undefined &&
-    meta?.headers === undefined &&
-    schema.patternProperties !== undefined &&
-    Object.keys(schema.patternProperties).length > 0
-      ? [
-          `...{patternProperties:${JSON.stringify(
-            Object.fromEntries(
-              Object.entries(schema.patternProperties).map(([pattern, sub]) => [
-                pattern,
-                pruneSchemaObject(inlineSchemaRefs(sub, options?.schemas), true),
-              ]),
-            ),
-          )}}`,
-          ...(schema.additionalProperties === false ? ['additionalProperties:false'] : []),
-          ...(typeof schema.additionalProperties === 'object'
-            ? [
-                `additionalProperties:${schemaLiteral(
-                  pruneSchemaObject(
-                    inlineSchemaRefs(schema.additionalProperties, options?.schemas),
-                    true,
-                  ),
-                )}`,
-              ]
-            : []),
-        ]
-      : []
+  const patternMetaProps = (() => {
+    if (
+      meta?.parameters !== undefined ||
+      meta?.headers !== undefined ||
+      schema.patternProperties === undefined
+    ) {
+      return []
+    }
+    const patterns = Object.keys(schema.patternProperties)
+    if (patterns.length === 0) return []
+    // The schemas of the patterns, then the one of `additionalProperties`: one statement,
+    // which is not made when it copies too much out of the components (#510).
+    const written = writtenOut(
+      [
+        ...Object.values(schema.patternProperties),
+        ...(typeof schema.additionalProperties === 'object' ? [schema.additionalProperties] : []),
+      ],
+      options?.schemas,
+    )
+    if (written === undefined) return []
+    return [
+      `...{patternProperties:${JSON.stringify(
+        Object.fromEntries(
+          patterns.map((pattern, i) => [pattern, pruneSchemaObject(written[i], true)]),
+        ),
+      )}}`,
+      ...(schema.additionalProperties === false ? ['additionalProperties:false'] : []),
+      ...(typeof schema.additionalProperties === 'object'
+        ? [
+            `additionalProperties:${schemaLiteral(
+              pruneSchemaObject(written[patterns.length], true),
+            )}`,
+          ]
+        : []),
+    ]
+  })()
   // `.openapi()` on a wrapper — `.exactOptional()`, the `z.preprocess` that reads the wire —
   // hides the component inside it: the document then names the component in the
   // parameter's `$ref` and never defines it. On the component itself the metadata keeps

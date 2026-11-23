@@ -16727,3 +16727,101 @@ describe('a sibling list that repeats a reference of the emitted allOf (#510)', 
     ).toBe(true)
   })
 })
+
+// #510: a sibling list that names other components than the emitted `allOf` is stated
+// with every reference written out. Components that reference the next one twice at
+// every level double that with each level, so past a size the list is not stated; the
+// same holds for a `not`, a `patternProperties` and the document of an `x-catch`.
+describe('a statement that copies too much out of the components (#510)', () => {
+  const str = { type: 'string' } as const
+  const chain = (depth: number) =>
+    Object.fromEntries([
+      ...Array.from({ length: depth }, (_, i) => [
+        `M${i}`,
+        {
+          type: 'object',
+          properties: {
+            a: { $ref: `#/components/schemas/M${i + 1}` },
+            b: { $ref: `#/components/schemas/M${i + 1}` },
+          },
+        },
+      ]),
+      [`M${depth}`, str],
+      ['L0', { type: 'object', properties: { a: str } }],
+      ['Other', { type: 'object', properties: { c: str } }],
+    ])
+  const L0 = { $ref: '#/components/schemas/L0' } as const
+  const M0 = { $ref: '#/components/schemas/M0' } as const
+  const Other = { $ref: '#/components/schemas/Other' } as const
+
+  it.concurrent('states a sibling oneOf of shallow components', () => {
+    const code = zodToOpenAPI({ allOf: [L0], oneOf: [M0, Other] }, undefined, {
+      schemas: chain(2),
+    })
+    expect(
+      code.endsWith(
+        '.openapi({oneOf:[{"type":"object","properties":{"a":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}},"b":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}}}},{"type":"object","properties":{"c":{"type":"string"}}}]})',
+      ),
+    ).toBe(true)
+  })
+
+  it.concurrent('does not state a sibling oneOf of 40 levels, and still checks it', () => {
+    const code = zodToOpenAPI({ allOf: [L0], oneOf: [M0, Other] }, undefined, {
+      schemas: chain(40),
+    })
+    expect(code).not.toContain('.openapi({oneOf')
+    expect(code).toContain('M0Schema.safeParse(val).success')
+    expect(code.length).toBeLessThan(2000)
+  })
+
+  it.concurrent('does not state a sibling anyOf of 40 levels', () => {
+    const code = zodToOpenAPI({ allOf: [L0], anyOf: [M0, Other] }, undefined, {
+      schemas: chain(40),
+    })
+    expect(code).not.toContain('.openapi({anyOf')
+    expect(code.length).toBeLessThan(2000)
+  })
+
+  it.concurrent('states a not of shallow components, and not one of 40 levels', () => {
+    expect(zodToOpenAPI({ type: 'object', not: M0 }, undefined, { schemas: chain(1) })).toContain(
+      '"not":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}}',
+    )
+    const code = zodToOpenAPI({ type: 'object', not: M0 }, undefined, { schemas: chain(40) })
+    expect(code).not.toContain('"not"')
+    expect(code).toContain('M0Schema.safeParse')
+    expect(code.length).toBeLessThan(2000)
+  })
+
+  it.concurrent('states patternProperties of shallow components, and not of 40 levels', () => {
+    const schema = { type: 'object', patternProperties: { '^x-': M0 } } as const
+    expect(zodToOpenAPI(schema, undefined, { schemas: chain(1) })).toContain(
+      '...{patternProperties:{"^x-":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}}}}',
+    )
+    const code = zodToOpenAPI(schema, undefined, { schemas: chain(40) })
+    expect(code).not.toContain('patternProperties')
+    expect(code.length).toBeLessThan(2000)
+  })
+
+  it.concurrent('writes the catch of 40 levels as a preprocess the document can render', () => {
+    const schema = {
+      type: 'object',
+      properties: { a: M0 },
+      'x-catch': {},
+    } as const
+    expect(zodToOpenAPI(schema, undefined, { schemas: chain(1) })).toContain('.catch({})')
+    const code = zodToOpenAPI(schema, undefined, { schemas: chain(40) })
+    expect(code).not.toContain('.catch(')
+    expect(code).toContain('z.preprocess(')
+    expect(code.length).toBeLessThan(2000)
+  })
+
+  it.concurrent('states an inline list of any size: nothing in it is a copy', () => {
+    const wide = {
+      type: 'object',
+      properties: Object.fromEntries(Array.from({ length: 1500 }, (_, i) => [`p${i}`, str])),
+    } as const
+    expect(
+      zodToOpenAPI({ allOf: [L0], oneOf: [wide] }, undefined, { schemas: chain(1) }),
+    ).toContain('.openapi({oneOf:[{"type":"object","properties":{"p0":{"type":"string"}')
+  })
+})

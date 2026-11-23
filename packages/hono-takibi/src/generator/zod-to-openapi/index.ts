@@ -291,7 +291,8 @@ export function zodToOpenAPI(
     // the emitted schema does not: `oneOf: [{ $ref: X }]` beside `allOf: [{ $ref: X }]`
     // (NestJS Swagger). It is not stated: every reference in a stated list is written out
     // as the component it names, a copy for each reference at each level, which doubles
-    // the literal with every level (#510).
+    // the literal with every level (#510). Nor is a list that copies too much out of the
+    // components (`schemaList`). Either is still checked on the raw input.
     const emittedRefs = new Set(
       (emittedCombinator === undefined ? [] : (schema[emittedCombinator] ?? [])).flatMap((sub) =>
         isAnnotatedRef(sub) ? [sub.$ref] : [],
@@ -304,9 +305,9 @@ export function zodToOpenAPI(
     const stated = [
       ...siblings.flatMap((key) => {
         const list = key === 'not' ? undefined : schema[key]
-        return list === undefined || repeatsEmitted(key, list)
-          ? []
-          : [`${key}:${schemaList(list, childOptions?.schemas)}`]
+        if (list === undefined || repeatsEmitted(key, list)) return []
+        const literal = schemaList(list, childOptions?.schemas)
+        return literal === undefined ? [] : [`${key}:${literal}`]
       }),
       ...(parentStrict === undefined ? [] : ['additionalProperties:false']),
     ]
