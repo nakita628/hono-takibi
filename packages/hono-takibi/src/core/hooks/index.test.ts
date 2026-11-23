@@ -8653,7 +8653,7 @@ describe('angular-query hooks', () => {
   queryOptions,
   infiniteQueryOptions,
   mutationOptions,
-} from '@tanstack/angular-query-experimental'
+} from '@tanstack/angular-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -8661,10 +8661,7 @@ import type {
   InfiniteData,
   CreateMutationOptions,
   DefaultError,
-  InjectQueryOptions,
-  InjectInfiniteQueryOptions,
-  InjectMutationOptions,
-} from '@tanstack/angular-query-experimental'
+} from '@tanstack/angular-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -8716,12 +8713,11 @@ export function injectHono<
     >
     options?: ClientRequestOptions
   },
-  injectOptions?: InjectQueryOptions,
 ) {
   return injectQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
     return { ...getHonoQueryOptions<TData, TError>(clientOptions), ...query }
-  }, injectOptions)
+  })
 }
 
 export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
@@ -8764,12 +8760,11 @@ export function injectUsers<
     >
     options?: ClientRequestOptions
   },
-  injectOptions?: InjectQueryOptions,
 ) {
   return injectQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
     return { ...getUsersQueryOptions<TData, TError>(args(), clientOptions), ...query }
-  }, injectOptions)
+  })
 }
 
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
@@ -8865,7 +8860,6 @@ export function injectInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
-  injectOptions?: InjectInfiniteQueryOptions,
 ) {
   return injectInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -8873,7 +8867,7 @@ export function injectInfiniteUsers<
       ...getUsersInfiniteQueryOptions<TData, TError, TPageParam>(args(), pagination, clientOptions),
       ...query,
     }
-  }, injectOptions)
+  })
 }
 
 export function getPostUsersMutationKey() {
@@ -8909,7 +8903,6 @@ export function injectPostUsers<TError = DefaultError, TOnMutateResult = unknown
     >
     options?: ClientRequestOptions
   },
-  injectOptions?: InjectMutationOptions,
 ) {
   return injectMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
@@ -8919,7 +8912,7 @@ export function injectPostUsers<TError = DefaultError, TOnMutateResult = unknown
       ...mutationDefaults,
       mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
     }
-  }, injectOptions)
+  })
 }
 `
 
@@ -8951,15 +8944,8 @@ export function injectPostUsers<TError = DefaultError, TOnMutateResult = unknown
         )
 
         const code = fs.readFileSync(out, 'utf8')
-        expect(code)
-          .toBe(`import { injectQuery, queryOptions } from '@tanstack/angular-query-experimental'
-import type {
-  CreateQueryOptions,
-  DefaultError,
-  InjectQueryOptions,
-  InjectInfiniteQueryOptions,
-  InjectMutationOptions,
-} from '@tanstack/angular-query-experimental'
+        expect(code).toBe(`import { injectQuery, queryOptions } from '@tanstack/angular-query'
+import type { CreateQueryOptions, DefaultError } from '@tanstack/angular-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -9007,12 +8993,11 @@ export function injectHono<
     >
     options?: ClientRequestOptions
   },
-  injectOptions?: InjectQueryOptions,
 ) {
   return injectQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
     return { ...getHonoQueryOptions<TData, TError>(clientOptions), ...query }
-  }, injectOptions)
+  })
 }
 `)
       } finally {

@@ -1,7 +1,7 @@
 // angular-query: the hook's generics must reach the caller, not degrade to `any` or the library default.
 // フックのジェネリクスは、`any` やライブラリのデフォルト型に劣化することなく、
 // 呼び出し側まで届かなければならない。
-import type { InjectQueryOptions } from '@tanstack/angular-query-experimental'
+import type { injectQuery } from '@tanstack/angular-query'
 
 import {
   injectInfiniteItems,
@@ -116,16 +116,20 @@ export function mutationOptionsAssertions() {
 }
 
 // The hooks default TError to the library's `DefaultError` (an `Error`, and whatever a global
-// `Register` augmentation says), so `error` is usable without a type argument; and they forward
-// the framework's trailing argument, so a caller can target another client / injection context.
+// `Register` augmentation says), so `error` is usable without a type argument. They take no
+// trailing argument: `@tanstack/angular-query` dropped `{ injector }`, and a caller reaches
+// another injection context with `runInInjectionContext(injector, () => injectUsers())`.
 // フックの TError のデフォルトは、ライブラリの `DefaultError`(`Error`、
 // またはグローバルな `Register` 拡張で指定された型)である。そのため、
-// 型引数を指定しなくても `error` を利用できる。また、
-// フレームワーク固有の末尾の引数もそのまま渡すため、
-// 呼び出し側は別のクライアントやインジェクションコンテキストを指定できる。
+// 型引数を指定しなくても `error` を利用できる。末尾の引数は取らない。
+// `@tanstack/angular-query` は `{ injector }` を廃止しており、別のインジェクション
+// コンテキストは `runInInjectionContext(injector, () => injectUsers())` で指定する。
 export function tailAssertions() {
   const query = injectUsers()
   assertType<Equal<ReturnType<typeof query.error>, Error | null>>(true)
-  assertType<Equal<Parameters<typeof injectUsers>[1], InjectQueryOptions | undefined>>(true)
+  // The library takes the options alone, so the hook has nothing to forward after its own.
+  // ライブラリはオプションのみを受け取るため、フックがその後ろに渡す引数はない。
+  assertType<Equal<Parameters<typeof injectQuery>['length'], 1>>(true)
+  assertType<Equal<Parameters<typeof injectUsers>['length'], 0 | 1>>(true)
   return { query }
 }

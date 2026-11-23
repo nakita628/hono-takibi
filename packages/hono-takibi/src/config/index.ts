@@ -1263,7 +1263,7 @@ const ConfigSchema = Schema.Struct({
       ),
     }).annotate({
       title: 'Angular Query hooks output',
-      description: 'Generates `@tanstack/angular-query-experimental` hooks per operation.',
+      description: 'Generates `@tanstack/angular-query` hooks per operation.',
       examples: [{ output: './src/angular-query.ts' }],
     }),
   ),
