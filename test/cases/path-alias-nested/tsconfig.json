@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["../../__generated__/path-alias-nested/src/*"]
+    }
+  },
+  "include": ["../../__generated__/path-alias-nested/**/*"]
+}
