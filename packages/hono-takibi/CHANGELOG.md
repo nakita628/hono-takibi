@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.4](https://github.com/nakita628/hono-takibi/compare/v0.33.3...v0.33.4) (2026-11-23)
+
+
+### Bug Fixes
+
+* **type:** apply the null of a nullable allOf member to the whole intersection ([#529](https://github.com/nakita628/hono-takibi/issues/529)) ([ad4f053](https://github.com/nakita628/hono-takibi/commit/ad4f053b2038eae271896d885415a9737cd69c13))
+
 ## [0.33.3](https://github.com/nakita628/hono-takibi/compare/v0.33.2...v0.33.3) (2026-11-23)
 
 
