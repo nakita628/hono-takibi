@@ -840,6 +840,78 @@ describe('string', () => {
     })
   })
 
+  // #522: `z.string().pipe(<object>)` does not type-check, and the text never matches an object
+  // schema. A JSON string is parsed before its contentSchema validates it. JSON Schema 2020-12
+  // ignores contentSchema without a contentMediaType, and the bytes of a binary type are not an
+  // instance a schema describes.
+  describe('contentSchema without contentEncoding', () => {
+    const parse =
+      '.transform((val,ctx)=>{try{return JSON.parse(val)}catch(err){ctx.addIssue({code:"custom",params:{cause:err instanceof Error?err.message:String(err)}});return z.NEVER}})'
+    it.concurrent.each<[Schema, string]>([
+      [
+        {
+          type: 'string',
+          contentMediaType: 'application/json',
+          contentSchema: { $ref: '#/components/schemas/Payload' },
+        },
+        `z.string()${parse}.pipe(PayloadSchema)`,
+      ],
+      [
+        {
+          type: 'string',
+          contentMediaType: 'application/vnd.api+json',
+          contentSchema: { type: 'object', properties: { x: { type: 'string' } } },
+        },
+        `z.string()${parse}.pipe(z.object({x:z.string().exactOptional()}).openapi({"required":[]}))`,
+      ],
+      // No contentSchema: the string stays a string.
+      [{ type: 'string', contentMediaType: 'application/json' }, 'z.string()'],
+      // A text media type validates the string itself.
+      [
+        {
+          type: 'string',
+          contentMediaType: 'text/plain',
+          contentSchema: { type: 'string', maxLength: 3 },
+        },
+        'z.string().pipe(z.string().max(3))',
+      ],
+      // No contentMediaType: contentSchema is ignored.
+      [{ type: 'string', contentSchema: { $ref: '#/components/schemas/Payload' } }, 'z.string()'],
+      // Binary bytes: contentSchema is ignored.
+      [
+        {
+          type: 'string',
+          contentEncoding: 'base64',
+          contentMediaType: 'image/png',
+          contentSchema: { type: 'object' },
+        },
+        'z.base64().transform((val)=>Uint8Array.from(atob(val),(char)=>char.charCodeAt(0)))',
+      ],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+
+    it.concurrent('parses before validating at run time', () => {
+      const schema = z
+        .string()
+        .transform((val, ctx) => {
+          try {
+            return JSON.parse(val)
+          } catch (error) {
+            ctx.addIssue({
+              code: 'custom',
+              params: { cause: error instanceof Error ? error.message : String(error) },
+            })
+            return z.NEVER
+          }
+        })
+        .pipe(z.object({ type: z.string() }))
+      expect(schema.parse('{"type":"a"}')).toStrictEqual({ type: 'a' })
+      expect(schema.safeParse('{"type":1}').success).toBe(false)
+      expect(schema.safeParse('not json').success).toBe(false)
+    })
+  })
+
   describe('edge case combinations', () => {
     it.concurrent.each<[Schema, string]>([
       // url + x-coerce → coerce ignored (only DATE_FORMATS accept coerce)

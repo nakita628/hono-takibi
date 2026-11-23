@@ -188,18 +188,31 @@ export function string(
       // a plain string with no decode step.
       return 'z.string()'
     })()
+    // MIME-family classification. Binary families MUST stay as raw bytes
+    // (UTF-8 stringification corrupts non-text payloads — e.g. PNG magic
+    // 0x89 expands to 0xC2 0x89). JSON families round-trip through
+    // JSON.parse with a guarded try/catch so syntax errors surface as
+    // Zod issues instead of uncaught exceptions.
+    const mt = mediaType ? mediaType.toLowerCase() : ''
+    const isBinary = /^(image|audio|video)\//u.test(mt) || mt === OCTET_STREAM_MEDIA_TYPE
+    const isJson = mt.length > 0 && mt.includes('json')
+    const isEncoded = enc === 'base64' || enc === 'base64url'
+    // JSON Schema 2020-12 §8.5: `contentSchema` is ignored without `contentMediaType`, and the
+    // bytes of a binary media type are not a JSON instance a schema can describe either.
+    const validates = contentSchema !== undefined && mt.length > 0 && !isBinary
+    // JSON MIME: try/catch + ctx.addIssue so SyntaxError becomes a Zod
+    // issue rather than an uncaught throw at safeParse time.
+    const jsonParseStep = (textExpr: string) => {
+      const issueExpr = errorMessage
+        ? `{code:"custom",message:${JSON.stringify(errorMessage)},params:{cause:err instanceof Error?err.message:String(err)}}`
+        : '{code:"custom",params:{cause:err instanceof Error?err.message:String(err)}}'
+      return `.transform((val,ctx)=>{try{return JSON.parse(${textExpr})}catch(err){ctx.addIssue(${issueExpr});return z.NEVER}})`
+    }
     const decodeStep = (() => {
-      // Only base64 / base64url drive a decode. Other encodings (binary,
-      // 7bit, 8bit, quoted-printable) flow through as plain strings.
-      if (enc !== 'base64' && enc !== 'base64url') return ''
-      // MIME-family classification. Binary families MUST stay as raw bytes
-      // (UTF-8 stringification corrupts non-text payloads — e.g. PNG magic
-      // 0x89 expands to 0xC2 0x89). JSON families round-trip through
-      // JSON.parse with a guarded try/catch so syntax errors surface as
-      // Zod issues instead of uncaught exceptions.
-      const mt = mediaType ? mediaType.toLowerCase() : ''
-      const isBinary = /^(image|audio|video)\//u.test(mt) || mt === OCTET_STREAM_MEDIA_TYPE
-      const isJson = mt.length > 0 && mt.includes('json')
+      // An unencoded JSON string is parsed only when a `contentSchema` validates the result:
+      // `.pipe()` needs the value the schema describes, not the text (`z.string().pipe(z.object())`
+      // does not type-check). Without one the string stays a string.
+      if (!isEncoded) return isJson && validates ? jsonParseStep('val') : ''
       // Decode with a bare `atob`, exactly as Zod does internally
       // (core/util.js base64ToUint8Array) — Zod 4 already requires it, so no
       // Buffer fallback is needed. `atob` rejects the base64url alphabet
@@ -213,24 +226,15 @@ export function string(
       const textExpr = `new TextDecoder().decode(${bytesExpr})`
       // Binary MIME types decode base64 directly to Uint8Array — UTF-8
       // decoding would corrupt the bytes.
-      if (isBinary) {
-        return `.transform((val)=>${bytesExpr})`
-      }
-      // JSON MIME: try/catch + ctx.addIssue so SyntaxError becomes a Zod
-      // issue rather than an uncaught throw at safeParse time.
-      if (isJson) {
-        const issueExpr = errorMessage
-          ? `{code:"custom",message:${JSON.stringify(errorMessage)},params:{cause:err instanceof Error?err.message:String(err)}}`
-          : '{code:"custom",params:{cause:err instanceof Error?err.message:String(err)}}'
-        return `.transform((val,ctx)=>{try{return JSON.parse(${textExpr})}catch(err){ctx.addIssue(${issueExpr});return z.NEVER}})`
-      }
+      if (isBinary) return `.transform((val)=>${bytesExpr})`
+      if (isJson) return jsonParseStep(textExpr)
       // Text / unspecified MIME → UTF-8 string.
       return `.transform((val)=>${textExpr})`
     })()
     // contentSchema may be a $ref or inline schema; both branches recurse
     // through zodToOpenAPI which already handles refs via makeRef. Propagate
     // `options` so nested array/object receives `.readonly()` when requested.
-    const validateStep = contentSchema
+    const validateStep = validates
       ? `.pipe(${zodToOpenAPI(contentSchema, undefined, options)})`
       : ''
     return `${baseStr}${decodeStep}${validateStep}`
