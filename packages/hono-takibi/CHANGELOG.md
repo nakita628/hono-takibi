@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.3](https://github.com/nakita628/hono-takibi/compare/v0.35.2...v0.35.3) (2026-11-23)
+
+
+### Bug Fixes
+
+* **template:** leave operations without responses out of index.ts ([#545](https://github.com/nakita628/hono-takibi/issues/545)) ([#559](https://github.com/nakita628/hono-takibi/issues/559)) ([b3dd1eb](https://github.com/nakita628/hono-takibi/commit/b3dd1eb193b1ac5b56e5290a7729920af571de5e))
+
 ## [0.35.2](https://github.com/nakita628/hono-takibi/compare/v0.35.1...v0.35.2) (2026-11-23)
 
 
