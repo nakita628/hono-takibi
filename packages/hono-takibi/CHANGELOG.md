@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.1](https://github.com/nakita628/hono-takibi/compare/v0.35.0...v0.35.1) (2026-11-23)
+
+
+### Bug Fixes
+
+* **hooks:** escape a path that contains ' in the query keys ([#553](https://github.com/nakita628/hono-takibi/issues/553)) ([05c192c](https://github.com/nakita628/hono-takibi/commit/05c192c965c9d4cd6f9cd6a9446b22cc84951588))
+
 ## [0.35.0](https://github.com/nakita628/hono-takibi/compare/v0.34.0...v0.35.0) (2026-11-23)
 
 
