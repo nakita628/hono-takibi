@@ -5,11 +5,28 @@ import type { Declaration, Node, Program, Span, Statement } from 'oxc-parser'
 // as JSON and parsed back: several times faster on the module of a large document. The
 // option is not among the parser's declared ones yet, and not every runtime takes it (a
 // 32-bit one, Node before 22), so it is asked for only where it is supported.
+const BASE_PARSER_OPTIONS = { lang: 'ts', sourceType: 'module' } as const
 const PARSER_OPTIONS = {
-  lang: 'ts',
-  sourceType: 'module',
+  ...BASE_PARSER_OPTIONS,
   ...(rawTransferSupported() ? { experimentalRawTransfer: true } : {}),
 } as const
+
+/**
+ * The buffer is read into objects by functions that call one another once per level of the
+ * tree, and a handler file is one chain of `.openapi()` calls, a level deeper with each
+ * operation: at about 1,500 of them the stack overflows (#521). The tree written out as
+ * JSON is read back without that depth, so such a module is parsed again that way.
+ */
+function parse(code: string) {
+  try {
+    // oxlint-disable-next-line node/no-sync -- parses a string in memory; nothing is read or awaited
+    return parseSync('module.ts', code, PARSER_OPTIONS)
+  } catch (error) {
+    if (!(error instanceof RangeError)) throw error
+    // oxlint-disable-next-line node/no-sync -- parses a string in memory; nothing is read or awaited
+    return parseSync('module.ts', code, BASE_PARSER_OPTIONS)
+  }
+}
 
 /**
  * Parses a TypeScript module for reading. What a caller takes from the tree is a position,
@@ -24,8 +41,7 @@ export function parseSource(code: string): {
   readonly program: Program
   readonly errors: readonly string[]
 } {
-  // oxlint-disable-next-line node/no-sync -- parses a string in memory; nothing is read or awaited
-  const { program, errors } = parseSync('module.ts', code, PARSER_OPTIONS)
+  const { program, errors } = parse(code)
   return { program, errors: errors.map((error) => error.message) }
 }
 
@@ -49,24 +65,34 @@ function isNode(value: unknown): value is Node {
 }
 
 /**
- * Calls `visit` on `node` and on every node under it, each child in the order the grammar
- * lists them. A node whose children the parser does not list is walked over its fields.
+ * The children of a node, in the order the grammar lists them. A node whose children the
+ * parser does not list is read over its fields.
  */
-function walk(node: Node, visit: (node: Node) => void): void {
-  visit(node)
+function childrenOf(node: Node): readonly Node[] {
   const keys =
     visitorKeys[node.type] ?? Object.keys(node).filter((key) => key !== 'type' && key !== 'parent')
-  for (const key of keys) {
+  return keys.flatMap((key) => {
     // Read by name rather than through `Object.entries`: a node has many more fields than
     // children, and a tree of a large document has hundreds of thousands of nodes.
     const child: unknown = Reflect.get(node, key)
-    if (Array.isArray(child)) {
-      for (const item of child) {
-        if (isNode(item)) walk(item, visit)
-      }
-    } else if (isNode(child)) {
-      walk(child, visit)
-    }
+    if (Array.isArray(child)) return child.filter(isNode)
+    return isNode(child) ? [child] : []
+  })
+}
+
+/**
+ * Calls `visit` on `node` and on every node under it, each child in the order the grammar
+ * lists them.
+ *
+ * The nodes still to visit are kept in a list rather than on the call stack: a handler
+ * file is one chain of `.openapi()` calls, as deep as the file has operations (#521).
+ */
+function walk(root: Node, visit: (node: Node) => void): void {
+  const pending: Node[] = [root]
+  for (let node = pending.pop(); node !== undefined; node = pending.pop()) {
+    visit(node)
+    // Pushed last to first, so that the first child is the next one taken.
+    pending.push(...childrenOf(node).toReversed())
   }
 }
 

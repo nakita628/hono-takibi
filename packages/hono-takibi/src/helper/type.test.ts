@@ -736,3 +736,11 @@ describe('makeTypeString array items edge cases', () => {
     })
   })
 })
+
+describe('makeTypeString: an enum of arrays (#504)', () => {
+  it('writes an array value as its JSON', () => {
+    expect(
+      makeTypeString({ type: 'array', items: { type: 'string' }, enum: [[], ['a']] }, 'Test'),
+    ).toBe('[]|["a"]')
+  })
+})

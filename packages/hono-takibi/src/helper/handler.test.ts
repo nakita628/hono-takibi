@@ -8,6 +8,7 @@ import type { OpenAPI } from '../openapi/index.js'
 import { runGenerator } from '../testing/index.js'
 import {
   defineOpenAPIRouteHandler,
+  handlerExportOf,
   handlerGroupOf,
   handlerNameOf,
   makeHandlerFileName,
@@ -274,6 +275,19 @@ describe('handlerNameOf', () => {
   })
 })
 
+describe('handlerExportOf', () => {
+  it('is the name of the file followed by Handler', () => {
+    expect(handlerExportOf('real-time-events.ts')).toBe('realTimeEventsHandler')
+    expect(handlerExportOf('__root.ts')).toBe('__rootHandler')
+    expect(handlerExportOf('delete.ts')).toBe('deleteHandler')
+  })
+
+  it('prefixes a name that starts with a digit, which is no identifier (#506)', () => {
+    expect(handlerExportOf('2020-05-31.ts')).toBe('__20200531Handler')
+    expect(handlerExportOf('3ds.ts')).toBe('__3dsHandler')
+  })
+})
+
 describe('zodOpenAPIHonoHandler', () => {
   // Outside the (bind-mounted, eventually-consistent) workspace: see template tests.
   const testDir = path.join(os.tmpdir(), 'hono-takibi-tmp-handler-test')
@@ -314,6 +328,40 @@ describe('zodOpenAPIHonoHandler', () => {
     expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf8')).toBe(
       `export * from './users'\n`,
     )
+  })
+
+  it('exports an identifier from a file whose name starts with a digit (#506)', async () => {
+    const openapi = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/2020-05-31/distribution': { get: { responses: { 200: { description: 'OK' } } } },
+      },
+    } as OpenAPI
+    await runGenerator(zodOpenAPIHonoHandler(openapi, `${testDir}/routes.ts`))
+    expect(fs.readFileSync(`${testDir}/handlers/2020-05-31.ts`, 'utf8')).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { get20200531DistributionRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const __20200531Handler = app.openapi(get20200531DistributionRoute, (c) => {})\n`,
+    )
+  })
+
+  // A handler file is one chain, a level deeper with each operation: the file is read
+  // back whatever its depth.
+  it('reads back a handler file of 3,000 operations (#521)', { timeout: 60_000 }, async () => {
+    const openapi = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: Object.fromEntries(
+        Array.from({ length: 3000 }, (_, index) => [
+          `/v1/items${index}`,
+          { get: { responses: { 200: { description: 'OK' } } } },
+        ]),
+      ),
+    } as OpenAPI
+    await runGenerator(zodOpenAPIHonoHandler(openapi, `${testDir}/routes.ts`))
+    // The second run merges the generated file with the one already there.
+    await runGenerator(zodOpenAPIHonoHandler(openapi, `${testDir}/routes.ts`))
+    const written = fs.readFileSync(`${testDir}/handlers/v1.ts`, 'utf8')
+    expect(written.match(/\.openapi\(/gu)?.length).toBe(3000)
   })
 
   it('generates routeHandler stub files with RouteHandler type', async () => {

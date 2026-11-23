@@ -684,3 +684,58 @@ export default app2`)
     expect(appGroups(spec, false, undefined, false)).toStrictEqual([])
   })
 })
+
+describe('app: a document without operations (#518)', () => {
+  const empty = {
+    openapi: '3.1.0',
+    info: { title: 'Test', version: '1.0.0' },
+    paths: {},
+  } as OpenAPI
+
+  it.concurrent('exports api from the sub-router index', () => {
+    expect(app(empty, 'routes.ts', '/', undefined, undefined, false)).toBe(
+      `import{OpenAPIHono}from'@hono/zod-openapi'
+
+const app=new OpenAPIHono()
+
+export const api=app
+
+export default app`,
+    )
+  })
+
+  it.concurrent('exports api from the route handler index', () => {
+    expect(app(empty, 'routes.ts', '/', undefined, undefined, true)).toBe(
+      `import{OpenAPIHono}from'@hono/zod-openapi'
+
+const app=new OpenAPIHono()
+
+export const api=app
+
+export default app`,
+    )
+  })
+})
+
+describe('app: a handler file whose name starts with a digit (#506)', () => {
+  it.concurrent('imports and mounts the prefixed export', () => {
+    const dated = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/2020-05-31/distribution': { get: { responses: { 200: { description: 'ok' } } } },
+        '/users': { get: { responses: { 200: { description: 'ok' } } } },
+      },
+    } as OpenAPI
+    expect(app(dated, 'routes.ts', '/', undefined, undefined, false)).toBe(
+      `import{OpenAPIHono}from'@hono/zod-openapi'
+import{__20200531Handler,usersHandler}from'./handlers'
+
+const app=new OpenAPIHono()
+
+export const api=app.route('/',__20200531Handler).route('/',usersHandler)
+
+export default app`,
+    )
+  })
+})

@@ -16675,3 +16675,55 @@ describe('a raw-input check that parses a schema has an asynchronous form', () =
     expect(Sync.safeParse('x').success).toBe(false)
   })
 })
+
+// #510: every reference in a stated sibling list is written out as the component it
+// names, a copy for each reference at each level. A list that only repeats a reference
+// of the emitted `allOf` (NestJS Swagger's `oneOf: [{ $ref: X }]` beside
+// `allOf: [{ $ref: X }]`) says nothing the emitted schema does not, and is not stated.
+describe('a sibling list that repeats a reference of the emitted allOf (#510)', () => {
+  const str = { type: 'string' } as const
+  const schemas = {
+    L0: {
+      type: 'object',
+      properties: {
+        a: { $ref: '#/components/schemas/L1' },
+        b: { $ref: '#/components/schemas/L1' },
+      },
+    },
+    L1: { type: 'object', properties: { a: str, b: str } },
+    Other: { type: 'object', properties: { c: str } },
+  } as const
+  const L0 = { $ref: '#/components/schemas/L0' } as const
+  const Other = { $ref: '#/components/schemas/Other' } as const
+
+  it.concurrent('does not state a oneOf of that one reference', () => {
+    const code = zodToOpenAPI({ allOf: [L0], oneOf: [{ ...L0, title: 'Plan' }] }, undefined, {
+      schemas,
+    })
+    expect(code).not.toContain('.openapi({oneOf')
+    expect(code).not.toContain('"properties"')
+  })
+
+  it.concurrent('does not state an anyOf that has the reference', () => {
+    const code = zodToOpenAPI({ allOf: [L0], anyOf: [L0, Other] }, undefined, { schemas })
+    expect(code).not.toContain('.openapi({anyOf')
+  })
+
+  it.concurrent('states a oneOf with another branch, or of another component', () => {
+    expect(
+      zodToOpenAPI(
+        {
+          allOf: [L0],
+          oneOf: [L0, Other],
+        },
+        undefined,
+        { schemas },
+      ),
+    ).toContain('.openapi({oneOf:[{"type":"object"')
+    expect(
+      zodToOpenAPI({ allOf: [L0], oneOf: [Other] }, undefined, { schemas }).endsWith(
+        '.openapi({oneOf:[{"type":"object","properties":{"c":{"type":"string"}}}]})',
+      ),
+    ).toBe(true)
+  })
+})
