@@ -5,8 +5,15 @@ on:
     branches:
       - main
   pull_request:
-  # The release pull request is opened with GITHUB_TOKEN, and what that token does starts no
-  # `pull_request` run. The release workflow dispatches this one on its branch instead.
+    # The files the release pull request changes, and nothing else it does.
+    paths-ignore:
+      - '.release-please-manifest.json'
+      - 'packages/hono-takibi/CHANGELOG.md'
+      - 'packages/hono-takibi/package.json'
+  # The release pull request is opened with GITHUB_TOKEN, and a `pull_request` run of such a
+  # pull request waits for someone to approve it ("Approve workflows to run"). So no run is
+  # made for it: it changes only the files `paths-ignore` lists, and the release workflow
+  # dispatches this one on its branch instead, which needs no approval.
   workflow_dispatch:
 
 permissions:
