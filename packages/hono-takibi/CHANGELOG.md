@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.5](https://github.com/nakita628/hono-takibi/compare/v0.35.4...v0.35.5) (2026-11-23)
+
+
+### Bug Fixes
+
+* four small generator bugs from the 0.35.3 review ([#595](https://github.com/nakita628/hono-takibi/issues/595), [#599](https://github.com/nakita628/hono-takibi/issues/599), [#602](https://github.com/nakita628/hono-takibi/issues/602), [#603](https://github.com/nakita628/hono-takibi/issues/603)) ([#620](https://github.com/nakita628/hono-takibi/issues/620)) ([6c2d9c9](https://github.com/nakita628/hono-takibi/commit/6c2d9c95b15cb074d3d94ef6e6071b6e20bdb98a))
+
 ## [0.35.4](https://github.com/nakita628/hono-takibi/compare/v0.35.3...v0.35.4) (2026-11-23)
 
 
