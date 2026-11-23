@@ -833,21 +833,47 @@ function makeInfiniteQueryHookCode(
  *
  * @see https://tkdodo.eu/blog/effective-react-query-keys
  */
-function makePrefixKeyCode(prefix: string) {
-  const funcName = `get${toIdentifierPascalCase(prefix)}Key` as const
+function makePrefixKeyCode(funcName: string, prefix: string) {
   return `export function ${funcName}(){return[${makeStringLiteral(prefix)}]as const}` as const
 }
 
 /**
  * Extracts unique prefixes from OpenAPI paths and generates prefix key functions.
+ *
+ * A prefix getter shares the `get…Key` names with the operations' key getters, and two
+ * prefixes can read as the same word: `GET /` names its query key getter `getQueryKey`,
+ * the getter of a `/query` prefix, and `/_alias` and `/{alias}` both give `getAliasKey`.
+ * The operations keep their names, which every hook calls; a prefix getter whose name is
+ * taken, by an operation or by an earlier prefix, is numbered (`getAliasKey2`), as
+ * `routeName` numbers a path whose name is taken.
  */
-function makePrefixKeyCodes(paths: OpenAPIPaths): readonly string[] {
+function makePrefixKeyCodes(paths: OpenAPIPaths, taken: ReadonlySet<string>): readonly string[] {
   const prefixes = new Set<string>()
   for (const p of Object.keys(paths)) {
     const prefix = p.replace(/^\//u, '').split('/')[0]
     if (prefix) prefixes.add(prefix)
   }
-  return [...prefixes].toSorted().map((prefix) => makePrefixKeyCode(prefix))
+  const used = new Set(taken)
+  return [...prefixes].toSorted().map((prefix) => {
+    const base = `get${toIdentifierPascalCase(prefix)}Key` as const
+    let funcName: string = base
+    let ordinal = 1
+    while (used.has(funcName)) {
+      ordinal += 1
+      funcName = `${base}${ordinal}`
+    }
+    used.add(funcName)
+    return makePrefixKeyCode(funcName, prefix)
+  })
+}
+
+// The names the operations' hooks and key getters declare at the top level of the file.
+function declaredNames(codes: readonly string[]) {
+  return new Set(
+    codes.flatMap((code) =>
+      [...code.matchAll(/\bexport (?:function|const) ([\w$]+)/gu)].map((match) => match[1] ?? ''),
+    ),
+  )
 }
 
 /**
@@ -1624,7 +1650,10 @@ export function makeQueryHooks(
       basePath !== undefined && basePath !== '/',
     )
     const clientNames = [...new Set(hookCodes.map(({ client }) => client))]
-    const prefixKeyCodes = makePrefixKeyCodes(pathsMaybe)
+    const prefixKeyCodes = makePrefixKeyCodes(
+      pathsMaybe,
+      declaredNames(hookCodes.map(({ code }) => code)),
+    )
     const hasAnyArgs = hookCodes.some(({ hasArgs }) => hasArgs)
     const prefixBody = prefixKeyCodes.join('\n\n')
     const hookBody = hookCodes.map(({ code }) => code).join('\n\n')

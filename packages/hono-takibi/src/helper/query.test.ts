@@ -42,6 +42,14 @@ const minimalPostOpenAPI = {
   },
 } as OpenAPI
 
+// The key getters that take no args, as `name → [key]`: every prefix getter and the
+// getters of the operations without parameters.
+function keyGetters(code: string) {
+  return [...code.matchAll(/export function (get\w*Key\d*)\(\)\s*\{\s*return \[([^\]]*)\]/gu)].map(
+    (match) => `${match[1]} → [${match[2]}]`,
+  )
+}
+
 describe('Query Hook Generation Shared Module', () => {
   describe('makeQueryHooks - error cases', () => {
     it.concurrent('should return error when paths property is missing', async () => {
@@ -142,6 +150,71 @@ describe('Query Hook Generation Shared Module', () => {
         makeQueryHooks(minimalGetOpenAPI, output, './client', customConfig),
       )
       expect(result).toBe(`Generated swr hooks written to ${output}`)
+    })
+  })
+
+  // #536: the prefix getters (`get<Prefix>Key`) and the operations' key getters share the
+  // `get…Key` names. The operations keep theirs; a prefix getter whose name is taken is
+  // numbered, so the hooks file declares each name once.
+  describe('makeQueryHooks - key getter names', () => {
+    const testDir = 'test-query-hooks-key-names'
+    const collidingOpenAPI = {
+      openapi: '3.1.0' as const,
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/': { get: { responses: { '200': { description: 'ok' } } } },
+        '/query/ast': { get: { responses: { '200': { description: 'ok' } } } },
+        '/_alias': { get: { responses: { '200': { description: 'ok' } } } },
+        '/{alias}/settings': {
+          get: {
+            parameters: [{ name: 'alias', in: 'path', required: true, schema: { type: 'string' } }],
+            responses: { '200': { description: 'ok' } },
+          },
+        },
+      },
+    } as OpenAPI
+
+    beforeEach(() => {
+      fs.mkdirSync(testDir, { recursive: true })
+    })
+
+    afterEach(() => {
+      fs.rmSync(testDir, { recursive: true, force: true })
+    })
+
+    it('numbers a prefix getter whose name an operation or an earlier prefix takes', async () => {
+      const output = `${testDir}/hooks.ts`
+      await runGenerator(makeQueryHooks(collidingOpenAPI, output, './client', defaultConfig))
+      expect(keyGetters(fs.readFileSync(output, 'utf8'))).toStrictEqual([
+        "getAliasKey → ['_alias']",
+        "getQueryKey2 → ['query']",
+        "getAliasKey2 → ['{alias}']",
+        "getQueryKey → ['', '/']",
+        "getQueryAstQueryKey → ['query', '/query/ast']",
+        "getAliasQueryKey → ['_alias', '/_alias']",
+      ])
+    })
+
+    it('for SWR, whose operation getters keep the method, numbers only prefixes that read alike', async () => {
+      const output = `${testDir}/hooks.ts`
+      await runGenerator(
+        makeQueryHooks(collidingOpenAPI, output, './client', {
+          ...defaultConfig,
+          packageName: 'swr',
+          frameworkName: 'SWR',
+          queryFn: 'useSWR',
+          mutationFn: 'useSWRMutation',
+          isSWR: true,
+        }),
+      )
+      expect(keyGetters(fs.readFileSync(output, 'utf8'))).toStrictEqual([
+        "getAliasKey → ['_alias']",
+        "getQueryKey → ['query']",
+        "getAliasKey2 → ['{alias}']",
+        "getGetKey → ['', '/']",
+        "getGetQueryAstKey → ['query', '/query/ast']",
+        "getGetAliasKey → ['_alias', '/_alias']",
+      ])
     })
   })
 })
