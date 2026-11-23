@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.35.0](https://github.com/nakita628/hono-takibi/compare/v0.34.0...v0.35.0) (2026-11-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* **hooks:** generate angular-query hooks for @tanstack/angular-query ([#551](https://github.com/nakita628/hono-takibi/issues/551))
+
+### Features
+
+* **hooks:** generate angular-query hooks for @tanstack/angular-query ([#551](https://github.com/nakita628/hono-takibi/issues/551)) ([09bdfa5](https://github.com/nakita628/hono-takibi/commit/09bdfa5fe4d4e817bd0f355a12b97ea6c914e411))
+
 ## [0.34.0](https://github.com/nakita628/hono-takibi/compare/v0.33.7...v0.34.0) (2026-11-23)
 
 
