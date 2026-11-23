@@ -2,11 +2,17 @@ import { COMPONENT_REF_PREFIX, HTTP_METHODS } from '../constants/index.js'
 import { isRecord } from '../guard/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 import { uniqueComponentNames } from './names.js'
-import { hoistRecursivePointers, inlinePointerRefs, resolveEmbeddedRefs } from './pointer.js'
+import {
+  declareSchemaPointers,
+  hoistRecursivePointers,
+  inlinePointerRefs,
+  resolveEmbeddedRefs,
+} from './pointer.js'
 
 /**
  * The document as every generator reads it: the pointers of an embedded schema resource read
- * against the resource, inline pointers written out where they stand, recursive ones declared
+ * against the resource, the schemas pointed at inside a component schema declared as
+ * components, the other inline pointers written out where they stand, recursive ones declared
  * as components, components whose names would make one identifier
  * told apart, the Specification Extensions of the Paths, Responses and Callback Objects
  * left out, and the parameters a path template names without declaring them declared. A
@@ -16,7 +22,9 @@ export function normalizeOpenAPI(document: OpenAPI): OpenAPI {
   return withTemplateParameters(
     withoutExtensions(
       uniqueComponentNames(
-        inlinePointerRefs(hoistRecursivePointers(resolveEmbeddedRefs(document))),
+        inlinePointerRefs(
+          hoistRecursivePointers(declareSchemaPointers(resolveEmbeddedRefs(document))),
+        ),
       ),
     ),
   )

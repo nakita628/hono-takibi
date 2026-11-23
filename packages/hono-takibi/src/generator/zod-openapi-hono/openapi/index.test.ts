@@ -669,7 +669,8 @@ describe('zodOpenAPIHono bodies read the components', () => {
   })
 })
 
-// #499: a `$ref` that points inside a component schema is the schema found there, not the component.
+// #499: a `$ref` that points inside a component schema is the schema found there, not the
+// component: it is declared as a component of its own.
 describe('zodOpenAPIHono with a $ref into a component schema', () => {
   const document = {
     openapi: '3.1.0',
@@ -716,11 +717,22 @@ describe('zodOpenAPIHono with a $ref into a component schema', () => {
     },
   } as OpenAPI
 
-  it.concurrent('emits the property, the items and the allOf member the pointer names', () => {
+  it.concurrent('declares the property, the items and the allOf member once, and names them', () => {
     const code = zodOpenAPIHono(document)
-    const route = code.slice(code.indexOf('export const getARoute'))
-    expect(route).toBe(
-      `export const getARoute=createRoute({method:"get",path:"/a",responses:{200:{description:"ok",content:{'application/json':{schema:z.object({fee:z.string().regex(/^[0-9]+$/).exactOptional(),tag:z.string().regex(/^[a-z]+$/).exactOptional(),base:z.object({id:z.string().exactOptional()}).exactOptional().openapi({"required":[]})}).openapi({"required":[]})}}}}})`,
+    expect(code).toBe(
+      `import{createRoute,z}from'@hono/zod-openapi'
+
+const BlockFeeSchema=z.string().regex(/^[0-9]+$/).openapi('BlockFee')
+
+const BlockTagsItemsSchema=z.string().regex(/^[a-z]+$/).openapi('BlockTagsItems')
+
+const BlockSchema=z.object({fee:BlockFeeSchema.exactOptional(),tags:z.array(BlockTagsItemsSchema).exactOptional()}).openapi({"required":[]}).openapi('Block')
+
+const DerivedAllOf0Schema=z.object({id:z.string().exactOptional()}).openapi({"required":[]}).openapi('DerivedAllOf0')
+
+const DerivedSchema=DerivedAllOf0Schema.and(z.object({extra:z.string().exactOptional()}).openapi({"required":[]})).openapi('Derived')
+
+export const getARoute=createRoute({method:"get",path:"/a",responses:{200:{description:"ok",content:{'application/json':{schema:z.object({fee:BlockFeeSchema.exactOptional(),tag:BlockTagsItemsSchema.exactOptional(),base:DerivedAllOf0Schema.exactOptional()}).openapi({"required":[]})}}}}})`,
     )
   })
 })

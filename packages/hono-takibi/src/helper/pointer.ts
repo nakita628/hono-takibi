@@ -83,30 +83,158 @@ function pointerSegments(ref: string): readonly string[] {
  * A chain of references that comes back to itself names nothing.
  */
 function resolvePointer(document: OpenAPI, ref: string): unknown {
-  return resolveThrough(document, ref, new Set([ref]))
+  return locatePointer(document, ref).node
 }
 
-function resolveThrough(document: OpenAPI, pointer: string, seen: ReadonlySet<string>): unknown {
-  return pointerSegments(pointer).reduce<unknown>(
-    (node, segment) => member(document, node, segment, seen),
-    document,
+/** Where a pointer leads: the value, and the path it sits at, a `$ref` crossed on the way followed. */
+type Located = { readonly node: unknown; readonly path: readonly string[] }
+
+function locatePointer(document: OpenAPI, ref: string): Located {
+  return locateThrough(document, ref, new Set([ref]))
+}
+
+function locateThrough(document: OpenAPI, pointer: string, seen: ReadonlySet<string>): Located {
+  return pointerSegments(pointer).reduce<Located>(
+    (from, segment) => member(document, from, segment, seen),
+    { node: document, path: [] },
   )
 }
 
 /** `node[segment]`, read through the `$ref` of a node that has no such member. */
 function member(
   document: OpenAPI,
-  node: unknown,
+  from: Located,
   segment: string,
   seen: ReadonlySet<string>,
-): unknown {
-  if (Array.isArray(node)) return node[Number(segment)]
-  if (!isRecord(node)) return undefined
-  if (Object.hasOwn(node, segment)) return node[segment]
+): Located {
+  const { node } = from
+  const path = [...from.path, segment]
+  if (Array.isArray(node)) return { node: node[Number(segment)], path }
+  if (!isRecord(node)) return { node: undefined, path }
+  if (Object.hasOwn(node, segment)) return { node: node[segment], path }
   const { $ref } = node
-  if (typeof $ref !== 'string' || !$ref.startsWith('#/') || seen.has($ref)) return undefined
+  if (typeof $ref !== 'string' || !$ref.startsWith('#/') || seen.has($ref)) {
+    return { node: undefined, path }
+  }
   const through = new Set([...seen, $ref])
-  return member(document, resolveThrough(document, $ref, through), segment, through)
+  return member(document, locateThrough(document, $ref, through), segment, through)
+}
+
+/**
+ * Declares the schema a pointer names inside a component schema as a component of its own,
+ * and names it there: where it is written, and in every `$ref` to it (#499).
+ *
+ * A bundler writes such a pointer when a fragment is used more than once: the first use is
+ * kept where it stands and the others point at it. It was one schema with several uses in
+ * the source, so it is declared once, like a component, rather than written out at each use
+ * (Ethereum's Beacon API: 286 uses of 60 schemas).
+ *
+ * The component is named after the component the schema is in and the path to it, the
+ * `properties` keyword left out: `#/components/schemas/Block/properties/tags/items` is
+ * `BlockTagsItems`, `#/components/schemas/Derived/allOf/0` is `DerivedAllOf0`. Pointers that
+ * lead to one place through different references are one component. A pointer to a node
+ * that is a `$ref` itself is left for `inlinePointerRefs`, which writes that reference.
+ */
+export function declareSchemaPointers(document: OpenAPI): OpenAPI {
+  if (!hasInlinePointer(document)) return document
+  const existing = document.components?.schemas ?? {}
+  const located = [...new Set(inlinePointers(document))].flatMap((pointer) => {
+    const { node, path } = locatePointer(document, pointer)
+    return isRecord(node) &&
+      typeof node.$ref !== 'string' &&
+      path[0] === 'components' &&
+      path[1] === 'schemas' &&
+      path.length > 3
+      ? [{ pointer, key: pathKey(path), path }]
+      : []
+  })
+  if (located.length === 0) return document
+  const taken = new Set(Object.keys(existing))
+  // One name for each place, whatever the pointers that lead to it.
+  const names = new Map<string, string>()
+  for (const { key, path } of located) {
+    if (names.has(key)) continue
+    const base = pointerName(path)
+    const name = taken.has(base) ? numbered(base, (candidate) => !taken.has(candidate)) : base
+    taken.add(name)
+    names.set(key, name)
+  }
+  const refs = new Map(
+    located.map(({ pointer, key }) => [pointer, `#/components/schemas/${names.get(key) ?? ''}`]),
+  )
+  // A place that is declared is a reference to its component; anything else is walked, and
+  // `inside` walks the members of a node whatever the node's own place is.
+  const walk = (node: unknown, path: readonly string[], inside: boolean): unknown => {
+    const name = inside ? undefined : names.get(pathKey(path))
+    if (name !== undefined) return { $ref: `#/components/schemas/${name}` }
+    if (Array.isArray(node)) {
+      return node.map((item: unknown, i) => walk(item, [...path, String(i)], false))
+    }
+    if (!isRecord(node)) return node
+    return Object.fromEntries(
+      Object.entries(node).map(([key, value]) => [
+        key,
+        key === '$ref' && typeof value === 'string'
+          ? (refs.get(value) ?? value)
+          : walk(value, [...path, key], false),
+      ]),
+    )
+  }
+  const children = (node: unknown, path: readonly string[]) => walk(node, path, true)
+  const walked = children(document, [])
+  if (!isOpenAPI(walked)) return document
+  const hoisted = Object.fromEntries(
+    [...new Map(located.map(({ key, path }) => [key, path]))].map(([key, path]) => [
+      names.get(key) ?? '',
+      children(path.reduce<unknown>(ownMember, document), path),
+    ]),
+  )
+  const result = {
+    ...walked,
+    components: {
+      ...walked.components,
+      schemas: { ...walked.components?.schemas, ...hoisted },
+    },
+  }
+  return isOpenAPI(result) ? result : document
+}
+
+function ownMember(node: unknown, segment: string): unknown {
+  if (Array.isArray(node)) return node[Number(segment)]
+  return isRecord(node) && Object.hasOwn(node, segment) ? node[segment] : undefined
+}
+
+function pathKey(path: readonly string[]) {
+  return JSON.stringify(path)
+}
+
+/** The keywords whose members are named by the document: the keyword says nothing of the member. */
+const NAMING_KEYWORDS: ReadonlySet<string> = new Set(['properties', 'definitions', '$defs'])
+
+/**
+ * The name of the schema at a path inside `components.schemas`: the component's own name,
+ * then each segment in PascalCase. A naming keyword is left out and the name under it kept,
+ * whatever it is (`properties/properties` is `Properties`).
+ */
+function pointerName(path: readonly string[]) {
+  const component = path[2] ?? 'Schema'
+  const inside = path.slice(3)
+  const kept = inside.reduce<{ readonly parts: readonly string[]; readonly named: boolean }>(
+    ({ parts, named }, segment) =>
+      !named && NAMING_KEYWORDS.has(segment)
+        ? { parts, named: true }
+        : { parts: [...parts, segment], named: false },
+    { parts: [], named: false },
+  )
+  return `${component}${kept.parts.map(pascalSegment).join('')}`
+}
+
+function pascalSegment(segment: string) {
+  return segment
+    .split(/[^A-Za-z0-9]+/u)
+    .filter((word) => word.length > 0)
+    .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
+    .join('')
 }
 
 /**
