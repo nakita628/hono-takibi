@@ -1519,6 +1519,14 @@ describe('wrap', () => {
   })
 
   describe('x-brand', () => {
+    // A quote or a backslash in the brand is escaped, so the literal ends where the brand does.
+    // ブランド名の引用符やバックスラッシュはエスケープされ、リテラルはブランド名の終わりで閉じる。
+    it.concurrent('escapes a quote and a backslash in x-brand', () => {
+      expect(wrap('z.string()', { type: 'string', 'x-brand': 'a"b\\c' })).toBe(
+        'z.string().brand<"a\\"b\\\\c">()',
+      )
+    })
+
     it.concurrent('adds .brand<"X">() for string with x-brand', () => {
       expect(wrap('z.string()', { type: 'string', 'x-brand': 'UserId' })).toBe(
         'z.string().brand<"UserId">()',

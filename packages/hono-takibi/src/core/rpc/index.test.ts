@@ -1211,6 +1211,42 @@ export async function queryUsers(
   })
 })
 
+describe('rpc (the root path)', () => {
+  // DELETE / is named after the bare method, a word of the language; it is written $delete, as the client calls it.
+  // DELETE / はメソッド名そのままの名前になり、それは言語の予約語である。クライアントの呼び方と同じ $delete で書かれる。
+  it('names DELETE / $delete, not the reserved word delete', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rpc-root-'))
+    const out = path.join(dir, 'rpc.ts')
+    try {
+      const spec = {
+        openapi: '3.1.0',
+        info: { title: 't', version: '1' },
+        paths: {
+          '/': {
+            get: { responses: { '200': { description: 'OK' } } },
+            delete: { responses: { '204': { description: 'ok' } } },
+          },
+        },
+      } as OpenAPI
+      await runGenerator(rpc(spec, out, './client', 'client', false, '/', false))
+      expect(fs.readFileSync(out, 'utf8'))
+        .toBe(`import type { ClientRequestOptions } from 'hono/client'
+import { client } from './client'
+
+export async function get(options?: ClientRequestOptions) {
+  return await client.index.$get(undefined, options)
+}
+
+export async function $delete(options?: ClientRequestOptions) {
+  return await client.index.$delete(undefined, options)
+}
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
 describe('rpc (groups of a split application)', () => {
   const ok = { '200': { description: 'OK' } }
   const spec = {

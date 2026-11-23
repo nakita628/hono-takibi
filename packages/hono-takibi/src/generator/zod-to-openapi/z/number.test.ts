@@ -32,6 +32,8 @@ describe('number', () => {
     [{ type: 'number', maximum: 0 }, 'z.number().max(0)'],
     [{ type: 'number', maximum: 100, exclusiveMaximum: true }, 'z.number().lt(100)'],
     [{ type: 'number', multipleOf: 2 }, 'z.number().multipleOf(2)'],
+    [{ type: 'number', minimum: 5, exclusiveMinimum: 10 }, 'z.number().min(5).gt(10)'],
+    [{ type: 'number', maximum: 10, exclusiveMaximum: 5 }, 'z.number().max(10).lt(5)'],
   ])('number(%o) → %s', (input, expected) => {
     expect(number(input)).toBe(expected)
   })

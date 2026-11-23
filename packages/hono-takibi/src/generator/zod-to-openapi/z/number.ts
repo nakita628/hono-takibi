@@ -56,6 +56,11 @@ export function number(schema: Schema) {
     }
     return undefined
   })()
+  // In 3.1 `minimum` and a numeric `exclusiveMinimum` are two keywords, and both apply.
+  const exclusiveMinimum =
+    typeof schema.minimum === 'number' && typeof schema.exclusiveMinimum === 'number'
+      ? `.gt(${schema.exclusiveMinimum}${exMinErrorPart})`
+      : undefined
   const {
     arg: maxErrorArg,
     part: maxErrorPart,
@@ -80,6 +85,11 @@ export function number(schema: Schema) {
     }
     return undefined
   })()
+  // In 3.1 `maximum` and a numeric `exclusiveMaximum` are two keywords, and both apply.
+  const exclusiveMaximum =
+    typeof schema.maximum === 'number' && typeof schema.exclusiveMaximum === 'number'
+      ? `.lt(${schema.exclusiveMaximum}${exMaxErrorPart})`
+      : undefined
   // multipleOf falls back to errorMessage directly (not baseErrorArg) so the
   // invalid-type message doesn't bleed into a multipleOf constraint failure.
   const multipleOfMessage = schema['x-multipleOf-message'] ?? errorMessage
@@ -88,6 +98,8 @@ export function number(schema: Schema) {
     typeof schema.multipleOf === 'number'
       ? `.multipleOf(${schema.multipleOf}${multipleOfErrorArg})`
       : undefined
-  const innerChain = [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
+  const innerChain = [base, minimum, exclusiveMinimum, maximum, exclusiveMaximum, multipleOf]
+    .filter((v) => v !== undefined)
+    .join('')
   return wirePipe ? `z.coerce.number(${baseErrorArg}).pipe(${innerChain})` : innerChain
 }

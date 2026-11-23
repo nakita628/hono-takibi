@@ -33,6 +33,7 @@ import {
   emitObjectShapeCheck,
   emitObjectShapeRefine,
   emitTypelessRefine,
+  isRestEvaluated,
   narrowToDeclaredType,
   emitsStrippingObject,
   isAskedOperand,
@@ -1390,6 +1391,8 @@ export function zodToOpenAPI(
     const unevaluatedItemsChain = (() => {
       const ui = schema.unevaluatedItems
       if (ui === undefined || ui === true) return ''
+      // `items` evaluates every element after the prefix, so none is left unevaluated.
+      if (isRestEvaluated(schema)) return ''
       const prefixCount = Array.isArray(schema.prefixItems) ? schema.prefixItems.length : 0
       if (ui === false) {
         const slot = unevaluatedItemsMessage ?? arrayErrorMessage
@@ -1457,7 +1460,8 @@ export function zodToOpenAPI(
       const prefixCodes = schema.prefixItems.map((item: Schema) =>
         prefixWire === undefined ? referenced(item) : typed(item),
       )
-      const ui = schema.unevaluatedItems
+      // `items` evaluates every element after the prefix, so `unevaluatedItems` sees none.
+      const ui = isRestEvaluated(schema) ? undefined : schema.unevaluatedItems
       const uiIsBool = typeof ui === 'boolean'
       const uiSchema: Schema | undefined =
         ui !== undefined && !uiIsBool && typeof ui === 'object' ? ui : undefined

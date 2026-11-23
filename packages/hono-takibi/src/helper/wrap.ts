@@ -1099,7 +1099,9 @@ export function wrap(
     // around it instead.
     const userChain = preprocess ?? transform ?? pipe ?? codec
     const replaced = userChain === undefined ? superRefineChain : acceptBothArities(userChain)
-    return schema['x-brand'] ? `${replaced}.brand<"${schema['x-brand']}">()` : replaced
+    return schema['x-brand']
+      ? `${replaced}.brand<${JSON.stringify(schema['x-brand'])}>()`
+      : replaced
   }
   const around = options?.around ?? ((core: string) => core)
   // An empty value that stands for an absent one is read as `undefined` before anything

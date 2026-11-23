@@ -201,6 +201,15 @@ function makeObjectChecks(
   ].filter((s): s is string => s !== undefined)
 }
 
+/**
+ * Whether `items` evaluates every element after `prefixItems`: a schema, `true` or `false`
+ * does (`false` evaluates them by failing), so `unevaluatedItems` has nothing left to check.
+ * The array form of `items` names positions, not the rest, and is not counted.
+ */
+export function isRestEvaluated(schema: Schema) {
+  return schema.items !== undefined && !Array.isArray(schema.items)
+}
+
 function makeArrayChecks(schema: Schema, recurse: (s: Schema) => string): readonly string[] {
   const minItemsCheck =
     typeof schema.minItems === 'number'
@@ -250,8 +259,9 @@ function makeArrayChecks(schema: Schema, recurse: (s: Schema) => string): readon
         return `{const m=val.filter((i)=>${subZod}.safeParse(i).success).length;${minCheck}${maxCheck}}`
       })()
     : undefined
+  // `items` evaluates every element after the prefix, so none is left unevaluated.
   const unevaluatedItemsCheck =
-    schema.unevaluatedItems === false
+    schema.unevaluatedItems === false && !isRestEvaluated(schema)
       ? `if(val.length>${prefixCount}){ctx.addIssue(${issueObj(messageFor(schema, 'unevaluatedItems'))})}`
       : undefined
 

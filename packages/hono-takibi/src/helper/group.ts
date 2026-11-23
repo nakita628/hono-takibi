@@ -55,6 +55,11 @@ const RESERVED = new Set([
   'yield',
 ])
 
+/** Whether a name is a word of the language that no binding can take, `delete` among them. */
+export function isReservedWord(name: string) {
+  return RESERVED.has(name)
+}
+
 /**
  * Whether a name can be the export of a group: an identifier that is no word of the language,
  * and none a route or a handler is imported under.
