@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import { isRecord } from '../guard/index.js'
 import type { OpenAPI } from '../openapi/index.js'
-import { hoistRecursivePointers, inlinePointerRefs, resolveEmbeddedRefs } from './pointer.js'
+import {
+  declareSchemaPointers,
+  hoistRecursivePointers,
+  inlinePointerRefs,
+  resolveEmbeddedRefs,
+} from './pointer.js'
 
 /** The value at a path of keys in the document, `undefined` where the path leaves it. */
 function at(document: OpenAPI, ...keys: readonly string[]) {
@@ -541,6 +546,271 @@ describe('hoistRecursivePointers', () => {
 })
 
 // #404: a bundled schema with an `$id` keeps its own `#/definitions/...` pointers
+/** The Responses Object of an operation that answers 200 with `schema` as JSON. */
+function response(schema: unknown) {
+  return { '200': { description: 'ok', content: { 'application/json': { schema } } } }
+}
+
+// #499: a schema pointed at inside a component schema is declared once, as a component.
+describe('declareSchemaPointers', () => {
+  it.concurrent('declares the schema where it is written and names it in every $ref', () => {
+    const declared = declareSchemaPointers({
+      openapi: '3.1.0',
+      info: { title: 'deep-pointer', version: '1.0.0' },
+      paths: {
+        '/a': {
+          get: {
+            responses: response({
+              type: 'object',
+              properties: {
+                fee: { $ref: '#/components/schemas/Block/properties/fee', description: 'The fee' },
+                tag: { $ref: '#/components/schemas/Block/properties/tags/items' },
+                base: { $ref: '#/components/schemas/Derived/allOf/0' },
+                block: { $ref: '#/components/schemas/Block' },
+              },
+            }),
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Block: {
+            type: 'object',
+            properties: {
+              fee: { type: 'string', pattern: '^[0-9]+$' },
+              tags: { type: 'array', items: { type: 'string', pattern: '^[a-z]+$' } },
+              total: { $ref: '#/components/schemas/Block/properties/fee' },
+            },
+          },
+          Derived: {
+            allOf: [
+              { type: 'object', properties: { id: { type: 'string' } } },
+              { type: 'object', properties: { extra: { type: 'string' } } },
+            ],
+          },
+        },
+      },
+    } as OpenAPI)
+    expect(declared.components?.schemas).toStrictEqual({
+      Block: {
+        type: 'object',
+        properties: {
+          fee: { $ref: '#/components/schemas/BlockFee' },
+          tags: { type: 'array', items: { $ref: '#/components/schemas/BlockTagsItems' } },
+          total: { $ref: '#/components/schemas/BlockFee' },
+        },
+      },
+      Derived: {
+        allOf: [
+          { $ref: '#/components/schemas/DerivedAllOf0' },
+          { type: 'object', properties: { extra: { type: 'string' } } },
+        ],
+      },
+      BlockFee: { type: 'string', pattern: '^[0-9]+$' },
+      BlockTagsItems: { type: 'string', pattern: '^[a-z]+$' },
+      DerivedAllOf0: { type: 'object', properties: { id: { type: 'string' } } },
+    })
+    expect(
+      at(
+        declared,
+        'paths',
+        '/a',
+        'get',
+        'responses',
+        '200',
+        'content',
+        'application/json',
+        'schema',
+      ),
+    ).toStrictEqual({
+      type: 'object',
+      properties: {
+        // the keywords beside the `$ref` stay beside it
+        fee: { $ref: '#/components/schemas/BlockFee', description: 'The fee' },
+        tag: { $ref: '#/components/schemas/BlockTagsItems' },
+        base: { $ref: '#/components/schemas/DerivedAllOf0' },
+        block: { $ref: '#/components/schemas/Block' },
+      },
+    })
+  })
+
+  it.concurrent('declares a schema inside a declared schema, and one that reaches itself', () => {
+    const declared = declareSchemaPointers({
+      openapi: '3.1.0',
+      info: { title: 'nested', version: '1.0.0' },
+      paths: {
+        '/a': {
+          get: {
+            responses: response({
+              type: 'object',
+              properties: {
+                tags: { $ref: '#/components/schemas/Block/properties/tags' },
+                tag: { $ref: '#/components/schemas/Block/properties/tags/items' },
+              },
+            }),
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Block: {
+            type: 'object',
+            properties: { tags: { type: 'array', items: { type: 'string' } } },
+          },
+          Node: {
+            type: 'object',
+            properties: {
+              children: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    children: { $ref: '#/components/schemas/Node/properties/children' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    } as OpenAPI)
+    expect(declared.components?.schemas).toStrictEqual({
+      Block: { type: 'object', properties: { tags: { $ref: '#/components/schemas/BlockTags' } } },
+      Node: {
+        type: 'object',
+        properties: { children: { $ref: '#/components/schemas/NodeChildren' } },
+      },
+      BlockTags: { type: 'array', items: { $ref: '#/components/schemas/BlockTagsItems' } },
+      BlockTagsItems: { type: 'string' },
+      NodeChildren: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: { children: { $ref: '#/components/schemas/NodeChildren' } },
+        },
+      },
+    })
+  })
+
+  it.concurrent('declares one component for pointers that lead to one place through a $ref', () => {
+    const body = '#/paths/~1blocks/post/requestBody/content/application~1json/schema'
+    const declared = declareSchemaPointers({
+      openapi: '3.1.0',
+      info: { title: 'through', version: '1.0.0' },
+      paths: {
+        '/blocks': {
+          post: {
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: { anyOf: [{ $ref: '#/components/schemas/Contents' }] },
+                },
+              },
+            },
+            responses: response({
+              type: 'object',
+              properties: {
+                a: { $ref: `${body}/anyOf/0/properties/kzg_proofs/items` },
+                b: { $ref: '#/components/schemas/Fulu.Contents/properties/kzg_proofs/items' },
+                // a node that is a `$ref` itself, and a pointer into `paths`, are not declared
+                c: { $ref: '#/components/schemas/Fulu.Contents/properties/owner' },
+                d: { $ref: `${body}/anyOf` },
+              },
+            }),
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Contents: { $ref: '#/components/schemas/Fulu.Contents' },
+          'Fulu.Contents': {
+            type: 'object',
+            properties: {
+              kzg_proofs: { type: 'array', items: { type: 'string', pattern: '^0x' } },
+              owner: { $ref: '#/components/schemas/Owner' },
+            },
+          },
+          Owner: { type: 'string' },
+          // the name is taken: the declared one is numbered
+          'Fulu.ContentsKzgProofsItems': { type: 'integer' },
+        },
+      },
+    } as OpenAPI)
+    expect(Object.keys(declared.components?.schemas ?? {})).toStrictEqual([
+      'Contents',
+      'Fulu.Contents',
+      'Owner',
+      'Fulu.ContentsKzgProofsItems',
+      'Fulu.ContentsKzgProofsItems2',
+    ])
+    expect(at(declared, 'components', 'schemas', 'Fulu.ContentsKzgProofsItems2')).toStrictEqual({
+      type: 'string',
+      pattern: '^0x',
+    })
+    expect(
+      at(
+        declared,
+        'paths',
+        '/blocks',
+        'post',
+        'responses',
+        '200',
+        'content',
+        'application/json',
+        'schema',
+        'properties',
+      ),
+    ).toStrictEqual({
+      a: { $ref: '#/components/schemas/Fulu.ContentsKzgProofsItems2' },
+      b: { $ref: '#/components/schemas/Fulu.ContentsKzgProofsItems2' },
+      c: { $ref: '#/components/schemas/Fulu.Contents/properties/owner' },
+      d: { $ref: `${body}/anyOf` },
+    })
+  })
+
+  it.concurrent('names a property after itself, whatever it is called', () => {
+    const declared = declareSchemaPointers({
+      openapi: '3.1.0',
+      info: { title: 'names', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Meta: {
+            type: 'object',
+            properties: { properties: { type: 'object' } },
+            $defs: { page_size: { type: 'integer' } },
+          },
+          Use: {
+            type: 'object',
+            properties: {
+              a: { $ref: '#/components/schemas/Meta/properties/properties' },
+              b: { $ref: '#/components/schemas/Meta/$defs/page_size' },
+            },
+          },
+        },
+      },
+    })
+    expect(Object.keys(declared.components?.schemas ?? {})).toStrictEqual([
+      'Meta',
+      'Use',
+      'MetaProperties',
+      'MetaPageSize',
+    ])
+  })
+
+  it.concurrent('leaves a document without such a pointer equal to itself', () => {
+    const plain = {
+      openapi: '3.1.0',
+      info: { title: 'plain', version: '1.0.0' },
+      paths: {
+        '/a': { get: { responses: response({ $ref: '#/paths/~1a/get/responses/200' }) } },
+      },
+      components: { schemas: { A: { type: 'string' } } },
+    } as OpenAPI
+    expect(declareSchemaPointers(plain)).toBe(plain)
+  })
+})
+
 describe('resolveEmbeddedRefs', () => {
   const schema = '#/paths/~1apis/post/requestBody/content/application~1json/schema'
   const doc = {
