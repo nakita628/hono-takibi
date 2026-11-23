@@ -63,3 +63,23 @@ jobs:
 
       # setup-vp puts `vp` on PATH, not `pnpm`; `vp run` hands its bundled pnpm to the script.
       - run: vp run lint
+
+  # The check of a dispatched run stays on the commit and is not counted on a pull request,
+  # so the `lint` the main ruleset requires would never be met on the release pull request
+  # (release.yml). A commit status is counted, so the result is written as one.
+  report:
+    needs: lint
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      statuses: write
+    steps:
+      - name: Write the result as a commit status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh api "repos/$GH_REPO/statuses/$SHA" \
+            -f state=success -f context=lint -f target_url="$RUN_URL"
