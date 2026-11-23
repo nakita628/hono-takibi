@@ -253,6 +253,17 @@ describe('makeHandlerFileName (several words)', () => {
     expect(makeHandlerFileName('/users')).toBe('users.ts')
     expect(makeHandlerFileName('/')).toBe('__root.ts')
   })
+
+  // index.ts is the barrel of the handler files, so the segment index is written to __index.ts (#546).
+  // index.ts はハンドラーファイルのバレルなので、セグメント index は __index.ts に書かれる (#546)。
+  it('never names a segment after the barrel index.ts (#546)', () => {
+    expect(makeHandlerFileName('/index/docs')).toBe('__index.ts')
+    expect(makeHandlerFileName('/{index}/docs')).toBe('__index.ts')
+    expect(makeHandlerFileName('/Index')).toBe('__index.ts')
+    expect(makeHandlerFileName('/_index')).toBe('__index.ts')
+    expect(makeHandlerFileName('/indexes')).toBe('indexes.ts')
+    expect(makeHandlerFileName('/index-pattern')).toBe('index-pattern.ts')
+  })
 })
 
 describe('handlerNameOf', () => {
@@ -877,6 +888,88 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
     await runGenerator(zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`))
     expect(fs.existsSync(`${testDir}/handlers/__root.ts`)).toBe(true)
   })
+
+  // A path whose first segment is {index} used to be written to handlers/index.ts, the path of the barrel itself (#546).
+  // 最初のセグメントが {index} のパスは、バレル自身のパスである handlers/index.ts に書かれていた (#546)。
+  const indexSegmentOpenAPI = {
+    openapi: '3.0.3',
+    info: { title: 'Index segment', version: '1' },
+    paths: {
+      '/pets': {
+        get: { responses: { 200: { description: 'OK' } } },
+      },
+      '/{index}/docs': {
+        get: {
+          parameters: [{ name: 'index', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: { 200: { description: 'OK' } },
+        },
+      },
+    },
+  } as OpenAPI
+
+  it('writes the routeHandler file of the segment index beside the barrel, not over it (#546)', async () => {
+    await runGenerator(
+      zodOpenAPIHonoHandler(
+        indexSegmentOpenAPI,
+        `${testDir}/routes.ts`,
+        undefined,
+        undefined,
+        true,
+      ),
+    )
+    expect(fs.readdirSync(`${testDir}/handlers`).sort()).toStrictEqual([
+      '__index.ts',
+      'index.ts',
+      'pets.ts',
+    ])
+    expect(fs.readFileSync(`${testDir}/handlers/__index.ts`, 'utf8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getIndexDocsRoute } from '../routes'\n\nexport const getIndexDocsRouteHandler: RouteHandler<typeof getIndexDocsRoute> = async (c) => {}\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf8')).toBe(
+      `export * from './pets'\nexport * from './__index'\n`,
+    )
+  })
+
+  it('writes the inline file of the segment index beside the barrel, not over it (#546)', async () => {
+    await runGenerator(zodOpenAPIHonoHandler(indexSegmentOpenAPI, `${testDir}/routes.ts`))
+    expect(fs.readdirSync(`${testDir}/handlers`).sort()).toStrictEqual([
+      '__index.ts',
+      'index.ts',
+      'pets.ts',
+    ])
+    expect(fs.readFileSync(`${testDir}/handlers/__index.ts`, 'utf8')).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getIndexDocsRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const __indexHandler = app.openapi(getIndexDocsRoute, (c) => {})\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf8')).toBe(
+      `export * from './pets'\nexport * from './__index'\n`,
+    )
+  })
+
+  it('writes the same files on a second run (#546)', async () => {
+    const files = ['__index.ts', 'index.ts', 'pets.ts']
+    await runGenerator(
+      zodOpenAPIHonoHandler(
+        indexSegmentOpenAPI,
+        `${testDir}/routes.ts`,
+        undefined,
+        undefined,
+        true,
+      ),
+    )
+    const first = files.map((file) => fs.readFileSync(`${testDir}/handlers/${file}`, 'utf8'))
+    await runGenerator(
+      zodOpenAPIHonoHandler(
+        indexSegmentOpenAPI,
+        `${testDir}/routes.ts`,
+        undefined,
+        undefined,
+        true,
+      ),
+    )
+    expect(
+      files.map((file) => fs.readFileSync(`${testDir}/handlers/${file}`, 'utf8')),
+    ).toStrictEqual(first)
+  })
 })
 
 /* ─────────────────────────────── defineOpenAPIRouteHandler ───────────────────────────── */
@@ -935,6 +1028,34 @@ describe('defineOpenAPIRouteHandler', () => {
       `export * from './reviews'\nexport * from './books'\n`,
     )
   })
+
+  // routes/index.ts is the barrel of the route files, so the segment index is written to routes/__index.ts (#546).
+  // routes/index.ts はルートファイルのバレルなので、セグメント index は routes/__index.ts に書かれる (#546)。
+  it('writes the route file of the segment index beside the barrel, not over it (#546)', async () => {
+    const openAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/pets': { get: { responses: { 200: { description: 'OK' } } } },
+        '/index/docs': { get: { responses: { 200: { description: 'OK' } } } },
+      },
+    } as OpenAPI
+
+    await runGenerator(
+      defineOpenAPIRouteHandler(openAPI, `${testDir}/index.ts`, `${testDir}/components/index.ts`),
+    )
+    expect(fs.readdirSync(`${testDir}/routes`).sort()).toStrictEqual([
+      '__index.ts',
+      'index.ts',
+      'pets.ts',
+    ])
+    expect(fs.readFileSync(`${testDir}/routes/__index.ts`, 'utf8')).toBe(
+      `import { createRoute, defineOpenAPIRoute } from '@hono/zod-openapi'\n\nexport const getIndexDocsRoute = defineOpenAPIRoute({\n  route: createRoute({\n    method: 'get',\n    path: '/index/docs',\n    responses: { 200: { description: 'OK' } },\n  }),\n  handler: async (c) => {},\n  addRoute: true,\n})\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/routes/index.ts`, 'utf8')).toBe(
+      `export * from './pets'\nexport * from './__index'\n`,
+    )
+  })
 })
 
 describe('handlerGroupOf', () => {
@@ -970,6 +1091,13 @@ describe('handlerGroupOf', () => {
   // ルートはハンドラーファイルと同じ __root になる。資源にはこの名前を付けられない。
   it.concurrent('is __root for the root', () => {
     expect(handlerGroupOf('/')).toBe('__root')
+  })
+
+  // The segment index goes by its handler file, __index: index.ts is the barrel (#546).
+  // セグメント index はハンドラーファイルと同じ __index になる。index.ts はバレルである (#546)。
+  it.concurrent('is __index for the segment index', () => {
+    expect(handlerGroupOf('/index/docs')).toBe('__index')
+    expect(handlerGroupOf('/{index}/docs')).toBe('__index')
   })
 
   // /api/status is the group api: the entry then names the routes of no group api_.
