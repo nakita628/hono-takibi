@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.4](https://github.com/nakita628/hono-takibi/compare/v0.35.3...v0.35.4) (2026-11-23)
+
+
+### Bug Fixes
+
+* **hooks:** number a prefix key getter whose name is taken ([#536](https://github.com/nakita628/hono-takibi/issues/536)) ([#561](https://github.com/nakita628/hono-takibi/issues/561)) ([62f67d2](https://github.com/nakita628/hono-takibi/commit/62f67d2ea5c05ddccf8324b9139d88665cb4f461))
+
 ## [0.35.3](https://github.com/nakita628/hono-takibi/compare/v0.35.2...v0.35.3) (2026-11-23)
 
 
