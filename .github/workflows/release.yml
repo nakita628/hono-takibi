@@ -17,8 +17,9 @@ name: release
 # pull request waits for someone to approve it. Test, Lint and PR title leave out the files
 # it changes (`paths-ignore`), so no run waits there, and `test` and `lint` would never
 # report on it. A dispatched run needs no approval, so this workflow dispatches both on the
-# branch of the pull request whenever release-please opens or updates it. A check belongs to
-# the commit, so the runs report on the pull request as its own would.
+# branch of the pull request whenever release-please opens or updates it. The check of a
+# dispatched run is not counted on a pull request, so each of the two workflows also writes
+# its result as a commit status of the same name (`report`), which is.
 #
 # If `publish` fails, re-run the failed job: the tag and the release are already written and
 # the job publishes the same tag again.
@@ -61,8 +62,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          BRANCH: ${{ fromJSON(steps.release.outputs.pr).headBranchName }}
+          # Not `fromJSON(...)` here: `env` is evaluated even when `if` skips the step, and
+          # `pr` is empty in a run that opened no pull request — the run that releases.
+          PR: ${{ steps.release.outputs.pr }}
         run: |
+          BRANCH=$(jq -r .headBranchName <<<"$PR")
           gh workflow run test.yml --ref "$BRANCH"
           gh workflow run lint.yml --ref "$BRANCH"
 
