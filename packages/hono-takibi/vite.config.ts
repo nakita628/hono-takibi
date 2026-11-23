@@ -102,6 +102,25 @@ export default defineConfig({
           toThrowErrorMatchingSnapshot: 'Name the error the call throws.',
           toThrowErrorMatchingInlineSnapshot: 'Name the error the call throws.',
           toEqual: 'Use toStrictEqual: toEqual passes on undefined properties and other classes.',
+          // A matcher that checks part of a value lets a regression in the rest of it pass. The
+          // rule matches the start of the chain, so `expect(x).not.toContain()` is
+          // `not.toContain`: each matcher is restricted behind every modifier too.
+          ...Object.fromEntries(
+            Object.entries({
+              toContain: 'Compare the whole value with toBe / toStrictEqual.',
+              toContainEqual: 'Compare the whole value with toStrictEqual.',
+              toMatch: 'Compare the whole string with toBe.',
+              toMatchObject: 'Compare the whole object with toStrictEqual.',
+              toHaveProperty: 'Compare the whole object with toStrictEqual.',
+              toBeDefined: 'Compare with the value itself.',
+              toBeTruthy: 'Compare with the value itself.',
+              toBeFalsy: 'Compare with the value itself.',
+            }).flatMap(([matcher, message]) =>
+              ['', 'not.', 'resolves.', 'rejects.', 'resolves.not.', 'rejects.not.'].map(
+                (modifier) => [`${modifier}${matcher}`, message],
+              ),
+            ),
+          ),
         },
       ],
       'custom/effect-gen-return': 'error',
@@ -109,6 +128,7 @@ export default defineConfig({
       'custom/no-effect-flatmap': 'error',
       'custom/function-declaration': 'error',
       'custom/predicate-is-name': 'error',
+      'custom/no-partial-assertion': 'error',
       // `@internal` and friends are modifiers, so their text belongs to the description;
       // `check-tag-names` is what catches a tag that is merely misspelled.
       'jsdoc/empty-tags': 'error',

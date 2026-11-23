@@ -72,15 +72,32 @@ describe('uniqueComponentNames', () => {
 
   it.concurrent('rewrites every $ref to a renamed component, under paths and in a mapping', () => {
     const result = uniqueComponentNames(spec)
-    expect(JSON.stringify(result.paths)).toContain(
-      '"$ref":"#/components/schemas/api_response_common_failure2"',
-    )
-    expect(JSON.stringify(result.components?.schemas?.ApiResponseCommonFailure3)).toContain(
-      '"$ref":"#/components/schemas/api_response_common_failure2/properties/success"',
-    )
-    expect(JSON.stringify(result.components?.schemas?.ApiResponseCommonFailure3)).toContain(
-      '"mapping":{"failure":"#/components/schemas/api_response_common_failure2"}',
-    )
+    expect(result.paths).toStrictEqual({
+      '/sinkholes': {
+        get: {
+          responses: {
+            '200': {
+              description: 'OK',
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/api_response_common_failure2' },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(result.components?.schemas?.ApiResponseCommonFailure3).toStrictEqual({
+      type: 'object',
+      properties: {
+        kind: { $ref: '#/components/schemas/api_response_common_failure2/properties/success' },
+      },
+      discriminator: {
+        propertyName: 'kind',
+        mapping: { failure: '#/components/schemas/api_response_common_failure2' },
+      },
+    })
     // The first keeps its name, and its reference is left alone.
     expect(JSON.stringify(result.components?.schemas?.api_response_common_failure2)).toBe(
       '{"allOf":[{"$ref":"#/components/schemas/api-response-common-failure"}]}',

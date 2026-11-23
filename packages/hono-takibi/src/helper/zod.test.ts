@@ -730,14 +730,8 @@ describe('helper/zod', () => {
         undefined,
         schemas,
       )
-      expect(code).toContain(
-        `const e=new Set();for(const k of ["meta"]){e.add(k)};for(const k of ["d"]){e.add(k)};for(const k of ["meta"]){e.add(k)};for(const k of ["l"]){e.add(k)};for(const k of ["doc_count"]){e.add(k)}`,
-      )
-      expect(code).toContain(
-        `if(issue.code==='invalid_type'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='too_big')`,
-      )
-      expect(code).toContain(
-        `else if(issue.code==='custom'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}`,
+      expect(code).toBe(
+        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["meta"]){e.add(k)};for(const k of ["d"]){e.add(k)};for(const k of ["meta"]){e.add(k)};for(const k of ["l"]){e.add(k)};for(const k of ["doc_count"]){e.add(k)};const Schema=BaseSchema;for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){if(issue.code==='invalid_type'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='too_big'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='too_small'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='invalid_format'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='not_multiple_of'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='unrecognized_keys'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='invalid_union'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='invalid_key'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='invalid_element'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='invalid_value'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='custom'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}}}}}`,
       )
     })
 
@@ -760,8 +754,8 @@ describe('helper/zod', () => {
         undefined,
         schemas,
       )
-      expect(code).toContain(
-        `const e=new Set();for(const k of ["meta"]){e.add(k)};for(const k of Object.keys(o)){if(!["meta"].includes(k)){e.add(k)}}`,
+      expect(code).toBe(
+        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["meta"]){e.add(k)};for(const k of Object.keys(o)){if(!["meta"].includes(k)){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}`,
       )
     })
 

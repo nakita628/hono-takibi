@@ -168,7 +168,8 @@ describe('callbacks', () => {
             false,
           ),
         ),
-      ).resolves.toBeDefined()
+      ).resolves.toBe(`Generated callbacks code written to ${output}`)
+      expect(fs.readFileSync(output, 'utf8')).toBe('')
     })
   })
 
@@ -216,7 +217,9 @@ describe('callbacks', () => {
           },
         },
       }
-      await expect(runGenerator(callbacks(sampleCallbacks, output, false))).resolves.toBeDefined()
+      await expect(runGenerator(callbacks(sampleCallbacks, output, false))).resolves.toBe(
+        `Generated callbacks code written to ${output}`,
+      )
       const emitted = fs.readFileSync(output, 'utf8')
       const generated = callbacksCode({ callbacks: sampleCallbacks }, true)
       const emittedNames = new Set(

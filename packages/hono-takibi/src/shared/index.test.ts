@@ -456,9 +456,15 @@ import { UserSchema } from '../../shared/components'`)
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf8')
 
     expect(fs.existsSync(path.join(tmpDir, 'src', 'api', 'components', 'index.ts'))).toBe(true)
-    expect(read('index.ts').split('\n')).toContain(
-      "import { getUsersIdRoute, getHealthRoute } from '@/routes'",
-    )
+    expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersIdRoute, getHealthRoute } from '@/routes'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapiRoutes([getUsersIdRoute, getHealthRoute] as const)
+
+export default app
+`)
     expect(read('routes/users.ts').split('\n').slice(0, 2).join('\n'))
       .toBe(`import { createRoute, defineOpenAPIRoute, z } from '@hono/zod-openapi'
 import { UserSchema } from '@/api/components'`)
@@ -478,12 +484,39 @@ import { UserSchema } from '@/api/components'`)
     await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf8')
 
-    expect(read('index.ts').split('\n')).toContain(
-      "import { getUsersIdRoute, getHealthRoute } from '@/routes'",
-    )
-    expect(read('routes/users.ts').split('\n')).toContain(
-      "import { UserSchema } from '@/components'",
-    )
+    expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersIdRoute, getHealthRoute } from '@/routes'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapiRoutes([getUsersIdRoute, getHealthRoute] as const)
+
+export default app
+`)
+    expect(read('routes/users.ts'))
+      .toBe(`import { createRoute, defineOpenAPIRoute, z } from '@hono/zod-openapi'
+import { UserSchema } from '@/components'
+
+export const getUsersIdRoute = defineOpenAPIRoute({
+  route: createRoute({
+    method: 'get',
+    path: '/users/{id}',
+    operationId: 'getUser',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+        }),
+      }),
+    },
+    responses: {
+      200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
+    },
+  }),
+  handler: async (c) => {},
+  addRoute: true,
+})
+`)
   })
 })
 
@@ -518,9 +551,32 @@ describe(
       await run(openAPI)
 
       const afterRegen = fs.readFileSync(usersPath, 'utf8')
-      const trimmed = afterRegen.split('\n').map((l) => l.trim())
-      expect(trimmed).toContain("return c.json({ id: c.req.param('id'), name: 'Jane' }, 200)")
-      expect(trimmed).not.toContain('handler: async (c) => {},')
+      expect(afterRegen)
+        .toBe(`import { createRoute, defineOpenAPIRoute, z } from '@hono/zod-openapi'
+import { UserSchema } from '../components'
+
+export const getUsersIdRoute = defineOpenAPIRoute({
+  route: createRoute({
+    method: 'get',
+    path: '/users/{id}',
+    operationId: 'getUser',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+        }),
+      }),
+    },
+    responses: {
+      200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
+    },
+  }),
+  handler: async (c) => {
+    return c.json({ id: c.req.param('id'), name: 'Jane' }, 200)
+  },
+  addRoute: true,
+})
+`)
       // Idempotent: a further regeneration changes nothing.
       await run(openAPI)
       expect(fs.readFileSync(usersPath, 'utf8')).toBe(afterRegen)
@@ -552,12 +608,31 @@ describe(
       )
       await run(openAPI)
 
-      expect(
-        fs
-          .readFileSync(usersPath, 'utf8')
-          .split('\n')
-          .map((l) => l.trim()),
-      ).toContain("summary: 'Get a user',")
+      expect(fs.readFileSync(usersPath, 'utf8'))
+        .toBe(`import { createRoute, defineOpenAPIRoute, z } from '@hono/zod-openapi'
+import { UserSchema } from '../components'
+
+export const getUsersIdRoute = defineOpenAPIRoute({
+  route: createRoute({
+    method: 'get',
+    path: '/users/{id}',
+    operationId: 'getUser',
+    summary: 'Get a user',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+        }),
+      }),
+    },
+    responses: {
+      200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
+    },
+  }),
+  handler: async (c) => {},
+  addRoute: true,
+})
+`)
     })
 
     it('preserves user-added imports, helpers, and consts', async () => {
@@ -584,14 +659,36 @@ describe(
       )
       await run(openAPI)
 
-      const trimmed = fs
-        .readFileSync(usersPath, 'utf8')
-        .split('\n')
-        .map((l) => l.trim())
-      expect(trimmed).toContain("import { db } from '../db'")
-      expect(trimmed).toContain("import { authRoute } from '../middleware/auth'")
-      expect(trimmed).toContain('const PAGE_SIZE = 20')
-      expect(trimmed).toContain('function toDto(x: unknown) {')
+      expect(fs.readFileSync(usersPath, 'utf8')).toBe(`import { db } from '../db'
+import { authRoute } from '../middleware/auth'
+import { createRoute, defineOpenAPIRoute, z } from '@hono/zod-openapi'
+import { UserSchema } from '../components'
+
+export const getUsersIdRoute = defineOpenAPIRoute({
+  route: createRoute({
+    method: 'get',
+    path: '/users/{id}',
+    operationId: 'getUser',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+        }),
+      }),
+    },
+    responses: {
+      200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
+    },
+  }),
+  handler: async (c) => {},
+  addRoute: true,
+})
+
+const PAGE_SIZE = 20
+function toDto(x: unknown) {
+  return x
+}
+`)
     })
 
     it('adds a new route as a stub while keeping existing edits, and updates the app + barrel', async () => {
@@ -628,12 +725,32 @@ describe(
       await run(withTags)
 
       // Existing edit kept.
-      expect(
-        fs
-          .readFileSync(usersPath, 'utf8')
-          .split('\n')
-          .map((l) => l.trim()),
-      ).toContain("return c.json({ id: '1', name: 'Jane' }, 200)")
+      expect(fs.readFileSync(usersPath, 'utf8'))
+        .toBe(`import { createRoute, defineOpenAPIRoute, z } from '@hono/zod-openapi'
+import { UserSchema } from '../components'
+
+export const getUsersIdRoute = defineOpenAPIRoute({
+  route: createRoute({
+    method: 'get',
+    path: '/users/{id}',
+    operationId: 'getUser',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+        }),
+      }),
+    },
+    responses: {
+      200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
+    },
+  }),
+  handler: async (c) => {
+    return c.json({ id: '1', name: 'Jane' }, 200)
+  },
+  addRoute: true,
+})
+`)
       // New resource generated as a stub.
       expect(fs.existsSync(path.join(tmpDir, 'src', 'routes', 'tags.ts'))).toBe(true)
       // App + barrel reflect the new route. (mergeImports sorts the named imports on
@@ -680,7 +797,20 @@ export * from './tags'
       await run(withoutHealth)
 
       // The route declaration goes, the file stays for the user to remove.
-      expect(healthContent).toContain('export const getHealthRoute')
+      expect(healthContent)
+        .toBe(`import { createRoute, defineOpenAPIRoute } from '@hono/zod-openapi'
+
+export const getHealthRoute = defineOpenAPIRoute({
+  route: createRoute({
+    method: 'get',
+    path: '/health',
+    operationId: 'getHealth',
+    responses: { 200: { description: 'ok' } },
+  }),
+  handler: async (c) => {},
+  addRoute: true,
+})
+`)
       expect(fs.readFileSync(healthPath, 'utf8')).toBe(
         `import { createRoute, defineOpenAPIRoute } from '@hono/zod-openapi'
 `,
@@ -743,18 +873,24 @@ export default app
       } as unknown as OpenAPI
       await run(withTags)
 
-      const trimmed = fs
-        .readFileSync(indexPath, 'utf8')
-        .split('\n')
-        .map((l) => l.trim())
-      expect(trimmed).toContain("import { logger } from 'hono/logger'")
-      expect(trimmed).toContain("app.use('*', logger())")
-      // basePath chain preserved; openapiRoutes synced to the new route set (the long
-      // chain is wrapped by the formatter onto its own lines).
-      expect(trimmed).toContain(".basePath('/api')")
-      expect(trimmed).toContain(
-        '.openapiRoutes([getUsersIdRoute, getHealthRoute, getTagsRoute] as const)',
-      )
+      // The logger import and middleware are kept, the basePath chain is preserved, and
+      // openapiRoutes is synced to the new route set (the long chain is wrapped by the
+      // formatter onto its own lines).
+      expect(fs.readFileSync(indexPath, 'utf8'))
+        .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { logger } from 'hono/logger'
+import { getHealthRoute, getTagsRoute, getUsersIdRoute } from './routes'
+
+const app = new OpenAPIHono()
+
+app.use('*', logger())
+
+export const api = app
+  .basePath('/api')
+  .openapiRoutes([getUsersIdRoute, getHealthRoute, getTagsRoute] as const)
+
+export default app
+`)
     })
 
     it('coexists with human edits in the derived routes directory', async () => {
@@ -783,16 +919,43 @@ export default app
       )
       await run(openAPI)
 
-      expect(
-        fs
-          .readFileSync(usersPath, 'utf8')
-          .split('\n')
-          .map((l) => l.trim()),
-      ).toContain("return c.json({ id: '1', name: 'Jane' }, 200)")
+      expect(fs.readFileSync(usersPath, 'utf8'))
+        .toBe(`import { createRoute, defineOpenAPIRoute, z } from '@hono/zod-openapi'
+import { UserSchema } from '../components'
+
+export const getUsersIdRoute = defineOpenAPIRoute({
+  route: createRoute({
+    method: 'get',
+    path: '/users/{id}',
+    operationId: 'getUser',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+        }),
+      }),
+    },
+    responses: {
+      200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
+    },
+  }),
+  handler: async (c) => {
+    return c.json({ id: '1', name: 'Jane' }, 200)
+  },
+  addRoute: true,
+})
+`)
       // App imports from the derived routes dir (mergeImports sorts the names on regeneration).
-      expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf8').split('\n')).toContain(
-        "import { getHealthRoute, getUsersIdRoute } from './routes'",
-      )
+      expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf8'))
+        .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUsersIdRoute } from './routes'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapiRoutes([getUsersIdRoute, getHealthRoute] as const)
+
+export default app
+`)
     })
 
     it('coexists with a pathAlias without duplicating imports', async () => {
@@ -822,11 +985,32 @@ export default app
       await run(openAPI)
 
       const content = fs.readFileSync(usersPath, 'utf8')
-      const trimmed = content.split('\n').map((l) => l.trim())
-      expect(trimmed).toContain("return c.json({ id: '1', name: 'Jane' }, 200)")
-      expect(trimmed).toContain("import { UserSchema } from '@/components'")
-      // No duplicate component import line after regeneration.
-      expect(content.split('\n').filter((l) => l.includes("from '@/components'"))).toHaveLength(1)
+      // The handler edit is kept and the component import is not duplicated.
+      expect(content).toBe(`import { createRoute, defineOpenAPIRoute, z } from '@hono/zod-openapi'
+import { UserSchema } from '@/components'
+
+export const getUsersIdRoute = defineOpenAPIRoute({
+  route: createRoute({
+    method: 'get',
+    path: '/users/{id}',
+    operationId: 'getUser',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+        }),
+      }),
+    },
+    responses: {
+      200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
+    },
+  }),
+  handler: async (c) => {
+    return c.json({ id: '1', name: 'Jane' }, 200)
+  },
+  addRoute: true,
+})
+`)
     })
   },
 )
@@ -850,14 +1034,18 @@ describe('cleanSplitOutputs', () => {
 
     await runGenerator(cleanSplitOutputs([dir]))
 
-    expect([...fs.readdirSync(dir)].sort()).toStrictEqual(['README.md', 'a.ts.bak', 'nested'])
+    expect([...fs.readdirSync(dir)].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))).toStrictEqual([
+      'README.md',
+      'a.ts.bak',
+      'nested',
+    ])
     expect(fs.existsSync(path.join(dir, 'nested', 'keep.ts'))).toBe(true)
   })
 
   it('treats a directory that does not exist as already clean', async () => {
     const missing = path.join(makeCleanDir(), 'never-created')
 
-    await expect(runGenerator(cleanSplitOutputs([missing]))).resolves.toBeDefined()
+    await expect(runGenerator(cleanSplitOutputs([missing]))).resolves.toStrictEqual([undefined])
     expect(fs.existsSync(missing)).toBe(false)
   })
 
@@ -865,7 +1053,7 @@ describe('cleanSplitOutputs', () => {
     const dir = makeCleanDir()
     fs.writeFileSync(path.join(dir, 'a.ts'), '')
 
-    await expect(runGenerator(cleanSplitOutputs([dir, dir]))).resolves.toHaveLength(1)
+    await expect(runGenerator(cleanSplitOutputs([dir, dir]))).resolves.toStrictEqual([undefined])
     expect(fs.readdirSync(dir)).toStrictEqual([])
   })
 
@@ -935,7 +1123,12 @@ describe('outsideSources', () => {
     const input = path.join(directory, 'openapi.json')
     fs.writeFileSync(input, '{ not json')
 
-    await expect(runGenerator(outsideSources(input))).rejects.toBeDefined()
+    const error = await runGeneratorError(outsideSources(input))
+    expect(error.message)
+      .toBe(`Error parsing ${input}: unexpected end of the stream within a flow collection (1:11)
+
+ 1 | { not json
+---------------^`)
   })
 
   // TypeSpec imports are followed through the source text: a relative file, a directory
@@ -1023,7 +1216,6 @@ async function generateClientJobs(
   }
   return {
     read: (file: string) => fs.readFileSync(path.join(dir, file), 'utf8'),
-    has: (file: string) => fs.existsSync(path.join(dir, file)),
     imports: (file: string) =>
       fs
         .readFileSync(path.join(dir, file), 'utf8')
@@ -1049,7 +1241,18 @@ describe('makeJob: the client and what imports it', () => {
     })
     expect(out.imports('src/client.ts')).toStrictEqual(["'./index'"])
     expect(out.imports('src/rpc.ts')).toStrictEqual(["'./client'"])
-    expect(out.read('src/index.ts')).toContain('export const api = app')
+    expect(out.read('src/index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersIdRoute, getHealthRoute } from './routes'
+import { getUsersIdRouteHandler, getHealthRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app
+  .openapi(getUsersIdRoute, getUsersIdRouteHandler)
+  .openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
+`)
   })
 
   // A client in a directory of its own is re-exported by the index.ts beside it, which is
@@ -1113,7 +1316,21 @@ describe('makeJob: the client and what imports it', () => {
       rpc: { output: `${tmpDir}/src/lib` },
     })
     expect(out.imports('src/lib/index.ts')).toStrictEqual(["'./client'"])
-    expect(out.read('src/lib/index.ts')).toContain('export async function getUsersId(')
+    expect(out.read('src/lib/index.ts'))
+      .toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { client } from './client'
+
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await client.users[':id'].$get(args, options)
+}
+
+export async function getHealth(options?: ClientRequestOptions) {
+  return await client.health.$get(undefined, options)
+}
+`)
   })
 
   // The alias stands for the directory the app entry is in.
@@ -1168,7 +1385,21 @@ describe('makeJob: the client and what imports it', () => {
       },
       packageRoot,
     )
-    expect(out.read('web/src/rpc.ts')).toContain("import { client } from '@packages/client'")
+    expect(out.read('web/src/rpc.ts'))
+      .toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { client } from '@packages/client'
+
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await client.users[':id'].$get(args, options)
+}
+
+export async function getHealth(options?: ClientRequestOptions) {
+  return await client.health.$get(undefined, options)
+}
+`)
     expect(out.imports('server/src/swr.ts')).toStrictEqual(["'./lib'"])
   })
 
@@ -1207,7 +1438,15 @@ describe('makeJob: the client and what imports it', () => {
       },
       packageRoot,
     )
-    expect(out.read('server/src/lib/client.ts')).toContain("import type { api } from '@/index'")
+    expect(out.read('server/src/lib/client.ts')).toBe(`import { hc } from 'hono/client'
+import type { api } from '@/index'
+
+type Client = ReturnType<typeof hc<typeof api>>
+
+const hcWithType = (...args: Parameters<typeof hc>): Client => hc<typeof api>(...args)
+
+export const client = hcWithType('/')
+`)
     expect(out.imports('server/src/swr.ts')).toStrictEqual(["'@/lib'"])
     expect(out.imports('web/src/rpc.ts')).toStrictEqual(["'../../server/src/lib'"])
   })
@@ -1222,19 +1461,37 @@ describe('makeJob: the client and what imports it', () => {
       client: { output: `${tmpDir}/src/lib/client.ts`, import: '@packages/server' },
       rpc: { output: `${tmpDir}/src/rpc.ts` },
     })
-    expect(out.read('src/lib/client.ts')).toContain("import type { api } from '@packages/server'")
+    expect(out.read('src/lib/client.ts')).toBe(`import { hc } from 'hono/client'
+import type { api } from '@packages/server'
+
+type Client = ReturnType<typeof hc<typeof api>>
+
+const hcWithType = (...args: Parameters<typeof hc>): Client => hc<typeof api>(...args)
+
+export const client = hcWithType('/')
+`)
   })
 
   // Without a client block nothing is written for it.
   // client ブロックがなければ、クライアントは何も書き出されない。
   it('writes no client without a client block', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-none-'))
-    const out = await generateClientJobs(tmpDir, {
+    await generateClientJobs(tmpDir, {
       output: `${tmpDir}/src/routes.ts`,
       template: { routeHandler: true },
     })
-    expect(out.has('src/client.ts')).toBe(false)
-    expect(out.has('src/lib/client.ts')).toBe(false)
+    expect(
+      fs
+        .readdirSync(path.join(tmpDir, 'src'), { encoding: 'utf8', recursive: true })
+        .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)),
+    ).toStrictEqual([
+      'handlers',
+      'handlers/health.ts',
+      'handlers/index.ts',
+      'handlers/users.ts',
+      'index.ts',
+      'routes.ts',
+    ])
   })
 })
 
@@ -1314,9 +1571,26 @@ describe('packageRoots: the package of every output', () => {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
       await runGenerator(job.run(job.output))
     }
-    expect(fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8')).toContain(
-      "import { UserSchema } from '@/schemas'",
-    )
+    expect(fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8'))
+      .toBe(`import { createRoute, z } from '@hono/zod-openapi'
+import { UserSchema } from '@/schemas'
+
+export const getUsersIdRoute = createRoute({
+  method: 'get',
+  path: '/users/{id}',
+  operationId: 'getUser',
+  request: {
+    params: z.object({
+      id: z
+        .string()
+        .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } }),
+    }),
+  },
+  responses: {
+    200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
+  },
+})
+`)
   })
 
   // The alias stands for the directory of the app entry: a target outside it, in the same
@@ -1338,9 +1612,26 @@ describe('packageRoots: the package of every output', () => {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
       await runGenerator(job.run(job.output))
     }
-    expect(fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8')).toContain(
-      "import { UserSchema } from '../../lib/schemas'",
-    )
+    expect(fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8'))
+      .toBe(`import { createRoute, z } from '@hono/zod-openapi'
+import { UserSchema } from '../../lib/schemas'
+
+export const getUsersIdRoute = createRoute({
+  method: 'get',
+  path: '/users/{id}',
+  operationId: 'getUser',
+  request: {
+    params: z.object({
+      id: z
+        .string()
+        .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } }),
+    }),
+  },
+  responses: {
+    200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
+  },
+})
+`)
   })
 
   // An output that is no .ts file, the docs for one, is a file all the same: the
@@ -1445,7 +1736,8 @@ describe('packageRoots: the package of every output', () => {
         components: { output: './src/components.ts' },
       }),
     )
-    await expect(runGenerator(packageRoots(openAPI, cfg))).resolves.toBeDefined()
+    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
+    expect(packageRoot('./src/routes.ts')).toBe(path.resolve())
   })
 
   // The output of the kind referred to is enough.
@@ -1458,7 +1750,8 @@ describe('packageRoots: the package of every output', () => {
         components: { schemas: { output: './src/schemas.ts' } },
       }),
     )
-    await expect(runGenerator(packageRoots(openAPI, cfg))).resolves.toBeDefined()
+    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
+    expect(packageRoot('./src/routes.ts')).toBe(path.resolve())
   })
 
   // The single `output` inlines what it refers to, so it needs no components output.
@@ -1467,7 +1760,8 @@ describe('packageRoots: the package of every output', () => {
     const cfg = await runGenerator(
       parseConfig({ input: 'openapi.yaml', output: './src/routes.ts' }),
     )
-    await expect(runGenerator(packageRoots(openAPI, cfg))).resolves.toBeDefined()
+    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
+    expect(packageRoot('./src/routes.ts')).toBe(path.resolve())
   })
 
   // The scaffold imports routes in another package by their package: the handlers and the
@@ -1492,12 +1786,25 @@ describe('packageRoots: the package of every output', () => {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
       await runGenerator(job.run(job.output))
     }
-    expect(fs.readFileSync(path.join(tmpDir, 'src/handlers/users.ts'), 'utf8')).toContain(
-      "from '@packages/routes'",
-    )
-    expect(fs.readFileSync(path.join(tmpDir, 'src/index.ts'), 'utf8')).toContain(
-      "from '@packages/routes'",
-    )
+    expect(fs.readFileSync(path.join(tmpDir, 'src/handlers/users.ts'), 'utf8'))
+      .toBe(`import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUsersIdRoute } from '@packages/routes'
+
+export const getUsersIdRouteHandler: RouteHandler<typeof getUsersIdRoute> = async (c) => {}
+`)
+    expect(fs.readFileSync(path.join(tmpDir, 'src/index.ts'), 'utf8'))
+      .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersIdRoute, getHealthRoute } from '@packages/routes'
+import { getUsersIdRouteHandler, getHealthRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app
+  .openapi(getUsersIdRoute, getUsersIdRouteHandler)
+  .openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
+`)
   })
 
   // The single components file in a package of its own is imported by components.package.
@@ -1525,9 +1832,26 @@ describe('packageRoots: the package of every output', () => {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
       await runGenerator(job.run(job.output))
     }
-    expect(fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8')).toContain(
-      "import { UserSchema } from '@packages/components'",
-    )
+    expect(fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8'))
+      .toBe(`import { createRoute, z } from '@hono/zod-openapi'
+import { UserSchema } from '@packages/components'
+
+export const getUsersIdRoute = createRoute({
+  method: 'get',
+  path: '/users/{id}',
+  operationId: 'getUser',
+  request: {
+    params: z.object({
+      id: z
+        .string()
+        .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } }),
+    }),
+  },
+  responses: {
+    200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
+  },
+})
+`)
   })
 
   it('fails when the single components file is in another package without a package', async () => {
@@ -1578,8 +1902,44 @@ describe('packageRoots: the package of every output', () => {
       .readdirSync(path.join(tmpDir, 'server/src/routes'))
       .filter((file) => file !== 'index.ts')
       .map((file) => fs.readFileSync(path.join(tmpDir, 'server/src/routes', file), 'utf8'))
-    expect(routes.some((source) => source.includes("from '@x/shared'"))).toBe(true)
-    expect(routes.some((source) => source.includes('../../../shared'))).toBe(false)
+    expect(routes).toStrictEqual([
+      `import { createRoute, defineOpenAPIRoute } from '@hono/zod-openapi'
+
+export const getHealthRoute = defineOpenAPIRoute({
+  route: createRoute({
+    method: 'get',
+    path: '/health',
+    operationId: 'getHealth',
+    responses: { 200: { description: 'ok' } },
+  }),
+  handler: async (c) => {},
+  addRoute: true,
+})
+`,
+      `import { createRoute, defineOpenAPIRoute, z } from '@hono/zod-openapi'
+import { UserSchema } from '@x/shared'
+
+export const getUsersIdRoute = defineOpenAPIRoute({
+  route: createRoute({
+    method: 'get',
+    path: '/users/{id}',
+    operationId: 'getUser',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+        }),
+      }),
+    },
+    responses: {
+      200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
+    },
+  }),
+  handler: async (c) => {},
+  addRoute: true,
+})
+`,
+    ])
   })
 
   // Only the imports that are written need a package: schemas import no other kind, so a
@@ -1602,7 +1962,9 @@ describe('packageRoots: the package of every output', () => {
         },
       }),
     )
-    await expect(runGenerator(packageRoots(openAPI, cfg))).resolves.toBeTypeOf('function')
+    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
+    expect(packageRoot(`${tmpDir}/shared/schemas`)).toBe(`${tmpDir}/shared`)
+    expect(packageRoot(`${tmpDir}/server/src/examples`)).toBe(`${tmpDir}/server`)
   })
 
   // The other way round the import is written, and the package is asked for: responses
@@ -1670,7 +2032,25 @@ describe('packageRoots: the package of every output', () => {
       await runGenerator(job.run(job.output))
     }
     const route = fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8')
-    expect(route).toContain("import { UserSchema } from '@packages/schemas'")
+    expect(route).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+import { UserSchema } from '@packages/schemas'
+
+export const getUsersIdRoute = createRoute({
+  method: 'get',
+  path: '/users/{id}',
+  operationId: 'getUser',
+  request: {
+    params: z.object({
+      id: z
+        .string()
+        .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } }),
+    }),
+  },
+  responses: {
+    200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
+  },
+})
+`)
   })
 })
 
@@ -1695,7 +2075,11 @@ describe('makeJob: a split application', () => {
       client: { output: `${tmpDir}/src/client.ts` },
       rpc: { output: `${tmpDir}/src/rpc.ts` },
     })
-    expect(read('src/index.ts')).toContain(`const app = new OpenAPIHono()
+    expect(read('src/index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersIdRoute, getHealthRoute } from './routes'
+import { getUsersIdRouteHandler, getHealthRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
 
 export const users = app.openapi(getUsersIdRoute, getUsersIdRouteHandler)
 
@@ -1703,8 +2087,37 @@ export const health = app.openapi(getHealthRoute, getHealthRouteHandler)
 
 export default app
 `)
-    expect(read('src/client.ts')).toContain("import type { users, health } from './index'")
-    expect(read('src/rpc.ts')).toContain("import { usersClient, healthClient } from './client'")
+    expect(read('src/client.ts')).toBe(`import { hc } from 'hono/client'
+import type { users, health } from './index'
+
+type UsersClient = ReturnType<typeof hc<typeof users>>
+
+const hcUsersWithType = (...args: Parameters<typeof hc>): UsersClient => hc<typeof users>(...args)
+
+export const usersClient = hcUsersWithType('/')
+
+type HealthClient = ReturnType<typeof hc<typeof health>>
+
+const hcHealthWithType = (...args: Parameters<typeof hc>): HealthClient =>
+  hc<typeof health>(...args)
+
+export const healthClient = hcHealthWithType('/')
+`)
+    expect(read('src/rpc.ts'))
+      .toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { usersClient, healthClient } from './client'
+
+export async function getUsersId(
+  args: InferRequestType<(typeof usersClient.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await usersClient.users[':id'].$get(args, options)
+}
+
+export async function getHealth(options?: ClientRequestOptions) {
+  return await healthClient.health.$get(undefined, options)
+}
+`)
   })
 
   // The same with the routes a handler file defines.
@@ -1717,7 +2130,10 @@ export default app
       client: { output: `${tmpDir}/src/client.ts` },
       rpc: { output: `${tmpDir}/src/rpc.ts` },
     })
-    expect(read('src/index.ts')).toContain(`const app = new OpenAPIHono()
+    expect(read('src/index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersIdRoute, getHealthRoute } from './routes'
+
+const app = new OpenAPIHono()
 
 export const users = app.openapiRoutes([getUsersIdRoute] as const)
 
@@ -1725,8 +2141,37 @@ export const health = app.openapiRoutes([getHealthRoute] as const)
 
 export default app
 `)
-    expect(read('src/client.ts')).toContain("import type { users, health } from './index'")
-    expect(read('src/rpc.ts')).toContain("import { usersClient, healthClient } from './client'")
+    expect(read('src/client.ts')).toBe(`import { hc } from 'hono/client'
+import type { users, health } from './index'
+
+type UsersClient = ReturnType<typeof hc<typeof users>>
+
+const hcUsersWithType = (...args: Parameters<typeof hc>): UsersClient => hc<typeof users>(...args)
+
+export const usersClient = hcUsersWithType('/')
+
+type HealthClient = ReturnType<typeof hc<typeof health>>
+
+const hcHealthWithType = (...args: Parameters<typeof hc>): HealthClient =>
+  hc<typeof health>(...args)
+
+export const healthClient = hcHealthWithType('/')
+`)
+    expect(read('src/rpc.ts'))
+      .toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { usersClient, healthClient } from './client'
+
+export async function getUsersId(
+  args: InferRequestType<(typeof usersClient.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await usersClient.users[':id'].$get(args, options)
+}
+
+export async function getHealth(options?: ClientRequestOptions) {
+  return await healthClient.health.$get(undefined, options)
+}
+`)
   })
 
   // Where the handlers register their routes themselves, a group is a handler file the
@@ -1741,7 +2186,10 @@ export default app
       client: { output: `${tmpDir}/src/client.ts` },
       rpc: { output: `${tmpDir}/src/rpc.ts` },
     })
-    expect(read('src/index.ts')).toContain(`const app = new OpenAPIHono()
+    expect(read('src/index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { usersHandler, healthHandler } from './handlers'
+
+const app = new OpenAPIHono()
 
 export const users = app.route('/', usersHandler)
 
@@ -1749,8 +2197,37 @@ export const health = app.route('/', healthHandler)
 
 export default app
 `)
-    expect(read('src/client.ts')).toContain("import type { users, health } from './index'")
-    expect(read('src/rpc.ts')).toContain("import { usersClient, healthClient } from './client'")
+    expect(read('src/client.ts')).toBe(`import { hc } from 'hono/client'
+import type { users, health } from './index'
+
+type UsersClient = ReturnType<typeof hc<typeof users>>
+
+const hcUsersWithType = (...args: Parameters<typeof hc>): UsersClient => hc<typeof users>(...args)
+
+export const usersClient = hcUsersWithType('/')
+
+type HealthClient = ReturnType<typeof hc<typeof health>>
+
+const hcHealthWithType = (...args: Parameters<typeof hc>): HealthClient =>
+  hc<typeof health>(...args)
+
+export const healthClient = hcHealthWithType('/')
+`)
+    expect(read('src/rpc.ts'))
+      .toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { usersClient, healthClient } from './client'
+
+export async function getUsersId(
+  args: InferRequestType<(typeof usersClient.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await usersClient.users[':id'].$get(args, options)
+}
+
+export async function getHealth(options?: ClientRequestOptions) {
+  return await healthClient.health.$get(undefined, options)
+}
+`)
   })
 
   // Without split the app is one chain and there is one client.
@@ -1763,12 +2240,42 @@ export default app
       client: { output: `${tmpDir}/src/client.ts` },
       rpc: { output: `${tmpDir}/src/rpc.ts` },
     })
-    expect(read('src/index.ts')).toContain(`export const api = app
+    expect(read('src/index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersIdRoute, getHealthRoute } from './routes'
+import { getUsersIdRouteHandler, getHealthRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app
   .openapi(getUsersIdRoute, getUsersIdRouteHandler)
   .openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
 `)
-    expect(read('src/client.ts')).toContain("import type { api } from './index'")
-    expect(read('src/rpc.ts')).toContain("import { client } from './client'")
+    expect(read('src/client.ts')).toBe(`import { hc } from 'hono/client'
+import type { api } from './index'
+
+type Client = ReturnType<typeof hc<typeof api>>
+
+const hcWithType = (...args: Parameters<typeof hc>): Client => hc<typeof api>(...args)
+
+export const client = hcWithType('/')
+`)
+    expect(read('src/rpc.ts'))
+      .toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { client } from './client'
+
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await client.users[':id'].$get(args, options)
+}
+
+export async function getHealth(options?: ClientRequestOptions) {
+  return await client.health.$get(undefined, options)
+}
+`)
   })
 })
 
@@ -1825,7 +2332,11 @@ describe('makeJob: generating a split application again', () => {
         ),
     )
     const read = await generateAgain(withItems, tmpDir, true)
-    expect(read('src/index.ts')).toContain(`const app = new OpenAPIHono()
+    expect(read('src/index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getItemsRoute, getUsersIdRoute } from './routes'
+import { getHealthRouteHandler, getItemsRouteHandler, getUsersIdRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
 
 app.use(logger())
 
@@ -1839,12 +2350,47 @@ export const health = app.openapi(getHealthRoute, getHealthRouteHandler)
 
 export default app
 `)
-    expect(read('src/lib/client.ts')).toContain(
-      "import type { items, users, health } from '../index'",
-    )
-    expect(read('src/rpc.ts')).toContain(
-      "import { itemsClient, usersClient, healthClient } from './lib'",
-    )
+    expect(read('src/lib/client.ts')).toBe(`import { hc } from 'hono/client'
+import type { items, users, health } from '../index'
+
+type ItemsClient = ReturnType<typeof hc<typeof items>>
+
+const hcItemsWithType = (...args: Parameters<typeof hc>): ItemsClient => hc<typeof items>(...args)
+
+export const itemsClient = hcItemsWithType('/')
+
+type UsersClient = ReturnType<typeof hc<typeof users>>
+
+const hcUsersWithType = (...args: Parameters<typeof hc>): UsersClient => hc<typeof users>(...args)
+
+export const usersClient = hcUsersWithType('/')
+
+type HealthClient = ReturnType<typeof hc<typeof health>>
+
+const hcHealthWithType = (...args: Parameters<typeof hc>): HealthClient =>
+  hc<typeof health>(...args)
+
+export const healthClient = hcHealthWithType('/')
+`)
+    expect(read('src/rpc.ts'))
+      .toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { itemsClient, usersClient, healthClient } from './lib'
+
+export async function getItems(options?: ClientRequestOptions) {
+  return await itemsClient.items.$get(undefined, options)
+}
+
+export async function getUsersId(
+  args: InferRequestType<(typeof usersClient.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await usersClient.users[':id'].$get(args, options)
+}
+
+export async function getHealth(options?: ClientRequestOptions) {
+  return await healthClient.health.$get(undefined, options)
+}
+`)
   })
 
   // A group whose paths left the document is removed, with its client.
@@ -1853,15 +2399,36 @@ export default app
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-again-remove-'))
     await generateAgain(openAPI, tmpDir, true)
     const read = await generateAgain(withoutHealth, tmpDir, true)
-    expect(read('src/index.ts')).toContain(`const app = new OpenAPIHono()
+    expect(read('src/index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersIdRoute } from './routes'
+import { getUsersIdRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
 
 export const users = app.openapi(getUsersIdRoute, getUsersIdRouteHandler)
 
 export default app
 `)
-    expect(read('src/index.ts')).not.toContain('health')
-    expect(read('src/lib/client.ts')).not.toContain('healthClient')
-    expect(read('src/rpc.ts')).not.toContain('healthClient')
+    expect(read('src/lib/client.ts')).toBe(`import { hc } from 'hono/client'
+import type { users } from '../index'
+
+type UsersClient = ReturnType<typeof hc<typeof users>>
+
+const hcUsersWithType = (...args: Parameters<typeof hc>): UsersClient => hc<typeof users>(...args)
+
+export const usersClient = hcUsersWithType('/')
+`)
+    expect(read('src/rpc.ts'))
+      .toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { usersClient } from './lib'
+
+export async function getUsersId(
+  args: InferRequestType<(typeof usersClient.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await usersClient.users[':id'].$get(args, options)
+}
+`)
   })
 
   // Turning split off makes the app one chain again, and the client one.
@@ -1870,7 +2437,11 @@ export default app
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-again-off-'))
     await generateAgain(openAPI, tmpDir, true)
     const read = await generateAgain(openAPI, tmpDir, false)
-    expect(read('src/index.ts')).toContain(`const app = new OpenAPIHono()
+    expect(read('src/index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUsersIdRoute } from './routes'
+import { getHealthRouteHandler, getUsersIdRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
 
 export const api = app
   .openapi(getUsersIdRoute, getUsersIdRouteHandler)
@@ -1878,8 +2449,30 @@ export const api = app
 
 export default app
 `)
-    expect(read('src/lib/client.ts')).toContain("import type { api } from '../index'")
-    expect(read('src/rpc.ts')).toContain("import { client } from './lib'")
+    expect(read('src/lib/client.ts')).toBe(`import { hc } from 'hono/client'
+import type { api } from '../index'
+
+type Client = ReturnType<typeof hc<typeof api>>
+
+const hcWithType = (...args: Parameters<typeof hc>): Client => hc<typeof api>(...args)
+
+export const client = hcWithType('/')
+`)
+    expect(read('src/rpc.ts'))
+      .toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { client } from './lib'
+
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await client.users[':id'].$get(args, options)
+}
+
+export async function getHealth(options?: ClientRequestOptions) {
+  return await client.health.$get(undefined, options)
+}
+`)
   })
 
   // Turning split on divides an app that was one chain.
@@ -1888,7 +2481,11 @@ export default app
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-again-on-'))
     await generateAgain(openAPI, tmpDir, false)
     const read = await generateAgain(openAPI, tmpDir, true)
-    expect(read('src/index.ts')).toContain(`const app = new OpenAPIHono()
+    expect(read('src/index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUsersIdRoute } from './routes'
+import { getHealthRouteHandler, getUsersIdRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
 
 export const users = app.openapi(getUsersIdRoute, getUsersIdRouteHandler)
 

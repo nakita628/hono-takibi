@@ -33,7 +33,7 @@ describe('emit', () => {
     const error = await runGeneratorError(
       emit('const x = 1', readonlyDir, `${readonlyDir}/sub/out.ts`),
     )
-    expect(error.message).toContain('PermissionDenied')
+    expect(error.message).toBe(`PermissionDenied: FileSystem.writeFile (${readonlyDir}/sub/out.ts)`)
 
     // Cleanup
     fs.chmodSync(readonlyDir, 0o755)

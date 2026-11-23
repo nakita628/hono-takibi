@@ -60,12 +60,11 @@ describe('generated useSWR hooks', () => {
   it('resolves with parsed data on 200', async () => {
     const { result } = renderHook(() => useGetUsers(), { wrapper: makeWrapper() })
     await waitFor(() => {
-      expect(result.current.data).toBeDefined()
+      expect(result.current.data).toStrictEqual([
+        { id: '1', name: 'Alice' },
+        { id: '2', name: 'Bob' },
+      ])
     })
-    expect(result.current.data).toStrictEqual([
-      { id: '1', name: 'Alice' },
-      { id: '2', name: 'Bob' },
-    ])
     expect(result.current.error).toBeUndefined()
   })
 
@@ -109,7 +108,12 @@ describe('generated useSWR hooks', () => {
       { wrapper: makeWrapper() },
     )
     await waitFor(() => {
-      expect(result.current.error).toBeDefined()
+      expect(result.current.error).toStrictEqual(
+        new DetailedError('404 ', {
+          statusCode: 404,
+          detail: { data: { error: 'Not Found' }, statusText: '' },
+        }),
+      )
     })
     // `error` is typed by TError: reading a DetailedError field needs no cast.
     // `error` は TError で型付けされる。DetailedError のフィールドは、キャストなしで読める。
@@ -126,10 +130,13 @@ describe('generated useSWR hooks', () => {
       wrapper: makeWrapper(),
     })
     await waitFor(() => {
-      expect(result.current.error).toBeDefined()
+      expect(result.current.error).toStrictEqual(
+        new DetailedError('404 ', {
+          statusCode: 404,
+          detail: { data: { error: 'Not Found' }, statusText: '' },
+        }),
+      )
     })
-    expect(result.current.error).toBeInstanceOf(DetailedError)
-    expect((result.current.error as DetailedError).statusCode).toBe(404)
     expect(result.current.data).toBeUndefined()
   })
 })
@@ -179,7 +186,10 @@ describe('SWR key behavior', () => {
     })
     expect(result.current.swrKey).toStrictEqual(['custom', 'users'])
     await waitFor(() => {
-      expect(result.current.data).toBeDefined()
+      expect(result.current.data).toStrictEqual([
+        { id: '1', name: 'Alice' },
+        { id: '2', name: 'Bob' },
+      ])
     })
   })
 
@@ -206,7 +216,7 @@ describe('SWR key behavior', () => {
       { wrapper: makeWrapper(cache) },
     )
     await waitFor(() => {
-      expect(first.result.current.data).toBeDefined()
+      expect(first.result.current.data).toStrictEqual({ id: '1', name: 'Alice' })
     })
 
     const second = renderHook(
@@ -221,7 +231,7 @@ describe('SWR key behavior', () => {
     )
     expect(distinct.result.current.data).toBeUndefined()
     await waitFor(() => {
-      expect(distinct.result.current.data).toBeDefined()
+      expect(distinct.result.current.data).toStrictEqual({ id: '2', name: 'Bob' })
     })
   })
 })
@@ -290,9 +300,8 @@ describe('generated useSWRInfinite hooks', () => {
       { wrapper: makeWrapper() },
     )
     await waitFor(() => {
-      expect(result.current.data).toBeDefined()
+      expect(result.current.data).toStrictEqual([{ items: ['a', 'b'], nextPage: 1 }])
     })
-    expect(result.current.data).toStrictEqual([{ items: ['a', 'b'], nextPage: 1 }])
 
     void result.current.setSize(2)
     await waitFor(() => {

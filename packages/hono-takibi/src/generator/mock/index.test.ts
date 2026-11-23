@@ -3029,7 +3029,23 @@ export default app
         '/',
         { seed: 42 },
       )
-      expect(withoutPreferHelpers(result)).not.toContain('faker.seed(')
+      expect(withoutPreferHelpers(result))
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
+
+export const deletePingRoute=createRoute({method:"delete",path:"/ping",operationId:"deletePing",responses:{204:{description:"gone"}}})
+
+/* resolvePrefer, preferResponse, preferProblem */
+
+const deletePingRouteHandler: RouteHandler<typeof deletePingRoute> = async (c) => {resolvePrefer(c.req,{"204":[]},"204");return new Response(null, { status: 204 })}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(deletePingRoute, deletePingRouteHandler)
+
+export default app`)
     })
   })
 

@@ -24,28 +24,106 @@ describe('hash-alias: fully specified imports', () => {
   // The app entry imports the routes file and the handler barrel under the alias, by file.
   // app entry は、routes ファイルとハンドラのバレルを、エイリアスでファイルまで指定して import する。
   it('the app entry imports #/routes.ts and #/handlers/index.ts', () => {
-    const entry = read('index.ts')
-    expect(entry).toContain("} from '#/routes.ts'")
-    expect(entry).toContain("} from '#/handlers/index.ts'")
+    expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import {
+  getUsersRoute,
+  postUsersRoute,
+  getUsersIdRoute,
+  deleteUsersIdRoute,
+  getItemsRoute,
+  getSlowRoute,
+} from '#/routes.ts'
+import {
+  getUsersRouteHandler,
+  postUsersRouteHandler,
+  getUsersIdRouteHandler,
+  deleteUsersIdRouteHandler,
+  getItemsRouteHandler,
+  getSlowRouteHandler,
+} from '#/handlers/index.ts'
+
+const app = new OpenAPIHono()
+
+export const api = app
+  .openapi(getUsersRoute, getUsersRouteHandler)
+  .openapi(postUsersRoute, postUsersRouteHandler)
+  .openapi(getUsersIdRoute, getUsersIdRouteHandler)
+  .openapi(deleteUsersIdRoute, deleteUsersIdRouteHandler)
+  .openapi(getItemsRoute, getItemsRouteHandler)
+  .openapi(getSlowRoute, getSlowRouteHandler)
+
+export default app
+`)
   })
 
   // A barrel reached through the alias is loaded by Node too, so its lines name files.
   // エイリアス経由で読み込まれるバレルも Node が読むため、各行はファイルを指す。
   it('the handler barrel re-exports its files by name', () => {
-    const barrel = read('handlers/index.ts')
-    for (const file of ['users', 'items', 'slow']) {
-      expect(barrel).toContain(`export * from './${file}.ts'`)
-    }
+    expect(read('handlers/index.ts')).toBe(`export * from './users.ts'
+export * from './items.ts'
+export * from './slow.ts'
+`)
   })
 
   it('a split component barrel re-exports its files by name', () => {
-    expect(read('components/schemas/index.ts')).toContain("export * from './user.ts'")
+    expect(read('components/schemas/index.ts')).toBe(`export * from './apiError.ts'
+export * from './itemPage.ts'
+export * from './user.ts'
+export * from './userInput.ts'
+`)
   })
 
   it('the client imports the app, and rpc the client barrel, by file', () => {
-    expect(read('lib/client.ts')).toContain("import type { api } from '#/index.ts'")
+    expect(read('lib/client.ts')).toBe(`import { hc } from 'hono/client'
+import type { api } from '#/index.ts'
+
+type Client = ReturnType<typeof hc<typeof api>>
+
+const hcWithType = (...args: Parameters<typeof hc>): Client => hc<typeof api>(...args)
+
+export const client = hcWithType('/')
+`)
     expect(read('lib/index.ts')).toBe("export * from './client.ts'\n")
-    expect(read('rpc.ts')).toContain("from '#/lib/index.ts'")
+    expect(read('rpc.ts'))
+      .toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { client } from '#/lib/index.ts'
+
+export async function getUsers(options?: ClientRequestOptions) {
+  return await client.users.$get(undefined, options)
+}
+
+export async function postUsers(
+  args: InferRequestType<typeof client.users.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await client.users.$post(args, options)
+}
+
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await client.users[':id'].$get(args, options)
+}
+
+export async function deleteUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$delete']>,
+  options?: ClientRequestOptions,
+) {
+  return await client.users[':id'].$delete(args, options)
+}
+
+export async function getItems(
+  args: InferRequestType<typeof client.items.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await client.items.$get(args, options)
+}
+
+export async function getSlow(options?: ClientRequestOptions) {
+  return await client.slow.$get(undefined, options)
+}
+`)
   })
 
   // No specifier of a generated file is left without its extension.
@@ -55,8 +133,15 @@ describe('hash-alias: fully specified imports', () => {
     const specifiers = files.flatMap((file) =>
       Array.from(read(file).matchAll(/from '([.#][^']*)'/gu), (match) => match[1]),
     )
-    expect(specifiers.length).toBeGreaterThan(0)
-    expect(specifiers.filter((specifier) => !specifier?.endsWith('.ts'))).toStrictEqual([])
+    expect(specifiers).toStrictEqual([
+      '#/routes.ts',
+      '#/handlers/index.ts',
+      './users.ts',
+      './items.ts',
+      './slow.ts',
+      '#/index.ts',
+      '#/lib/index.ts',
+    ])
   })
 })
 
@@ -72,7 +157,7 @@ describe('hash-alias: runs on Node from the sources', () => {
     const result = spawnSync(process.execPath, ['--input-type=module', '--eval', script], {
       encoding: 'utf8',
     })
-    expect(result.stderr).not.toContain('ERR_')
+    expect(result.stderr).toBe('')
     expect(JSON.parse(result.stdout)).toStrictEqual({
       status: 200,
       body: [{ id: '1', name: 'Alice' }],

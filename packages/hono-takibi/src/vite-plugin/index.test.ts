@@ -457,9 +457,7 @@ describe('honoTakibiVite', () => {
     plugin.configureServer(server)
     await new Promise((resolve) => setTimeout(resolve, 50))
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Config must export default object'),
-    )
+    expect(errorSpy).toHaveBeenCalledWith('❌ config: Config must export default object')
     errorSpy.mockRestore()
   })
 
@@ -472,7 +470,9 @@ describe('honoTakibiVite', () => {
     plugin.configureServer(server)
     await new Promise((resolve) => setTimeout(resolve, 50))
 
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('❌ config:'))
+    expect(errorSpy).toHaveBeenCalledWith(
+      '❌ config: Invalid config: input: must be .yaml | .yml | .json | .tsp, or an http(s) URL',
+    )
     errorSpy.mockRestore()
   })
 
@@ -485,7 +485,7 @@ describe('honoTakibiVite', () => {
     plugin.configureServer(server)
     await new Promise((resolve) => setTimeout(resolve, 50))
 
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('module load failure'))
+    expect(errorSpy).toHaveBeenCalledWith('❌ config: module load failure')
     errorSpy.mockRestore()
   })
 
@@ -522,7 +522,7 @@ describe('honoTakibiVite', () => {
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
     await reloaded
-    expect(watcherCallback).toBeDefined()
+    expect(typeof watcherCallback).toBe('function')
 
     const reloadDeferred = createDeferred()
     server.ws.send = (payload) => {
@@ -707,9 +707,11 @@ describe('honoTakibiVite', () => {
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
     await waitFor(() => {
-      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('❌ config:'))
+      expect(errorSpy).toHaveBeenCalledWith(
+        '❌ config: Invalid config: input: must be .yaml | .yml | .json | .tsp, or an http(s) URL',
+      )
     })
-    expect(watcherCallback).toBeDefined()
+    expect(typeof watcherCallback).toBe('function')
 
     const fixedDeferred = createDeferred()
     server.ws.send = (payload) => {
@@ -810,9 +812,7 @@ describe('honoTakibiVite', () => {
     plugin.configureServer(server)
     await waitFor(() => {
       expect(logSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          '❌ config: routes imports components.schemas from another package: set components.schemas.package',
-        ),
+        `❌ config: routes imports components.schemas from another package: set components.schemas.package to the name of the package ${schemas} is written into.`,
       )
     })
     logSpy.mockRestore()
@@ -830,7 +830,7 @@ describe('honoTakibiVite', () => {
     plugin.configureServer(server)
     await new Promise((resolve) => setTimeout(resolve, 50))
 
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('❌ config:'))
+    expect(errorSpy).toHaveBeenCalledWith('❌ config: Invalid config: output: must be .ts file')
     errorSpy.mockRestore()
   })
 
@@ -864,10 +864,7 @@ describe('honoTakibiVite', () => {
       expect(core.rpc).toHaveBeenCalled()
     })
     const hookLibraries = vi.mocked(core.hooks).mock.calls.map((call) => call[3])
-    expect(hookLibraries).toContain('swr')
-    expect(hookLibraries).toContain('tanstack-query')
-    expect(hookLibraries).toContain('svelte-query')
-    expect(hookLibraries).toContain('vue-query')
+    expect(hookLibraries).toStrictEqual(['swr', 'tanstack-query', 'vue-query', 'svelte-query'])
   })
 
   it('runs every component generator branch', async () => {
@@ -924,9 +921,7 @@ describe('honoTakibiVite', () => {
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
     await waitFor(() => {
-      expect(
-        logSpy.mock.calls.some(([msg]) => String(msg).includes('takibi internal failure')),
-      ).toBe(true)
+      expect(logSpy).toHaveBeenCalledWith('❌ zod-openapi: takibi internal failure')
     })
     logSpy.mockRestore()
   })
@@ -947,7 +942,9 @@ describe('honoTakibiVite', () => {
     plugin.handleHotUpdate({ file: 'hono-takibi.config.ts', server })
 
     await waitFor(() => {
-      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('❌ config:'))
+      expect(errorSpy).toHaveBeenCalledWith(
+        '❌ config: Invalid config: input: must be .yaml | .yml | .json | .tsp, or an http(s) URL',
+      )
     })
     errorSpy.mockRestore()
   })

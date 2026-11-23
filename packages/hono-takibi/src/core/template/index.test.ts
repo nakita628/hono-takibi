@@ -59,12 +59,24 @@ describe('template', () => {
     // `server/index.ts` means "module server/", so the app entry and handlers land beside it.
     expect(fs.existsSync(path.join(tmpDir, 'index.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'handlers', 'health.ts'))).toBe(true)
-    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8').split('\n')).toContain(
-      "import { healthHandler } from './handlers'",
-    )
-    expect(
-      fs.readFileSync(path.join(tmpDir, 'handlers', 'health.ts'), 'utf8').split('\n'),
-    ).toContain("import { getHealthRoute } from '../server'")
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8'))
+      .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { healthHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.route('/', healthHandler)
+
+export default app
+`)
+    expect(fs.readFileSync(path.join(tmpDir, 'handlers', 'health.ts'), 'utf8'))
+      .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '../server'
+
+const app = new OpenAPIHono()
+
+export const healthHandler = app.openapi(getHealthRoute, (c) => {})
+`)
   })
 
   // A split routes directory (`routes: { output: 'src/routes', split: true }`) is the routes
@@ -92,12 +104,23 @@ describe('template', () => {
     expect(fs.existsSync(path.join(tmpDir, 'src', 'index.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'src', 'handlers', 'health.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'handlers'))).toBe(false)
-    expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf8').split('\n')).toContain(
-      "import { getHealthRoute } from './routes'",
-    )
-    expect(
-      fs.readFileSync(path.join(tmpDir, 'src', 'handlers', 'health.ts'), 'utf8').split('\n'),
-    ).toContain("import type { getHealthRoute } from '../routes'")
+    expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf8'))
+      .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes'
+import { getHealthRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
+`)
+    expect(fs.readFileSync(path.join(tmpDir, 'src', 'handlers', 'health.ts'), 'utf8'))
+      .toBe(`import type { RouteHandler } from '@hono/zod-openapi'
+import type { getHealthRoute } from '../routes'
+
+export const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {}
+`)
   })
 
   it('merges into an existing app file, preserving custom imports', async () => {
@@ -129,7 +152,16 @@ export const api = new OpenAPIHono()
     } as OpenAPI
     await runGenerator(template(openAPI, output, '/', undefined, undefined, false))
     const content = fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8')
-    expect(content).toContain('custom-marker')
+    expect(content).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { customThing } from './custom-marker'
+import { healthHandler } from './handlers'
+
+export const api = new OpenAPIHono()
+
+export const api = app.route('/', healthHandler)
+
+export default app
+`)
   })
 
   it('preserves import aliases and repeated namespace imports in the app file', async () => {

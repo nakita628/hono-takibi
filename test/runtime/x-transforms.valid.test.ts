@@ -1326,8 +1326,16 @@ describe('fallbacks: x-catch: null, x-prefault: null, int64 in a default', () =>
   // 元の定義にある JSON の値である。bigint はシリアライズできない。
   it('generates a document that states the schema of a catch', () => {
     const doc = app.getOpenAPI31Document({ openapi: '3.1.0', info: { title: 't', version: '1' } })
-    expect(doc.components?.schemas?.P2Form).toMatchObject({
-      properties: { withCatch: { type: 'integer' } },
+    expect(doc.components?.schemas?.P2Form).toStrictEqual({
+      type: 'object',
+      properties: {
+        includesSlug: { type: 'string' },
+        startsWithHttps: { type: 'string' },
+        endsWithTest: { type: 'string' },
+        withCatch: { type: 'integer' },
+        withPrefault: { type: 'string', default: 'default-value' },
+      },
+      required: ['includesSlug', 'startsWithHttps', 'endsWithTest', 'withCatch', 'withPrefault'],
     })
     expect(doc.components?.schemas?.FallbackForm).toStrictEqual({
       type: 'object',
@@ -1353,6 +1361,11 @@ describe('fallbacks: x-catch: null, x-prefault: null, int64 in a default', () =>
       },
       required: ['catchNull', 'prefaultNull', 'counter', 'ids', 'settings'],
     })
-    expect(JSON.stringify(doc)).toContain('"FallbackForm"')
+    // The whole document survives a round trip through JSON (JSON.stringify throws on a
+    // bigint): no bigint is left in it.
+    // ドキュメント全体が JSON の往復でそのまま残る(JSON.stringify は bigint で例外を投げる)。
+    // bigint は含まれていない。
+    const json = JSON.stringify(doc)
+    expect(JSON.parse(json)).toStrictEqual(doc)
   })
 })

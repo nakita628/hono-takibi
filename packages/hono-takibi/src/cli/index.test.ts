@@ -133,6 +133,52 @@ const minimalOpenapi = {
   },
 }
 
+// The help text the CLI prints.
+const HELP = `DESCRIPTION
+  Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi
+
+USAGE
+  hono-takibi [flags] [<input>]
+
+ARGUMENTS
+  input input.{yaml,yml,json,tsp} OpenAPI (.yaml, .yml, .json) or TypeSpec (.tsp) document to generate from (optional)
+
+FLAGS
+  --output, -o output.ts    TypeScript file the generated routes are written to
+  --config, -c file         Config file to run (default: ./hono-takibi.config.ts)
+  --watch, -w               Rerun the config on every change to its documents or itself
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+EXAMPLES
+  # Generate a single routes file
+  hono-takibi openapi.yaml -o src/routes.ts
+
+  # Run every generator declared in ./hono-takibi.config.ts
+  hono-takibi
+
+  # Run a config file from another location
+  hono-takibi --config config/api.config.ts
+
+  # Rerun on every change to the input documents or the config
+  hono-takibi --watch`
+
+// The routes file minimalOpenapi generates.
+const GET_ITEMS_ROUTE = `import { createRoute, z } from '@hono/zod-openapi'
+
+export const getItemsRoute = createRoute({
+  method: 'get',
+  path: '/items',
+  operationId: 'getItems',
+  responses: { 200: { description: 'OK' } },
+})
+`
+
 const { version } = JSON.parse(
   fs.readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
 ) as { readonly version: string }
@@ -202,7 +248,7 @@ describe('hono-takibi mode resolution', { timeout: 30_000 }, () => {
     const result = await runCli([input])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('<input> requires -o <output.ts>')
+    expect(result.stderr).toBe('\nERROR\n  <input> requires -o <output.ts>.')
   })
 
   it('rejects --config alongside the one-shot flags', async () => {
@@ -215,7 +261,9 @@ describe('hono-takibi mode resolution', { timeout: 30_000 }, () => {
     const result = await runCli([input, '-o', path.join(dir, 'out.ts'), '--config', config])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('--config cannot be combined')
+    expect(result.stderr).toBe(
+      '\nERROR\n  --config cannot be combined with <input> or --output. A config file already names its own input and outputs.',
+    )
   })
 
   it('rejects --config alongside -o alone', async () => {
@@ -226,7 +274,9 @@ describe('hono-takibi mode resolution', { timeout: 30_000 }, () => {
     const result = await runCli(['-o', path.join(dir, 'out.ts'), '--config', config])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('--config cannot be combined')
+    expect(result.stderr).toBe(
+      '\nERROR\n  --config cannot be combined with <input> or --output. A config file already names its own input and outputs.',
+    )
   })
 })
 
@@ -345,7 +395,7 @@ export const getItemsRoute = createRoute({
     const result = await runCli([input, '-o', output])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('ERROR')
+    expect(result.stderr).toBe(`\nERROR\n  BadResource: FileSystem.writeFile (${dir}/routes.ts)`)
   })
 })
 
@@ -386,10 +436,26 @@ describe('hono-takibi invariants', () => {
     const source = fs.readFileSync(new URL('./index.ts', import.meta.url), 'utf8')
     const header = source.slice(0, source.indexOf('const commandLine'))
 
-    for (const heavy of ['../openapi/index.js', '../core/index.js', '../shared/index.js']) {
-      expect(header).not.toContain(`from '${heavy}'`)
-      expect(source).toContain(`import('${heavy}')`)
-    }
+    const staticImports = Array.from(header.matchAll(/from '([^']+)'/gu), ([, from]) => from)
+    const lazyImports = new Set(
+      Array.from(source.matchAll(/import\('([^']+)'\)/gu), ([, from]) => from),
+    )
+
+    // The parser, the generators and the shared pipeline are reached only through `import()`.
+    expect(staticImports).toStrictEqual([
+      'effect',
+      'effect/cli',
+      '../../package.json',
+      '../constants/index.js',
+      '../guard/index.js',
+    ])
+    expect([...lazyImports].sort()).toStrictEqual([
+      '../config/index.js',
+      '../core/index.js',
+      '../format/index.js',
+      '../openapi/index.js',
+      '../shared/index.js',
+    ])
   })
 })
 
@@ -402,7 +468,9 @@ describe('hono-takibi argument validation', () => {
     const result = await runCli([input, '-o', path.join(dir, 'out.ts')])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('an OpenAPI (.yaml, .yml, .json) or TypeSpec (.tsp) document')
+    expect(result.stderr).toBe(
+      `\nERROR\n  Invalid value for argument <input>: "${dir}/spec.txt". Expected: Schema validation failed: an OpenAPI (.yaml, .yml, .json) or TypeSpec (.tsp) document`,
+    )
   })
 
   it('rejects an input file that does not exist', async () => {
@@ -412,7 +480,9 @@ describe('hono-takibi argument validation', () => {
     const result = await runCli([input, '-o', path.join(dir, 'out.ts')])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('Path does not exist')
+    expect(result.stderr).toBe(
+      `\nERROR\n  Invalid value for argument <input>: "${dir}/this-file-does-not-exist.yaml". Expected: Path does not exist: ${dir}/this-file-does-not-exist.yaml`,
+    )
   })
 
   it('rejects an output whose extension is not .ts', async () => {
@@ -423,7 +493,9 @@ describe('hono-takibi argument validation', () => {
     const result = await runCli([input, '-o', 'out.js'])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('a TypeScript file path ending in .ts')
+    expect(result.stderr).toBe(
+      '\nERROR\n  Invalid value for flag --output: "out.js". Expected: Schema validation failed: a TypeScript file path ending in .ts',
+    )
   })
 
   it('rejects an unknown flag', async () => {
@@ -432,7 +504,7 @@ describe('hono-takibi argument validation', () => {
     const result = await runCli(['--nope'])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('--nope')
+    expect(result.stderr).toBe('\nERROR\n  Unrecognized flag: --nope in command hono-takibi')
   })
 
   it('explains that -o needs an input document', async () => {
@@ -441,7 +513,7 @@ describe('hono-takibi argument validation', () => {
     const result = await runCli(['-o', 'out.ts'])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('-o <output.ts> requires an <input> document')
+    expect(result.stderr).toBe('\nERROR\n  -o <output.ts> requires an <input> document.')
   })
 })
 
@@ -531,7 +603,7 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     const result = await runCli([])
 
     expect(result.ok).toBe(true)
-    expect(fs.readFileSync(output, 'utf8')).toContain('getItemsRoute')
+    expect(fs.readFileSync(output, 'utf8')).toBe(GET_ITEMS_ROUTE)
   })
 
   it('runs the config file named by --config', async () => {
@@ -549,7 +621,7 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     const result = await runCli(['--config', config])
 
     expect(result.ok).toBe(true)
-    expect(fs.readFileSync(output, 'utf8')).toContain('getItemsRoute')
+    expect(fs.readFileSync(output, 'utf8')).toBe(GET_ITEMS_ROUTE)
   })
 
   it('names the config it looked for when there is no input and no config file', async () => {
@@ -558,7 +630,9 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     const result = await runCli([])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain(`Config not found: ${path.join(dir, 'hono-takibi.config.ts')}`)
+    expect(result.stderr).toBe(
+      `\nERROR\n  Config not found: ${path.join(dir, 'hono-takibi.config.ts')}`,
+    )
   })
 
   it('rejects a --config file that does not exist', async () => {
@@ -567,7 +641,9 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     const result = await runCli(['--config', path.join(dir, 'nope.config.ts')])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('Path does not exist')
+    expect(result.stderr).toBe(
+      `\nERROR\n  Invalid value for flag --config: "${dir}/nope.config.ts". Expected: Path does not exist: ${dir}/nope.config.ts`,
+    )
   })
 
   it('fans out to every generator named in the config and aggregates the results', async () => {
@@ -726,7 +802,7 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     const result = await runCli([])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('ERROR')
+    expect(result.stderr).toBe(`\nERROR\n  BadResource: FileSystem.writeFile (${dir}/routes.ts)`)
   })
 
   it('reports an invalid config without running any generator', async () => {
@@ -736,7 +812,9 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     const result = await runCli([])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('Invalid config')
+    expect(result.stderr).toBe(
+      '\nERROR\n  Invalid config: input: must be .yaml | .yml | .json | .tsp, or an http(s) URL',
+    )
     // A config that is present and wrong already names the field that is wrong; the help
     // the mode failures ask for would only bury it.
     expect(result.stdout).toBe('')
@@ -756,7 +834,7 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     const result = await runCli(['--config', 'config/api.config.ts'])
 
     expect(result.ok).toBe(true)
-    expect(fs.readFileSync(path.join(dir, 'src', 'routes.ts'), 'utf8')).toContain('getItemsRoute')
+    expect(fs.readFileSync(path.join(dir, 'src', 'routes.ts'), 'utf8')).toBe(GET_ITEMS_ROUTE)
   })
 
   it('applies the config format block to what it writes', async () => {
@@ -774,9 +852,16 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     const result = await runCli([])
 
     expect(result.ok).toBe(true)
-    expect(fs.readFileSync(path.join(dir, 'routes.ts'), 'utf8')).toContain(
-      'import { createRoute, z } from "@hono/zod-openapi";',
-    )
+    expect(fs.readFileSync(path.join(dir, 'routes.ts'), 'utf8'))
+      .toBe(`import { createRoute, z } from "@hono/zod-openapi";
+
+export const getItemsRoute = createRoute({
+  method: "get",
+  path: "/items",
+  operationId: "getItems",
+  responses: { 200: { description: "OK" } },
+});
+`)
   })
 
   it('surfaces a config module that throws while loading', async () => {
@@ -790,7 +875,7 @@ export default {}`,
     const result = await runCli([])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('config blew up')
+    expect(result.stderr).toBe('\nERROR\n  config blew up')
   })
 
   it('rejects a config module with no default export', async () => {
@@ -800,7 +885,7 @@ export default {}`,
     const result = await runCli([])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('Config must export default object')
+    expect(result.stderr).toBe('\nERROR\n  Config must export default object')
   })
 
   it('surfaces a config whose input document is missing', async () => {
@@ -813,7 +898,9 @@ export default {}`,
     const result = await runCli([])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('ERROR')
+    expect(result.stderr).toBe(
+      `\nERROR\n  Error opening file ${dir}/nope.yaml: ENOENT: no such file or directory, open '${dir}/nope.yaml'`,
+    )
     expect(fs.existsSync(path.join(dir, 'routes.ts'))).toBe(false)
   })
 
@@ -821,31 +908,35 @@ export default {}`,
   // What matters here is that the failure reaches the caller naming the config field,
   // rather than as an oxfmt complaint about a file they never wrote.
   it.each([
-    ['basePath', `basePath: 'api', output: './routes.ts'`, 'basePath: must start with'],
+    [
+      'basePath',
+      `basePath: 'api', output: './routes.ts'`,
+      "Invalid config: basePath: must start with '/' and contain no whitespace or quotes",
+    ],
     [
       'rpc.client',
       `output: './routes.ts', template: {}, client: { output: './lib/client.ts' }, rpc: { output: './rpc.ts', client: 'apiClient' }`,
-      'rpc.client: client was removed',
+      'Invalid config: rpc.client: client was removed: the generated client is exported as `client`, and a group of a split app as `<group>Client`.',
     ],
     [
       'rpc.import',
       `output: './routes.ts', template: {}, client: { output: './lib/client.ts' }, rpc: { output: './rpc.ts', import: '../lib' }`,
-      'rpc.import: import was removed',
+      'Invalid config: rpc.import: import was removed: rpc and the hooks import the client the client block generates. A file written into another package imports it by client.package.',
     ],
     [
       'client.package',
       `output: './routes.ts', template: {}, client: { output: './lib/client.ts', package: '' }`,
-      'client.package: must be a module specifier',
+      'Invalid config: client.package: must be a module specifier, with no whitespace or quotes',
     ],
     [
       'client.baseUrl',
       `output: './routes.ts', template: {}, client: { output: './lib/client.ts', baseUrl: 'http://localhost:3000' }`,
-      'client.baseUrl: a fixed URL was removed',
+      "Invalid config: client.baseUrl: a fixed URL was removed: leave baseUrl out (or set '/') for the same origin, or read it from the environment with { env } or { env, import }",
     ],
     [
       'client.credentials',
       `output: './routes.ts', template: {}, client: { output: './lib/client.ts', credentials: 'always' }`,
-      'client.credentials',
+      'Invalid config: client.credentials: Expected "include" | "same-origin" | "omit"',
     ],
   ])('rejects a config whose %s cannot be generated from', async (_field, body, expected) => {
     const dir = useTmpDir('cli-config-field-')
@@ -858,7 +949,7 @@ export default {}`,
     const result = await runCli([])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain(expected)
+    expect(result.stderr).toBe(`\nERROR\n  ${expected}`)
     expect(fs.readdirSync(dir).sort()).toStrictEqual(['hono-takibi.config.ts', 'openapi.json'])
   })
 
@@ -879,9 +970,14 @@ export default {}`,
     const result = await runCli([])
 
     expect(result.ok).toBe(true)
-    expect(fs.readFileSync(path.join(dir, 'rpc.ts'), 'utf8')).toContain(
-      "import { client } from './lib'",
-    )
+    expect(fs.readFileSync(path.join(dir, 'rpc.ts'), 'utf8'))
+      .toBe(`import type { ClientRequestOptions } from 'hono/client'
+import { client } from './lib'
+
+export async function getItems(options?: ClientRequestOptions) {
+  return await client.items.$get(undefined, options)
+}
+`)
   })
 
   // Split routes and the scaffold together: the app entry and the handlers land beside the
@@ -910,14 +1006,30 @@ export default {}`,
     ])
     expect(fs.existsSync(path.join(dir, 'handlers'))).toBe(false)
     expect(fs.existsSync(path.join(dir, 'src/routes/index.ts'))).toBe(true)
-    expect(fs.readFileSync(path.join(dir, 'src/index.ts'), 'utf8')).toContain("from './routes'")
-    const handlers = fs.readdirSync(path.join(dir, 'src/handlers')).filter((f) => f !== 'index.ts')
-    expect(handlers.length).toBeGreaterThan(0)
-    for (const file of handlers) {
-      expect(fs.readFileSync(path.join(dir, 'src/handlers', file), 'utf8')).toContain(
-        "from '../routes'",
-      )
-    }
+    expect(fs.readFileSync(path.join(dir, 'src/index.ts'), 'utf8'))
+      .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getItemsRoute } from './routes'
+import { getItemsRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getItemsRoute, getItemsRouteHandler)
+
+export default app
+`)
+    expect(fs.readdirSync(path.join(dir, 'src/handlers')).sort()).toStrictEqual([
+      'index.ts',
+      'items.ts',
+    ])
+    expect(fs.readFileSync(path.join(dir, 'src/handlers/index.ts'), 'utf8')).toBe(
+      "export * from './items'\n",
+    )
+    expect(fs.readFileSync(path.join(dir, 'src/handlers/items.ts'), 'utf8'))
+      .toBe(`import type { RouteHandler } from '@hono/zod-openapi'
+import type { getItemsRoute } from '../routes'
+
+export const getItemsRouteHandler: RouteHandler<typeof getItemsRoute> = async (c) => {}
+`)
   })
 
   // The base URL comes from the environment at startup, asserted present: the generated
@@ -925,13 +1037,37 @@ export default {}`,
   // ベース URL は起動時に環境から読み、存在するものとして扱う。生成ファイルは変数名を書き、
   // 代わりの値は書かない。
   it.each([
-    ['import.meta.env', `{ env: 'VITE_API_URL' }`, 'const baseUrl = import.meta.env.VITE_API_URL!'],
+    [
+      'import.meta.env',
+      `{ env: 'VITE_API_URL' }`,
+      `import { hc } from 'hono/client'
+import type { api } from '../index'
+
+const baseUrl = import.meta.env.VITE_API_URL!
+
+type Client = ReturnType<typeof hc<typeof api>>
+
+const hcWithType = (...args: Parameters<typeof hc>): Client => hc<typeof api>(...args)
+
+export const client = hcWithType(baseUrl)
+`,
+    ],
     [
       'process.env',
       `{ env: 'API_URL', source: 'process.env' }`,
-      'const baseUrl = process.env.API_URL!',
+      `import { hc } from 'hono/client'
+import type { api } from '../index'
+
+const baseUrl = process.env.API_URL!
+
+type Client = ReturnType<typeof hc<typeof api>>
+
+const hcWithType = (...args: Parameters<typeof hc>): Client => hc<typeof api>(...args)
+
+export const client = hcWithType(baseUrl)
+`,
     ],
-  ])('reads the base URL from %s with a non-null assertion', async (_source, baseUrl, line) => {
+  ])('reads the base URL from %s with a non-null assertion', async (_source, baseUrl, expected) => {
     const dir = useTmpDir('cli-config-base-url-')
     fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
     fs.writeFileSync(
@@ -947,10 +1083,7 @@ export default {}`,
     const result = await runCli([])
 
     expect(result.ok).toBe(true)
-    const client = fs.readFileSync(path.join(dir, 'lib/client.ts'), 'utf8')
-    expect(client).toContain(line)
-    expect(client).toContain('hcWithType(baseUrl)')
-    expect(client).not.toContain("?? '/'")
+    expect(fs.readFileSync(path.join(dir, 'lib/client.ts'), 'utf8')).toBe(expected)
   })
 
   // The cookies go with every request: `credentials` is written as the `init` of `hc`, and
@@ -973,8 +1106,16 @@ export default {}`,
     const result = await runCli([])
 
     expect(result.ok).toBe(true)
-    const client = fs.readFileSync(path.join(dir, 'lib/client.ts'), 'utf8')
-    expect(client).toContain("hcWithType('/', { init: { credentials: 'include' } })")
+    expect(fs.readFileSync(path.join(dir, 'lib/client.ts'), 'utf8'))
+      .toBe(`import { hc } from 'hono/client'
+import type { api } from '../index'
+
+type Client = ReturnType<typeof hc<typeof api>>
+
+const hcWithType = (...args: Parameters<typeof hc>): Client => hc<typeof api>(...args)
+
+export const client = hcWithType('/', { init: { credentials: 'include' } })
+`)
   })
 
   // The single components file in a package of its own: the routes import it by name.
@@ -1030,8 +1171,20 @@ export default {}`,
       .readdirSync(path.join(dir, 'src/routes'))
       .filter((file) => file !== 'index.ts')
       .map((file) => fs.readFileSync(path.join(dir, 'src/routes', file), 'utf8'))
-    expect(routes.some((source) => source.includes("from '@packages/components'"))).toBe(true)
-    expect(routes.some((source) => source.includes("from '../components'"))).toBe(false)
+    expect(routes).toStrictEqual([
+      `import { createRoute } from '@hono/zod-openapi'
+import { ItemSchema } from '@packages/components'
+
+export const getItemsRoute = createRoute({
+  method: 'get',
+  path: '/items',
+  operationId: 'getItems',
+  responses: {
+    200: { description: 'OK', content: { 'application/json': { schema: ItemSchema } } },
+  },
+})
+`,
+    ])
   })
 
   // A target in another package that names no package stops the run before anything is
@@ -1075,8 +1228,8 @@ export default {}`,
     const result = await runCli([])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain(
-      'routes imports components.schemas from another package: set components.schemas.package',
+    expect(result.stderr).toBe(
+      '\nERROR\n  routes imports components.schemas from another package: set components.schemas.package to the name of the package ./src/schemas is written into.',
     )
     expect(fs.existsSync(path.join(dir, 'src/routes'))).toBe(false)
   })
@@ -1107,15 +1260,167 @@ export default {}`,
     const result = await runCli([])
 
     expect(result.ok).toBe(true)
-    expect(fs.readFileSync(path.join(dir, 'client/src/lib/client.ts'), 'utf8')).toContain(
-      "import type { api } from '@packages/server'",
-    )
-    expect(fs.readFileSync(path.join(dir, 'client/src/swr.ts'), 'utf8')).toContain(
-      "import { client } from './lib'",
-    )
-    expect(fs.readFileSync(path.join(dir, 'web/src/hooks.ts'), 'utf8')).toContain(
-      "import { client } from '@packages/client'",
-    )
+    expect(fs.readFileSync(path.join(dir, 'client/src/lib/client.ts'), 'utf8'))
+      .toBe(`import { hc } from 'hono/client'
+import type { api } from '@packages/server'
+
+type Client = ReturnType<typeof hc<typeof api>>
+
+const hcWithType = (...args: Parameters<typeof hc>): Client => hc<typeof api>(...args)
+
+export const client = hcWithType('/')
+`)
+    expect(fs.readFileSync(path.join(dir, 'client/src/swr.ts'), 'utf8'))
+      .toBe(`import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
+import type { Key, SWRConfiguration } from 'swr'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from './lib'
+
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+export function getGetItemsKey() {
+  return ['items', '/items'] as const
+}
+
+export function useGetItems<TError = unknown>(options?: {
+  swr?: SWRConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+    TError
+  > & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetItemsKey() : customKey) : null
+  return {
+    swrKey,
+    ...useSWR<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+      TError
+    >(
+      swrKey,
+      async () => parseResponse(client.items.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+export function useImmutableGetItems<TError = unknown>(options?: {
+  swr?: SWRConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+    TError
+  > & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetItemsKey() : customKey) : null
+  return {
+    swrKey,
+    ...useSWRImmutable<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+      TError
+    >(
+      swrKey,
+      async () => parseResponse(client.items.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+`)
+    expect(fs.readFileSync(path.join(dir, 'web/src/hooks.ts'), 'utf8'))
+      .toBe(`import { useQuery, useSuspenseQuery, queryOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  UseSuspenseQueryOptions,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/react-query'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '@packages/client'
+
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+export function getItemsQueryKey() {
+  return ['items', '/items'] as const
+}
+
+export function getItemsQueryOptions<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getItemsQueryKey>
+  >({
+    queryKey: getItemsQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        client.items.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function useItems<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getItemsQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getItemsQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspenseItems<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getItemsQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getItemsQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+`)
   })
 
   // A split generator writes one file per entry and knows only what it writes, so nothing
@@ -1203,7 +1508,9 @@ export default {}`,
     const result = await runCli([])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('type.output and output both write to')
+    expect(result.stderr).toBe(
+      `\nERROR\n  Invalid config: type.output and output both write to ${dir}/api.ts. Give each generator its own output path.`,
+    )
     expect(fs.existsSync(output)).toBe(false)
   })
 })
@@ -1217,7 +1524,9 @@ describe('hono-takibi one-shot failures', { timeout: 30_000 }, () => {
     const result = await runCli([input, '-o', path.join(dir, 'out.ts')])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('ERROR')
+    expect(result.stderr).toBe(
+      `\nERROR\n  Error parsing ${dir}/broken.json: unexpected end of the stream within a flow collection (1:11)\n\n 1 | { not json\n---------------^`,
+    )
   })
 })
 
@@ -1374,7 +1683,9 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
     const cli = startCli(['--watch'])
     try {
       await expect(until(() => cli.output().includes('👀 Watching'))).resolves.toBe(true)
-      expect(cli.output()).toContain("basePath: must start with '/'")
+      expect(cli.output()).toBe(
+        "❌ Invalid config: basePath: must start with '/' and contain no whitespace or quotes\n\n👀 Watching hono-takibi.config.ts — Ctrl-C to stop",
+      )
       expect(fs.existsSync(path.join(dir, 'routes.ts'))).toBe(false)
 
       await expect(
@@ -1408,8 +1719,9 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
     const cli = startCli(['--watch'])
     try {
       await expect(until(() => cli.output().includes('👀 Watching'))).resolves.toBe(true)
-      expect(cli.output()).toContain('❌')
-      expect(cli.output()).toContain(`👀 Watching ${dir} and hono-takibi.config.ts`)
+      expect(cli.output()).toBe(
+        `❌ Error parsing ${dir}/openapi.json: unexpected end of the stream within a flow collection (1:11)\n\n 1 | { not json\n---------------^\n\n👀 Watching ${dir} and hono-takibi.config.ts — Ctrl-C to stop`,
+      )
       expect(fs.existsSync(routes)).toBe(false)
 
       await expect(
@@ -1546,8 +1858,8 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
     const cli = startCli(['--watch'])
     try {
       await expect(until(() => cli.output().includes('👀 Watching'))).resolves.toBe(true)
-      expect(cli.output()).toContain(
-        `👀 Watching ${path.join(dir, 'spec')}, ${shared} and hono-takibi.config.ts`,
+      expect(cli.output()).toBe(
+        `🔥 Generated code written to ./routes.ts\n\n👀 Watching ${path.join(dir, 'spec')}, ${shared} and hono-takibi.config.ts — Ctrl-C to stop`,
       )
 
       await expect(
@@ -1615,6 +1927,8 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
     const exit = await Effect.runPromise(Fiber.await(cli.fiber))
 
     expect(exit._tag).toBe('Failure')
-    expect(cli.output()).toContain('--watch runs a config file')
+    expect(cli.output()).toBe(
+      `${HELP}\n\nERROR\n  --watch runs a config file, so it cannot be combined with <input> or --output.`,
+    )
   })
 })

@@ -490,13 +490,14 @@ describe('schemaToFaker', () => {
     })
 
     it.concurrent('never inverts the entry count when only maxProperties is 0', () => {
-      expect(
-        schemaToFaker({
-          type: 'object',
-          additionalProperties: { type: 'boolean' },
-          maxProperties: 0,
-        }),
-      ).toContain('faker.number.int({ min: 0, max: 0 })')
+      const result = schemaToFaker({
+        type: 'object',
+        additionalProperties: { type: 'boolean' },
+        maxProperties: 0,
+      })
+      expect(result).toBe(
+        'Object.fromEntries(Array.from({ length: faker.number.int({ min: 0, max: 0 }) }, () => [faker.string.alpha(8), faker.datatype.boolean()] satisfies [string, unknown]))',
+      )
     })
 
     it.concurrent('keeps a map with propertyNames empty (random keys would violate it)', () => {

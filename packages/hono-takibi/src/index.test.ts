@@ -4,6 +4,42 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 
+// The help text both --help and -h print.
+const HELP = `DESCRIPTION
+  Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi
+
+USAGE
+  hono-takibi [flags] [<input>]
+
+ARGUMENTS
+  input input.{yaml,yml,json,tsp} OpenAPI (.yaml, .yml, .json) or TypeSpec (.tsp) document to generate from (optional)
+
+FLAGS
+  --output, -o output.ts    TypeScript file the generated routes are written to
+  --config, -c file         Config file to run (default: ./hono-takibi.config.ts)
+  --watch, -w               Rerun the config on every change to its documents or itself
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+EXAMPLES
+  # Generate a single routes file
+  hono-takibi openapi.yaml -o src/routes.ts
+
+  # Run every generator declared in ./hono-takibi.config.ts
+  hono-takibi
+
+  # Run a config file from another location
+  hono-takibi --config config/api.config.ts
+
+  # Rerun on every change to the input documents or the config
+  hono-takibi --watch
+`
+
 describe('CLI and config options test with string matching', { timeout: 30_000 }, () => {
   beforeEach(() => {
     fs.rmSync('tmp-cli-test', { recursive: true, force: true })
@@ -18,16 +54,14 @@ describe('CLI and config options test with string matching', { timeout: 30_000 }
     const result = execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')} --help`, {
       encoding: 'utf8',
     })
-    expect(result).toContain('hono-takibi [flags] [<input>]')
-    expect(result).toContain('--output, -o')
-    expect(result).toContain('--config, -c')
+    expect(result).toBe(HELP)
   })
 
   it('-h returns help text', () => {
     const result = execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')} -h`, {
       encoding: 'utf8',
     })
-    expect(result).toContain('hono-takibi [flags] [<input>]')
+    expect(result).toBe(HELP)
   })
 
   it('config exportSchemas exports schema with export keyword', () => {
@@ -910,14 +944,25 @@ export const getUsersUserIdMessagesMessageIdRoute = createRoute({
   responses: { 200: { description: 'ok' } },
 })
 `)
-    expect(fs.readFileSync('tmp-cli-test/src/rpc.ts', { encoding: 'utf8' })).toContain(
-      `export async function getUsersId(
+    expect(fs.readFileSync('tmp-cli-test/src/rpc.ts', { encoding: 'utf8' }))
+      .toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from './client'
+
+export async function getUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await parseResponse(client.users[':id'].$get(args, options))
-}`,
-    )
+}
+
+export async function getUsersUserIdMessagesMessageId(
+  args: InferRequestType<(typeof client.users)[':user_id']['messages'][':message_id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':user_id'].messages[':message_id'].$get(args, options))
+}
+`)
   })
 
   it('error on missing input file', () => {

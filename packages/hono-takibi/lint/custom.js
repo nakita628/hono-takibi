@@ -30,9 +30,15 @@
 //                              `import/no-extraneous-dependencies`; without this a
 //                              `devDependency` reaching shipped code passes every check here
 //                              and fails at the consumer's first import
+//   custom/no-partial-assertion a test compares the whole value. The asymmetric matchers
+//                              (`expect.stringContaining`, `expect.objectContaining`, ...) bring
+//                              a partial comparison back inside `toStrictEqual`, and
+//                              `expect(code.includes('x')).toBe(true)` is `toContain` spelled as
+//                              a boolean; `jest/no-restricted-matchers` sees neither
 //
 // Tests are exempt from the structural rules: a test arranges and asserts imperatively when that
-// is the clearest way to spell the fixture out.
+// is the clearest way to spell the fixture out. `no-partial-assertion` is the one rule that
+// reads only tests.
 import { builtinModules } from 'node:module'
 
 import MANIFEST from '../package.json' with { type: 'json' }
@@ -63,6 +69,35 @@ const FUNCTION_TYPES = new Set([
   'FunctionDeclaration',
   'FunctionExpression',
   'ArrowFunctionExpression',
+])
+
+// `expect.<name>(...)`: each matches a value it has only partly seen.
+const ASYMMETRIC_MATCHERS = new Set([
+  'stringContaining',
+  'stringMatching',
+  'objectContaining',
+  'arrayContaining',
+  'any',
+  'anything',
+])
+// `expect(value.<name>(...))`: each asks a question about part of the value.
+const PARTIAL_QUESTIONS = new Set([
+  'includes',
+  'some',
+  'every',
+  'find',
+  'findIndex',
+  'findLast',
+  'findLastIndex',
+  'indexOf',
+  'lastIndexOf',
+  'startsWith',
+  'endsWith',
+  'match',
+  'matchAll',
+  'search',
+  'test',
+  'has',
 ])
 
 function filenameOf(context) {
@@ -152,6 +187,33 @@ function outermostPipe(node) {
     return outermostPipe(parent.parent)
   }
   return node
+}
+
+function isExpectCall(node) {
+  return (
+    node.type === 'CallExpression' &&
+    node.callee.type === 'Identifier' &&
+    node.callee.name === 'expect'
+  )
+}
+
+/** The partial question an `expect(...)` argument asks, if it asks one: `includes`, `some`, ... */
+function partialQuestionOf(node) {
+  if (!node) return null
+  if (node.type === 'ChainExpression') return partialQuestionOf(node.expression)
+  if (node.type === 'UnaryExpression') return partialQuestionOf(node.argument)
+  if (node.type === 'LogicalExpression') {
+    return partialQuestionOf(node.left) ?? partialQuestionOf(node.right)
+  }
+  if (
+    node.type === 'CallExpression' &&
+    node.callee.type === 'MemberExpression' &&
+    node.callee.property.type === 'Identifier' &&
+    PARTIAL_QUESTIONS.has(node.callee.property.name)
+  ) {
+    return node.callee.property.name
+  }
+  return null
 }
 
 function declarationOf(statement) {
@@ -400,6 +462,39 @@ export default {
           },
           ImportExpression(node) {
             check(node.source)
+          },
+        }
+      },
+    },
+    'no-partial-assertion': {
+      meta: { docs: { description: 'a test compares the whole value' } },
+      create(context) {
+        if (!isTestPath(filenameOf(context))) return {}
+        return {
+          CallExpression(node) {
+            if (isExpectCall(node)) {
+              const question = partialQuestionOf(node.arguments[0])
+              if (question) {
+                context.report({
+                  node,
+                  message: `\`expect(value.${question}(...))\` checks one part of the value and lets a regression in the rest pass. Compare the whole value with toBe / toStrictEqual.`,
+                })
+              }
+              return
+            }
+            const name =
+              node.callee.type === 'MemberExpression' &&
+              node.callee.object.type === 'Identifier' &&
+              node.callee.object.name === 'expect' &&
+              node.callee.property.type === 'Identifier'
+                ? node.callee.property.name
+                : null
+            if (name && ASYMMETRIC_MATCHERS.has(name)) {
+              context.report({
+                node,
+                message: `\`expect.${name}(...)\` matches a value it has only partly seen. Write the whole expected value out.`,
+              })
+            }
           },
         }
       },

@@ -552,14 +552,13 @@ describe('zodOpenAPIHono component names that collide', () => {
       },
     } as OpenAPI
     const code = zodOpenAPIHono(spec)
-    expect(code).toContain(
-      'const ApiResponseCommonFailureSchema=z.object({success:z.boolean()}).openapi({"required":["success"]}).openapi(\'ApiResponseCommonFailure\')',
-    )
-    expect(code).toContain(
-      "const ApiResponseCommonFailure2Schema=ApiResponseCommonFailureSchema.openapi('ApiResponseCommonFailure2')",
-    )
-    expect(code).toContain('schema:ApiResponseCommonFailure2Schema')
-    expect(code).not.toContain('Type=')
+    expect(code).toBe(`import{createRoute,z}from'@hono/zod-openapi'
+
+const ApiResponseCommonFailureSchema=z.object({success:z.boolean()}).openapi({"required":["success"]}).openapi('ApiResponseCommonFailure')
+
+const ApiResponseCommonFailure2Schema=ApiResponseCommonFailureSchema.openapi('ApiResponseCommonFailure2')
+
+export const getSinkholesRoute=createRoute({method:"get",path:"/sinkholes",responses:{200:{description:"OK",content:{'application/json':{schema:ApiResponseCommonFailure2Schema}}}}})`)
   })
 })
 
@@ -614,9 +613,13 @@ describe('zodOpenAPIHono bodies read the components', () => {
       },
     } as OpenAPI
     const code = zodOpenAPIHono(spec)
-    expect(code).toContain(`mode:ModeSchema.exactOptional().openapi({"default":"'strict'"})`)
-    expect(code).toContain('precision:PrecisionSchema.default(7).exactOptional()')
-    expect(code).toContain('mode:ModeSchema.default("strict").exactOptional()')
+    expect(code).toBe(`import{createRoute,z}from'@hono/zod-openapi'
+
+const ModeSchema=z.enum(["coerce","strict"]).openapi('Mode')
+
+const PrecisionSchema=z.number().openapi('Precision')
+
+export const postSearchRoute=createRoute({method:"post",path:"/search",request:{body:{content:{'application/json':{schema:z.object({mode:ModeSchema.exactOptional().openapi({"default":"'strict'"}),precision:PrecisionSchema.default(7).exactOptional()}).openapi({"required":[]})}}}},responses:{200:{description:"OK",content:{'application/json':{schema:z.object({mode:ModeSchema.default("strict").exactOptional()}).openapi({"required":[]})}}}}})`)
   })
 
   it('keeps a recursive branch of a discriminated union in a body discriminable', () => {
@@ -662,10 +665,15 @@ describe('zodOpenAPIHono bodies read the components', () => {
       },
     } as OpenAPI
     const code = zodOpenAPIHono(spec)
-    expect(code).toContain(
-      'const NodeSchema:z.ZodType<NodeType>&z.core.$ZodTypeDiscriminable=z.lazy(',
-    )
-    expect(code).toContain("schema:z.discriminatedUnion('kind',[LeafSchema,NodeSchema])")
+    expect(code).toBe(`import{createRoute,z}from'@hono/zod-openapi'
+
+type NodeType={kind:'node';child?:NodeType}
+
+const LeafSchema=z.object({kind:z.literal("leaf")}).openapi({"required":["kind"]}).openapi('Leaf')
+
+const NodeSchema:z.ZodType<NodeType>&z.core.$ZodTypeDiscriminable=z.lazy(()=>z.object({kind:z.literal("node"),child:NodeSchema.exactOptional()}).openapi({"required":["kind"]})).openapi('Node')
+
+export const postShapesRoute=createRoute({method:"post",path:"/shapes",request:{body:{content:{'application/json':{schema:z.discriminatedUnion('kind',[LeafSchema,NodeSchema]).openapi({"discriminator":{"propertyName":"kind"}})}}}},responses:{200:{description:"OK"}}})`)
   })
 })
 

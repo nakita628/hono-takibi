@@ -1699,11 +1699,15 @@ export const postUserRouteHandler: RouteHandler<typeof postUserRoute> = async (c
 `
 
       const result = mergeHandlerFile(existing, generated)
-      expect(result.match(/from '#\/routes[^']*'/gu)).toStrictEqual(["from '#/routes/index.ts'"])
-      expect(result).toContain(
-        "import type { getUserRoute, postUserRoute } from '#/routes/index.ts'",
-      )
-      expect(result).toContain("return c.json({ id: '1' }, 200)")
+      expect(result).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute, postUserRoute } from '#/routes/index.ts'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  return c.json({ id: '1' }, 200)
+}
+
+export const postUserRouteHandler: RouteHandler<typeof postUserRoute> = async (c) => {}
+`)
     })
 
     it('handles namespace imports', () => {
@@ -1948,15 +1952,16 @@ export const deleteUserRouteHandler: RouteHandler<typeof deleteUserRoute> = asyn
 `
 
       const result = mergeHandlerFile(existing, generated)
-      const importLine = result.split('\n').find((line: string) => line.includes("from '../index'"))
-      expect(importLine).toBeDefined()
       // Named imports should be alphabetically sorted
-      const names = importLine?.match(/\{([^}]+)\}/u)?.[1]
-      expect(names).toBeDefined()
-      const importNames = names?.split(',').map((n: string) => n.trim().replace(/^type\s+/u, ''))
-      expect(importNames).toBeDefined()
-      const sorted = [...(importNames ?? [])].sort()
-      expect(importNames).toStrictEqual(sorted)
+      expect(result).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
+import type { deleteUserRoute, getUserRoute, postUserRoute } from '../index'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {}
+
+export const postUserRouteHandler: RouteHandler<typeof postUserRoute> = async (c) => {}
+
+export const deleteUserRouteHandler: RouteHandler<typeof deleteUserRoute> = async (c) => {}
+`)
     })
   })
 
@@ -2385,8 +2390,15 @@ export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) 
 export const getPostRouteHandler: RouteHandler<typeof getPostRoute> = async (c) => {}
 `
       const merged = mergeHandlerFile(fixed, generated)
-      expect(merged).toContain("return c.json({ oops: 'ok' }, 200)")
-      expect(merged).toContain('export const getPostRouteHandler')
+      expect(merged).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
+import type { getPostRoute, getUserRoute } from '../index'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  return c.json({ oops: 'ok' }, 200)
+}
+
+export const getPostRouteHandler: RouteHandler<typeof getPostRoute> = async (c) => {}
+`)
     })
   })
 

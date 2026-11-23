@@ -157,11 +157,13 @@ describe('generated useMutation hooks (vue)', () => {
     const created = await mutation.mutateAsync({ json: { name: 'Dave' } })
     expect(created).toStrictEqual({ id: '99', name: 'Dave' })
     expect(requestLog).toStrictEqual(['POST /users'])
-    const cache = queryClient.getMutationCache()
-    expect(cache.find({ mutationKey: ['custom', 'users'], exact: true })?.state.data).toStrictEqual(
-      { id: '99', name: 'Dave' },
-    )
-    expect(cache.find({ mutationKey: getPostUsersMutationKey(), exact: true })).toBeUndefined()
+    const cached = queryClient
+      .getMutationCache()
+      .getAll()
+      .map((entry) => ({ mutationKey: entry.options.mutationKey, data: entry.state.data }))
+    expect(cached).toStrictEqual([
+      { mutationKey: ['custom', 'users'], data: { id: '99', name: 'Dave' } },
+    ])
     dispose()
   })
 })

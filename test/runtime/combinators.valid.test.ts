@@ -642,15 +642,15 @@ describe('the generated document keeps the combinators', () => {
   // `required` beside an `anyOf` is checked on the raw input; the `anyOf` is still there.
   // `anyOf` の横の `required` は生の入力に対して検証されるが、`anyOf` は残る。
   it('keeps the anyOf beside a required-only shape', () => {
-    expect(doc.components?.schemas?.RequiredOnly).toMatchObject({
+    expect(doc.components?.schemas?.RequiredOnly).toStrictEqual({
       allOf: [
         {
           anyOf: [
-            { type: 'object', properties: { a: { type: 'string' } } },
-            { type: 'object', properties: { b: { type: 'string' } } },
+            { type: 'object', properties: { a: { type: 'string' } }, required: [] },
+            { type: 'object', properties: { b: { type: 'string' } }, required: [] },
           ],
         },
-        { type: 'object' },
+        { type: 'object', properties: {}, required: ['a'], additionalProperties: {} },
       ],
       required: ['a'],
     })
@@ -661,7 +661,8 @@ describe('the generated document keeps the combinators', () => {
   // プロパティが持つ2つのコンビネータは、どちらもドキュメントに残る。一方はスキーマとして
   // 出力されたもの、もう一方は元の定義のまま、その横に記載される。
   it('keeps every combinator written at the same level', () => {
-    expect(doc.components?.schemas?.Siblings).toMatchObject({
+    expect(doc.components?.schemas?.Siblings).toStrictEqual({
+      type: 'object',
       properties: {
         allOfAnyOf: { type: 'string', minLength: 1, anyOf: [{ maxLength: 3 }] },
         allOfOneOf: { type: 'string', oneOf: [{ minLength: 3 }, { maxLength: 1 }] },
@@ -669,14 +670,18 @@ describe('the generated document keeps the combinators', () => {
         allOfNot: { type: 'string', not: { const: 'x' } },
         anyOfNot: { anyOf: [{ type: 'string' }, { type: 'integer' }], not: { const: 'x' } },
       },
+      required: [],
     })
   })
 
   // `additionalProperties: false` beside the `allOf` is checked around it, and stated.
   // `allOf` の横の `additionalProperties: false` は、その外側で検証され、ドキュメントにも記載される。
   it('keeps additionalProperties: false written beside an allOf', () => {
-    expect(doc.components?.schemas?.ParentStrict).toMatchObject({
-      allOf: [{ type: 'object' }, { type: 'object' }],
+    expect(doc.components?.schemas?.ParentStrict).toStrictEqual({
+      allOf: [
+        { type: 'object', properties: { a: { type: 'string' } }, required: [] },
+        { type: 'object', properties: { link: { type: 'string' } }, required: [] },
+      ],
       additionalProperties: false,
     })
   })

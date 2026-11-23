@@ -18,15 +18,13 @@
 //
 // A validation failure is answered by the default hook of @hono/zod-openapi: 400 with
 // `{ success: false, error: { name: 'ZodError', message } }`, where `message` is the JSON
-// of the issues. The tests assert the `code` and the `path` of every issue, and not the
-// wording of its message, which belongs to Zod.
+// of the issues. The tests compare the whole list of issues, message included.
 // このファイルには、拒否されるリクエストをまとめている。型付きクライアントでは不正な
 // リクエストを記述できないため、`api.request` で送信する。
 //
 // 検証の失敗には、@hono/zod-openapi のデフォルトフックが応答する。400 とともに
 // `{ success: false, error: { name: 'ZodError', message } }` が返り、`message` は issue の
-// JSON 文字列である。テストでは各 issue の `code` と `path` を検証する。メッセージの文言は
-// Zod に属するものなので、検証しない。
+// JSON 文字列である。テストでは issue の一覧を、メッセージも含めて丸ごと比較する。
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { api } from '../__generated__/crud/src/index'
@@ -61,8 +59,13 @@ describe('create', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['title'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'string',
+        code: 'invalid_type',
+        path: ['title'],
+        message: 'Invalid input: expected string, received undefined',
+      },
     ])
   })
 
@@ -78,7 +81,16 @@ describe('create', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_small', path: ['title'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'string',
+        code: 'too_small',
+        minimum: 1,
+        inclusive: true,
+        path: ['title'],
+        message: 'Too small: expected string to have >=1 characters',
+      },
+    ])
   })
 
   // One above maxLength: 200.
@@ -93,7 +105,16 @@ describe('create', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_big', path: ['title'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'string',
+        code: 'too_big',
+        maximum: 200,
+        inclusive: true,
+        path: ['title'],
+        message: 'Too big: expected string to have <=200 characters',
+      },
+    ])
   })
 
   // A request body is already typed JSON, so nothing is coerced: the number 1 is not the string
@@ -110,8 +131,13 @@ describe('create', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['title'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'string',
+        code: 'invalid_type',
+        path: ['title'],
+        message: 'Invalid input: expected string, received number',
+      },
     ])
   })
 
@@ -127,8 +153,13 @@ describe('create', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['title'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'string',
+        code: 'invalid_type',
+        path: ['title'],
+        message: 'Invalid input: expected string, received null',
+      },
     ])
   })
 
@@ -144,8 +175,15 @@ describe('create', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'too_big', path: ['description'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'string',
+        code: 'too_big',
+        maximum: 2000,
+        inclusive: true,
+        path: ['description'],
+        message: 'Too big: expected string to have <=2000 characters',
+      },
     ])
   })
 
@@ -161,8 +199,13 @@ describe('create', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_value', path: ['status'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        code: 'invalid_value',
+        values: ['pending', 'in_progress', 'done'],
+        path: ['status'],
+        message: 'Invalid option: expected one of "pending"|"in_progress"|"done"',
+      },
     ])
   })
 
@@ -178,8 +221,13 @@ describe('create', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_value', path: ['status'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        code: 'invalid_value',
+        values: ['pending', 'in_progress', 'done'],
+        path: ['status'],
+        message: 'Invalid option: expected one of "pending"|"in_progress"|"done"',
+      },
     ])
   })
 
@@ -195,8 +243,13 @@ describe('create', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_value', path: ['status'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        code: 'invalid_value',
+        values: ['pending', 'in_progress', 'done'],
+        path: ['status'],
+        message: 'Invalid option: expected one of "pending"|"in_progress"|"done"',
+      },
     ])
   })
 
@@ -215,7 +268,16 @@ describe('create', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_big', path: ['tags'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'array',
+        code: 'too_big',
+        maximum: 10,
+        inclusive: true,
+        path: ['tags'],
+        message: 'Too big: expected array to have <=10 items',
+      },
+    ])
   })
 
   // The issue path ends in the index of the element.
@@ -230,8 +292,13 @@ describe('create', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['tags', 1] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'string',
+        code: 'invalid_type',
+        path: ['tags', 1],
+        message: 'Invalid input: expected string, received number',
+      },
     ])
   })
 
@@ -247,7 +314,14 @@ describe('create', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'invalid_type', path: ['tags'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'array',
+        code: 'invalid_type',
+        path: ['tags'],
+        message: 'Invalid input: expected array, received string',
+      },
+    ])
   })
 
   // Two invalid properties, two issues.
@@ -260,9 +334,21 @@ describe('create', () => {
     })
     expect(res.status).toBe(400)
     const body = (await res.json()) as ZodFailure
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'too_small', path: ['title'] },
-      { code: 'invalid_value', path: ['status'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'string',
+        code: 'too_small',
+        minimum: 1,
+        inclusive: true,
+        path: ['title'],
+        message: 'Too small: expected string to have >=1 characters',
+      },
+      {
+        code: 'invalid_value',
+        values: ['pending', 'in_progress', 'done'],
+        path: ['status'],
+        message: 'Invalid option: expected one of "pending"|"in_progress"|"done"',
+      },
     ])
   })
 
@@ -278,7 +364,14 @@ describe('create', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'invalid_type', path: [] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'object',
+        code: 'invalid_type',
+        path: [],
+        message: 'Invalid input: expected object, received array',
+      },
+    ])
   })
 
   // null is valid JSON, and not an object.
@@ -293,7 +386,14 @@ describe('create', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'invalid_type', path: [] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'object',
+        code: 'invalid_type',
+        path: [],
+        message: 'Invalid input: expected object, received null',
+      },
+    ])
   })
 
   // A JSON string is not an object.
@@ -308,7 +408,14 @@ describe('create', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'invalid_type', path: [] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'object',
+        code: 'invalid_type',
+        path: [],
+        message: 'Invalid input: expected object, received string',
+      },
+    ])
   })
 
   // The body cannot be parsed at all, so the answer is plain text, not a validation error.
@@ -371,7 +478,16 @@ describe('list', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_small', path: ['limit'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'number',
+        code: 'too_small',
+        minimum: 1,
+        inclusive: true,
+        path: ['limit'],
+        message: 'Too small: expected number to be >=1',
+      },
+    ])
   })
 
   // One above the maximum of limit, 100.
@@ -382,7 +498,16 @@ describe('list', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_big', path: ['limit'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'number',
+        code: 'too_big',
+        maximum: 100,
+        inclusive: true,
+        path: ['limit'],
+        message: 'Too big: expected number to be <=100',
+      },
+    ])
   })
 
   // A fraction is not an integer.
@@ -393,8 +518,14 @@ describe('list', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['limit'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'int',
+        format: 'safeint',
+        code: 'invalid_type',
+        path: ['limit'],
+        message: 'Invalid input: expected int, received number',
+      },
     ])
   })
 
@@ -406,8 +537,13 @@ describe('list', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['limit'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'number',
+        code: 'invalid_type',
+        path: ['limit'],
+        message: 'Invalid input: expected number, received string',
+      },
     ])
   })
 
@@ -421,8 +557,13 @@ describe('list', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['limit'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'number',
+        code: 'invalid_type',
+        path: ['limit'],
+        message: 'Invalid input: expected number, received string',
+      },
     ])
   })
 
@@ -434,8 +575,13 @@ describe('list', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['limit'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'number',
+        code: 'invalid_type',
+        path: ['limit'],
+        message: 'Invalid input: expected number, received array',
+      },
     ])
   })
 
@@ -447,7 +593,16 @@ describe('list', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_small', path: ['offset'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'number',
+        code: 'too_small',
+        minimum: 0,
+        inclusive: true,
+        path: ['offset'],
+        message: 'Too small: expected number to be >=0',
+      },
+    ])
   })
 
   // A word is not a number.
@@ -458,8 +613,13 @@ describe('list', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['offset'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'number',
+        code: 'invalid_type',
+        path: ['offset'],
+        message: 'Invalid input: expected number, received string',
+      },
     ])
   })
 
@@ -471,7 +631,16 @@ describe('list', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_small', path: ['cursor'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'bigint',
+        code: 'too_small',
+        minimum: '0',
+        inclusive: true,
+        path: ['cursor'],
+        message: 'Too small: expected bigint to be >=0',
+      },
+    ])
   })
 
   // A word cannot become a bigint.
@@ -482,8 +651,13 @@ describe('list', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['cursor'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'bigint',
+        code: 'invalid_type',
+        path: ['cursor'],
+        message: 'Invalid input: expected bigint, received string',
+      },
     ])
   })
 
@@ -495,8 +669,13 @@ describe('list', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['cursor'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'bigint',
+        code: 'invalid_type',
+        path: ['cursor'],
+        message: 'Invalid input: expected bigint, received string',
+      },
     ])
   })
 
@@ -508,7 +687,16 @@ describe('list', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_big', path: ['cursor'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'bigint',
+        code: 'too_big',
+        maximum: '9223372036854775807',
+        inclusive: true,
+        path: ['cursor'],
+        message: 'Too big: expected bigint to be <=9223372036854775807',
+      },
+    ])
   })
 
   // Outside the enum.
@@ -519,8 +707,13 @@ describe('list', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_value', path: ['status'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        code: 'invalid_value',
+        values: ['pending', 'in_progress', 'done'],
+        path: ['status'],
+        message: 'Invalid option: expected one of "pending"|"in_progress"|"done"',
+      },
     ])
   })
 
@@ -532,8 +725,13 @@ describe('list', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_value', path: ['status'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        code: 'invalid_value',
+        values: ['pending', 'in_progress', 'done'],
+        path: ['status'],
+        message: 'Invalid option: expected one of "pending"|"in_progress"|"done"',
+      },
     ])
   })
 
@@ -545,8 +743,13 @@ describe('list', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_value', path: ['status'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        code: 'invalid_value',
+        values: ['pending', 'in_progress', 'done'],
+        path: ['status'],
+        message: 'Invalid option: expected one of "pending"|"in_progress"|"done"',
+      },
     ])
   })
 
@@ -556,10 +759,29 @@ describe('list', () => {
     const res = await api.request('/api/tasks?limit=0&offset=-1&cursor=x')
     expect(res.status).toBe(400)
     const body = (await res.json()) as ZodFailure
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'too_small', path: ['limit'] },
-      { code: 'too_small', path: ['offset'] },
-      { code: 'invalid_type', path: ['cursor'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'number',
+        code: 'too_small',
+        minimum: 1,
+        inclusive: true,
+        path: ['limit'],
+        message: 'Too small: expected number to be >=1',
+      },
+      {
+        origin: 'number',
+        code: 'too_small',
+        minimum: 0,
+        inclusive: true,
+        path: ['offset'],
+        message: 'Too small: expected number to be >=0',
+      },
+      {
+        expected: 'bigint',
+        code: 'invalid_type',
+        path: ['cursor'],
+        message: 'Invalid input: expected bigint, received string',
+      },
     ])
   })
 })
@@ -631,7 +853,16 @@ describe('update', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_small', path: ['title'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'string',
+        code: 'too_small',
+        minimum: 1,
+        inclusive: true,
+        path: ['title'],
+        message: 'Too small: expected string to have >=1 characters',
+      },
+    ])
   })
 
   // "nope" is not a member.
@@ -651,8 +882,13 @@ describe('update', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_value', path: ['status'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        code: 'invalid_value',
+        values: ['pending', 'in_progress', 'done'],
+        path: ['status'],
+        message: 'Invalid option: expected one of "pending"|"in_progress"|"done"',
+      },
     ])
   })
 
@@ -673,7 +909,16 @@ describe('update', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_big', path: ['tags'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'array',
+        code: 'too_big',
+        maximum: 10,
+        inclusive: true,
+        path: ['tags'],
+        message: 'Too big: expected array to have <=10 items',
+      },
+    ])
   })
 
   // An invalid body for a task that does not exist is answered with 400, not 404: validation
@@ -690,7 +935,16 @@ describe('update', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_small', path: ['title'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'string',
+        code: 'too_small',
+        minimum: 1,
+        inclusive: true,
+        path: ['title'],
+        message: 'Too small: expected string to have >=1 characters',
+      },
+    ])
   })
 
   // The body cannot be parsed at all.

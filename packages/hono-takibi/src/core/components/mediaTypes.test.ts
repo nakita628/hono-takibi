@@ -290,13 +290,12 @@ describe('mediaTypes', () => {
         ),
       )
       const content = fs.readFileSync(path.join(output, 'jsonUser.ts'), 'utf8')
-      expect(content).toContain('UserSchema')
       // Must include an actual `import { UserSchema } from ...` line — not
       // just the body reference.
-      const importLine = content
-        .split('\n')
-        .find((l) => l.startsWith('import') && l.includes('UserSchema'))
-      expect(importLine).toBeDefined()
+      expect(content).toBe(`import { UserSchema } from '../schemas'
+
+export const JsonUserMediaTypeSchema = UserSchema
+`)
     })
 
     it('uses path-alias `import` field when forwarding schema reference', async () => {
@@ -321,7 +320,10 @@ describe('mediaTypes', () => {
       )
       const content = fs.readFileSync(path.join(output, 'jsonUser.ts'), 'utf8')
       // Alias must be honored verbatim — no relative-path fallback.
-      expect(content).toContain("from '~/components/schemas'")
+      expect(content).toBe(`import { UserSchema } from '~/components/schemas'
+
+export const JsonUserMediaTypeSchema = UserSchema
+`)
     })
 
     it('does not emit an unused `z` import when only a $ref is present', async () => {
@@ -341,7 +343,10 @@ describe('mediaTypes', () => {
       const content = fs.readFileSync(path.join(output, 'jsonUser.ts'), 'utf8')
       // The body has no `z.` usage; an unused `import { z } from '@hono/zod-openapi'`
       // would be dead weight that breaks `noUnusedImports` lints.
-      expect(content).not.toContain("import { z } from '@hono/zod-openapi'")
+      expect(content).toBe(`import { UserSchema } from '../schemas'
+
+export const JsonUserMediaTypeSchema = UserSchema
+`)
     })
 
     it('generates sorted barrel file', async () => {
