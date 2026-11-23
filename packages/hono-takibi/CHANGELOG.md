@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.6](https://github.com/nakita628/hono-takibi/compare/v0.33.5...v0.33.6) (2026-11-23)
+
+
+### Bug Fixes
+
+* **zod:** read a pointer through a $ref on its way ([#537](https://github.com/nakita628/hono-takibi/issues/537)) ([74340da](https://github.com/nakita628/hono-takibi/commit/74340da081b780bd73df54e03064c47d67bd1b77))
+
 ## [0.33.5](https://github.com/nakita628/hono-takibi/compare/v0.33.4...v0.33.5) (2026-11-23)
 
 
