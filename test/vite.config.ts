@@ -66,7 +66,8 @@ export default defineConfig({
     },
     // Strict by design: exceptions live next to the code as `oxlint-disable-next-line` with a
     // reason, never as `'off'` here. Everything under test/ is test code or its harness, so the
-    // CLAUDE.md-sanctioned cast/`any` allowances (type safety #1) apply to the whole project.
+    // cast/`any` allowances that `*.test.ts` gets in packages/hono-takibi apply to the whole
+    // project.
     //
     // Rules in the correctness / suspicious / perf categories (including every vitest rule this
     // suite relies on) are already errors via `categories` above and are not restated; this list
@@ -175,7 +176,29 @@ export default defineConfig({
           ),
         },
       ],
+      // Purpose: make a test compare the whole value, so a regression in the rest cannot pass.
+      // NG:      expect(code.includes('z.string()')).toBe(true)
+      // NG:      expect(result).toStrictEqual(expect.objectContaining({ ok: true }))
+      // OK:      expect(code).toBe("export const NameSchema = z.string()")
       'custom/no-partial-assertion': 'error',
+      // Purpose: keep a comment from pointing at a Markdown file that does not exist.
+      // oxlint-disable-next-line custom/no-dangling-doc-reference -- the NG example names a missing file on purpose
+      // NG:      // `as OpenAPI` is allowed (CLAUDE.md type safety #1).   <- no CLAUDE.md
+      // OK:      // `as OpenAPI` is the single sanctioned cast in `src`.
+      'custom/no-dangling-doc-reference': 'error',
+      // Purpose: catch a condition that is always true, which hides the assertion behind it.
+      //          `any` stays allowed as a condition, as `any` is allowed here.
+      // NG:      if (result) expect(result.data).toBe('x')   // a safeParse result is an object
+      // OK:      if (result.success) expect(result.data).toBe('x')
+      'typescript/strict-boolean-expressions': [
+        'error',
+        {
+          allowAny: true,
+          allowNullableBoolean: true,
+          allowNullableString: true,
+          allowNumber: false,
+        },
+      ],
       // `typescript/no-explicit-any` and the `no-unsafe-*` family are deliberately absent, as
       // they are off for `*.test.ts` in packages/hono-takibi: a test reads a response body and
       // a handler's `c.req.valid()` as they come, and asserts on what it finds.

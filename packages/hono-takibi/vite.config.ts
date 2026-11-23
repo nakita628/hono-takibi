@@ -123,19 +123,60 @@ export default defineConfig({
           ),
         },
       ],
+      // Purpose: keep every Effect program in one shape: the return value of a named function.
+      // NG:      const load = (path: string) => Effect.gen(function* () { ... })
+      // NG:      yield* Effect.all([Effect.gen(function* () { ... })])
+      // OK:      function load(path: string) { return Effect.gen(function* () { ... }) }
+      // OK:      function load(path: string) { return Effect.gen(function* () { ... }).pipe(Effect.scoped) }
       'custom/effect-gen-return': 'error',
+      // Purpose: keep one way to write an Effect-returning function, a declaration with a name.
+      // NG:      const load = Effect.fn('load')(function* (path: string) { ... })
+      // OK:      function load(path: string) { return Effect.gen(function* () { ... }) }
       'custom/no-effect-fn': 'error',
+      // Purpose: keep control flow straight-line in `Effect.gen`, not one closure deep.
+      // NG:      return readFile(path).pipe(Effect.flatMap((text) => parse(text)))
+      // OK:      const text = yield* readFile(path)
+      //          return yield* parse(text)
       'custom/no-effect-flatmap': 'error',
+      // Purpose: make a module-level function a named declaration: it hoists and shows up by
+      //          name in stack traces. A const with a type annotation keeps its contextual type.
+      // NG:      const toKey = (name: string) => name.toLowerCase()
+      // OK:      function toKey(name: string) { return name.toLowerCase() }
+      // OK:      const handler: RouteHandler<typeof route> = async (c) => c.json({})
       'custom/function-declaration': 'error',
+      // Purpose: make a function that answers yes/no read as a question at the call site.
+      // NG:      function nullable(schema: Schema) { return schema.nullable === true }
+      // OK:      function isNullable(schema: Schema) { return schema.nullable === true }
       'custom/predicate-is-name': 'error',
+      // Purpose: make a test compare the whole value, so a regression in the rest cannot pass.
+      // NG:      expect(code.includes('z.string()')).toBe(true)
+      // NG:      expect(result).toStrictEqual(expect.objectContaining({ ok: true }))
+      // OK:      expect(code).toBe("export const NameSchema = z.string()")
       'custom/no-partial-assertion': 'error',
       // `@internal` and friends are modifiers, so their text belongs to the description;
       // `check-tag-names` is what catches a tag that is merely misspelled.
       'jsdoc/empty-tags': 'error',
       'jsdoc/check-tag-names': 'error',
+      // Purpose: keep an Effect a value that is returned; only a boundary (the Vite plugin's
+      //          hooks, the test helpers) runs it.
+      // NG:      const text = await Effect.runPromise(readFile(path))
+      // OK:      return readFile(path)   // the caller decides when to run it
       'custom/no-effect-run': 'error',
+      // Purpose: keep a rejection in the error channel. `Effect.promise` turns it into a defect
+      //          that `orElse`, `catch` and `mapError` walk past.
+      // NG:      Effect.promise(() => fsp.readFile(path, 'utf-8'))
+      // OK:      Effect.tryPromise({ try: () => fsp.readFile(path, 'utf-8'), catch: (cause) => ... })
+      // OK:      Effect.promise(() => import('./sibling.js'))   // a bundled sibling cannot reject
       'custom/effect-promise-import': 'error',
+      // Purpose: name every type alias the same way, so a type reads as a type.
+      // NG:      type openAPIDocument = { ... }
+      // OK:      type OpenAPIDocument = { ... }
       'custom/type-pascal-case': 'error',
+      // Purpose: keep a comment from pointing at a Markdown file that does not exist.
+      // oxlint-disable-next-line custom/no-dangling-doc-reference -- the NG example names a missing file on purpose
+      // NG:      // `as OpenAPI` is allowed (CLAUDE.md type safety #1).   <- no CLAUDE.md
+      // OK:      // `as OpenAPI` is the single sanctioned cast in `src`.
+      'custom/no-dangling-doc-reference': 'error',
       eqeqeq: 'error',
       'no-var': 'error',
       'prefer-const': 'error',
@@ -436,6 +477,11 @@ export default defineConfig({
       // `import/no-extraneous-dependencies`, which oxlint does not implement: a bare
       // specifier in shipped code must be a `dependency` or `peerDependency` of
       // package.json, since a `devDependency` reaching `src` breaks the published package.
+      // Purpose: make shipped code import only what a consumer has installed.
+      // NG:      import { describe } from 'vite-plus/test'   // a devDependency, missing at the consumer
+      // NG:      import fs from 'fs'                         // a Node built-in without `node:`
+      // OK:      import { Effect } from 'effect'             // a dependency in package.json
+      // OK:      import fs from 'node:fs'
       'custom/no-undeclared-dependency': 'error',
       'import/named': 'error',
       'import/newline-after-import': 'error',
@@ -463,6 +509,12 @@ export default defineConfig({
       // conventional ones: `k` / `v` for an entry, `s` / `p` / `n` / `m` / `i` for the
       // string, path, name, match and index of a one-line callback, `a` / `b` for a
       // comparator, `z` for zod, and single capitals for type parameters.
+      // Purpose: keep one casing for bindings: no snake_case and no stray underscores.
+      // NG:      const schema_name = toName(ref)
+      // NG:      function load(path_: string) { ... }
+      // OK:      const schemaName = toName(ref)
+      // OK:      const UserSchema = z.object({})   // PascalCase for a schema or a class
+      // OK:      const MAX_DEPTH = 10              // UPPER_SNAKE_CASE for a module constant
       'custom/identifier-case': 'error',
       'id-length': [
         'error',
@@ -847,7 +899,7 @@ export default defineConfig({
         },
       },
       {
-        // `as OpenAPI` is the single sanctioned cast (CLAUDE.md type safety #1).
+        // `as OpenAPI` is the single sanctioned cast in `src`.
         files: ['src/openapi/index.ts'],
         rules: {
           'typescript/consistent-type-assertions': 'off',
@@ -856,15 +908,15 @@ export default defineConfig({
       },
       {
         // honoTakibiVite(): any is intentional — avoids forcing Vite/Rollup type
-        // installs on consumers (CLAUDE.md type safety #2).
+        // installs on consumers.
         files: ['src/vite-plugin/index.ts'],
         rules: {
           'typescript/no-explicit-any': 'off',
         },
       },
       {
-        // Test files may cast and use `any` (CLAUDE.md type safety #1); the type-safety rules that
-        // exist only to police those casts are scoped off here, nothing else is.
+        // Test files may cast and use `any`; the type-safety rules that exist only to police
+        // those casts are scoped off here, nothing else is.
         files: ['**/*.test.ts', '**/*.spec.ts'],
         plugins: ['vitest'],
         rules: {
@@ -888,7 +940,13 @@ export default defineConfig({
           'typescript/no-explicit-any': 'off',
           'typescript/consistent-type-assertions': 'off',
           'typescript/no-unsafe-type-assertion': 'off',
-          'typescript/strict-boolean-expressions': 'off',
+          // `strict-boolean-expressions` stays on, as set for `src` above.
+          // Purpose: catch a condition that is always true, which hides the assertion behind it.
+          // NG:      if (result) expect(result.data).toBe('x')   // a safeParse result is an object
+          // OK:      if (result.success) expect(result.data).toBe('x')
+          // `no-unnecessary-condition` is off: test files sit outside tsconfig.json, so the
+          // checker reads them without `noUncheckedIndexedAccess`, and every guard on an
+          // indexed value (`if (lines[0] === undefined)`) would read as dead.
           'typescript/no-unnecessary-condition': 'off',
           'typescript/no-unsafe-argument': 'off',
           'typescript/no-unsafe-assignment': 'off',

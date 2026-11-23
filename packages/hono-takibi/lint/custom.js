@@ -35,11 +35,17 @@
 //                              a partial comparison back inside `toStrictEqual`, and
 //                              `expect(code.includes('x')).toBe(true)` is `toContain` spelled as
 //                              a boolean; `jest/no-restricted-matchers` sees neither
+//   custom/no-dangling-doc-reference a comment that names a Markdown file (`README.md`,
+//                              `website/docs/guides/vendor.md`) names one that exists, beside the
+//                              file or in a directory above it up to the repository root. A
+//                              reason that points at a document nobody can open is no reason
 //
 // Tests are exempt from the structural rules: a test arranges and asserts imperatively when that
 // is the clearest way to spell the fixture out. `no-partial-assertion` is the one rule that
 // reads only tests.
+import { existsSync } from 'node:fs'
 import { builtinModules } from 'node:module'
+import path from 'node:path'
 
 import MANIFEST from '../package.json' with { type: 'json' }
 
@@ -106,6 +112,25 @@ function filenameOf(context) {
 
 function isTestPath(filename) {
   return TEST_FILE.test(filename)
+}
+
+// A Markdown file named in prose: `README.md`, `../../README.md`, `website/docs/guides/vendor.md`.
+// URLs are taken out first: the page a link names is not a file of this repository.
+const URL_IN_TEXT = /\bhttps?:\/\/\S+/gu
+const MARKDOWN_REFERENCE = /(?<![\w./-])((?:\.{1,2}\/)?[\w-]+(?:\/[\w.-]+)*\.md)(?![\w-])/gu
+
+// The directories a reference may be read against: the file's own and every one above it,
+// up to the repository root (the first directory holding `.git`).
+function searchDirectoriesOf(filename) {
+  const directories = []
+  let directory = path.dirname(path.resolve(filename))
+  for (;;) {
+    directories.push(directory)
+    const parent = path.dirname(directory)
+    // oxlint-disable-next-line node/no-sync -- a rule visitor is synchronous; oxlint cannot await it
+    if (existsSync(path.join(directory, '.git')) || parent === directory) return directories
+    directory = parent
+  }
 }
 
 function effectMember(node) {
@@ -258,6 +283,11 @@ function isBooleanExpression(node) {
 export default {
   meta: { name: 'custom' },
   rules: {
+    // Purpose: keep every Effect program in one shape: the return value of a named function.
+    // NG:      const load = (path: string) => Effect.gen(function* () { ... })
+    // NG:      yield* Effect.all([Effect.gen(function* () { ... })])
+    // OK:      function load(path: string) { return Effect.gen(function* () { ... }) }
+    // OK:      function load(path: string) { return Effect.gen(function* () { ... }).pipe(Effect.scoped) }
     'effect-gen-return': {
       meta: {
         docs: {
@@ -297,6 +327,9 @@ export default {
         }
       },
     },
+    // Purpose: keep one way to write an Effect-returning function, a declaration with a name.
+    // NG:      const load = Effect.fn('load')(function* (path: string) { ... })
+    // OK:      function load(path: string) { return Effect.gen(function* () { ... }) }
     'no-effect-fn': {
       meta: { docs: { description: 'Effect.fn / Effect.fnUntraced never appear' } },
       create(context) {
@@ -313,6 +346,10 @@ export default {
         }
       },
     },
+    // Purpose: keep control flow straight-line in `Effect.gen`, not one closure deep.
+    // NG:      return readFile(path).pipe(Effect.flatMap((text) => parse(text)))
+    // OK:      const text = yield* readFile(path)
+    //          return yield* parse(text)
     'no-effect-flatmap': {
       meta: {
         docs: {
@@ -333,6 +370,11 @@ export default {
         }
       },
     },
+    // Purpose: make a module-level function a named declaration: it hoists and shows up by
+    //          name in stack traces. A const with a type annotation keeps its contextual type.
+    // NG:      const toKey = (name: string) => name.toLowerCase()
+    // OK:      function toKey(name: string) { return name.toLowerCase() }
+    // OK:      const handler: RouteHandler<typeof route> = async (c) => c.json({})
     'function-declaration': {
       meta: { docs: { description: 'module-level functions are function declarations' } },
       create(context) {
@@ -355,6 +397,10 @@ export default {
         }
       },
     },
+    // Purpose: keep an Effect a value that is returned; only a boundary (the Vite plugin's
+    //          hooks, the test helpers) runs it.
+    // NG:      const text = await Effect.runPromise(readFile(path))
+    // OK:      return readFile(path)   // the caller decides when to run it
     'no-effect-run': {
       meta: { docs: { description: 'Effect runners appear only at a boundary' } },
       create(context) {
@@ -371,6 +417,11 @@ export default {
         }
       },
     },
+    // Purpose: keep a rejection in the error channel. `Effect.promise` turns it into a defect
+    //          that `orElse`, `catch` and `mapError` walk past.
+    // NG:      Effect.promise(() => fsp.readFile(path, 'utf-8'))
+    // OK:      Effect.tryPromise({ try: () => fsp.readFile(path, 'utf-8'), catch: (cause) => ... })
+    // OK:      Effect.promise(() => import('./sibling.js'))   // a bundled sibling cannot reject
     'effect-promise-import': {
       meta: { docs: { description: '`Effect.promise` only wraps a dynamic import' } },
       create(context) {
@@ -390,6 +441,9 @@ export default {
         }
       },
     },
+    // Purpose: name every type alias the same way, so a type reads as a type.
+    // NG:      type openAPIDocument = { ... }
+    // OK:      type OpenAPIDocument = { ... }
     'type-pascal-case': {
       meta: { docs: { description: 'a type alias is PascalCase' } },
       create(context) {
@@ -404,6 +458,12 @@ export default {
         }
       },
     },
+    // Purpose: keep one casing for bindings: no snake_case and no stray underscores.
+    // NG:      const schema_name = toName(ref)
+    // NG:      function load(path_: string) { ... }
+    // OK:      const schemaName = toName(ref)
+    // OK:      const UserSchema = z.object({})   // PascalCase for a schema or a class
+    // OK:      const MAX_DEPTH = 10              // UPPER_SNAKE_CASE for a module constant
     'identifier-case': {
       meta: { docs: { description: 'bindings are camelCase, PascalCase or UPPER_SNAKE_CASE' } },
       create(context) {
@@ -433,6 +493,11 @@ export default {
         }
       },
     },
+    // Purpose: make shipped code import only what a consumer has installed.
+    // NG:      import { describe } from 'vite-plus/test'   // a devDependency, missing at the consumer
+    // NG:      import fs from 'fs'                         // a Node built-in without `node:`
+    // OK:      import { Effect } from 'effect'             // a dependency in package.json
+    // OK:      import fs from 'node:fs'
     'no-undeclared-dependency': {
       meta: { docs: { description: 'shipped code imports only declared dependencies' } },
       create(context) {
@@ -466,6 +531,10 @@ export default {
         }
       },
     },
+    // Purpose: make a test compare the whole value, so a regression in the rest cannot pass.
+    // NG:      expect(code.includes('z.string()')).toBe(true)
+    // NG:      expect(result).toStrictEqual(expect.objectContaining({ ok: true }))
+    // OK:      expect(code).toBe("export const NameSchema = z.string()")
     'no-partial-assertion': {
       meta: { docs: { description: 'a test compares the whole value' } },
       create(context) {
@@ -499,6 +568,39 @@ export default {
         }
       },
     },
+    // Purpose: keep a comment from pointing at a Markdown file that does not exist.
+    // oxlint-disable-next-line custom/no-dangling-doc-reference -- the NG example names a missing file on purpose
+    // NG:      // `as OpenAPI` is allowed (CLAUDE.md type safety #1).   <- no CLAUDE.md
+    // OK:      // `as OpenAPI` is the single sanctioned cast in `src`.
+    'no-dangling-doc-reference': {
+      meta: { docs: { description: 'a comment names only Markdown files that exist' } },
+      create(context) {
+        const filename = filenameOf(context)
+        return {
+          Program() {
+            const directories = searchDirectoriesOf(filename)
+            for (const comment of context.sourceCode.getAllComments()) {
+              const text = comment.value.replaceAll(URL_IN_TEXT, '')
+              for (const [, reference] of text.matchAll(MARKDOWN_REFERENCE)) {
+                if (
+                  // oxlint-disable-next-line node/no-sync -- a rule visitor is synchronous; oxlint cannot await it
+                  directories.some((directory) => existsSync(path.join(directory, reference)))
+                ) {
+                  continue
+                }
+                context.report({
+                  loc: comment.loc,
+                  message: `\`${reference}\` does not exist beside this file or in any directory above it. Write the reason out here, or name the document that holds it.`,
+                })
+              }
+            }
+          },
+        }
+      },
+    },
+    // Purpose: make a function that answers yes/no read as a question at the call site.
+    // NG:      function nullable(schema: Schema) { return schema.nullable === true }
+    // OK:      function isNullable(schema: Schema) { return schema.nullable === true }
     'predicate-is-name': {
       meta: { docs: { description: 'a pure boolean predicate reads as a question' } },
       create(context) {

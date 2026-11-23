@@ -48,7 +48,7 @@ afterEach(() => {
 })
 
 describe('split cleanup', { timeout: 30_000 }, () => {
-  // `cleanupSplitOutput` empties every `.ts` in a split directory, so a single-file
+  // `cleanSplitOutputs` empties every `.ts` in a split directory, so a single-file
   // output that lives inside one is deleted and has to be rewritten by its own job.
   // That only holds while every cleanup precedes every write; the plugin sequences them
   // that way, and this pins it — the previous interleaving happened to win the race in
