@@ -1,4 +1,5 @@
 import {
+  isAnnotationOnly,
   isBinaryFile,
   isPresent,
   isSchemaArray,
@@ -25,7 +26,8 @@ export function makeTypeString(
     schema.nullable === true ||
     types.includes('null') ||
     schema.default === null ||
-    (schema.enum?.includes(null) ?? false)
+    (schema.enum?.includes(null) ?? false) ||
+    (intersectedMembers(schema)?.some(isNullMember) ?? false)
   const nonNullTypes = types.filter((typeName) => typeName !== 'null')
   const baseType = makeNonNullTypeString(schema, nonNullTypes, selfTypeName, cyclicGroup, readonly)
   if (!isNullable || baseType === 'null') return baseType
@@ -48,8 +50,18 @@ function makeNonNullTypeString(
   if (schema.anyOf && schema.anyOf.length > 0) {
     return makeUnionTypeString(schema.anyOf, selfTypeName, cyclicGroup, '|', readonly)
   }
-  if (schema.allOf && schema.allOf.length > 0) {
-    return makeUnionTypeString(schema.allOf, selfTypeName, cyclicGroup, '&', readonly)
+  const members = intersectedMembers(schema)
+  if (members !== undefined) {
+    // A member that only allows `null`, or only annotates, says something of the whole
+    // value and is no part of the intersection: `X & (unknown | null)` is `X`, and
+    // `X & null` is `never`. `makeTypeString` has already read the `null` off it (#527).
+    return makeUnionTypeString(
+      members.filter((member) => !(isNullMember(member) || isAnnotationOnly(member))),
+      selfTypeName,
+      cyclicGroup,
+      '&',
+      readonly,
+    )
   }
   if (schema.enum && schema.enum.length > 0) {
     const values = schema.enum.filter((v) => v !== null)
@@ -74,6 +86,22 @@ function makeNonNullTypeString(
     return JSON.stringify(schema.const)
   }
   return makeBaseTypeString(schema, types, selfTypeName, cyclicGroup, readonly)
+}
+
+// The members of the `allOf` this schema is typed by: none when a `$ref`, a `oneOf` or an
+// `anyOf` beside it is typed instead.
+function intersectedMembers(schema: Schema): readonly Schema[] | undefined {
+  if (schema.$ref) return undefined
+  if (schema.oneOf && schema.oneOf.length > 0) return undefined
+  if (schema.anyOf && schema.anyOf.length > 0) return undefined
+  return schema.allOf && schema.allOf.length > 0 ? schema.allOf.filter(Boolean) : undefined
+}
+
+// An `allOf` member that makes the whole value nullable, as the schema writer reads it
+// (`.nullable()` on the intersection): `{ type: 'null' }`, or `nullable: true` with
+// nothing beside it that validates (Box).
+function isNullMember(member: Schema) {
+  return member.type === 'null' || (member.nullable === true && isAnnotationOnly(member))
 }
 
 function makeRefTypeString(ref: string, selfTypeName: string) {
