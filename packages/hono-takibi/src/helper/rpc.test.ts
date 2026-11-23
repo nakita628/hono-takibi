@@ -76,6 +76,20 @@ describe('formatPath', () => {
       hasBracket: false,
     })
   })
+
+  // #520: @hono/zod-openapi converts only a parameter that opens a segment, and the client type
+  // is keyed by what it registers, so a parameter inside a segment stays as written.
+  it.concurrent.each([
+    ['/api/v{version}/items/{id}', ".api['v{version}'].items[':id']"],
+    ['/{section}.{format}', "[':section.{format}']"],
+    [
+      '/async-function/{functionName}.{namespace}',
+      "['async-function'][':functionName.{namespace}']",
+    ],
+    ['/worker/{architecture_name}:{worker_id}', ".worker[':architecture_name:{worker_id}']"],
+  ])('keeps a parameter inside a segment as written: %s', (input, runtimePath) => {
+    expect(formatPath(input).runtimePath).toBe(runtimePath)
+  })
 })
 
 /* ═══════════════════════════════════ parsePathItem ═══════════════════════════════════ */

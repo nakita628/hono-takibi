@@ -10802,3 +10802,67 @@ describe('hooks: a cookie parameter is left out of the key, as a header is', () 
 }`)
   })
 })
+
+// #519: a GET hook is named after its path alone, so `GET /query` would be `useQuery`, the name
+// the file imports from the library. Such an operation keeps its method in every hook name. The
+// names a file may import are reserved whether or not it does, so a hook's name does not depend
+// on the other operations (`GET /mutation` is `createGetMutation` without any mutation).
+// #519: GET のフックはパスだけから名付けられるため、`GET /query` はライブラリから import する
+// `useQuery` と同名になる。その操作はすべてのフック名にメソッドを残す。ファイルが import しうる
+// 名前は実際に import するかどうかによらず予約するので、フック名は他の操作に左右されない。
+const declaredFunctions = (code: string) =>
+  [...code.matchAll(/^export function (\w+)/gmu)].map((match) => match[1])
+
+describe('hooks: a GET hook named like a library import', () => {
+  const spec = {
+    openapi: '3.1.0',
+    info: { title: 'Search', version: '1.0.0' },
+    paths: {
+      '/query': { get: { 'x-pagination': true, responses: { '200': { description: 'OK' } } } },
+      '/mutation': { get: { responses: { '200': { description: 'OK' } } } },
+      '/users': { get: { responses: { '200': { description: 'OK' } } } },
+    },
+  } as OpenAPI
+
+  const generate = async (library: Parameters<typeof hooks>[3]) => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hooks-collision-'))
+    const out = path.join(dir, 'hooks.ts')
+    await runGenerator(hooks(spec, out, './client', library))
+    return fs.readFileSync(out, 'utf8')
+  }
+  it.concurrent.each([
+    [
+      'tanstack-query',
+      [
+        'useGetQuery',
+        'useSuspenseGetQuery',
+        'useInfiniteGetQuery',
+        'useSuspenseInfiniteGetQuery',
+        'useGetMutation',
+        'useSuspenseGetMutation',
+        'useUsers',
+        'useSuspenseUsers',
+      ],
+    ],
+    ['vue-query', ['useGetQuery', 'useInfiniteGetQuery', 'useGetMutation', 'useUsers']],
+    [
+      'solid-query',
+      ['createGetQuery', 'createInfiniteGetQuery', 'createGetMutation', 'createUsers'],
+    ],
+    [
+      'angular-query',
+      ['injectGetQuery', 'injectInfiniteGetQuery', 'injectGetMutation', 'injectUsers'],
+    ],
+  ] as const)('%s', async (library, hookNames) => {
+    const code = await generate(library)
+    const names = declaredFunctions(code)
+    for (const name of hookNames) expect(names).toContain(name)
+    // No hook takes the name of a value the file imports.
+    const imported = new Set(
+      [...code.matchAll(/^import ?\{([^}]+)\}/gmu)].flatMap((match) =>
+        (match[1] ?? '').split(',').map((name) => name.trim()),
+      ),
+    )
+    expect(names.filter((name) => imported.has(name ?? ''))).toStrictEqual([])
+  })
+})

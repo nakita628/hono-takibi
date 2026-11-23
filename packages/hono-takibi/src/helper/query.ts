@@ -7,7 +7,7 @@ import { emit } from '../emit/index.js'
 import { GenerateError } from '../error/index.js'
 import { hasNoContentResponse, isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
-import { capitalize, routeName, toIdentifierPascalCase } from '../utils/index.js'
+import { capitalize, routeName, toHonoPath, toIdentifierPascalCase } from '../utils/index.js'
 import { makeGroupClientName, operationTags } from './group.js'
 import type { Grouping } from './group.js'
 import { formatPath, makeOperationDeps, operationHasArgs, parsePathItem } from './rpc.js'
@@ -111,6 +111,45 @@ function makeArgsType(clientName: string, method: string, pathStr: string, hasBa
 // way mutation names already do. Its keys carry the method too: `['users', '/users', 'QUERY', args]`.
 function queryNameMethod(method: string) {
   return method === 'get' ? '' : method
+}
+
+// The names a hooks file imports as values from the library. A hook of the same name would
+// shadow the import (TS2440) and catch the calls the other hooks make to it.
+function libraryValueImports(config: {
+  readonly queryFn: string
+  readonly mutationFn: string
+  readonly suspenseQueryFn?: string
+  readonly infiniteQueryFn?: string
+  readonly suspenseInfiniteQueryFn?: string
+  readonly immutableQueryFn?: string
+}) {
+  return new Set(
+    [
+      config.queryFn,
+      config.mutationFn,
+      config.suspenseQueryFn,
+      config.infiniteQueryFn,
+      config.suspenseInfiniteQueryFn,
+      config.immutableQueryFn,
+    ].filter((name) => name !== undefined),
+  )
+}
+
+// The part of a query operation's hook names after the prefix and the variant (`Suspense`,
+// `Infinite`, `SuspenseInfinite`). A GET leaves its method out, unless a hook would then take
+// the name of a library import.
+function queryHookStem(
+  method: string,
+  pathFuncName: string,
+  config: Parameters<typeof libraryValueImports>[0] & { readonly hookPrefix: string },
+) {
+  const stem = capitalize(pathFuncName)
+  if (method !== 'get') return stem
+  const reserved = libraryValueImports(config)
+  const collides = ['', 'Suspense', 'Infinite', 'SuspenseInfinite'].some((variant) =>
+    reserved.has(`${config.hookPrefix}${variant}${stem}`),
+  )
+  return collides ? (`Get${stem}` as const) : stem
 }
 
 function makeQueryKeyGetterName(
@@ -996,7 +1035,7 @@ function makeHookCode(
   // parseResponse returns undefined for 204/205 No Content responses
   const hasNoContent = hasNoContentResponse(op)
   // Convert {param} to :param for key path display
-  const honoPath = pathStr.replaceAll(/\{([^}]+)\}/gu, ':$1')
+  const honoPath = toHonoPath(pathStr)
   // SWR: simpler pattern without options getter
   if (config.isSWR) {
     if (isQuery) {
@@ -1102,8 +1141,12 @@ function makeHookCode(
   // TanStack Query / Vue Query / Svelte Query
   if (isQuery) {
     // For queries, use path-only naming (no HTTP method prefix)
-    const queryHookName = makeHookName(queryNameMethod(method), pathStr, config.hookPrefix, paths)
     const pathFuncName = routeName(queryNameMethod(method), pathStr, paths)
+    // The hook names, unless one of them would be a name the file imports from the library
+    // (`GET /query` → `useQuery`, `useSuspenseQuery`): then all of them keep the method, the way
+    // mutation hooks do (`useGetQuery`, `useSuspenseGetQuery`).
+    const hookStem = queryHookStem(method, pathFuncName, config)
+    const queryHookName = `${config.hookPrefix}${hookStem}` as const
     const keyGetterName = makeQueryKeyGetterName(method, pathStr, paths)
     const optionsGetterName = `get${capitalize(pathFuncName)}QueryOptions`
     const keyGetterCode = makeQueryKeyGetterCode(
@@ -1168,7 +1211,7 @@ function makeHookCode(
           },
         )
       : null
-    const suspenseHookName = `${config.hookPrefix}Suspense${capitalize(pathFuncName)}` as const
+    const suspenseHookName = `${config.hookPrefix}Suspense${hookStem}` as const
     const suspenseHookCode =
       config.suspenseQueryFn && config.useSuspenseQueryOptionsType
         ? makeQueryHookCode(
@@ -1195,7 +1238,7 @@ function makeHookCode(
             },
           )
         : null
-    const infiniteHookName = `${config.hookPrefix}Infinite${capitalize(pathFuncName)}` as const
+    const infiniteHookName = `${config.hookPrefix}Infinite${hookStem}` as const
     const infiniteHookCode = hasInfinite
       ? makeInfiniteQueryHookCode(
           infiniteHookName,
@@ -1221,8 +1264,7 @@ function makeHookCode(
           } as const,
         )
       : null
-    const suspenseInfiniteHookName =
-      `${config.hookPrefix}SuspenseInfinite${capitalize(pathFuncName)}` as const
+    const suspenseInfiniteHookName = `${config.hookPrefix}SuspenseInfinite${hookStem}` as const
     const suspenseInfiniteHookCode =
       hasInfinite && config.suspenseInfiniteQueryFn && config.useSuspenseInfiniteQueryOptionsType
         ? makeInfiniteQueryHookCode(

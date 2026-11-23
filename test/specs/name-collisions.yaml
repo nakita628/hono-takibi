@@ -1,0 +1,89 @@
+openapi: 3.1.0
+info:
+  title: name-collisions
+  version: 1.0.0
+paths:
+  # #519: a GET hook named after the path alone would be `useQuery` / `createQuery` /
+  # `injectQuery`, the names the hooks file imports from the library.
+  /query:
+    get:
+      parameters:
+        - name: term
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: string
+  # #520: a parameter inside a segment stays as written in the path @hono/zod-openapi
+  # registers, so the client is reached at `v{version}`.
+  /api/v{version}/items/{id}:
+    get:
+      parameters:
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+  /{section}.{format}:
+    get:
+      parameters:
+        - name: section
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: format
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+components:
+  schemas:
+    # #522: a JSON string with a contentSchema is parsed before the schema validates it.
+    Event:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: string
+          contentMediaType: application/json
+          contentSchema:
+            $ref: '#/components/schemas/Payload'
+    Payload:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
