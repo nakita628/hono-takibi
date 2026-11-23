@@ -24,6 +24,32 @@ paths:
                     type: array
                     items:
                       type: string
+  # #536: the hooks file names a getter per first path segment (`getQueryKey` for `/query`)
+  # and one per GET operation. `GET /` has no name of its own, so its query key getter is
+  # `getQueryKey` too; the prefix getter takes the next number.
+  /:
+    get:
+      responses:
+        '200':
+          description: ok
+  # #536: `_alias` and `{alias}` both read as `Alias`, so both prefixes would name
+  # `getAliasKey`.
+  /_alias:
+    get:
+      responses:
+        '200':
+          description: ok
+  /{alias}/settings:
+    get:
+      parameters:
+        - name: alias
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
   # #520: a parameter inside a segment stays as written in the path @hono/zod-openapi
   # registers, so the client is reached at `v{version}`.
   /api/v{version}/items/{id}:

@@ -2,7 +2,8 @@ import { defineConfig } from 'hono-takibi'
 
 // Names the generators derive that must still type-check: a GET hook that would take the name
 // of a library import (`GET /query`), a path parameter inside a segment (`v{version}`,
-// `{section}.{format}`), and a JSON string validated by a `contentSchema`.
+// `{section}.{format}`), a JSON string validated by a `contentSchema`, and key getters whose
+// names would collide (`GET /` next to `/query`, `/_alias` next to `/{alias}`).
 export default defineConfig({
   input: '../../specs/name-collisions.yaml',
   output: '../../__generated__/name-collisions/src/routes.ts',
