@@ -13,11 +13,12 @@ name: release
 # section, and `publish` sends that tag to npm. The main ruleset requires `test` and `lint` on
 # every pull request, the release one included, so nothing is tested a second time here.
 #
-# The release pull request is written with GITHUB_TOKEN, and what that token does starts no
-# `pull_request` run: `test` and `lint` would never report on it. `workflow_dispatch` is the
-# exception GitHub makes, so this workflow dispatches both on the branch of the pull request
-# whenever release-please opens or updates it. A check belongs to the commit, so the runs
-# report on the pull request as its own would.
+# The release pull request is written with GITHUB_TOKEN, and a `pull_request` run of such a
+# pull request waits for someone to approve it. Test, Lint and PR title leave out the files
+# it changes (`paths-ignore`), so no run waits there, and `test` and `lint` would never
+# report on it. A dispatched run needs no approval, so this workflow dispatches both on the
+# branch of the pull request whenever release-please opens or updates it. A check belongs to
+# the commit, so the runs report on the pull request as its own would.
 #
 # If `publish` fails, re-run the failed job: the tag and the release are already written and
 # the job publishes the same tag again.

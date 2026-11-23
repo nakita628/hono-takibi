@@ -4,10 +4,19 @@ name: PR title
 # reads those messages to decide the next version and write the changelog (release.yml).
 # A title that is not a Conventional Commit would be left out of both, so it is checked here.
 # The types are the ones .github/pull_request_template.md lists, plus `revert`.
+#
+# The release pull request is opened with GITHUB_TOKEN, and a `pull_request` run of such a
+# pull request waits for someone to approve it ("Approve workflows to run"). Its title is
+# written by release-please, so no run is made for it: it changes only the files
+# `paths-ignore` lists.
 
 on:
   pull_request:
     types: [opened, edited, reopened, synchronize]
+    paths-ignore:
+      - '.release-please-manifest.json'
+      - 'packages/hono-takibi/CHANGELOG.md'
+      - 'packages/hono-takibi/package.json'
 
 permissions: {}
 
