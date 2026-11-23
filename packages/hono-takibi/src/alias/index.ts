@@ -182,6 +182,34 @@ function tsconfigPaths(
 }
 
 /**
+ * The tsconfig files a project is made of: `file` itself, then the projects its `references`
+ * name, depth first. A solution-style tsconfig.json (`"files": []` with references to
+ * `tsconfig.app.json` and `tsconfig.node.json`, as Vite scaffolds it) holds no `paths` of its
+ * own; the referenced project does. References are not inherited through `extends`.
+ */
+function projectFiles(
+  file: string,
+  seen = new Set<string>(),
+): Effect.Effect<readonly string[], GenerateError, FileSystem.FileSystem> {
+  return Effect.gen(function* () {
+    if (seen.has(file)) return []
+    seen.add(file)
+    const json = yield* readJsonc(file)
+    if (!isRecord(json)) return []
+    const files = [file]
+    const references = Array.isArray(json.references) ? json.references : []
+    for (const reference of references) {
+      if (!isRecord(reference) || typeof reference.path !== 'string') continue
+      const target = path.resolve(path.dirname(file), reference.path)
+      // A reference names a tsconfig file, or a directory holding tsconfig.json.
+      const referenced = target.endsWith('.json') ? target : path.join(target, 'tsconfig.json')
+      files.push(...(yield* projectFiles(referenced, seen)))
+    }
+    return files
+  })
+}
+
+/**
  * The prefix a mapping gives the directory of the app entry: the mapping's prefix when it
  * maps that directory, followed by the rest of the way when it maps an ancestor.
  */
@@ -235,6 +263,7 @@ export function resolvePathAlias(config: Config) {
 
     // The tsconfig above the app entry, then the one above the working directory — where the
     // config file is, which may hold the project's tsconfig while the output is elsewhere.
+    // Each with the projects it references.
     const tsconfigFiles = [
       ...new Set(
         [
@@ -243,8 +272,12 @@ export function resolvePathAlias(config: Config) {
         ].filter((file) => file !== undefined),
       ),
     ]
-    const paths: Mapping[] = []
+    const projects = new Set<string>()
     for (const file of tsconfigFiles) {
+      for (const project of yield* projectFiles(file)) projects.add(project)
+    }
+    const paths: Mapping[] = []
+    for (const file of projects) {
       const resolved = yield* tsconfigPaths(file)
       if (resolved === undefined) continue
       for (const [key, target] of Object.entries(resolved.paths)) {

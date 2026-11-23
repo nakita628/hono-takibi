@@ -157,6 +157,73 @@ describe('resolvePathAlias', () => {
     await expect(aliasOf({ output: `${dir}/src/routes.ts`, pathAlias: true })).resolves.toBe('@/')
   })
 
+  // A solution-style tsconfig.json, as Vite scaffolds it, holds only references: the paths are
+  // in the referenced project.
+  // Vite が生成する solution 形式の tsconfig.json は references だけを持ち、paths は参照先の
+  // プロジェクトにある。
+  it('follows references to the project that holds the paths', async () => {
+    const dir = setup({
+      'tsconfig.json': JSON.stringify({
+        files: [],
+        references: [{ path: './tsconfig.node.json' }, { path: './tsconfig.app.json' }],
+      }),
+      'tsconfig.node.json': JSON.stringify({ compilerOptions: { composite: true } }),
+      'tsconfig.app.json': tsconfig({ '@/*': ['./src/*'] }),
+    })
+    await expect(aliasOf({ output: `${dir}/src/routes.ts`, pathAlias: true })).resolves.toBe('@/')
+  })
+
+  it('follows a reference that names a directory', async () => {
+    const dir = setup({
+      'tsconfig.json': JSON.stringify({ files: [], references: [{ path: './apps/api' }] }),
+      'apps/api/tsconfig.json': tsconfig({ '@/*': ['./src/*'] }),
+    })
+    await expect(
+      aliasOf({ output: `${dir}/apps/api/src/routes.ts`, pathAlias: true }),
+    ).resolves.toBe('@/')
+  })
+
+  // The paths a shared base declares resolve against the base, as TypeScript resolves them:
+  // `./src/*` there is the base's own src, so only `${configDir}` reaches the app.
+  // 共有ベースが宣言した paths は、TypeScript と同じくベースの場所から解決する。そこでの
+  // `./src/*` はベース自身の src なので、アプリに届くのは `${configDir}` だけである。
+  it('resolves the paths of a shared base against the base', async () => {
+    const dir = setup({
+      'packages/tsconfig/base.json': tsconfig({ '@/*': ['./src/*'] }),
+      'apps/api/tsconfig.json': JSON.stringify({ extends: '../../packages/tsconfig/base.json' }),
+    })
+    const error = await aliasErrorOf({ output: `${dir}/apps/api/src/routes.ts`, pathAlias: true })
+    expect(error.message).toContain('pathAlias: no alias maps')
+  })
+
+  it('resolves ${configDir} in a shared base against the tsconfig that extends it', async () => {
+    const dir = setup({
+      'packages/tsconfig/base.json': tsconfig({ '@/*': ['${configDir}/src/*'] }),
+      'apps/api/tsconfig.json': JSON.stringify({ extends: '../../packages/tsconfig/base.json' }),
+    })
+    await expect(
+      aliasOf({ output: `${dir}/apps/api/src/routes.ts`, pathAlias: true }),
+    ).resolves.toBe('@/')
+  })
+
+  // A shared base installed as a workspace package is found through node_modules.
+  // ワークスペースのパッケージとして入っている共有ベースは、node_modules から見つける。
+  it('follows extends into a workspace package', async () => {
+    const dir = setup({
+      'packages/tsconfig/package.json': JSON.stringify({ name: '@repo/tsconfig' }),
+      'packages/tsconfig/base.json': tsconfig({ '@/*': ['${configDir}/src/*'] }),
+      'apps/api/tsconfig.json': JSON.stringify({ extends: '@repo/tsconfig/base' }),
+    })
+    fs.mkdirSync(path.join(dir, 'apps/api/node_modules/@repo'), { recursive: true })
+    fs.symlinkSync(
+      path.join(dir, 'packages/tsconfig'),
+      path.join(dir, 'apps/api/node_modules/@repo/tsconfig'),
+    )
+    await expect(
+      aliasOf({ output: `${dir}/apps/api/src/routes.ts`, pathAlias: true }),
+    ).resolves.toBe('@/')
+  })
+
   // TypeScript before 7 resolves paths against baseUrl when one is set.
   // TypeScript 7 より前は、baseUrl があれば paths をそこから解決する。
   it('resolves paths against baseUrl', async () => {
