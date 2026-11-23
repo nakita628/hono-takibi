@@ -739,3 +739,66 @@ export default app`,
     )
   })
 })
+
+describe('app: an operation without responses (#545)', () => {
+  // routes.ts declares no route for `POST /pets` nor for `/owners`, and `handlers/` no handler.
+  // routes.ts は `POST /pets` と `/owners` のルートを宣言せず、`handlers/` もハンドラーを宣言しない。
+  const spec = {
+    openapi: '3.1.0',
+    info: { title: 'No responses', version: '1' },
+    paths: {
+      '/pets': {
+        get: { operationId: 'listPets', responses: { '200': { description: 'OK' } } },
+        post: { operationId: 'createPet' },
+      },
+      '/owners': { post: { operationId: 'createOwner' } },
+    },
+  } as OpenAPI
+
+  it.concurrent('registers only the routes routes.ts declares with routeHandler', () => {
+    expect(app(spec, 'a/routes.ts', '/', undefined, undefined, true)).toBe(
+      `import{OpenAPIHono}from'@hono/zod-openapi'
+import{getPetsRoute}from'./routes'
+import{getPetsRouteHandler}from'./handlers'
+
+const app=new OpenAPIHono()
+
+export const api=app.openapi(getPetsRoute,getPetsRouteHandler)
+
+export default app`,
+    )
+  })
+
+  it.concurrent('writes no group of those operations with routeHandler and split', () => {
+    expect(
+      app(spec, 'a/routes.ts', '/', undefined, undefined, true, false, undefined, undefined, true),
+    ).toBe(
+      `import{OpenAPIHono}from'@hono/zod-openapi'
+import{getPetsRoute}from'./routes'
+import{getPetsRouteHandler}from'./handlers'
+
+const app=new OpenAPIHono()
+
+export const pets=app.openapi(getPetsRoute,getPetsRouteHandler)
+
+export default app`,
+    )
+  })
+
+  it.concurrent('registers only the routes routes/ declares with define', () => {
+    expect(app(spec, 'a/index.ts', '/', undefined, undefined, false, true)).toBe(
+      `import{OpenAPIHono}from'@hono/zod-openapi'
+import{getPetsRoute}from'./handlers'
+
+const app=new OpenAPIHono()
+
+export const api=app.openapiRoutes([getPetsRoute] as const)
+
+export default app`,
+    )
+  })
+
+  it.concurrent('lists no group of those operations', () => {
+    expect(appGroups(spec, false, undefined, true)).toStrictEqual(['pets'])
+  })
+})
