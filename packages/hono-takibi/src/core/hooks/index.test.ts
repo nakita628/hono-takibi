@@ -10851,3 +10851,65 @@ describe('hooks: a GET hook named like a library import', () => {
     expect(names.filter((name) => imported.has(name ?? ''))).toStrictEqual([])
   })
 })
+
+// An OData path carries a `'`: `/messages/getDetails(address='{address}')`. The key getters
+// write the first segment and the path as strings, and a bare `'` there ended the literal.
+describe("hooks: a path that contains ' in the key", () => {
+  const openapi = {
+    openapi: '3.1.0',
+    info: { title: 'Test', version: '1.0.0' },
+    paths: {
+      "/messages/getDetails(address='{address}')": {
+        get: {
+          'x-pagination': true,
+          parameters: [{ name: 'address', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: {
+            '200': {
+              description: 'OK',
+              content: { 'application/json': { schema: { type: 'string' } } },
+            },
+          },
+        },
+        delete: {
+          parameters: [{ name: 'address', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: { '204': { description: 'No Content' } },
+        },
+      },
+      "/Packages(Id='{id}')": {
+        get: { responses: { '200': { description: 'OK' } } },
+      },
+    },
+  } as OpenAPI
+
+  it.each([
+    'swr',
+    'tanstack-query',
+    'preact-query',
+    'solid-query',
+    'vue-query',
+    'svelte-query',
+    'angular-query',
+  ] as const)('%s: the prefix and the path are escaped', async (kind) => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-hooks-quote-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      await runGenerator(hooks(openapi, out, '../client', kind))
+      const code = fs.readFileSync(out, 'utf8')
+      // The prefix key, the query key (no args), the mutation key, and — after the args are
+      // destructured or passed — the query and infinite keys.
+      expect(code).toContain(`return ["Packages(Id='{id}')"] as const`)
+      expect(code).toContain(`return ["Packages(Id='{id}')", "/Packages(Id='{id}')"] as const`)
+      expect(code).toContain(
+        `return ['messages', "/messages/getDetails(address='{address}')", 'DELETE'] as const`,
+      )
+      expect(code).toMatch(
+        /return \['messages', "\/messages\/getDetails\(address='\{address\}'\)", (?:args|toValue\(args\))\] as const/u,
+      )
+      expect(code).toMatch(
+        /return \[\s*'messages',\s*"\/messages\/getDetails\(address='\{address\}'\)",\s*'infinite',\s*(?:args|toValue\(args\)),?\s*\] as const/u,
+      )
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
