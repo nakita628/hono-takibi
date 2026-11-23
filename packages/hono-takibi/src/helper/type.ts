@@ -54,7 +54,15 @@ function makeNonNullTypeString(
   if (schema.enum && schema.enum.length > 0) {
     const values = schema.enum.filter((v) => v !== null)
     if (values.length === 0) return 'null'
-    return values.map((v) => (typeof v === 'string' ? makeStringLiteral(v) : String(v))).join('|')
+    return values
+      .map((v) =>
+        typeof v === 'string'
+          ? makeStringLiteral(v)
+          : typeof v === 'object'
+            ? JSON.stringify(v)
+            : String(v),
+      )
+      .join('|')
   }
   if (schema.const !== undefined) {
     if (typeof schema.const === 'string') {

@@ -29,6 +29,7 @@ import type {
 } from '../../openapi/index.js'
 import {
   makeSafeKey,
+  makeStringLiteral,
   statusCodeToNumber,
   toHonoPath,
   toIdentifierPascalCase,
@@ -45,6 +46,16 @@ const DEEP_READONLY_TYPE =
  * component schema that would take one of them is given another name.
  */
 const RESERVED_TYPE_NAMES: ReadonlySet<string> = new Set(['DeepReadonly', 'File'])
+
+/**
+ * The status codes of Hono's `StatusCode` (`hono/utils/http-status`).
+ */
+const HONO_STATUS_CODES: ReadonlySet<number> = new Set([
+  100, 101, 102, 103, 200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304,
+  305, 306, 307, 308, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414,
+  415, 416, 417, 418, 421, 422, 423, 424, 425, 426, 428, 429, 431, 451, 500, 501, 502, 503, 504,
+  505, 506, 507, 508, 510, 511,
+])
 
 /**
  * The component schemas an operation refers to, each as one named type.
@@ -136,7 +147,7 @@ function makeHonoSchemaType(openAPI: OpenAPI, aliases: Aliases) {
   })
   return pathEntries.length === 0
     ? '{}'
-    : pathEntries.map(({ path: p, methods }) => `{'${p}':{${methods}}}`).join('&')
+    : pathEntries.map(({ path: p, methods }) => `{${makeStringLiteral(p)}:{${methods}}}`).join('&')
 }
 
 function makeMethodType(
@@ -285,16 +296,22 @@ function makeOutputTypes(
   return Object.entries(responses ?? {}).flatMap(([statusCode, response]) => {
     const resolvedResponse = makeResolvedResponse(response, aliases.components)
     const status = statusCodeToNumber(statusCode)
-    if (!resolvedResponse.content) {
+    // Hono's `Schema` takes only a `StatusCode`, and @hono/zod-openapi leaves any other
+    // code out of the route's type, so the map leaves it out too.
+    if (!HONO_STATUS_CODES.has(status)) return []
+    const mediaEntries = Object.entries(resolvedResponse.content ?? {}).filter(
+      (entry): entry is [string, { schema: Schema }] => isMediaWithSchema(entry[1]),
+    )
+    // A response whose media types all lack a schema is written without `content` in
+    // the route, so it is typed like a response without content.
+    if (mediaEntries.length === 0) {
       return [`{input:${inputType};output:{};outputFormat:string;status:${status}}`]
     }
-    return Object.entries(resolvedResponse.content)
-      .filter((entry): entry is [string, { schema: Schema }] => isMediaWithSchema(entry[1]))
-      .map(([mediaType, media]) => {
-        const outputType = makeSchemaTypeString(media.schema, aliases, new Set())
-        const outputFormat = isJsonMediaType(mediaType) ? "'json'" : "'text'"
-        return `{input:${inputType};output:${outputType};outputFormat:${outputFormat};status:${status}}`
-      })
+    return mediaEntries.map(([mediaType, media]) => {
+      const outputType = makeSchemaTypeString(media.schema, aliases, new Set())
+      const outputFormat = isJsonMediaType(mediaType) ? "'json'" : "'text'"
+      return `{input:${inputType};output:${outputType};outputFormat:${outputFormat};status:${status}}`
+    })
   })
 }
 
@@ -380,7 +397,9 @@ function makeSchemaTypeString(schema: Schema, aliases: Aliases, visited: Set<str
           ? `'${v.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`
           : isBigintLiteral(v)
             ? `${v}n`
-            : String(v),
+            : typeof v === 'object' && v !== null
+              ? JSON.stringify(v)
+              : String(v),
       )
       .join('|')
   }

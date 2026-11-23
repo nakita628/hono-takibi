@@ -979,3 +979,110 @@ export default routes
     }
   })
 })
+
+async function generateTypes(openapi: object) {
+  const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
+  try {
+    const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
+    await runGenerator(type(openapi as OpenAPI, out))
+    return fs.readFileSync(out, 'utf8')
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true })
+  }
+}
+
+function documentOf(paths: object) {
+  return { openapi: '3.1.0', info: { title: 'Test', version: '1.0.0' }, paths }
+}
+
+function jsonResponse(schema: object) {
+  return { description: 'ok', content: { 'application/json': { schema } } }
+}
+
+describe('type: what a route map can be written with', () => {
+  it('writes an array value of an enum as its JSON (#504)', { timeout: 10_000 }, async () => {
+    const content = await generateTypes(
+      documentOf({
+        '/a': {
+          get: {
+            responses: {
+              '200': jsonResponse({
+                type: 'object',
+                required: ['errors'],
+                properties: {
+                  errors: { type: 'array', items: { type: 'string' }, enum: [[]] },
+                  warnings: { type: 'array', items: { type: 'string' }, enum: [[], ['a']] },
+                },
+              }),
+            },
+          },
+        },
+      }),
+    )
+    expect(content).toBe(
+      "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/a': {\n      $get: {\n        input: {}\n        output: { errors: []; warnings?: [] | ['a'] | undefined }\n        outputFormat: 'json'\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
+    )
+  })
+
+  it("escapes a ' in a path (#505)", { timeout: 10_000 }, async () => {
+    const content = await generateTypes(
+      documentOf({
+        "/messages/getDetails(address='{address}')": {
+          get: {
+            parameters: [
+              { name: 'address', in: 'path', required: true, schema: { type: 'string' } },
+            ],
+            responses: { '200': jsonResponse({ type: 'string' }) },
+          },
+        },
+      }),
+    )
+    expect(content).toBe(
+      "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    \"/messages/getDetails(address='{address}')\": {\n      $get: {\n        input: { param: { address: string } }\n        output: string\n        outputFormat: 'json'\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
+    )
+  })
+
+  it(
+    'leaves out a status code that is no StatusCode of Hono (#517)',
+    { timeout: 10_000 },
+    async () => {
+      const content = await generateTypes(
+        documentOf({
+          '/payments': {
+            post: {
+              responses: {
+                '200': jsonResponse({ type: 'string' }),
+                '299': jsonResponse({ type: 'number' }),
+                '480': { description: 'error' },
+              },
+            },
+          },
+        }),
+      )
+      expect(content).toBe(
+        "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  { '/payments': { $post: { input: {}; output: string; outputFormat: 'json'; status: 200 } } },\n  '/'\n>\nexport default routes\n",
+      )
+    },
+  )
+
+  it(
+    'types a response whose media types have no schema like one without content (#507)',
+    { timeout: 10_000 },
+    async () => {
+      const content = await generateTypes(
+        documentOf({
+          '/tags': {
+            delete: {
+              responses: {
+                '204': { description: 'No Content', content: { 'application/json': {} } },
+              },
+            },
+          },
+        }),
+      )
+      expect(content).toBe(
+        "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  { '/tags': { $delete: { input: {}; output: {}; outputFormat: string; status: 204 } } },\n  '/'\n>\nexport default routes\n",
+      )
+    },
+  )
+})
