@@ -40,53 +40,51 @@ describe('parseOpenAPI', () => {
   it.concurrent('should return ok for a valid OpenAPI JSON file', async () => {
     const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-openapi-'))
     const input = `${directory}/openapi.json` as const
-    fs.writeFileSync(
-      input,
-      JSON.stringify({
-        openapi: '3.0.0',
-        info: {
-          title: 'Test API',
-          version: '1.0.0',
-        },
-        components: {
-          schemas: {
-            Test: {
-              type: 'object',
-              required: ['test'],
-              properties: {
-                test: {
-                  type: 'string',
-                },
+    const document = {
+      openapi: '3.0.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      components: {
+        schemas: {
+          Test: {
+            type: 'object',
+            required: ['test'],
+            properties: {
+              test: {
+                type: 'string',
               },
             },
           },
         },
-        paths: {
-          '/test': {
-            post: {
-              summary: 'Test endpoint',
-              requestBody: {
-                required: true,
-                content: {
-                  'application/json': {
-                    schema: {
-                      $ref: '#/components/schemas/Test',
-                    },
+      },
+      paths: {
+        '/test': {
+          post: {
+            summary: 'Test endpoint',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/Test',
                   },
                 },
               },
-              responses: {
-                '200': {
-                  description: 'Successful test',
-                },
+            },
+            responses: {
+              '200': {
+                description: 'Successful test',
               },
             },
           },
         },
-      }),
-    )
+      },
+    }
+    fs.writeFileSync(input, JSON.stringify(document))
     try {
-      await expect(runGenerator(parseOpenAPI(input))).resolves.toBeDefined()
+      await expect(runGenerator(parseOpenAPI(input))).resolves.toStrictEqual(document)
     } finally {
       fs.rmSync(directory, { recursive: true, force: true })
     }
@@ -188,6 +186,171 @@ describe('parseOpenAPI', () => {
 const TSP_TEST_DIR = path.resolve(import.meta.dirname, '../..')
 const TSP_TEST_FILE = `${TSP_TEST_DIR}/tmp-spec.tsp` as const
 const TSP_TEST_SUBDIR = `${TSP_TEST_DIR}/tmp`
+// The document both Widget specs below compile to.
+const WIDGET_OPENAPI = {
+  openapi: '3.0.0',
+  info: {
+    title: 'Widget Service',
+    version: '0.0.0',
+  },
+  externalDocs: undefined,
+  security: undefined,
+  tags: [],
+  paths: {
+    '/{id}': {
+      get: {
+        operationId: 'read',
+        summary: undefined,
+        description: undefined,
+        parameters: [
+          {
+            description: undefined,
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+            },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'The request has succeeded.',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Widget',
+                },
+              },
+            },
+          },
+          default: {
+            description: 'An unexpected error response.',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  components: {
+    schemas: {
+      LightWidget: {
+        type: 'object',
+        required: ['kind'],
+        properties: {
+          kind: {
+            type: 'string',
+            enum: ['Light'],
+          },
+        },
+        allOf: [
+          {
+            $ref: '#/components/schemas/WidgetBase',
+          },
+        ],
+      },
+      WidgetBase: {
+        type: 'object',
+        required: ['id', 'weight', 'color'],
+        properties: {
+          id: {
+            type: 'string',
+          },
+          weight: {
+            type: 'integer',
+            format: 'int32',
+          },
+          color: {
+            type: 'string',
+            enum: ['red', 'blue'],
+          },
+        },
+      },
+      HeavyWidget: {
+        type: 'object',
+        required: ['kind'],
+        properties: {
+          kind: {
+            type: 'string',
+            enum: ['Heavy'],
+          },
+        },
+        allOf: [
+          {
+            $ref: '#/components/schemas/WidgetBase',
+          },
+        ],
+      },
+      WidgetHeavy: {
+        type: 'object',
+        required: ['kind', 'value'],
+        properties: {
+          kind: {
+            type: 'string',
+            enum: ['heavy'],
+          },
+          value: {
+            $ref: '#/components/schemas/HeavyWidget',
+          },
+        },
+      },
+      WidgetLight: {
+        type: 'object',
+        required: ['kind', 'value'],
+        properties: {
+          kind: {
+            type: 'string',
+            enum: ['light'],
+          },
+          value: {
+            $ref: '#/components/schemas/LightWidget',
+          },
+        },
+      },
+      Widget: {
+        type: 'object',
+        oneOf: [
+          {
+            $ref: '#/components/schemas/WidgetHeavy',
+          },
+          {
+            $ref: '#/components/schemas/WidgetLight',
+          },
+        ],
+        discriminator: {
+          propertyName: 'kind',
+          mapping: {
+            heavy: '#/components/schemas/WidgetHeavy',
+            light: '#/components/schemas/WidgetLight',
+          },
+        },
+      },
+      Error: {
+        type: 'object',
+        required: ['code', 'message'],
+        properties: {
+          code: {
+            type: 'integer',
+            format: 'int32',
+          },
+          message: {
+            type: 'string',
+          },
+        },
+      },
+      WidgetKind: {
+        type: 'string',
+        enum: ['Heavy', 'Light'],
+      },
+    },
+  },
+}
 
 describe('parseOpenAPI TypeSpec', () => {
   beforeEach(() => {
@@ -243,7 +406,9 @@ model Error {
 @get op read(@path id: string): Widget | Error;
 `
     fs.writeFileSync(TSP_TEST_FILE, tmpTsp)
-    await expect(runGenerator(parseOpenAPI(TSP_TEST_FILE))).resolves.toBeDefined()
+    const openapi = await runGenerator(parseOpenAPI(TSP_TEST_FILE))
+    // TypeSpec builds the document from its own ObjectBuilder class; compare it as plain data.
+    expect(structuredClone(openapi)).toStrictEqual(WIDGET_OPENAPI)
   })
 
   it('typeSpecToOpenAPI dir not Error', { timeout: 30_000 }, async () => {
@@ -292,15 +457,17 @@ model Error {
 `
     fs.mkdirSync(TSP_TEST_SUBDIR, { recursive: true })
     fs.writeFileSync(`${TSP_TEST_SUBDIR}/tmp-spec.tsp`, tmpTsp)
-    await expect(
-      runGenerator(parseOpenAPI(`${TSP_TEST_SUBDIR}/tmp-spec.tsp`)),
-    ).resolves.toBeDefined()
+    const openapi = await runGenerator(parseOpenAPI(`${TSP_TEST_SUBDIR}/tmp-spec.tsp`))
+    // TypeSpec builds the document from its own ObjectBuilder class; compare it as plain data.
+    expect(structuredClone(openapi)).toStrictEqual(WIDGET_OPENAPI)
   })
 
   it('typeSpecToOpenAPI Error', { timeout: 10_000 }, async () => {
     const tmpTsp = `import "@typespec`
     fs.writeFileSync(TSP_TEST_FILE, tmpTsp)
     const error = await runGeneratorError(parseOpenAPI(TSP_TEST_FILE))
-    expect(error.message).toContain('TypeSpec compile failed')
+    expect(error.message).toBe(
+      "TypeSpec compile failed:\nUnterminated string literal.\n';' expected.\nCouldn't resolve import \"@typespec\"",
+    )
   })
 })

@@ -455,7 +455,16 @@ describe('an app built from the exported routes', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_small', path: ['limit'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'number',
+        code: 'too_small',
+        minimum: 1,
+        inclusive: true,
+        path: ['limit'],
+        message: 'Too small: expected number to be >=1',
+      },
+    ])
   })
 
   // One above the maximum.
@@ -466,7 +475,16 @@ describe('an app built from the exported routes', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_big', path: ['limit'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'number',
+        code: 'too_big',
+        maximum: 100,
+        inclusive: true,
+        path: ['limit'],
+        message: 'Too big: expected number to be <=100',
+      },
+    ])
   })
 
   // A fraction is not an integer.
@@ -477,8 +495,14 @@ describe('an app built from the exported routes', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['limit'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'int',
+        format: 'safeint',
+        code: 'invalid_type',
+        path: ['limit'],
+        message: 'Invalid input: expected int, received number',
+      },
     ])
   })
 
@@ -490,8 +514,13 @@ describe('an app built from the exported routes', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['limit'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'number',
+        code: 'invalid_type',
+        path: ['limit'],
+        message: 'Invalid input: expected number, received string',
+      },
     ])
   })
 
@@ -503,8 +532,28 @@ describe('an app built from the exported routes', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_value', path: ['verbose'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        code: 'invalid_value',
+        expected: 'stringbool',
+        values: [
+          'true',
+          '1',
+          'yes',
+          'on',
+          'y',
+          'enabled',
+          'false',
+          '0',
+          'no',
+          'off',
+          'n',
+          'disabled',
+        ],
+        path: ['verbose'],
+        message:
+          'Invalid option: expected one of "true"|"1"|"yes"|"on"|"y"|"enabled"|"false"|"0"|"no"|"off"|"n"|"disabled"',
+      },
     ])
   })
 
@@ -534,8 +583,16 @@ describe('an app built from the exported routes', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_format', path: ['userId'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'string',
+        code: 'invalid_format',
+        format: 'uuid',
+        pattern:
+          '/^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/',
+        path: ['userId'],
+        message: 'Invalid UUID',
+      },
     ])
   })
 
@@ -577,8 +634,13 @@ describe('an app built from the exported routes', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['callbackUrl'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'string',
+        code: 'invalid_type',
+        path: ['callbackUrl'],
+        message: 'Invalid input: expected string, received undefined',
+      },
     ])
   })
 
@@ -594,7 +656,14 @@ describe('an app built from the exported routes', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'invalid_type', path: ['name'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'string',
+        code: 'invalid_type',
+        path: ['name'],
+        message: 'Invalid input: expected string, received undefined',
+      },
+    ])
   })
 
   // One below minLength: 1.
@@ -609,7 +678,16 @@ describe('an app built from the exported routes', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_small', path: ['name'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'string',
+        code: 'too_small',
+        minimum: 1,
+        inclusive: true,
+        path: ['name'],
+        message: 'Too small: expected string to have >=1 characters',
+      },
+    ])
   })
 
   // format: uri.
@@ -624,8 +702,8 @@ describe('an app built from the exported routes', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_format', path: ['callbackUrl'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      { code: 'invalid_format', format: 'url', path: ['callbackUrl'], message: 'Invalid URL' },
     ])
   })
 
@@ -641,8 +719,13 @@ describe('an app built from the exported routes', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_value', path: ['role'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        code: 'invalid_value',
+        values: ['admin', 'member'],
+        path: ['role'],
+        message: 'Invalid option: expected one of "admin"|"member"',
+      },
     ])
   })
 
@@ -684,8 +767,13 @@ describe('an app built from the exported routes', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_value', path: ['role'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        code: 'invalid_value',
+        values: ['admin', 'member'],
+        path: ['role'],
+        message: 'Invalid option: expected one of "admin"|"member"',
+      },
     ])
   })
 
@@ -701,8 +789,13 @@ describe('an app built from the exported routes', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['nameContains'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'string',
+        code: 'invalid_type',
+        path: ['nameContains'],
+        message: 'Invalid input: expected string, received number',
+      },
     ])
   })
 
@@ -735,10 +828,24 @@ describe('an app built from the exported routes', () => {
   // 仕様で必須とされたプロパティだけが列挙される。必須プロパティのないスキーマでは、
   // 何も列挙されない。
   it('documents only the required properties an object declares', () => {
-    expect(doc.components?.schemas?.User).toMatchObject({ required: ['id', 'name', 'role'] })
+    expect(doc.components?.schemas?.User).toStrictEqual({
+      type: 'object',
+      properties: {
+        id: { $ref: '#/components/schemas/UserId' },
+        name: { type: 'string', minLength: 1 },
+        role: { $ref: '#/components/schemas/Role' },
+        address: { $ref: '#/components/schemas/Address' },
+      },
+      required: ['id', 'name', 'role'],
+    })
     // No `required` in the spec: every property is optional.
     // 仕様に `required` がないため、すべてのプロパティは任意である。
-    expect(doc.components?.schemas?.UserFilter).toMatchObject({ required: [] })
+    expect(doc.components?.schemas?.UserFilter).toStrictEqual({
+      type: 'object',
+      properties: { role: { $ref: '#/components/schemas/Role' }, nameContains: { type: 'string' } },
+      required: [],
+      description: '`required` is omitted on purpose: every property is optional.',
+    })
   })
 
   // required: false in the document, for every parameter and header the spec does not require.
@@ -753,15 +860,45 @@ describe('an app built from the exported routes', () => {
       ['verbose', false],
       ['X-Request-Id', false],
     ])
-    expect(listUsers?.responses?.[200]).toMatchObject({
-      headers: { 'X-Rate-Limit': { required: false } },
+    expect(listUsers?.responses?.[200]).toStrictEqual({
+      summary: 'Users page',
+      description: 'A page of users',
+      headers: {
+        'X-Rate-Limit': {
+          schema: {
+            type: 'integer',
+            minimum: 0,
+            description: 'Requests left in the current window',
+          },
+          required: false,
+          description: 'Requests left in the current window',
+        },
+      },
+      content: {
+        'application/json': {
+          schema: { type: 'array', items: { $ref: '#/components/schemas/User' } },
+        },
+      },
     })
   })
 
   // The document shows the schema behind the media type reference.
   // ドキュメントには、メディアタイプ参照の先にあるスキーマが表示される。
   it('documents a media type reference as its schema', () => {
-    expect(doc.paths?.['/users']?.get?.responses?.[200]).toMatchObject({
+    expect(doc.paths?.['/users']?.get?.responses?.[200]).toStrictEqual({
+      summary: 'Users page',
+      description: 'A page of users',
+      headers: {
+        'X-Rate-Limit': {
+          schema: {
+            type: 'integer',
+            minimum: 0,
+            description: 'Requests left in the current window',
+          },
+          required: false,
+          description: 'Requests left in the current window',
+        },
+      },
       content: {
         'application/json': {
           schema: { type: 'array', items: { $ref: '#/components/schemas/User' } },

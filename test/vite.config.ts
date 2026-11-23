@@ -1,5 +1,26 @@
 import { defineConfig } from 'vite-plus'
 
+// A matcher that checks part of a value lets a regression in the rest of it pass. The rule
+// matches the start of the chain, so `expect(x).not.toContain()` is `not.toContain`: each
+// matcher is restricted behind every modifier too.
+const PARTIAL_MATCHERS = Object.fromEntries(
+  Object.entries({
+    toContain: 'Compare the whole value with toBe / toStrictEqual.',
+    toContainEqual: 'Compare the whole value with toStrictEqual.',
+    toMatch: 'Compare the whole string with toBe.',
+    toMatchObject: 'Compare the whole object with toStrictEqual.',
+    toHaveProperty: 'Compare the whole object with toStrictEqual.',
+    toBeDefined: 'Compare with the value itself.',
+    toBeTruthy: 'Compare with the value itself.',
+    toBeFalsy: 'Compare with the value itself.',
+  }).flatMap(([matcher, message]) =>
+    ['', 'not.', 'resolves.', 'rejects.', 'resolves.not.', 'rejects.not.'].map((modifier) => [
+      `${modifier}${matcher}`,
+      message,
+    ]),
+  ),
+)
+
 export default defineConfig({
   esbuild: {
     jsx: 'automatic',
@@ -47,6 +68,8 @@ export default defineConfig({
       'vitest',
       'jest',
     ],
+    // packages/hono-takibi's convention plugin; only its test rule is turned on here.
+    jsPlugins: ['../packages/hono-takibi/lint/custom.js'],
     options: {
       typeAware: true,
       typeCheck: true,
@@ -152,8 +175,10 @@ export default defineConfig({
           toThrowErrorMatchingSnapshot: 'Name the error the call throws.',
           toThrowErrorMatchingInlineSnapshot: 'Name the error the call throws.',
           toEqual: 'Use toStrictEqual: toEqual passes on undefined properties and other classes.',
+          ...PARTIAL_MATCHERS,
         },
       ],
+      'custom/no-partial-assertion': 'error',
       // `typescript/no-explicit-any` and the `no-unsafe-*` family are deliberately absent, as
       // they are off for `*.test.ts` in packages/hono-takibi: a test reads a response body and
       // a handler's `c.req.valid()` as they come, and asserts on what it finds.

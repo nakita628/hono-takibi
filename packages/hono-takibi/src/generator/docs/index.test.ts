@@ -4774,16 +4774,45 @@ describe('HTML escaping of free-form spec values', () => {
   } as OpenAPI
 
   it('escapes & < > in title, server url, contact, license, and tag headings', () => {
-    const lines = makeDocs(spec).split('\n')
-    expect(lines).toContain('<h1 id="acme-search-co">Acme &lt;Search&gt; &amp; Co v1.0.0</h1>')
-    expect(lines).toContain(
-      '* <a href="https://api.example.com/?x=1&amp;y=2">https://api.example.com/?x=1&amp;y=2</a>',
-    )
-    expect(lines).toContain('Email: <a href="mailto:a&amp;b@x.com">A &amp; B</a> ')
-    expect(lines).toContain(
-      'License: <a href="https://l.example/?a=1&amp;b=2">MIT &amp; friends</a>',
-    )
-    expect(lines).toContain('<h1 id="acme-search-co-orders-refunds">Orders &amp; Refunds</h1>')
+    const md = makeDocs(spec)
+    expect(md).toBe(`<h1 id="acme-search-co">Acme &lt;Search&gt; &amp; Co v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+Base URLs:
+
+* <a href="https://api.example.com/?x=1&amp;y=2">https://api.example.com/?x=1&amp;y=2</a>
+
+Email: <a href="mailto:a&amp;b@x.com">A &amp; B</a> 
+License: <a href="https://l.example/?a=1&amp;b=2">MIT &amp; friends</a>
+
+<h1 id="acme-search-co-orders-refunds">Orders &amp; Refunds</h1>
+
+## getO
+
+<a id="opIdgetO"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /o \\
+  src/index.ts
+\`\`\`
+
+\`GET /o\`
+
+<h3 id="geto-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`)
   })
 })
 
@@ -11017,8 +11046,293 @@ Status Code **200**
 
 `)
     // Each component is described once, under Schemas.
-    expect(md.match(/^\|x\|\[VariableAlias\]\(#schemavariablealias\)\|/gmu)).toHaveLength(1)
-    expect(md.match(/^\|type\|string\|true\|none\|none\|$/gmu)).toHaveLength(2)
+    expect(md).toBe(`<h1 id="figma">Figma v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="figma-default">Default</h1>
+
+## getNodes
+
+<a id="opIdgetNodes"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /nodes \\
+  -H 'Accept: application/json' \\
+  src/index.ts
+\`\`\`
+
+\`GET /nodes\`
+
+> Example responses
+
+> 200 Response
+
+\`\`\`json
+{
+  "nodes": [
+    {
+      "id": "string",
+      "boundVariables": {
+        "x": {
+          "type": "VARIABLE_ALIAS",
+          "id": "string"
+        },
+        "y": {
+          "type": "VARIABLE_ALIAS",
+          "id": "string"
+        },
+        "width": {
+          "type": "VARIABLE_ALIAS",
+          "id": "string"
+        },
+        "height": {
+          "type": "VARIABLE_ALIAS",
+          "id": "string"
+        }
+      },
+      "fills": [
+        {
+          "type": "string",
+          "boundVariables": {
+            "x": {
+              "type": "VARIABLE_ALIAS",
+              "id": "string"
+            },
+            "y": {
+              "type": "VARIABLE_ALIAS",
+              "id": "string"
+            },
+            "width": {
+              "type": "VARIABLE_ALIAS",
+              "id": "string"
+            },
+            "height": {
+              "type": "VARIABLE_ALIAS",
+              "id": "string"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "bound": {
+      "x": {
+        "type": "VARIABLE_ALIAS",
+        "id": "string"
+      },
+      "y": {
+        "type": "VARIABLE_ALIAS",
+        "id": "string"
+      },
+      "width": {
+        "type": "VARIABLE_ALIAS",
+        "id": "string"
+      },
+      "height": {
+        "type": "VARIABLE_ALIAS",
+        "id": "string"
+      }
+    },
+    "count": 0
+  }
+}
+\`\`\`
+
+<h3 id="getnodes-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
+
+<h3 id="getnodes-responseschema">Response Schema</h3>
+
+Status Code **200**
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|nodes|[[Node](#schemanode)]|true|none|none|
+|meta|object|false|none|none|
+|» bound|[BoundVariables](#schemaboundvariables)|false|none|A mapping of field to the variable bound to it.|
+|» count|integer|false|none|none|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
+# Schemas
+
+<h2 id="tocS_Node">Node</h2>
+<!-- backwards compatibility -->
+<a id="schemanode"></a>
+<a id="schema_Node"></a>
+<a id="tocSnode"></a>
+<a id="tocsnode"></a>
+
+\`\`\`json
+{
+  "id": "string",
+  "boundVariables": {
+    "x": {
+      "type": "VARIABLE_ALIAS",
+      "id": "string"
+    },
+    "y": {
+      "type": "VARIABLE_ALIAS",
+      "id": "string"
+    },
+    "width": {
+      "type": "VARIABLE_ALIAS",
+      "id": "string"
+    },
+    "height": {
+      "type": "VARIABLE_ALIAS",
+      "id": "string"
+    }
+  },
+  "fills": [
+    {
+      "type": "string",
+      "boundVariables": {
+        "x": {
+          "type": "VARIABLE_ALIAS",
+          "id": "string"
+        },
+        "y": {
+          "type": "VARIABLE_ALIAS",
+          "id": "string"
+        },
+        "width": {
+          "type": "VARIABLE_ALIAS",
+          "id": "string"
+        },
+        "height": {
+          "type": "VARIABLE_ALIAS",
+          "id": "string"
+        }
+      }
+    }
+  ]
+}
+\`\`\`
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|string|true|none|none|
+|boundVariables|[BoundVariables](#schemaboundvariables)|false|none|A mapping of field to the variable bound to it.|
+|fills|[[Paint](#schemapaint)]|false|none|none|
+
+<h2 id="tocS_BoundVariables">BoundVariables</h2>
+<!-- backwards compatibility -->
+<a id="schemaboundvariables"></a>
+<a id="schema_BoundVariables"></a>
+<a id="tocSboundvariables"></a>
+<a id="tocsboundvariables"></a>
+
+\`\`\`json
+{
+  "x": {
+    "type": "VARIABLE_ALIAS",
+    "id": "string"
+  },
+  "y": {
+    "type": "VARIABLE_ALIAS",
+    "id": "string"
+  },
+  "width": {
+    "type": "VARIABLE_ALIAS",
+    "id": "string"
+  },
+  "height": {
+    "type": "VARIABLE_ALIAS",
+    "id": "string"
+  }
+}
+\`\`\`
+
+A mapping of field to the variable bound to it.
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|x|[VariableAlias](#schemavariablealias)|false|none|none|
+|y|[VariableAlias](#schemavariablealias)|false|none|none|
+|width|[VariableAlias](#schemavariablealias)|false|none|none|
+|height|[VariableAlias](#schemavariablealias)|false|none|none|
+
+<h2 id="tocS_VariableAlias">VariableAlias</h2>
+<!-- backwards compatibility -->
+<a id="schemavariablealias"></a>
+<a id="schema_VariableAlias"></a>
+<a id="tocSvariablealias"></a>
+<a id="tocsvariablealias"></a>
+
+\`\`\`json
+{
+  "type": "VARIABLE_ALIAS",
+  "id": "string"
+}
+\`\`\`
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|type|string|true|none|none|
+|id|string|true|none|none|
+
+#### Enumerated Values
+
+|Property|Value|
+|---|---|
+|type|VARIABLE_ALIAS|
+
+<h2 id="tocS_Paint">Paint</h2>
+<!-- backwards compatibility -->
+<a id="schemapaint"></a>
+<a id="schema_Paint"></a>
+<a id="tocSpaint"></a>
+<a id="tocspaint"></a>
+
+\`\`\`json
+{
+  "type": "string",
+  "boundVariables": {
+    "x": {
+      "type": "VARIABLE_ALIAS",
+      "id": "string"
+    },
+    "y": {
+      "type": "VARIABLE_ALIAS",
+      "id": "string"
+    },
+    "width": {
+      "type": "VARIABLE_ALIAS",
+      "id": "string"
+    },
+    "height": {
+      "type": "VARIABLE_ALIAS",
+      "id": "string"
+    }
+  }
+}
+\`\`\`
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|type|string|true|none|none|
+|boundVariables|[BoundVariables](#schemaboundvariables)|false|none|A mapping of field to the variable bound to it.|
+`)
   })
 
   // #414: a `type` that is an object (one level of nesting too many, Codat) is not a type
@@ -11048,7 +11362,56 @@ Status Code **200**
           },
         },
       } as unknown as OpenAPI
-      expect(makeDocs(doc)).toContain('|» kind|body|any|false|none|')
+      expect(makeDocs(doc)).toBe(`<h1 id="codat">Codat v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="codat-default">Default</h1>
+
+## createItem
+
+<a id="opIdcreateItem"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X POST \\
+  -P /items \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+    "kind": null
+  }' \\
+  src/index.ts
+\`\`\`
+
+\`POST /items\`
+
+> Body parameter
+
+\`\`\`json
+{
+  "kind": null
+}
+\`\`\`
+
+<h3 id="createitem-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object|false|none|
+|» kind|body|any|false|none|
+
+<h3 id="createitem-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`)
     })
   })
 })

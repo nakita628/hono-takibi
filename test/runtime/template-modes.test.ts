@@ -19,8 +19,6 @@ import routeHandlerApp from '../__generated__/template-route-handler/src/index'
 import { getHealth as routeHandlerGetHealth } from '../__generated__/template-route-handler/src/rpc'
 import { fetchOf } from '../hosts/fetch'
 
-const PATHS = ['/api/health', '/api/health/test', '/api/styles/query']
-
 describe.each([
   ['inline', inlineApp, inlineGetHealth],
   ['routeHandler', routeHandlerApp, routeHandlerGetHealth],
@@ -29,10 +27,20 @@ describe.each([
   // Every route of the document is on the app, under the base path.
   // ドキュメントのすべてのルートが、ベースパスの下でアプリに載っている。
   it('registers every route through the imported handlers', () => {
-    const registered = app.routes.map((route) => route.path)
-    for (const path of PATHS) {
-      expect(registered).toContain(path)
-    }
+    // A route with validators is registered once per middleware, so a path can repeat.
+    // バリデータを持つルートはミドルウェアごとに登録されるため、同じパスが繰り返されることがある。
+    expect(app.routes.map((route) => route.path)).toStrictEqual([
+      '/api/health',
+      '/api/health/test',
+      '/api/styles/label/:id',
+      '/api/styles/label/:id',
+      '/api/styles/matrix/:ids',
+      '/api/styles/matrix/:ids',
+      '/api/styles/query',
+      '/api/styles/query',
+      '/api/styles/query',
+      '/api/styles/query',
+    ])
   })
 
   // The handlers are stubs the harness filled with `c.notFound()`, so a request is answered

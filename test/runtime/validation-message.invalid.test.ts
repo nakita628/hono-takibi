@@ -31,12 +31,11 @@ type ZodFailure = { success: boolean; error: { name: string; message: string } }
 
 // The app has no hook. @hono/zod-openapi answers a validation failure itself. The answer is
 // 400 with { success: false, error: { name: "ZodError", message } }, where message is the
-// JSON of the issues. The tests assert the code and the path of every issue, not the wording
-// of its message, which belongs to Zod.
+// JSON of the issues. The tests compare the whole list of issues, message included.
 // アプリにフックはない。検証の失敗には @hono/zod-openapi 自身が応答する。
 // 応答は 400 と { success: false, error: { name: "ZodError", message } } であり、
-// message は issue の JSON 文字列である。テストでは各 issue の code と path を検証する。
-// メッセージの文言は Zod に属するものなので、検証しない。
+// message は issue の JSON 文字列である。テストでは issue の一覧を、メッセージも含めて
+// 丸ごと比較する。
 describe('pattern 1: no hook', () => {
   // One below minLength: 3.
   // minLength: 3 を 1 下回る。
@@ -50,7 +49,16 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_small', path: ['name'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'string',
+        code: 'too_small',
+        minimum: 3,
+        inclusive: true,
+        path: ['name'],
+        message: 'Too small: expected string to have >=3 characters',
+      },
+    ])
   })
 
   // One above maxLength: 20.
@@ -65,7 +73,16 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_big', path: ['name'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'string',
+        code: 'too_big',
+        maximum: 20,
+        inclusive: true,
+        path: ['name'],
+        message: 'Too big: expected string to have <=20 characters',
+      },
+    ])
   })
 
   // The empty string is present, and too short.
@@ -80,7 +97,16 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_small', path: ['name'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'string',
+        code: 'too_small',
+        minimum: 3,
+        inclusive: true,
+        path: ['name'],
+        message: 'Too small: expected string to have >=3 characters',
+      },
+    ])
   })
 
   // A request body is typed JSON, so nothing is coerced: the number 123 is not a string.
@@ -96,7 +122,14 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'invalid_type', path: ['name'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'string',
+        code: 'invalid_type',
+        path: ['name'],
+        message: 'Invalid input: expected string, received number',
+      },
+    ])
   })
 
   // null is a value of the wrong type, not a missing one.
@@ -111,7 +144,14 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'invalid_type', path: ['name'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'string',
+        code: 'invalid_type',
+        path: ['name'],
+        message: 'Invalid input: expected string, received null',
+      },
+    ])
   })
 
   // name is required.
@@ -126,7 +166,14 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'invalid_type', path: ['name'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'string',
+        code: 'invalid_type',
+        path: ['name'],
+        message: 'Invalid input: expected string, received undefined',
+      },
+    ])
   })
 
   // format: email.
@@ -141,8 +188,16 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_format', path: ['email'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'string',
+        code: 'invalid_format',
+        format: 'email',
+        pattern:
+          "/^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$/",
+        path: ['email'],
+        message: 'Invalid email address',
+      },
     ])
   })
 
@@ -158,8 +213,16 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_format', path: ['email'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'string',
+        code: 'invalid_format',
+        format: 'email',
+        pattern:
+          "/^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$/",
+        path: ['email'],
+        message: 'Invalid email address',
+      },
     ])
   })
 
@@ -175,8 +238,13 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['email'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'string',
+        code: 'invalid_type',
+        path: ['email'],
+        message: 'Invalid input: expected string, received undefined',
+      },
     ])
   })
 
@@ -192,7 +260,16 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_small', path: ['age'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'number',
+        code: 'too_small',
+        minimum: 0,
+        inclusive: true,
+        path: ['age'],
+        message: 'Too small: expected number to be >=0',
+      },
+    ])
   })
 
   // One above maximum: 150.
@@ -207,7 +284,16 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_big', path: ['age'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'number',
+        code: 'too_big',
+        maximum: 150,
+        inclusive: true,
+        path: ['age'],
+        message: 'Too big: expected number to be <=150',
+      },
+    ])
   })
 
   // In range, and not an integer.
@@ -222,7 +308,15 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'invalid_type', path: ['age'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'int',
+        format: 'safeint',
+        code: 'invalid_type',
+        path: ['age'],
+        message: 'Invalid input: expected int, received number',
+      },
+    ])
   })
 
   // Unlike a query parameter, a value in a body is not coerced: the string "20" is not a
@@ -238,7 +332,14 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'invalid_type', path: ['age'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'number',
+        code: 'invalid_type',
+        path: ['age'],
+        message: 'Invalid input: expected number, received string',
+      },
+    ])
   })
 
   // age is required.
@@ -253,7 +354,14 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'invalid_type', path: ['age'] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'number',
+        code: 'invalid_type',
+        path: ['age'],
+        message: 'Invalid input: expected number, received undefined',
+      },
+    ])
   })
 
   // Three invalid properties, three issues, in the order the schema declares them.
@@ -268,10 +376,32 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'too_small', path: ['name'] },
-      { code: 'invalid_format', path: ['email'] },
-      { code: 'too_small', path: ['age'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        origin: 'string',
+        code: 'too_small',
+        minimum: 3,
+        inclusive: true,
+        path: ['name'],
+        message: 'Too small: expected string to have >=3 characters',
+      },
+      {
+        origin: 'string',
+        code: 'invalid_format',
+        format: 'email',
+        pattern:
+          "/^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$/",
+        path: ['email'],
+        message: 'Invalid email address',
+      },
+      {
+        origin: 'number',
+        code: 'too_small',
+        minimum: 0,
+        inclusive: true,
+        path: ['age'],
+        message: 'Too small: expected number to be >=0',
+      },
     ])
   })
 
@@ -287,10 +417,25 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([
-      { code: 'invalid_type', path: ['name'] },
-      { code: 'invalid_type', path: ['email'] },
-      { code: 'invalid_type', path: ['age'] },
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'string',
+        code: 'invalid_type',
+        path: ['name'],
+        message: 'Invalid input: expected string, received undefined',
+      },
+      {
+        expected: 'string',
+        code: 'invalid_type',
+        path: ['email'],
+        message: 'Invalid input: expected string, received undefined',
+      },
+      {
+        expected: 'number',
+        code: 'invalid_type',
+        path: ['age'],
+        message: 'Invalid input: expected number, received undefined',
+      },
     ])
   })
 
@@ -306,7 +451,14 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'invalid_type', path: [] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'object',
+        code: 'invalid_type',
+        path: [],
+        message: 'Invalid input: expected object, received array',
+      },
+    ])
   })
 
   // null is valid JSON, and not an object.
@@ -321,7 +473,14 @@ describe('pattern 1: no hook', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'invalid_type', path: [] }])
+    expect(JSON.parse(body.error.message)).toStrictEqual([
+      {
+        expected: 'object',
+        code: 'invalid_type',
+        path: [],
+        message: 'Invalid input: expected object, received null',
+      },
+    ])
   })
 
   // The body cannot be parsed, so validation never starts and no hook runs: the answer is the

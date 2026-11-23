@@ -956,9 +956,9 @@ export function useDeleteUsersId<TError = unknown>(options?: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-immutable-'))
       try {
         const out = path.join(dir, 'index.ts')
-        await expect(
-          runGenerator(hooks(openapiImmutable, out, '../client', 'swr')),
-        ).resolves.toBeDefined()
+        await expect(runGenerator(hooks(openapiImmutable, out, '../client', 'swr'))).resolves.toBe(
+          `Generated swr hooks written to ${out}`,
+        )
 
         const code = fs.readFileSync(out, 'utf8')
 
@@ -1212,12 +1212,68 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
         } as OpenAPI
         await runGenerator(hooks(openAPI, out, '../client', 'swr'))
         const code = fs.readFileSync(out, 'utf8')
-        // Assertion: must not contain Infinite-related symbols
-        expect(code).not.toContain('Infinite')
-        expect(code).not.toContain('useSWRInfinite')
-        expect(code).not.toContain('swr/infinite')
-        expect(code).not.toContain('SWRInfiniteConfiguration')
-        expect(code).not.toContain('SWRInfiniteKeyLoader')
+        // No Infinite hook, key getter, or swr/infinite import.
+        expect(code).toBe(`import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
+import type { Key, SWRConfiguration } from 'swr'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+export function getGetItemsKey() {
+  return ['items', '/items'] as const
+}
+
+export function useGetItems<TError = unknown>(options?: {
+  swr?: SWRConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+    TError
+  > & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetItemsKey() : customKey) : null
+  return {
+    swrKey,
+    ...useSWR<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+      TError
+    >(
+      swrKey,
+      async () => parseResponse(client.items.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+export function useImmutableGetItems<TError = unknown>(options?: {
+  swr?: SWRConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+    TError
+  > & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey === undefined ? getGetItemsKey() : customKey) : null
+  return {
+    swrKey,
+    ...useSWRImmutable<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+      TError
+    >(
+      swrKey,
+      async () => parseResponse(client.items.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+`)
       } finally {
         fs.rmSync(dir, { recursive: true, force: true })
       }
@@ -3335,9 +3391,9 @@ export function useDeleteUsersId<TError = DefaultError, TOnMutateResult = unknow
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tq-header-'))
       try {
         const out = path.join(dir, 'index.ts')
-        await expect(
-          runGenerator(hooks(spec, out, '../client', 'tanstack-query')),
-        ).resolves.toBeDefined()
+        await expect(runGenerator(hooks(spec, out, '../client', 'tanstack-query'))).resolves.toBe(
+          `Generated tanstack-query hooks written to ${out}`,
+        )
         const code = fs.readFileSync(out, 'utf8')
         expect(code).toBe(`import {
   useQuery,
@@ -6509,7 +6565,7 @@ export function useDeleteUsersId<TError = DefaultError, TOnMutateResult = unknow
 
         await expect(
           runGenerator(hooks(putPatchOpenAPI, out, '../client', 'vue-query')),
-        ).resolves.toBeDefined()
+        ).resolves.toBe(`Generated vue-query hooks written to ${out}`)
 
         const code = fs.readFileSync(out, 'utf8')
         const expected = `import { useMutation, mutationOptions } from '@tanstack/vue-query'
@@ -10287,9 +10343,172 @@ export function useSuspenseItems<
   // グループ分けがなければ、すべてのフックが client を呼び出す。
   it('calls client everywhere without a grouping', async () => {
     const code = await generateGrouped(grouped, {})
-    expect(code).toContain("import { client } from './client'")
-    expect(code).toContain('client.books.$get(undefined, {')
-    expect(code).toContain('client.items.$get(undefined, {')
+    expect(code)
+      .toBe(`import { useQuery, useSuspenseQuery, queryOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  UseSuspenseQueryOptions,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/react-query'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from './client'
+
+export function getBooksKey() {
+  return ['books'] as const
+}
+
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+export function getBooksQueryKey() {
+  return ['books', '/books'] as const
+}
+
+export function getBooksQueryOptions<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.books.$get>>>>>,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.books.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getBooksQueryKey>
+  >({
+    queryKey: getBooksQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        client.books.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function useBooks<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.books.$get>>>>>,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.books.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getBooksQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getBooksQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspenseBooks<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.books.$get>>>>>,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.books.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getBooksQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getBooksQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function getItemsQueryKey() {
+  return ['items', '/items'] as const
+}
+
+export function getItemsQueryOptions<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getItemsQueryKey>
+  >({
+    queryKey: getItemsQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        client.items.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function useItems<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getItemsQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getItemsQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspenseItems<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getItemsQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getItemsQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+`)
   })
 
   // The name the config gives is that of the client of the whole application; a split one
@@ -10663,6 +10882,91 @@ describe('hooks: the root of an application under a base path', () => {
     )
     return fs.readFileSync(out, 'utf8')
   }
+  // The file for the root as the index of the client.
+  const indexRoot = `import { useQuery, useSuspenseQuery, queryOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  UseSuspenseQueryOptions,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/react-query'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from './client'
+
+export function getQueryKey() {
+  return ['', '/'] as const
+}
+
+export function getQueryOptions<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.index.$get>>>>>,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.index.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getQueryKey>
+  >({
+    queryKey: getQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        client.index.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function use<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.index.$get>>>>>,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.index.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspense<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.index.$get>>>>>,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.index.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+`
 
   // Under a base path the client is handed out from below it, where the root of the
   // application is the client itself.
@@ -10670,22 +10974,105 @@ describe('hooks: the root of an application under a base path', () => {
   // ルートパスはクライアントそのものである。
   it('calls the client itself for the root under a base path', async () => {
     const code = await generate('/api')
-    expect(code).toContain('client.$get(undefined, {')
-    expect(code).not.toContain('client.index')
+    expect(code)
+      .toBe(`import { useQuery, useSuspenseQuery, queryOptions } from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  UseSuspenseQueryOptions,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/react-query'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from './client'
+
+export function getQueryKey() {
+  return ['', '/'] as const
+}
+
+export function getQueryOptions<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.$get>>>>>,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getQueryKey>
+  >({
+    queryKey: getQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        client.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function use<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.$get>>>>>,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspense<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.$get>>>>>,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+`)
   })
 
   // Without a base path the root is the index of the client.
   // ベースパスがなければ、ルートパスはクライアントの index である。
   it('calls the index of the client for the root without a base path', async () => {
     const code = await generate('/')
-    expect(code).toContain('client.index.$get(undefined, {')
+    expect(code).toBe(indexRoot)
   })
 
   // The same when no base path is given at all.
   // ベースパスがまったく指定されていない場合も同様である。
   it('calls the index of the client for the root when no base path is given', async () => {
     const code = await generate(undefined)
-    expect(code).toContain('client.index.$get(undefined, {')
+    expect(code).toBe(indexRoot)
   })
 })
 
@@ -10732,59 +11119,769 @@ describe('hooks: a cookie parameter is left out of the key, as a header is', () 
     }
   }
 
+  // The TanStack Query file, which the two tests below read.
+  const tanstackQuery = `import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  queryOptions,
+  infiniteQueryOptions,
+} from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
+  InfiniteData,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+export function getUsersKey() {
+  return ['users'] as const
+}
+
+export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  const { header: _, cookie: __, ...keyArgs } = args
+  return ['users', '/users', keyArgs] as const
+}
+
+export function getUsersQueryOptions<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+  TError = DefaultError,
+>(args: InferRequestType<typeof client.users.$get>, options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getUsersQueryKey>
+  >({
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }) {
+      return parseResponse(
+        client.users.$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function useUsers<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+  TError = DefaultError,
+>(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getUsersQueryOptions<TData, TError>(args, clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspenseUsers<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+  TError = DefaultError,
+>(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getUsersQueryOptions<TData, TError>(args, clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  const { header: _, cookie: __, ...keyArgs } = args
+  return ['users', '/users', 'infinite', keyArgs] as const
+}
+
+export function getUsersInfiniteQueryOptions<
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: InferRequestType<typeof client.users.$get>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>
+      >,
+      allPages: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>
+      >[],
+      lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
+    ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<typeof client.users.$get>,
+      pageParam: unknown,
+    ) => InferRequestType<typeof client.users.$get>
+  },
+  options?: ClientRequestOptions,
+) {
+  return infiniteQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getUsersInfiniteQueryKey>,
+    TPageParam
+  >({
+    queryKey: getUsersInfiniteQueryKey(args),
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+      return parseResponse(
+        client.users.$get(pagination.getRequestArgs(args, pageParam), {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
+}
+
+export function useInfiniteUsers<
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: InferRequestType<typeof client.users.$get>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>
+      >,
+      allPages: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>
+      >[],
+      lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
+    ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<typeof client.users.$get>,
+      pageParam: unknown,
+    ) => InferRequestType<typeof client.users.$get>
+  },
+  options?: {
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useInfiniteQuery(
+    {
+      ...getUsersInfiniteQueryOptions<TData, TError, TPageParam>(args, pagination, clientOptions),
+      ...queryOptions,
+    },
+    queryClient,
+  )
+}
+
+export function useSuspenseInfiniteUsers<
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: InferRequestType<typeof client.users.$get>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>
+      >,
+      allPages: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>
+      >[],
+      lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
+    ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<typeof client.users.$get>,
+      pageParam: unknown,
+    ) => InferRequestType<typeof client.users.$get>
+  },
+  options?: {
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseInfiniteQuery(
+    {
+      ...getUsersInfiniteQueryOptions<TData, TError, TPageParam>(args, pagination, clientOptions),
+      ...queryOptions,
+    },
+    queryClient,
+  )
+}
+
+export function getItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
+  const { cookie: _, ...keyArgs } = args
+  return ['items', '/items', keyArgs] as const
+}
+
+export function getItemsQueryOptions<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+  TError = DefaultError,
+>(args: InferRequestType<typeof client.items.$get>, options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getItemsQueryKey>
+  >({
+    queryKey: getItemsQueryKey(args),
+    queryFn({ signal }) {
+      return parseResponse(
+        client.items.$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
+export function useItems<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+  TError = DefaultError,
+>(
+  args: InferRequestType<typeof client.items.$get>,
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getItemsQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getItemsQueryOptions<TData, TError>(args, clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspenseItems<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+  TError = DefaultError,
+>(
+  args: InferRequestType<typeof client.items.$get>,
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getItemsQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getItemsQueryOptions<TData, TError>(args, clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+`
+
   // Both are destructured away, in the query key and the infinite key alike.
   // query key と infinite key のどちらでも、両方が分割代入で取り除かれる。
   it('leaves header and cookie out of the TanStack Query keys', async () => {
     const code = await generate('tanstack-query')
-    expect(code)
-      .toContain(`export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  const { header: _, cookie: __, ...keyArgs } = args
-  return ['users', '/users', keyArgs] as const
-}`)
-    expect(code)
-      .toContain(`export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  const { header: _, cookie: __, ...keyArgs } = args
-  return ['users', '/users', 'infinite', keyArgs] as const
-}`)
+    expect(code).toBe(tanstackQuery)
   })
 
   // A cookie alone is left out the same way.
   // クッキーだけの場合も、同じように取り除かれる。
   it('leaves a cookie alone out of the TanStack Query key', async () => {
     const code = await generate('tanstack-query')
-    expect(code)
-      .toContain(`export function getItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
-  const { cookie: _, ...keyArgs } = args
-  return ['items', '/items', keyArgs] as const
-}`)
+    expect(code).toBe(tanstackQuery)
   })
 
   // The same for SWR, whose keys are built the same way.
   // キーの作り方が同じ SWR でも同様である。
   it('leaves header and cookie out of the SWR keys', async () => {
     const code = await generate('swr')
-    expect(code)
-      .toContain(`export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
+    expect(code).toBe(`import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+export function getUsersKey() {
+  return ['users'] as const
+}
+
+export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
   const { header: _, cookie: __, ...keyArgs } = args
   return ['users', '/users', keyArgs] as const
-}`)
-    expect(code)
-      .toContain(`export function getGetItemsKey(args: InferRequestType<typeof client.items.$get>) {
+}
+
+export function useGetUsers<TError = unknown>(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+      TError
+    > & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey =
+    enabled !== false ? (customKey === undefined ? getGetUsersKey(args) : customKey) : null
+  return {
+    swrKey,
+    ...useSWR<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+      TError
+    >(swrKey, async () => parseResponse(client.users.$get(args, clientOptions)), restSwrOptions),
+  }
+}
+
+export function useImmutableGetUsers<TError = unknown>(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+      TError
+    > & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey =
+    enabled !== false ? (customKey === undefined ? getGetUsersKey(args) : customKey) : null
+  return {
+    swrKey,
+    ...useSWRImmutable<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+      TError
+    >(swrKey, async () => parseResponse(client.users.$get(args, clientOptions)), restSwrOptions),
+  }
+}
+
+export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
+  const { header: _, cookie: __, ...keyArgs } = args
+  return ['users', '/users', 'infinite', keyArgs] as const
+}
+
+export function useInfiniteGetUsers<TError = unknown>(
+  args: InferRequestType<typeof client.users.$get>,
+  options: {
+    swr?: SWRInfiniteConfiguration<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+      TError
+    > & {
+      swrKey?: (
+        index: number,
+        previousPageData: Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>
+        > | null,
+      ) => readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number] | null
+      enabled?: boolean
+    }
+    options?: ClientRequestOptions
+    pagination: {
+      getRequestArgs: (
+        args: InferRequestType<typeof client.users.$get>,
+        index: number,
+      ) => InferRequestType<typeof client.users.$get>
+    }
+  },
+) {
+  const { swr: swrOptions, options: clientOptions, pagination } = options
+  const { swrKey: customKeyLoader, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    enabled !== false
+      ? (customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(args), index] as const))
+      : () => null
+  return useSWRInfinite(
+    keyLoader,
+    ([, , , , index]: readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number]) =>
+      parseResponse(client.users.$get(pagination.getRequestArgs(args, index), clientOptions)),
+    restSwrOptions,
+  )
+}
+
+export function getGetItemsKey(args: InferRequestType<typeof client.items.$get>) {
   const { cookie: _, ...keyArgs } = args
   return ['items', '/items', keyArgs] as const
-}`)
+}
+
+export function useGetItems<TError = unknown>(
+  args: InferRequestType<typeof client.items.$get>,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+      TError
+    > & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey =
+    enabled !== false ? (customKey === undefined ? getGetItemsKey(args) : customKey) : null
+  return {
+    swrKey,
+    ...useSWR<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+      TError
+    >(swrKey, async () => parseResponse(client.items.$get(args, clientOptions)), restSwrOptions),
+  }
+}
+
+export function useImmutableGetItems<TError = unknown>(
+  args: InferRequestType<typeof client.items.$get>,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+      TError
+    > & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey =
+    enabled !== false ? (customKey === undefined ? getGetItemsKey(args) : customKey) : null
+  return {
+    swrKey,
+    ...useSWRImmutable<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+      TError
+    >(swrKey, async () => parseResponse(client.items.$get(args, clientOptions)), restSwrOptions),
+  }
+}
+`)
   })
 
   // Vue reads the arguments through toValue first.
   // Vue は先に toValue で引数を読む。
   it('leaves header and cookie out of the Vue Query keys', async () => {
     const code = await generate('vue-query')
-    expect(code).toContain(`export function getUsersQueryKey(
+    expect(code).toBe(`import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseInfiniteQueryOptions,
+  InfiniteData,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/vue-query'
+import { computed, toValue } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+export function getUsersKey() {
+  return ['users'] as const
+}
+
+export function getUsersQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
   const { header: _, cookie: __, ...keyArgs } = toValue(args)
   return ['users', '/users', keyArgs] as const
-}`)
+}
+
+export function getUsersQueryOptions(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: computed(() => getUsersQueryKey(args)),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(toValue(args), { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
+}
+
+export function useUsers<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+  TError = DefaultError,
+>(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+  options?: {
+    query?: Omit<
+      Extract<
+        UseQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          TError,
+          TData,
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          ReturnType<typeof getUsersQueryKey>
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getUsersQueryKey>
+  >(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getUsersQueryKey(args)),
+      queryFn({ signal }) {
+        return parseResponse(
+          client.users.$get(toValue(args), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+    },
+    queryClient,
+  )
+}
+
+export function getUsersInfiniteQueryKey(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+) {
+  const { header: _, cookie: __, ...keyArgs } = toValue(args)
+  return ['users', '/users', 'infinite', keyArgs] as const
+}
+
+export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+  pagination: {
+    getRequestArgs: (
+      args: InferRequestType<typeof client.users.$get>,
+      pageParam: unknown,
+    ) => InferRequestType<typeof client.users.$get>
+  },
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: computed(() => getUsersInfiniteQueryKey(args)),
+    queryFn({ pageParam, signal }: QueryFunctionContext<readonly unknown[], TPageParam>) {
+      return parseResponse(
+        client.users.$get(pagination.getRequestArgs(toValue(args), pageParam), {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  }
+}
+
+export function useInfiniteUsers<
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+  pagination: {
+    getRequestArgs: (
+      args: InferRequestType<typeof client.users.$get>,
+      pageParam: unknown,
+    ) => InferRequestType<typeof client.users.$get>
+  },
+  options: {
+    query: Omit<
+      Extract<
+        UseInfiniteQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          TError,
+          TData,
+          ReturnType<typeof getUsersInfiniteQueryKey>,
+          TPageParam
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getUsersInfiniteQueryKey(args)),
+      queryFn({ pageParam, signal }) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(toValue(args), pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+    },
+    queryClient,
+  )
+}
+
+export function getItemsQueryKey(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.items.$get>>,
+) {
+  const { cookie: _, ...keyArgs } = toValue(args)
+  return ['items', '/items', keyArgs] as const
+}
+
+export function getItemsQueryOptions(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.items.$get>>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: computed(() => getItemsQueryKey(args)),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.items.$get(toValue(args), { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
+}
+
+export function useItems<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+  TError = DefaultError,
+>(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.items.$get>>,
+  options?: {
+    query?: Omit<
+      Extract<
+        UseQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+          TError,
+          TData,
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+          ReturnType<typeof getItemsQueryKey>
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+    TError,
+    TData,
+    ReturnType<typeof getItemsQueryKey>
+  >(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getItemsQueryKey(args)),
+      queryFn({ signal }) {
+        return parseResponse(
+          client.items.$get(toValue(args), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+    },
+    queryClient,
+  )
+}
+`)
   })
 })
 
@@ -10819,29 +11916,92 @@ describe('hooks: a GET hook named like a library import', () => {
     [
       'tanstack-query',
       [
+        'getMutationKey',
+        'getQueryKey',
+        'getUsersKey',
+        'getQueryQueryKey',
+        'getQueryQueryOptions',
         'useGetQuery',
         'useSuspenseGetQuery',
+        'getQueryInfiniteQueryKey',
+        'getQueryInfiniteQueryOptions',
         'useInfiniteGetQuery',
         'useSuspenseInfiniteGetQuery',
+        'getMutationQueryKey',
+        'getMutationQueryOptions',
         'useGetMutation',
         'useSuspenseGetMutation',
+        'getUsersQueryKey',
+        'getUsersQueryOptions',
         'useUsers',
         'useSuspenseUsers',
       ],
     ],
-    ['vue-query', ['useGetQuery', 'useInfiniteGetQuery', 'useGetMutation', 'useUsers']],
+    [
+      'vue-query',
+      [
+        'getMutationKey',
+        'getQueryKey',
+        'getUsersKey',
+        'getQueryQueryKey',
+        'getQueryQueryOptions',
+        'useGetQuery',
+        'getQueryInfiniteQueryKey',
+        'getQueryInfiniteQueryOptions',
+        'useInfiniteGetQuery',
+        'getMutationQueryKey',
+        'getMutationQueryOptions',
+        'useGetMutation',
+        'getUsersQueryKey',
+        'getUsersQueryOptions',
+        'useUsers',
+      ],
+    ],
     [
       'solid-query',
-      ['createGetQuery', 'createInfiniteGetQuery', 'createGetMutation', 'createUsers'],
+      [
+        'getMutationKey',
+        'getQueryKey',
+        'getUsersKey',
+        'getQueryQueryKey',
+        'getQueryQueryOptions',
+        'createGetQuery',
+        'getQueryInfiniteQueryKey',
+        'getQueryInfiniteQueryOptions',
+        'createInfiniteGetQuery',
+        'getMutationQueryKey',
+        'getMutationQueryOptions',
+        'createGetMutation',
+        'getUsersQueryKey',
+        'getUsersQueryOptions',
+        'createUsers',
+      ],
     ],
     [
       'angular-query',
-      ['injectGetQuery', 'injectInfiniteGetQuery', 'injectGetMutation', 'injectUsers'],
+      [
+        'getMutationKey',
+        'getQueryKey',
+        'getUsersKey',
+        'getQueryQueryKey',
+        'getQueryQueryOptions',
+        'injectGetQuery',
+        'getQueryInfiniteQueryKey',
+        'getQueryInfiniteQueryOptions',
+        'injectInfiniteGetQuery',
+        'getMutationQueryKey',
+        'getMutationQueryOptions',
+        'injectGetMutation',
+        'getUsersQueryKey',
+        'getUsersQueryOptions',
+        'injectUsers',
+      ],
     ],
   ] as const)('%s', async (library, hookNames) => {
     const code = await generate(library)
     const names = declaredFunctions(code)
-    for (const name of hookNames) expect(names).toContain(name)
+    // Every function the file declares, the hooks and their key and option getters.
+    expect(names).toStrictEqual(hookNames)
     // No hook takes the name of a value the file imports.
     const imported = new Set(
       [...code.matchAll(/^import ?\{([^}]+)\}/gmu)].flatMap((match) =>
@@ -10882,32 +12042,3128 @@ describe("hooks: a path that contains ' in the key", () => {
   } as OpenAPI
 
   it.each([
-    'swr',
-    'tanstack-query',
-    'preact-query',
-    'solid-query',
-    'vue-query',
-    'svelte-query',
-    'angular-query',
-  ] as const)('%s: the prefix and the path are escaped', async (kind) => {
+    [
+      'swr',
+      `import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
+import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export function getPackagesIdIdKey() {
+  return ["Packages(Id='{id}')"] as const
+}
+
+export function getMessagesKey() {
+  return ['messages'] as const
+}
+
+export function getGetMessagesGetDetailsAddressAddressKey(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+) {
+  return ['messages', "/messages/getDetails(address='{address}')", args] as const
+}
+
+export function useGetMessagesGetDetailsAddressAddress<TError = unknown>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      TError
+    > & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey =
+    enabled !== false
+      ? customKey === undefined
+        ? getGetMessagesGetDetailsAddressAddressKey(args)
+        : customKey
+      : null
+  return {
+    swrKey,
+    ...useSWR<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      TError
+    >(
+      swrKey,
+      async () =>
+        parseResponse(client.messages["getDetails(address='{address}')"].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+export function useImmutableGetMessagesGetDetailsAddressAddress<TError = unknown>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      TError
+    > & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey =
+    enabled !== false
+      ? customKey === undefined
+        ? getGetMessagesGetDetailsAddressAddressKey(args)
+        : customKey
+      : null
+  return {
+    swrKey,
+    ...useSWRImmutable<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      TError
+    >(
+      swrKey,
+      async () =>
+        parseResponse(client.messages["getDetails(address='{address}')"].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+export function getGetMessagesGetDetailsAddressAddressInfiniteKey(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+) {
+  return ['messages', "/messages/getDetails(address='{address}')", 'infinite', args] as const
+}
+
+export function useInfiniteGetMessagesGetDetailsAddressAddress<TError = unknown>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  options: {
+    swr?: SWRInfiniteConfiguration<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      TError
+    > & {
+      swrKey?: (
+        index: number,
+        previousPageData: Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+              >
+            >
+          >
+        > | null,
+      ) =>
+        | readonly [...ReturnType<typeof getGetMessagesGetDetailsAddressAddressInfiniteKey>, number]
+        | null
+      enabled?: boolean
+    }
+    options?: ClientRequestOptions
+    pagination: {
+      getRequestArgs: (
+        args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+        index: number,
+      ) => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+    }
+  },
+) {
+  const { swr: swrOptions, options: clientOptions, pagination } = options
+  const { swrKey: customKeyLoader, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    enabled !== false
+      ? (customKeyLoader ??
+        ((index: number) =>
+          [...getGetMessagesGetDetailsAddressAddressInfiniteKey(args), index] as const))
+      : () => null
+  return useSWRInfinite(
+    keyLoader,
+    ([, , , , index]: readonly [
+      ...ReturnType<typeof getGetMessagesGetDetailsAddressAddressInfiniteKey>,
+      number,
+    ]) =>
+      parseResponse(
+        client.messages["getDetails(address='{address}')"].$get(
+          pagination.getRequestArgs(args, index),
+          clientOptions,
+        ),
+      ),
+    restSwrOptions,
+  )
+}
+
+export function getDeleteMessagesGetDetailsAddressAddressKey() {
+  return ['messages', "/messages/getDetails(address='{address}')", 'DELETE'] as const
+}
+
+export function useDeleteMessagesGetDetailsAddressAddress<TError = unknown>(options?: {
+  mutation?: SWRMutationConfiguration<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>
+            >
+          >
+        >
+      >
+    | undefined,
+    TError,
+    Key,
+    InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>
+  > & { swrKey?: Key; throwOnError?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteMessagesGetDetailsAddressAddressKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client.messages)["getDetails(address='{address}')"]['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client.messages["getDetails(address='{address}')"].$delete(arg, clientOptions),
+        ),
+      restMutationOptions,
+    ),
+  }
+}
+
+export function getGetPackagesIdIdKey() {
+  return ["Packages(Id='{id}')", "/Packages(Id='{id}')"] as const
+}
+
+export function useGetPackagesIdId<TError = unknown>(options?: {
+  swr?: SWRConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+      >
+    >,
+    TError
+  > & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey =
+    enabled !== false ? (customKey === undefined ? getGetPackagesIdIdKey() : customKey) : null
+  return {
+    swrKey,
+    ...useSWR<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+        >
+      >,
+      TError
+    >(
+      swrKey,
+      async () => parseResponse(client["Packages(Id='{id}')"].$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+export function useImmutableGetPackagesIdId<TError = unknown>(options?: {
+  swr?: SWRConfiguration<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+      >
+    >,
+    TError
+  > & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey =
+    enabled !== false ? (customKey === undefined ? getGetPackagesIdIdKey() : customKey) : null
+  return {
+    swrKey,
+    ...useSWRImmutable<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+        >
+      >,
+      TError
+    >(
+      swrKey,
+      async () => parseResponse(client["Packages(Id='{id}')"].$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+`,
+    ],
+    [
+      'tanstack-query',
+      `import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  useMutation,
+  queryOptions,
+  infiniteQueryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
+  InfiniteData,
+  UseMutationOptions,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export function getPackagesIdIdKey() {
+  return ["Packages(Id='{id}')"] as const
+}
+
+export function getMessagesKey() {
+  return ['messages'] as const
+}
+
+export function getMessagesGetDetailsAddressAddressQueryKey(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+) {
+  return ['messages', "/messages/getDetails(address='{address}')", args] as const
+}
+
+export function getMessagesGetDetailsAddressAddressQueryOptions<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getMessagesGetDetailsAddressAddressQueryKey>
+  >({
+    queryKey: getMessagesGetDetailsAddressAddressQueryKey(args),
+    queryFn({ signal }) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$get(args, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
+export function useMessagesGetDetailsAddressAddress<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+              >
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getMessagesGetDetailsAddressAddressQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    {
+      ...getMessagesGetDetailsAddressAddressQueryOptions<TData, TError>(args, clientOptions),
+      ...queryOptions,
+    },
+    queryClient,
+  )
+}
+
+export function useSuspenseMessagesGetDetailsAddressAddress<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+              >
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getMessagesGetDetailsAddressAddressQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    {
+      ...getMessagesGetDetailsAddressAddressQueryOptions<TData, TError>(args, clientOptions),
+      ...queryOptions,
+    },
+    queryClient,
+  )
+}
+
+export function getMessagesGetDetailsAddressAddressInfiniteQueryKey(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+) {
+  return ['messages', "/messages/getDetails(address='{address}')", 'infinite', args] as const
+}
+
+export function getMessagesGetDetailsAddressAddressInfiniteQueryOptions<
+  TData = InfiniteData<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      allPages: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >[],
+      lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
+    ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  },
+  options?: ClientRequestOptions,
+) {
+  return infiniteQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+    TPageParam
+  >({
+    queryKey: getMessagesGetDetailsAddressAddressInfiniteQueryKey(args),
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<
+      ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+      TPageParam
+    >) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$get(
+          pagination.getRequestArgs(args, pageParam),
+          { ...options, init: { ...options?.init, signal } },
+        ),
+      )
+    },
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
+}
+
+export function useInfiniteMessagesGetDetailsAddressAddress<
+  TData = InfiniteData<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      allPages: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >[],
+      lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
+    ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  },
+  options?: {
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+              >
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useInfiniteQuery(
+    {
+      ...getMessagesGetDetailsAddressAddressInfiniteQueryOptions<TData, TError, TPageParam>(
+        args,
+        pagination,
+        clientOptions,
+      ),
+      ...queryOptions,
+    },
+    queryClient,
+  )
+}
+
+export function useSuspenseInfiniteMessagesGetDetailsAddressAddress<
+  TData = InfiniteData<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      allPages: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >[],
+      lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
+    ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  },
+  options?: {
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+              >
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseInfiniteQuery(
+    {
+      ...getMessagesGetDetailsAddressAddressInfiniteQueryOptions<TData, TError, TPageParam>(
+        args,
+        pagination,
+        clientOptions,
+      ),
+      ...queryOptions,
+    },
+    queryClient,
+  )
+}
+
+export function getDeleteMessagesGetDetailsAddressAddressMutationKey() {
+  return ['messages', "/messages/getDetails(address='{address}')", 'DELETE'] as const
+}
+
+export function getDeleteMessagesGetDetailsAddressAddressMutationOptions<
+  TError = DefaultError,
+  TOnMutateResult = unknown,
+>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>
+            >
+          >
+        >
+      >
+    | undefined,
+    TError,
+    InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>,
+    TOnMutateResult
+  >({
+    mutationKey: getDeleteMessagesGetDetailsAddressAddressMutationKey(),
+    async mutationFn(
+      args: InferRequestType<
+        (typeof client.messages)["getDetails(address='{address}')"]['$delete']
+      >,
+    ) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$delete(args, options),
+      )
+    },
+  })
+}
+
+export function useDeleteMessagesGetDetailsAddressAddress<
+  TError = DefaultError,
+  TOnMutateResult = unknown,
+>(
+  options?: {
+    mutation?: Omit<
+      UseMutationOptions<
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>
+                >
+              >
+            >
+          >
+        | undefined,
+        TError,
+        InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  const mutationDefaults = getDeleteMessagesGetDetailsAddressAddressMutationOptions<
+    TError,
+    TOnMutateResult
+  >(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
+}
+
+export function getPackagesIdIdQueryKey() {
+  return ["Packages(Id='{id}')", "/Packages(Id='{id}')"] as const
+}
+
+export function getPackagesIdIdQueryOptions<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+    >
+  >,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getPackagesIdIdQueryKey>
+  >({
+    queryKey: getPackagesIdIdQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        client["Packages(Id='{id}')"].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
+export function usePackagesIdId<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+    >
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getPackagesIdIdQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getPackagesIdIdQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspensePackagesIdId<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+    >
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getPackagesIdIdQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getPackagesIdIdQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+`,
+    ],
+    [
+      'preact-query',
+      `import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  useMutation,
+  queryOptions,
+  infiniteQueryOptions,
+  mutationOptions,
+} from '@tanstack/preact-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
+  InfiniteData,
+  UseMutationOptions,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/preact-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export function getPackagesIdIdKey() {
+  return ["Packages(Id='{id}')"] as const
+}
+
+export function getMessagesKey() {
+  return ['messages'] as const
+}
+
+export function getMessagesGetDetailsAddressAddressQueryKey(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+) {
+  return ['messages', "/messages/getDetails(address='{address}')", args] as const
+}
+
+export function getMessagesGetDetailsAddressAddressQueryOptions<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getMessagesGetDetailsAddressAddressQueryKey>
+  >({
+    queryKey: getMessagesGetDetailsAddressAddressQueryKey(args),
+    queryFn({ signal }) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$get(args, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
+export function useMessagesGetDetailsAddressAddress<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+              >
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getMessagesGetDetailsAddressAddressQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    {
+      ...getMessagesGetDetailsAddressAddressQueryOptions<TData, TError>(args, clientOptions),
+      ...queryOptions,
+    },
+    queryClient,
+  )
+}
+
+export function useSuspenseMessagesGetDetailsAddressAddress<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+              >
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getMessagesGetDetailsAddressAddressQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    {
+      ...getMessagesGetDetailsAddressAddressQueryOptions<TData, TError>(args, clientOptions),
+      ...queryOptions,
+    },
+    queryClient,
+  )
+}
+
+export function getMessagesGetDetailsAddressAddressInfiniteQueryKey(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+) {
+  return ['messages', "/messages/getDetails(address='{address}')", 'infinite', args] as const
+}
+
+export function getMessagesGetDetailsAddressAddressInfiniteQueryOptions<
+  TData = InfiniteData<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      allPages: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >[],
+      lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
+    ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  },
+  options?: ClientRequestOptions,
+) {
+  return infiniteQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+    TPageParam
+  >({
+    queryKey: getMessagesGetDetailsAddressAddressInfiniteQueryKey(args),
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<
+      ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+      TPageParam
+    >) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$get(
+          pagination.getRequestArgs(args, pageParam),
+          { ...options, init: { ...options?.init, signal } },
+        ),
+      )
+    },
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
+}
+
+export function useInfiniteMessagesGetDetailsAddressAddress<
+  TData = InfiniteData<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      allPages: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >[],
+      lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
+    ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  },
+  options?: {
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+              >
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useInfiniteQuery(
+    {
+      ...getMessagesGetDetailsAddressAddressInfiniteQueryOptions<TData, TError, TPageParam>(
+        args,
+        pagination,
+        clientOptions,
+      ),
+      ...queryOptions,
+    },
+    queryClient,
+  )
+}
+
+export function useSuspenseInfiniteMessagesGetDetailsAddressAddress<
+  TData = InfiniteData<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      allPages: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >[],
+      lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
+    ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  },
+  options?: {
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+              >
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseInfiniteQuery(
+    {
+      ...getMessagesGetDetailsAddressAddressInfiniteQueryOptions<TData, TError, TPageParam>(
+        args,
+        pagination,
+        clientOptions,
+      ),
+      ...queryOptions,
+    },
+    queryClient,
+  )
+}
+
+export function getDeleteMessagesGetDetailsAddressAddressMutationKey() {
+  return ['messages', "/messages/getDetails(address='{address}')", 'DELETE'] as const
+}
+
+export function getDeleteMessagesGetDetailsAddressAddressMutationOptions<
+  TError = DefaultError,
+  TOnMutateResult = unknown,
+>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>
+            >
+          >
+        >
+      >
+    | undefined,
+    TError,
+    InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>,
+    TOnMutateResult
+  >({
+    mutationKey: getDeleteMessagesGetDetailsAddressAddressMutationKey(),
+    async mutationFn(
+      args: InferRequestType<
+        (typeof client.messages)["getDetails(address='{address}')"]['$delete']
+      >,
+    ) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$delete(args, options),
+      )
+    },
+  })
+}
+
+export function useDeleteMessagesGetDetailsAddressAddress<
+  TError = DefaultError,
+  TOnMutateResult = unknown,
+>(
+  options?: {
+    mutation?: Omit<
+      UseMutationOptions<
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>
+                >
+              >
+            >
+          >
+        | undefined,
+        TError,
+        InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  const mutationDefaults = getDeleteMessagesGetDetailsAddressAddressMutationOptions<
+    TError,
+    TOnMutateResult
+  >(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
+}
+
+export function getPackagesIdIdQueryKey() {
+  return ["Packages(Id='{id}')", "/Packages(Id='{id}')"] as const
+}
+
+export function getPackagesIdIdQueryOptions<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+    >
+  >,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getPackagesIdIdQueryKey>
+  >({
+    queryKey: getPackagesIdIdQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        client["Packages(Id='{id}')"].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
+export function usePackagesIdId<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+    >
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getPackagesIdIdQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery(
+    { ...getPackagesIdIdQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+
+export function useSuspensePackagesIdId<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+    >
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getPackagesIdIdQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery(
+    { ...getPackagesIdIdQueryOptions<TData, TError>(clientOptions), ...queryOptions },
+    queryClient,
+  )
+}
+`,
+    ],
+    [
+      'solid-query',
+      `import {
+  createQuery,
+  createInfiniteQuery,
+  createMutation,
+  queryOptions,
+  infiniteQueryOptions,
+  mutationOptions,
+} from '@tanstack/solid-query'
+import type {
+  UndefinedInitialDataOptions,
+  QueryFunctionContext,
+  UndefinedInitialDataInfiniteOptions,
+  InfiniteData,
+  CreateMutationOptions,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/solid-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export function getPackagesIdIdKey() {
+  return ["Packages(Id='{id}')"] as const
+}
+
+export function getMessagesKey() {
+  return ['messages'] as const
+}
+
+export function getMessagesGetDetailsAddressAddressQueryKey(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+) {
+  return ['messages', "/messages/getDetails(address='{address}')", args] as const
+}
+
+export function getMessagesGetDetailsAddressAddressQueryOptions<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getMessagesGetDetailsAddressAddressQueryKey>
+  >({
+    queryKey: getMessagesGetDetailsAddressAddressQueryKey(args),
+    queryFn({ signal }) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$get(args, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
+export function createMessagesGetDetailsAddressAddress<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  args: () => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  options?: () => {
+    query?: Omit<
+      ReturnType<
+        UndefinedInitialDataOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+                >
+              >
+            >
+          >,
+          TError,
+          TData,
+          ReturnType<typeof getMessagesGetDetailsAddressAddressQueryKey>
+        >
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: () => QueryClient,
+) {
+  return createQuery(() => {
+    const { query, options: clientOptions } = options?.() ?? {}
+    return {
+      ...getMessagesGetDetailsAddressAddressQueryOptions<TData, TError>(args(), clientOptions),
+      ...query,
+    }
+  }, queryClient)
+}
+
+export function getMessagesGetDetailsAddressAddressInfiniteQueryKey(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+) {
+  return ['messages', "/messages/getDetails(address='{address}')", 'infinite', args] as const
+}
+
+export function getMessagesGetDetailsAddressAddressInfiniteQueryOptions<
+  TData = InfiniteData<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      allPages: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >[],
+      lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
+    ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  },
+  options?: ClientRequestOptions,
+) {
+  return infiniteQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+    TPageParam
+  >({
+    queryKey: getMessagesGetDetailsAddressAddressInfiniteQueryKey(args),
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<
+      ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+      TPageParam
+    >) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$get(
+          pagination.getRequestArgs(args, pageParam),
+          { ...options, init: { ...options?.init, signal } },
+        ),
+      )
+    },
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
+}
+
+export function createInfiniteMessagesGetDetailsAddressAddress<
+  TData = InfiniteData<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: () => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      allPages: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >[],
+      lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
+    ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  },
+  options?: () => {
+    query?: Omit<
+      ReturnType<
+        UndefinedInitialDataInfiniteOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+                >
+              >
+            >
+          >,
+          TError,
+          TData,
+          ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+          TPageParam
+        >
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: () => QueryClient,
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options?.() ?? {}
+    return {
+      ...getMessagesGetDetailsAddressAddressInfiniteQueryOptions<TData, TError, TPageParam>(
+        args(),
+        pagination,
+        clientOptions,
+      ),
+      ...query,
+    }
+  }, queryClient)
+}
+
+export function getDeleteMessagesGetDetailsAddressAddressMutationKey() {
+  return ['messages', "/messages/getDetails(address='{address}')", 'DELETE'] as const
+}
+
+export function getDeleteMessagesGetDetailsAddressAddressMutationOptions<
+  TError = DefaultError,
+  TOnMutateResult = unknown,
+>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>
+            >
+          >
+        >
+      >
+    | undefined,
+    TError,
+    InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>,
+    TOnMutateResult
+  >({
+    mutationKey: getDeleteMessagesGetDetailsAddressAddressMutationKey(),
+    async mutationFn(
+      args: InferRequestType<
+        (typeof client.messages)["getDetails(address='{address}')"]['$delete']
+      >,
+    ) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$delete(args, options),
+      )
+    },
+  })
+}
+
+export function createDeleteMessagesGetDetailsAddressAddress<
+  TError = DefaultError,
+  TOnMutateResult = unknown,
+>(
+  options?: () => {
+    mutation?: Omit<
+      ReturnType<
+        CreateMutationOptions<
+          | Awaited<
+              ReturnType<
+                typeof parseResponse<
+                  Awaited<
+                    ReturnType<
+                      (typeof client.messages)["getDetails(address='{address}')"]['$delete']
+                    >
+                  >
+                >
+              >
+            >
+          | undefined,
+          TError,
+          InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>,
+          TOnMutateResult
+        >
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: () => QueryClient,
+) {
+  return createMutation(() => {
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    const mutationDefaults = getDeleteMessagesGetDetailsAddressAddressMutationOptions<
+      TError,
+      TOnMutateResult
+    >(clientOptions)
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, queryClient)
+}
+
+export function getPackagesIdIdQueryKey() {
+  return ["Packages(Id='{id}')", "/Packages(Id='{id}')"] as const
+}
+
+export function getPackagesIdIdQueryOptions<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+    >
+  >,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getPackagesIdIdQueryKey>
+  >({
+    queryKey: getPackagesIdIdQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        client["Packages(Id='{id}')"].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
+export function createPackagesIdId<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+    >
+  >,
+  TError = DefaultError,
+>(
+  options?: () => {
+    query?: Omit<
+      ReturnType<
+        UndefinedInitialDataOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>
+              >
+            >
+          >,
+          TError,
+          TData,
+          ReturnType<typeof getPackagesIdIdQueryKey>
+        >
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: () => QueryClient,
+) {
+  return createQuery(() => {
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getPackagesIdIdQueryOptions<TData, TError>(clientOptions), ...query }
+  }, queryClient)
+}
+`,
+    ],
+    [
+      'vue-query',
+      `import { useQuery, useInfiniteQuery, useMutation, mutationOptions } from '@tanstack/vue-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseInfiniteQueryOptions,
+  InfiniteData,
+  UseMutationOptions,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/vue-query'
+import { computed, toValue } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export function getPackagesIdIdKey() {
+  return ["Packages(Id='{id}')"] as const
+}
+
+export function getMessagesKey() {
+  return ['messages'] as const
+}
+
+export function getMessagesGetDetailsAddressAddressQueryKey(
+  args: MaybeRefOrGetter<
+    InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  >,
+) {
+  return ['messages', "/messages/getDetails(address='{address}')", toValue(args)] as const
+}
+
+export function getMessagesGetDetailsAddressAddressQueryOptions(
+  args: MaybeRefOrGetter<
+    InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  >,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: computed(() => getMessagesGetDetailsAddressAddressQueryKey(args)),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$get(toValue(args), {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  }
+}
+
+export function useMessagesGetDetailsAddressAddress<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  args: MaybeRefOrGetter<
+    InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  >,
+  options?: {
+    query?: Omit<
+      Extract<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+                >
+              >
+            >
+          >,
+          TError,
+          TData,
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+                >
+              >
+            >
+          >,
+          ReturnType<typeof getMessagesGetDetailsAddressAddressQueryKey>
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getMessagesGetDetailsAddressAddressQueryKey>
+  >(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getMessagesGetDetailsAddressAddressQueryKey(args)),
+      queryFn({ signal }) {
+        return parseResponse(
+          client.messages["getDetails(address='{address}')"].$get(toValue(args), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+    },
+    queryClient,
+  )
+}
+
+export function getMessagesGetDetailsAddressAddressInfiniteQueryKey(
+  args: MaybeRefOrGetter<
+    InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  >,
+) {
+  return [
+    'messages',
+    "/messages/getDetails(address='{address}')",
+    'infinite',
+    toValue(args),
+  ] as const
+}
+
+export function getMessagesGetDetailsAddressAddressInfiniteQueryOptions<TPageParam = unknown>(
+  args: MaybeRefOrGetter<
+    InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  >,
+  pagination: {
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  },
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: computed(() => getMessagesGetDetailsAddressAddressInfiniteQueryKey(args)),
+    queryFn({ pageParam, signal }: QueryFunctionContext<readonly unknown[], TPageParam>) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$get(
+          pagination.getRequestArgs(toValue(args), pageParam),
+          { ...options, init: { ...options?.init, signal } },
+        ),
+      )
+    },
+  }
+}
+
+export function useInfiniteMessagesGetDetailsAddressAddress<
+  TData = InfiniteData<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: MaybeRefOrGetter<
+    InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  >,
+  pagination: {
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  },
+  options: {
+    query: Omit<
+      Extract<
+        UseInfiniteQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+                >
+              >
+            >
+          >,
+          TError,
+          TData,
+          ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+          TPageParam
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getMessagesGetDetailsAddressAddressInfiniteQueryKey(args)),
+      queryFn({ pageParam, signal }) {
+        return parseResponse(
+          client.messages["getDetails(address='{address}')"].$get(
+            pagination.getRequestArgs(toValue(args), pageParam),
+            { ...clientOptions, init: { ...clientOptions?.init, signal } },
+          ),
+        )
+      },
+    },
+    queryClient,
+  )
+}
+
+export function getDeleteMessagesGetDetailsAddressAddressMutationKey() {
+  return ['messages', "/messages/getDetails(address='{address}')", 'DELETE'] as const
+}
+
+export function getDeleteMessagesGetDetailsAddressAddressMutationOptions<
+  TError = DefaultError,
+  TOnMutateResult = unknown,
+>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>
+            >
+          >
+        >
+      >
+    | undefined,
+    TError,
+    InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>,
+    TOnMutateResult
+  >({
+    mutationKey: getDeleteMessagesGetDetailsAddressAddressMutationKey(),
+    async mutationFn(
+      args: InferRequestType<
+        (typeof client.messages)["getDetails(address='{address}')"]['$delete']
+      >,
+    ) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$delete(args, options),
+      )
+    },
+  })
+}
+
+export function useDeleteMessagesGetDetailsAddressAddress<
+  TError = DefaultError,
+  TOnMutateResult = unknown,
+>(
+  options?: {
+    mutation?: Omit<
+      Extract<
+        UseMutationOptions<
+          | Awaited<
+              ReturnType<
+                typeof parseResponse<
+                  Awaited<
+                    ReturnType<
+                      (typeof client.messages)["getDetails(address='{address}')"]['$delete']
+                    >
+                  >
+                >
+              >
+            >
+          | undefined,
+          TError,
+          InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>,
+          TOnMutateResult
+        >,
+        { mutationFn?: unknown }
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  const mutationDefaults = getDeleteMessagesGetDetailsAddressAddressMutationOptions<
+    TError,
+    TOnMutateResult
+  >(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
+}
+
+export function getPackagesIdIdQueryKey() {
+  return ["Packages(Id='{id}')", "/Packages(Id='{id}')"] as const
+}
+
+export function getPackagesIdIdQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getPackagesIdIdQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client["Packages(Id='{id}')"].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  }
+}
+
+export function usePackagesIdId<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+    >
+  >,
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      Extract<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>
+              >
+            >
+          >,
+          TError,
+          TData,
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>
+              >
+            >
+          >,
+          ReturnType<typeof getPackagesIdIdQueryKey>
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getPackagesIdIdQueryKey>
+  >(
+    {
+      ...queryOptions,
+      queryKey: getPackagesIdIdQueryKey(),
+      queryFn({ signal }) {
+        return parseResponse(
+          client["Packages(Id='{id}')"].$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+    },
+    queryClient,
+  )
+}
+`,
+    ],
+    [
+      'svelte-query',
+      `import {
+  createQuery,
+  createInfiniteQuery,
+  createMutation,
+  queryOptions,
+  infiniteQueryOptions,
+  mutationOptions,
+} from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateInfiniteQueryOptions,
+  InfiniteData,
+  CreateMutationOptions,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export function getPackagesIdIdKey() {
+  return ["Packages(Id='{id}')"] as const
+}
+
+export function getMessagesKey() {
+  return ['messages'] as const
+}
+
+export function getMessagesGetDetailsAddressAddressQueryKey(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+) {
+  return ['messages', "/messages/getDetails(address='{address}')", args] as const
+}
+
+export function getMessagesGetDetailsAddressAddressQueryOptions<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getMessagesGetDetailsAddressAddressQueryKey>
+  >({
+    queryKey: getMessagesGetDetailsAddressAddressQueryKey(args),
+    queryFn({ signal }) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$get(args, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
+export function createMessagesGetDetailsAddressAddress<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  args: () => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  options?: () => {
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+              >
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getMessagesGetDetailsAddressAddressQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: () => QueryClient,
+) {
+  return createQuery(() => {
+    const { query, options: clientOptions } = options?.() ?? {}
+    return {
+      ...getMessagesGetDetailsAddressAddressQueryOptions<TData, TError>(args(), clientOptions),
+      ...query,
+    }
+  }, queryClient)
+}
+
+export function getMessagesGetDetailsAddressAddressInfiniteQueryKey(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+) {
+  return ['messages', "/messages/getDetails(address='{address}')", 'infinite', args] as const
+}
+
+export function getMessagesGetDetailsAddressAddressInfiniteQueryOptions<
+  TData = InfiniteData<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      allPages: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >[],
+      lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
+    ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  },
+  options?: ClientRequestOptions,
+) {
+  return infiniteQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+    TPageParam
+  >({
+    queryKey: getMessagesGetDetailsAddressAddressInfiniteQueryKey(args),
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<
+      ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+      TPageParam
+    >) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$get(
+          pagination.getRequestArgs(args, pageParam),
+          { ...options, init: { ...options?.init, signal } },
+        ),
+      )
+    },
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
+}
+
+export function createInfiniteMessagesGetDetailsAddressAddress<
+  TData = InfiniteData<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: () => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      allPages: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >[],
+      lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
+    ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  },
+  options?: () => {
+    query?: Omit<
+      CreateInfiniteQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+              >
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: () => QueryClient,
+) {
+  return createInfiniteQuery(() => {
+    const { query, options: clientOptions } = options?.() ?? {}
+    return {
+      ...getMessagesGetDetailsAddressAddressInfiniteQueryOptions<TData, TError, TPageParam>(
+        args(),
+        pagination,
+        clientOptions,
+      ),
+      ...query,
+    }
+  }, queryClient)
+}
+
+export function getDeleteMessagesGetDetailsAddressAddressMutationKey() {
+  return ['messages', "/messages/getDetails(address='{address}')", 'DELETE'] as const
+}
+
+export function getDeleteMessagesGetDetailsAddressAddressMutationOptions<
+  TError = DefaultError,
+  TOnMutateResult = unknown,
+>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>
+            >
+          >
+        >
+      >
+    | undefined,
+    TError,
+    InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>,
+    TOnMutateResult
+  >({
+    mutationKey: getDeleteMessagesGetDetailsAddressAddressMutationKey(),
+    async mutationFn(
+      args: InferRequestType<
+        (typeof client.messages)["getDetails(address='{address}')"]['$delete']
+      >,
+    ) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$delete(args, options),
+      )
+    },
+  })
+}
+
+export function createDeleteMessagesGetDetailsAddressAddress<
+  TError = DefaultError,
+  TOnMutateResult = unknown,
+>(
+  options?: () => {
+    mutation?: Omit<
+      CreateMutationOptions<
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>
+                >
+              >
+            >
+          >
+        | undefined,
+        TError,
+        InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: () => QueryClient,
+) {
+  return createMutation(() => {
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    const mutationDefaults = getDeleteMessagesGetDetailsAddressAddressMutationOptions<
+      TError,
+      TOnMutateResult
+    >(clientOptions)
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, queryClient)
+}
+
+export function getPackagesIdIdQueryKey() {
+  return ["Packages(Id='{id}')", "/Packages(Id='{id}')"] as const
+}
+
+export function getPackagesIdIdQueryOptions<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+    >
+  >,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getPackagesIdIdQueryKey>
+  >({
+    queryKey: getPackagesIdIdQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        client["Packages(Id='{id}')"].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
+export function createPackagesIdId<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+    >
+  >,
+  TError = DefaultError,
+>(
+  options?: () => {
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getPackagesIdIdQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: () => QueryClient,
+) {
+  return createQuery(() => {
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getPackagesIdIdQueryOptions<TData, TError>(clientOptions), ...query }
+  }, queryClient)
+}
+`,
+    ],
+    [
+      'angular-query',
+      `import {
+  injectQuery,
+  injectInfiniteQuery,
+  injectMutation,
+  queryOptions,
+  infiniteQueryOptions,
+  mutationOptions,
+} from '@tanstack/angular-query'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  CreateInfiniteQueryOptions,
+  InfiniteData,
+  CreateMutationOptions,
+  DefaultError,
+} from '@tanstack/angular-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export function getPackagesIdIdKey() {
+  return ["Packages(Id='{id}')"] as const
+}
+
+export function getMessagesKey() {
+  return ['messages'] as const
+}
+
+export function getMessagesGetDetailsAddressAddressQueryKey(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+) {
+  return ['messages', "/messages/getDetails(address='{address}')", args] as const
+}
+
+export function getMessagesGetDetailsAddressAddressQueryOptions<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getMessagesGetDetailsAddressAddressQueryKey>
+  >({
+    queryKey: getMessagesGetDetailsAddressAddressQueryKey(args),
+    queryFn({ signal }) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$get(args, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
+export function injectMessagesGetDetailsAddressAddress<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<
+        Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+      >
+    >
+  >,
+  TError = DefaultError,
+>(
+  args: () => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  options?: () => {
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+              >
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getMessagesGetDetailsAddressAddressQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+) {
+  return injectQuery(() => {
+    const { query, options: clientOptions } = options?.() ?? {}
+    return {
+      ...getMessagesGetDetailsAddressAddressQueryOptions<TData, TError>(args(), clientOptions),
+      ...query,
+    }
+  })
+}
+
+export function getMessagesGetDetailsAddressAddressInfiniteQueryKey(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+) {
+  return ['messages', "/messages/getDetails(address='{address}')", 'infinite', args] as const
+}
+
+export function getMessagesGetDetailsAddressAddressInfiniteQueryOptions<
+  TData = InfiniteData<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      allPages: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >[],
+      lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
+    ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  },
+  options?: ClientRequestOptions,
+) {
+  return infiniteQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+    TPageParam
+  >({
+    queryKey: getMessagesGetDetailsAddressAddressInfiniteQueryKey(args),
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<
+      ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+      TPageParam
+    >) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$get(
+          pagination.getRequestArgs(args, pageParam),
+          { ...options, init: { ...options?.init, signal } },
+        ),
+      )
+    },
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
+}
+
+export function injectInfiniteMessagesGetDetailsAddressAddress<
+  TData = InfiniteData<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+        >
+      >
+    >
+  >,
+  TError = DefaultError,
+  TPageParam = unknown,
+>(
+  args: () => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >,
+      allPages: Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>>
+          >
+        >
+      >[],
+      lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
+    ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+  },
+  options?: () => {
+    query?: Omit<
+      CreateInfiniteQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$get']>
+              >
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getMessagesGetDetailsAddressAddressInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
+    >
+    options?: ClientRequestOptions
+  },
+) {
+  return injectInfiniteQuery(() => {
+    const { query, options: clientOptions } = options?.() ?? {}
+    return {
+      ...getMessagesGetDetailsAddressAddressInfiniteQueryOptions<TData, TError, TPageParam>(
+        args(),
+        pagination,
+        clientOptions,
+      ),
+      ...query,
+    }
+  })
+}
+
+export function getDeleteMessagesGetDetailsAddressAddressMutationKey() {
+  return ['messages', "/messages/getDetails(address='{address}')", 'DELETE'] as const
+}
+
+export function getDeleteMessagesGetDetailsAddressAddressMutationOptions<
+  TError = DefaultError,
+  TOnMutateResult = unknown,
+>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>
+            >
+          >
+        >
+      >
+    | undefined,
+    TError,
+    InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>,
+    TOnMutateResult
+  >({
+    mutationKey: getDeleteMessagesGetDetailsAddressAddressMutationKey(),
+    async mutationFn(
+      args: InferRequestType<
+        (typeof client.messages)["getDetails(address='{address}')"]['$delete']
+      >,
+    ) {
+      return parseResponse(
+        client.messages["getDetails(address='{address}')"].$delete(args, options),
+      )
+    },
+  })
+}
+
+export function injectDeleteMessagesGetDetailsAddressAddress<
+  TError = DefaultError,
+  TOnMutateResult = unknown,
+>(
+  options?: () => {
+    mutation?: Omit<
+      CreateMutationOptions<
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>
+                >
+              >
+            >
+          >
+        | undefined,
+        TError,
+        InferRequestType<(typeof client.messages)["getDetails(address='{address}')"]['$delete']>,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+) {
+  return injectMutation(() => {
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    const mutationDefaults = getDeleteMessagesGetDetailsAddressAddressMutationOptions<
+      TError,
+      TOnMutateResult
+    >(clientOptions)
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  })
+}
+
+export function getPackagesIdIdQueryKey() {
+  return ["Packages(Id='{id}')", "/Packages(Id='{id}')"] as const
+}
+
+export function getPackagesIdIdQueryOptions<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+    >
+  >,
+  TError = DefaultError,
+>(options?: ClientRequestOptions) {
+  return queryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+      >
+    >,
+    TError,
+    TData,
+    ReturnType<typeof getPackagesIdIdQueryKey>
+  >({
+    queryKey: getPackagesIdIdQueryKey(),
+    queryFn({ signal }) {
+      return parseResponse(
+        client["Packages(Id='{id}')"].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
+export function injectPackagesIdId<
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>>
+    >
+  >,
+  TError = DefaultError,
+>(
+  options?: () => {
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client)["Packages(Id='{id}')"]['$get']>>
+            >
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getPackagesIdIdQueryKey>
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+) {
+  return injectQuery(() => {
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...getPackagesIdIdQueryOptions<TData, TError>(clientOptions), ...query }
+  })
+}
+`,
+    ],
+  ] as const)('%s: the prefix and the path are escaped', async (kind, expected) => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-hooks-quote-'))
     try {
       const out = path.join(dir, 'index.ts')
       await runGenerator(hooks(openapi, out, '../client', kind))
       const code = fs.readFileSync(out, 'utf8')
       // The prefix key, the query key (no args), the mutation key, and — after the args are
-      // destructured or passed — the query and infinite keys.
-      expect(code).toContain(`return ["Packages(Id='{id}')"] as const`)
-      expect(code).toContain(`return ["Packages(Id='{id}')", "/Packages(Id='{id}')"] as const`)
-      expect(code).toContain(
-        `return ['messages', "/messages/getDetails(address='{address}')", 'DELETE'] as const`,
-      )
-      expect(code).toMatch(
-        /return \['messages', "\/messages\/getDetails\(address='\{address\}'\)", (?:args|toValue\(args\))\] as const/u,
-      )
-      expect(code).toMatch(
-        /return \[\s*'messages',\s*"\/messages\/getDetails\(address='\{address\}'\)",\s*'infinite',\s*(?:args|toValue\(args\)),?\s*\] as const/u,
-      )
+      // destructured or passed — the query and infinite keys write the path as a string.
+      expect(code).toBe(expected)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }

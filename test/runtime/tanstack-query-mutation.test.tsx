@@ -108,11 +108,13 @@ describe('generated useMutation hooks', () => {
       expect(result.current.data).toStrictEqual({ id: '99', name: 'Dave' })
     })
     expect(requestLog).toStrictEqual(['POST /users'])
-    const cache = queryClient.getMutationCache()
-    expect(cache.find({ mutationKey: ['custom', 'users'], exact: true })?.state.data).toStrictEqual(
-      { id: '99', name: 'Dave' },
-    )
-    expect(cache.find({ mutationKey: generatedKey, exact: true })).toBeUndefined()
+    const cached = queryClient
+      .getMutationCache()
+      .getAll()
+      .map((entry) => ({ mutationKey: entry.options.mutationKey, data: entry.state.data }))
+    expect(cached).toStrictEqual([
+      { mutationKey: ['custom', 'users'], data: { id: '99', name: 'Dave' } },
+    ])
   })
 
   // Defaults registered under the custom key apply to the hook, and the callback passed to the

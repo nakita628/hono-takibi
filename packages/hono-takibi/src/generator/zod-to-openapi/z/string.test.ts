@@ -981,18 +981,33 @@ describe('string', () => {
   // Correctness contract: a forward slash is legal in a JSON Schema `pattern`
   // (ECMA-262 source) and in the url/email x-* regex values. The generated
   // code must stay valid TypeScript — the slash must not terminate the emitted
-  // `/.../ ` literal. Verifies the real contract (valid output), not a byte match.
+  // `/.../ ` literal. Verifies the formatted output fmt accepts and returns.
   describe('forward slash in regex value yields valid TypeScript (fmt accepts)', () => {
-    it.concurrent.each<[Schema]>([
-      [{ type: 'string', pattern: '\\d{4}/\\d{2}/\\d{2}' }],
-      [{ type: 'string', format: 'email', 'x-emailRegex': '^[a-z]+@a/b$' }],
-      [{ type: 'string', format: 'uri', 'x-urlProtocol': 'ht/tps?' }],
-      [{ type: 'string', format: 'uri', 'x-urlHostname': 'a/b' }],
-      [{ type: 'string', pattern: '^a\\\\/b$' }],
-      [{ type: 'string', pattern: 'a\nb' }],
-      [{ type: 'string', pattern: 'a\\' }],
-    ])('fmt(string(%o)) is ok', async (input) => {
-      await expect(runGenerator(fmt(`export const X = ${string(input)}`))).resolves.toBeDefined()
+    it.concurrent.each<[Schema, string]>([
+      [
+        { type: 'string', pattern: '\\d{4}/\\d{2}/\\d{2}' },
+        `export const X = z.string().regex(/\\d{4}\\/\\d{2}\\/\\d{2}/)\n`,
+      ],
+      [
+        { type: 'string', format: 'email', 'x-emailRegex': '^[a-z]+@a/b$' },
+        `export const X = z.email({ pattern: /^[a-z]+@a\\/b$/ })\n`,
+      ],
+      [
+        { type: 'string', format: 'uri', 'x-urlProtocol': 'ht/tps?' },
+        `export const X = z.url({ protocol: /ht\\/tps?/ })\n`,
+      ],
+      [
+        { type: 'string', format: 'uri', 'x-urlHostname': 'a/b' },
+        `export const X = z.url({ hostname: /a\\/b/ })\n`,
+      ],
+      [
+        { type: 'string', pattern: '^a\\\\/b$' },
+        `export const X = z.string().regex(/^a\\\\\\/b$/)\n`,
+      ],
+      [{ type: 'string', pattern: 'a\nb' }, `export const X = z.string().regex(/a\\nb/)\n`],
+      [{ type: 'string', pattern: 'a\\' }, 'export const X = z.string()\n'],
+    ])('fmt(string(%o)) is ok', async (input, expected) => {
+      await expect(runGenerator(fmt(`export const X = ${string(input)}`))).resolves.toBe(expected)
     })
   })
 })

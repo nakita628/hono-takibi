@@ -499,9 +499,7 @@ export async function patchUsersId(
 `
 
       expect(index).toStrictEqual(expected)
-      expect(typeof result === 'string' && result.startsWith('Generated rpc code written to')).toBe(
-        true,
-      )
+      expect(result).toBe(`Generated rpc code written to ${out}`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }

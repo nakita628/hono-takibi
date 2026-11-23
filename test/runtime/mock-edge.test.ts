@@ -283,7 +283,7 @@ describe('untyped members, tuples and bounded patterns', () => {
     expect(res.status).toBe(200)
     const body: unknown = await res.json()
     expect(shapesSchema.safeParse(body).error).toBeUndefined()
-    expect(body).toHaveProperty('meta', null)
+    expect((body as { meta?: unknown }).meta).toBeNull()
   })
 
   // "pair" is a tuple: prefixItems [string, integer] with minItems: 2 and maxItems: 2.
@@ -310,6 +310,7 @@ describe('untyped members, tuples and bounded patterns', () => {
       const res = await app.request('/shapes')
       // oxlint-disable-next-line no-await-in-loop -- sequential sampling of one route
       const body = shapesSchema.parse(await res.json())
+      // oxlint-disable-next-line jest/no-restricted-matchers -- the value is drawn by faker at random, so no whole value exists to compare
       expect(body.slug).toMatch(/^[a-z]{3,5}$/u)
     }
   })
@@ -418,7 +419,7 @@ describe('untyped members, tuples and bounded patterns', () => {
       // oxlint-disable-next-line no-await-in-loop -- sequential sampling of one route
       const body: unknown = await res.json()
       expect(contactSchema.safeParse(body).error).toBeUndefined()
-      expect(body).toHaveProperty('phone')
+      expect(typeof (body as { phone?: unknown }).phone).toBe('string')
     }
   })
 
@@ -480,6 +481,7 @@ describe('vendor extensions and JSON Schema keywords', () => {
   it('answers a string with its declared start, middle and end', async () => {
     const res = await app.request('/constraints')
     const body = constraintsSchema.parse(await res.json())
+    // oxlint-disable-next-line jest/no-restricted-matchers -- the value is drawn by faker at random, so no whole value exists to compare
     expect(body.apiUrl).toMatch(/^https:\/\/.*\/api\/.*\.test$/u)
   })
 
@@ -490,6 +492,7 @@ describe('vendor extensions and JSON Schema keywords', () => {
   it('answers an escaped dot in a pattern as a dot', async () => {
     const res = await app.request('/constraints')
     const body = constraintsSchema.parse(await res.json())
+    // oxlint-disable-next-line jest/no-restricted-matchers -- the value is drawn by faker at random, so no whole value exists to compare
     expect(body.domain).toMatch(/^[a-z]{3,8}\.example\.com$/u)
   })
 
@@ -498,7 +501,9 @@ describe('vendor extensions and JSON Schema keywords', () => {
   it('answers an array with the value it has to contain', async () => {
     const res = await app.request('/constraints')
     const body = constraintsSchema.parse(await res.json())
-    expect(body.tags).toContain('important')
+    // The mock appends the value it has to contain after the values it draws.
+    // モックは、含まなければならない値を、生成した値の後ろに追加する。
+    expect(body.tags.at(-1)).toBe('important')
   })
 
   // "locale" declares pattern: ^[a-z]{2}(-[A-Z]{2})?$. faker cannot read a group, so the mock
@@ -508,6 +513,7 @@ describe('vendor extensions and JSON Schema keywords', () => {
   it('answers a pattern with an optional group', async () => {
     const res = await app.request('/constraints')
     const body = constraintsSchema.parse(await res.json())
+    // oxlint-disable-next-line jest/no-restricted-matchers -- the value is drawn by faker at random, so no whole value exists to compare
     expect(body.locale).toMatch(/^[a-z]{2}(-[A-Z]{2})?$/u)
   })
 
@@ -516,9 +522,12 @@ describe('vendor extensions and JSON Schema keywords', () => {
   it('answers base64-encoded JSON for contentEncoding and contentSchema', async () => {
     const res = await app.request('/constraints')
     const body: unknown = await res.json()
-    expect(body).toHaveProperty('payload')
-    const { payload } = body as { payload: string }
-    expect(JSON.parse(atob(payload))).toHaveProperty('theme')
+    const { payload } = body as { payload?: unknown }
+    expect(typeof payload).toBe('string')
+    const decoded = JSON.parse(atob(String(payload))) as { theme?: unknown }
+    // theme is drawn from its enum, so the expected object is built from the value drawn.
+    // theme は enum から生成されるため、期待するオブジェクトは生成された値から組み立てる。
+    expect(decoded).toStrictEqual({ theme: decoded.theme === 'dark' ? 'dark' : 'light' })
   })
 
   // GET /status is declared by a $ref to components.pathItems. The mock registers its handler
@@ -528,7 +537,10 @@ describe('vendor extensions and JSON Schema keywords', () => {
   it('answers a path declared by a reference to components.pathItems', async () => {
     const res = await app.request('/status')
     expect(res.status).toBe(200)
-    expect(await res.json()).toHaveProperty('value')
+    const body = (await res.json()) as { value?: unknown }
+    // value is drawn by faker, so the expected object is built from the value drawn.
+    // value は faker が生成するため、期待するオブジェクトは生成された値から組み立てる。
+    expect(body).toStrictEqual({ value: String(body.value) })
   })
 })
 
@@ -769,13 +781,12 @@ describe('options: seed and locale', () => {
     expect(new Set(formats).size).toBe(1)
   })
 
-  // With locale: "ja", a generated first name is Japanese: it holds no ASCII letter.
-  // locale: "ja" を指定すると、生成される名前は日本語になり、ASCII の英字を含まない。
+  // With locale: "ja", a generated first name is Japanese. With seed: 42, it is always the same one.
+  // locale: "ja" を指定すると、生成される名前は日本語になる。seed: 42 により、常に同じ名前になる。
   it('draws from the configured locale', async () => {
     const res = await seededApp.request('/users/1', { headers: { 'X-API-Key': 'key' } })
     const body = (await res.json()) as { 'first-name': string }
-    expect(body['first-name']).not.toMatch(/[A-Za-z]/u)
-    expect(body['first-name'].length).toBeGreaterThan(0)
+    expect(body['first-name']).toBe('結衣')
   })
 
   // Determinism must not cost validity.

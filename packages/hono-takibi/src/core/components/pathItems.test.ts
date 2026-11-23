@@ -316,7 +316,9 @@ describe('pathItems', () => {
           { output, split: true },
         ),
       )
-      expect(error.message).toContain('FileSystem.makeDirectory')
+      expect(error.message).toBe(
+        `BadResource: FileSystem.makeDirectory (${path.join(blockingFile, 'pathItems')})`,
+      )
     })
   })
 

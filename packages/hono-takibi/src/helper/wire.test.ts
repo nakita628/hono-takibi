@@ -1274,7 +1274,9 @@ describe('makeWireGather', () => {
   it.concurrent('leaves out a property that another parameter takes', () => {
     expect(
       makeWireGather([{ name: 'opts', how: 'spread', properties: ['sort', 'page'] }], ['page']),
-    ).toContain('const spread=new Map<string,string[]>([["sort",["opts"]]]);')
+    ).toBe(
+      '(val)=>{const rest:[string,unknown][]=[];const groups=new Map<string,Record<string,unknown>>();const group=(name:string)=>{const found=groups.get(name);if(found!==undefined)return found;const made:Record<string,unknown>=Object.create(null);groups.set(name,made);return made};const spread=new Map<string,string[]>([["sort",["opts"]]]);for(const [key,item] of Object.entries(val)){const owners=spread.get(key);if(owners!==undefined){for(const owner of owners){group(owner)[key]=item}continue};rest.push([key,item])};return Object.fromEntries([...rest,...groups])}',
+    )
   })
 
   // Every property is taken by another parameter, so nothing is left to gather.
@@ -1536,8 +1538,8 @@ describe('makeWireGather: keys that several objects share, and keys nothing decl
         ],
         [],
       ),
-    ).toContain(
-      'const spread=new Map<string,string[]>([["name",["filter","sort"]],["age",["filter"]]]);',
+    ).toBe(
+      '(val)=>{const rest:[string,unknown][]=[];const groups=new Map<string,Record<string,unknown>>();const group=(name:string)=>{const found=groups.get(name);if(found!==undefined)return found;const made:Record<string,unknown>=Object.create(null);groups.set(name,made);return made};const spread=new Map<string,string[]>([["name",["filter","sort"]],["age",["filter"]]]);for(const [key,item] of Object.entries(val)){const owners=spread.get(key);if(owners!==undefined){for(const owner of owners){group(owner)[key]=item}continue};rest.push([key,item])};return Object.fromEntries([...rest,...groups])}',
     )
   })
 
@@ -1548,25 +1550,24 @@ describe('makeWireGather: keys that several objects share, and keys nothing decl
       [{ name: 'bag', how: 'spread', properties: [], open: true }],
       ['page'],
     )
-    expect(gather).toContain('const open:string[]=["bag"];const taken:string[]=["page"];')
-    expect(gather).toContain(
-      'if(!taken.includes(key)){for(const owner of open){group(owner)[key]=item}}',
+    expect(gather).toBe(
+      '(val)=>{const rest:[string,unknown][]=[];const groups=new Map<string,Record<string,unknown>>();const group=(name:string)=>{const found=groups.get(name);if(found!==undefined)return found;const made:Record<string,unknown>=Object.create(null);groups.set(name,made);return made};const open:string[]=["bag"];const taken:string[]=["page"];for(const [key,item] of Object.entries(val)){if(!taken.includes(key)){for(const owner of open){group(owner)[key]=item}};rest.push([key,item])};return Object.fromEntries([...rest,...groups])}',
     )
   })
 
   // Without an open object there is nothing to hand an undeclared key to.
   // open なオブジェクトがなければ、宣言されていないキーを渡す先がない。
   it.concurrent('does not look for undeclared keys without an open object', () => {
-    expect(
-      makeWireGather([{ name: 'opts', how: 'spread', properties: ['size'] }], []),
-    ).not.toContain('const open')
+    expect(makeWireGather([{ name: 'opts', how: 'spread', properties: ['size'] }], [])).toBe(
+      '(val)=>{const rest:[string,unknown][]=[];const groups=new Map<string,Record<string,unknown>>();const group=(name:string)=>{const found=groups.get(name);if(found!==undefined)return found;const made:Record<string,unknown>=Object.create(null);groups.set(name,made);return made};const spread=new Map<string,string[]>([["size",["opts"]]]);for(const [key,item] of Object.entries(val)){const owners=spread.get(key);if(owners!==undefined){for(const owner of owners){group(owner)[key]=item}continue};rest.push([key,item])};return Object.fromEntries([...rest,...groups])}',
+    )
   })
 
   // A key that reaches deeper than sixteen pairs of brackets is left unread.
   // 角括弧が16組より深いキーは、読み取られない。
   it.concurrent('reads a deepObject key of sixteen pairs of brackets at most', () => {
-    expect(makeWireGather([{ name: 'filter', how: 'deep', properties: [] }], [])).toContain(
-      'set(group(name),parts,item);continue',
+    expect(makeWireGather([{ name: 'filter', how: 'deep', properties: [] }], [])).toBe(
+      `(val)=>{const rest:[string,unknown][]=[];const groups=new Map<string,Record<string,unknown>>();const group=(name:string)=>{const found=groups.get(name);if(found!==undefined)return found;const made:Record<string,unknown>=Object.create(null);groups.set(name,made);return made};const isGroup=(item:unknown):item is Record<string,unknown>=>typeof item==='object'&&item!==null&&!Array.isArray(item);const lists=new WeakSet<object>();const isIndex=(part:string|undefined)=>part!==undefined&&/^\\d*$/.test(part);const child=(target:Record<string,unknown>,key:string,asList:boolean)=>{const held=target[key];if(isGroup(held))return held;const made:Record<string,unknown>=Object.create(null);if(asList)lists.add(made);target[key]=made;return made};const set=(root:Record<string,unknown>,path:readonly string[],item:unknown):void=>{const work:[Record<string,unknown>,number,unknown,boolean][]=[[root,0,item,false]];for(let job=work.pop();job!==undefined;job=work.pop()){const [target,at,value,split]=job;const head=path[at];if(head===undefined)continue;const next=path[at+1];if(head===''){if(!split&&Array.isArray(value)){for(let i=value.length-1;i>=0;i-=1)work.push([target,at,value[i],true]);continue}const size=Object.keys(target).length;if(next===undefined){target[String(size)]=value;continue}const free=next===''?-1:Object.values(target).findIndex((held)=>isGroup(held)&&!(next in held));work.push([child(target,String(free<0?size:free),isIndex(next)),at+1,value,false]);continue}if(next===undefined){target[head]=value;continue}work.push([child(target,head,isIndex(next)),at+1,value,false])}};const settle=(root:unknown):unknown=>{if(!isGroup(root))return root;const found:[Record<string,unknown>,string,Record<string,unknown>][]=[];const queue:Record<string,unknown>[]=[root];for(const node of queue){for(const [key,inner] of Object.entries(node)){if(isGroup(inner)){found.push([node,key,inner]);queue.push(inner)}}}const finish=(group:Record<string,unknown>):unknown=>lists.has(group)?Object.entries(group).sort((a,b)=>Number(a[0])-Number(b[0])).map(([,inner])=>inner):Object.assign(Object.create(null),group);for(const [parent,key,group] of found.reverse()){parent[key]=finish(group)}return finish(root)};const deep:string[]=["filter"];for(const [key,item] of Object.entries(val)){const match=/^([^\\[\\]]+)((?:\\[[^\\[\\]]*\\])+)$/.exec(key);const name=match?.[1];const path=match?.[2];if(name!==undefined&&path!==undefined&&deep.includes(name)){const parts=path.slice(1,-1).split('][');set(group(name),parts,item);continue};rest.push([key,item])};return Object.fromEntries([...rest,...[...groups].map(([name,held])=>[name,settle(held)] as const)])}`,
     )
   })
 })

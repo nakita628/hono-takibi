@@ -1,9 +1,30 @@
 import path from 'node:path'
+import { stripVTControlCharacters } from 'node:util'
 
 import { describe, expect, it } from 'vite-plus/test'
 
 import { runGenerator, runGeneratorError } from '../testing/index.js'
 import { defineConfig, parseConfig, readConfig } from './index.js'
+
+// What parseConfig fills in for every option a config leaves out.
+const PARSED_DEFAULTS = {
+  basePath: '/',
+  exportSchemas: false,
+  exportSchemasTypes: false,
+  exportResponses: false,
+  exportParameters: false,
+  exportParametersTypes: false,
+  exportExamples: false,
+  exportRequestBodies: false,
+  exportHeaders: false,
+  exportHeadersTypes: false,
+  exportSecuritySchemes: false,
+  exportLinks: false,
+  exportCallbacks: false,
+  exportPathItems: false,
+  exportMediaTypes: false,
+  exportMediaTypesTypes: false,
+}
 
 describe('readConfig', () => {
   it('returns error with path when no config file exists', async () => {
@@ -25,7 +46,9 @@ describe('readConfig', () => {
     process.cwd = () => fakeCwd
     try {
       const result = await runGeneratorError(readConfig())
-      expect(result.message.endsWith('hono-takibi.config.ts')).toBe(true)
+      expect(result.message).toBe(
+        `Config not found: ${path.resolve(fakeCwd, 'hono-takibi.config.ts')}`,
+      )
     } finally {
       process.cwd = originalCwd
     }
@@ -101,10 +124,24 @@ describe('readConfig', () => {
     process.cwd = () => dir
     try {
       const result = await runGeneratorError(readConfig())
-      expect(typeof result.message).toBe('string')
-      expect(result.message.length).toBeGreaterThan(0)
-      // Should NOT be the missing-file message — the file exists.
-      expect(result.message.startsWith('Config not found')).toBe(false)
+      // The parse error, not the missing-file message — the file exists. The transformer
+      // colours its report and names the file from the real working directory.
+      expect(stripVTControlCharacters(result.message)).toBe(
+        [
+          'Transform failed with 1 error:',
+          '',
+          '[PARSE_ERROR] Expected `,` or `}` but found `Identifier`',
+          `   ╭─[ ${path.relative(originalCwd(), path.join(dir, 'hono-takibi.config.ts'))}:1:40 ]`,
+          '   │',
+          " 1 │ export default { input: 'openapi.yaml' invalid syntax here }",
+          '   │                ┬                       ───┬───  ',
+          '   │                ╰──────────────────────────────── Opened here',
+          '   │                                           │     ',
+          '   │                                           ╰───── `,` or `}` expected',
+          '───╯',
+          '',
+        ].join('\n'),
+      )
     } finally {
       process.cwd = originalCwd
       fs.rmSync(dir, { recursive: true, force: true })
@@ -325,7 +362,11 @@ describe('parseConfig()', () => {
             mock: { output: 'src/mock.ts', arrayMin: 5, arrayMax: 5 },
           }),
         ),
-      ).resolves.toBeDefined()
+      ).resolves.toStrictEqual({
+        input: 'openapi.yaml',
+        ...PARSED_DEFAULTS,
+        mock: { output: 'src/mock.ts', arrayMin: 5, arrayMax: 5 },
+      })
     })
 
     it.concurrent('rejects arrayMin greater than arrayMax', async () => {
@@ -366,7 +407,7 @@ describe('parseConfig()', () => {
           mock: { output: 'src/mock.ts', useExamples: 'some' },
         }),
       )
-      expect(result.message).toContain('Invalid config: mock.useExamples')
+      expect(result.message).toBe('Invalid config: mock.useExamples: Expected boolean | "all"')
     })
 
     it.concurrent('accepts a numeric seed and an array seed', async () => {
@@ -380,15 +421,21 @@ describe('parseConfig()', () => {
       expect(array.mock?.seed).toStrictEqual([1, 2, 3])
     })
 
-    it.concurrent.each([[-1], [1.5], [4_294_967_296], [[]], ['42']])(
-      'rejects the seed %j',
-      async (seed) => {
-        const result = await runGeneratorError(
-          parseConfig({ input: 'openapi.yaml', mock: { output: 'src/mock.ts', seed } }),
-        )
-        expect(result.message).toContain('Invalid config: mock.seed')
-      },
-    )
+    it.concurrent.each([
+      [-1, 'Invalid config: mock.seed: Expected a value greater than or equal to 0'],
+      [1.5, 'Invalid config: mock.seed: Expected an integer'],
+      [
+        4_294_967_296,
+        'Invalid config: mock.seed: Expected a value less than or equal to 4294967295',
+      ],
+      [[], 'Invalid config: mock.seed.0: Missing key'],
+      ['42', 'Invalid config: mock.seed: Expected number | array'],
+    ])('rejects the seed %j', async (seed, message) => {
+      const result = await runGeneratorError(
+        parseConfig({ input: 'openapi.yaml', mock: { output: 'src/mock.ts', seed } }),
+      )
+      expect(result.message).toBe(message)
+    })
   })
 
   describe('routes.package and webhooks.package', () => {
@@ -741,7 +788,11 @@ describe('parseConfig()', () => {
             format: { unknownOption: true },
           }),
         ),
-      ).resolves.toBeDefined()
+      ).resolves.toStrictEqual({
+        input: 'openapi.yaml',
+        ...PARSED_DEFAULTS,
+        format: { unknownOption: true },
+      })
     })
   })
 
@@ -767,7 +818,11 @@ describe('parseConfig()', () => {
             output: 'src/routes.ts',
           }),
         ),
-      ).resolves.toBeDefined()
+      ).resolves.toStrictEqual({
+        input: 'openapi.yaml',
+        ...PARSED_DEFAULTS,
+        output: 'src/routes.ts',
+      })
     })
 
     it.concurrent('passes with routes only', async () => {
@@ -778,7 +833,11 @@ describe('parseConfig()', () => {
             routes: { output: 'src/routes.ts' },
           }),
         ),
-      ).resolves.toBeDefined()
+      ).resolves.toStrictEqual({
+        input: 'openapi.yaml',
+        ...PARSED_DEFAULTS,
+        routes: { output: 'src/routes.ts', split: false },
+      })
     })
 
     it.concurrent('passes with neither output nor routes', async () => {
@@ -789,7 +848,7 @@ describe('parseConfig()', () => {
             exportSchemas: true,
           }),
         ),
-      ).resolves.toBeDefined()
+      ).resolves.toStrictEqual({ input: 'openapi.yaml', ...PARSED_DEFAULTS, exportSchemas: true })
     })
   })
 
@@ -838,7 +897,12 @@ describe('parseConfig()', () => {
             template: { define: true },
           }),
         ),
-      ).resolves.toBeDefined()
+      ).resolves.toStrictEqual({
+        input: 'openapi.yaml',
+        ...PARSED_DEFAULTS,
+        output: './server/index.ts',
+        template: { define: true, split: false },
+      })
     })
 
     it.concurrent('passes when define is true and output is a bare index.ts', async () => {
@@ -850,7 +914,12 @@ describe('parseConfig()', () => {
             template: { define: true },
           }),
         ),
-      ).resolves.toBeDefined()
+      ).resolves.toStrictEqual({
+        input: 'openapi.yaml',
+        ...PARSED_DEFAULTS,
+        output: 'index.ts',
+        template: { define: true, split: false },
+      })
     })
 
     it.concurrent('fails when define is true and a per-type component output is specified', async () => {
@@ -875,7 +944,12 @@ describe('parseConfig()', () => {
             components: { output: 'shared/components.ts' },
           }),
         ),
-      ).resolves.toBeDefined()
+      ).resolves.toStrictEqual({
+        input: 'openapi.yaml',
+        ...PARSED_DEFAULTS,
+        template: { define: true, split: false },
+        components: { output: 'shared/components.ts' },
+      })
     })
 
     it.concurrent('fails when define is true and components.output hits the app entry', async () => {
@@ -915,7 +989,13 @@ describe('parseConfig()', () => {
             components: { output: 'shared/components.ts' },
           }),
         ),
-      ).resolves.toBeDefined()
+      ).resolves.toStrictEqual({
+        input: 'openapi.yaml',
+        ...PARSED_DEFAULTS,
+        output: 'src/index.ts',
+        template: { define: true, split: false },
+        components: { output: 'shared/components.ts' },
+      })
     })
 
     it.concurrent('passes when define is true and only components.output anchors the layout', async () => {
@@ -927,7 +1007,12 @@ describe('parseConfig()', () => {
             components: { output: './server/components/index.ts' },
           }),
         ),
-      ).resolves.toBeDefined()
+      ).resolves.toStrictEqual({
+        input: 'openapi.yaml',
+        ...PARSED_DEFAULTS,
+        template: { define: true, split: false },
+        components: { output: './server/components/index.ts' },
+      })
     })
 
     it.concurrent('fails when the anchor derived from components.output puts components inside routes/', async () => {
@@ -978,7 +1063,12 @@ describe('parseConfig()', () => {
             template: { define: true },
           }),
         ),
-      ).resolves.toBeDefined()
+      ).resolves.toStrictEqual({
+        input: 'openapi.yaml',
+        ...PARSED_DEFAULTS,
+        output: 'src/index.ts',
+        template: { define: true, split: false },
+      })
     })
 
     it.concurrent('passes with routeHandler only', async () => {
@@ -990,7 +1080,12 @@ describe('parseConfig()', () => {
             template: { routeHandler: true },
           }),
         ),
-      ).resolves.toBeDefined()
+      ).resolves.toStrictEqual({
+        input: 'openapi.yaml',
+        ...PARSED_DEFAULTS,
+        output: 'src/index.ts',
+        template: { define: false, routeHandler: true, split: false },
+      })
     })
 
     it.concurrent('ignores a removed template.output key in both variants', async () => {
@@ -1038,7 +1133,11 @@ describe('parseConfig()', () => {
             components: { output: 'src/components/index.ts' },
           }),
         ),
-      ).resolves.toBeDefined()
+      ).resolves.toStrictEqual({
+        input: 'openapi.yaml',
+        ...PARSED_DEFAULTS,
+        components: { output: 'src/components/index.ts' },
+      })
     })
 
     it.concurrent('passes with per-type components only', async () => {
@@ -1049,7 +1148,13 @@ describe('parseConfig()', () => {
             components: { schemas: { output: 'src/schemas' } },
           }),
         ),
-      ).resolves.toBeDefined()
+      ).resolves.toStrictEqual({
+        input: 'openapi.yaml',
+        ...PARSED_DEFAULTS,
+        components: {
+          schemas: { output: 'src/schemas/index.ts', split: false, exportTypes: false },
+        },
+      })
     })
   })
 
@@ -1579,7 +1684,9 @@ describe('parseConfig()', () => {
           client: { output: 'src/client.ts', baseUrl: { env: 'API-URL', source: 'process.env' } },
         }),
       )
-      expect(result.message).toContain('Invalid config: client.baseUrl')
+      expect(result.message).toBe(
+        'Invalid config: client.baseUrl.env: must be the name of an environment variable',
+      )
     })
 
     // A URL with a quote in it would end the string it is written into.
@@ -1593,7 +1700,9 @@ describe('parseConfig()', () => {
           client: { output: 'src/client.ts', baseUrl: "http://x'" },
         }),
       )
-      expect(result.message).toContain('Invalid config: client.baseUrl')
+      expect(result.message).toBe(
+        "Invalid config: client.baseUrl: a fixed URL was removed: leave baseUrl out (or set '/') for the same origin, or read it from the environment with { env } or { env, import }",
+      )
     })
 
     // The client is a TypeScript file.

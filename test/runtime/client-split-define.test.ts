@@ -124,9 +124,13 @@ describe('clients: the client of a group requests under the base path', () => {
 
   // The type of a client holds the routes of its group and no others.
   // クライアントの型は、自身のグループのルートだけを持ち、他のルートは持たない。
+  // At run time the client is a proxy that answers any property with another proxy, so only
+  // the type tells the routes apart.
+  // 実行時のクライアントは、どのプロパティにも別のプロキシを返すプロキシなので、ルートを
+  // 区別するのは型だけである。
   it('vaultsClient does not hold the routes of items', () => {
     // @ts-expect-error -- items is no route of vaults
-    expect(vaultsClient.items).toBeDefined()
+    expect(typeof vaultsClient.items).toBe('function')
   })
 })
 

@@ -86,9 +86,16 @@ export const getHealthRoute = defineOpenAPIRoute({
     expect(result).toBe('🔥 Generated code and template files written')
     expect(fs.existsSync(path.join(tmpDir, 'src', 'index.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'src', 'routes', 'health.ts'))).toBe(true)
-    expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf8').split('\n')).toContain(
-      "import { getHealthRoute } from './routes'",
-    )
+    expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf8'))
+      .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapiRoutes([getHealthRoute] as const)
+
+export default app
+`)
   })
 
   it('merges into an existing app file, preserving custom imports', async () => {
@@ -112,7 +119,16 @@ export const api = new OpenAPIHono()
       ),
     )
     const content = fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8')
-    expect(content).toContain('custom-marker')
+    expect(content).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { customThing } from './custom-marker'
+import { getHealthRoute } from './routes'
+
+export const api = new OpenAPIHono()
+
+export const api = app.openapiRoutes([getHealthRoute] as const)
+
+export default app
+`)
   })
 
   it('emits routes/ at cwd when output is a bare index.ts', async () => {
@@ -124,9 +140,16 @@ export const api = new OpenAPIHono()
         defineTemplate(openAPI, 'index.ts', 'components.ts', '/', undefined, undefined),
       )
       expect(fs.existsSync(path.join(tmpDir, 'routes', 'health.ts'))).toBe(true)
-      expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8').split('\n')).toContain(
-        "import { getHealthRoute } from './routes'",
-      )
+      expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8'))
+        .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapiRoutes([getHealthRoute] as const)
+
+export default app
+`)
     } finally {
       process.chdir(origCwd)
     }
@@ -146,7 +169,9 @@ export const api = new OpenAPIHono()
         undefined,
       ),
     )
-    expect(result.message.length).toBeGreaterThan(0)
+    expect(result.message).toBe(
+      `BadResource: FileSystem.readFile (${path.join(tmpDir, 'index.ts')})`,
+    )
   })
 
   it('imports handlers through a pathAlias when one is configured', async () => {
@@ -162,8 +187,15 @@ export const api = new OpenAPIHono()
       ),
     )
     expect(fs.existsSync(path.join(tmpDir, 'routes', 'health.ts'))).toBe(true)
-    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8').split('\n')).toContain(
-      "import { getHealthRoute } from '@/routes'",
-    )
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8'))
+      .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '@/routes'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapiRoutes([getHealthRoute] as const)
+
+export default app
+`)
   })
 })

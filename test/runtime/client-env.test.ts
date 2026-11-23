@@ -82,8 +82,45 @@ describe('client: the variable is asserted, not defaulted', () => {
       path.resolve(import.meta.dirname, '../__generated__/client-env/src/lib/client.ts'),
       'utf8',
     )
-    expect(source).toContain('const baseUrl = process.env.CLIENT_ENV_API_URL!')
-    expect(source).not.toContain("?? '/'")
+    expect(source).toBe(`import { hc } from 'hono/client'
+import type { __root, health, vaults, items, v2Public } from '../index'
+
+const baseUrl = process.env.CLIENT_ENV_API_URL!
+
+type __RootClient = ReturnType<typeof hc<typeof __root>>
+
+const hc__RootWithType = (...args: Parameters<typeof hc>): __RootClient =>
+  hc<typeof __root>(...args)
+
+export const __rootClient = hc__RootWithType(baseUrl).api
+
+type HealthClient = ReturnType<typeof hc<typeof health>>
+
+const hcHealthWithType = (...args: Parameters<typeof hc>): HealthClient =>
+  hc<typeof health>(...args)
+
+export const healthClient = hcHealthWithType(baseUrl).api
+
+type VaultsClient = ReturnType<typeof hc<typeof vaults>>
+
+const hcVaultsWithType = (...args: Parameters<typeof hc>): VaultsClient =>
+  hc<typeof vaults>(...args)
+
+export const vaultsClient = hcVaultsWithType(baseUrl).api
+
+type ItemsClient = ReturnType<typeof hc<typeof items>>
+
+const hcItemsWithType = (...args: Parameters<typeof hc>): ItemsClient => hc<typeof items>(...args)
+
+export const itemsClient = hcItemsWithType(baseUrl).api
+
+type V2PublicClient = ReturnType<typeof hc<typeof v2Public>>
+
+const hcV2PublicWithType = (...args: Parameters<typeof hc>): V2PublicClient =>
+  hc<typeof v2Public>(...args)
+
+export const v2PublicClient = hcV2PublicWithType(baseUrl).api
+`)
   })
 })
 

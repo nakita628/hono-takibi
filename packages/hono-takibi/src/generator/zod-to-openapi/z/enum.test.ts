@@ -135,37 +135,57 @@ const readSingleQuoted = (code: string, start: number) => {
 // the previous emitter escaped `'` only, so a value ending in `\'` produced `\\'` and
 // closed the literal early, letting the rest of the value run as code at import time.
 describe('_enum string literal escaping (document-supplied values are code)', () => {
-  const payloads: readonly string[] = [
-    'a\\',
-    "\\'",
-    "it's\\",
-    'line\nbreak',
-    'cr\rtab\t',
+  // [value, emitted code of the single-value enum, emitted code of the mixed enum]
+  const payloads: readonly (readonly [string, string, string])[] = [
+    ['a\\', String.raw`z.literal('a\\')`, String.raw`z.union([z.literal('a\\'),z.literal(1)])`],
+    ["\\'", String.raw`z.literal('\\\'')`, String.raw`z.union([z.literal('\\\''),z.literal(1)])`],
+    [
+      "it's\\",
+      String.raw`z.literal('it\'s\\')`,
+      String.raw`z.union([z.literal('it\'s\\'),z.literal(1)])`,
+    ],
+    [
+      'line\nbreak',
+      String.raw`z.literal('line\nbreak')`,
+      String.raw`z.union([z.literal('line\nbreak'),z.literal(1)])`,
+    ],
+    [
+      'cr\rtab\t',
+      String.raw`z.literal('cr\rtab\t')`,
+      String.raw`z.union([z.literal('cr\rtab\t'),z.literal(1)])`,
+    ],
     // A breakout attempt tuned to the old emitter: closes the literal, injects an
     // assignment, balances the wrapper's brackets, then comments out the remainder.
-    "x\\',globalThis.pwned=1)])//",
-    "x'); evil(); ('",
+    [
+      "x\\',globalThis.pwned=1)])//",
+      String.raw`z.literal('x\\\',globalThis.pwned=1)])//')`,
+      String.raw`z.union([z.literal('x\\\',globalThis.pwned=1)])//'),z.literal(1)])`,
+    ],
+    [
+      "x'); evil(); ('",
+      String.raw`z.literal('x\'); evil(); (\'')`,
+      String.raw`z.union([z.literal('x\'); evil(); (\''),z.literal(1)])`,
+    ],
   ]
 
-  it.concurrent.each(payloads.map((v) => [v] as const))(
+  it.concurrent.each(payloads)(
     'single-value enum %j → one well-formed literal that decodes back to the value',
-    (v) => {
+    (v, expected) => {
       const code = _enum({ enum: [v] })
-      expect(code.startsWith("z.literal('")).toBe(true)
+      expect(code).toBe(expected)
       const lit = readSingleQuoted(code, 'z.literal('.length)
-      expect(lit).toBeDefined()
       expect(lit?.value).toBe(v)
       // Nothing of the payload leaks past the closing quote.
       expect(code.slice(lit?.end)).toBe(')')
     },
   )
 
-  it.concurrent.each(payloads.map((v) => [v] as const))(
+  it.concurrent.each(payloads)(
     'mixed enum [%j, 1] → z.union whose string literal decodes back to the value',
-    (v) => {
+    (v, _single, expected) => {
       const code = _enum({ enum: [v, 1] })
+      expect(code).toBe(expected)
       const head = "z.union([z.literal('"
-      expect(code.startsWith(head)).toBe(true)
       const lit = readSingleQuoted(code, head.length - 1)
       expect(lit?.value).toBe(v)
       expect(code.slice(lit?.end)).toBe('),z.literal(1)])')

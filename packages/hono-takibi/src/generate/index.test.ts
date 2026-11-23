@@ -29,14 +29,35 @@ describe('generate', () => {
     fs.writeFileSync(input, DOCUMENT)
     const output = path.join(tmpDir, 'src', 'index.ts')
     const report = await generate({ input, output, template: { define: true } })
-    expect(report).toContain('🔥 Generated code and template files written')
-    expect(fs.readFileSync(output, 'utf8')).toContain('const app = new OpenAPIHono()')
-    expect(fs.readFileSync(path.join(tmpDir, 'src', 'routes', 'health.ts'), 'utf8')).toContain(
-      "operationId: 'healthCheck'",
-    )
+    expect(report).toBe('No components found\n🔥 Generated code and template files written')
+    expect(fs.readFileSync(output, 'utf8')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from './routes'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapiRoutes([getHealthRoute] as const)
+
+export default app
+`)
+    expect(fs.readFileSync(path.join(tmpDir, 'src', 'routes', 'health.ts'), 'utf8'))
+      .toBe(`import { createRoute, defineOpenAPIRoute } from '@hono/zod-openapi'
+
+export const getHealthRoute = defineOpenAPIRoute({
+  route: createRoute({
+    method: 'get',
+    path: '/health',
+    operationId: 'healthCheck',
+    responses: { 200: { description: 'OK' } },
+  }),
+  handler: async (c) => {},
+  addRoute: true,
+})
+`)
   })
 
   it('rejects a config that is not one, with the message the CLI prints', async () => {
-    await expect(generate({ output: './src/index.ts' })).rejects.toThrow('Invalid config')
+    await expect(generate({ output: './src/index.ts' })).rejects.toThrow(
+      'Invalid config: input: Missing key',
+    )
   })
 })

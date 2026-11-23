@@ -441,7 +441,14 @@ describe('zodOpenAPIHonoHandler', () => {
     } finally {
       process.chdir(cwd)
     }
-    expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf8')).toContain("from '../index'")
+    expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf8'))
+      .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersRoute, postUsersRoute } from '../index'
+
+const app = new OpenAPIHono()
+
+export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUsersRoute, (c) => {})
+`)
   })
 
   // A split routes directory (`routes: { output: 'src/routes', split: true }`) is a module
@@ -450,9 +457,14 @@ describe('zodOpenAPIHonoHandler', () => {
     await runGenerator(zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/src/routes`))
 
     expect(fs.existsSync(`${testDir}/src/handlers/users.ts`)).toBe(true)
-    expect(fs.readFileSync(`${testDir}/src/handlers/users.ts`, 'utf8')).toContain(
-      "from '../routes'",
-    )
+    expect(fs.readFileSync(`${testDir}/src/handlers/users.ts`, 'utf8'))
+      .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersRoute, postUsersRoute } from '../routes'
+
+const app = new OpenAPIHono()
+
+export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUsersRoute, (c) => {})
+`)
   })
 
   it('never deletes handler files when a route leaves the spec', async () => {

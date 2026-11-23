@@ -212,20 +212,27 @@ describe('makeSplitSchemaFile', () => {
       },
       User: { type: 'object', properties: { name: { type: 'string' } } },
     } as const
+    // `EventType` is the only local type: the cyclic group's other members are named through
+    // `z.infer` and imported as schemas, never as types.
+    const expected = `import{z}from'@hono/zod-openapi'
+import{EventTypeSchema}from'./eventType'
+import{UserEventPayloadSchema}from'./userEventPayload'
+import{OrderEventPayloadSchema}from'./orderEventPayload'
+import{TraceContextSchema}from'./traceContext'
+
+
+type EventType={type:z.infer<typeof EventTypeSchema>;payload:(z.infer<typeof UserEventPayloadSchema>|z.infer<typeof OrderEventPayloadSchema>);causedBy?:EventType[];trace?:z.infer<typeof TraceContextSchema>}
+
+export const EventSchema:z.ZodType<EventType>=z.lazy(()=>z.object({type:EventTypeSchema,payload:z.xor([UserEventPayloadSchema,OrderEventPayloadSchema]),causedBy:z.array(EventSchema).exactOptional(),trace:TraceContextSchema.exactOptional()}).openapi({"required":["type","payload"]})).openapi('Event')
+
+export type Event=z.infer<typeof EventSchema>`
 
     it.concurrent('should use z.infer for cyclic group refs in type definition', () => {
       const schemaNames = Object.keys(schemas)
       const analysis = analyzeCircularSchemas(schemas, schemaNames)
       const result = makeSplitSchemaFile('Event', schemas.Event, schemas, analysis, true)
 
-      const typeDefMatch = /type EventType=\{[^}]+\}/u.exec(result)
-      expect(typeDefMatch).not.toBeNull()
-
-      const typeDef = typeDefMatch?.[0] ?? ''
-      expect(typeDef).toContain('z.infer<typeof EventTypeSchema>')
-      expect(typeDef).toContain('z.infer<typeof TraceContextSchema>')
-      expect(typeDef).not.toContain('EventTypeType')
-      expect(typeDef).not.toContain('TraceContextType')
+      expect(result).toBe(expected)
     })
 
     it.concurrent('should use local type for self-reference', () => {
@@ -233,7 +240,7 @@ describe('makeSplitSchemaFile', () => {
       const analysis = analyzeCircularSchemas(schemas, schemaNames)
       const result = makeSplitSchemaFile('Event', schemas.Event, schemas, analysis, true)
 
-      expect(result).toContain('causedBy?:EventType[]')
+      expect(result).toBe(expected)
     })
 
     it.concurrent('should generate correct imports without type imports', () => {
@@ -241,17 +248,7 @@ describe('makeSplitSchemaFile', () => {
       const analysis = analyzeCircularSchemas(schemas, schemaNames)
       const result = makeSplitSchemaFile('Event', schemas.Event, schemas, analysis, true)
 
-      const importLines = result.split('\n').filter((line) => line.startsWith('import'))
-
-      expect(importLines.some((line) => line === "import{z}from'@hono/zod-openapi'")).toBe(true)
-      expect(importLines.some((line) => line === "import{EventTypeSchema}from'./eventType'")).toBe(
-        true,
-      )
-      expect(
-        importLines.some((line) => line === "import{TraceContextSchema}from'./traceContext'"),
-      ).toBe(true)
-      expect(importLines.some((line) => line.includes('type EventType}'))).toBe(false)
-      expect(importLines.some((line) => line.includes('type TraceContext}'))).toBe(false)
+      expect(result).toBe(expected)
     })
 
     it.concurrent('should export z.infer type at the end', () => {
@@ -275,9 +272,9 @@ describe('makeSplitSchemaFile', () => {
       const analysis = analyzeCircularSchemas(schemas, schemaNames)
       const result = makeSplitSchemaFile('Profile', schemas.Profile, schemas, analysis, true)
 
-      const lines = result.split('\n')
-      expect(lines.some((line) => line === "import{UserSchema}from'./user'")).toBe(true)
-      expect(lines.some((line) => line.startsWith('export const ProfileSchema'))).toBe(true)
+      expect(result).toBe(
+        "import{z}from'@hono/zod-openapi'\nimport{UserSchema}from'./user'\n\n\nexport const ProfileSchema=z.object({user:UserSchema.exactOptional()}).openapi({\"required\":[]}).openapi('Profile')\n\nexport type Profile=z.infer<typeof ProfileSchema>",
+      )
     })
 
     it.concurrent('should not generate type definition for non-cyclic schemas', () => {
@@ -285,7 +282,9 @@ describe('makeSplitSchemaFile', () => {
       const analysis = analyzeCircularSchemas(schemas, schemaNames)
       const result = makeSplitSchemaFile('Profile', schemas.Profile, schemas, analysis, true)
 
-      expect(result).not.toContain('type ProfileType')
+      expect(result).toBe(
+        "import{z}from'@hono/zod-openapi'\nimport{UserSchema}from'./user'\n\n\nexport const ProfileSchema=z.object({user:UserSchema.exactOptional()}).openapi({\"required\":[]}).openapi('Profile')\n\nexport type Profile=z.infer<typeof ProfileSchema>",
+      )
     })
 
     it.concurrent('should generate exact output for simple non-cyclic schema', () => {
@@ -667,9 +666,10 @@ describe('makeTypeDefinitions', () => {
     const infos = makeSchemaInfos(schemas, schemaNames, analysis)
     const typeDefs = makeTypeDefinitions(infos, schemas, analysis.cyclicGroupPascal)
 
-    expect(typeDefs.length).toBeGreaterThanOrEqual(2)
-    expect(typeDefs.some((td) => td.includes('AType'))).toBe(true)
-    expect(typeDefs.some((td) => td.includes('BType'))).toBe(true)
+    expect(typeDefs).toStrictEqual([
+      'type AType={b?:z.infer<typeof BSchema>}',
+      'type BType={a?:z.infer<typeof ASchema>}',
+    ])
   })
 
   it.concurrent('should generate readonly type definitions', () => {
