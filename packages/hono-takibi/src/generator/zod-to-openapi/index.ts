@@ -120,6 +120,17 @@ function hasOwnWrapping(branch: Schema): boolean {
   )
 }
 
+/**
+ * Whether a schema is a reference with nothing beside it that constrains a value: the
+ * `$ref` alone, or with the annotations `title` and `description`.
+ */
+function isAnnotatedRef(schema: Schema): schema is Schema & { readonly $ref: string } {
+  return (
+    typeof schema.$ref === 'string' &&
+    Object.keys(schema).every((key) => key === '$ref' || key === 'title' || key === 'description')
+  )
+}
+
 export function zodToOpenAPI(
   schema: Schema | boolean,
   meta?: {
@@ -276,10 +287,26 @@ export function zodToOpenAPI(
       ),
       parentStrict,
     )
+    // A sibling list that only repeats a reference the emitted combinator has says nothing
+    // the emitted schema does not: `oneOf: [{ $ref: X }]` beside `allOf: [{ $ref: X }]`
+    // (NestJS Swagger). It is not stated: every reference in a stated list is written out
+    // as the component it names, a copy for each reference at each level, which doubles
+    // the literal with every level (#510).
+    const emittedRefs = new Set(
+      (emittedCombinator === undefined ? [] : (schema[emittedCombinator] ?? [])).flatMap((sub) =>
+        isAnnotatedRef(sub) ? [sub.$ref] : [],
+      ),
+    )
+    const repeatsEmitted = (key: 'anyOf' | 'oneOf' | 'not', list: readonly Schema[]) =>
+      emittedCombinator === 'allOf' &&
+      (key === 'oneOf' ? list.length === 1 : true) &&
+      list.some((sub) => isAnnotatedRef(sub) && emittedRefs.has(sub.$ref))
     const stated = [
       ...siblings.flatMap((key) => {
         const list = key === 'not' ? undefined : schema[key]
-        return list === undefined ? [] : [`${key}:${schemaList(list, childOptions?.schemas)}`]
+        return list === undefined || repeatsEmitted(key, list)
+          ? []
+          : [`${key}:${schemaList(list, childOptions?.schemas)}`]
       }),
       ...(parentStrict === undefined ? [] : ['additionalProperties:false']),
     ]
