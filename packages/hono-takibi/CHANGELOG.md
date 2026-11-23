@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.33.5](https://github.com/nakita628/hono-takibi/compare/v0.33.4...v0.33.5) (2026-11-23)
+
+
+### Bug Fixes
+
+* **zod:** do not write a sibling oneOf / anyOf, not or patternProperties into the document when it copies too much out of the components ([#533](https://github.com/nakita628/hono-takibi/issues/533)) ([e031e45](https://github.com/nakita628/hono-takibi/commit/e031e456b483d71abb488679b48c4d6e9a62cdbf))
+* **zod:** resolve a $ref that points inside a component schema to the schema it names ([#535](https://github.com/nakita628/hono-takibi/issues/535)) ([a3b83a2](https://github.com/nakita628/hono-takibi/commit/a3b83a2d15370544c0fd66a36293c3923d17d1bc))
+
 ## [0.33.4](https://github.com/nakita628/hono-takibi/compare/v0.33.3...v0.33.4) (2026-11-23)
 
 
