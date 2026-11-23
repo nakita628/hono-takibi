@@ -1133,7 +1133,7 @@ describe('hono-takibi.config.ts split generation tests', { timeout: 30_000 }, ()
 
     const config = `export default {
   input: 'openapi.json',
-  pathAlias: '@/',
+  pathAlias: true,
   routes: { output: 'src/routes', split: true },
   components: {
     schemas: { output: 'src/schemas', split: true },
@@ -1142,6 +1142,10 @@ describe('hono-takibi.config.ts split generation tests', { timeout: 30_000 }, ()
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+    fs.writeFileSync(
+      path.join(testDir, 'tsconfig.json'),
+      JSON.stringify({ compilerOptions: { paths: { '@/*': ['./src/*'] } } }),
+    )
 
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
@@ -1367,7 +1371,7 @@ export const getPostsRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  pathAlias: '~/',
+  pathAlias: true,
   routes: { output: 'src/routes', split: true },
   components: {
     schemas: { output: 'src/schemas', split: true },
@@ -1376,6 +1380,10 @@ export const getPostsRoute = createRoute({
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+    fs.writeFileSync(
+      path.join(testDir, 'tsconfig.json'),
+      JSON.stringify({ compilerOptions: { paths: { '~/*': ['./src/*'] } } }),
+    )
 
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
@@ -1492,7 +1500,7 @@ export const getProductsRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  pathAlias: '@/',
+  pathAlias: true,
   routes: { output: 'src/routes', split: true },
   components: {
     parameters: { output: 'src/parameters', split: true },
@@ -1501,6 +1509,10 @@ export const getProductsRoute = createRoute({
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+    fs.writeFileSync(
+      path.join(testDir, 'tsconfig.json'),
+      JSON.stringify({ compilerOptions: { paths: { '@/*': ['./src/*'] } } }),
+    )
 
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
@@ -1612,7 +1624,7 @@ export const getOrdersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  pathAlias: '@/',
+  pathAlias: true,
   routes: { output: 'src/routes', split: true },
   components: {
     headers: { output: 'src/headers', split: true },
@@ -1621,6 +1633,10 @@ export const getOrdersRoute = createRoute({
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+    fs.writeFileSync(
+      path.join(testDir, 'tsconfig.json'),
+      JSON.stringify({ compilerOptions: { paths: { '@/*': ['./src/*'] } } }),
+    )
 
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
@@ -1824,7 +1840,7 @@ export const postUsersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  pathAlias: '~/',
+  pathAlias: true,
   routes: { output: 'src/routes', split: true },
   components: {
     examples: { output: 'src/examples', split: true },
@@ -1833,6 +1849,10 @@ export const postUsersRoute = createRoute({
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+    fs.writeFileSync(
+      path.join(testDir, 'tsconfig.json'),
+      JSON.stringify({ compilerOptions: { paths: { '~/*': ['./src/*'] } } }),
+    )
 
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
@@ -1917,7 +1937,7 @@ export const getUsersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  pathAlias: '@/',
+  pathAlias: true,
   routes: { output: 'src/routes', split: true },
   components: {
     examples: { output: 'src/examples', split: true },
@@ -1926,6 +1946,10 @@ export const getUsersRoute = createRoute({
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+    fs.writeFileSync(
+      path.join(testDir, 'tsconfig.json'),
+      JSON.stringify({ compilerOptions: { paths: { '@/*': ['./src/*'] } } }),
+    )
 
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
@@ -2030,7 +2054,7 @@ export const getUsersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  pathAlias: '@/',
+  pathAlias: true,
   routes: { output: 'src/routes', split: true },
   components: {
     examples: { output: 'src/examples', split: true },
@@ -2039,6 +2063,10 @@ export const getUsersRoute = createRoute({
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+    fs.writeFileSync(
+      path.join(testDir, 'tsconfig.json'),
+      JSON.stringify({ compilerOptions: { paths: { '@/*': ['./src/*'] } } }),
+    )
 
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
@@ -2135,7 +2163,7 @@ export const getUsersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  pathAlias: '@/',
+  pathAlias: true,
   routes: { output: 'src/routes', split: true },
   components: {
     examples: { output: 'src/examples', split: true },
@@ -2144,6 +2172,10 @@ export const getUsersRoute = createRoute({
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+    fs.writeFileSync(
+      path.join(testDir, 'tsconfig.json'),
+      JSON.stringify({ compilerOptions: { paths: { '@/*': ['./src/*'] } } }),
+    )
 
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
@@ -2230,7 +2262,7 @@ export const getMessagesRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  pathAlias: '@/',
+  pathAlias: true,
   routes: { output: 'src/routes', split: true },
   components: {
     links: { output: 'src/links', split: true },
@@ -2239,6 +2271,10 @@ export const getMessagesRoute = createRoute({
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+    fs.writeFileSync(
+      path.join(testDir, 'tsconfig.json'),
+      JSON.stringify({ compilerOptions: { paths: { '@/*': ['./src/*'] } } }),
+    )
 
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
@@ -2596,7 +2632,7 @@ export const getSimpleRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  pathAlias: '@/',
+  pathAlias: true,
   routes: { output: 'src/routes', split: true },
   components: {
     schemas: { output: 'src/schemas', split: true },
@@ -2606,6 +2642,10 @@ export const getSimpleRoute = createRoute({
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+    fs.writeFileSync(
+      path.join(testDir, 'tsconfig.json'),
+      JSON.stringify({ compilerOptions: { paths: { '@/*': ['./src/*'] } } }),
+    )
 
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
@@ -2887,7 +2927,7 @@ export const paymentReceivedPostWebhook = {
 
     const config = `export default {
   input: 'openapi.json',
-  pathAlias: '@/',
+  pathAlias: true,
   routes: { output: 'src/routes', split: true },
   components: {
     mediaTypes: { output: 'src/mediaTypes', split: true },
@@ -2896,6 +2936,10 @@ export const paymentReceivedPostWebhook = {
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+    fs.writeFileSync(
+      path.join(testDir, 'tsconfig.json'),
+      JSON.stringify({ compilerOptions: { paths: { '@/*': ['./src/*'] } } }),
+    )
 
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
@@ -3092,7 +3136,7 @@ export const getDataRoute = createRoute({
     }
     const config = `export default {
   input: 'openapi.json',
-  pathAlias: '~/',
+  pathAlias: true,
   routes: { output: 'src/routes', split: true },
   components: {
     schemas: { output: 'src/schemas', split: true },
@@ -3101,6 +3145,10 @@ export const getDataRoute = createRoute({
 }`
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+    fs.writeFileSync(
+      path.join(testDir, 'tsconfig.json'),
+      JSON.stringify({ compilerOptions: { paths: { '~/*': ['./src/*'] } } }),
+    )
 
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
@@ -3154,7 +3202,7 @@ export const UserCreatedCallback = {
     }
     const config = `export default {
   input: 'openapi.json',
-  pathAlias: '~/',
+  pathAlias: true,
   routes: { output: 'src/routes', split: true },
   components: {
     schemas: { output: 'src/schemas', split: true },
@@ -3163,6 +3211,10 @@ export const UserCreatedCallback = {
 }`
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+    fs.writeFileSync(
+      path.join(testDir, 'tsconfig.json'),
+      JSON.stringify({ compilerOptions: { paths: { '~/*': ['./src/*'] } } }),
+    )
 
     execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),

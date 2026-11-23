@@ -79,15 +79,13 @@ const ConfigSchema = Schema.Struct({
     }),
   ),
   pathAlias: Schema.optionalKey(
-    Schema.String.check(
-      Schema.isPattern(/^[^\s'"`\\]+$/u, {
-        message: 'must be an import prefix, with no whitespace or quotes',
-      }),
-    ).annotate({
+    Schema.Boolean.annotate({
       title: 'Path alias',
       description:
-        'Import prefix the generated files use for one another instead of relative paths: `@/` where the tsconfig maps `@/*` to the directory of the app entry. It is the alias of the package this config belongs to, so only files written into that package use it; a file written into another package imports the client by `client.package`.',
-      examples: ['@/', '~/'],
+        'Import the generated files from one another under the path alias of the directory of the app entry instead of relatively. The alias is read from the nearest package.json `imports` (`"#/*": "./src/*"`), then tsconfig.json `paths` (`"@/*": ["./src/*"]`), the first mapping that covers the directory winning. It is the alias of the package this config belongs to, so only files written into that package use it; a file written into another package imports the client by `client.package`.',
+      examples: [true],
+      message:
+        'pathAlias takes true: the alias is read from package.json "imports" or tsconfig.json "paths" instead of being written in the config.',
     }),
   ),
   format: Schema.optionalKey(

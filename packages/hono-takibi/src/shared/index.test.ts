@@ -249,10 +249,9 @@ export const UserSchema = z
         input: 'openapi.yaml',
         output: `${tmpDir}/src/index.ts`,
         template: { define: true },
-        pathAlias: '@/',
       }),
     )
-    const jobs = makeJob(openAPI, cfg)
+    const jobs = makeJob(openAPI, cfg, undefined, '@/')
     await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf8')
 
@@ -448,11 +447,12 @@ import { UserSchema } from '../../shared/components'`)
         input: 'openapi.yaml',
         output: `${tmpDir}/src/index.ts`,
         template: { define: true },
-        pathAlias: '@/',
         components: { output: `${tmpDir}/src/api/components/index.ts` },
       }),
     )
-    await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
+    await Promise.all(
+      makeJob(openAPI, cfg, undefined, '@/').map((j) => runGenerator(j.run(j.output))),
+    )
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf8')
 
     expect(fs.existsSync(path.join(tmpDir, 'src', 'api', 'components', 'index.ts'))).toBe(true)
@@ -471,10 +471,9 @@ import { UserSchema } from '@/api/components'`)
         input: 'openapi.yaml',
         output: `${tmpDir}/src/index.ts`,
         template: { define: true },
-        pathAlias: '@/',
       }),
     )
-    const jobs = makeJob(openAPI, cfg)
+    const jobs = makeJob(openAPI, cfg, undefined, '@/')
     await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf8')
 
@@ -802,11 +801,10 @@ export default app
           input: 'openapi.yaml',
           output: `${tmpDir}/src/index.ts`,
           template: { define: true },
-          pathAlias: '@/',
         }),
       )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(makeJob(spec, cfg, undefined, '@/').map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
       await run(openAPI)
@@ -1011,8 +1009,10 @@ async function generateClientJobs(
   config: object,
   packageRoot?: (file: string) => string | undefined,
 ) {
-  const cfg = await runGenerator(parseConfig({ input: 'openapi.yaml', ...config }))
-  const jobs = makeJob(openAPI, cfg, packageRoot)
+  // The alias `pathAlias: true` would read from the project, given here as it is read.
+  const { pathAlias, ...rest } = config as { readonly pathAlias?: string }
+  const cfg = await runGenerator(parseConfig({ input: 'openapi.yaml', ...rest }))
+  const jobs = makeJob(openAPI, cfg, packageRoot, pathAlias)
   // The app entry is what the client and the rpc file are written against, so the jobs
   // run in the order they are made.
   // アプリのエントリは、クライアントと rpc ファイルの前提になる。そのため、ジョブは作られた
@@ -1298,7 +1298,6 @@ describe('packageRoots: the package of every output', () => {
     const cfg = await runGenerator(
       parseConfig({
         input: 'openapi.yaml',
-        pathAlias: '@/',
         routes: { output: `${tmpDir}/src/routes`, split: true },
         components: {
           schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@packages/schemas' },
@@ -1309,7 +1308,7 @@ describe('packageRoots: the package of every output', () => {
     expect(packageRoot(`${tmpDir}/src/routes/getUsers.ts`)).toBe(
       packageRoot(`${tmpDir}/src/schemas/user.ts`),
     )
-    const jobs = makeJob(openAPI, cfg, packageRoot)
+    const jobs = makeJob(openAPI, cfg, packageRoot, '@/')
     for (const job of jobs) {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
       await runGenerator(job.run(job.output))
@@ -1328,12 +1327,11 @@ describe('packageRoots: the package of every output', () => {
     const cfg = await runGenerator(
       parseConfig({
         input: 'openapi.yaml',
-        pathAlias: '@/',
         routes: { output: `${tmpDir}/src/routes`, split: true },
         components: { schemas: { output: `${tmpDir}/lib/schemas`, split: true } },
       }),
     )
-    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)))
+    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)), '@/')
     for (const job of jobs) {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
       await runGenerator(job.run(job.output))

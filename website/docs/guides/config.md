@@ -71,7 +71,8 @@ Prefer a Vite dev server? Use the [Vite plugin](/docs/guides/vite-plugin) instea
 - `output` inlines the components its routes refer to. `routes` and `webhooks` import them instead, so every component kind the operations refer to needs an output that holds it: `components.output`, or `components.<kind>`. Without one, generation fails naming the kind, rather than writing an import of a file that does not exist.
 - A `split` directory belongs to the generator: its `.ts` files are removed before each run. Keep hand-written code elsewhere.
 - `basePath` must start with `/`. `client.import` and every `package` must be module specifiers.
-- Generated files import one another relatively, under `pathAlias` when the target is in the directory of the app entry, and by the target's `package` from another package. A target in another package without a `package` is an error.
+- Generated files import one another relatively, under the path alias when `pathAlias` is `true` and the target is in the directory of the app entry, and by the target's `package` from another package. A target in another package without a `package` is an error.
+- `pathAlias: true` reads the alias rather than taking it from the config. Candidates are the `"<prefix>/*": "<dir>/*"` mappings of the package.json `imports` nearest above the app entry, then of the tsconfig.json `paths` nearest above the app entry and nearest above the working directory (following `extends`). The first mapping, in declaration order, whose directory is the directory of the app entry or an ancestor of it wins: `"@/*": ["./*"]` with the entry in `src/api` gives `@/src/api/`. Mappings with several targets, conditional targets or a `.ts` target are skipped. When nothing maps the directory, generation fails and names the mapping to add. An alias that only Vite knows (`resolve.alias`) is not read: without a tsconfig mapping the generated imports would not type-check.
 - The `client` block needs `template`.
 - `rpc` and the hooks need the `client` block: they import the generated client, relatively or by `client.package` from another package.
 
@@ -86,10 +87,11 @@ export default defineConfig({
   output: './src/routes.ts', // single-file mode; with template.define, the app entry (an index.ts path, default ./src/index.ts)
   basePath: '/api',
   readonly: true,
-  // Import prefix the generated files of this package use for one another, `@/routes` instead
-  // of `../routes`. Map it in tsconfig (`"@/*": ["./src/*"]`). Files written into another
-  // package never use it.
-  pathAlias: '@/',
+  // Import the generated files of this package from one another under the path alias of the
+  // directory of the app entry, `@/routes` instead of `../routes`. The alias is read from the
+  // nearest package.json "imports" (`"#/*": "./src/*"`), then tsconfig.json "paths"
+  // (`"@/*": ["./src/*"]`). Files written into another package never use it.
+  pathAlias: true,
   // format: {}, // oxfmt FormatConfig
 
   template: {

@@ -491,6 +491,8 @@ export function makeJob(
   // The package root of a generated file, when it is known. Left out, every file is taken
   // to be in the package of the client.
   packageRoot: (file: string) => string | undefined = () => undefined,
+  // The path alias `resolvePathAlias` read for `pathAlias: true`. Left out, imports are relative.
+  pathAlias?: string,
 ): readonly Job[] {
   const defineOn = config.template?.define === true
   const appOutput = appEntryOutput(config)
@@ -547,7 +549,7 @@ export function makeJob(
             from,
             target.output,
             appOutput,
-            sameRoot ? config.pathAlias : undefined,
+            sameRoot ? pathAlias : undefined,
             defineOn,
           )
     }
@@ -555,7 +557,7 @@ export function makeJob(
   // package does not use it.
   const aliasFor = (output: string) =>
     appOutput !== undefined && packageRoot(output) === packageRoot(appOutput)
-      ? config.pathAlias
+      ? pathAlias
       : undefined
   // The module a generated file imports the client from: the file `client` generates,
   // through the barrel beside it unless the file is beside it too — the barrel is for the
@@ -948,7 +950,7 @@ export function makeJob(
               componentsOutput,
               // config.template?.test ?? false,
               config.basePath,
-              config.pathAlias,
+              pathAlias,
               routeImport,
               // config.template?.testFramework,
               config.readonly,
@@ -971,7 +973,7 @@ export function makeJob(
                 output,
                 // config.template?.test ?? false,
                 config.basePath,
-                config.pathAlias,
+                pathAlias,
                 routeImport,
                 config.template?.define === false ? config.template.routeHandler : false,
                 // config.template?.testFramework,

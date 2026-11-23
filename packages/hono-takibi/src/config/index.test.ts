@@ -407,13 +407,26 @@ describe('parseConfig()', () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
-          pathAlias: '@/',
+          pathAlias: true,
           routes: { output: 'src/routes', split: true, package: '@packages/routes' },
         }),
       )
       expect(result.routes?.package).toBe('@packages/routes')
       expect(result.routes?.output).toBe('src/routes')
-      expect(result.pathAlias).toBe('@/')
+      expect(result.pathAlias).toBe(true)
+    })
+
+    // The alias is read from package.json `imports` or tsconfig.json `paths`, so a prefix
+    // written in the config is no longer taken.
+    // エイリアスは package.json の `imports` か tsconfig.json の `paths` から読むため、
+    // config に書いた接頭辞はもう受け付けない。
+    it.concurrent('fails when pathAlias is still a prefix', async () => {
+      const result = await runGeneratorError(
+        parseConfig({ input: 'openapi.yaml', output: 'src/routes.ts', pathAlias: '@/' }),
+      )
+      expect(result.message).toBe(
+        'Invalid config: pathAlias: pathAlias takes true: the alias is read from package.json "imports" or tsconfig.json "paths" instead of being written in the config.',
+      )
     })
 
     // A generated file imports another one relatively, under the alias, or by package:
@@ -2247,7 +2260,7 @@ describe('defineConfig', () => {
       input: 'openapi.yaml',
       output: 'src/index.ts',
       basePath: '/api',
-      pathAlias: '@/',
+      pathAlias: true,
       template: { define: true, split: true },
       components: { output: 'src/components/index.ts' },
       type: { output: 'src/types.ts' },
@@ -2387,9 +2400,10 @@ describe('defineConfig', () => {
   })
 
   // The removed options do not compile: the client name and import of rpc and the hooks,
-  // the import of the split outputs, the test options, and template.pathAlias.
+  // the import of the split outputs, the test options, template.pathAlias, and a prefix
+  // given to pathAlias.
   // 廃止されたオプションはコンパイルできない。rpc とフックのクライアント名と import、
-  // 分割出力の import、テストのオプション、template.pathAlias である。
+  // 分割出力の import、テストのオプション、template.pathAlias、pathAlias に渡す接頭辞である。
   it('is a type error to set a removed option', () => {
     const rpcClient = defineConfig({
       input: 'openapi.yaml',
@@ -2440,6 +2454,11 @@ describe('defineConfig', () => {
       // @ts-expect-error -- pathAlias was moved to the top level
       template: { pathAlias: '@/' },
     })
+    const prefixAlias = defineConfig({
+      input: 'openapi.yaml',
+      // @ts-expect-error -- pathAlias takes true, the prefix is read from the project
+      pathAlias: '@/',
+    })
     const fixedUrl = defineConfig({
       input: 'openapi.yaml',
       output: 'src/routes.ts',
@@ -2457,9 +2476,10 @@ describe('defineConfig', () => {
         test,
         templateTest,
         templateAlias,
+        prefixAlias,
         fixedUrl,
       ].map((c) => c.input),
-    ).toHaveLength(9)
+    ).toHaveLength(10)
   })
 
   // An option that does not exist does not compile.

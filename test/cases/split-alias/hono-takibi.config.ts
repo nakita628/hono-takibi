@@ -3,8 +3,9 @@ import { defineConfig } from 'hono-takibi'
 export default defineConfig({
   input: '../../specs/split-alias.yaml',
   // The directory of the app entry is `src`: every generated file in it imports the others
-  // under the alias, `~/components/schemas` for `src/components/schemas`.
-  pathAlias: '~/',
+  // under the alias, `~/components/schemas` for `src/components/schemas`. The tsconfig maps
+  // both `~/*` and `@/*` to it, and the first one declared, `~/`, is taken.
+  pathAlias: true,
   routes: { output: '../../__generated__/split-alias/src/routes', split: true },
   components: {
     schemas: {

@@ -1,6 +1,7 @@
 import * as NodeServices from '@effect/platform-node/NodeServices'
 import { Effect } from 'effect'
 
+import { resolvePathAlias } from '../alias/index.js'
 import { parseConfig } from '../config/index.js'
 import { FormatOptions } from '../format/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
@@ -23,7 +24,12 @@ export function generate(config: unknown) {
   return Effect.gen(function* () {
     const parsed = yield* parseConfig(config)
     const openAPI = yield* openAPI3(yield* parseOpenAPI(parsed.input), parsed.input)
-    const jobs = makeJob(openAPI, parsed, yield* packageRoots(openAPI, parsed))
+    const jobs = makeJob(
+      openAPI,
+      parsed,
+      yield* packageRoots(openAPI, parsed),
+      yield* resolvePathAlias(parsed),
+    )
     yield* cleanSplitOutputs(jobs.filter((job) => job.split).map((job) => job.output))
     const messages = yield* Effect.forEach(jobs, (job) => job.run(job.output), {
       concurrency: 'unbounded',

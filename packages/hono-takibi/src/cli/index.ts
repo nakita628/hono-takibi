@@ -71,15 +71,22 @@ function runJobs(config: Effect.Success<ReturnType<typeof loadConfig>>) {
       { parseOpenAPI },
       { FormatOptions },
       { cleanSplitOutputs, makeJob, openAPI3, packageRoots },
+      { resolvePathAlias },
     ] = yield* Effect.promise(() =>
       Promise.all([
         import('../openapi/index.js'),
         import('../format/index.js'),
         import('../shared/index.js'),
+        import('../alias/index.js'),
       ]),
     )
     const openAPI = yield* openAPI3(yield* parseOpenAPI(config.input), config.input)
-    const jobs = makeJob(openAPI, config, yield* packageRoots(openAPI, config))
+    const jobs = makeJob(
+      openAPI,
+      config,
+      yield* packageRoots(openAPI, config),
+      yield* resolvePathAlias(config),
+    )
     yield* cleanSplitOutputs(jobs.filter((job) => job.split).map((job) => job.output))
     const messages = yield* Effect.forEach(jobs, (job) => job.run(job.output), {
       concurrency: 'unbounded',

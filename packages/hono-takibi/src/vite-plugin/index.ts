@@ -5,6 +5,7 @@ import path from 'node:path'
 import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
 import { Effect, FileSystem, Option, Result } from 'effect'
 
+import { resolvePathAlias } from '../alias/index.js'
 import { parseConfig } from '../config/index.js'
 import type { Config } from '../config/index.js'
 import { INPUT_EXTENSIONS } from '../constants/index.js'
@@ -248,7 +249,11 @@ function runAllGenerationTasks(config: Config) {
     if (Result.isFailure(packagesResult)) {
       return { logs: [`❌ config: ${packagesResult.failure.message}`], changed: false }
     }
-    const jobs = makeJob(openAPIResult.success, config, packagesResult.success)
+    const aliasResult = yield* Effect.result(resolvePathAlias(config))
+    if (Result.isFailure(aliasResult)) {
+      return { logs: [`❌ config: ${aliasResult.failure.message}`], changed: false }
+    }
+    const jobs = makeJob(openAPIResult.success, config, packagesResult.success, aliasResult.success)
     const targets = jobs.map((job) => ({ job, absOutput: path.resolve(process.cwd(), job.output) }))
     const outputPaths = targets.map(({ absOutput }) => absOutput)
     const beforeSnapshot = yield* snapshotOutputs(outputPaths)
