@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.7](https://github.com/nakita628/hono-takibi/compare/v0.33.6...v0.33.7) (2026-11-23)
+
+
+### Bug Fixes
+
+* **zod:** declare a schema pointed at inside a component schema as a component ([#538](https://github.com/nakita628/hono-takibi/issues/538)) ([c1ce9a3](https://github.com/nakita628/hono-takibi/commit/c1ce9a39af2939765cfa997feae24750fdc242f8))
+
 ## [0.33.6](https://github.com/nakita628/hono-takibi/compare/v0.33.5...v0.33.6) (2026-11-23)
 
 
