@@ -20,6 +20,8 @@ export default defineConfig({
     env: { browser: true, node: true, es2024: true },
     globals: { defineProps: 'readonly' },
     plugins: ['typescript', 'unicorn', 'oxc', 'import', 'promise', 'node', 'jsdoc', 'vue'],
+    // packages/hono-takibi's convention plugin; only its comment rule is turned on here.
+    jsPlugins: ['../packages/hono-takibi/lint/custom.js'],
     options: {
       typeAware: true,
       // A rule that stops firing must have its `oxlint-disable` comment deleted with it,
@@ -45,6 +47,7 @@ export default defineConfig({
     // `categories` above and are not restated; this list only adds rules from the
     // pedantic / style / restriction / nursery categories, which no category enables.
     rules: {
+      'custom/no-dangling-doc-reference': 'error',
       // Vue. oxlint reads the `<script>` block of a `.vue` file, so these are the rules of a
       // component's script: its props, emits and macros, its lifecycle and what Vue 3 retired.
       // Every rule the plugin has is named, whatever category it sits in. The template is not
@@ -590,7 +593,7 @@ export default defineConfig({
         },
       },
       {
-        // `as OpenAPI` is the single sanctioned cast (CLAUDE.md type safety #1).
+        // `as OpenAPI` is the single sanctioned cast in the site's sources.
         files: ['.vitepress/lib/openapi/index.ts'],
         rules: {
           'typescript/consistent-type-assertions': 'off',

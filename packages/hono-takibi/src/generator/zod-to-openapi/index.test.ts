@@ -12606,7 +12606,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: {a:"x"} PASSES (frozen)', () => {
       const valid = Fr.safeParse({ a: 'x' })
       expect(valid.success).toBe(true)
-      if (valid) expect(Object.isFrozen(valid.data)).toBe(true)
+      if (valid.success) expect(Object.isFrozen(valid.data)).toBe(true)
     })
     it.concurrent('runtime: {a:1} FAILS', () => {
       const valid = Fr.safeParse({ a: 1 })
@@ -13090,7 +13090,6 @@ describe('zodToOpenAPI', () => {
                 }
               }
             })
-        if (!Branch) return
         const valid = Branch.safeParse(o)
         if (!valid.success) {
           for (const issue of valid.error.issues) ctx.addIssue({ ...issue, path: issue.path })

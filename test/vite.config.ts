@@ -66,7 +66,8 @@ export default defineConfig({
     },
     // Strict by design: exceptions live next to the code as `oxlint-disable-next-line` with a
     // reason, never as `'off'` here. Everything under test/ is test code or its harness, so the
-    // CLAUDE.md-sanctioned cast/`any` allowances (type safety #1) apply to the whole project.
+    // cast/`any` allowances that `*.test.ts` gets in packages/hono-takibi apply to the whole
+    // project.
     //
     // Rules in the correctness / suspicious / perf categories (including every vitest rule this
     // suite relies on) are already errors via `categories` above and are not restated; this list
@@ -176,6 +177,18 @@ export default defineConfig({
         },
       ],
       'custom/no-partial-assertion': 'error',
+      'custom/no-dangling-doc-reference': 'error',
+      // An object is always truthy: `if (result)` on a `safeParse` result never skips the
+      // assertion behind it. `any` stays allowed as a condition, as `any` is allowed here.
+      'typescript/strict-boolean-expressions': [
+        'error',
+        {
+          allowAny: true,
+          allowNullableBoolean: true,
+          allowNullableString: true,
+          allowNumber: false,
+        },
+      ],
       // `typescript/no-explicit-any` and the `no-unsafe-*` family are deliberately absent, as
       // they are off for `*.test.ts` in packages/hono-takibi: a test reads a response body and
       // a handler's `c.req.valid()` as they come, and asserts on what it finds.

@@ -35,11 +35,17 @@
 //                              a partial comparison back inside `toStrictEqual`, and
 //                              `expect(code.includes('x')).toBe(true)` is `toContain` spelled as
 //                              a boolean; `jest/no-restricted-matchers` sees neither
+//   custom/no-dangling-doc-reference a comment that names a Markdown file (`README.md`,
+//                              `website/docs/guides/vendor.md`) names one that exists, beside the
+//                              file or in a directory above it up to the repository root. A
+//                              reason that points at a document nobody can open is no reason
 //
 // Tests are exempt from the structural rules: a test arranges and asserts imperatively when that
 // is the clearest way to spell the fixture out. `no-partial-assertion` is the one rule that
 // reads only tests.
+import { existsSync } from 'node:fs'
 import { builtinModules } from 'node:module'
+import path from 'node:path'
 
 import MANIFEST from '../package.json' with { type: 'json' }
 
@@ -106,6 +112,25 @@ function filenameOf(context) {
 
 function isTestPath(filename) {
   return TEST_FILE.test(filename)
+}
+
+// A Markdown file named in prose: `README.md`, `../../README.md`, `website/docs/guides/vendor.md`.
+// URLs are taken out first: the page a link names is not a file of this repository.
+const URL_IN_TEXT = /\bhttps?:\/\/\S+/gu
+const MARKDOWN_REFERENCE = /(?<![\w./-])((?:\.{1,2}\/)?[\w-]+(?:\/[\w.-]+)*\.md)(?![\w-])/gu
+
+// The directories a reference may be read against: the file's own and every one above it,
+// up to the repository root (the first directory holding `.git`).
+function searchDirectoriesOf(filename) {
+  const directories = []
+  let directory = path.dirname(path.resolve(filename))
+  for (;;) {
+    directories.push(directory)
+    const parent = path.dirname(directory)
+    // oxlint-disable-next-line node/no-sync -- a rule visitor is synchronous; oxlint cannot await it
+    if (existsSync(path.join(directory, '.git')) || parent === directory) return directories
+    directory = parent
+  }
 }
 
 function effectMember(node) {
@@ -494,6 +519,32 @@ export default {
                 node,
                 message: `\`expect.${name}(...)\` matches a value it has only partly seen. Write the whole expected value out.`,
               })
+            }
+          },
+        }
+      },
+    },
+    'no-dangling-doc-reference': {
+      meta: { docs: { description: 'a comment names only Markdown files that exist' } },
+      create(context) {
+        const filename = filenameOf(context)
+        return {
+          Program() {
+            const directories = searchDirectoriesOf(filename)
+            for (const comment of context.sourceCode.getAllComments()) {
+              const text = comment.value.replaceAll(URL_IN_TEXT, '')
+              for (const [, reference] of text.matchAll(MARKDOWN_REFERENCE)) {
+                if (
+                  // oxlint-disable-next-line node/no-sync -- a rule visitor is synchronous; oxlint cannot await it
+                  directories.some((directory) => existsSync(path.join(directory, reference)))
+                ) {
+                  continue
+                }
+                context.report({
+                  loc: comment.loc,
+                  message: `\`${reference}\` does not exist beside this file or in any directory above it. Write the reason out here, or name the document that holds it.`,
+                })
+              }
             }
           },
         }

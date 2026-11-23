@@ -136,6 +136,7 @@ export default defineConfig({
       'custom/no-effect-run': 'error',
       'custom/effect-promise-import': 'error',
       'custom/type-pascal-case': 'error',
+      'custom/no-dangling-doc-reference': 'error',
       eqeqeq: 'error',
       'no-var': 'error',
       'prefer-const': 'error',
@@ -847,7 +848,7 @@ export default defineConfig({
         },
       },
       {
-        // `as OpenAPI` is the single sanctioned cast (CLAUDE.md type safety #1).
+        // `as OpenAPI` is the single sanctioned cast in `src`.
         files: ['src/openapi/index.ts'],
         rules: {
           'typescript/consistent-type-assertions': 'off',
@@ -856,15 +857,15 @@ export default defineConfig({
       },
       {
         // honoTakibiVite(): any is intentional — avoids forcing Vite/Rollup type
-        // installs on consumers (CLAUDE.md type safety #2).
+        // installs on consumers.
         files: ['src/vite-plugin/index.ts'],
         rules: {
           'typescript/no-explicit-any': 'off',
         },
       },
       {
-        // Test files may cast and use `any` (CLAUDE.md type safety #1); the type-safety rules that
-        // exist only to police those casts are scoped off here, nothing else is.
+        // Test files may cast and use `any`; the type-safety rules that exist only to police
+        // those casts are scoped off here, nothing else is.
         files: ['**/*.test.ts', '**/*.spec.ts'],
         plugins: ['vitest'],
         rules: {
@@ -888,7 +889,11 @@ export default defineConfig({
           'typescript/no-explicit-any': 'off',
           'typescript/consistent-type-assertions': 'off',
           'typescript/no-unsafe-type-assertion': 'off',
-          'typescript/strict-boolean-expressions': 'off',
+          // `strict-boolean-expressions` stays on: `if (result)` on a `safeParse` result is
+          // always true, and an assertion behind it reads as a check that never fails.
+          // `no-unnecessary-condition` is off: test files sit outside tsconfig.json, so the
+          // checker reads them without `noUncheckedIndexedAccess`, and every guard on an
+          // indexed value (`if (lines[0] === undefined)`) would read as dead.
           'typescript/no-unnecessary-condition': 'off',
           'typescript/no-unsafe-argument': 'off',
           'typescript/no-unsafe-assignment': 'off',
