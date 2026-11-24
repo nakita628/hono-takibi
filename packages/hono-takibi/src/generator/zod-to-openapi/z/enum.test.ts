@@ -15,7 +15,7 @@ describe('_enum', () => {
     [{ enum: ['a\\'] }, String.raw`z.literal('a\\')`],
     [
       { enum: [{ key: 'value' }] } as unknown as Schema,
-      String.raw`z.custom<{"key":"value"}>((val)=>JSON.stringify(val)==="{\"key\":\"value\"}")`,
+      String.raw`z.custom<{"key":"value"}>((val)=>JSON.stringify(val,(_,v)=>typeof v==='bigint'?Number(v):typeof v==='object'&&v!==null&&!Array.isArray(v)?Object.fromEntries(Object.entries(v).sort(([a],[b])=>a<b?-1:a>b?1:0)):v)==="{\"key\":\"value\"}")`,
     ],
     [{ type: 'array', enum: [[1, 2]] }, 'z.tuple([z.literal(1),z.literal(2)])'],
     [

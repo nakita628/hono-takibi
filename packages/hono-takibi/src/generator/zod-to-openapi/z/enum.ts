@@ -1,5 +1,10 @@
 import type { Schema } from '../../../openapi/index.js'
-import { error, makeStringLiteral } from '../../../utils/index.js'
+import {
+  CANONICAL_JSON_REPLACER,
+  canonicalJson,
+  error,
+  makeStringLiteral,
+} from '../../../utils/index.js'
 
 /**
  * Generates a Zod enum schema. String enums map to `z.enum`, number/integer/
@@ -41,10 +46,9 @@ export function _enum(schema: Schema) {
     // An int64 is a bigint in the generated schema, and so are the members of its enum.
     if (typeof v === 'number' && isBigint && Number.isInteger(v)) return `z.literal(${v}n${arg})`
     if (typeof v === 'number' || typeof v === 'boolean') return `z.literal(${String(v)}${arg})`
-    // An object or an array is the value it is written as, compared as JSON like the enum of
-    // a schema with no `type`: `z.custom<T>()` alone accepts anything (#604).
-    const json = JSON.stringify(v)
-    return `z.custom<${json}>((val)=>JSON.stringify(val)===${JSON.stringify(json)}${arg})`
+    // An object or an array is the value it is written as, compared as JSON whatever the
+    // order of its keys: `z.custom<T>()` alone accepts anything (#604).
+    return `z.custom<${JSON.stringify(v)}>((val)=>JSON.stringify(val,${CANONICAL_JSON_REPLACER})===${JSON.stringify(canonicalJson(v))}${arg})`
   }
   // Inner literal — used inside a wrapper (z.union / z.tuple) that
   // already carries `errorArg`, so we don't repeat it.

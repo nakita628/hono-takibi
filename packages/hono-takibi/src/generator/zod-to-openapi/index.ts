@@ -1,4 +1,5 @@
 import {
+  ANNOTATION_KEYWORDS,
   hasMimeAlternatives,
   hasTypelessConstraint,
   isAnnotationOnly,
@@ -53,7 +54,9 @@ import {
 import type { RawCheck } from '../../helper/zod.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
 import {
+  CANONICAL_JSON_REPLACER,
   baseError,
+  canonicalJson,
   error,
   issueMessage,
   makeStringLiteral,
@@ -1208,9 +1211,9 @@ export function zodToOpenAPI(
         // `includes` compares an object by reference, which no value equals: beside an
         // object or an array the members are compared as JSON (#604).
         if (members.some(isStructured)) {
-          const jsons = JSON.stringify(members.map((member) => JSON.stringify(member)))
+          const jsons = JSON.stringify(members.map(canonicalJson))
           return done(
-            `${notBase}.refine((val) => !${jsons}.includes(JSON.stringify(val))${notErrorArg})`,
+            `${notBase}.refine((val) => !${jsons}.includes(JSON.stringify(val,${CANONICAL_JSON_REPLACER}))${notErrorArg})`,
             schema,
           )
         }
@@ -1218,15 +1221,22 @@ export function zodToOpenAPI(
         const predicate = `(val) => !${list}.includes(val)`
         return done(`${notBase}.refine(${predicate}${notErrorArg})`, schema)
       }
-      if (onlyKeys.length === 1 && onlyKeys[0] === 'const') {
+      // A `const` with annotations alone beside it (`description`) is still that one value.
+      // Any other keyword, a `type` say, narrows what the `not` excludes: the full check.
+      if (
+        'const' in not &&
+        onlyKeys.every(
+          (key) => key === 'const' || (key !== 'nullable' && ANNOTATION_KEYWORDS.has(key)),
+        )
+      ) {
         // An object or an array is compared as JSON: `val !== { a: 1 }` is always true (#604).
         // A bigint is never one, so there the `not` excludes nothing.
         if (isStructured(not.const)) {
-          const json = JSON.stringify(JSON.stringify(not.const))
+          const json = JSON.stringify(canonicalJson(not.const))
           return done(
             notIsBigint
               ? notBase
-              : `${notBase}.refine((val) => JSON.stringify(val) !== ${json}${notErrorArg})`,
+              : `${notBase}.refine((val) => JSON.stringify(val,${CANONICAL_JSON_REPLACER}) !== ${json}${notErrorArg})`,
             schema,
           )
         }

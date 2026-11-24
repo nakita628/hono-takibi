@@ -17085,9 +17085,47 @@ describe('an x-*-message written as an arrow function (#601)', () => {
 })
 
 describe('an object as a value of enum, and of the const / enum of a not (#604)', () => {
+  // The replacer the comparison hands `JSON.stringify`: keys in one order, a bigint as a number.
+  const canonical =
+    "(_,v)=>typeof v==='bigint'?Number(v):typeof v==='object'&&v!==null&&!Array.isArray(v)?Object.fromEntries(Object.entries(v).sort(([a],[b])=>a<b?-1:a>b?1:0)):v"
+
+  it.concurrent('compares an object whatever the order of its keys', () => {
+    const member = zodToOpenAPI({ type: 'object', enum: [{ b: 2, a: 1 }] } as unknown as Schema)
+    expect(member).toBe(
+      String.raw`z.custom<{"b":2,"a":1}>((val)=>JSON.stringify(val,${canonical})==="{\"a\":1,\"b\":2}")`,
+    )
+    expect(evaluated(member).safeParse({ a: 1, b: 2 }).success).toBe(true)
+    expect(evaluated(member).safeParse({ b: 2, a: 1 }).success).toBe(true)
+    expect(evaluated(member).safeParse({ a: 1, b: 3 }).success).toBe(false)
+    const excluded = zodToOpenAPI({ not: { const: { b: 2, a: 1 } } })
+    expect(evaluated(excluded).safeParse({ a: 1, b: 2 }).success).toBe(false)
+    expect(evaluated(excluded).safeParse({ b: 2, a: 1 }).success).toBe(false)
+    expect(evaluated(excluded).safeParse({ a: 1 }).success).toBe(true)
+  })
+
+  it.concurrent('compares an object that holds a bigint', () => {
+    const code = zodToOpenAPI({
+      type: 'object',
+      properties: { id: { type: 'integer', format: 'int64' } },
+      not: { const: { id: 1 } },
+    })
+    expect(evaluated(code).safeParse({ id: 1 }).success).toBe(false)
+    expect(evaluated(code).safeParse({ id: 5 }).success).toBe(true)
+  })
+
+  it.concurrent('keeps the bigint comparison of a const with an annotation beside it', () => {
+    expect(
+      zodToOpenAPI({ type: 'integer', format: 'int64', not: { const: 0, description: 'zero' } }),
+    ).toBe(
+      `z.preprocess(${JSON_BIGINT},z.int64()).openapi({type:"integer",format:"int64"}).refine((val) => val !== 0n).openapi({type:"integer",format:"int64","not":{"const":0,"description":"zero"}})`,
+    )
+  })
+
   it.concurrent('validates an enum of objects on a typed schema', () => {
     const code = zodToOpenAPI({ type: 'object', enum: [{ a: 1 }] } as unknown as Schema)
-    expect(code).toBe(String.raw`z.custom<{"a":1}>((val)=>JSON.stringify(val)==="{\"a\":1}")`)
+    expect(code).toBe(
+      String.raw`z.custom<{"a":1}>((val)=>JSON.stringify(val,${canonical})==="{\"a\":1}")`,
+    )
     expect(evaluated(code).safeParse({ a: 1 }).success).toBe(true)
     expect(evaluated(code).safeParse({ a: 2 }).success).toBe(false)
     expect(evaluated(code).safeParse('a').success).toBe(false)
@@ -17096,7 +17134,7 @@ describe('an object as a value of enum, and of the const / enum of a not (#604)'
   it.concurrent('excludes the object a not names by const', () => {
     const code = zodToOpenAPI({ not: { const: { a: 1 } } })
     expect(code).toBe(
-      String.raw`z.any().refine((val) => JSON.stringify(val) !== "{\"a\":1}").openapi({"not":{"const":{"a":1}}})`,
+      String.raw`z.any().refine((val) => JSON.stringify(val,${canonical}) !== "{\"a\":1}").openapi({"not":{"const":{"a":1}}})`,
     )
     expect(evaluated(code).safeParse({ a: 1 }).success).toBe(false)
     expect(evaluated(code).safeParse({ a: 2 }).success).toBe(true)
@@ -17105,7 +17143,7 @@ describe('an object as a value of enum, and of the const / enum of a not (#604)'
   it.concurrent('excludes the objects and arrays a not names by enum', () => {
     const code = zodToOpenAPI({ not: { enum: [{ a: 1 }, [1], 'x'] } } as unknown as Schema)
     expect(code).toBe(
-      String.raw`z.any().refine((val) => !["{\"a\":1}","[1]","\"x\""].includes(JSON.stringify(val))).openapi({"not":{"enum":[{"a":1},[1],"x"]}})`,
+      String.raw`z.any().refine((val) => !["{\"a\":1}","[1]","\"x\""].includes(JSON.stringify(val,${canonical}))).openapi({"not":{"enum":[{"a":1},[1],"x"]}})`,
     )
     expect(evaluated(code).safeParse({ a: 1 }).success).toBe(false)
     expect(evaluated(code).safeParse([1]).success).toBe(false)

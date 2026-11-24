@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import { isHttpMethod, isRecord } from '../guard/index.js'
 import {
+  canonicalJson,
   capitalize,
   cyclicNodes,
   ensureSuffix,
@@ -510,6 +511,16 @@ export * from './user'
       ['()=>"error"', '{error:()=>"error"}'],
     ])(`error('%s') -> '%s'`, (input, expected) => {
       expect(error(input)).toBe(expected)
+    })
+  })
+  describe('canonicalJson', () => {
+    it.concurrent.each([
+      [{ b: 2, a: 1 }, '{"a":1,"b":2}'],
+      [{ a: { d: [{ z: 1, y: 2 }], c: null } }, '{"a":{"c":null,"d":[{"y":2,"z":1}]}}'],
+      [[2, 1], '[2,1]'],
+      ['x', '"x"'],
+    ])('canonicalJson(%o) -> %s', (value, expected) => {
+      expect(canonicalJson(value)).toBe(expected)
     })
   })
   describe('issueMessage', () => {
