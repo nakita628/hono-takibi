@@ -79,9 +79,9 @@ export function isGroupName(name: string | undefined) {
 /**
  * The group an operation belongs to. Every operation belongs to one: the resource its path
  * or tag names, or `root`. What divides an application depends on how the template writes
- * it.
+ * it: the path, or the handler file the route of the method lives in.
  */
-export type Grouping = (path: string, tags: readonly string[] | undefined) => string
+export type Grouping = (path: string, tags: readonly string[] | undefined, method: string) => string
 
 /**
  * The group of a handler file: its name. A name that cannot be an export, a word of the

@@ -43,6 +43,7 @@ import {
   makeAppEntryImport,
   appEntryOutput,
   handlerGroupOf,
+  resolveInlineHandlerGrouping,
   pathGroupOf,
   makeGeneratedImport,
   isInsideDirectory,
@@ -520,6 +521,20 @@ export function withImportStyle<Value, Failure, Requirements>(
   }).pipe(Effect.provideService(ImportStyle, style))
 }
 
+/**
+ * Runs a generator that calls the app through its clients (`client`, `rpc`, the hooks) under
+ * the grouping of the app, read when the job runs: the grouping of a split app whose
+ * handlers register their routes themselves is read from the handler files.
+ */
+function withGrouping<Value, Failure, Requirements>(
+  grouping: Effect.Effect<Grouping | undefined, PlatformError.PlatformError, FileSystem.FileSystem>,
+  run: (grouping: Grouping | undefined) => Effect.Effect<Value, Failure, Requirements>,
+) {
+  return Effect.gen(function* () {
+    return yield* run(yield* grouping)
+  })
+}
+
 export function makeJob(
   openAPI: OpenAPI,
   config: Config,
@@ -530,15 +545,21 @@ export function makeJob(
   const defineOn = config.template?.define === true
   const appOutput = appEntryOutput(config)
   const isSplit = config.template?.split === true
-  // What divides a split application: the first segment of the path. Where the handlers
-  // register their routes themselves the group is the handler file of that segment, under
-  // the name the file goes by in code; otherwise the segment as it is written.
+  // What divides a split application. Where the handlers register their routes themselves
+  // the group of an operation is the handler file its route lives in, read from the files
+  // the app entry mounts (#609); otherwise the first segment of the path as it is written.
   const isInline = config.template?.define === false && !config.template.routeHandler
-  const grouping: Grouping | undefined = isSplit
-    ? isInline
-      ? (endpoint) => handlerGroupOf(endpoint)
-      : (endpoint) => pathGroupOf(endpoint)
-    : undefined
+  const grouping: Effect.Effect<
+    Grouping | undefined,
+    PlatformError.PlatformError,
+    FileSystem.FileSystem
+  > = !isSplit
+    ? Effect.succeed(undefined)
+    : isInline
+      ? appOutput === undefined
+        ? Effect.succeed((endpoint) => handlerGroupOf(endpoint))
+        : resolveInlineHandlerGrouping(openAPI, appOutput)
+      : Effect.succeed((endpoint) => pathGroupOf(endpoint))
   // A client that is not an `index.ts` is re-exported by the `index.ts` beside it, and
   // imported through it — unless that file is what another generator writes.
   const generatedClient = config.client
@@ -900,16 +921,20 @@ export function makeJob(
           output: generatedClient.output,
           split: false,
           run: (output: string) =>
-            client(
-              openAPI,
-              output,
-              generatedClient.import ??
-                makeAppEntryImport(output, appOutput, aliasFor(output), defineOn),
-              generatedClient.baseUrl,
-              config.basePath,
-              grouping,
-              clientBarrel === undefined ? undefined : path.join(path.dirname(output), 'index.ts'),
-              generatedClient.credentials,
+            withGrouping(grouping, (groupOf) =>
+              client(
+                openAPI,
+                output,
+                generatedClient.import ??
+                  makeAppEntryImport(output, appOutput, aliasFor(output), defineOn),
+                generatedClient.baseUrl,
+                config.basePath,
+                groupOf,
+                clientBarrel === undefined
+                  ? undefined
+                  : path.join(path.dirname(output), 'index.ts'),
+                generatedClient.credentials,
+              ),
             ),
         }
       : undefined,
@@ -919,15 +944,17 @@ export function makeJob(
           output: config.rpc.output,
           split: false,
           run: (output: string) =>
-            rpc(
-              openAPI,
-              output,
-              clientImport(output),
-              'client',
-              config.rpc?.parseResponse ?? false,
-              config.basePath,
-              config.rpc?.docs ?? false,
-              grouping,
+            withGrouping(grouping, (groupOf) =>
+              rpc(
+                openAPI,
+                output,
+                clientImport(output),
+                'client',
+                config.rpc?.parseResponse ?? false,
+                config.basePath,
+                config.rpc?.docs ?? false,
+                groupOf,
+              ),
             ),
         }
       : undefined,
@@ -939,10 +966,12 @@ export function makeJob(
             output: cfg.output,
             split: false,
             run: (output: string) =>
-              hooks(openAPI, output, clientImport(output), library, {
-                ...(grouping === undefined ? {} : { grouping }),
-                basePath: config.basePath,
-              }),
+              withGrouping(grouping, (groupOf) =>
+                hooks(openAPI, output, clientImport(output), library, {
+                  ...(groupOf === undefined ? {} : { grouping: groupOf }),
+                  basePath: config.basePath,
+                }),
+              ),
           }
         : undefined
     }),

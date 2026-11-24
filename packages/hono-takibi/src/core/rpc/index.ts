@@ -60,7 +60,7 @@ function makeOperationCode(
   if (!isOperationLike(operation)) return null
   // An operation of a split application is called through the client of its group, and
   // through the client of the application when it belongs to none.
-  const group = grouping?.(path, operationTags(operation))
+  const group = grouping?.(path, operationTags(operation), method)
   const deps = group === undefined ? base : { ...base, client: makeGroupClientName(group) }
   // The operations of the root path are named after the bare method, and `delete` is a word
   // of the language: it takes the `$` the client calls it by (`$delete`), which no path

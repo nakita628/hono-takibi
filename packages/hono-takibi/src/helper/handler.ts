@@ -22,6 +22,7 @@ import { routeName } from '../utils/index.js'
 // import { makeImports, makeModuleSpec } from './code.js'
 import { makeImports, makeModuleSpec } from './code.js'
 import { groupNameOf } from './group.js'
+import type { Grouping } from './group.js'
 import { appEntryDirectory } from './path.js'
 
 function sanitizeHandlerSegment(segment: string) {
@@ -498,11 +499,12 @@ export function zodOpenAPIHonoHandler(
 }
 
 /**
- * Resolves, in spec order, the inline handler files (`handlers/<name>.ts`, one sub-router
- * each) the current spec's routes live in — existing registrations win over the tag/path
- * derived name — so the app entry can import and mount exactly those sub-routers.
+ * Resolves, in spec order, the inline handler file (`handlers/<name>.ts`, one sub-router
+ * each) every route of the current spec lives in, by the name of the route (`getUsers`) —
+ * existing registrations win over the path derived name. The one source of where a route
+ * is: the app entry mounts these files, and the groups of a split app are named after them.
  */
-export function resolveInlineHandlerFileNames(
+function resolveInlineHandlerFiles(
   openapi: OpenAPI,
   output: string,
   pathAlias?: string,
@@ -511,20 +513,56 @@ export function resolveInlineHandlerFileNames(
   return Effect.gen(function* () {
     const { handlerPath } = makePaths(output, pathAlias, routeImport)
     const existing = yield* scanExistingHandlerFiles(handlerPath, collectInlineRouteNames)
-    const fileNames = Object.entries(openapi.paths).flatMap(([path, pathItem]) =>
-      Object.entries(pathItem)
-        .filter(
-          (entry): entry is [string, Operation] => isHttpMethod(entry[0]) && isOperation(entry[1]),
-        )
-        .map(([method]) =>
-          resolveHandlerFileName(
-            makeHandlerFileName(path),
-            `${routeName(method, path, openapi.paths)}Route`,
-            existing,
-          ),
-        ),
+    return new Map(
+      Object.entries(openapi.paths).flatMap(([path, pathItem]) =>
+        Object.entries(pathItem)
+          .filter(
+            (entry): entry is [string, Operation] =>
+              isHttpMethod(entry[0]) && isOperation(entry[1]),
+          )
+          .map(([method]) => {
+            const routeId = routeName(method, path, openapi.paths)
+            return [
+              routeId,
+              resolveHandlerFileName(makeHandlerFileName(path), `${routeId}Route`, existing),
+            ] as const
+          }),
+      ),
     )
-    return [...new Set(fileNames)]
+  })
+}
+
+/**
+ * Resolves, in spec order, the inline handler files the current spec's routes live in, so
+ * the app entry can import and mount exactly those sub-routers.
+ */
+export function resolveInlineHandlerFileNames(
+  openapi: OpenAPI,
+  output: string,
+  pathAlias?: string,
+  routeImport?: string,
+) {
+  return Effect.gen(function* () {
+    const files = yield* resolveInlineHandlerFiles(openapi, output, pathAlias, routeImport)
+    return [...new Set(files.values())]
+  })
+}
+
+/**
+ * The grouping of a split app whose handlers register their routes themselves: the group of
+ * an operation is the handler file its route lives in, under the name that file goes by in
+ * code. The client, the rpc functions and the hooks read it from the files the app entry
+ * mounts, so a route moved to another file by hand is called through the group the app
+ * exports for it (#609).
+ */
+export function resolveInlineHandlerGrouping(openapi: OpenAPI, output: string) {
+  return Effect.gen(function* () {
+    const files = yield* resolveInlineHandlerFiles(openapi, output)
+    const grouping: Grouping = (path, _tags, method) => {
+      const file = files.get(routeName(method, path, openapi.paths))
+      return file === undefined ? handlerGroupOf(path) : groupNameOf(handlerNameOf(file))
+    }
+    return grouping
   })
 }
 
