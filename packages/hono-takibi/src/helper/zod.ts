@@ -167,9 +167,7 @@ function makeObjectChecks(
   // sub-schema issues propagate, message overrides via x-dependentSchemas-message.
   const dependentSchemasMessage = messageFor(schema, 'dependentSchemas')
   const dependentSchemasMessageField =
-    dependentSchemasMessage !== undefined
-      ? `,message:${JSON.stringify(dependentSchemasMessage)}`
-      : ''
+    dependentSchemasMessage !== undefined ? `,message:${dependentSchemasMessage}` : ''
   const dependentSchemasChecks = schema.dependentSchemas
     ? Object.entries(schema.dependentSchemas).map(
         ([key, sub]) =>

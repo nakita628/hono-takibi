@@ -30,7 +30,9 @@ const TypeScriptPathSchema = Schema.String.pipe(
 })
 
 const commandLine = {
-  input: Argument.File('input', { mustExist: true }).pipe(
+  // Not Argument.File: it resolves a URL against the working directory and rejects it as a
+  // missing file. A missing document is reported when it is opened, as it is for a config.
+  input: Argument.String('input').pipe(
     Argument.withSchema(DocumentPathSchema),
     Argument.withDescription(
       'OpenAPI (.yaml, .yml, .json) or TypeSpec (.tsp) document to generate from',

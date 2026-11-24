@@ -1,8 +1,10 @@
 name: Website
 
 # Playwright drives the built site (playground included), which is slow and only worth running
-# when the site itself changed. The path filter keeps the job off every other pull request; the
-# workflow file is listed so that a change to this job runs it too.
+# when what the site is built from changed: the site itself, the hono-takibi package the
+# playground bundles, and the dependency versions (lockfile, workspace catalog and overrides).
+# The path filter keeps the job off every other pull request; the workflow file is listed so
+# that a change to this job runs it too.
 #
 # Action versions are tracked by Renovate, which pins each one to its digest
 # (helpers:pinGitHubActionDigests) and keeps the @vX.Y.Z tag as a comment.
@@ -13,10 +15,16 @@ on:
       - main
     paths:
       - 'website/**'
+      - 'packages/hono-takibi/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
       - '.github/workflows/website.yml'
   pull_request:
     paths:
       - 'website/**'
+      - 'packages/hono-takibi/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
       - '.github/workflows/website.yml'
 
 permissions:
