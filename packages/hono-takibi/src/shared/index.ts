@@ -49,8 +49,8 @@ import {
   normalizeOpenAPI,
 } from '../helper/index.js'
 import type { Grouping } from '../helper/index.js'
+import { ImportStyle, isImportsAlias, respecifyWritten } from '../helper/specifier.js'
 import type { OpenAPI } from '../openapi/index.js'
-import { ImportStyle, isImportsAlias, respecifyWritten } from '../specifier/index.js'
 
 type Job = {
   readonly name: string

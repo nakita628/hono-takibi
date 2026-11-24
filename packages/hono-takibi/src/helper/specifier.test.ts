@@ -13,7 +13,7 @@ import {
   fullySpecify,
   isImportsAlias,
   respecifyWritten,
-} from './index.js'
+} from './specifier.js'
 
 let tmpDir = ''
 

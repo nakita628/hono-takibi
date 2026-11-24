@@ -1,6 +1,6 @@
 import { Effect, FileSystem } from 'effect'
 
-import { ImportStyle, fullySpecify } from '../specifier/index.js'
+import { ImportStyle, fullySpecify } from '../helper/specifier.js'
 
 export function unlink(path: string) {
   return Effect.gen(function* () {
