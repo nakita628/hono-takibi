@@ -5,7 +5,12 @@ import type { Schema } from '../openapi/index.js'
 import {
   isAskedOperand,
   emitTypelessRefine,
+  countMatches,
   makeConditionalCheck,
+  makeNotPredicate,
+  makeRefinement,
+  mayBeAsync,
+  parsesAsync,
   makeParentStrictCheck,
   makeSiblingKeywordCheck,
   makeUnevaluatedItemsCheck,
@@ -1633,5 +1638,101 @@ describe('helper/zod: isShapeMember (#634)', () => {
     expect(
       isShapeMember({ nullable: true, allOf: [{ ...ref, nullable: true }], properties }, { P }),
     ).toBe(true)
+  })
+})
+
+describe('helper/zod: mayBeAsync', () => {
+  const schemas: { readonly [k: string]: Schema } = {
+    Plain: { type: 'string' },
+    Checked: { type: 'string', 'x-refine': '.refine(async (v) => v.length > 0)' },
+    Holder: { type: 'object', properties: { c: { $ref: '#/components/schemas/Checked' } } },
+    Loop: { type: 'object', properties: { next: { $ref: '#/components/schemas/Loop' } } },
+  }
+
+  it.each([
+    [{ type: 'string' }, false],
+    [{ type: 'string', 'x-refine': '.refine((v) => v.length > 0)' }, true],
+    [{ type: 'string', 'x-superRefine': '.superRefine(() => {})' }, true],
+    [{ type: 'string', 'x-transform': '(v) => v' }, true],
+    [{ type: 'string', 'x-preprocess': '(v) => v' }, true],
+    [{ type: 'string', 'x-pipe': 'z.string()' }, true],
+    [{ type: 'string', 'x-codec': 'z.codec(z.string(), z.string(), {})' }, true],
+    // A schema inside it.
+    [{ type: 'array', items: { type: 'string', 'x-transform': '(v) => v' } }, true],
+    [{ anyOf: [{ type: 'string' }, { not: { 'x-refine': '.refine(() => true)' } }] }, true],
+    // A component it names, at any depth.
+    [{ $ref: '#/components/schemas/Plain' }, false],
+    [{ $ref: '#/components/schemas/Checked' }, true],
+    [{ type: 'array', items: { $ref: '#/components/schemas/Holder' } }, true],
+    // A reference that comes back to itself adds nothing; one that cannot be read may.
+    [{ $ref: '#/components/schemas/Loop' }, false],
+    [{ $ref: '#/components/schemas/Missing' }, true],
+  ] as const)('mayBeAsync(%o) -> %s', (schema, expected) => {
+    expect(mayBeAsync(schema, schemas)).toBe(expected)
+  })
+
+  it('takes a list, a boolean schema and an absent one', () => {
+    expect(
+      mayBeAsync([{ type: 'string' }, { $ref: '#/components/schemas/Checked' }], schemas),
+    ).toBe(true)
+    expect(mayBeAsync([undefined, true, false, { type: 'string' }], schemas)).toBe(false)
+    // Without the components no reference can be read.
+    expect(mayBeAsync({ $ref: '#/components/schemas/Plain' })).toBe(true)
+  })
+
+  it('parsesAsync leaves out the code the schema itself carries', () => {
+    expect(parsesAsync({ type: 'string', 'x-refine': '.refine(() => true)' }, schemas)).toBe(false)
+    expect(
+      parsesAsync(
+        { 'x-refine': '.refine(() => true)', not: { $ref: '#/components/schemas/Checked' } },
+        schemas,
+      ),
+    ).toBe(true)
+    expect(parsesAsync({ $ref: '#/components/schemas/Checked' }, schemas)).toBe(true)
+  })
+})
+
+const parsedItem = (parse: (zod: string, value: string) => string) =>
+  `if(!${parse('S', 'val')}.success){ctx.addIssue({code:"custom"})}`
+const parsesNothing = () => 'if(val.length>3){ctx.addIssue({code:"custom"})}'
+
+describe('helper/zod: makeRefinement', () => {
+  it('is the refinement alone when nothing it parses may be asynchronous', () => {
+    expect(makeRefinement('val,ctx', parsedItem, false)).toBe(
+      '(val,ctx)=>{if(!S.safeParse(val).success){ctx.addIssue({code:"custom"})}}',
+    )
+  })
+
+  it('runs again, awaited, when what it parses may be asynchronous', () => {
+    expect(makeRefinement('val,ctx', parsedItem, true)).toBe(
+      '(val,ctx)=>{const reported=ctx.issues.length;try{return ((val,ctx)=>{if(!S.safeParse(val).success){ctx.addIssue({code:"custom"})}})(val,ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(val,ctx)=>{if(!(await S.safeParseAsync(val)).success){ctx.addIssue({code:"custom"})}})(val,ctx)}}',
+    )
+  })
+
+  it('has nothing to await when it parses nothing', () => {
+    expect(makeRefinement('val,ctx', parsesNothing, true)).toBe(
+      '(val,ctx)=>{if(val.length>3){ctx.addIssue({code:"custom"})}}',
+    )
+  })
+
+  it('counts matches with filter, or with every element awaited at once', () => {
+    expect(
+      makeRefinement(
+        'arr,ctx',
+        (parse) => `const matched=${countMatches(parse, 'S', 'arr')}`,
+        true,
+      ),
+    ).toBe(
+      '(arr,ctx)=>{const reported=ctx.issues.length;try{return ((arr,ctx)=>{const matched=arr.filter((i)=>S.safeParse(i).success).length})(arr,ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(arr,ctx)=>{const matched=(await Promise.all(arr.map((i)=>S.safeParseAsync(i)))).filter((result)=>result.success).length})(arr,ctx)}}',
+    )
+  })
+})
+
+describe('helper/zod: makeNotPredicate', () => {
+  it('is a predicate that answers with a promise when the schema is asynchronous', () => {
+    expect(makeNotPredicate('S', false)).toBe('(val) => !S.safeParse(val).success')
+    expect(makeNotPredicate('S', true)).toBe(
+      '(val) => {try{return !S.safeParse(val).success}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return S.safeParseAsync(val).then((result)=>!result.success)}}',
+    )
   })
 })

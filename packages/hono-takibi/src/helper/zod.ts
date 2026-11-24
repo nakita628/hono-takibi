@@ -2,6 +2,7 @@ import {
   ANNOTATION_KEYWORDS,
   hasNoUserChain,
   isAnnotationOnly,
+  isRecord,
   isSchemaObject,
   isSingleSchema,
   isUntypedObject,
@@ -106,9 +107,116 @@ const RAW_REPORT: Report = {
 export type RawCheck = { readonly sync: string; readonly async?: string }
 
 // How a schema is parsed inside a check: synchronously, or awaited.
-type Parse = (zod: string, value: string) => string
+export type Parse = (zod: string, value: string) => string
 const parseSync: Parse = (zod, value) => `${zod}.safeParse(${value})`
 const parseAsync: Parse = (zod, value) => `(await ${zod}.safeParseAsync(${value}))`
+
+// The extensions that write code of the user into the schema. Nothing else the emitter
+// writes is asynchronous, so a schema without any of them never is.
+const USER_CODE_KEYS = [
+  'x-refine',
+  'x-superRefine',
+  'x-preprocess',
+  'x-transform',
+  'x-pipe',
+  'x-codec',
+] as const
+
+// What `mayBeAsync` found for each reference, per set of components: a document is asked
+// about the same component at every place that names it.
+const asyncByRef = new WeakMap<Schemas, Map<string, boolean>>()
+
+/**
+ * Whether what a schema is emitted as may have an asynchronous refinement: it, a schema
+ * inside it or a component it names carries code of the user (`x-refine`, `x-transform`,
+ * ...). A reference that cannot be resolved may. `value` is a schema, a list of schemas
+ * or any value that holds them.
+ */
+export function mayBeAsync(value: unknown, schemas?: Schemas): boolean {
+  const known = schemas === undefined ? new Map<string, boolean>() : asyncByRef.get(schemas)
+  const byRef = known ?? new Map<string, boolean>()
+  if (schemas !== undefined && known === undefined) asyncByRef.set(schemas, byRef)
+  // Each reference is followed once: one met again on the way adds nothing.
+  const visited = new Set<string>()
+  const walk = (node: unknown): boolean => {
+    if (Array.isArray(node)) return node.some(walk)
+    if (!isRecord(node)) return false
+    if (USER_CODE_KEYS.some((key) => typeof node[key] === 'string')) return true
+    const ref = node.$ref
+    if (typeof ref === 'string' && !visited.has(ref)) {
+      visited.add(ref)
+      const found = byRef.get(ref)
+      const target = found === undefined ? resolveSchemaRef(ref, schemas) : undefined
+      if (found ?? (target === undefined || walk(target))) {
+        byRef.set(ref, true)
+        return true
+      }
+    }
+    return Object.values(node).some(walk)
+  }
+  const result = walk(value)
+  // Nothing reached is asynchronous, so no reference followed on the way is.
+  if (!result) for (const ref of visited) byRef.set(ref, false)
+  return result
+}
+
+/**
+ * Whether a refinement of a schema parses something that may be asynchronous: the
+ * subschemas of its keywords. Its own code extensions are written around the refinement,
+ * not parsed by it.
+ */
+export function parsesAsync(schema: Schema, schemas?: Schemas): boolean {
+  return mayBeAsync(
+    Object.fromEntries(
+      Object.entries(schema).filter(([key]) => !USER_CODE_KEYS.some((code) => code === key)),
+    ),
+    schemas,
+  )
+}
+
+/**
+ * A refinement of what a schema hands out, as the source of a callback that takes
+ * `params` (the value, then `ctx`). `build` writes its statements for a way of parsing.
+ * When what it parses may be asynchronous (`isAsync`), `safeParse` throws under an
+ * asynchronous parse of the whole schema: the refinement is then run again, awaited, with
+ * what it had reported so far taken back, and answers with a promise, which only an
+ * asynchronous parse reaches (see `withRawCheck` in the schema emitter).
+ */
+export function makeRefinement(
+  params: string,
+  build: (parse: Parse) => string,
+  isAsync: boolean,
+): string {
+  const body = build(parseSync)
+  const sync = `(${params})=>{${body}}`
+  if (!isAsync) return sync
+  const awaited = build(parseAsync)
+  // A refinement that parses nothing has nothing to await.
+  if (awaited === body) return sync
+  return `(${params})=>{const reported=ctx.issues.length;try{return (${sync})(${params})}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(${params})=>{${awaited}})(${params})}}`
+}
+
+/**
+ * The number of elements of the array `list` a schema accepts, as an expression: counted
+ * with `filter`, or with every element parsed at once where the parse is awaited (a
+ * callback of `filter` cannot await).
+ */
+export function countMatches(parse: Parse, zod: string, list: string): string {
+  return parse === parseSync
+    ? `${list}.filter((i)=>${zod}.safeParse(i).success).length`
+    : `(await Promise.all(${list}.map((i)=>${zod}.safeParseAsync(i)))).filter((result)=>result.success).length`
+}
+
+/**
+ * A predicate for `.refine()` that holds when a schema does not accept the value: `not`.
+ * `safeParse` throws when the schema is asynchronous, so the predicate then answers with a
+ * promise (`isAsync`, see `makeRefinement`).
+ */
+export function makeNotPredicate(zod: string, isAsync: boolean): string {
+  return isAsync
+    ? `(val) => {try{return !${zod}.safeParse(val).success}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return ${zod}.safeParseAsync(val).then((result)=>!result.success)}}`
+    : `(val) => !${zod}.safeParse(val).success`
+}
 
 // A subschema that may be a boolean schema, as source: `true` accepts every value, `false`
 // none (JSON Schema 2020-12 §4.3.2).
@@ -489,12 +597,23 @@ function typelessBlocks(
   ].filter((s): s is string => s !== undefined)
 }
 
-export function emitTypelessRefine(schema: Schema, recurse: (s: Schema) => string) {
+export function emitTypelessRefine(
+  schema: Schema,
+  recurse: (s: Schema) => string,
+  schemas?: Schemas,
+) {
   const blocks = typelessBlocks(schema, recurse, REFINE_REPORT)
   if (blocks.length === 0) {
     return 'z.any()'
   }
-  return `z.unknown().superRefine((val,ctx)=>{${blocks.join(';')}})`
+  return `z.unknown().superRefine(${makeRefinement(
+    'val,ctx',
+    (parse) =>
+      (parse === parseSync ? blocks : typelessBlocks(schema, recurse, REFINE_REPORT, parse)).join(
+        ';',
+      ),
+    parsesAsync(schema, schemas),
+  )})`
 }
 
 /**
@@ -1456,10 +1575,19 @@ export function emitObjectShapeCheck(
 export function emitObjectShapeRefine(
   schema: Schema,
   recurse: (s: Schema) => string,
+  schemas?: Schemas,
 ): string | undefined {
   const checks = makeObjectChecks(schema, recurse)
   if (checks.length === 0) return undefined
-  return `(val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){${checks.join(';')}}}`
+  return makeRefinement(
+    'val,ctx',
+    (parse) =>
+      `if(typeof val==='object'&&val!==null&&!Array.isArray(val)){${(parse === parseSync
+        ? checks
+        : makeObjectChecks(schema, recurse, REFINE_REPORT, parse)
+      ).join(';')}}`,
+    parsesAsync(schema, schemas),
+  )
 }
 
 // `.refine()` for `unevaluatedProperties` per JSON Schema 2020-12 §11.2.
@@ -1678,11 +1806,24 @@ export function makeUnevaluatedProperties(
     return ''
   }
   const messageField = makeUnevaluatedMessageField(schema, messageOverride)
-  const finalStmt =
+  const finalStmt = (parse: Parse) =>
     up === false
       ? `for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]${messageField}})}}`
-      : `const Schema=${recurse(up)};for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}`
-  return `.superRefine((o,ctx)=>{${[...makeUnevaluatedEvaluationStmts(schema, recurse, schemas), finalStmt].join(';')}})`
+      : `const Schema=${recurse(up)};for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=${parse('Schema', 'val')};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}`
+  // What the refinement parses: the branches, the condition and the schema of the keyword.
+  const isAsync = mayBeAsync(
+    [schema.anyOf, schema.oneOf, schema.if, schema.unevaluatedProperties],
+    schemas,
+  )
+  return `.superRefine(${makeRefinement(
+    'o,ctx',
+    (parse) =>
+      [
+        ...makeUnevaluatedEvaluationStmts(schema, recurse, schemas, undefined, parse),
+        finalStmt(parse),
+      ].join(';'),
+    isAsync,
+  )})`
 }
 
 // The codes of the issues a schema raises (`$ZodIssueCode`). An issue of `safeParse` is

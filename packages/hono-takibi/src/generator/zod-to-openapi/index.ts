@@ -39,7 +39,11 @@ import {
   isAskedOperand,
   isConstOutsideType,
   makeConditionalCheck,
+  countMatches,
   makeIssueForwarding,
+  makeNotPredicate,
+  makeRefinement,
+  mayBeAsync,
   makeSiblingKeywordCheck,
   makeParentStrictCheck,
   makeSiblingCombinatorCheck,
@@ -52,7 +56,7 @@ import {
   isShapeMember,
   requiresObject,
 } from '../../helper/zod.js'
-import type { RawCheck } from '../../helper/zod.js'
+import type { Parse, RawCheck } from '../../helper/zod.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
 import {
   CANONICAL_JSON_REPLACER,
@@ -833,7 +837,7 @@ export function zodToOpenAPI(
     const shapeRefine =
       shapeSchema === undefined || shapeMember
         ? undefined
-        : emitObjectShapeRefine(shapeSchema, child)
+        : emitObjectShapeRefine(shapeSchema, child, childOptions?.schemas)
     // The refine form is only safe on `z.any()`, which passes the value through
     // unchanged; on a combinator result the shape must be a check on the raw
     // input, piped into the result (see `emitObjectShapeCheck`).
@@ -1073,7 +1077,7 @@ export function zodToOpenAPI(
         return done(withRawCheck(andZ, unevalCheck), schema)
       }
       const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
-      const shapeRefine = emitObjectShapeRefine(shapeSchema, child)
+      const shapeRefine = emitObjectShapeRefine(shapeSchema, child, childOptions?.schemas)
       const distributed = schema.anyOf.map((branch) =>
         distribute(branch, shapeZ, shapeRefine, schema.properties !== undefined, shapeSchema),
       )
@@ -1189,7 +1193,7 @@ export function zodToOpenAPI(
         return done(withRawCheck(andZ, unevalCheck), schema)
       }
       const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
-      const shapeRefine = emitObjectShapeRefine(shapeSchema, child)
+      const shapeRefine = emitObjectShapeRefine(shapeSchema, child, childOptions?.schemas)
       const distributed = schema.oneOf.map((branch) =>
         distribute(branch, shapeZ, shapeRefine, schema.properties !== undefined, shapeSchema),
       )
@@ -1248,7 +1252,7 @@ export function zodToOpenAPI(
     if (typeof schema.not === 'object' && schema.not.$ref !== undefined) {
       const refName = makeRef(schema.not.$ref)
       return done(
-        `${notBase}.refine((val) => !${refName}.safeParse(val).success${notErrorArg})`,
+        `${notBase}.refine(${makeNotPredicate(refName, mayBeAsync(schema.not, childOptions?.schemas))}${notErrorArg})`,
         schema,
       )
     }
@@ -1330,7 +1334,7 @@ export function zodToOpenAPI(
       // Complex sub-schema: full safeParse-based check
       const zod = zodToOpenAPI(not, undefined, childOptions)
       return done(
-        `${notBase}.refine((val) => !${zod}.safeParse(val).success${notErrorArg})`,
+        `${notBase}.refine(${makeNotPredicate(zod, mayBeAsync(not, childOptions?.schemas))}${notErrorArg})`,
         schema,
       )
     }
@@ -1350,7 +1354,11 @@ export function zodToOpenAPI(
       typeof value === 'boolean'
     if (!isPrimitive) {
       return done(
-        emitTypelessRefine(schema, (s) => zodToOpenAPI(s, undefined, childOptions)),
+        emitTypelessRefine(
+          schema,
+          (s) => zodToOpenAPI(s, undefined, childOptions),
+          childOptions?.schemas,
+        ),
         schema,
       )
     }
@@ -1371,7 +1379,11 @@ export function zodToOpenAPI(
     )
     if (hasNonPrimitive) {
       return done(
-        emitTypelessRefine(schema, (s) => zodToOpenAPI(s, undefined, childOptions)),
+        emitTypelessRefine(
+          schema,
+          (s) => zodToOpenAPI(s, undefined, childOptions),
+          childOptions?.schemas,
+        ),
         schema,
       )
     }
@@ -1390,7 +1402,11 @@ export function zodToOpenAPI(
   // checks a value of its own kind.
   if (schema.properties !== undefined && schema.type === undefined && !isUntypedObject(schema)) {
     return done(
-      emitTypelessRefine(schema, (s) => zodToOpenAPI(s, undefined, childOptions)),
+      emitTypelessRefine(
+        schema,
+        (s) => zodToOpenAPI(s, undefined, childOptions),
+        childOptions?.schemas,
+      ),
       schema,
     )
   }
@@ -1479,6 +1495,14 @@ export function zodToOpenAPI(
     const readonlyMod = readonly ? '.readonly()' : ''
     const arrayErrorMessage = schema['x-error-message']
     const arrayErrorArg = arrayErrorMessage ? `,${error(arrayErrorMessage)}` : ''
+    // The refinements of an array parse its subschemas: with one that may be asynchronous
+    // they come with an awaited form (see `makeRefinement`).
+    const isArrayAsync = mayBeAsync(
+      [schema.contains, schema.prefixItems, schema.items, schema.unevaluatedItems],
+      childOptions?.schemas,
+    )
+    const arrayRefinement = (build: (parse: Parse) => string) =>
+      makeRefinement('arr,ctx', build, isArrayAsync)
     const containsChain = (() => {
       if (!schema.contains) return ''
       const containsZod = referenced(schema.contains)
@@ -1487,7 +1511,7 @@ export function zodToOpenAPI(
         const messagePart = fallback
           ? `,message:${issueMessage(fallback, "{code:'custom',path:[],input:arr}")}`
           : ''
-        return `.superRefine((arr,ctx)=>{const Schema=${containsZod};const matched=arr.filter((i)=>Schema.safeParse(i).success).length;if(matched<1){ctx.addIssue({code:"custom"${messagePart}})}})`
+        return `.superRefine(${arrayRefinement((parse) => `const Schema=${containsZod};const matched=${countMatches(parse, 'Schema', 'arr')};if(matched<1){ctx.addIssue({code:"custom"${messagePart}})}`)})`
       }
       // minContains defaults to 1; explicit 0 skips the lower-bound check.
       const effectiveMin = schema.minContains ?? 1
@@ -1513,7 +1537,7 @@ export function zodToOpenAPI(
           : undefined
       const stmts = [minStmt, maxStmt].filter((v): v is string => v !== undefined)
       if (stmts.length === 0) return ''
-      return `.superRefine((arr,ctx)=>{const Schema=${containsZod};const matched=arr.filter((i)=>Schema.safeParse(i).success).length;${stmts.join(';')}})`
+      return `.superRefine(${arrayRefinement((parse) => `const Schema=${containsZod};const matched=${countMatches(parse, 'Schema', 'arr')};${stmts.join(';')}`)})`
     })()
     const prefixItemsMessage = schema['x-prefixItems-message'] ?? arrayErrorMessage
     const prefixItemsMessageOverride = prefixItemsMessage
@@ -1533,8 +1557,8 @@ export function zodToOpenAPI(
     const containsDeclaration = schema.contains
       ? `const Contains=${referenced(schema.contains)};`
       : ''
-    const skipContained = (value: string) =>
-      schema.contains ? `if(Contains.safeParse(${value}).success){continue}` : ''
+    const skipContained = (parse: Parse, value: string) =>
+      schema.contains ? `if(${parse('Contains', value)}.success){continue}` : ''
     const unevaluatedItemsChain = (() => {
       const ui = schema.unevaluatedItems
       if (ui === undefined || ui === true) return ''
@@ -1546,10 +1570,10 @@ export function zodToOpenAPI(
         const messagePart = slot
           ? `,message:${issueMessage(slot, "{code:'custom',path:[i],input:arr}")}`
           : ''
-        return `.superRefine((arr,ctx)=>{${containsDeclaration}for(let i=${prefixCount};i<arr.length;i++){${skipContained('arr[i]')}ctx.addIssue({code:"custom",path:[i]${messagePart}})}})`
+        return `.superRefine(${arrayRefinement((parse) => `${containsDeclaration}for(let i=${prefixCount};i<arr.length;i++){${skipContained(parse, 'arr[i]')}ctx.addIssue({code:"custom",path:[i]${messagePart}})}`)})`
       }
       const subZod = zodToOpenAPI(ui, undefined, childOptions)
-      return `.superRefine((arr,ctx)=>{${containsDeclaration}const Schema=${subZod};for(const [idx,val] of arr.slice(${prefixCount}).entries()){${skipContained('val')}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[${prefixCount}+idx,...issue.path]${unevaluatedItemsMessageOverride}})}}}})`
+      return `.superRefine(${arrayRefinement((parse) => `${containsDeclaration}const Schema=${subZod};for(const [idx,val] of arr.slice(${prefixCount}).entries()){${skipContained(parse, 'val')}const result=${parse('Schema', 'val')};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[${prefixCount}+idx,...issue.path]${unevaluatedItemsMessageOverride}})}}}`)})`
     })()
     const lengthMessage = schema['x-length-message'] ?? arrayErrorMessage
     const sizeErrorArg = lengthMessage ? `,${error(lengthMessage)}` : ''
@@ -1637,21 +1661,24 @@ export function zodToOpenAPI(
         : itemsMessageOverride
       const capFromUneval = ui === false
       const capSlotMessage = capFromUneval ? unevaluatedItemsMessage : itemsMessage
-      const prefixCheck = `const Prefix=[${prefixCodes.join(',')}];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]${prefixItemsMessageOverride}})}}}`
-      const restCheck = restCode
-        ? `;${restFromUneval ? containsDeclaration : ''}const Rest=${restCode};for(const [i,val] of arr.slice(Prefix.length).entries()){${restFromUneval ? skipContained('val') : ''}const result=Rest.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]${restMessageOverride}})}}}`
-        : ''
+      const prefixCheck = (parse: Parse) =>
+        `const Prefix=[${prefixCodes.join(',')}];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=${parse('Schema', 'arr[i]')};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]${prefixItemsMessageOverride}})}}}`
+      const restCheck = (parse: Parse) =>
+        restCode
+          ? `;${restFromUneval ? containsDeclaration : ''}const Rest=${restCode};for(const [i,val] of arr.slice(Prefix.length).entries()){${restFromUneval ? skipContained(parse, 'val') : ''}const result=${parse('Rest', 'val')};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]${restMessageOverride}})}}}`
+          : ''
       const capSlot = capSlotMessage ?? arrayErrorMessage
       const capMessagePart = capSlot
         ? `,message:${issueMessage(capSlot, "{code:'custom',path:[i],input:arr}")}`
         : ''
-      const capCheck = lengthCapped
-        ? `;${capFromUneval ? containsDeclaration : ''}for(let i=Prefix.length;i<arr.length;i++){${capFromUneval ? skipContained('arr[i]') : ''}ctx.addIssue({code:"custom",path:[i]${capMessagePart}})}`
-        : ''
+      const capCheck = (parse: Parse) =>
+        lengthCapped
+          ? `;${capFromUneval ? containsDeclaration : ''}for(let i=Prefix.length;i<arr.length;i++){${capFromUneval ? skipContained(parse, 'arr[i]') : ''}ctx.addIssue({code:"custom",path:[i]${capMessagePart}})}`
+          : ''
       const arrayCtor = arrayErrorArg
         ? `z.array(z.unknown()${arrayErrorArg})`
         : 'z.array(z.unknown())'
-      const z = `${arrayCtor}.superRefine((arr,ctx)=>{${prefixCheck}${restCheck}${capCheck}})`
+      const z = `${arrayCtor}.superRefine(${arrayRefinement((parse) => `${prefixCheck(parse)}${restCheck(parse)}${capCheck(parse)}`)})`
       const tuple = `${z}${lengthChain}${uniqueChain}${containsChain}${readonlyMod}`
       return done(prefixWire === undefined ? tuple : `z.preprocess(${prefixWire},${tuple})`, schema)
     }
@@ -1705,7 +1732,11 @@ export function zodToOpenAPI(
   }
   if (types.length === 0 && hasTypelessConstraint(schema)) {
     return done(
-      emitTypelessRefine(schema, (s) => zodToOpenAPI(s, undefined, childOptions)),
+      emitTypelessRefine(
+        schema,
+        (s) => zodToOpenAPI(s, undefined, childOptions),
+        childOptions?.schemas,
+      ),
       schema,
     )
   }

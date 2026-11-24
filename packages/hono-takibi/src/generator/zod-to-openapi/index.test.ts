@@ -105,6 +105,11 @@ const withAllOfCheck = (schema: string, forward: string, unevaluated?: string) =
 const caught = (schema: string, fallback: string) =>
   `(()=>{const Schema=${schema};return z.preprocess((val: z.input<typeof Schema>)=>Schema.safeParse(val).success?val:${fallback},Schema)})()`
 
+// The same where the schema may have an asynchronous refinement: `safeParse` then throws,
+// and the probe is made again, awaited.
+const caughtAsync = (schema: string, fallback: string) =>
+  `(()=>{const Schema=${schema};return z.preprocess((val: z.input<typeof Schema>)=>{try{return Schema.safeParse(val).success?val:${fallback}}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return Schema.safeParseAsync(val).then((result)=>result.success?val:${fallback})}},Schema)})()`
+
 // The same, by hand, for the runtime checks.
 const catching = <T extends z.ZodType>(Schema: T, fallback: z.input<T>) =>
   z.preprocess((val: z.input<T>) => (Schema.safeParse(val).success ? val : fallback), Schema)
@@ -284,10 +289,14 @@ describe('zodToOpenAPI', () => {
 
     it.concurrent('codegen: [$ref, number] preserves the identifier as a Prefix entry', () => {
       expect(
-        zodToOpenAPI({
-          type: 'array',
-          prefixItems: [{ $ref: '#/components/schemas/Name' }, { type: 'number' }],
-        }),
+        zodToOpenAPI(
+          {
+            type: 'array',
+            prefixItems: [{ $ref: '#/components/schemas/Name' }, { type: 'number' }],
+          },
+          undefined,
+          { schemas: { Name: { type: 'string' } } },
+        ),
       ).toBe(
         'z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[NameSchema,z.number()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]})}}}})',
       )
@@ -1675,11 +1684,11 @@ describe('zodToOpenAPI', () => {
       describe('not.$ref', () => {
         it.concurrent('not.$ref: excludes ForbiddenSchema', () => {
           expect(
-            zodToOpenAPI({
-              not: { $ref: '#/components/schemas/Forbidden' },
+            zodToOpenAPI({ not: { $ref: '#/components/schemas/Forbidden' } }, undefined, {
+              schemas: { Forbidden: { type: 'string' } },
             }),
           ).toBe(
-            'z.any().refine((val) => !ForbiddenSchema.safeParse(val).success).openapi({"not":{"$ref":"#/components/schemas/Forbidden"}})',
+            'z.any().refine((val) => !ForbiddenSchema.safeParse(val).success).openapi({"not":{"type":"string"}})',
           )
           const ForbiddenSchema = z.string()
           const runtime = z.any().refine((val) => !ForbiddenSchema.safeParse(val).success)
@@ -1846,12 +1855,16 @@ describe('zodToOpenAPI', () => {
         })
         it.concurrent('x-not-message: not.$ref carries custom error', () => {
           expect(
-            zodToOpenAPI({
-              not: { $ref: '#/components/schemas/Forbidden' },
-              'x-not-message': '禁止スキーマ不可',
-            }),
+            zodToOpenAPI(
+              {
+                not: { $ref: '#/components/schemas/Forbidden' },
+                'x-not-message': '禁止スキーマ不可',
+              },
+              undefined,
+              { schemas: { Forbidden: { type: 'string' } } },
+            ),
           ).toBe(
-            'z.any().refine((val) => !ForbiddenSchema.safeParse(val).success,{error:"禁止スキーマ不可"}).openapi({"not":{"$ref":"#/components/schemas/Forbidden"}})',
+            'z.any().refine((val) => !ForbiddenSchema.safeParse(val).success,{error:"禁止スキーマ不可"}).openapi({"not":{"type":"string"}})',
           )
           const ForbiddenSchema = z.string()
           const runtime = z.any().refine((val) => !ForbiddenSchema.safeParse(val).success, {
@@ -14022,8 +14035,12 @@ describe('zodToOpenAPI: keywords beside not', () => {
   // The same when what is excluded is a component.
   // 除外対象がコンポーネントである場合も同様である。
   it.concurrent('validates the type beside not with a reference', () => {
-    expect(zodToOpenAPI({ type: 'integer', not: { $ref: '#/components/schemas/Count' } })).toBe(
-      'z.int().refine((val) => !CountSchema.safeParse(val).success).openapi({"not":{"$ref":"#/components/schemas/Count"}})',
+    expect(
+      zodToOpenAPI({ type: 'integer', not: { $ref: '#/components/schemas/Count' } }, undefined, {
+        schemas: { Count: { type: 'integer' } },
+      }),
+    ).toBe(
+      'z.int().refine((val) => !CountSchema.safeParse(val).success).openapi({"not":{"type":"integer"}})',
     )
   })
 
@@ -15889,9 +15906,10 @@ describe('x-catch states its schema for the document (#492)', () => {
     expect(zodToOpenAPI({ anyOf: [{ type: 'string' }, { type: 'number' }], 'x-catch': 'x' })).toBe(
       caught('z.union([z.string(),z.number()])', '"x"'),
     )
-    // A reference that cannot be read has no type either.
+    // A reference that cannot be read has no type either. What it names may be
+    // asynchronous, so the probe answers with a promise when `safeParse` throws.
     expect(zodToOpenAPI({ $ref: '#/components/schemas/A', 'x-catch': {} })).toBe(
-      caught('ASchema', '{}'),
+      caughtAsync('ASchema', '{}'),
     )
   })
 
@@ -16973,6 +16991,7 @@ describe('a statement that copies too much out of the components (#510)', () => 
 // `NameSchema` in scope, and whatever other components `scope` names.
 type Parsed = {
   readonly success: boolean
+  readonly data?: unknown
   readonly error?: {
     readonly issues: readonly { readonly message: string; readonly path: readonly PropertyKey[] }[]
   }
@@ -17826,5 +17845,194 @@ describe('unevaluatedProperties and the allOf message under an asynchronous refi
     await expect(passesAsync(parsed, { c: 'a', z: 1 })).resolves.toBe(false)
     const failed = await parsed.safeParseAsync({ c: '' })
     expect(failed.error?.issues.map((issue) => issue.message)).toStrictEqual(['bad'])
+  })
+})
+
+// A refinement of what a schema hands out parses the subschemas of its keywords. Where one
+// of them may be asynchronous, `safeParse` throws under `safeParseAsync`, so the refinement
+// is run again, awaited (see `makeRefinement`). A document without code of the user is
+// emitted as it was.
+const refinedTwice = (params: string, sync: string, awaited: string) =>
+  `(${params})=>{const reported=ctx.issues.length;try{return ((${params})=>{${sync}})(${params})}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(${params})=>{${awaited}})(${params})}}`
+
+const tuplePrefix = (parsed: string) =>
+  `const Prefix=[CheckedSchema];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=${parsed};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]})}}}`
+
+const tupleRest = (parsed: string) =>
+  `;const Rest=CheckedSchema;for(const [i,val] of arr.slice(Prefix.length).entries()){const result=${parsed};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]})}}}`
+
+describe('refinements that parse an asynchronous schema', () => {
+  const schemas = {
+    Checked: { type: 'string', 'x-refine': '.refine(async (v) => v.length > 0)' },
+    Plain: { type: 'string' },
+  } as const
+  const asyncRef = { $ref: '#/components/schemas/Checked' } as const
+  // `CheckedSchema` as the document has it, and a synchronous one of the same meaning.
+  const scope = {
+    CheckedSchema: z.string().refine((value) => Promise.resolve(value.length > 0)),
+    PlainSchema: z.string(),
+  }
+  const syncScope = { ...scope, CheckedSchema: z.string().min(1) }
+  const emit = (schema: Schema) => zodToOpenAPI(schema, undefined, { schemas })
+  // What the emitted schema answers for a value under an asynchronous parse, and under a
+  // synchronous one of the same schema with nothing asynchronous in it.
+  const answers = async (code: string, value: unknown) => [
+    await passesAsync(evaluated(code, scope), value),
+    evaluated(code, syncScope).safeParse(value).success,
+  ]
+
+  it.concurrent('leaves a refinement of synchronous schemas as it was', () => {
+    expect(emit({ type: 'array', contains: { $ref: '#/components/schemas/Plain' } })).toBe(
+      'z.array(z.any()).superRefine((arr,ctx)=>{const Schema=PlainSchema;const matched=arr.filter((i)=>Schema.safeParse(i).success).length;if(matched<1){ctx.addIssue({code:"custom"})}})',
+    )
+    expect(emit({ not: { $ref: '#/components/schemas/Plain' } })).toBe(
+      'z.any().refine((val) => !PlainSchema.safeParse(val).success).openapi({"not":{"type":"string"}})',
+    )
+  })
+
+  it.concurrent('not', async () => {
+    const code = emit({ not: asyncRef })
+    expect(code).toBe(
+      'z.any().refine((val) => {try{return !CheckedSchema.safeParse(val).success}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return CheckedSchema.safeParseAsync(val).then((result)=>!result.success)}}).openapi({"not":{"type":"string"}})',
+    )
+    await expect(answers(code, 1)).resolves.toStrictEqual([true, true])
+    await expect(answers(code, 'a')).resolves.toStrictEqual([false, false])
+  })
+
+  it.concurrent('contains, minContains and maxContains', async () => {
+    const code = emit({ type: 'array', contains: asyncRef })
+    expect(code).toBe(
+      `z.array(z.any()).superRefine(${refinedTwice(
+        'arr,ctx',
+        'const Schema=CheckedSchema;const matched=arr.filter((i)=>Schema.safeParse(i).success).length;if(matched<1){ctx.addIssue({code:"custom"})}',
+        'const Schema=CheckedSchema;const matched=(await Promise.all(arr.map((i)=>Schema.safeParseAsync(i)))).filter((result)=>result.success).length;if(matched<1){ctx.addIssue({code:"custom"})}',
+      )})`,
+    )
+    await expect(answers(code, ['a'])).resolves.toStrictEqual([true, true])
+    await expect(answers(code, [''])).resolves.toStrictEqual([false, false])
+    const counted = emit({ type: 'array', contains: asyncRef, minContains: 2, maxContains: 3 })
+    await expect(answers(counted, ['a', 'b'])).resolves.toStrictEqual([true, true])
+    await expect(answers(counted, ['a', ''])).resolves.toStrictEqual([false, false])
+  })
+
+  it.concurrent('unevaluatedItems, with and without contains', async () => {
+    const rest = emit({ type: 'array', unevaluatedItems: asyncRef })
+    await expect(answers(rest, ['a'])).resolves.toStrictEqual([true, true])
+    await expect(answers(rest, [''])).resolves.toStrictEqual([false, false])
+    const contained = emit({ type: 'array', contains: asyncRef, unevaluatedItems: false })
+    await expect(answers(contained, ['a'])).resolves.toStrictEqual([true, true])
+    await expect(answers(contained, ['a', ''])).resolves.toStrictEqual([false, false])
+  })
+
+  it.concurrent('a tuple and what follows it', async () => {
+    const code = emit({ type: 'array', prefixItems: [asyncRef], items: asyncRef })
+    expect(code).toBe(
+      `z.array(z.unknown()).superRefine(${refinedTwice(
+        'arr,ctx',
+        `${tuplePrefix('Schema.safeParse(arr[i])')}${tupleRest('Rest.safeParse(val)')}`,
+        `${tuplePrefix('(await Schema.safeParseAsync(arr[i]))')}${tupleRest('(await Rest.safeParseAsync(val))')}`,
+      )})`,
+    )
+    await expect(answers(code, ['a', 'b'])).resolves.toStrictEqual([true, true])
+    await expect(answers(code, ['a', ''])).resolves.toStrictEqual([false, false])
+    await expect(answers(code, [''])).resolves.toStrictEqual([false, false])
+  })
+
+  it.concurrent('patternProperties and a schema-valued additionalProperties', async () => {
+    const pattern = emit({ type: 'object', patternProperties: { '^x': asyncRef } })
+    expect(pattern).toBe(
+      `z.looseObject({}).superRefine(${refinedTwice(
+        'o,ctx',
+        'const regex=new RegExp("^x");const Schema=CheckedSchema;for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}',
+        'const regex=new RegExp("^x");const Schema=CheckedSchema;for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=(await Schema.safeParseAsync(val));if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}',
+      )}).openapi({...{patternProperties:{"^x":{"type":"string","x-refine":".refine(async (v) => v.length > 0)"}}}})`,
+    )
+    await expect(answers(pattern, { x1: 'a' })).resolves.toStrictEqual([true, true])
+    await expect(answers(pattern, { x1: '' })).resolves.toStrictEqual([false, false])
+    const additional = emit({
+      type: 'object',
+      patternProperties: { '^x': { type: 'number' } },
+      additionalProperties: asyncRef,
+    })
+    await expect(answers(additional, { a: 'a', x1: 1 })).resolves.toStrictEqual([true, true])
+    await expect(answers(additional, { a: '' })).resolves.toStrictEqual([false, false])
+  })
+
+  it.concurrent('dependentSchemas, if / then / else and unevaluatedProperties of an object', async () => {
+    const dependent = emit({
+      type: 'object',
+      properties: { a: {}, b: { type: 'string' } },
+      dependentSchemas: { a: { properties: { b: asyncRef } } },
+    })
+    await expect(answers(dependent, { a: 1, b: 'x' })).resolves.toStrictEqual([true, true])
+    await expect(answers(dependent, { a: 1, b: '' })).resolves.toStrictEqual([false, false])
+    await expect(answers(dependent, { b: '' })).resolves.toStrictEqual([true, true])
+    const conditional = emit({
+      type: 'object',
+      properties: { a: {}, b: { type: 'string' } },
+      if: { required: ['a'] },
+      // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+      then: { properties: { b: asyncRef } },
+      else: { required: ['b'] },
+      'x-then-message': 'b is empty',
+    })
+    await expect(answers(conditional, { a: 1, b: 'x' })).resolves.toStrictEqual([true, true])
+    await expect(answers(conditional, { a: 1, b: '' })).resolves.toStrictEqual([false, false])
+    await expect(answers(conditional, {})).resolves.toStrictEqual([false, false])
+    const unevaluated = emit({
+      type: 'object',
+      properties: { a: {} },
+      unevaluatedProperties: asyncRef,
+    })
+    await expect(answers(unevaluated, { a: 1, b: 'x' })).resolves.toStrictEqual([true, true])
+    await expect(answers(unevaluated, { a: 1, b: '' })).resolves.toStrictEqual([false, false])
+  })
+
+  it.concurrent('a schema with no type', async () => {
+    const code = emit({ minLength: 1, items: asyncRef })
+    expect(code).toBe(
+      `z.unknown().superRefine(${refinedTwice(
+        'val,ctx',
+        "if(Array.isArray(val)){{const Schema=CheckedSchema;for(let i=0;i<val.length;i++){if(!Schema.safeParse(val[i]).success){ctx.addIssue({code:'custom'})}}}};if(typeof val==='string'){if([...val].length<1){ctx.addIssue({code:'custom'})}}",
+        "if(Array.isArray(val)){{const Schema=CheckedSchema;for(let i=0;i<val.length;i++){if(!(await Schema.safeParseAsync(val[i])).success){ctx.addIssue({code:'custom'})}}}};if(typeof val==='string'){if([...val].length<1){ctx.addIssue({code:'custom'})}}",
+      )})`,
+    )
+    await expect(answers(code, ['a'])).resolves.toStrictEqual([true, true])
+    await expect(answers(code, [''])).resolves.toStrictEqual([false, false])
+    const conditional = emit({
+      if: { type: 'string' },
+      // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+      then: asyncRef,
+    })
+    await expect(answers(conditional, 'a')).resolves.toStrictEqual([true, true])
+    await expect(answers(conditional, '')).resolves.toStrictEqual([false, false])
+    const properties = emit({ minLength: 0, properties: { b: asyncRef } })
+    await expect(answers(properties, { b: 'x' })).resolves.toStrictEqual([true, true])
+    await expect(answers(properties, { b: '' })).resolves.toStrictEqual([false, false])
+  })
+
+  it.concurrent('a refinement inside a schema a raw-input check parses', async () => {
+    const code = emit({
+      type: 'string',
+      if: { maxLength: 3 },
+      // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+      then: { allOf: [{ not: { allOf: [asyncRef, { minLength: 3 }] } }, { minLength: 1 }] },
+    })
+    await expect(answers(code, 'ab')).resolves.toStrictEqual([true, true])
+    await expect(answers(code, 'abc')).resolves.toStrictEqual([false, false])
+  })
+
+  it.concurrent('the probe of x-catch', async () => {
+    const code = emit({ anyOf: [asyncRef, { type: 'number' }], 'x-catch': 'fallback' })
+    expect(code).toBe(caughtAsync('z.union([CheckedSchema,z.number()])', '"fallback"'))
+    const caughtSchema = evaluated(code.replaceAll('(val: z.input<typeof Schema>)', '(val)'), scope)
+    const kept = await caughtSchema.safeParseAsync('a')
+    const replaced = await caughtSchema.safeParseAsync('')
+    expect([kept.success, kept.data, replaced.success, replaced.data]).toStrictEqual([
+      true,
+      'a',
+      true,
+      'fallback',
+    ])
   })
 })
