@@ -2,10 +2,11 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { callbacksCode } from '../../generator/zod-openapi-hono/openapi/components/callbacks.js'
-import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { callbacks } from './callbacks.js'
 
 let tmpDir: string
@@ -18,14 +19,18 @@ describe('callbacks', () => {
   it('returns error when callbacks is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
     const output = path.join(tmpDir, 'callbacks.ts')
-    const result = await runGeneratorError(callbacks(undefined, output, false))
+    const result = await Effect.runPromise(
+      Effect.flip(Effect.provide(callbacks(undefined, output, false), NodeFileSystem.layer)),
+    )
     expect(result.message).toBe('No callbacks found')
   })
 
   it('returns success message when callbacks is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
     const output = path.join(tmpDir, 'callbacks.ts')
-    const result = await runGenerator(callbacks({}, output, false))
+    const result = await Effect.runPromise(
+      Effect.provide(callbacks({}, output, false), NodeFileSystem.layer),
+    )
     expect(result).toBe('No callbacks found')
   })
 
@@ -33,27 +38,30 @@ describe('callbacks', () => {
     it('writes single file and returns success', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
       const output = path.join(tmpDir, 'callbacks.ts')
-      const result = await runGenerator(
-        callbacks(
-          {
-            onEvent: {
-              '{$request.body#/callbackUrl}': {
-                post: {
-                  requestBody: {
-                    required: true,
-                    content: {
-                      'application/json': {
-                        schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          callbacks(
+            {
+              onEvent: {
+                '{$request.body#/callbackUrl}': {
+                  post: {
+                    requestBody: {
+                      required: true,
+                      content: {
+                        'application/json': {
+                          schema: { type: 'object', properties: { id: { type: 'string' } } },
+                        },
                       },
                     },
+                    responses: { '200': { description: 'OK' } },
                   },
-                  responses: { '200': { description: 'OK' } },
                 },
               },
             },
-          },
-          output,
-          false,
+            output,
+            false,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated callbacks code written to ${output}`)
@@ -67,27 +75,30 @@ describe('callbacks', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
       const output = path.join(tmpDir, 'callbacks')
-      const result = await runGenerator(
-        callbacks(
-          {
-            onEvent: {
-              '{$request.body#/callbackUrl}': {
-                post: {
-                  requestBody: {
-                    required: true,
-                    content: {
-                      'application/json': {
-                        schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          callbacks(
+            {
+              onEvent: {
+                '{$request.body#/callbackUrl}': {
+                  post: {
+                    requestBody: {
+                      required: true,
+                      content: {
+                        'application/json': {
+                          schema: { type: 'object', properties: { id: { type: 'string' } } },
+                        },
                       },
                     },
+                    responses: { '200': { description: 'OK' } },
                   },
-                  responses: { '200': { description: 'OK' } },
                 },
               },
             },
-          },
-          output,
-          true,
+            output,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated Callback code written to ${output}/*.ts (index.ts included)`)
@@ -98,28 +109,31 @@ describe('callbacks', () => {
     it('skips $ref entries in split mode', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
       const output = path.join(tmpDir, 'callbacks')
-      const result = await runGenerator(
-        callbacks(
-          {
-            onEvent: {
-              '{$request.body#/callbackUrl}': {
-                post: {
-                  requestBody: {
-                    required: true,
-                    content: {
-                      'application/json': {
-                        schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          callbacks(
+            {
+              onEvent: {
+                '{$request.body#/callbackUrl}': {
+                  post: {
+                    requestBody: {
+                      required: true,
+                      content: {
+                        'application/json': {
+                          schema: { type: 'object', properties: { id: { type: 'string' } } },
+                        },
                       },
                     },
+                    responses: { '200': { description: 'OK' } },
                   },
-                  responses: { '200': { description: 'OK' } },
                 },
               },
+              refCallback: { $ref: '#/components/callbacks/Shared' },
             },
-            refCallback: { $ref: '#/components/callbacks/Shared' },
-          },
-          output,
-          true,
+            output,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated Callback code written to ${output}/*.ts (index.ts included)`)
@@ -130,21 +144,24 @@ describe('callbacks', () => {
     it('writes callbacks with as const in non-split mode', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
       const output = path.join(tmpDir, 'callbacks.ts')
-      const result = await runGenerator(
-        callbacks(
-          {
-            onEvent: {
-              '{$request.body#/callbackUrl}': {
-                post: {
-                  responses: { '200': { description: 'OK' } },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          callbacks(
+            {
+              onEvent: {
+                '{$request.body#/callbackUrl}': {
+                  post: {
+                    responses: { '200': { description: 'OK' } },
+                  },
                 },
               },
             },
-          },
-          output,
-          false,
-          undefined,
-          true,
+            output,
+            false,
+            undefined,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated callbacks code written to ${output}`)
@@ -159,13 +176,16 @@ describe('callbacks', () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
       const output = path.join(tmpDir, 'callbacks.ts')
       await expect(
-        runGenerator(
-          callbacks(
-            {
-              refOnly: { $ref: '#/components/callbacks/Shared' },
-            },
-            output,
-            false,
+        Effect.runPromise(
+          Effect.provide(
+            callbacks(
+              {
+                refOnly: { $ref: '#/components/callbacks/Shared' },
+              },
+              output,
+              false,
+            ),
+            NodeFileSystem.layer,
           ),
         ),
       ).resolves.toBe(`Generated callbacks code written to ${output}`)
@@ -177,26 +197,29 @@ describe('callbacks', () => {
     it('generates multiple callbacks in single file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
       const output = path.join(tmpDir, 'callbacks.ts')
-      const result = await runGenerator(
-        callbacks(
-          {
-            onPayment: {
-              '{$request.body#/callbackUrl}': {
-                post: {
-                  responses: { '200': { description: 'OK' } },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          callbacks(
+            {
+              onPayment: {
+                '{$request.body#/callbackUrl}': {
+                  post: {
+                    responses: { '200': { description: 'OK' } },
+                  },
+                },
+              },
+              onShipment: {
+                '{$request.body#/shipmentUrl}': {
+                  post: {
+                    responses: { '200': { description: 'OK' } },
+                  },
                 },
               },
             },
-            onShipment: {
-              '{$request.body#/shipmentUrl}': {
-                post: {
-                  responses: { '200': { description: 'OK' } },
-                },
-              },
-            },
-          },
-          output,
-          false,
+            output,
+            false,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated callbacks code written to ${output}`)
@@ -217,9 +240,11 @@ describe('callbacks', () => {
           },
         },
       }
-      await expect(runGenerator(callbacks(sampleCallbacks, output, false))).resolves.toBe(
-        `Generated callbacks code written to ${output}`,
-      )
+      await expect(
+        Effect.runPromise(
+          Effect.provide(callbacks(sampleCallbacks, output, false), NodeFileSystem.layer),
+        ),
+      ).resolves.toBe(`Generated callbacks code written to ${output}`)
       const emitted = fs.readFileSync(output, 'utf8')
       const generated = callbacksCode({ callbacks: sampleCallbacks }, true)
       const emittedNames = new Set(

@@ -2,11 +2,11 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
 import { Effect } from 'effect'
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
-import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { template } from '../template/index.js'
 import { takibi } from './index.js'
 
@@ -100,7 +100,9 @@ const componentsOptions = {
 } as const
 
 const runTakibi = async (doc: OpenAPI, output: `${string}.ts`) =>
-  runGenerator(takibi(doc, output, { ...componentsOptions }))
+  Effect.runPromise(
+    Effect.provide(takibi(doc, output, { ...componentsOptions }), NodeFileSystem.layer),
+  )
 
 const runTakibiWithTemplate = async (
   doc: OpenAPI,
@@ -115,14 +117,17 @@ const runTakibiWithTemplate = async (
 ) => {
   const result = await runTakibi(doc, output)
   if (opts.template) {
-    return runGenerator(
-      template(
-        doc,
-        output,
-        opts.basePath ?? '/',
-        opts.pathAlias,
-        opts.routeImport,
-        opts.routeHandler ?? true,
+    return Effect.runPromise(
+      Effect.provide(
+        template(
+          doc,
+          output,
+          opts.basePath ?? '/',
+          opts.pathAlias,
+          opts.routeImport,
+          opts.routeHandler ?? true,
+        ),
+        NodeFileSystem.layer,
       ),
     )
   }
@@ -322,8 +327,11 @@ describe('basePath behavior', () => {
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
       await runTakibi(simpleOpenapi, out)
-      const result = await runGenerator(
-        template(simpleOpenapi, out, '/', undefined, undefined, true),
+      const result = await Effect.runPromise(
+        Effect.provide(
+          template(simpleOpenapi, out, '/', undefined, undefined, true),
+          NodeFileSystem.layer,
+        ),
       )
 
       expect(result).toBe('🔥 Generated code and template files written')
@@ -352,8 +360,11 @@ export default app
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
       await runTakibi(simpleOpenapi, out)
-      const result = await runGenerator(
-        template(simpleOpenapi, out, '/api', undefined, undefined, true),
+      const result = await Effect.runPromise(
+        Effect.provide(
+          template(simpleOpenapi, out, '/api', undefined, undefined, true),
+          NodeFileSystem.layer,
+        ),
       )
 
       expect(result).toBe('🔥 Generated code and template files written')
@@ -382,8 +393,11 @@ export default app
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
       await runTakibi(simpleOpenapi, out)
-      const result = await runGenerator(
-        template(simpleOpenapi, out, '/api/v1', undefined, undefined, true),
+      const result = await Effect.runPromise(
+        Effect.provide(
+          template(simpleOpenapi, out, '/api/v1', undefined, undefined, true),
+          NodeFileSystem.layer,
+        ),
       )
 
       expect(result).toBe('🔥 Generated code and template files written')
@@ -983,8 +997,11 @@ describe('template() unit tests', () => {
       fs.mkdirSync(srcDir, { recursive: true })
 
       const routeOutput = path.join(srcDir, 'routes.ts') as `${string}.ts`
-      const result = await runGenerator(
-        template(simpleOpenapi, routeOutput, '/', undefined, undefined, true),
+      const result = await Effect.runPromise(
+        Effect.provide(
+          template(simpleOpenapi, routeOutput, '/', undefined, undefined, true),
+          NodeFileSystem.layer,
+        ),
       )
 
       expect(result).toBe('🔥 Generated code and template files written')
@@ -1025,8 +1042,11 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       fs.mkdirSync(srcDir, { recursive: true })
 
       const routeOutput = path.join(srcDir, 'routes.ts') as `${string}.ts`
-      const result = await runGenerator(
-        template(simpleOpenapi, routeOutput, '/', '@/', '@packages/routes', true),
+      const result = await Effect.runPromise(
+        Effect.provide(
+          template(simpleOpenapi, routeOutput, '/', '@/', '@packages/routes', true),
+          NodeFileSystem.layer,
+        ),
       )
 
       expect(result).toBe('🔥 Generated code and template files written')
@@ -1063,8 +1083,11 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       fs.mkdirSync(path.join(srcDir, 'routes'), { recursive: true })
 
       const routeOutput = path.join(srcDir, 'routes', 'index.ts') as `${string}.ts`
-      const result = await runGenerator(
-        template(simpleOpenapi, routeOutput, '/', undefined, undefined, true),
+      const result = await Effect.runPromise(
+        Effect.provide(
+          template(simpleOpenapi, routeOutput, '/', undefined, undefined, true),
+          NodeFileSystem.layer,
+        ),
       )
 
       expect(result).toBe('🔥 Generated code and template files written')
@@ -1370,8 +1393,13 @@ describe('takibi error paths', () => {
     // wrapper should surface that failure as `{ ok: false, error: <string> }`
     // rather than throwing, so any caller can fall through to its own
     // error handling.
-    const result = await runGeneratorError(
-      takibi(openapi, '/dev/null/cannot-create/here.ts', errorPathOptions),
+    const result = await Effect.runPromise(
+      Effect.flip(
+        Effect.provide(
+          takibi(openapi, '/dev/null/cannot-create/here.ts', errorPathOptions),
+          NodeFileSystem.layer,
+        ),
+      ),
     )
     expect(typeof result.message).toBe('string')
     expect(result.message.length).toBeGreaterThan(0)
@@ -1395,9 +1423,12 @@ describe('takibi error paths', () => {
     try {
       // Either the codegen fails, or it produces empty/odd-but-valid output. Both are
       // acceptable, but a failure has to carry a string message — not a bare `false`.
-      const outcome = await runGenerator(
-        takibi(malformed, path.join(dir, 'out.ts') as `${string}.ts`, errorPathOptions).pipe(
-          Effect.catchCause((cause) => Effect.succeed(String(cause))),
+      const outcome = await Effect.runPromise(
+        Effect.provide(
+          takibi(malformed, path.join(dir, 'out.ts') as `${string}.ts`, errorPathOptions).pipe(
+            Effect.catchCause((cause) => Effect.succeed(String(cause))),
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(typeof outcome).toBe('string')

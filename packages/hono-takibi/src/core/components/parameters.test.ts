@@ -2,10 +2,11 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { parametersCode } from '../../generator/zod-openapi-hono/openapi/components/parameters.js'
-import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { parameters } from './parameters.js'
 
 let tmpDir: string
@@ -18,14 +19,18 @@ describe('parameters', () => {
   it('returns error when parameters is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-parameters-'))
     const output = path.join(tmpDir, 'parameters.ts')
-    const result = await runGeneratorError(parameters(undefined, output, false, true))
+    const result = await Effect.runPromise(
+      Effect.flip(Effect.provide(parameters(undefined, output, false, true), NodeFileSystem.layer)),
+    )
     expect(result.message).toBe('No parameters found')
   })
 
   it('returns success message when parameters is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-parameters-'))
     const output = path.join(tmpDir, 'parameters.ts')
-    const result = await runGenerator(parameters({}, output, false, true))
+    const result = await Effect.runPromise(
+      Effect.provide(parameters({}, output, false, true), NodeFileSystem.layer),
+    )
     expect(result).toBe('No parameters found')
   })
 
@@ -33,19 +38,22 @@ describe('parameters', () => {
     it('writes single file and returns success', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-parameters-'))
       const output = path.join(tmpDir, 'parameters.ts')
-      const result = await runGenerator(
-        parameters(
-          {
-            userId: {
-              name: 'userId',
-              in: 'path',
-              required: true,
-              schema: { type: 'string' },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          parameters(
+            {
+              userId: {
+                name: 'userId',
+                in: 'path',
+                required: true,
+                schema: { type: 'string' },
+              },
             },
-          },
-          output,
-          false,
-          true,
+            output,
+            false,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated parameters code written to ${output}`)
@@ -59,24 +67,27 @@ describe('parameters', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-parameters-'))
       const output = path.join(tmpDir, 'parameters')
-      const result = await runGenerator(
-        parameters(
-          {
-            userId: {
-              name: 'userId',
-              in: 'path',
-              required: true,
-              schema: { type: 'string' },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          parameters(
+            {
+              userId: {
+                name: 'userId',
+                in: 'path',
+                required: true,
+                schema: { type: 'string' },
+              },
+              page: {
+                name: 'page',
+                in: 'query',
+                schema: { type: 'integer' },
+              },
             },
-            page: {
-              name: 'page',
-              in: 'query',
-              schema: { type: 'integer' },
-            },
-          },
-          output,
-          true,
-          true,
+            output,
+            true,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated parameters code written to ${output}/*.ts (index.ts included)`)
@@ -99,7 +110,9 @@ describe('parameters', () => {
         },
         Page: { name: 'page', in: 'query' as const, schema: { type: 'integer' as const } },
       }
-      await runGenerator(parameters(sampleParams, output, false, true))
+      await Effect.runPromise(
+        Effect.provide(parameters(sampleParams, output, false, true), NodeFileSystem.layer),
+      )
       const emitted = fs.readFileSync(output, 'utf8')
       const generated = parametersCode({ parameters: sampleParams }, true, true)
       const emittedNames = new Set(

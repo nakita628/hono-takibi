@@ -2,11 +2,12 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { parseConfig } from '../config/index.js'
 import type { OpenAPI } from '../openapi/index.js'
-import { runGenerator, runGeneratorError } from '../testing/index.js'
 import {
   cleanSplitOutputs,
   makeJob,
@@ -58,11 +59,14 @@ afterEach(() => {
 
 describe('makeJob define mode', () => {
   it('defaults the app entry to src/index.ts when output is omitted', async () => {
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        template: { define: true },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          template: { define: true },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
     const jobs = makeJob(openAPI, cfg)
     expect(jobs.map((job) => ({ name: job.name, output: job.output }))).toStrictEqual([
@@ -72,12 +76,15 @@ describe('makeJob define mode', () => {
   })
 
   it('derives the app entry from components.output when output is omitted', async () => {
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        template: { define: true },
-        components: { output: './server/components/index.ts' },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          template: { define: true },
+          components: { output: './server/components/index.ts' },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
     const jobs = makeJob(openAPI, cfg)
     expect(jobs.map((job) => ({ name: job.name, output: job.output }))).toStrictEqual([
@@ -87,12 +94,15 @@ describe('makeJob define mode', () => {
   })
 
   it('derives the app entry from a flat components.output file when output is omitted', async () => {
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        template: { define: true },
-        components: { output: 'server/components.ts' },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          template: { define: true },
+          components: { output: 'server/components.ts' },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
     const jobs = makeJob(openAPI, cfg)
     expect(jobs.map((job) => ({ name: job.name, output: job.output }))).toStrictEqual([
@@ -102,13 +112,16 @@ describe('makeJob define mode', () => {
   })
 
   it('prefers explicit output over the components.output anchor', async () => {
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        output: 'src/index.ts',
-        template: { define: true },
-        components: { output: 'shared/components.ts' },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: 'src/index.ts',
+          template: { define: true },
+          components: { output: 'shared/components.ts' },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
     const jobs = makeJob(openAPI, cfg)
     expect(jobs.map((job) => ({ name: job.name, output: job.output }))).toStrictEqual([
@@ -119,15 +132,22 @@ describe('makeJob define mode', () => {
 
   it('anchors generated files to the components.output directory when output is omitted', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-anchor-'))
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        template: { define: true },
-        components: { output: `${tmpDir}/server/components/index.ts` },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          template: { define: true },
+          components: { output: `${tmpDir}/server/components/index.ts` },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
     const jobs = makeJob(openAPI, cfg)
-    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
+    await Promise.all(
+      jobs.map((job) =>
+        Effect.runPromise(Effect.provide(job.run(job.output), NodeFileSystem.layer)),
+      ),
+    )
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'server', p), 'utf8')
 
     expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
@@ -168,15 +188,22 @@ export const getUsersIdRoute = defineOpenAPIRoute({
 
   it('generates defineOpenAPIRoute handlers, openapiRoutes app, and components', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-'))
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/index.ts`,
-        template: { define: true },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/index.ts`,
+          template: { define: true },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
     const jobs = makeJob(openAPI, cfg)
-    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
+    await Promise.all(
+      jobs.map((job) =>
+        Effect.runPromise(Effect.provide(job.run(job.output), NodeFileSystem.layer)),
+      ),
+    )
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf8')
 
     expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
@@ -244,16 +271,23 @@ export const UserSchema = z
 
   it('routes imports through pathAlias when set', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-alias-'))
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/index.ts`,
-        template: { define: true },
-        pathAlias: '@/',
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/index.ts`,
+          template: { define: true },
+          pathAlias: '@/',
+        }),
+        NodeFileSystem.layer,
+      ),
     )
     const jobs = makeJob(openAPI, cfg)
-    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
+    await Promise.all(
+      jobs.map((job) =>
+        Effect.runPromise(Effect.provide(job.run(job.output), NodeFileSystem.layer)),
+      ),
+    )
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf8')
 
     expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
@@ -273,15 +307,22 @@ import { UserSchema } from '@/components'`)
 
   it('emits route files to the derived routes dir next to output and imports from there', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-output-'))
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/index.ts`,
-        template: { define: true },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/index.ts`,
+          template: { define: true },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
     const jobs = makeJob(openAPI, cfg)
-    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
+    await Promise.all(
+      jobs.map((job) =>
+        Effect.runPromise(Effect.provide(job.run(job.output), NodeFileSystem.layer)),
+      ),
+    )
     // route files live under routes/, not handlers/
     expect(fs.existsSync(path.join(tmpDir, 'src', 'routes', 'users.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'src', 'handlers'))).toBe(false)
@@ -308,14 +349,21 @@ import { UserSchema } from '../components'`)
 
   it('derives routes/components as siblings of a nested output, not anchored to a shallower dir', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-nested-'))
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/api/index.ts`,
-        template: { define: true },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/api/index.ts`,
+          template: { define: true },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
+    await Promise.all(
+      makeJob(openAPI, cfg).map((j) =>
+        Effect.runPromise(Effect.provide(j.run(j.output), NodeFileSystem.layer)),
+      ),
+    )
 
     expect(fs.existsSync(path.join(tmpDir, 'src', 'api', 'routes', 'users.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'src', 'api', 'components', 'index.ts'))).toBe(true)
@@ -343,15 +391,22 @@ import { UserSchema } from '../components'`)
 
   it('applies readonly to both components and route definitions', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-readonly-'))
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/index.ts`,
-        readonly: true,
-        template: { define: true },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/index.ts`,
+          readonly: true,
+          template: { define: true },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
+    await Promise.all(
+      makeJob(openAPI, cfg).map((j) =>
+        Effect.runPromise(Effect.provide(j.run(j.output), NodeFileSystem.layer)),
+      ),
+    )
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf8')
 
     expect(read('components/index.ts')).toBe(`import { z } from '@hono/zod-openapi'
@@ -390,14 +445,21 @@ export const getUsersIdRoute = defineOpenAPIRoute({
 
   it('relocates the whole cluster under server/ with identical relative imports', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-server-'))
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/server/index.ts`,
-        template: { define: true },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/server/index.ts`,
+          template: { define: true },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
+    await Promise.all(
+      makeJob(openAPI, cfg).map((j) =>
+        Effect.runPromise(Effect.provide(j.run(j.output), NodeFileSystem.layer)),
+      ),
+    )
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'server', p), 'utf8')
 
     expect(fs.existsSync(path.join(tmpDir, 'src'))).toBe(false)
@@ -418,15 +480,22 @@ import { UserSchema } from '../components'`)
 
   it('sends components to components.output outside the cluster and rewires route imports', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-comp-out-'))
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/index.ts`,
-        template: { define: true },
-        components: { output: `${tmpDir}/shared/components.ts` },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/index.ts`,
+          template: { define: true },
+          components: { output: `${tmpDir}/shared/components.ts` },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
+    await Promise.all(
+      makeJob(openAPI, cfg).map((j) =>
+        Effect.runPromise(Effect.provide(j.run(j.output), NodeFileSystem.layer)),
+      ),
+    )
 
     expect(fs.existsSync(path.join(tmpDir, 'shared', 'components.ts'))).toBe(true)
     // The derived components dir must not appear when the override is set.
@@ -443,16 +512,23 @@ import { UserSchema } from '../../shared/components'`)
 
   it('keeps the nested components.output path under a pathAlias (@/api/components)', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-comp-alias-'))
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/index.ts`,
-        template: { define: true },
-        pathAlias: '@/',
-        components: { output: `${tmpDir}/src/api/components/index.ts` },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/index.ts`,
+          template: { define: true },
+          pathAlias: '@/',
+          components: { output: `${tmpDir}/src/api/components/index.ts` },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
+    await Promise.all(
+      makeJob(openAPI, cfg).map((j) =>
+        Effect.runPromise(Effect.provide(j.run(j.output), NodeFileSystem.layer)),
+      ),
+    )
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf8')
 
     expect(fs.existsSync(path.join(tmpDir, 'src', 'api', 'components', 'index.ts'))).toBe(true)
@@ -472,16 +548,23 @@ import { UserSchema } from '@/api/components'`)
 
   it('imports the derived routes dir through a pathAlias (@/routes)', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-alias-routes-'))
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/index.ts`,
-        template: { define: true },
-        pathAlias: '@/',
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/index.ts`,
+          template: { define: true },
+          pathAlias: '@/',
+        }),
+        NodeFileSystem.layer,
+      ),
     )
     const jobs = makeJob(openAPI, cfg)
-    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
+    await Promise.all(
+      jobs.map((job) =>
+        Effect.runPromise(Effect.provide(job.run(job.output), NodeFileSystem.layer)),
+      ),
+    )
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf8')
 
     expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
@@ -526,15 +609,22 @@ describe(
   () => {
     it('preserves an implemented handler across regeneration', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-handler-'))
-      const cfg = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: `${tmpDir}/src/index.ts`,
-          template: { define: true },
-        }),
+      const cfg = await Effect.runPromise(
+        Effect.provide(
+          parseConfig({
+            input: 'openapi.yaml',
+            output: `${tmpDir}/src/index.ts`,
+            template: { define: true },
+          }),
+          NodeFileSystem.layer,
+        ),
       )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(
+          makeJob(spec, cfg).map((j) =>
+            Effect.runPromise(Effect.provide(j.run(j.output), NodeFileSystem.layer)),
+          ),
+        )
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
       await run(openAPI)
@@ -584,15 +674,22 @@ export const getUsersIdRoute = defineOpenAPIRoute({
 
     it('preserves a hand-edited createRoute (not re-synced from spec)', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-route-'))
-      const cfg = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: `${tmpDir}/src/index.ts`,
-          template: { define: true },
-        }),
+      const cfg = await Effect.runPromise(
+        Effect.provide(
+          parseConfig({
+            input: 'openapi.yaml',
+            output: `${tmpDir}/src/index.ts`,
+            template: { define: true },
+          }),
+          NodeFileSystem.layer,
+        ),
       )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(
+          makeJob(spec, cfg).map((j) =>
+            Effect.runPromise(Effect.provide(j.run(j.output), NodeFileSystem.layer)),
+          ),
+        )
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
       await run(openAPI)
@@ -637,15 +734,22 @@ export const getUsersIdRoute = defineOpenAPIRoute({
 
     it('preserves user-added imports, helpers, and consts', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-helper-'))
-      const cfg = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: `${tmpDir}/src/index.ts`,
-          template: { define: true },
-        }),
+      const cfg = await Effect.runPromise(
+        Effect.provide(
+          parseConfig({
+            input: 'openapi.yaml',
+            output: `${tmpDir}/src/index.ts`,
+            template: { define: true },
+          }),
+          NodeFileSystem.layer,
+        ),
       )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(
+          makeJob(spec, cfg).map((j) =>
+            Effect.runPromise(Effect.provide(j.run(j.output), NodeFileSystem.layer)),
+          ),
+        )
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
       await run(openAPI)
@@ -693,15 +797,22 @@ function toDto(x: unknown) {
 
     it('adds a new route as a stub while keeping existing edits, and updates the app + barrel', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-add-'))
-      const cfg = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: `${tmpDir}/src/index.ts`,
-          template: { define: true },
-        }),
+      const cfg = await Effect.runPromise(
+        Effect.provide(
+          parseConfig({
+            input: 'openapi.yaml',
+            output: `${tmpDir}/src/index.ts`,
+            template: { define: true },
+          }),
+          NodeFileSystem.layer,
+        ),
       )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(
+          makeJob(spec, cfg).map((j) =>
+            Effect.runPromise(Effect.provide(j.run(j.output), NodeFileSystem.layer)),
+          ),
+        )
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
       await run(openAPI)
@@ -776,15 +887,22 @@ export * from './tags'
 
     it('removes a route deleted from the spec but never deletes its handler file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-remove-'))
-      const cfg = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: `${tmpDir}/src/index.ts`,
-          template: { define: true },
-        }),
+      const cfg = await Effect.runPromise(
+        Effect.provide(
+          parseConfig({
+            input: 'openapi.yaml',
+            output: `${tmpDir}/src/index.ts`,
+            template: { define: true },
+          }),
+          NodeFileSystem.layer,
+        ),
       )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(
+          makeJob(spec, cfg).map((j) =>
+            Effect.runPromise(Effect.provide(j.run(j.output), NodeFileSystem.layer)),
+          ),
+        )
 
       await run(openAPI)
       const healthPath = path.join(tmpDir, 'src', 'routes', 'health.ts')
@@ -836,15 +954,22 @@ export default app
 
     it('preserves user middleware and basePath on the app entry while syncing routes', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-app-'))
-      const cfg = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: `${tmpDir}/src/index.ts`,
-          template: { define: true },
-        }),
+      const cfg = await Effect.runPromise(
+        Effect.provide(
+          parseConfig({
+            input: 'openapi.yaml',
+            output: `${tmpDir}/src/index.ts`,
+            template: { define: true },
+          }),
+          NodeFileSystem.layer,
+        ),
       )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(
+          makeJob(spec, cfg).map((j) =>
+            Effect.runPromise(Effect.provide(j.run(j.output), NodeFileSystem.layer)),
+          ),
+        )
       const indexPath = path.join(tmpDir, 'src', 'index.ts')
 
       await run(openAPI)
@@ -895,15 +1020,22 @@ export default app
 
     it('coexists with human edits in the derived routes directory', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-out-'))
-      const cfg = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: `${tmpDir}/src/index.ts`,
-          template: { define: true },
-        }),
+      const cfg = await Effect.runPromise(
+        Effect.provide(
+          parseConfig({
+            input: 'openapi.yaml',
+            output: `${tmpDir}/src/index.ts`,
+            template: { define: true },
+          }),
+          NodeFileSystem.layer,
+        ),
       )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(
+          makeJob(spec, cfg).map((j) =>
+            Effect.runPromise(Effect.provide(j.run(j.output), NodeFileSystem.layer)),
+          ),
+        )
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
       await run(openAPI)
@@ -960,16 +1092,23 @@ export default app
 
     it('coexists with a pathAlias without duplicating imports', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-alias-'))
-      const cfg = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: `${tmpDir}/src/index.ts`,
-          template: { define: true },
-          pathAlias: '@/',
-        }),
+      const cfg = await Effect.runPromise(
+        Effect.provide(
+          parseConfig({
+            input: 'openapi.yaml',
+            output: `${tmpDir}/src/index.ts`,
+            template: { define: true },
+            pathAlias: '@/',
+          }),
+          NodeFileSystem.layer,
+        ),
       )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(
+          makeJob(spec, cfg).map((j) =>
+            Effect.runPromise(Effect.provide(j.run(j.output), NodeFileSystem.layer)),
+          ),
+        )
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
       await run(openAPI)
@@ -1032,7 +1171,7 @@ describe('cleanSplitOutputs', () => {
     fs.mkdirSync(path.join(dir, 'nested'))
     fs.writeFileSync(path.join(dir, 'nested', 'keep.ts'), '')
 
-    await runGenerator(cleanSplitOutputs([dir]))
+    await Effect.runPromise(Effect.provide(cleanSplitOutputs([dir]), NodeFileSystem.layer))
 
     expect([...fs.readdirSync(dir)].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))).toStrictEqual([
       'README.md',
@@ -1045,7 +1184,9 @@ describe('cleanSplitOutputs', () => {
   it('treats a directory that does not exist as already clean', async () => {
     const missing = path.join(makeCleanDir(), 'never-created')
 
-    await expect(runGenerator(cleanSplitOutputs([missing]))).resolves.toStrictEqual([undefined])
+    await expect(
+      Effect.runPromise(Effect.provide(cleanSplitOutputs([missing]), NodeFileSystem.layer)),
+    ).resolves.toStrictEqual([undefined])
     expect(fs.existsSync(missing)).toBe(false)
   })
 
@@ -1053,12 +1194,16 @@ describe('cleanSplitOutputs', () => {
     const dir = makeCleanDir()
     fs.writeFileSync(path.join(dir, 'a.ts'), '')
 
-    await expect(runGenerator(cleanSplitOutputs([dir, dir]))).resolves.toStrictEqual([undefined])
+    await expect(
+      Effect.runPromise(Effect.provide(cleanSplitOutputs([dir, dir]), NodeFileSystem.layer)),
+    ).resolves.toStrictEqual([undefined])
     expect(fs.readdirSync(dir)).toStrictEqual([])
   })
 
   it('does nothing with an empty list', async () => {
-    await expect(runGenerator(cleanSplitOutputs([]))).resolves.toStrictEqual([])
+    await expect(
+      Effect.runPromise(Effect.provide(cleanSplitOutputs([]), NodeFileSystem.layer)),
+    ).resolves.toStrictEqual([])
   })
 })
 
@@ -1087,7 +1232,9 @@ describe('outsideSources', () => {
       JSON.stringify({ openapi: '3.1.0', info: { title: 'A', version: '1' }, paths: {} }),
     )
 
-    await expect(runGenerator(outsideSources(input))).resolves.toStrictEqual([])
+    await expect(
+      Effect.runPromise(Effect.provide(outsideSources(input), NodeFileSystem.layer)),
+    ).resolves.toStrictEqual([])
   })
 
   // A `$ref` that leaves the document's directory is exactly the file a watcher on that
@@ -1111,7 +1258,9 @@ describe('outsideSources', () => {
       }),
     )
 
-    await expect(runGenerator(outsideSources(input))).resolves.toStrictEqual([shared])
+    await expect(
+      Effect.runPromise(Effect.provide(outsideSources(input), NodeFileSystem.layer)),
+    ).resolves.toStrictEqual([shared])
   })
 
   // A document that does not parse cannot say what it refers to; the caller decides what
@@ -1123,7 +1272,9 @@ describe('outsideSources', () => {
     const input = path.join(directory, 'openapi.json')
     fs.writeFileSync(input, '{ not json')
 
-    const error = await runGeneratorError(outsideSources(input))
+    const error = await Effect.runPromise(
+      Effect.flip(Effect.provide(outsideSources(input), NodeFileSystem.layer)),
+    )
     expect(error.message)
       .toBe(`Error parsing ${input}: unexpected end of the stream within a flow collection (1:11)
 
@@ -1154,7 +1305,9 @@ describe('outsideSources', () => {
     fs.writeFileSync(id, 'scalar Id extends string;\n')
     fs.writeFileSync(common, 'model Common {}\n')
 
-    await expect(runGenerator(outsideSources(input))).resolves.toStrictEqual([common, id, user])
+    await expect(
+      Effect.runPromise(Effect.provide(outsideSources(input), NodeFileSystem.layer)),
+    ).resolves.toStrictEqual([common, id, user])
   })
 
   // Two files importing each other must not send the walk round in circles.
@@ -1168,7 +1321,9 @@ describe('outsideSources', () => {
     fs.writeFileSync(input, 'import "../models/b.tsp";\n')
     fs.writeFileSync(other, 'import "../spec/a.tsp";\n')
 
-    await expect(runGenerator(outsideSources(input))).resolves.toStrictEqual([other])
+    await expect(
+      Effect.runPromise(Effect.provide(outsideSources(input), NodeFileSystem.layer)),
+    ).resolves.toStrictEqual([other])
   })
 
   // A file beside the document, or below it, is one the watcher on the directory
@@ -1193,7 +1348,9 @@ describe('outsideSources', () => {
       }),
     )
 
-    await expect(runGenerator(outsideSources(input))).resolves.toStrictEqual([])
+    await expect(
+      Effect.runPromise(Effect.provide(outsideSources(input), NodeFileSystem.layer)),
+    ).resolves.toStrictEqual([])
   })
 })
 
@@ -1204,7 +1361,9 @@ async function generateClientJobs(
   config: object,
   packageRoot?: (file: string) => string | undefined,
 ) {
-  const cfg = await runGenerator(parseConfig({ input: 'openapi.yaml', ...config }))
+  const cfg = await Effect.runPromise(
+    Effect.provide(parseConfig({ input: 'openapi.yaml', ...config }), NodeFileSystem.layer),
+  )
   const jobs = makeJob(openAPI, cfg, packageRoot)
   // The app entry is what the client and the rpc file are written against, so the jobs
   // run in the order they are made.
@@ -1212,7 +1371,7 @@ async function generateClientJobs(
   // 順に実行する。
   for (const job of jobs) {
     // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
-    await runGenerator(job.run(job.output))
+    await Effect.runPromise(Effect.provide(job.run(job.output), NodeFileSystem.layer))
   }
   return {
     read: (file: string) => fs.readFileSync(path.join(dir, file), 'utf8'),
@@ -1508,16 +1667,21 @@ describe('packageRoots: the package of every output', () => {
       path.join(tmpDir, 'src/schemas/package.json'),
       '{ "name": "@packages/schemas" }',
     )
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        routes: { output: `${tmpDir}/src/routes`, split: true },
-        components: {
-          schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@packages/schemas' },
-        },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          routes: { output: `${tmpDir}/src/routes`, split: true },
+          components: {
+            schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@packages/schemas' },
+          },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
+    const packageRoot = await Effect.runPromise(
+      Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer),
+    )
     expect(packageRoot(`${tmpDir}/src/routes/getUsers.ts`)).toBe(tmpDir)
     expect(packageRoot(`${tmpDir}/src/schemas/user.ts`)).toBe(`${tmpDir}/src/schemas`)
   })
@@ -1531,16 +1695,21 @@ describe('packageRoots: the package of every output', () => {
     fs.mkdirSync(path.join(tmpDir, 'src/api.v2'), { recursive: true })
     fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
     fs.writeFileSync(path.join(tmpDir, 'src/api.v2/package.json'), '{ "name": "@packages/v2" }')
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        routes: { output: `${tmpDir}/src/routes`, split: true },
-        components: {
-          schemas: { output: `${tmpDir}/src/api.v2`, split: true, package: '@packages/v2' },
-        },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          routes: { output: `${tmpDir}/src/routes`, split: true },
+          components: {
+            schemas: { output: `${tmpDir}/src/api.v2`, split: true, package: '@packages/v2' },
+          },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
+    const packageRoot = await Effect.runPromise(
+      Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer),
+    )
     expect(packageRoot(`${tmpDir}/src/api.v2`)).toBe(`${tmpDir}/src/api.v2`)
     expect(packageRoot(`${tmpDir}/src/api.v2/user.ts`)).toBe(`${tmpDir}/src/api.v2`)
     expect(packageRoot(`${tmpDir}/src/routes/getUsers.ts`)).toBe(tmpDir)
@@ -1552,24 +1721,29 @@ describe('packageRoots: the package of every output', () => {
   // 名前で import されるものはない。
   it('treats every output as one package when no package.json is above', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-none-'))
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        pathAlias: '@/',
-        routes: { output: `${tmpDir}/src/routes`, split: true },
-        components: {
-          schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@packages/schemas' },
-        },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          pathAlias: '@/',
+          routes: { output: `${tmpDir}/src/routes`, split: true },
+          components: {
+            schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@packages/schemas' },
+          },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
+    const packageRoot = await Effect.runPromise(
+      Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer),
+    )
     expect(packageRoot(`${tmpDir}/src/routes/getUsers.ts`)).toBe(
       packageRoot(`${tmpDir}/src/schemas/user.ts`),
     )
     const jobs = makeJob(openAPI, cfg, packageRoot)
     for (const job of jobs) {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
-      await runGenerator(job.run(job.output))
+      await Effect.runPromise(Effect.provide(job.run(job.output), NodeFileSystem.layer))
     }
     expect(fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8'))
       .toBe(`import { createRoute, z } from '@hono/zod-openapi'
@@ -1599,18 +1773,25 @@ export const getUsersIdRoute = createRoute({
   // 相対パスで import する。
   it('imports a target outside the app directory relatively even with an alias', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-outside-'))
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        pathAlias: '@/',
-        routes: { output: `${tmpDir}/src/routes`, split: true },
-        components: { schemas: { output: `${tmpDir}/lib/schemas`, split: true } },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          pathAlias: '@/',
+          routes: { output: `${tmpDir}/src/routes`, split: true },
+          components: { schemas: { output: `${tmpDir}/lib/schemas`, split: true } },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)))
+    const jobs = makeJob(
+      openAPI,
+      cfg,
+      await Effect.runPromise(Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer)),
+    )
     for (const job of jobs) {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
-      await runGenerator(job.run(job.output))
+      await Effect.runPromise(Effect.provide(job.run(job.output), NodeFileSystem.layer))
     }
     expect(fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8'))
       .toBe(`import { createRoute, z } from '@hono/zod-openapi'
@@ -1641,14 +1822,19 @@ export const getUsersIdRoute = createRoute({
   it('takes an output with another extension for a file', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'package-roots-docs-'))
     fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/routes.ts`,
-        docs: { output: `${tmpDir}/docs/api.md` },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/routes.ts`,
+          docs: { output: `${tmpDir}/docs/api.md` },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
+    const packageRoot = await Effect.runPromise(
+      Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer),
+    )
     expect(packageRoot(`${tmpDir}/docs/api.md`)).toBe(tmpDir)
   })
 
@@ -1662,14 +1848,19 @@ export const getUsersIdRoute = createRoute({
       path.join(tmpDir, 'src/schemas/package.json'),
       '{ "name": "@packages/schemas" }',
     )
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        routes: { output: `${tmpDir}/src/routes`, split: true },
-        components: { schemas: { output: `${tmpDir}/src/schemas`, split: true } },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          routes: { output: `${tmpDir}/src/routes`, split: true },
+          components: { schemas: { output: `${tmpDir}/src/schemas`, split: true } },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    const error = await runGeneratorError(packageRoots(openAPI, cfg))
+    const error = await Effect.runPromise(
+      Effect.flip(Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer)),
+    )
     expect(error.message).toBe(
       `routes imports components.schemas from another package: set components.schemas.package to the name of the package ${tmpDir}/src/schemas is written into.`,
     )
@@ -1683,15 +1874,20 @@ export const getUsersIdRoute = createRoute({
     fs.mkdirSync(path.join(tmpDir, 'server/src'), { recursive: true })
     fs.writeFileSync(path.join(tmpDir, 'client/package.json'), '{ "name": "@packages/client" }')
     fs.writeFileSync(path.join(tmpDir, 'server/package.json'), '{ "name": "@packages/server" }')
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/server/src/routes.ts`,
-        template: { routeHandler: true },
-        client: { output: `${tmpDir}/client/src/client.ts`, package: '@packages/client' },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/server/src/routes.ts`,
+          template: { routeHandler: true },
+          client: { output: `${tmpDir}/client/src/client.ts`, package: '@packages/client' },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    const error = await runGeneratorError(packageRoots(openAPI, cfg))
+    const error = await Effect.runPromise(
+      Effect.flip(Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer)),
+    )
     expect(error.message).toBe(
       'client imports the app from another package: set client.import to the name of the package the app is written into.',
     )
@@ -1704,10 +1900,15 @@ export const getUsersIdRoute = createRoute({
   // なければ、import は書き出されないファイルを指すことになるため、生成器はそれを書かずに
   // 報告する。
   it('fails when routes refer to a component kind no output holds', async () => {
-    const cfg = await runGenerator(
-      parseConfig({ input: 'openapi.yaml', routes: { output: './src/routes.ts' } }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({ input: 'openapi.yaml', routes: { output: './src/routes.ts' } }),
+        NodeFileSystem.layer,
+      ),
     )
-    const error = await runGeneratorError(packageRoots(openAPI, cfg))
+    const error = await Effect.runPromise(
+      Effect.flip(Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer)),
+    )
     expect(error.message).toBe(
       'routes imports components.schemas, which no output holds: set components.output, or components.schemas, so that the files it imports are written.',
     )
@@ -1717,10 +1918,15 @@ export const getUsersIdRoute = createRoute({
   // 分割された routes ディレクトリでも同じである。各ファイルは、そのルートが参照するものを
   // import する。
   it('fails when split routes refer to a component kind no output holds', async () => {
-    const cfg = await runGenerator(
-      parseConfig({ input: 'openapi.yaml', routes: { output: './src/routes', split: true } }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({ input: 'openapi.yaml', routes: { output: './src/routes', split: true } }),
+        NodeFileSystem.layer,
+      ),
     )
-    const error = await runGeneratorError(packageRoots(openAPI, cfg))
+    const error = await Effect.runPromise(
+      Effect.flip(Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer)),
+    )
     expect(error.message).toBe(
       'routes imports components.schemas, which no output holds: set components.output, or components.schemas, so that the files it imports are written.',
     )
@@ -1729,38 +1935,53 @@ export const getUsersIdRoute = createRoute({
   // One components file holds every kind.
   // 1つの components ファイルがすべての種類を保持する。
   it('passes when a single components output holds what the routes refer to', async () => {
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        routes: { output: './src/routes.ts' },
-        components: { output: './src/components.ts' },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          routes: { output: './src/routes.ts' },
+          components: { output: './src/components.ts' },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
+    const packageRoot = await Effect.runPromise(
+      Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer),
+    )
     expect(packageRoot('./src/routes.ts')).toBe(path.resolve())
   })
 
   // The output of the kind referred to is enough.
   // 参照される種類の出力があれば足りる。
   it('passes when the output of the kind referred to is set', async () => {
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        routes: { output: './src/routes.ts' },
-        components: { schemas: { output: './src/schemas.ts' } },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          routes: { output: './src/routes.ts' },
+          components: { schemas: { output: './src/schemas.ts' } },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
+    const packageRoot = await Effect.runPromise(
+      Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer),
+    )
     expect(packageRoot('./src/routes.ts')).toBe(path.resolve())
   })
 
   // The single `output` inlines what it refers to, so it needs no components output.
   // 単一の `output` は参照するものを inline 展開するため、components の出力を必要としない。
   it('passes for the single output, which inlines what it refers to', async () => {
-    const cfg = await runGenerator(
-      parseConfig({ input: 'openapi.yaml', output: './src/routes.ts' }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({ input: 'openapi.yaml', output: './src/routes.ts' }),
+        NodeFileSystem.layer,
+      ),
     )
-    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
+    const packageRoot = await Effect.runPromise(
+      Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer),
+    )
     expect(packageRoot('./src/routes.ts')).toBe(path.resolve())
   })
 
@@ -1772,19 +1993,26 @@ export const getUsersIdRoute = createRoute({
     fs.mkdirSync(path.join(tmpDir, 'src/routes'), { recursive: true })
     fs.writeFileSync(path.join(tmpDir, 'package.json'), '{ "name": "app" }')
     fs.writeFileSync(path.join(tmpDir, 'src/routes/package.json'), '{ "name": "@packages/routes" }')
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        routes: { output: `${tmpDir}/src/routes`, split: true, package: '@packages/routes' },
-        // The routes refer to a schema, which an output of the app's package holds.
-        components: { output: `${tmpDir}/src/components.ts`, package: 'app' },
-        template: { routeHandler: true },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          routes: { output: `${tmpDir}/src/routes`, split: true, package: '@packages/routes' },
+          // The routes refer to a schema, which an output of the app's package holds.
+          components: { output: `${tmpDir}/src/components.ts`, package: 'app' },
+          template: { routeHandler: true },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)))
+    const jobs = makeJob(
+      openAPI,
+      cfg,
+      await Effect.runPromise(Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer)),
+    )
     for (const job of jobs) {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
-      await runGenerator(job.run(job.output))
+      await Effect.runPromise(Effect.provide(job.run(job.output), NodeFileSystem.layer))
     }
     expect(fs.readFileSync(path.join(tmpDir, 'src/handlers/users.ts'), 'utf8'))
       .toBe(`import type { RouteHandler } from '@hono/zod-openapi'
@@ -1817,20 +2045,27 @@ export default app
       path.join(tmpDir, 'src/components/package.json'),
       '{ "name": "@packages/components" }',
     )
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        routes: { output: `${tmpDir}/src/routes`, split: true },
-        components: {
-          output: `${tmpDir}/src/components/index.ts`,
-          package: '@packages/components',
-        },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          routes: { output: `${tmpDir}/src/routes`, split: true },
+          components: {
+            output: `${tmpDir}/src/components/index.ts`,
+            package: '@packages/components',
+          },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)))
+    const jobs = makeJob(
+      openAPI,
+      cfg,
+      await Effect.runPromise(Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer)),
+    )
     for (const job of jobs) {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
-      await runGenerator(job.run(job.output))
+      await Effect.runPromise(Effect.provide(job.run(job.output), NodeFileSystem.layer))
     }
     expect(fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8'))
       .toBe(`import { createRoute, z } from '@hono/zod-openapi'
@@ -1862,14 +2097,19 @@ export const getUsersIdRoute = createRoute({
       path.join(tmpDir, 'src/components/package.json'),
       '{ "name": "@packages/components" }',
     )
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        routes: { output: `${tmpDir}/src/routes`, split: true },
-        components: { output: `${tmpDir}/src/components/index.ts` },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          routes: { output: `${tmpDir}/src/routes`, split: true },
+          components: { output: `${tmpDir}/src/components/index.ts` },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    const error = await runGeneratorError(packageRoots(openAPI, cfg))
+    const error = await Effect.runPromise(
+      Effect.flip(Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer)),
+    )
     expect(error.message).toBe(
       `routes imports components.output from another package: set components.output.package to the name of the package ${tmpDir}/src/components/index.ts is written into.`,
     )
@@ -1885,18 +2125,25 @@ export const getUsersIdRoute = createRoute({
     fs.mkdirSync(path.join(tmpDir, 'shared'), { recursive: true })
     fs.writeFileSync(path.join(tmpDir, 'server/package.json'), '{ "name": "@x/server" }')
     fs.writeFileSync(path.join(tmpDir, 'shared/package.json'), '{ "name": "@x/shared" }')
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/server/src/index.ts`,
-        template: { define: true },
-        components: { output: `${tmpDir}/shared/index.ts`, package: '@x/shared' },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/server/src/index.ts`,
+          template: { define: true },
+          components: { output: `${tmpDir}/shared/index.ts`, package: '@x/shared' },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)))
+    const jobs = makeJob(
+      openAPI,
+      cfg,
+      await Effect.runPromise(Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer)),
+    )
     for (const job of jobs) {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
-      await runGenerator(job.run(job.output))
+      await Effect.runPromise(Effect.provide(job.run(job.output), NodeFileSystem.layer))
     }
     const routes = fs
       .readdirSync(path.join(tmpDir, 'server/src/routes'))
@@ -1952,17 +2199,22 @@ export const getUsersIdRoute = defineOpenAPIRoute({
     fs.mkdirSync(path.join(tmpDir, 'shared/schemas'), { recursive: true })
     fs.writeFileSync(path.join(tmpDir, 'server/package.json'), '{ "name": "@x/server" }')
     fs.writeFileSync(path.join(tmpDir, 'shared/package.json'), '{ "name": "@x/shared" }')
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        routes: { output: `${tmpDir}/server/src/routes`, split: true },
-        components: {
-          schemas: { output: `${tmpDir}/shared/schemas`, split: true, package: '@x/shared' },
-          examples: { output: `${tmpDir}/server/src/examples`, split: true },
-        },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          routes: { output: `${tmpDir}/server/src/routes`, split: true },
+          components: {
+            schemas: { output: `${tmpDir}/shared/schemas`, split: true, package: '@x/shared' },
+            examples: { output: `${tmpDir}/server/src/examples`, split: true },
+          },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    const packageRoot = await runGenerator(packageRoots(openAPI, cfg))
+    const packageRoot = await Effect.runPromise(
+      Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer),
+    )
     expect(packageRoot(`${tmpDir}/shared/schemas`)).toBe(`${tmpDir}/shared`)
     expect(packageRoot(`${tmpDir}/server/src/examples`)).toBe(`${tmpDir}/server`)
   })
@@ -1976,14 +2228,17 @@ export const getUsersIdRoute = defineOpenAPIRoute({
     fs.mkdirSync(path.join(tmpDir, 'shared/responses'), { recursive: true })
     fs.writeFileSync(path.join(tmpDir, 'server/package.json'), '{ "name": "@x/server" }')
     fs.writeFileSync(path.join(tmpDir, 'shared/package.json'), '{ "name": "@x/shared" }')
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        components: {
-          responses: { output: `${tmpDir}/shared/responses`, split: true, package: '@x/shared' },
-          examples: { output: `${tmpDir}/server/src/examples`, split: true },
-        },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          components: {
+            responses: { output: `${tmpDir}/shared/responses`, split: true, package: '@x/shared' },
+            examples: { output: `${tmpDir}/server/src/examples`, split: true },
+          },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
     // A response that points at an example: the responses import the examples.
     const withExample = {
@@ -2001,7 +2256,9 @@ export const getUsersIdRoute = defineOpenAPIRoute({
         },
       },
     } as unknown as OpenAPI
-    const error = await runGeneratorError(packageRoots(withExample, cfg))
+    const error = await Effect.runPromise(
+      Effect.flip(Effect.provide(packageRoots(withExample, cfg), NodeFileSystem.layer)),
+    )
     expect(error.message).toBe(
       `components.responses imports components.examples from another package: set components.examples.package to the name of the package ${tmpDir}/server/src/examples is written into.`,
     )
@@ -2017,19 +2274,26 @@ export const getUsersIdRoute = defineOpenAPIRoute({
       path.join(tmpDir, 'src/schemas/package.json'),
       '{ "name": "@packages/schemas" }',
     )
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        routes: { output: `${tmpDir}/src/routes`, split: true },
-        components: {
-          schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@packages/schemas' },
-        },
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          routes: { output: `${tmpDir}/src/routes`, split: true },
+          components: {
+            schemas: { output: `${tmpDir}/src/schemas`, split: true, package: '@packages/schemas' },
+          },
+        }),
+        NodeFileSystem.layer,
+      ),
     )
-    const jobs = makeJob(openAPI, cfg, await runGenerator(packageRoots(openAPI, cfg)))
+    const jobs = makeJob(
+      openAPI,
+      cfg,
+      await Effect.runPromise(Effect.provide(packageRoots(openAPI, cfg), NodeFileSystem.layer)),
+    )
     for (const job of jobs) {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
-      await runGenerator(job.run(job.output))
+      await Effect.runPromise(Effect.provide(job.run(job.output), NodeFileSystem.layer))
     }
     const route = fs.readFileSync(path.join(tmpDir, 'src/routes/getUsersId.ts'), 'utf8')
     expect(route).toBe(`import { createRoute, z } from '@hono/zod-openapi'
@@ -2055,10 +2319,12 @@ export const getUsersIdRoute = createRoute({
 })
 
 async function generateSplitJobs(dir: string, config: object) {
-  const cfg = await runGenerator(parseConfig({ input: 'openapi.yaml', ...config }))
+  const cfg = await Effect.runPromise(
+    Effect.provide(parseConfig({ input: 'openapi.yaml', ...config }), NodeFileSystem.layer),
+  )
   for (const job of makeJob(openAPI, cfg)) {
     // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
-    await runGenerator(job.run(job.output))
+    await Effect.runPromise(Effect.provide(job.run(job.output), NodeFileSystem.layer))
   }
   return (file: string) => fs.readFileSync(path.join(dir, file), 'utf8')
 }
@@ -2282,18 +2548,21 @@ export async function getHealth(options?: ClientRequestOptions) {
 // Runs every job of a config that scaffolds the app, the client and the rpc file.
 // アプリ・クライアント・rpc ファイルを生成する設定の、すべてのジョブを実行する。
 async function generateAgain(document: OpenAPI, dir: string, split: boolean) {
-  const cfg = await runGenerator(
-    parseConfig({
-      input: 'openapi.yaml',
-      output: `${dir}/src/routes.ts`,
-      template: { routeHandler: true, split },
-      client: { output: `${dir}/src/lib/client.ts` },
-      rpc: { output: `${dir}/src/rpc.ts` },
-    }),
+  const cfg = await Effect.runPromise(
+    Effect.provide(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: `${dir}/src/routes.ts`,
+        template: { routeHandler: true, split },
+        client: { output: `${dir}/src/lib/client.ts` },
+        rpc: { output: `${dir}/src/rpc.ts` },
+      }),
+      NodeFileSystem.layer,
+    ),
   )
   for (const job of makeJob(document, cfg)) {
     // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
-    await runGenerator(job.run(job.output))
+    await Effect.runPromise(Effect.provide(job.run(job.output), NodeFileSystem.layer))
   }
   return (file: string) => fs.readFileSync(path.join(dir, file), 'utf8')
 }
@@ -2605,18 +2874,21 @@ describe('referencedKinds covers every import the generators write', () => {
 
   it('every kind each split output imports is referenced', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'referenced-kinds-'))
-    const cfg = await runGenerator(
-      parseConfig({
-        input: 'openapi.yaml',
-        routes: { output: `${tmpDir}/routes`, split: true },
-        components: Object.fromEntries(
-          COMPONENTS.map((kind) => [kind, { output: `${tmpDir}/${kind}`, split: true }]),
-        ),
-      }),
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          routes: { output: `${tmpDir}/routes`, split: true },
+          components: Object.fromEntries(
+            COMPONENTS.map((kind) => [kind, { output: `${tmpDir}/${kind}`, split: true }]),
+          ),
+        }),
+        NodeFileSystem.layer,
+      ),
     )
     for (const job of makeJob(document, cfg)) {
       // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
-      await runGenerator(job.run(job.output))
+      await Effect.runPromise(Effect.provide(job.run(job.output), NodeFileSystem.layer))
     }
     const referenced = referencedKinds(document)
     const imported = (directory: string) => {
@@ -2655,7 +2927,9 @@ describe('referencedKinds covers every import the generators write', () => {
 describe('openAPI3', () => {
   it.concurrent('fails for a Swagger 2.0 document, naming the file and the way out', async () => {
     const swagger = { swagger: '2.0', info: { title: 'A', version: '1' }, paths: {} } as OpenAPI
-    const error = await runGeneratorError(openAPI3(swagger, 'openapi.json'))
+    const error = await Effect.runPromise(
+      Effect.flip(Effect.provide(openAPI3(swagger, 'openapi.json'), NodeFileSystem.layer)),
+    )
     expect(error.message).toBe(
       'openapi.json is a Swagger 2.0 document; hono-takibi reads OpenAPI 3.x. Convert it first (npx swagger2openapi openapi.json -o openapi3.json).',
     )
@@ -2663,10 +2937,14 @@ describe('openAPI3', () => {
 
   it.concurrent('answers an OpenAPI 3 document itself', async () => {
     const document = { openapi: '3.0.3', info: { title: 'A', version: '1' }, paths: {} } as OpenAPI
-    await expect(runGenerator(openAPI3(document, 'openapi.yaml'))).resolves.toBe(document)
+    await expect(
+      Effect.runPromise(Effect.provide(openAPI3(document, 'openapi.yaml'), NodeFileSystem.layer)),
+    ).resolves.toBe(document)
     // a document that states no version is taken as OpenAPI 3, as before
     const bare = { paths: {} } as OpenAPI
-    await expect(runGenerator(openAPI3(bare, 'openapi.yaml'))).resolves.toBe(bare)
+    await expect(
+      Effect.runPromise(Effect.provide(openAPI3(bare, 'openapi.yaml'), NodeFileSystem.layer)),
+    ).resolves.toBe(bare)
   })
 
   // #416: a component that is not an object is named, not read as a schema
@@ -2680,7 +2958,9 @@ describe('openAPI3', () => {
         parameters: { 'x-bar': 1 },
       },
     } as unknown as OpenAPI
-    const error = await runGeneratorError(openAPI3(document, 'openapi.yaml'))
+    const error = await Effect.runPromise(
+      Effect.flip(Effect.provide(openAPI3(document, 'openapi.yaml'), NodeFileSystem.layer)),
+    )
     expect(error.message).toBe(
       'openapi.yaml: components.schemas.x-foo is null, components.parameters.x-bar is 1; a component is an object.',
     )
@@ -2700,7 +2980,9 @@ describe('openAPI3', () => {
         },
       },
     } as unknown as OpenAPI
-    await expect(runGenerator(openAPI3(document, 'openapi.yaml'))).resolves.toStrictEqual({
+    await expect(
+      Effect.runPromise(Effect.provide(openAPI3(document, 'openapi.yaml'), NodeFileSystem.layer)),
+    ).resolves.toStrictEqual({
       ...document,
       paths: { '/thing': { post: { responses: { '200': { description: 'OK' } } } } },
     })
@@ -2713,7 +2995,9 @@ describe('openAPI3', () => {
       info: { title: 'A', version: '1' },
       webhooks: { invoices: { post: { responses: { 200: { description: 'OK' } } } } },
     } as unknown as OpenAPI
-    await expect(runGenerator(openAPI3(webhooks, 'openapi.yaml'))).resolves.toStrictEqual({
+    await expect(
+      Effect.runPromise(Effect.provide(openAPI3(webhooks, 'openapi.yaml'), NodeFileSystem.layer)),
+    ).resolves.toStrictEqual({
       ...webhooks,
       paths: {},
     })

@@ -2,12 +2,13 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { describe, expect, it } from 'vite-plus/test'
 
 import { handlerGroupOf } from '../../helper/index.js'
 import type { Grouping } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
-import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { rpc } from './index.js'
 
 // A grouping that looks at the tags: the first tag, or else the handler file of the path.
@@ -437,7 +438,9 @@ describe('rpc', () => {
       const out = path.join(dir, 'index.ts')
       fs.writeFileSync(input, JSON.stringify(openapi), 'utf8')
 
-      const result = await runGenerator(rpc(openapi, out, '../index.ts'))
+      const result = await Effect.runPromise(
+        Effect.provide(rpc(openapi, out, '../index.ts'), NodeFileSystem.layer),
+      )
 
       const index = fs.readFileSync(out, 'utf8')
       const expected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
@@ -685,7 +688,9 @@ describe('rpc (isOptional tests)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-optional-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await runGenerator(rpc(openapiIsOptional, out, '../client'))
+      const result = await Effect.runPromise(
+        Effect.provide(rpc(openapiIsOptional, out, '../client'), NodeFileSystem.layer),
+      )
 
       const generated = fs.readFileSync(out, 'utf8')
 
@@ -745,7 +750,9 @@ export async function getAllOptional(
         },
       } as OpenAPI
 
-      await runGenerator(rpc(simpleOpenAPI, out, '../api', 'authClient'))
+      await Effect.runPromise(
+        Effect.provide(rpc(simpleOpenAPI, out, '../api', 'authClient'), NodeFileSystem.layer),
+      )
 
       const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
@@ -779,7 +786,9 @@ describe('rpc (parseResponse: true)', () => {
         },
       } as OpenAPI
 
-      await runGenerator(rpc(simpleOpenAPI, out, '../client', 'client', true))
+      await Effect.runPromise(
+        Effect.provide(rpc(simpleOpenAPI, out, '../client', 'client', true), NodeFileSystem.layer),
+      )
 
       const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
@@ -820,7 +829,12 @@ export async function getHealth(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      await runGenerator(rpc(openAPIWithArgs, out, '../client', 'client', true))
+      await Effect.runPromise(
+        Effect.provide(
+          rpc(openAPIWithArgs, out, '../client', 'client', true),
+          NodeFileSystem.layer,
+        ),
+      )
 
       const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
@@ -878,7 +892,9 @@ describe('rpc (trailing slash)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-trailing-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await runGenerator(rpc(trailingSlashOpenAPI, out, '../client'))
+      const result = await Effect.runPromise(
+        Effect.provide(rpc(trailingSlashOpenAPI, out, '../client'), NodeFileSystem.layer),
+      )
 
       const code = fs.readFileSync(out, 'utf8')
 
@@ -927,7 +943,12 @@ describe('rpc (docs: true)', () => {
         },
       } as OpenAPI
 
-      await runGenerator(rpc(openAPI, out, '../client', 'client', false, undefined, true))
+      await Effect.runPromise(
+        Effect.provide(
+          rpc(openAPI, out, '../client', 'client', false, undefined, true),
+          NodeFileSystem.layer,
+        ),
+      )
 
       const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
@@ -965,7 +986,12 @@ export async function getHealth(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      await runGenerator(rpc(openAPI, out, '../client', 'client', false, undefined, true))
+      await Effect.runPromise(
+        Effect.provide(
+          rpc(openAPI, out, '../client', 'client', false, undefined, true),
+          NodeFileSystem.layer,
+        ),
+      )
 
       const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
@@ -1005,7 +1031,12 @@ export async function getUsers(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      await runGenerator(rpc(openAPI, out, '../client', 'client', false, undefined, true))
+      await Effect.runPromise(
+        Effect.provide(
+          rpc(openAPI, out, '../client', 'client', false, undefined, true),
+          NodeFileSystem.layer,
+        ),
+      )
 
       const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
@@ -1041,7 +1072,12 @@ export async function getPing(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      await runGenerator(rpc(openAPI, out, '../client', 'client', false, undefined, true))
+      await Effect.runPromise(
+        Effect.provide(
+          rpc(openAPI, out, '../client', 'client', false, undefined, true),
+          NodeFileSystem.layer,
+        ),
+      )
 
       const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
@@ -1074,7 +1110,9 @@ export async function getSilent(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      await runGenerator(rpc(openAPI, out, '../client', 'client'))
+      await Effect.runPromise(
+        Effect.provide(rpc(openAPI, out, '../client', 'client'), NodeFileSystem.layer),
+      )
 
       const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
@@ -1108,7 +1146,12 @@ export async function getHealth(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      await runGenerator(rpc(openAPI, out, '../client', 'client', true, undefined, true))
+      await Effect.runPromise(
+        Effect.provide(
+          rpc(openAPI, out, '../client', 'client', true, undefined, true),
+          NodeFileSystem.layer,
+        ),
+      )
 
       const code = fs.readFileSync(out, 'utf8')
       expect(code).toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
@@ -1143,8 +1186,13 @@ describe('rpc (error behavior)', () => {
       paths: 'not-an-object',
     } as unknown as OpenAPI
 
-    const result = await runGeneratorError(
-      rpc(invalidOpenAPI, '/tmp/should-not-exist.ts', '../client'),
+    const result = await Effect.runPromise(
+      Effect.flip(
+        Effect.provide(
+          rpc(invalidOpenAPI, '/tmp/should-not-exist.ts', '../client'),
+          NodeFileSystem.layer,
+        ),
+      ),
     )
     expect(result.message).toBe('Invalid OpenAPI paths')
   })
@@ -1155,8 +1203,13 @@ describe('rpc (error behavior)', () => {
       info: { title: 'Test', version: '1.0.0' },
     } as unknown as OpenAPI
 
-    const result = await runGeneratorError(
-      rpc(noPathsOpenAPI, '/tmp/should-not-exist.ts', '../client'),
+    const result = await Effect.runPromise(
+      Effect.flip(
+        Effect.provide(
+          rpc(noPathsOpenAPI, '/tmp/should-not-exist.ts', '../client'),
+          NodeFileSystem.layer,
+        ),
+      ),
     )
     expect(result.message).toBe('Invalid OpenAPI paths')
   })
@@ -1189,7 +1242,7 @@ describe('rpc (query method)', () => {
           },
         },
       } as OpenAPI
-      await runGenerator(rpc(openAPI, out, './client'))
+      await Effect.runPromise(Effect.provide(rpc(openAPI, out, './client'), NodeFileSystem.layer))
       expect(fs.readFileSync(out, 'utf8'))
         .toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from './client'
@@ -1228,7 +1281,12 @@ describe('rpc (the root path)', () => {
           },
         },
       } as OpenAPI
-      await runGenerator(rpc(spec, out, './client', 'client', false, '/', false))
+      await Effect.runPromise(
+        Effect.provide(
+          rpc(spec, out, './client', 'client', false, '/', false),
+          NodeFileSystem.layer,
+        ),
+      )
       expect(fs.readFileSync(out, 'utf8'))
         .toBe(`import type { ClientRequestOptions } from 'hono/client'
 import { client } from './client'
@@ -1271,8 +1329,13 @@ describe('rpc (groups of a split application)', () => {
   it('calls each operation through the client of its group', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rpc-groups-'))
     const out = path.join(dir, 'rpc.ts')
-    await runGenerator(
-      rpc(spec, out, './client', 'client', false, '/api', false, (route) => handlerGroupOf(route)),
+    await Effect.runPromise(
+      Effect.provide(
+        rpc(spec, out, './client', 'client', false, '/api', false, (route) =>
+          handlerGroupOf(route),
+        ),
+        NodeFileSystem.layer,
+      ),
     )
     expect(fs.readFileSync(out, 'utf8'))
       .toBe(`import type { ClientRequestOptions } from 'hono/client'
@@ -1309,7 +1372,12 @@ export async function getApiStatus(options?: ClientRequestOptions) {
   it('groups by the first tag where the grouping looks at tags', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rpc-groups-'))
     const out = path.join(dir, 'rpc.ts')
-    await runGenerator(rpc(spec, out, './client', 'client', false, '/api', false, byTag))
+    await Effect.runPromise(
+      Effect.provide(
+        rpc(spec, out, './client', 'client', false, '/api', false, byTag),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(out, 'utf8'))
       .toBe(`import type { ClientRequestOptions } from 'hono/client'
 import { __rootClient, libraryClient, booksClient, v2PublicClient, apiClient } from './client'
@@ -1345,8 +1413,13 @@ export async function getApiStatus(options?: ClientRequestOptions) {
   it('does not import client when every operation belongs to a group', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rpc-groups-'))
     const out = path.join(dir, 'rpc.ts')
-    await runGenerator(
-      rpc(grouped, out, './client', 'client', false, '/', false, (route) => handlerGroupOf(route)),
+    await Effect.runPromise(
+      Effect.provide(
+        rpc(grouped, out, './client', 'client', false, '/', false, (route) =>
+          handlerGroupOf(route),
+        ),
+        NodeFileSystem.layer,
+      ),
     )
     expect(fs.readFileSync(out, 'utf8'))
       .toBe(`import type { ClientRequestOptions } from 'hono/client'

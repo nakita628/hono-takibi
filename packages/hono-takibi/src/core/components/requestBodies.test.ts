@@ -2,10 +2,11 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { requestBodiesCode } from '../../generator/zod-openapi-hono/openapi/components/request-bodies.js'
-import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { requestBodies } from './requestBodies.js'
 
 let tmpDir: string
@@ -18,14 +19,18 @@ describe('requestBodies', () => {
   it('returns error when requestBodies is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-requestBodies-'))
     const output = path.join(tmpDir, 'requestBodies.ts')
-    const result = await runGeneratorError(requestBodies(undefined, output, false))
+    const result = await Effect.runPromise(
+      Effect.flip(Effect.provide(requestBodies(undefined, output, false), NodeFileSystem.layer)),
+    )
     expect(result.message).toBe('No requestBodies found')
   })
 
   it('returns success message when requestBodies is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-requestBodies-'))
     const output = path.join(tmpDir, 'requestBodies.ts')
-    const result = await runGenerator(requestBodies({}, output, false))
+    const result = await Effect.runPromise(
+      Effect.provide(requestBodies({}, output, false), NodeFileSystem.layer),
+    )
     expect(result).toBe('No requestBodies found')
   })
 
@@ -33,25 +38,28 @@ describe('requestBodies', () => {
     it('writes single file and returns success', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-requestBodies-'))
       const output = path.join(tmpDir, 'requestBodies.ts')
-      const result = await runGenerator(
-        requestBodies(
-          {
-            CreateUser: {
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      name: { type: 'string' },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          requestBodies(
+            {
+              CreateUser: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string' },
+                      },
+                      required: ['name'],
                     },
-                    required: ['name'],
                   },
                 },
               },
             },
-          },
-          output,
-          false,
+            output,
+            false,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated requestBodies code written to ${output}`)
@@ -65,37 +73,40 @@ describe('requestBodies', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-requestBodies-'))
       const output = path.join(tmpDir, 'requestBodies')
-      const result = await runGenerator(
-        requestBodies(
-          {
-            CreateUser: {
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      name: { type: 'string' },
-                    },
-                    required: ['name'],
-                  },
-                },
-              },
-            },
-            UpdateUser: {
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      name: { type: 'string' },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          requestBodies(
+            {
+              CreateUser: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string' },
+                      },
+                      required: ['name'],
                     },
                   },
                 },
               },
+              UpdateUser: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
             },
-          },
-          output,
-          true,
+            output,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(
@@ -121,7 +132,9 @@ describe('requestBodies', () => {
           content: { 'application/json': { schema: { type: 'object' as const } } },
         },
       }
-      await runGenerator(requestBodies(sampleBodies, output, false))
+      await Effect.runPromise(
+        Effect.provide(requestBodies(sampleBodies, output, false), NodeFileSystem.layer),
+      )
       const emitted = fs.readFileSync(output, 'utf8')
       const generated = requestBodiesCode({ requestBodies: sampleBodies }, true)
       const emittedNames = new Set(

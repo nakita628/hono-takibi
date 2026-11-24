@@ -573,12 +573,12 @@ describe('makeSchemaInfos', () => {
     const infos = makeSchemaInfos(schemas, schemaNames, analysis)
 
     expect(infos).toHaveLength(3)
-    expect(infos[0].schemaName).toBe('User')
-    expect(infos[0].variableName).toBe('UserSchema')
-    expect(infos[1].schemaName).toBe('Post')
-    expect(infos[1].variableName).toBe('PostSchema')
-    expect(infos[2].schemaName).toBe('Comment')
-    expect(infos[2].variableName).toBe('CommentSchema')
+    expect(infos[0]?.schemaName).toBe('User')
+    expect(infos[0]?.variableName).toBe('UserSchema')
+    expect(infos[1]?.schemaName).toBe('Post')
+    expect(infos[1]?.variableName).toBe('PostSchema')
+    expect(infos[2]?.schemaName).toBe('Comment')
+    expect(infos[2]?.variableName).toBe('CommentSchema')
   })
 
   it.concurrent('should correctly identify circular schemas', () => {
@@ -586,12 +586,12 @@ describe('makeSchemaInfos', () => {
     const analysis = analyzeCircularSchemas(schemas, schemaNames)
     const infos = makeSchemaInfos(schemas, schemaNames, analysis)
 
-    expect(infos[0].needsLazy).toBe(false)
-    expect(infos[0].needsTypeDef).toBe(false)
-    expect(infos[1].needsLazy).toBe(false)
-    expect(infos[1].needsTypeDef).toBe(false)
-    expect(infos[2].needsLazy).toBe(true)
-    expect(infos[2].needsTypeDef).toBe(true)
+    expect(infos[0]?.needsLazy).toBe(false)
+    expect(infos[0]?.needsTypeDef).toBe(false)
+    expect(infos[1]?.needsLazy).toBe(false)
+    expect(infos[1]?.needsTypeDef).toBe(false)
+    expect(infos[2]?.needsLazy).toBe(true)
+    expect(infos[2]?.needsTypeDef).toBe(true)
   })
 
   it.concurrent('should return empty array for empty schema names', () => {
@@ -606,9 +606,9 @@ describe('makeSchemaInfos', () => {
     const infos = makeSchemaInfos(schemas, ['User'], analysis)
 
     expect(infos).toHaveLength(1)
-    expect(infos[0].schemaName).toBe('User')
-    expect(infos[0].safeSchemaName).toBe('User')
-    expect(infos[0].variableName).toBe('UserSchema')
+    expect(infos[0]?.schemaName).toBe('User')
+    expect(infos[0]?.safeSchemaName).toBe('User')
+    expect(infos[0]?.variableName).toBe('UserSchema')
   })
 })
 

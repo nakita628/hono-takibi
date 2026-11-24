@@ -2,10 +2,11 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
-import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { template } from './index.js'
 
 let tmpDir: string
@@ -32,7 +33,12 @@ describe('template', () => {
         },
       },
     } as OpenAPI
-    const result = await runGenerator(template(openAPI, output, '/', undefined, undefined, false))
+    const result = await Effect.runPromise(
+      Effect.provide(
+        template(openAPI, output, '/', undefined, undefined, false),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(result).toBe('🔥 Generated code and template files written')
     expect(fs.existsSync(path.join(tmpDir, 'index.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'handlers', 'health.ts'))).toBe(true)
@@ -55,7 +61,12 @@ describe('template', () => {
         },
       },
     } as OpenAPI
-    await runGenerator(template(openAPI, output, '/', undefined, undefined, false))
+    await Effect.runPromise(
+      Effect.provide(
+        template(openAPI, output, '/', undefined, undefined, false),
+        NodeFileSystem.layer,
+      ),
+    )
     // `server/index.ts` means "module server/", so the app entry and handlers land beside it.
     expect(fs.existsSync(path.join(tmpDir, 'index.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'handlers', 'health.ts'))).toBe(true)
@@ -100,7 +111,12 @@ export const healthHandler = app.openapi(getHealthRoute, (c) => {})
         },
       },
     } as OpenAPI
-    await runGenerator(template(openAPI, output, '/', undefined, undefined, true))
+    await Effect.runPromise(
+      Effect.provide(
+        template(openAPI, output, '/', undefined, undefined, true),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.existsSync(path.join(tmpDir, 'src', 'index.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'src', 'handlers', 'health.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'handlers'))).toBe(false)
@@ -150,7 +166,12 @@ export const api = new OpenAPIHono()
         },
       },
     } as OpenAPI
-    await runGenerator(template(openAPI, output, '/', undefined, undefined, false))
+    await Effect.runPromise(
+      Effect.provide(
+        template(openAPI, output, '/', undefined, undefined, false),
+        NodeFileSystem.layer,
+      ),
+    )
     const content = fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8')
     expect(content).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { customThing } from './custom-marker'
@@ -205,7 +226,12 @@ export const debug = { workerEnv, appEnv, BookService, ReviewService }
         },
       },
     } as OpenAPI
-    await runGenerator(template(openAPI, output, '/', '@/api', undefined, true))
+    await Effect.runPromise(
+      Effect.provide(
+        template(openAPI, output, '/', '@/api', undefined, true),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8')).toBe(
       `import { OpenAPIHono } from '@hono/zod-openapi'
 import { env as workerEnv } from 'cloudflare:workers'
@@ -238,7 +264,12 @@ export const debug = { workerEnv, appEnv, BookService, ReviewService }
         },
       },
     } as OpenAPI
-    await runGenerator(template(untagged, output, '/', undefined, undefined, false))
+    await Effect.runPromise(
+      Effect.provide(
+        template(untagged, output, '/', undefined, undefined, false),
+        NodeFileSystem.layer,
+      ),
+    )
     const implemented = `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getUsersRoute } from '../routes'
 
@@ -263,7 +294,12 @@ export const usersHandler = app.openapi(getUsersRoute, async (c) => {
         },
       },
     } as OpenAPI
-    await runGenerator(template(tagged, output, '/', undefined, undefined, false))
+    await Effect.runPromise(
+      Effect.provide(
+        template(tagged, output, '/', undefined, undefined, false),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.existsSync(path.join(tmpDir, 'handlers', 'userManagement.ts'))).toBe(false)
     expect(fs.readFileSync(path.join(tmpDir, 'handlers', 'users.ts'), 'utf8')).toBe(implemented)
     expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8')).toBe(
@@ -302,7 +338,13 @@ export default app
   it('names handler files after the path in kebab case, whatever the tags, and keeps the export in camel case', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-kebab-'))
     const output = path.join(tmpDir, 'routes.ts')
-    const run = () => runGenerator(template(realTime, output, '/', undefined, undefined, false))
+    const run = () =>
+      Effect.runPromise(
+        Effect.provide(
+          template(realTime, output, '/', undefined, undefined, false),
+          NodeFileSystem.layer,
+        ),
+      )
     await run()
     expect(fs.readdirSync(path.join(tmpDir, 'handlers')).sort()).toStrictEqual([
       'index.ts',
@@ -339,7 +381,12 @@ export default app
     fs.writeFileSync(path.join(tmpDir, 'handlers', 'realTimeEvents.ts'), implemented)
 
     // A new route under the same segment joins the file that is there: no second file, no rename.
-    await runGenerator(template(realTimeTwo, output, '/', undefined, undefined, false))
+    await Effect.runPromise(
+      Effect.provide(
+        template(realTimeTwo, output, '/', undefined, undefined, false),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readdirSync(path.join(tmpDir, 'handlers')).sort()).toStrictEqual([
       'index.ts',
       'realTimeEvents.ts',
@@ -358,7 +405,12 @@ export default app
   it('names the group of a kebab-case handler file in camel case when split', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-kebab-split-'))
     const output = path.join(tmpDir, 'routes.ts')
-    await runGenerator(template(realTime, output, '/', undefined, undefined, false, true))
+    await Effect.runPromise(
+      Effect.provide(
+        template(realTime, output, '/', undefined, undefined, false, true),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8')).toBe(
       `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { realTimeEventsHandler } from './handlers'\n\nconst app = new OpenAPIHono()\n\nexport const realTimeEvents = app.route('/', realTimeEventsHandler)\n\nexport default app\n`,
     )
@@ -367,7 +419,12 @@ export default app
   it('names routeHandler files in kebab case', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-kebab-rh-'))
     const output = path.join(tmpDir, 'routes.ts')
-    await runGenerator(template(realTime, output, '/', undefined, undefined, true))
+    await Effect.runPromise(
+      Effect.provide(
+        template(realTime, output, '/', undefined, undefined, true),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readdirSync(path.join(tmpDir, 'handlers')).sort()).toStrictEqual([
       'index.ts',
       'real-time-events.ts',
@@ -396,8 +453,13 @@ export default app
         },
       },
     } as OpenAPI
-    const result = await runGeneratorError(
-      template(openAPI, output, '/', undefined, undefined, false),
+    const result = await Effect.runPromise(
+      Effect.flip(
+        Effect.provide(
+          template(openAPI, output, '/', undefined, undefined, false),
+          NodeFileSystem.layer,
+        ),
+      ),
     )
     expect(result.message.length).toBeGreaterThan(0)
   })

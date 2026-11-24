@@ -2,9 +2,10 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
-import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { securitySchemes } from './securitySchemes.js'
 
 let tmpDir: string
@@ -17,14 +18,18 @@ describe('securitySchemes', () => {
   it('returns error when securitySchemes is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-securitySchemes-'))
     const output = path.join(tmpDir, 'securitySchemes.ts')
-    const result = await runGeneratorError(securitySchemes(undefined, output, false))
+    const result = await Effect.runPromise(
+      Effect.flip(Effect.provide(securitySchemes(undefined, output, false), NodeFileSystem.layer)),
+    )
     expect(result.message).toBe('No securitySchemes found')
   })
 
   it('returns success message when securitySchemes is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-securitySchemes-'))
     const output = path.join(tmpDir, 'securitySchemes.ts')
-    const result = await runGenerator(securitySchemes({}, output, false))
+    const result = await Effect.runPromise(
+      Effect.provide(securitySchemes({}, output, false), NodeFileSystem.layer),
+    )
     expect(result).toBe('No securitySchemes found')
   })
 
@@ -32,17 +37,20 @@ describe('securitySchemes', () => {
     it('writes single file and returns success', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-securitySchemes-'))
       const output = path.join(tmpDir, 'securitySchemes.ts')
-      const result = await runGenerator(
-        securitySchemes(
-          {
-            bearerAuth: {
-              type: 'http',
-              scheme: 'bearer',
-              bearerFormat: 'JWT',
+      const result = await Effect.runPromise(
+        Effect.provide(
+          securitySchemes(
+            {
+              bearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+              },
             },
-          },
-          output,
-          false,
+            output,
+            false,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated securitySchemes code written to ${output}`)
@@ -56,18 +64,21 @@ describe('securitySchemes', () => {
     it('writes single file with as const', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-securitySchemes-'))
       const output = path.join(tmpDir, 'securitySchemes.ts')
-      const result = await runGenerator(
-        securitySchemes(
-          {
-            bearerAuth: {
-              type: 'http',
-              scheme: 'bearer',
-              bearerFormat: 'JWT',
+      const result = await Effect.runPromise(
+        Effect.provide(
+          securitySchemes(
+            {
+              bearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+              },
             },
-          },
-          output,
-          false,
-          true,
+            output,
+            false,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated securitySchemes code written to ${output}`)
@@ -81,22 +92,25 @@ describe('securitySchemes', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-securitySchemes-'))
       const output = path.join(tmpDir, 'securitySchemes')
-      await runGenerator(
-        securitySchemes(
-          {
-            bearerAuth: {
-              type: 'http',
-              scheme: 'bearer',
-              bearerFormat: 'JWT',
+      await Effect.runPromise(
+        Effect.provide(
+          securitySchemes(
+            {
+              bearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+              },
+              apiKey: {
+                type: 'apiKey',
+                name: 'X-API-Key',
+                in: 'header',
+              },
             },
-            apiKey: {
-              type: 'apiKey',
-              name: 'X-API-Key',
-              in: 'header',
-            },
-          },
-          output,
-          true,
+            output,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
@@ -107,17 +121,20 @@ describe('securitySchemes', () => {
     it('writes split files with readonly', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-securitySchemes-'))
       const output = path.join(tmpDir, 'securitySchemes')
-      await runGenerator(
-        securitySchemes(
-          {
-            bearerAuth: {
-              type: 'http',
-              scheme: 'bearer',
+      await Effect.runPromise(
+        Effect.provide(
+          securitySchemes(
+            {
+              bearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+              },
             },
-          },
-          output,
-          true,
-          true,
+            output,
+            true,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)

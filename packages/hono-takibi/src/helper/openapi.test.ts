@@ -500,17 +500,17 @@ describe('openapi helper', () => {
           $ref: '#/components/parameters/UserId',
         },
       ])
-      expect(result.path.id).toBe('UserIdParamsSchema')
+      expect(result.path?.id).toBe('UserIdParamsSchema')
     })
     it.concurrent('applies coercion for query number parameters', () => {
       const result = makeParameters([{ name: 'page', in: 'query', schema: { type: 'number' } }])
-      expect(result.query.page).toBe(
+      expect(result.query?.page).toBe(
         String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.number()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"number"},"required":false}})`,
       )
     })
     it.concurrent('applies stringbool for query boolean parameters', () => {
       const result = makeParameters([{ name: 'active', in: 'query', schema: { type: 'boolean' } }])
-      expect(result.query.active).toBe(
+      expect(result.query?.active).toBe(
         'z.stringbool().exactOptional().openapi({param:{"name":"active","in":"query","schema":{"type":"boolean"},"required":false}})',
       )
     })
@@ -518,7 +518,7 @@ describe('openapi helper', () => {
       const result = makeParameters([
         { name: 'flag', in: 'query', schema: { type: 'boolean', 'x-coerce': true } },
       ])
-      expect(result.query.flag).toBe(
+      expect(result.query?.flag).toBe(
         'z.coerce.boolean().exactOptional().openapi({param:{"name":"flag","in":"query","schema":{"type":"boolean","x-coerce":true},"required":false}})',
       )
     })
@@ -530,37 +530,37 @@ describe('openapi helper', () => {
           content: { 'application/json': { schema: { type: 'object' } } },
         },
       ])
-      expect(result.query.filter).toBe(
+      expect(result.query?.filter).toBe(
         `z.preprocess((val)=>{if(typeof val!=='string')return val;try{return JSON.parse(val)}catch{return val}},z.looseObject({})).exactOptional().openapi({param:{"name":"filter","in":"query","content":{"application/json":{"schema":{"type":"object"}}},"required":false}})`,
       )
     })
     it.concurrent('handles parameters without schema returns z.any()', () => {
       const result = makeParameters([{ name: 'unknown', in: 'query' }])
-      expect(result.query.unknown).toBe('z.any()')
+      expect(result.query?.unknown).toBe('z.any()')
     })
     // `date` names no Schema Object type: written into `param.schema`, it does not type-check
     // (#419), so the document's schema states nothing about the type.
     it.concurrent('applies coercion for query date parameters', () => {
       const result = makeParameters([{ name: 'date', in: 'query', schema: { type: 'date' } }])
-      expect(result.query.date).toBe(
+      expect(result.query?.date).toBe(
         'z.coerce.date().exactOptional().openapi({param:{"name":"date","in":"query","schema":{},"required":false}})',
       )
     })
     it.concurrent('generates a query parameter with exact string output', () => {
       const result = makeParameters([{ name: 'page', in: 'query', schema: { type: 'integer' } }])
-      expect(result.query.page).toBe(
+      expect(result.query?.page).toBe(
         String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}})`,
       )
     })
     it.concurrent('generates path parameter with exact string output', () => {
       const result = makeParameters([{ name: 'userId', in: 'path', schema: { type: 'string' } }])
-      expect(result.path.userId).toBe(
+      expect(result.path?.userId).toBe(
         'z.string().exactOptional().openapi({param:{"name":"userId","in":"path","schema":{"type":"string"}}})',
       )
     })
     it.concurrent('applies coercion for path integer parameters', () => {
       const result = makeParameters([{ name: 'id', in: 'path', schema: { type: 'integer' } }])
-      expect(result.path.id).toBe(
+      expect(result.path?.id).toBe(
         String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"integer"}}})`,
       )
     })
@@ -574,7 +574,7 @@ describe('openapi helper', () => {
           schema: { type: 'array', items: { type: 'integer', format: 'int64' } },
         },
       ])
-      expect(result.query.ids).toBe(
+      expect(result.query?.ids).toBe(
         String.raw`z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>{if(typeof val!=='string'||!/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val))return val;if(/^-?\d+$/.test(val))return BigInt(val);const num=Number(val);return Number.isSafeInteger(num)?BigInt(num):val},z.int64()).openapi({type:"integer",format:"int64"}))).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"integer","format":"int64"}},"required":false}})`,
       )
     })
@@ -586,7 +586,7 @@ describe('openapi helper', () => {
       const result = makeParameters([
         { name: 'ids', in: 'query', schema: { type: 'array', items: { type: 'integer' } } },
       ])
-      expect(result.query.ids).toBe(
+      expect(result.query?.ids).toBe(
         String.raw`z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()))).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"integer"}},"required":false}})`,
       )
     })
@@ -596,7 +596,7 @@ describe('openapi helper', () => {
       const result = makeParameters([
         { name: 'ids', in: 'cookie', schema: { type: 'array', items: { type: 'integer' } } },
       ])
-      expect(result.cookie.ids).toBe(
+      expect(result.cookie?.ids).toBe(
         String.raw`z.preprocess((val)=>(val===undefined?val:(Array.isArray(val)?val:[val]).flatMap((item)=>(typeof item==='string'?item.split(","):[item]))),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()))).exactOptional().openapi({param:{"name":"ids","in":"cookie","schema":{"type":"array","items":{"type":"integer"}},"required":false}})`,
       )
     })
@@ -607,7 +607,7 @@ describe('openapi helper', () => {
       const result = makeParameters([
         { name: 'ids', in: 'header', schema: { type: 'array', items: { type: 'integer' } } },
       ])
-      expect(result.header.ids).toBe(
+      expect(result.header?.ids).toBe(
         String.raw`z.preprocess((val)=>(val===undefined?val:(Array.isArray(val)?val:[val]).flatMap((item)=>(typeof item==='string'?item.split(",").map((part)=>part.trim()):[item]))),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()))).exactOptional().openapi({param:{"name":"ids","in":"header","schema":{"type":"array","items":{"type":"integer"}},"required":false}})`,
       )
     })
@@ -616,7 +616,7 @@ describe('openapi helper', () => {
       const result = makeParameters([
         { name: 'ids', in: 'path', schema: { type: 'array', items: { type: 'integer' } } },
       ])
-      expect(result.path.ids).toBe(
+      expect(result.path?.ids).toBe(
         String.raw`z.preprocess((val)=>(typeof val==='string'?val.split(','):val),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()))).exactOptional().openapi({param:{"name":"ids","in":"path","schema":{"type":"array","items":{"type":"integer"}}}})`,
       )
     })
@@ -627,19 +627,19 @@ describe('openapi helper', () => {
         { name: 'x-big', in: 'header', schema: { type: 'integer', format: 'int64' } },
       ])
       // `makeSafeKey` quotes a name that is not an identifier, so the key carries them.
-      expect(result.header["'x-count'"]).toBe(
+      expect(result.header?.["'x-count'"]).toBe(
         String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"x-count","in":"header","schema":{"type":"integer"},"required":false}})`,
       )
-      expect(result.header["'x-flag'"]).toBe(
+      expect(result.header?.["'x-flag'"]).toBe(
         'z.stringbool().exactOptional().openapi({param:{"name":"x-flag","in":"header","schema":{"type":"boolean"},"required":false}})',
       )
-      expect(result.header["'x-big'"]).toBe(
+      expect(result.header?.["'x-big'"]).toBe(
         String.raw`z.preprocess((val)=>{if(typeof val!=='string'||!/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val))return val;if(/^-?\d+$/.test(val))return BigInt(val);const num=Number(val);return Number.isSafeInteger(num)?BigInt(num):val},z.int64()).exactOptional().openapi({param:{"name":"x-big","in":"header","schema":{"type":"integer","format":"int64"},"required":false}})`,
       )
     })
     it.concurrent('coerces cookie parameters, which arrive as strings too', () => {
       const result = makeParameters([{ name: 'sid', in: 'cookie', schema: { type: 'integer' } }])
-      expect(result.cookie.sid).toBe(
+      expect(result.cookie?.sid).toBe(
         String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"sid","in":"cookie","schema":{"type":"integer"},"required":false}})`,
       )
     })
@@ -653,7 +653,7 @@ describe('openapi helper', () => {
           schema: { type: 'array', items: { type: 'number', format: 'double' } },
         },
       ])
-      expect(result.query.ratios).toBe(
+      expect(result.query?.ratios).toBe(
         String.raw`z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.float64()))).exactOptional().openapi({param:{"name":"ratios","in":"query","schema":{"type":"array","items":{"type":"number","format":"double"}},"required":false}})`,
       )
     })
@@ -665,7 +665,7 @@ describe('openapi helper', () => {
           schema: { type: 'array', items: { type: 'integer', format: 'int32' } },
         },
       ])
-      expect(result.query.ids).toBe(
+      expect(result.query?.ids).toBe(
         String.raw`z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int32()))).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"integer","format":"int32"}},"required":false}})`,
       )
     })
@@ -673,19 +673,19 @@ describe('openapi helper', () => {
       const result = makeParameters([
         { name: 'id', in: 'path', schema: { type: 'integer', format: 'int64' } },
       ])
-      expect(result.path.id).toBe(
+      expect(result.path?.id).toBe(
         String.raw`z.preprocess((val)=>{if(typeof val!=='string'||!/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val))return val;if(/^-?\d+$/.test(val))return BigInt(val);const num=Number(val);return Number.isSafeInteger(num)?BigInt(num):val},z.int64()).exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"integer","format":"int64"}}})`,
       )
     })
     it.concurrent('applies coercion for path number parameters', () => {
       const result = makeParameters([{ name: 'value', in: 'path', schema: { type: 'number' } }])
-      expect(result.path.value).toBe(
+      expect(result.path?.value).toBe(
         String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.number()).exactOptional().openapi({param:{"name":"value","in":"path","schema":{"type":"number"}}})`,
       )
     })
     it.concurrent('applies stringbool for path boolean parameters', () => {
       const result = makeParameters([{ name: 'flag', in: 'path', schema: { type: 'boolean' } }])
-      expect(result.path.flag).toBe(
+      expect(result.path?.flag).toBe(
         'z.stringbool().exactOptional().openapi({param:{"name":"flag","in":"path","schema":{"type":"boolean"}}})',
       )
     })
@@ -693,7 +693,7 @@ describe('openapi helper', () => {
       const result = makeParameters([
         { name: 'Authorization', in: 'header', schema: { type: 'string' } },
       ])
-      expect(result.header.Authorization).toBe(
+      expect(result.header?.Authorization).toBe(
         'z.string().exactOptional().openapi({param:{"name":"Authorization","in":"header","schema":{"type":"string"},"required":false}})',
       )
     })
@@ -701,7 +701,7 @@ describe('openapi helper', () => {
       const result = makeParameters([
         { name: 'session_id', in: 'cookie', schema: { type: 'string' } },
       ])
-      expect(result.cookie.session_id).toBe(
+      expect(result.cookie?.session_id).toBe(
         'z.string().exactOptional().openapi({param:{"name":"session_id","in":"cookie","schema":{"type":"string"},"required":false}})',
       )
     })
@@ -722,7 +722,7 @@ describe('openapi helper', () => {
           },
         },
       ])
-      expect(result.query.filter).toBe(
+      expect(result.query?.filter).toBe(
         String.raw`z.object({count:z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).exactOptional(),active:z.preprocess(((read)=>(val:unknown)=>{const result=read.safeParse(val);return result.success?result.data:val})(z.stringbool()),z.boolean()).exactOptional()}).exactOptional().openapi({param:{"name":"filter","in":"query","schema":{"type":"object","properties":{"count":{"type":"integer"},"active":{"type":"boolean"}}},"required":false},"required":[]})`,
       )
     })
@@ -738,7 +738,7 @@ describe('openapi helper', () => {
           },
         },
       ])
-      expect(result.query.ids).toBe(
+      expect(result.query?.ids).toBe(
         String.raw`z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.number()))).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"number"}},"required":false}})`,
       )
     })
@@ -751,7 +751,7 @@ describe('openapi helper', () => {
           schema: { type: 'boolean', default: 'true' },
         },
       ])
-      expect(result.query.verbose).toBe(
+      expect(result.query?.verbose).toBe(
         'z.stringbool().default(true).exactOptional().openapi({param:{"name":"verbose","in":"query","schema":{"type":"boolean","default":"true"},"required":false}})',
       )
     })
@@ -762,7 +762,7 @@ describe('openapi helper', () => {
       const result = makeParameters([
         { name: 'kind', in: 'query', schema: { type: 'integer', enum: [1, 2] } },
       ])
-      expect(result.query.kind).toBe(
+      expect(result.query?.kind).toBe(
         String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.union([z.literal(1),z.literal(2)])).exactOptional().openapi({param:{"name":"kind","in":"query","schema":{"type":"integer","enum":[1,2]},"required":false}})`,
       )
     })
@@ -770,7 +770,7 @@ describe('openapi helper', () => {
       const result = makeParameters([
         { name: 'flag', in: 'path', required: true, schema: { type: 'boolean', enum: [true] } },
       ])
-      expect(result.path.flag).toBe(
+      expect(result.path?.flag).toBe(
         'z.stringbool().pipe(z.literal(true)).openapi({param:{"name":"flag","in":"path","required":true,"schema":{"type":"boolean","enum":[true]}}})',
       )
     })
@@ -780,7 +780,7 @@ describe('openapi helper', () => {
       const result = makeParameters([
         { name: 'version', in: 'query', schema: { type: 'number', const: 2 } },
       ])
-      expect(result.query.version).toBe(
+      expect(result.query?.version).toBe(
         String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.literal(2)).exactOptional().openapi({param:{"name":"version","in":"query","schema":{"type":"number","const":2},"required":false}})`,
       )
     })
@@ -788,7 +788,7 @@ describe('openapi helper', () => {
       const result = makeParameters([
         { name: 'sort', in: 'query', schema: { type: 'string', enum: ['asc', 'desc'] } },
       ])
-      expect(result.query.sort).toBe(
+      expect(result.query?.sort).toBe(
         'z.enum(["asc","desc"]).exactOptional().openapi({param:{"name":"sort","in":"query","schema":{"type":"string","enum":["asc","desc"]},"required":false}})',
       )
     })
@@ -798,7 +798,7 @@ describe('openapi helper', () => {
       const result = makeParameters([
         { name: 'limit', in: 'query', schema: { type: ['integer', 'null'] } },
       ])
-      expect(result.query.limit).toBe(
+      expect(result.query?.limit).toBe(
         String.raw`z.preprocess((val)=>(val==='null'?null:val),z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.int()).nullable()).exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":["integer","null"]},"required":false}})`,
       )
     })
@@ -814,7 +814,7 @@ describe('openapi helper', () => {
           schema: { oneOf: [{ type: 'integer' }, { type: 'string', enum: ['all'] }] },
         },
       ])
-      expect(result.query.page).toBe(
+      expect(result.query?.page).toBe(
         String.raw`((schema)=>z.union([z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),schema),schema]))(z.xor([z.int(),z.literal('all')])).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"oneOf":[{"type":"integer"},{"type":"string","enum":["all"]}]},"required":false}})`,
       )
     })
@@ -826,7 +826,7 @@ describe('openapi helper', () => {
           schema: { type: 'array', items: { type: 'integer', enum: [1, 2] } },
         },
       ])
-      expect(result.query.kinds).toBe(
+      expect(result.query?.kinds).toBe(
         String.raw`z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.union([z.literal(1),z.literal(2)])))).exactOptional().openapi({param:{"name":"kinds","in":"query","schema":{"type":"array","items":{"type":"integer","enum":[1,2]}},"required":false}})`,
       )
     })
@@ -840,7 +840,7 @@ describe('openapi helper', () => {
           schema: { type: 'array', items: { type: 'string' }, default: [] },
         },
       ])
-      expect(result.query.tags).toBe(
+      expect(result.query?.tags).toBe(
         'z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.string())).default([]).exactOptional().openapi({param:{"name":"tags","in":"query","schema":{"type":"array","items":{"type":"string"},"default":[]},"required":false}})',
       )
     })
@@ -848,7 +848,7 @@ describe('openapi helper', () => {
       const result = makeParameters([
         { name: 'kind', in: 'body' as 'query', schema: { type: 'integer', enum: [1, 2] } },
       ])
-      expect(result.body.kind).toBe(
+      expect(result.body?.kind).toBe(
         String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.union([z.literal(1),z.literal(2)])).exactOptional().openapi({param:{"name":"kind","in":"body","schema":{"type":"integer","enum":[1,2]},"required":false}})`,
       )
     })

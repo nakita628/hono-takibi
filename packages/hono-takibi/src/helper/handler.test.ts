@@ -2,10 +2,11 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../openapi/index.js'
-import { runGenerator } from '../testing/index.js'
 import {
   defineOpenAPIRouteHandler,
   handlerExportOf,
@@ -330,7 +331,12 @@ describe('zodOpenAPIHonoHandler', () => {
   } as OpenAPI
 
   it('generates inline stub handler files', async () => {
-    await runGenerator(zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/routes.ts`))
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/routes.ts`),
+        NodeFileSystem.layer,
+      ),
+    )
 
     expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf8')).toBe(
       `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getUsersRoute, postUsersRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUsersRoute, (c) => {})\n`,
@@ -349,7 +355,9 @@ describe('zodOpenAPIHonoHandler', () => {
         '/2020-05-31/distribution': { get: { responses: { 200: { description: 'OK' } } } },
       },
     } as OpenAPI
-    await runGenerator(zodOpenAPIHonoHandler(openapi, `${testDir}/routes.ts`))
+    await Effect.runPromise(
+      Effect.provide(zodOpenAPIHonoHandler(openapi, `${testDir}/routes.ts`), NodeFileSystem.layer),
+    )
     expect(fs.readFileSync(`${testDir}/handlers/2020-05-31.ts`, 'utf8')).toBe(
       `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { get20200531DistributionRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const __20200531Handler = app.openapi(get20200531DistributionRoute, (c) => {})\n`,
     )
@@ -368,16 +376,23 @@ describe('zodOpenAPIHonoHandler', () => {
         ]),
       ),
     } as OpenAPI
-    await runGenerator(zodOpenAPIHonoHandler(openapi, `${testDir}/routes.ts`))
+    await Effect.runPromise(
+      Effect.provide(zodOpenAPIHonoHandler(openapi, `${testDir}/routes.ts`), NodeFileSystem.layer),
+    )
     // The second run merges the generated file with the one already there.
-    await runGenerator(zodOpenAPIHonoHandler(openapi, `${testDir}/routes.ts`))
+    await Effect.runPromise(
+      Effect.provide(zodOpenAPIHonoHandler(openapi, `${testDir}/routes.ts`), NodeFileSystem.layer),
+    )
     const written = fs.readFileSync(`${testDir}/handlers/v1.ts`, 'utf8')
     expect(written.match(/\.openapi\(/gu)?.length).toBe(3000)
   })
 
   it('generates routeHandler stub files with RouteHandler type', async () => {
-    await runGenerator(
-      zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+        NodeFileSystem.layer,
+      ),
     )
     expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf8')).toBe(
       `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getUsersRoute, postUsersRoute } from '../routes'\n\nexport const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c) => {}\n\nexport const postUsersRouteHandler: RouteHandler<typeof postUsersRoute> = async (c) => {}\n`,
@@ -385,15 +400,23 @@ describe('zodOpenAPIHonoHandler', () => {
   })
 
   it('generates handler files with path alias', async () => {
-    await runGenerator(zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/routes.ts`, '@/routes'))
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/routes.ts`, '@/routes'),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf8')).toBe(
       `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getUsersRoute, postUsersRoute } from '@/routes/routes'\n\nconst app = new OpenAPIHono()\n\nexport const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUsersRoute, (c) => {})\n`,
     )
   })
 
   it('generates handler files with routeImport override', async () => {
-    await runGenerator(
-      zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/routes.ts`, undefined, '@/custom-routes'),
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/routes.ts`, undefined, '@/custom-routes'),
+        NodeFileSystem.layer,
+      ),
     )
     expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf8')).toBe(
       `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getUsersRoute, postUsersRoute } from '@/custom-routes'\n\nconst app = new OpenAPIHono()\n\nexport const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUsersRoute, (c) => {})\n`,
@@ -420,14 +443,18 @@ describe('zodOpenAPIHonoHandler', () => {
       },
     } as OpenAPI
 
-    await runGenerator(zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`))
+    await Effect.runPromise(
+      Effect.provide(zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`), NodeFileSystem.layer),
+    )
     expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf8')).toBe(
       `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getUsersRoute, getUsersIdRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const usersHandler = app\n  .openapi(getUsersRoute, (c) => {})\n  .openapi(getUsersIdRoute, (c) => {})\n`,
     )
   })
 
   it('handles output path with dot prefix', async () => {
-    await runGenerator(zodOpenAPIHonoHandler(simpleOpenAPI, './'))
+    await Effect.runPromise(
+      Effect.provide(zodOpenAPIHonoHandler(simpleOpenAPI, './'), NodeFileSystem.layer),
+    )
 
     expect(fs.existsSync('handlers/users.ts')).toBe(true)
     expect(fs.existsSync('handlers/index.ts')).toBe(true)
@@ -437,7 +464,12 @@ describe('zodOpenAPIHonoHandler', () => {
   })
 
   it('handles output path with index.ts suffix', async () => {
-    await runGenerator(zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/src/routes/index.ts`))
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/src/routes/index.ts`),
+        NodeFileSystem.layer,
+      ),
+    )
 
     expect(fs.existsSync(`${testDir}/src/handlers/users.ts`)).toBe(true)
   })
@@ -448,7 +480,9 @@ describe('zodOpenAPIHonoHandler', () => {
     const cwd = process.cwd()
     process.chdir(testDir)
     try {
-      await runGenerator(zodOpenAPIHonoHandler(simpleOpenAPI, './index.ts'))
+      await Effect.runPromise(
+        Effect.provide(zodOpenAPIHonoHandler(simpleOpenAPI, './index.ts'), NodeFileSystem.layer),
+      )
     } finally {
       process.chdir(cwd)
     }
@@ -465,7 +499,12 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
   // A split routes directory (`routes: { output: 'src/routes', split: true }`) is a module
   // like `src/routes/index.ts`: the handlers go beside it and import it by its barrel.
   it('handles a split routes directory as the routes module', async () => {
-    await runGenerator(zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/src/routes`))
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/src/routes`),
+        NodeFileSystem.layer,
+      ),
+    )
 
     expect(fs.existsSync(`${testDir}/src/handlers/users.ts`)).toBe(true)
     expect(fs.readFileSync(`${testDir}/src/handlers/users.ts`, 'utf8'))
@@ -492,7 +531,12 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
       },
     } as OpenAPI
 
-    await runGenerator(zodOpenAPIHonoHandler(firstOpenAPI, `${testDir}/routes.ts`))
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(firstOpenAPI, `${testDir}/routes.ts`),
+        NodeFileSystem.layer,
+      ),
+    )
     const postsContent = fs.readFileSync(`${testDir}/handlers/posts.ts`, 'utf8')
 
     const secondOpenAPI = {
@@ -505,7 +549,12 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
       },
     } as OpenAPI
 
-    await runGenerator(zodOpenAPIHonoHandler(secondOpenAPI, `${testDir}/routes.ts`))
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(secondOpenAPI, `${testDir}/routes.ts`),
+        NodeFileSystem.layer,
+      ),
+    )
     // The sub-router loses its registration and its route import; the file stays.
     expect(postsContent).toBe(
       `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getPostsRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const postsHandler = app.openapi(getPostsRoute, (c) => {})\n`,
@@ -529,8 +578,11 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
         },
       },
     } as OpenAPI
-    await runGenerator(
-      zodOpenAPIHonoHandler(firstOpenAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(firstOpenAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+        NodeFileSystem.layer,
+      ),
     )
     fs.writeFileSync(
       `${testDir}/handlers/posts.ts`,
@@ -546,8 +598,11 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
         },
       },
     } as OpenAPI
-    await runGenerator(
-      zodOpenAPIHonoHandler(secondOpenAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(secondOpenAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+        NodeFileSystem.layer,
+      ),
     )
     expect(fs.readFileSync(`${testDir}/handlers/posts.ts`, 'utf8')).toBe(
       `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getPostsRoute } from '../routes'\n\nexport const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c) => {\n  return c.json([], 200)\n}\n`,
@@ -567,8 +622,11 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
         },
       },
     } as OpenAPI
-    await runGenerator(
-      zodOpenAPIHonoHandler(firstOpenAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(firstOpenAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+        NodeFileSystem.layer,
+      ),
     )
     fs.writeFileSync(
       `${testDir}/handlers/posts.ts`,
@@ -584,8 +642,11 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
         },
       },
     } as OpenAPI
-    await runGenerator(
-      zodOpenAPIHonoHandler(secondOpenAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(secondOpenAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+        NodeFileSystem.layer,
+      ),
     )
     // Hand-written code outside the handler survives; the stale route import is dropped so
     // the file keeps type-checking once `getPostsRoute` disappears from the routes module.
@@ -615,8 +676,11 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
     const shares = `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getDocumentsDocumentIdSharesRoute } from '../routes'\n\nexport const authHandler = 'HAND WRITTEN'\n\nexport const getDocumentsDocumentIdSharesRouteHandler: RouteHandler<\n  typeof getDocumentsDocumentIdSharesRoute\n> = async (c) => {\n  return c.json([], 200)\n}\n`
     fs.writeFileSync(`${testDir}/handlers/shares.ts`, shares)
 
-    await runGenerator(
-      zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+        NodeFileSystem.layer,
+      ),
     )
     expect(fs.readFileSync(`${testDir}/handlers/shares.ts`, 'utf8')).toBe(shares)
     expect(fs.existsSync(`${testDir}/handlers/documents.ts`)).toBe(false)
@@ -632,7 +696,9 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
         },
       },
     } as OpenAPI
-    await runGenerator(zodOpenAPIHonoHandler(untagged, `${testDir}/routes.ts`))
+    await Effect.runPromise(
+      Effect.provide(zodOpenAPIHonoHandler(untagged, `${testDir}/routes.ts`), NodeFileSystem.layer),
+    )
     const implemented = `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getUsersRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const usersHandler = app.openapi(getUsersRoute, async (c) => {\n  return c.json([{ id: '1', name: 'Jane' }], 200)\n})\n`
     fs.writeFileSync(`${testDir}/handlers/users.ts`, implemented)
 
@@ -649,7 +715,9 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
         },
       },
     } as OpenAPI
-    await runGenerator(zodOpenAPIHonoHandler(tagged, `${testDir}/routes.ts`))
+    await Effect.runPromise(
+      Effect.provide(zodOpenAPIHonoHandler(tagged, `${testDir}/routes.ts`), NodeFileSystem.layer),
+    )
     expect(fs.existsSync(`${testDir}/handlers/user-management.ts`)).toBe(false)
     expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf8')).toBe(implemented)
     expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf8')).toBe(
@@ -682,8 +750,11 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
       fs.writeFileSync(`${testDir}/handlers/Users.ts`, `export const legacy = 1\n`)
       fs.writeFileSync(`${testDir}/handlers/users.ts`, `export const current = 1\n`)
 
-      await runGenerator(
-        zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+      await Effect.runPromise(
+        Effect.provide(
+          zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+          NodeFileSystem.layer,
+        ),
       )
       expect(fs.readFileSync(`${testDir}/handlers/Users.ts`, 'utf8')).toBe(
         `export const legacy = 1\n`,
@@ -708,8 +779,11 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
     fs.writeFileSync(`${testDir}/handlers/a.ts`, `export const getUsersRouteHandler = 'A'\n`)
     fs.writeFileSync(`${testDir}/handlers/b.ts`, `export const getUsersRouteHandler = 'B'\n`)
 
-    await runGenerator(
-      zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+        NodeFileSystem.layer,
+      ),
     )
     expect(fs.readFileSync(`${testDir}/handlers/a.ts`, 'utf8')).toBe(
       `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getUsersRoute } from '../routes'\n\nexport const getUsersRouteHandler = 'A'\n`,
@@ -756,8 +830,11 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
       `export * from './documents'\nexport * from './shares'\n`,
     )
 
-    await runGenerator(
-      zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+        NodeFileSystem.layer,
+      ),
     )
     expect(fs.readFileSync(`${testDir}/handlers/documents.ts`, 'utf8')).toBe(
       `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getDocumentsDocumentIdRoute } from '../routes'\n\nexport const getDocumentsDocumentIdRouteHandler = 'REAL IMPLEMENTATION'\n`,
@@ -789,8 +866,11 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
     fs.writeFileSync(`${testDir}/handlers/legacy.ts`, legacy)
     fs.writeFileSync(`${testDir}/handlers/index.ts`, `export * from './legacy'\n`)
 
-    await runGenerator(
-      zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+        NodeFileSystem.layer,
+      ),
     )
     expect(fs.readFileSync(`${testDir}/handlers/legacy.ts`, 'utf8')).toBe(legacy)
     expect(fs.readFileSync(`${testDir}/handlers/books.ts`, 'utf8')).toBe(
@@ -826,8 +906,11 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
       },
     } as OpenAPI
 
-    await runGenerator(
-      zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+        NodeFileSystem.layer,
+      ),
     )
     expect(fs.readdirSync(`${testDir}/handlers`).sort()).toStrictEqual([
       'books.ts',
@@ -862,8 +945,11 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
     fs.mkdirSync(`${testDir}/handlers`, { recursive: true })
     fs.writeFileSync(`${testDir}/handlers/Users.ts`, `export const helper = 1\n`)
 
-    await runGenerator(
-      zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, undefined, undefined, true),
+        NodeFileSystem.layer,
+      ),
     )
     expect(fs.readdirSync(`${testDir}/handlers`).sort()).toStrictEqual(['Users.ts', 'index.ts'])
     expect(fs.readFileSync(`${testDir}/handlers/Users.ts`, 'utf8')).toBe(
@@ -885,7 +971,9 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
       },
     } as OpenAPI
 
-    await runGenerator(zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`))
+    await Effect.runPromise(
+      Effect.provide(zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`), NodeFileSystem.layer),
+    )
     expect(fs.existsSync(`${testDir}/handlers/__root.ts`)).toBe(true)
   })
 
@@ -908,13 +996,16 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
   } as OpenAPI
 
   it('writes the routeHandler file of the segment index beside the barrel, not over it (#546)', async () => {
-    await runGenerator(
-      zodOpenAPIHonoHandler(
-        indexSegmentOpenAPI,
-        `${testDir}/routes.ts`,
-        undefined,
-        undefined,
-        true,
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(
+          indexSegmentOpenAPI,
+          `${testDir}/routes.ts`,
+          undefined,
+          undefined,
+          true,
+        ),
+        NodeFileSystem.layer,
       ),
     )
     expect(fs.readdirSync(`${testDir}/handlers`).sort()).toStrictEqual([
@@ -931,7 +1022,12 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
   })
 
   it('writes the inline file of the segment index beside the barrel, not over it (#546)', async () => {
-    await runGenerator(zodOpenAPIHonoHandler(indexSegmentOpenAPI, `${testDir}/routes.ts`))
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(indexSegmentOpenAPI, `${testDir}/routes.ts`),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readdirSync(`${testDir}/handlers`).sort()).toStrictEqual([
       '__index.ts',
       'index.ts',
@@ -947,23 +1043,29 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUs
 
   it('writes the same files on a second run (#546)', async () => {
     const files = ['__index.ts', 'index.ts', 'pets.ts']
-    await runGenerator(
-      zodOpenAPIHonoHandler(
-        indexSegmentOpenAPI,
-        `${testDir}/routes.ts`,
-        undefined,
-        undefined,
-        true,
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(
+          indexSegmentOpenAPI,
+          `${testDir}/routes.ts`,
+          undefined,
+          undefined,
+          true,
+        ),
+        NodeFileSystem.layer,
       ),
     )
     const first = files.map((file) => fs.readFileSync(`${testDir}/handlers/${file}`, 'utf8'))
-    await runGenerator(
-      zodOpenAPIHonoHandler(
-        indexSegmentOpenAPI,
-        `${testDir}/routes.ts`,
-        undefined,
-        undefined,
-        true,
+    await Effect.runPromise(
+      Effect.provide(
+        zodOpenAPIHonoHandler(
+          indexSegmentOpenAPI,
+          `${testDir}/routes.ts`,
+          undefined,
+          undefined,
+          true,
+        ),
+        NodeFileSystem.layer,
       ),
     )
     expect(
@@ -1015,8 +1117,11 @@ describe('defineOpenAPIRouteHandler', () => {
     )
     fs.writeFileSync(`${testDir}/routes/index.ts`, `export * from './reviews'\n`)
 
-    await runGenerator(
-      defineOpenAPIRouteHandler(openAPI, `${testDir}/index.ts`, `${testDir}/components/index.ts`),
+    await Effect.runPromise(
+      Effect.provide(
+        defineOpenAPIRouteHandler(openAPI, `${testDir}/index.ts`, `${testDir}/components/index.ts`),
+        NodeFileSystem.layer,
+      ),
     )
     expect(fs.readFileSync(`${testDir}/routes/reviews.ts`, 'utf8')).toBe(
       `import { createRoute, defineOpenAPIRoute } from '@hono/zod-openapi'\n\nexport const getBooksBookIdReviewsRoute = 'REAL IMPLEMENTATION'\n`,
@@ -1041,8 +1146,11 @@ describe('defineOpenAPIRouteHandler', () => {
       },
     } as OpenAPI
 
-    await runGenerator(
-      defineOpenAPIRouteHandler(openAPI, `${testDir}/index.ts`, `${testDir}/components/index.ts`),
+    await Effect.runPromise(
+      Effect.provide(
+        defineOpenAPIRouteHandler(openAPI, `${testDir}/index.ts`, `${testDir}/components/index.ts`),
+        NodeFileSystem.layer,
+      ),
     )
     expect(fs.readdirSync(`${testDir}/routes`).sort()).toStrictEqual([
       '__index.ts',

@@ -682,13 +682,15 @@ describe('wrap', () => {
   })
 
   it('omits parameter keys whose value is undefined', () => {
-    const testParameter: Parameter = {
+    // A hand-built document can carry a key whose value is `undefined`, which the
+    // `Parameter` type itself does not allow.
+    const testParameter = {
       name: 'number',
       in: 'query',
       required: true,
       description: undefined,
       schema: { type: 'string' },
-    }
+    } as unknown as Parameter
     const result = wrap('z.string()', { type: 'string' }, { parameters: testParameter })
     expect(result).toBe(
       'z.string().openapi({param:{"name":"number","in":"query","required":true,"schema":{"type":"string"}}})',

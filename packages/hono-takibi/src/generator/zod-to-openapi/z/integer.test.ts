@@ -585,7 +585,7 @@ describe('integer', () => {
       const result = Schema.safeParse('1.5')
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('整数必須')
+        expect(result.error.issues[0]?.message).toBe('整数必須')
       }
     })
     it.concurrent('numberPipe: non-number string shows custom error', () => {
@@ -593,7 +593,7 @@ describe('integer', () => {
       const result = Schema.safeParse('abc')
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('int32必須')
+        expect(result.error.issues[0]?.message).toBe('int32必須')
       }
     })
     it.concurrent('bigintPipe: non-bigint string shows custom error', () => {
@@ -601,7 +601,7 @@ describe('integer', () => {
       const result = Schema.safeParse('abc')
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('int64必須')
+        expect(result.error.issues[0]?.message).toBe('int64必須')
       }
     })
   })
@@ -614,7 +614,7 @@ describe('integer', () => {
       const result = Schema.safeParse(undefined)
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('整数必須')
+        expect(result.error.issues[0]?.message).toBe('整数必須')
       }
     })
     it.concurrent('non-coerce preserves issue.input === undefined', () => {
@@ -624,7 +624,7 @@ describe('integer', () => {
       const result = Schema.safeParse(undefined)
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('必須です')
+        expect(result.error.issues[0]?.message).toBe('必須です')
       }
     })
   })

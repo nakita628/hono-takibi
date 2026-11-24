@@ -1,7 +1,8 @@
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { describe, expect, it } from 'vite-plus/test'
 
 import { parseConfig } from '../config/index.js'
-import { runGenerator } from '../testing/index.js'
 import {
   appEntryDirectory,
   makeAppEntryImport,
@@ -59,7 +60,11 @@ describe('isInsideDirectory', () => {
 // `appEntryOutput` is the one place the app entry is derived, and every generated import
 // is relative to it. A wrong anchor here breaks every route import at once.
 const entry = async (config: { [key: string]: unknown }) =>
-  appEntryOutput(await runGenerator(parseConfig({ input: 'openapi.yaml', ...config })))
+  appEntryOutput(
+    await Effect.runPromise(
+      Effect.provide(parseConfig({ input: 'openapi.yaml', ...config }), NodeFileSystem.layer),
+    ),
+  )
 
 describe('appEntryDirectory', () => {
   // Without define, the app entry is the index.ts beside the routes module, whichever

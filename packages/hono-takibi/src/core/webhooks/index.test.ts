@@ -2,11 +2,12 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { webhookCode } from '../../generator/zod-openapi-hono/openapi/webhooks/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
-import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { webhooks } from './index.js'
 
 let tmpDir: string
@@ -79,13 +80,19 @@ describe('webhooks', () => {
   } as OpenAPI
 
   it('returns error when output is missing', async () => {
-    const result = await runGeneratorError(webhooks(mockOpenAPI, undefined))
+    const result = await Effect.runPromise(
+      Effect.flip(Effect.provide(webhooks(mockOpenAPI, undefined), NodeFileSystem.layer)),
+    )
     expect(result.message).toBe('webhooks.output is required')
   })
 
   it('returns error when no webhooks in spec', async () => {
-    const noWebhooks: OpenAPI = { ...mockOpenAPI, webhooks: undefined }
-    const result = await runGeneratorError(webhooks(noWebhooks, { output: 'output.ts' }))
+    const { webhooks: _webhooks, ...noWebhooks } = mockOpenAPI
+    const result = await Effect.runPromise(
+      Effect.flip(
+        Effect.provide(webhooks(noWebhooks, { output: 'output.ts' }), NodeFileSystem.layer),
+      ),
+    )
     expect(result.message).toBe('No webhooks found')
   })
 
@@ -93,7 +100,9 @@ describe('webhooks', () => {
     it('generates webhooks file with correct content', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-'))
       const out = path.join(tmpDir, 'webhooks.ts')
-      const result = await runGenerator(webhooks(mockOpenAPI, { output: out }))
+      const result = await Effect.runPromise(
+        Effect.provide(webhooks(mockOpenAPI, { output: out }), NodeFileSystem.layer),
+      )
       expect(result).toBe(`Generated webhooks code written to ${out}`)
 
       const content = fs.readFileSync(out, 'utf8')
@@ -129,11 +138,14 @@ export const userCreatedPostWebhook = {
     it('generates separate files for each webhook', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-'))
       const out = path.join(tmpDir, 'webhooks')
-      const result = await runGenerator(
-        webhooks(mockOpenAPI, {
-          output: out,
-          split: true,
-        }),
+      const result = await Effect.runPromise(
+        Effect.provide(
+          webhooks(mockOpenAPI, {
+            output: out,
+            split: true,
+          }),
+          NodeFileSystem.layer,
+        ),
       )
       expect(result).toBe(`Generated webhooks code written to ${out}/*.ts (index.ts included)`)
 
@@ -196,7 +208,9 @@ export * from './userCreatedPost'
           },
         },
       } as OpenAPI
-      const result = await runGenerator(webhooks(simpleWebhook, { output: out }))
+      const result = await Effect.runPromise(
+        Effect.provide(webhooks(simpleWebhook, { output: out }), NodeFileSystem.layer),
+      )
       expect(result).toBe(`Generated webhooks code written to ${out}`)
 
       const content = fs.readFileSync(out, 'utf8')
@@ -215,7 +229,9 @@ export * from './userCreatedPost'
     it('non-split: caller emit contains same const names as generator output', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-contract-'))
       const out = path.join(tmpDir, 'webhooks.ts')
-      await runGenerator(webhooks(mockOpenAPI, { output: out }))
+      await Effect.runPromise(
+        Effect.provide(webhooks(mockOpenAPI, { output: out }), NodeFileSystem.layer),
+      )
       const emitted = fs.readFileSync(out, 'utf8')
       const generated = webhookCode(mockOpenAPI)
       const emittedNames = new Set(
@@ -234,7 +250,12 @@ export * from './userCreatedPost'
     it('split: union of per-file const names equals generator output const names', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-contract-'))
       const outDir = path.join(tmpDir, 'webhooks')
-      await runGenerator(webhooks(mockOpenAPI, { output: outDir, split: true }))
+      await Effect.runPromise(
+        Effect.provide(
+          webhooks(mockOpenAPI, { output: outDir, split: true }),
+          NodeFileSystem.layer,
+        ),
+      )
       const files = fs.readdirSync(outDir).filter((f) => f !== 'index.ts')
       const emittedNames = new Set<string>()
       for (const f of files) {
@@ -257,7 +278,12 @@ export * from './userCreatedPost'
     it('split: barrel index lists every per-file module sorted alphabetically', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-contract-'))
       const outDir = path.join(tmpDir, 'webhooks')
-      await runGenerator(webhooks(mockOpenAPI, { output: outDir, split: true }))
+      await Effect.runPromise(
+        Effect.provide(
+          webhooks(mockOpenAPI, { output: outDir, split: true }),
+          NodeFileSystem.layer,
+        ),
+      )
       const indexContent = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf8')
       expect(indexContent).toBe(
         "export * from './newOrderPost'\nexport * from './userCreatedPost'\n",
@@ -281,7 +307,12 @@ export * from './userCreatedPost'
     it('split: each method becomes its own file, barrel lists them sorted', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-multimethod-'))
       const outDir = path.join(tmpDir, 'webhooks')
-      await runGenerator(webhooks(multiMethodOpenAPI, { output: outDir, split: true }))
+      await Effect.runPromise(
+        Effect.provide(
+          webhooks(multiMethodOpenAPI, { output: outDir, split: true }),
+          NodeFileSystem.layer,
+        ),
+      )
       const files = fs
         .readdirSync(outDir)
         .filter((f) => f !== 'index.ts')
@@ -320,7 +351,9 @@ export * from './userCreatedPost'
           },
         },
       } as OpenAPI
-      const result = await runGenerator(webhooks(refOpenapi, { output: out }))
+      const result = await Effect.runPromise(
+        Effect.provide(webhooks(refOpenapi, { output: out }), NodeFileSystem.layer),
+      )
       expect(result).toBe(`Generated webhooks code written to ${out}`)
       expect(fs.readFileSync(out, 'utf8')).toBe(`import { z } from '@hono/zod-openapi'
 import { TraceIdParamsSchema } from './parameters'
@@ -362,7 +395,9 @@ export const pingPostWebhook = {
           },
         },
       } as OpenAPI
-      const result = await runGenerator(webhooks(refOpenapi, { output: out }))
+      const result = await Effect.runPromise(
+        Effect.provide(webhooks(refOpenapi, { output: out }), NodeFileSystem.layer),
+      )
       expect(result).toBe(`Generated webhooks code written to ${out}`)
       expect(fs.readFileSync(out, 'utf8')).toBe(`import { z } from '@hono/zod-openapi'
 import { TraceIdParamsSchema } from './parameters'
@@ -409,7 +444,9 @@ export const pingPostWebhook = {
           },
         },
       } as OpenAPI
-      const result = await runGenerator(webhooks(richOpenapi, { output: out }))
+      const result = await Effect.runPromise(
+        Effect.provide(webhooks(richOpenapi, { output: out }), NodeFileSystem.layer),
+      )
       expect(result).toBe(`Generated webhooks code written to ${out}`)
       expect(fs.readFileSync(out, 'utf8')).toBe(`export const richPostWebhook = {
   method: 'post',
@@ -435,15 +472,18 @@ export const pingPostWebhook = {
     it('returns success "No webhooks found" for empty webhooks object', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-empty-'))
       const out = path.join(tmpDir, 'webhooks.ts')
-      const result = await runGenerator(
-        webhooks(
-          {
-            openapi: '3.1.0',
-            info: { title: 'T', version: '1.0.0' },
-            paths: {},
-            webhooks: {},
-          },
-          { output: out },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          webhooks(
+            {
+              openapi: '3.1.0',
+              info: { title: 'T', version: '1.0.0' },
+              paths: {},
+              webhooks: {},
+            },
+            { output: out },
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe('No webhooks found')
@@ -452,17 +492,20 @@ export const pingPostWebhook = {
     it('returns success "No webhooks found" when every method lacks responses', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-empty-'))
       const out = path.join(tmpDir, 'webhooks.ts')
-      const result = await runGenerator(
-        webhooks(
-          {
-            openapi: '3.1.0',
-            info: { title: 'T', version: '1.0.0' },
-            paths: {},
-            webhooks: {
-              ev: { post: { operationId: 'p' }, get: { operationId: 'g' } },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          webhooks(
+            {
+              openapi: '3.1.0',
+              info: { title: 'T', version: '1.0.0' },
+              paths: {},
+              webhooks: {
+                ev: { post: { operationId: 'p' }, get: { operationId: 'g' } },
+              },
             },
-          },
-          { output: out },
+            { output: out },
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe('No webhooks found')

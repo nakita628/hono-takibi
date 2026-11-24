@@ -378,7 +378,7 @@ describe('regression: x-coerce + x-error-message runtime', () => {
     const result = Schema.safeParse('abc')
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.issues[0].message).toBe('float必須')
+      expect(result.error.issues[0]?.message).toBe('float必須')
     }
   })
   it.concurrent('wirePipe (float64): non-number string shows custom error', () => {
@@ -388,7 +388,7 @@ describe('regression: x-coerce + x-error-message runtime', () => {
     const result = Schema.safeParse('abc')
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.issues[0].message).toBe('float64必須')
+      expect(result.error.issues[0]?.message).toBe('float64必須')
     }
   })
   it.concurrent('wirePlain: non-number string shows custom error', () => {
@@ -396,7 +396,7 @@ describe('regression: x-coerce + x-error-message runtime', () => {
     const result = Schema.safeParse('abc')
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.issues[0].message).toBe('数値必須')
+      expect(result.error.issues[0]?.message).toBe('数値必須')
     }
   })
 })
@@ -409,7 +409,7 @@ describe('regression: x-required-message unreachable under coerce', () => {
     const result = Schema.safeParse(undefined)
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.issues[0].message).toBe('数値必須')
+      expect(result.error.issues[0]?.message).toBe('数値必須')
     }
   })
   it.concurrent('non-coerce preserves issue.input === undefined', () => {
@@ -419,7 +419,7 @@ describe('regression: x-required-message unreachable under coerce', () => {
     const result = Schema.safeParse(undefined)
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.issues[0].message).toBe('必須です')
+      expect(result.error.issues[0]?.message).toBe('必須です')
     }
   })
 })
