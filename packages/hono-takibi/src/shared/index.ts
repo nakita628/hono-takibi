@@ -597,7 +597,10 @@ export function makeJob(
   // others, and may come to re-export the file that would import it.
   const clientImport = (output: string) => {
     if (generatedClient === undefined) return ''
-    const isBeside = path.dirname(output) === path.dirname(generatedClient.output)
+    // Resolved, so that one directory written two ways (`./src`, `src`, an absolute path)
+    // is still the same directory.
+    const isBeside =
+      path.resolve(path.dirname(output)) === path.resolve(path.dirname(generatedClient.output))
     return specifierOf({
       output: isBeside ? generatedClient.output : (clientBarrel ?? generatedClient.output),
       ...(generatedClient.package === undefined ? {} : { package: generatedClient.package }),
