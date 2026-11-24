@@ -99,15 +99,19 @@ function makeNonNullTypeString(
   if (schema.anyOf && schema.anyOf.length > 0) {
     return makeUnionTypeString(schema.anyOf, '|', writer, direct)
   }
-  const members = intersectedMembers(schema)
-  if (members !== undefined) {
+  if (intersectedMembers(schema) !== undefined) {
+    // A declared `type` beside the `allOf` is written into its members first, as the
+    // schema writer does (#468): `type: string` beside a member that only annotates is a
+    // string, not anything.
+    const narrowed = narrowToDeclaredType(schema, writer.schemas)
+    const members = (narrowed.allOf ?? []).filter(Boolean)
     // A member that only allows `null`, or only annotates, says something of the whole
     // value and is no part of the intersection: `X & (unknown | null)` is `X`, and
     // `X & null` is `never`. `makeTypeString` has already read the `null` off it (#527).
     return makeUnionTypeString(
       [
         ...members.filter((member) => !(isNullMember(member) || isAnnotationOnly(member))),
-        ...shapeMembers(schema, writer),
+        ...shapeMembers(narrowed, writer),
       ],
       '&',
       writer,
@@ -161,7 +165,7 @@ function intersectedMembers(schema: Schema): readonly Schema[] | undefined {
 // schema writer makes them one: `X.and(z.object({ ... }))` outputs them (#634). Where it
 // checks them on the raw value instead, the output does not have them.
 function shapeMembers(schema: Schema, writer: TypeWriter): readonly Schema[] {
-  if (!isShapeMember(narrowToDeclaredType(schema, writer.schemas), writer.schemas)) return []
+  if (!isShapeMember(schema, writer.schemas)) return []
   return [
     {
       type: 'object',
@@ -208,7 +212,9 @@ function makeBaseTypeString(schema: Schema, types: readonly string[], writer: Ty
   // No type but `null`: what `z.null()` outputs. No type at all: `z.unknown()` with the
   // checks of its keywords, or `z.any()` when there is nothing to check (#632).
   if (type === undefined) {
-    return schema.type === 'null' ? 'null' : hasTypelessConstraint(schema) ? 'unknown' : 'any'
+    if (schema.type === 'null') return 'null'
+    // `not` is a refinement of `z.any()`, whatever stands beside it.
+    return schema.not === undefined && hasTypelessConstraint(schema) ? 'unknown' : 'any'
   }
   return makeSingleTypeString(schema, type, writer)
 }

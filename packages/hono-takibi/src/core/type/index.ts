@@ -121,7 +121,8 @@ function aliasOf(schemaName: string, schema: Schema, aliases: Aliases) {
 
 /**
  * The component schemas `schema` refers to with nothing in between that defers the
- * reference: itself, or a member of its `allOf` / `anyOf` / `oneOf`.
+ * reference: itself, or a member of the combinator it is typed by. Of `oneOf`, `anyOf`
+ * and `allOf` the type writer writes the first that is there, so only that one counts.
  */
 function directRefNames(schema: Schema): readonly string[] {
   if (schema.$ref) {
@@ -129,9 +130,10 @@ function directRefNames(schema: Schema): readonly string[] {
     const name = parts.at(-1)
     return parts[2] === 'schemas' && name !== undefined ? [name] : []
   }
-  return [...(schema.allOf ?? []), ...(schema.anyOf ?? []), ...(schema.oneOf ?? [])].flatMap(
-    directRefNames,
+  const members = [schema.oneOf, schema.anyOf, schema.allOf].find(
+    (candidates) => candidates !== undefined && candidates.length > 0,
   )
+  return (members ?? []).flatMap(directRefNames)
 }
 
 /**
@@ -143,14 +145,16 @@ function reachesDirectly(
   from: string,
   target: string,
   schemas: { readonly [k: string]: Schema },
-  seen: ReadonlySet<string> = new Set(),
+  // One set for the whole search: a schema that did not reach the target once never will,
+  // so it is not walked again along another path.
+  visited = new Set<string>(),
 ): boolean {
   if (from === target) return true
-  if (seen.has(from)) return false
+  if (visited.has(from)) return false
+  visited.add(from)
   const schema = schemas[from]
   if (schema === undefined) return false
-  const next = new Set([...seen, from])
-  return directRefNames(schema).some((name) => reachesDirectly(name, target, schemas, next))
+  return directRefNames(schema).some((name) => reachesDirectly(name, target, schemas, visited))
 }
 
 /**

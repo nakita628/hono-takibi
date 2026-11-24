@@ -905,7 +905,9 @@ describe('makeTypeString: properties beside allOf (#634)', () => {
     expect(
       makeTypeString({ allOf: [{ minLength: 1 }], properties: { a: { type: 'string' } } }, 'Test'),
     ).toBe('unknown')
-    // The intersection admits `null` and the parent does not: the shape is distributed.
+    // The intersection admits `null` and the parent does not: the shape is distributed
+    // into a member, or checked on the raw value. Which one is not followed here, and a
+    // type without the property holds either way.
     expect(
       makeTypeString(
         { allOf: [{ ...ref, nullable: true }], properties: { a: { type: 'string' } } },
@@ -973,5 +975,25 @@ describe('makeTypeString: patternProperties (#629)', () => {
       ),
     ).toBe('{[key:string]:z.infer<typeof PathItemSchema>}')
     expect(makeTypeString({ type: 'object', additionalProperties: false }, 'Test')).toBe('{}')
+  })
+})
+
+describe('makeTypeString: a declared type beside allOf (#468)', () => {
+  it('is the declared type when no member validates', () => {
+    expect(makeTypeString({ type: 'string', allOf: [{ description: 'd' }] }, 'Test')).toBe('string')
+  })
+
+  it('is the declared type of a member that takes it', () => {
+    expect(makeTypeString({ type: 'string', allOf: [{ minLength: 1 }] }, 'Test')).toBe('string')
+    expect(makeTypeString({ type: 'object', allOf: [{ required: ['a'] }] }, 'Test')).toBe(
+      '{[key:string]:unknown}',
+    )
+  })
+})
+
+describe('makeTypeString: not without a type (#632)', () => {
+  it('is any, as the refinement of z.any() it is written as', () => {
+    expect(makeTypeString({ not: { type: 'string' } }, 'Test')).toBe('any')
+    expect(makeTypeString({ not: { const: 1 }, required: ['a'] }, 'Test')).toBe('any')
   })
 })

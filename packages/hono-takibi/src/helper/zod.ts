@@ -566,24 +566,6 @@ function canTakeType(member: Schema, type: DeclaredType): boolean {
   return own !== undefined && keys.every((key) => own.has(key))
 }
 
-// A declared `type` beside `allOf` / `anyOf` / `oneOf` constrains the value as
-// a sibling of the combinator (JSON Schema 2020-12: sibling keywords are
-// ANDed). The combinator paths emit only the combinator, so the type is
-// written into the members here (#468), which is exact: `T ∧ (A ∨ B)` is
-// `(T ∧ A) ∨ (T ∧ B)`, "exactly one of `T ∧ Aᵢ`" is `T` and exactly one
-// `Aᵢ`, and `T ∧ A ∧ B` needs `T` on one member only.
-//
-// - A member that already accepts only the declared type is left as it is.
-// - A typeless member of the declared type's own keywords takes the type, so
-//   it is emitted as the typed schema (`z.string().min(1)`) instead of a
-//   guarded refine on `z.unknown()` — that is what narrows the inferred type.
-// - Any other union branch becomes `allOf: [{ type }, branch]`, the typed
-//   schema intersected with the branch. An `allOf` gets `{ type }` as a member
-//   of its own when no member settles the type.
-//
-// Returns the schema itself when nothing has to change — no declared type,
-// no combinator, or the type is already settled — so the caller can tell by
-// identity, and a rewritten schema comes back unchanged.
 // Whether a schema carries its own wrapping (`.nullable()`, `.default()`,
 // `.prefault()`, `.catch()`) on itself. `canAdmitNullOrUndefined` follows a
 // `$ref` to its target and never sees the wrapping on the branch itself,
@@ -635,6 +617,24 @@ export function isShapeMember(schema: Schema, schemas?: Schemas): boolean {
   return !(intersectionAdmitsNullOrUndefined && !parentReAdmitsNull)
 }
 
+// A declared `type` beside `allOf` / `anyOf` / `oneOf` constrains the value as
+// a sibling of the combinator (JSON Schema 2020-12: sibling keywords are
+// ANDed). The combinator paths emit only the combinator, so the type is
+// written into the members here (#468), which is exact: `T ∧ (A ∨ B)` is
+// `(T ∧ A) ∨ (T ∧ B)`, "exactly one of `T ∧ Aᵢ`" is `T` and exactly one
+// `Aᵢ`, and `T ∧ A ∧ B` needs `T` on one member only.
+//
+// - A member that already accepts only the declared type is left as it is.
+// - A typeless member of the declared type's own keywords takes the type, so
+//   it is emitted as the typed schema (`z.string().min(1)`) instead of a
+//   guarded refine on `z.unknown()` — that is what narrows the inferred type.
+// - Any other union branch becomes `allOf: [{ type }, branch]`, the typed
+//   schema intersected with the branch. An `allOf` gets `{ type }` as a member
+//   of its own when no member settles the type.
+//
+// Returns the schema itself when nothing has to change — no declared type,
+// no combinator, or the type is already settled — so the caller can tell by
+// identity, and a rewritten schema comes back unchanged.
 export function narrowToDeclaredType(schema: Schema, schemas?: Schemas): Schema {
   const declared = declaredTypes(schema)
   const [single, ...others] = declared

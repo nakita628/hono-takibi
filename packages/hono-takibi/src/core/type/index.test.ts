@@ -1487,6 +1487,90 @@ export default routes
   })
 })
 
+describe('type: which references count as direct (#635)', () => {
+  it('does not count the allOf beside a oneOf, which the type is not written from', async () => {
+    const content = await generateTypes({
+      openapi: '3.0.3',
+      info: { title: 't', version: '1' },
+      components: {
+        schemas: {
+          A: { oneOf: [{ type: 'string' }], allOf: [schemaRef('B')] },
+          B: { type: 'object', allOf: [schemaRef('A')], properties: { b: { type: 'number' } } },
+        },
+      },
+      paths: {
+        '/a': {
+          get: {
+            responses: {
+              '200': jsonResponse({
+                type: 'object',
+                properties: { a: schemaRef('A'), b: schemaRef('B') },
+              }),
+            },
+          },
+        },
+      },
+    })
+    expect(content).toBe(`type A = string
+type B = A & { b?: number | undefined }
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  {
+    '/a': {
+      $get: {
+        input: {}
+        output: { a?: A | undefined; b?: B | undefined }
+        outputFormat: 'json'
+        status: 200
+      }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+  })
+
+  // Every level is reached along two paths: walking each path again would take 2^30 steps.
+  it('walks a schema once, however many paths lead to it', { timeout: 10_000 }, async () => {
+    const depth = 30
+    const levels = Array.from({ length: depth }, (_, index) => index)
+    const content = await generateTypes({
+      openapi: '3.0.3',
+      info: { title: 't', version: '1' },
+      components: {
+        schemas: {
+          ...Object.fromEntries(
+            levels.flatMap((n) => [
+              [`S${n}`, { allOf: [schemaRef(`A${n}`), schemaRef(`B${n}`)] }],
+              [`A${n}`, { allOf: [schemaRef(`S${n + 1}`)] }],
+              [`B${n}`, { allOf: [schemaRef(`S${n + 1}`)] }],
+            ]),
+          ),
+          [`S${depth}`]: {
+            type: 'object',
+            required: ['v'],
+            properties: { v: { type: 'string' } },
+          },
+        },
+      },
+      paths: { '/a': { get: { responses: { '200': jsonResponse(schemaRef('S0')) } } } },
+    })
+    const aliases = levels
+      .toReversed()
+      .map((n) => `type A${n} = S${n + 1}\ntype B${n} = S${n + 1}\ntype S${n} = A${n} & B${n}\n`)
+      .join('')
+    expect(content).toBe(`type S30 = { v: string }
+${aliases}declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  { '/a': { $get: { input: {}; output: S0; outputFormat: 'json'; status: 200 } } },
+  '/'
+>
+export default routes
+`)
+  })
+})
+
 describe('type: properties beside allOf (#634)', () => {
   it('writes them as one more member, where the Zod schema does', async () => {
     const content = await generateTypes({
