@@ -1406,7 +1406,7 @@ function makeHookCodes(
     readonly hookTail?: HookTail
     readonly immutableQueryFn?: string
   },
-  clientOf: (path: string, tags: readonly string[] | undefined) => string,
+  clientOf: (path: string, tags: readonly string[] | undefined, method: string) => string,
   hasBasePath = false,
 ): readonly {
   readonly hookName: string
@@ -1428,6 +1428,7 @@ function makeHookCodes(
           const client = clientOf(
             p,
             isOperationLike(operation) ? operationTags(operation) : undefined,
+            method,
           )
           const result = makeHookCode(paths, p, method, pathItem, deps, config, client, hasBasePath)
           return result
@@ -1638,8 +1639,8 @@ export function makeQueryHooks(
     const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
     // An operation of a split application is called through the client of its group, and
     // through the client of the application when it belongs to none.
-    const clientOf = (route: string, tags: readonly string[] | undefined) => {
-      const group = grouping?.(route, tags)
+    const clientOf = (route: string, tags: readonly string[] | undefined, method: string) => {
+      const group = grouping?.(route, tags, method)
       return group === undefined ? clientName : makeGroupClientName(group)
     }
     const hookCodes = makeHookCodes(

@@ -2584,6 +2584,221 @@ export async function getHealth(options?: ClientRequestOptions) {
 }
 `)
   })
+
+  // A route moved by hand into another handler file belongs to the group of that file: the
+  // app entry, the client, rpc and the hooks all read the group from the files (#609).
+  // 手で別のハンドラーファイルへ移したルートは、そのファイルのグループに属する。アプリの
+  // エントリ・クライアント・rpc・hooks は、すべてファイルからグループを読む (#609)。
+  it('follows a route moved to another handler file in the app, the client, rpc and hooks', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-job-moved-'))
+    const config = {
+      output: `${tmpDir}/src/routes.ts`,
+      template: { split: true },
+      client: { output: `${tmpDir}/src/client.ts` },
+      rpc: { output: `${tmpDir}/src/rpc.ts` },
+      swr: { output: `${tmpDir}/src/swr.ts` },
+    }
+    await generateSplitJobs(tmpDir, config)
+    fs.rmSync(path.join(tmpDir, 'src/handlers/users.ts'))
+    fs.writeFileSync(
+      path.join(tmpDir, 'src/handlers/health.ts'),
+      `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUsersIdRoute } from '../routes'
+
+const app = new OpenAPIHono()
+
+export const healthHandler = app
+  .openapi(getHealthRoute, (c) => {})
+  .openapi(getUsersIdRoute, (c) => {})
+`,
+    )
+    const read = await generateSplitJobs(tmpDir, config)
+    expect(fs.readdirSync(path.join(tmpDir, 'src/handlers')).toSorted()).toStrictEqual([
+      'health.ts',
+      'index.ts',
+    ])
+    expect(read('src/index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { healthHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const health = app.route('/', healthHandler)
+
+export default app
+`)
+    expect(read('src/client.ts')).toBe(`import { hc } from 'hono/client'
+import type { health } from './index'
+
+type HealthClient = ReturnType<typeof hc<typeof health>>
+
+const hcHealthWithType = (...args: Parameters<typeof hc>): HealthClient =>
+  hc<typeof health>(...args)
+
+export const healthClient = hcHealthWithType('/')
+`)
+    expect(read('src/rpc.ts'))
+      .toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { healthClient } from './client'
+
+export async function getUsersId(
+  args: InferRequestType<(typeof healthClient.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await healthClient.users[':id'].$get(args, options)
+}
+
+export async function getHealth(options?: ClientRequestOptions) {
+  return await healthClient.health.$get(undefined, options)
+}
+`)
+    expect(read('src/swr.ts')).toBe(`import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
+import type { Key, SWRConfiguration } from 'swr'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { healthClient } from './client'
+
+export function getHealthKey() {
+  return ['health'] as const
+}
+
+export function getUsersKey() {
+  return ['users'] as const
+}
+
+export function getGetUsersIdKey(
+  args: InferRequestType<(typeof healthClient.users)[':id']['$get']>,
+) {
+  return ['users', '/users/:id', args] as const
+}
+
+export function useGetUsersId<TError = unknown>(
+  args: InferRequestType<(typeof healthClient.users)[':id']['$get']>,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof healthClient.users)[':id']['$get']>>>
+        >
+      >,
+      TError
+    > & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey =
+    enabled !== false ? (customKey === undefined ? getGetUsersIdKey(args) : customKey) : null
+  return {
+    swrKey,
+    ...useSWR<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof healthClient.users)[':id']['$get']>>>
+        >
+      >,
+      TError
+    >(
+      swrKey,
+      async () => parseResponse(healthClient.users[':id'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+export function useImmutableGetUsersId<TError = unknown>(
+  args: InferRequestType<(typeof healthClient.users)[':id']['$get']>,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof healthClient.users)[':id']['$get']>>>
+        >
+      >,
+      TError
+    > & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey =
+    enabled !== false ? (customKey === undefined ? getGetUsersIdKey(args) : customKey) : null
+  return {
+    swrKey,
+    ...useSWRImmutable<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof healthClient.users)[':id']['$get']>>>
+        >
+      >,
+      TError
+    >(
+      swrKey,
+      async () => parseResponse(healthClient.users[':id'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+export function getGetHealthKey() {
+  return ['health', '/health'] as const
+}
+
+export function useGetHealth<TError = unknown>(options?: {
+  swr?: SWRConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof healthClient.health.$get>>>>>,
+    TError
+  > & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey =
+    enabled !== false ? (customKey === undefined ? getGetHealthKey() : customKey) : null
+  return {
+    swrKey,
+    ...useSWR<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof healthClient.health.$get>>>>
+      >,
+      TError
+    >(
+      swrKey,
+      async () => parseResponse(healthClient.health.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+export function useImmutableGetHealth<TError = unknown>(options?: {
+  swr?: SWRConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof healthClient.health.$get>>>>>,
+    TError
+  > & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey =
+    enabled !== false ? (customKey === undefined ? getGetHealthKey() : customKey) : null
+  return {
+    swrKey,
+    ...useSWRImmutable<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof healthClient.health.$get>>>>
+      >,
+      TError
+    >(
+      swrKey,
+      async () => parseResponse(healthClient.health.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+`)
+  })
 })
 
 // Runs every job of a config that scaffolds the app, the client and the rpc file.

@@ -150,7 +150,7 @@ export function client(
             Object.entries(paths).flatMap(([route, pathItem]) =>
               Object.entries(pathItem).flatMap(([method, operation]) =>
                 isHttpMethod(method) && isOperation(operation)
-                  ? ([grouping(route, operationTags(operation))] as const)
+                  ? ([grouping(route, operationTags(operation), method)] as const)
                   : ([] as const),
               ),
             ),
