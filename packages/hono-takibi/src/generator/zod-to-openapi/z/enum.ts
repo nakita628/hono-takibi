@@ -4,7 +4,8 @@ import { error, makeStringLiteral } from '../../../utils/index.js'
 /**
  * Generates a Zod enum schema. String enums map to `z.enum`, number/integer/
  * boolean enums to `z.union([z.literal(...), ...])`, array enums to `z.tuple`
- * or `z.union`, single values to `z.literal`.
+ * or `z.union`, single values to `z.literal`, an object member to a `z.custom`
+ * that compares the value as JSON.
  *
  * `x-error-message` (whole-enum) is applied **only to the outermost
  * wrapper** (z.enum / z.union / z.tuple, or the bare z.literal in the
@@ -40,7 +41,10 @@ export function _enum(schema: Schema) {
     // An int64 is a bigint in the generated schema, and so are the members of its enum.
     if (typeof v === 'number' && isBigint && Number.isInteger(v)) return `z.literal(${v}n${arg})`
     if (typeof v === 'number' || typeof v === 'boolean') return `z.literal(${String(v)}${arg})`
-    return `z.custom<${JSON.stringify(v)}>()`
+    // An object or an array is the value it is written as, compared as JSON like the enum of
+    // a schema with no `type`: `z.custom<T>()` alone accepts anything (#604).
+    const json = JSON.stringify(v)
+    return `z.custom<${json}>((val)=>JSON.stringify(val)===${JSON.stringify(json)}${arg})`
   }
   // Inner literal — used inside a wrapper (z.union / z.tuple) that
   // already carries `errorArg`, so we don't repeat it.

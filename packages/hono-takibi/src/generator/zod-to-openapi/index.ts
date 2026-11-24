@@ -1,4 +1,3 @@
-import { ARROW_FUNCTION_PATTERN } from '../../constants/index.js'
 import {
   hasMimeAlternatives,
   hasTypelessConstraint,
@@ -37,7 +36,10 @@ import {
   narrowToDeclaredType,
   emitsStrippingObject,
   isAskedOperand,
+  isConstOutsideType,
+  makeConditionalCheck,
   makeIssueForwarding,
+  makeSiblingKeywordCheck,
   makeParentStrictCheck,
   makeSiblingCombinatorCheck,
   makeStrictOperandCheck,
@@ -50,7 +52,13 @@ import {
 } from '../../helper/zod.js'
 import type { RawCheck } from '../../helper/zod.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
-import { baseError, error, makeStringLiteral, normalizeTypes } from '../../utils/index.js'
+import {
+  baseError,
+  error,
+  issueMessage,
+  makeStringLiteral,
+  normalizeTypes,
+} from '../../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
 import { _enum, integer, number, object, string } from './z/index.js'
 
@@ -119,6 +127,33 @@ function isAnnotatedRef(schema: Schema): schema is Schema & { readonly $ref: str
     Object.keys(schema).every((key) => key === '$ref' || key === 'title' || key === 'description')
   )
 }
+
+/** Whether a value is an object or an array: one that `===` compares by reference. */
+function isStructured(value: unknown) {
+  return typeof value === 'object' && value !== null
+}
+
+// The keywords beside a combinator that the document states (#598): those of them a
+// Schema Object has. The check on the raw input holds the others as well.
+const STATED_SIBLING_KEYWORDS = new Set([
+  'minLength',
+  'maxLength',
+  'pattern',
+  'minimum',
+  'maximum',
+  'exclusiveMinimum',
+  'exclusiveMaximum',
+  'multipleOf',
+  'minItems',
+  'maxItems',
+  'uniqueItems',
+  'items',
+  'prefixItems',
+  'minProperties',
+  'maxProperties',
+  'enum',
+  'const',
+])
 
 export function zodToOpenAPI(
   schema: Schema | boolean,
@@ -264,18 +299,56 @@ export function zodToOpenAPI(
   // the keys are checked on the raw input, and the keyword is stated in the
   // document (see `makeParentStrictCheck`).
   const parentStrict = emittedCombinator === undefined ? undefined : makeParentStrictCheck(schema)
-  const isWrapped = siblings.length > 0 || parentStrict !== undefined
+  // The validation keywords beside a combinator (`maxLength` beside `anyOf`, #598): no
+  // path below reads them — each emits the combinator alone — so they are checked on the
+  // raw input, and stated in the document (see `makeSiblingKeywordCheck`). A `not` with no
+  // declared type is emitted on `z.any()`, which reads none of them either. Beside a
+  // declared type that is not an object, `if` / `then` / `else` is the one keyword the
+  // typed emitters do not read (see `makeConditionalCheck`); a `not` or several types hand
+  // the keywords on to the schemas they emit, which check it themselves.
+  const declared = normalizeTypes(schema.type).filter((type) => type !== 'null')
+  const besideCombinator =
+    emittedCombinator !== undefined ||
+    (schema.$ref === undefined && schema.not !== undefined && declared.length === 0)
+  const keywordCheck =
+    schema.$ref !== undefined
+      ? undefined
+      : besideCombinator
+        ? makeSiblingKeywordCheck(schema, (s) => zodToOpenAPI(s, undefined, childOptions))
+        : schema.not === undefined && declared.length === 1 && declared[0] !== 'object'
+          ? makeConditionalCheck(schema, (s) => zodToOpenAPI(s, undefined, childOptions))
+          : undefined
+  const isWrapped = siblings.length > 0 || parentStrict !== undefined || keywordCheck !== undefined
   const withSiblings = (zod: string) => {
     if (!isWrapped) return zod
     const checked = withRawCheck(
       withRawCheck(
-        zod,
-        makeSiblingCombinatorCheck(schema, siblings, (s) =>
-          zodToOpenAPI(s, undefined, childOptions),
+        withRawCheck(
+          zod,
+          makeSiblingCombinatorCheck(schema, siblings, (s) =>
+            zodToOpenAPI(s, undefined, childOptions),
+          ),
         ),
+        parentStrict,
       ),
-      parentStrict,
+      keywordCheck,
     )
+    // The keywords the check holds, as the document states them: `wrap` leaves them out of
+    // `.openapi()` as said by the schema, and here nothing in the schema says them.
+    const statedKeywords = (() => {
+      if (!besideCombinator || keywordCheck === undefined) return []
+      const literal = schemaList(
+        [
+          Object.fromEntries(
+            Object.entries(schema).filter(([key]) => STATED_SIBLING_KEYWORDS.has(key)),
+          ),
+        ],
+        childOptions?.schemas,
+      )
+      // `[{...}]`: the fields of the one schema in the list.
+      const fields = literal?.slice(2, -2) ?? ''
+      return fields === '' ? [] : [fields]
+    })()
     // A sibling list that only repeats a reference the emitted combinator has says nothing
     // the emitted schema does not: `oneOf: [{ $ref: X }]` beside `allOf: [{ $ref: X }]`
     // (NestJS Swagger). It is not stated: every reference in a stated list is written out
@@ -299,6 +372,7 @@ export function zodToOpenAPI(
         return literal === undefined ? [] : [`${key}:${literal}`]
       }),
       ...(parentStrict === undefined ? [] : ['additionalProperties:false']),
+      ...statedKeywords,
     ]
     return stated.length === 0 ? checked : `${checked}.openapi({${stated.join(',')}})`
   }
@@ -803,12 +877,7 @@ export function zodToOpenAPI(
     )
     if (allOfMessage || unevalCheck) {
       const safeParseBranches = (() => {
-        const isArrow = allOfMessage ? ARROW_FUNCTION_PATTERN.test(allOfMessage) : false
-        const msgExpr = allOfMessage
-          ? isArrow
-            ? `(${allOfMessage})(issue)`
-            : JSON.stringify(allOfMessage)
-          : undefined
+        const msgExpr = allOfMessage ? issueMessage(allOfMessage, 'issue') : undefined
         const pushArg = msgExpr
           ? `{...issue,input:issue.input,message:${msgExpr}}`
           : '{...issue,input:issue.input}'
@@ -1101,11 +1170,6 @@ export function zodToOpenAPI(
         schema,
       )
     }
-    if (typeof schema.not === 'object' && 'const' in schema.not) {
-      const value = notLiteral(schema.not.const)
-      const predicate = `(val) => val !== ${value}`
-      return done(`${notBase}.refine(${predicate}${notErrorArg})`, schema)
-    }
     const not = schema.not
     if (isRecord(not)) {
       const onlyKeys = Object.keys(not)
@@ -1133,15 +1197,39 @@ export function zodToOpenAPI(
       if (isPureEnum && Array.isArray(not.enum)) {
         // A bigint is never a fraction, so a fractional member cannot exclude anything and
         // would only be a number literal beside the bigint ones.
+        // Nor is a bigint an object or an array.
         const members = notIsBigint
-          ? not.enum.filter((member) => typeof member !== 'number' || Number.isInteger(member))
+          ? not.enum.filter(
+              (member) =>
+                !isStructured(member) && (typeof member !== 'number' || Number.isInteger(member)),
+            )
           : not.enum
         if (members.length === 0) return done(notBase, schema)
+        // `includes` compares an object by reference, which no value equals: beside an
+        // object or an array the members are compared as JSON (#604).
+        if (members.some(isStructured)) {
+          const jsons = JSON.stringify(members.map((member) => JSON.stringify(member)))
+          return done(
+            `${notBase}.refine((val) => !${jsons}.includes(JSON.stringify(val))${notErrorArg})`,
+            schema,
+          )
+        }
         const list = `[${members.map(notLiteral).join(',')}]`
         const predicate = `(val) => !${list}.includes(val)`
         return done(`${notBase}.refine(${predicate}${notErrorArg})`, schema)
       }
       if (onlyKeys.length === 1 && onlyKeys[0] === 'const') {
+        // An object or an array is compared as JSON: `val !== { a: 1 }` is always true (#604).
+        // A bigint is never one, so there the `not` excludes nothing.
+        if (isStructured(not.const)) {
+          const json = JSON.stringify(JSON.stringify(not.const))
+          return done(
+            notIsBigint
+              ? notBase
+              : `${notBase}.refine((val) => JSON.stringify(val) !== ${json}${notErrorArg})`,
+            schema,
+          )
+        }
         const value = notLiteral(not.const)
         const predicate = `(val) => val !== ${value}`
         return done(`${notBase}.refine(${predicate}${notErrorArg})`, schema)
@@ -1164,6 +1252,8 @@ export function zodToOpenAPI(
     const constMessage = schema['x-const-message'] ?? schema['x-error-message']
     const errorMessage = constMessage
     const errorArg = errorMessage ? `,${error(errorMessage)}` : ''
+    // `type: string` beside `const: 0`: no value is both (#604).
+    if (isConstOutsideType(schema)) return done(`z.never(${errorArg.slice(1)})`, schema)
     const isPrimitive =
       value === null ||
       typeof value === 'string' ||
@@ -1305,7 +1395,9 @@ export function zodToOpenAPI(
       const containsZod = referenced(schema.contains)
       const fallback = schema['x-contains-message'] ?? arrayErrorMessage
       if (schema.minContains === undefined && schema.maxContains === undefined) {
-        const messagePart = fallback ? `,message:${JSON.stringify(fallback)}` : ''
+        const messagePart = fallback
+          ? `,message:${issueMessage(fallback, "{code:'custom',path:[],input:arr}")}`
+          : ''
         return `.superRefine((arr,ctx)=>{const Schema=${containsZod};const matched=arr.filter((i)=>Schema.safeParse(i).success).length;if(matched<1){ctx.addIssue({code:"custom"${messagePart}})}})`
       }
       // minContains defaults to 1; explicit 0 skips the lower-bound check.
@@ -1315,7 +1407,7 @@ export function zodToOpenAPI(
         effectiveMin > 0
           ? (() => {
               const messagePart = minContainsMessage
-                ? `,message:${JSON.stringify(minContainsMessage)}`
+                ? `,message:${issueMessage(minContainsMessage, "{code:'custom',path:[],input:arr}")}`
                 : ''
               return `if(matched<${effectiveMin}){ctx.addIssue({code:"custom"${messagePart}})}`
             })()
@@ -1325,7 +1417,7 @@ export function zodToOpenAPI(
         schema.maxContains !== undefined
           ? (() => {
               const messagePart = maxContainsMessage
-                ? `,message:${JSON.stringify(maxContainsMessage)}`
+                ? `,message:${issueMessage(maxContainsMessage, "{code:'custom',path:[],input:arr}")}`
                 : ''
               return `if(matched>${schema.maxContains}){ctx.addIssue({code:"custom"${messagePart}})}`
             })()
@@ -1336,13 +1428,15 @@ export function zodToOpenAPI(
     })()
     const prefixItemsMessage = schema['x-prefixItems-message'] ?? arrayErrorMessage
     const prefixItemsMessageOverride = prefixItemsMessage
-      ? `,message:${JSON.stringify(prefixItemsMessage)}`
+      ? `,message:${issueMessage(prefixItemsMessage, 'issue')}`
       : ''
     const itemsMessage = schema['x-items-message'] ?? arrayErrorMessage
-    const itemsMessageOverride = itemsMessage ? `,message:${JSON.stringify(itemsMessage)}` : ''
+    const itemsMessageOverride = itemsMessage
+      ? `,message:${issueMessage(itemsMessage, 'issue')}`
+      : ''
     const unevaluatedItemsMessage = schema['x-unevaluatedItems-message'] ?? arrayErrorMessage
     const unevaluatedItemsMessageOverride = unevaluatedItemsMessage
-      ? `,message:${JSON.stringify(unevaluatedItemsMessage)}`
+      ? `,message:${issueMessage(unevaluatedItemsMessage, 'issue')}`
       : ''
     const unevaluatedItemsChain = (() => {
       const ui = schema.unevaluatedItems
@@ -1352,7 +1446,9 @@ export function zodToOpenAPI(
       const prefixCount = Array.isArray(schema.prefixItems) ? schema.prefixItems.length : 0
       if (ui === false) {
         const slot = unevaluatedItemsMessage ?? arrayErrorMessage
-        const messagePart = slot ? `,message:${JSON.stringify(slot)}` : ''
+        const messagePart = slot
+          ? `,message:${issueMessage(slot, "{code:'custom',path:[i],input:arr}")}`
+          : ''
         return `.superRefine((arr,ctx)=>{for(let i=${prefixCount};i<arr.length;i++){ctx.addIssue({code:"custom",path:[i]${messagePart}})}})`
       }
       const subZod = zodToOpenAPI(ui, undefined, childOptions)
@@ -1365,7 +1461,9 @@ export function zodToOpenAPI(
     const maxMessage = schema['x-maxItems-message'] ?? arrayErrorMessage
     const maxErrorArg = maxMessage ? `,${error(maxMessage)}` : ''
     const uniqueMessage = schema['x-uniqueItems-message'] ?? arrayErrorMessage
-    const uniqueMessagePart = uniqueMessage ? `,message:${JSON.stringify(uniqueMessage)}` : ''
+    const uniqueMessagePart = uniqueMessage
+      ? `,message:${issueMessage(uniqueMessage, "{code:'custom',path:[i],input:items}")}`
+      : ''
     const uniqueChain =
       schema.uniqueItems === true
         ? `.superRefine((items,ctx)=>{const seen=new Map();for(const [i,val] of items.entries()){const key=JSON.stringify(val);if(seen.has(key))ctx.addIssue({code:"custom",path:[i]${uniqueMessagePart}});else seen.set(key,i)}})`
@@ -1447,7 +1545,9 @@ export function zodToOpenAPI(
         ? `;const Rest=${restCode};for(const [i,val] of arr.slice(Prefix.length).entries()){const result=Rest.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]${restMessageOverride}})}}}`
         : ''
       const capSlot = capSlotMessage ?? arrayErrorMessage
-      const capMessagePart = capSlot ? `,message:${JSON.stringify(capSlot)}` : ''
+      const capMessagePart = capSlot
+        ? `,message:${issueMessage(capSlot, "{code:'custom',path:[i],input:arr}")}`
+        : ''
       const capCheck = lengthCapped
         ? `;for(let i=Prefix.length;i<arr.length;i++){ctx.addIssue({code:"custom",path:[i]${capMessagePart}})}`
         : ''

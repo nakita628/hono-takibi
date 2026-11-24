@@ -13,7 +13,10 @@ describe('_enum', () => {
     [{ enum: ['abc'] }, `z.literal('abc')`],
     [{ enum: ["it's"] }, String.raw`z.literal('it\'s')`],
     [{ enum: ['a\\'] }, String.raw`z.literal('a\\')`],
-    [{ enum: [{ key: 'value' }] } as unknown as Schema, `z.custom<{"key":"value"}>()`],
+    [
+      { enum: [{ key: 'value' }] } as unknown as Schema,
+      String.raw`z.custom<{"key":"value"}>((val)=>JSON.stringify(val)==="{\"key\":\"value\"}")`,
+    ],
     [{ type: 'array', enum: [[1, 2]] }, 'z.tuple([z.literal(1),z.literal(2)])'],
     [
       {

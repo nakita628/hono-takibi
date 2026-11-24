@@ -141,6 +141,40 @@ describe('helper/zod', () => {
       )
     })
 
+    it('falls back from x-minContains-message / x-maxContains-message to x-contains-message, then x-error-message (#601)', () => {
+      expect(
+        emitTypelessRefine(
+          {
+            contains: { type: 'string' },
+            minContains: 2,
+            maxContains: 3,
+            'x-contains-message': 'contains',
+            'x-maxContains-message': 'max',
+            'x-error-message': 'error',
+          },
+          recurse,
+        ),
+      ).toBe(
+        `z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){{const m=val.filter((i)=>z.string().safeParse(i).success).length;if(m<2){ctx.addIssue({code:'custom',message:"contains"})};if(m>3){ctx.addIssue({code:'custom',message:"max"})}}}})`,
+      )
+    })
+
+    it('calls an arrow-function message with the issue it answers for (#601)', () => {
+      expect(
+        emitTypelessRefine(
+          {
+            dependentSchemas: { a: { required: ['b'] } },
+            minProperties: 1,
+            'x-dependentSchemas-message': '(issue) => `dep ${issue.code}`',
+            'x-minProperties-message': '(issue) => `min ${issue.code}`',
+          },
+          () => 'S',
+        ),
+      ).toBe(
+        "z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.keys(val).length<1){ctx.addIssue({code:'custom',message:((issue) => `min ${issue.code}`)({code:'custom',path:[],input:val})})};if(Object.hasOwn(val,\"a\")){const Schema=S;const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path,message:((issue) => `dep ${issue.code}`)(issue)})}}}}})",
+      )
+    })
+
     it('emits allOf checks (typeless) — override semantics, inner issues propagate', () => {
       expect(
         emitTypelessRefine(

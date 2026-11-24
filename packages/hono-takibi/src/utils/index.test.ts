@@ -8,6 +8,7 @@ import {
   error,
   escapeHtml,
   escapeRegexLiteral,
+  issueMessage,
   makeBarrel,
   makeInferRequestType,
   makeSafeKey,
@@ -509,6 +510,16 @@ export * from './user'
       ['()=>"error"', '{error:()=>"error"}'],
     ])(`error('%s') -> '%s'`, (input, expected) => {
       expect(error(input)).toBe(expected)
+    })
+  })
+  describe('issueMessage', () => {
+    it.concurrent.each([
+      ['dep failed', 'issue', '"dep failed"'],
+      ['Contains "quotes"', 'issue', '"Contains \\"quotes\\""'],
+      ['(issue) => `bad ${issue.code}`', 'issue', '((issue) => `bad ${issue.code}`)(issue)'],
+      ['()=>"error"', "{code:'custom',input:val}", '(()=>"error")({code:\'custom\',input:val})'],
+    ])(`issueMessage('%s', '%s') -> '%s'`, (message, issue, expected) => {
+      expect(issueMessage(message, issue)).toBe(expected)
     })
   })
   // renderNamedImport
