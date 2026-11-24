@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.9](https://github.com/nakita628/hono-takibi/compare/v0.35.8...v0.35.9) (2026-11-24)
+
+
+### Bug Fixes
+
+* accept a URL as the CLI input, encode x-dependentSchemas-message once, run the website e2e on package changes ([#637](https://github.com/nakita628/hono-takibi/issues/637)) ([f98c9a7](https://github.com/nakita628/hono-takibi/commit/f98c9a739db65d6755610caf43909ba53b88599b))
+
 ## [0.35.8](https://github.com/nakita628/hono-takibi/compare/v0.35.7...v0.35.8) (2026-11-24)
 
 
