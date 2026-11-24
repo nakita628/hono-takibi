@@ -257,11 +257,17 @@ export function object(
   // if-then-else emits a superRefine whose inner issues propagate with original
   // path/code. When neither then nor else is set, no refine is emitted (no-op).
   const ifThenElse = (() => {
-    if (!schema.if) return ''
-    if (!schema.then && !schema.else) return ''
+    // A boolean schema is a schema: `then: false` fails every object the `if` holds for.
+    // `true` constrains nothing, like an absent one.
+    const thenSchema = schema.then === true ? undefined : schema.then
+    const elseSchema = schema.else === true ? undefined : schema.else
+    if (schema.if === undefined) return ''
+    if (thenSchema === undefined && elseSchema === undefined) return ''
     const ifZod = zodToOpenAPI(schema.if, undefined, options)
-    const thenZod = schema.then ? zodToOpenAPI(schema.then, undefined, options) : 'undefined'
-    const elseZod = schema.else ? zodToOpenAPI(schema.else, undefined, options) : 'undefined'
+    const thenZod =
+      thenSchema === undefined ? 'undefined' : zodToOpenAPI(thenSchema, undefined, options)
+    const elseZod =
+      elseSchema === undefined ? 'undefined' : zodToOpenAPI(elseSchema, undefined, options)
     const useSplitBranch = thenMessageSlot !== undefined || elseMessageSlot !== undefined
     if (!useSplitBranch) {
       return `.superRefine((o,ctx)=>{const If=${ifZod};const ifOk=If.safeParse(o).success;const Branch=ifOk?${thenZod}:${elseZod};if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${ifMessageOverride}})}}})`

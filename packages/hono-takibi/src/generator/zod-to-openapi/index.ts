@@ -121,8 +121,7 @@ function withOutputCheck(zod: string, check: RawCheck | undefined): string {
   return `${zod}.superRefine((val,ctx)=>{try{return (${check.sync})(val,ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return (${check.async})(val,ctx)}})`
 }
 
-// The same wrapper around statements that read `ctx` and `Schema` themselves:
-// the `allOf` message, which parses the intersection to report its issues again.
+// The same wrapper around the statements of the callback, which read `ctx` and `Schema`.
 function withRawStatements(
   zod: string,
   statements: string,
@@ -947,18 +946,30 @@ export function zodToOpenAPI(
       {},
     )
     if (allOfMessage || unevalCheck) {
-      const safeParseBranches = (() => {
-        const msgExpr = allOfMessage ? issueMessage(allOfMessage, 'issue') : undefined
-        const pushArg = msgExpr
-          ? `{...issue,input:issue.input,message:${msgExpr}}`
-          : '{...issue,input:issue.input}'
-        return `const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding(pushArg)}}}`
-      })()
-      const unevalCall = unevalCheck ? `;(${unevalCheck})(ctx)` : ''
+      const msgExpr = allOfMessage ? issueMessage(allOfMessage, 'issue') : undefined
+      const pushArg = msgExpr
+        ? `{...issue,input:issue.input,message:${msgExpr}}`
+        : '{...issue,input:issue.input}'
+      const forwarding = `if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding(pushArg)}}}`
+      // The intersection is parsed to report its issues again, so the check comes with an
+      // awaited form, like every check that parses a schema of the document (#645).
+      // `Schema` is the intersection, as `withRawCheck` declares it. The
+      // `unevaluatedProperties` check runs after it, in the same callback.
+      const forwardCheck = {
+        sync: `(ctx)=>{const result=Schema.safeParse(ctx.value);${forwarding}}`,
+        async: `async(ctx)=>{const result=(await Schema.safeParseAsync(ctx.value));${forwarding}}`,
+      }
+      const messageCheck: RawCheck =
+        unevalCheck === undefined
+          ? forwardCheck
+          : {
+              sync: `(ctx)=>{(${forwardCheck.sync})(ctx);(${unevalCheck.sync})(ctx)}`,
+              async: `async(ctx)=>{await (${forwardCheck.async})(ctx);await (${unevalCheck.async ?? unevalCheck.sync})(ctx)}`,
+            }
       // A `z.preprocess`, not a check piped into the intersection: the
       // document renders it by the intersection, and `z.input` stays its
       // input type (#479, see `withRawCheck`).
-      const wrapped = withRawStatements(shaped, `${safeParseBranches}${unevalCall}`)
+      const wrapped = withRawCheck(shaped, messageCheck)
       return done(withRawCheck(wrapped, strictCheck, declarations), emitted)
     }
     // One reference and nothing to intersect it with: what is emitted is the component.
@@ -1516,6 +1527,14 @@ export function zodToOpenAPI(
     const unevaluatedItemsMessageOverride = unevaluatedItemsMessage
       ? `,message:${issueMessage(unevaluatedItemsMessage, 'issue')}`
       : ''
+    // An element `contains` matches is evaluated (JSON Schema 2020-12 §11.2), so
+    // `unevaluatedItems` does not apply to such an element: `Contains` is declared, and
+    // the element skipped.
+    const containsDeclaration = schema.contains
+      ? `const Contains=${referenced(schema.contains)};`
+      : ''
+    const skipContained = (value: string) =>
+      schema.contains ? `if(Contains.safeParse(${value}).success){continue}` : ''
     const unevaluatedItemsChain = (() => {
       const ui = schema.unevaluatedItems
       if (ui === undefined || ui === true) return ''
@@ -1527,10 +1546,10 @@ export function zodToOpenAPI(
         const messagePart = slot
           ? `,message:${issueMessage(slot, "{code:'custom',path:[i],input:arr}")}`
           : ''
-        return `.superRefine((arr,ctx)=>{for(let i=${prefixCount};i<arr.length;i++){ctx.addIssue({code:"custom",path:[i]${messagePart}})}})`
+        return `.superRefine((arr,ctx)=>{${containsDeclaration}for(let i=${prefixCount};i<arr.length;i++){${skipContained('arr[i]')}ctx.addIssue({code:"custom",path:[i]${messagePart}})}})`
       }
       const subZod = zodToOpenAPI(ui, undefined, childOptions)
-      return `.superRefine((arr,ctx)=>{const Schema=${subZod};for(const [idx,val] of arr.slice(${prefixCount}).entries()){const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[${prefixCount}+idx,...issue.path]${unevaluatedItemsMessageOverride}})}}}})`
+      return `.superRefine((arr,ctx)=>{${containsDeclaration}const Schema=${subZod};for(const [idx,val] of arr.slice(${prefixCount}).entries()){${skipContained('val')}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[${prefixCount}+idx,...issue.path]${unevaluatedItemsMessageOverride}})}}}})`
     })()
     const lengthMessage = schema['x-length-message'] ?? arrayErrorMessage
     const sizeErrorArg = lengthMessage ? `,${error(lengthMessage)}` : ''
@@ -1620,14 +1639,14 @@ export function zodToOpenAPI(
       const capSlotMessage = capFromUneval ? unevaluatedItemsMessage : itemsMessage
       const prefixCheck = `const Prefix=[${prefixCodes.join(',')}];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]${prefixItemsMessageOverride}})}}}`
       const restCheck = restCode
-        ? `;const Rest=${restCode};for(const [i,val] of arr.slice(Prefix.length).entries()){const result=Rest.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]${restMessageOverride}})}}}`
+        ? `;${restFromUneval ? containsDeclaration : ''}const Rest=${restCode};for(const [i,val] of arr.slice(Prefix.length).entries()){${restFromUneval ? skipContained('val') : ''}const result=Rest.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]${restMessageOverride}})}}}`
         : ''
       const capSlot = capSlotMessage ?? arrayErrorMessage
       const capMessagePart = capSlot
         ? `,message:${issueMessage(capSlot, "{code:'custom',path:[i],input:arr}")}`
         : ''
       const capCheck = lengthCapped
-        ? `;for(let i=Prefix.length;i<arr.length;i++){ctx.addIssue({code:"custom",path:[i]${capMessagePart}})}`
+        ? `;${capFromUneval ? containsDeclaration : ''}for(let i=Prefix.length;i<arr.length;i++){${capFromUneval ? skipContained('arr[i]') : ''}ctx.addIssue({code:"custom",path:[i]${capMessagePart}})}`
         : ''
       const arrayCtor = arrayErrorArg
         ? `z.array(z.unknown()${arrayErrorArg})`

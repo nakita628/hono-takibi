@@ -110,6 +110,12 @@ type Parse = (zod: string, value: string) => string
 const parseSync: Parse = (zod, value) => `${zod}.safeParse(${value})`
 const parseAsync: Parse = (zod, value) => `(await ${zod}.safeParseAsync(${value}))`
 
+// A subschema that may be a boolean schema, as source: `true` accepts every value, `false`
+// none (JSON Schema 2020-12 §4.3.2).
+function emitSubschema(sub: Schema | boolean, recurse: (s: Schema) => string) {
+  return sub === true ? 'z.any()' : sub === false ? 'z.never()' : recurse(sub)
+}
+
 // A check written for both parses: with an asynchronous form when it parses a schema, which
 // is when the two differ.
 function bothParses(build: (parse: Parse) => string): RawCheck {
@@ -304,11 +310,15 @@ function makeArrayChecks(
         return `{${count};${minCheck}${maxCheck}}`
       })()
     : undefined
-  // `items` evaluates every element after the prefix, so none is left unevaluated.
-  const unevaluatedItemsCheck =
-    schema.unevaluatedItems === false && !isRestEvaluated(schema)
-      ? `if(val.length>${prefixCount}){${report.issue(issueObj(messageFor(schema, 'unevaluatedItems')))}}`
-      : undefined
+  // `items` evaluates every element after the prefix, so none is left unevaluated. Nor is
+  // an element `contains` matches (JSON Schema 2020-12 §11.2).
+  const unevaluatedItemsCheck = (() => {
+    if (schema.unevaluatedItems !== false || isRestEvaluated(schema)) return undefined
+    const issue = report.issue(issueObj(messageFor(schema, 'unevaluatedItems')))
+    return schema.contains === undefined
+      ? `if(val.length>${prefixCount}){${issue}}`
+      : `{const Contains=${recurse(schema.contains)};for(let i=${prefixCount};i<val.length;i++){if(!${parse('Contains', 'val[i]')}.success){${issue};break}}}`
+  })()
 
   return [
     minItemsCheck,
@@ -385,17 +395,21 @@ function makeConditionalStmt(
   const ifMessage = messageFor(schema, 'if')
   const thenMessage = messageFor(schema, 'then') ?? ifMessage
   const elseMessage = messageFor(schema, 'else') ?? ifMessage
-  return ifSchema
+  // A boolean schema is a schema: `then: false` fails every value the `if` holds for.
+  // `true` constrains nothing, like an absent one.
+  return ifSchema !== undefined
     ? (() => {
-        const ifZod = recurse(ifSchema)
-        const thenSchema = schema.then
-        const elseSchema = schema.else
-        const thenPart = thenSchema
-          ? `if(ifOk){const Schema=${recurse(thenSchema)};if(!${parse('Schema', 'val')}.success){${report.issue(issueObj(thenMessage))}}}`
-          : ''
-        const elsePart = elseSchema
-          ? `if(!ifOk){const Schema=${recurse(elseSchema)};if(!${parse('Schema', 'val')}.success){${report.issue(issueObj(elseMessage))}}}`
-          : ''
+        const ifZod = emitSubschema(ifSchema, recurse)
+        const thenSchema = schema.then === true ? undefined : schema.then
+        const elseSchema = schema.else === true ? undefined : schema.else
+        const thenPart =
+          thenSchema !== undefined
+            ? `if(ifOk){const Schema=${emitSubschema(thenSchema, recurse)};if(!${parse('Schema', 'val')}.success){${report.issue(issueObj(thenMessage))}}}`
+            : ''
+        const elsePart =
+          elseSchema !== undefined
+            ? `if(!ifOk){const Schema=${emitSubschema(elseSchema, recurse)};if(!${parse('Schema', 'val')}.success){${report.issue(issueObj(elseMessage))}}}`
+            : ''
         return thenPart || elsePart
           ? `{const ifOk=${parse(ifZod, 'val')}.success;${thenPart};${elsePart}}`
           : undefined
@@ -1243,10 +1257,11 @@ export function makeParentStrictCheck(
   )
 }
 
-// The statements that raise `n`, the number of leading elements of the array `a` a schema
-// evaluates: those `prefixItems` names, and every one beside `items` or an
-// `unevaluatedItems` of its own; what each member of an `allOf` evaluates, each branch of
-// an `anyOf` / `oneOf` that matches, and the `if` / `then` / `else` the condition selects
+// The statements that say which elements of the array `a` a schema evaluates. `n` is the
+// number of leading ones: those `prefixItems` names, and every one beside `items` or an
+// `unevaluatedItems` of its own. `e` holds the indexes of the others: the elements
+// `contains` matches. What each member of an `allOf` evaluates counts, each branch of an
+// `anyOf` / `oneOf` that matches, and the `if` / `then` / `else` the condition selects
 // (JSON Schema 2020-12 §11.2). A reference evaluates what the component it names does.
 // The matches of the top-level branches are counted into `mA` and `mO`.
 function evaluatedItemsStmts(
@@ -1270,13 +1285,22 @@ function evaluatedItemsStmts(
           new Set([...reading, schema.$ref]),
         )
   }
-  const nested = (sub: Schema) => evaluatedItemsStmts(sub, recurse, schemas, parse, false, reading)
-  const own =
+  const nested = (sub: Schema | boolean | undefined) =>
+    typeof sub === 'object' ? evaluatedItemsStmts(sub, recurse, schemas, parse, false, reading) : []
+  const isAllEvaluated =
     isRestEvaluated(schema) || (!isTop && schema.unevaluatedItems !== undefined)
-      ? ['n=Infinity']
-      : Array.isArray(schema.prefixItems) && schema.prefixItems.length > 0
-        ? [`n=Math.max(n,${schema.prefixItems.length})`]
-        : []
+  const own = isAllEvaluated
+    ? ['n=Infinity']
+    : [
+        ...(Array.isArray(schema.prefixItems) && schema.prefixItems.length > 0
+          ? [`n=Math.max(n,${schema.prefixItems.length})`]
+          : []),
+        ...(schema.contains === undefined
+          ? []
+          : [
+              `{const Contains=${recurse(schema.contains)};for(const [i,item] of a.entries()){if(${parse('Contains', 'item')}.success){e.add(i)}}}`,
+            ]),
+      ]
   const branches = (list: readonly Schema[] | undefined, counter: string) =>
     (list ?? []).flatMap((branch) => {
       const body = nested(branch)
@@ -1287,12 +1311,12 @@ function evaluatedItemsStmts(
     })
   const conditional = (() => {
     if (schema.if === undefined) return []
-    const whenOk = [...nested(schema.if), ...(schema.then === undefined ? [] : nested(schema.then))]
-    const whenNot = schema.else === undefined ? [] : nested(schema.else)
+    const whenOk = [...nested(schema.if), ...nested(schema.then)]
+    const whenNot = nested(schema.else)
     return whenOk.length === 0 && whenNot.length === 0
       ? []
       : [
-          `if(${parse(recurse(schema.if), 'a')}.success){${whenOk.join(';')}}${whenNot.length === 0 ? '' : `else{${whenNot.join(';')}}`}`,
+          `if(${parse(emitSubschema(schema.if, recurse), 'a')}.success){${whenOk.join(';')}}${whenNot.length === 0 ? '' : `else{${whenNot.join(';')}}`}`,
         ]
   })()
   return [
@@ -1327,13 +1351,18 @@ export function makeUnevaluatedItemsCheck(
   const hasOneOf = (schema.oneOf ?? []).length > 0
   const gate = [...(hasAnyOf ? ['mA>0'] : []), ...(hasOneOf ? ['mO===1'] : [])].join('&&')
   return bothParses((parse) => {
+    const evaluated = evaluatedItemsStmts(schema, recurse, schemas, parse, true)
+    // The set of matched indexes is declared, and asked, only when a `contains` fills it.
+    const hasMatched = evaluated.some((stmt) => stmt.includes('e.add(i)'))
+    const skip = hasMatched ? 'if(e.has(i)){continue}' : ''
     const report =
       unevaluated === false
-        ? `for(let i=n;i<a.length;i++){ctx.issues.push({code:"custom",path:[i],input:a${message === undefined ? '' : `,message:${issueMessage(message, "{code:'custom',path:[i],input:a}")}`}})}`
-        : `const Schema=${recurse(unevaluated)};for(let i=n;i<a.length;i++){const result=${parse('Schema', 'a[i]')};if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding(`{...issue,path:[i,...issue.path],input:issue.input${message === undefined ? '' : `,message:${issueMessage(message, 'issue')}`}}`)}}}}`
+        ? `for(let i=n;i<a.length;i++){${skip}ctx.issues.push({code:"custom",path:[i],input:a${message === undefined ? '' : `,message:${issueMessage(message, "{code:'custom',path:[i],input:a}")}`}})}`
+        : `const Schema=${recurse(unevaluated)};for(let i=n;i<a.length;i++){${skip}const result=${parse('Schema', 'a[i]')};if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding(`{...issue,path:[i,...issue.path],input:issue.input${message === undefined ? '' : `,message:${issueMessage(message, 'issue')}`}}`)}}}}`
     const stmts = [
       `let n=0${hasAnyOf ? ',mA=0' : ''}${hasOneOf ? ',mO=0' : ''}`,
-      ...evaluatedItemsStmts(schema, recurse, schemas, parse, true),
+      ...(hasMatched ? ['const e=new Set()'] : []),
+      ...evaluated,
       gate === '' ? report : `if(${gate}){${report}}`,
     ]
     return `(ctx)=>{const a=ctx.value;if(!Array.isArray(a))return;${stmts.join(';')}}`
@@ -1504,14 +1533,19 @@ function makeGatedStmts(sub: Schema | undefined, cond: string | undefined) {
   return cond === undefined ? body : `if(${cond}){${body}}`
 }
 
-function makeIfStmts(schema: Schema, recurse: (s: Schema) => string) {
+// The same for a subschema that may be a boolean schema, which declares no key.
+function makeGatedSubschemaStmts(sub: Schema | boolean | undefined, cond: string) {
+  return typeof sub === 'object' ? makeGatedStmts(sub, cond) : undefined
+}
+
+function makeIfStmts(schema: Schema, recurse: (s: Schema) => string, parse: Parse = parseSync) {
   const ifSchema = schema.if
-  if (!ifSchema) return []
+  if (ifSchema === undefined) return []
   return [
-    `const ifOk=${recurse(ifSchema)}.safeParse(o).success`,
-    makeGatedStmts(ifSchema, 'ifOk'),
-    makeGatedStmts(schema.then, 'ifOk'),
-    makeGatedStmts(schema.else, '!ifOk'),
+    `const ifOk=${parse(emitSubschema(ifSchema, recurse), 'o')}.success`,
+    makeGatedSubschemaStmts(ifSchema, 'ifOk'),
+    makeGatedSubschemaStmts(schema.then, 'ifOk'),
+    makeGatedSubschemaStmts(schema.else, '!ifOk'),
   ].filter((s): s is string => s !== undefined)
 }
 
@@ -1536,16 +1570,19 @@ function collectBranchBody(
   recurse: (s: Schema) => string,
   schemas: Schemas | undefined,
   reading: ReadonlySet<string> = new Set(),
+  parse: Parse = parseSync,
 ): string | undefined {
   if (sub.$ref !== undefined) {
     const target = reading.has(sub.$ref) ? undefined : resolveSchemaRef(sub.$ref, schemas)
     if (target === undefined) return undefined
-    return collectBranchBody(target, recurse, schemas, new Set([...reading, sub.$ref]))
+    return collectBranchBody(target, recurse, schemas, new Set([...reading, sub.$ref]), parse)
   }
   const branchStmts = (branches: readonly Schema[] | undefined) =>
     branches
       ? branches
-          .map((branch) => conditionalBranchStmt(branch, recurse, schemas, reading))
+          .map((branch) =>
+            conditionalBranchStmt(branch, recurse, schemas, reading, undefined, parse),
+          )
           .filter((s): s is string => s !== undefined)
       : []
   const body = [
@@ -1555,7 +1592,7 @@ function collectBranchBody(
     ...(sub.allOf ? collectAllOfStmts(sub.allOf, schemas, reading) : []),
     ...branchStmts(sub.anyOf),
     ...branchStmts(sub.oneOf),
-    ...makeIfStmts(sub, recurse),
+    ...makeIfStmts(sub, recurse, parse),
     ...makeDepSchemaStmts(sub),
   ]
     .filter((s): s is string => s !== undefined)
@@ -1574,11 +1611,12 @@ function conditionalBranchStmt(
   // of branches that contributed keys. Only the top-level branches of the
   // `unevaluatedProperties` check pass it (see `makeUnevaluatedEvaluationStmts`).
   countVar?: string,
+  parse: Parse = parseSync,
 ) {
-  const body = collectBranchBody(sub, recurse, schemas, reading)
+  const body = collectBranchBody(sub, recurse, schemas, reading, parse)
   if (body === undefined && countVar === undefined) return undefined
   const counted = countVar === undefined ? '' : `${countVar}++;`
-  return `if(${recurse(sub)}.safeParse(o).success){${counted}${body ?? ''}}`
+  return `if(${parse(recurse(sub), 'o')}.success){${counted}${body ?? ''}}`
 }
 
 // The statements that collect, into `e`, every key the schema evaluates: its own
@@ -1597,11 +1635,12 @@ function makeUnevaluatedEvaluationStmts(
   recurse: (s: Schema) => string,
   schemas: Schemas | undefined,
   track?: { readonly anyOf?: string; readonly oneOf?: string },
+  parse: Parse = parseSync,
 ) {
   const branchStmts = (branches: readonly Schema[] | undefined, countVar?: string) =>
     branches
       ? branches
-          .map((sub) => conditionalBranchStmt(sub, recurse, schemas, undefined, countVar))
+          .map((sub) => conditionalBranchStmt(sub, recurse, schemas, undefined, countVar, parse))
           .filter((s): s is string => s !== undefined)
       : []
   return [
@@ -1612,7 +1651,7 @@ function makeUnevaluatedEvaluationStmts(
     ...(schema.allOf ? collectAllOfStmts(schema.allOf, schemas) : []),
     ...branchStmts(schema.anyOf, track?.anyOf),
     ...branchStmts(schema.oneOf, track?.oneOf),
-    ...makeIfStmts(schema, recurse),
+    ...makeIfStmts(schema, recurse, parse),
     ...makeDepSchemaStmts(schema),
   ].filter((s): s is string => s !== undefined)
 }
@@ -1687,16 +1726,16 @@ export function makeUnevaluatedPropertiesCheck(
   // schema carrying both emits only the `anyOf` union (the `oneOf` is
   // dropped by the emitter), so gating on both would be wrong there.
   guard?: { readonly anyOf?: boolean; readonly oneOf?: boolean },
-) {
+): RawCheck | undefined {
   const up = schema.unevaluatedProperties
   if (up === undefined || up === true) {
-    return ''
+    return undefined
   }
   const messageField = makeUnevaluatedMessageField(schema, messageOverride)
-  const finalStmt =
+  const finalStmtOf = (parse: Parse) =>
     up === false
       ? `for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o${messageField}})}}`
-      : `const Schema=${recurse(up)};for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding('{...issue,path:[k,...issue.path],input:issue.input}')}}}}`
+      : `const Schema=${recurse(up)};for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=${parse('Schema', 'val')};if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding('{...issue,path:[k,...issue.path],input:issue.input}')}}}}`
   // The final statement must only report when the union the check belongs to
   // would have succeeded (#472: a wrong-typed declared key must not also be
   // reported as unevaluated, since no branch matched to evaluate it). That
@@ -1718,15 +1757,26 @@ export function makeUnevaluatedPropertiesCheck(
       ? guard.oneOf === true
       : schema.oneOf !== undefined && schema.oneOf.length > 0
   const counters = `${hasAnyOf ? 'let mA=0;' : ''}${hasOneOf ? 'let mO=0;' : ''}`
-  const evalStmts = makeUnevaluatedEvaluationStmts(schema, recurse, schemas, {
-    ...(hasAnyOf ? { anyOf: 'mA' } : {}),
-    ...(hasOneOf ? { oneOf: 'mO' } : {}),
+  // The check parses the branches and the schema of the keyword, so it comes with an
+  // awaited form for those with an asynchronous refinement (#645).
+  return bothParses((parse) => {
+    const evalStmts = makeUnevaluatedEvaluationStmts(
+      schema,
+      recurse,
+      schemas,
+      {
+        ...(hasAnyOf ? { anyOf: 'mA' } : {}),
+        ...(hasOneOf ? { oneOf: 'mO' } : {}),
+      },
+      parse,
+    )
+    const finalStmt = finalStmtOf(parse)
+    const guardedFinal =
+      !hasAnyOf && !hasOneOf
+        ? finalStmt
+        : `if(${[...(hasAnyOf ? ['mA>0'] : []), ...(hasOneOf ? ['mO===1'] : [])].join('&&')}){${finalStmt}}`
+    return `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;${counters}${[...evalStmts, guardedFinal].join(';')}}`
   })
-  const guardedFinal =
-    !hasAnyOf && !hasOneOf
-      ? finalStmt
-      : `if(${[...(hasAnyOf ? ['mA>0'] : []), ...(hasOneOf ? ['mO===1'] : [])].join('&&')}){${finalStmt}}`
-  return `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;${counters}${[...evalStmts, guardedFinal].join(';')}}`
 }
 
 // The error arguments of a numeric bound, as Zod v4 `{error:"..."}` parameters: for the

@@ -25,6 +25,9 @@ const recurse = zodToOpenAPI
 // the branches of helper/zod.ts alone with minimal reproductions. Runtime behaviour that depends
 // on Zod lives in zod-to-openapi/index.test.ts, so this file only asserts the emitted string.
 
+const unevaluatedBody = (parse: (zod: string, value: string) => string) =>
+  `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;let mA=0;const e=new Set();if(${parse('S', 'o')}.success){mA++;};const ifOk=${parse('z.any()', 'o')}.success;if(ifOk){for(const k of ["a"]){e.add(k)}};if(mA>0){const Schema=S;for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=${parse('Schema', 'val')};if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding('{...issue,path:[k,...issue.path],input:issue.input}')}}}}}}`
+
 describe('helper/zod', () => {
   describe('emitTypelessRefine', () => {
     it('returns z.any() for empty schema (blocks.length === 0 branch)', () => {
@@ -669,13 +672,13 @@ describe('helper/zod', () => {
   })
 
   describe('makeUnevaluatedPropertiesCheck (typeless wrapper)', () => {
-    it('returns empty string when unevaluatedProperties is undefined', () => {
+    it('returns undefined when unevaluatedProperties is undefined', () => {
       expect(
-        makeUnevaluatedPropertiesCheck({ properties: { a: { type: 'string' } } }, recurse),
-      ).toBe('')
+        makeUnevaluatedPropertiesCheck({ properties: { a: { type: 'string' } } }, recurse)?.sync,
+      ).toBeUndefined()
     })
 
-    it('returns empty string when unevaluatedProperties is true', () => {
+    it('returns undefined when unevaluatedProperties is true', () => {
       expect(
         makeUnevaluatedPropertiesCheck(
           {
@@ -683,8 +686,8 @@ describe('helper/zod', () => {
             unevaluatedProperties: true,
           },
           recurse,
-        ),
-      ).toBe('')
+        )?.sync,
+      ).toBeUndefined()
     })
 
     it('emits ctx.value-based check for unevaluatedProperties: false with own properties', () => {
@@ -695,7 +698,7 @@ describe('helper/zod', () => {
             unevaluatedProperties: false,
           },
           recurse,
-        ),
+        )?.sync,
       ).toBe(
         `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}`,
       )
@@ -709,7 +712,7 @@ describe('helper/zod', () => {
             unevaluatedProperties: { type: 'number' },
           },
           recurse,
-        ),
+        )?.sync,
       ).toBe(
         `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};const Schema=z.number();for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding('{...issue,path:[k,...issue.path],input:issue.input}')}}}}}`,
       )
@@ -733,7 +736,7 @@ describe('helper/zod', () => {
             'x-unevaluatedProperties-message': 'unevaluated',
           },
           recurse,
-        ),
+        )?.sync,
       ).toBe(
         `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;let mA=0;let mO=0;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){for(const p of ["^x_"]){if(new RegExp(p).test(k)){e.add(k)}}};for(const k of ["b"]){e.add(k)};if(z.object({c:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){mA++;for(const k of ["c"]){e.add(k)}};if(z.object({d:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){mO++;for(const k of ["d"]){e.add(k)}};const ifOk=z.object({x:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success;if(ifOk){for(const k of ["x"]){e.add(k)}};if(ifOk){for(const k of ["y"]){e.add(k)}};if(!ifOk){for(const k of ["z"]){e.add(k)}};if("e" in o){for(const k of ["f"]){e.add(k)}};if(mA>0&&mO===1){for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o,message:"unevaluated"})}}}}`,
       )
@@ -742,6 +745,33 @@ describe('helper/zod', () => {
     // #480: with a schema-form `unevaluatedProperties`, the per-key validation
     // is gated on the union succeeding too — here the `anyOf` guard only,
     // because the caller passes `{ anyOf: true }`.
+    it('comes with an awaited form when it parses a branch, a condition or a schema (#645)', () => {
+      expect(
+        makeUnevaluatedPropertiesCheck(
+          {
+            anyOf: [{ type: 'string' }],
+            if: true,
+            // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+            then: { properties: { a: {} } },
+            unevaluatedProperties: { type: 'string' },
+          },
+          (schema) => (schema.type === 'string' ? 'S' : 'N'),
+        ),
+      ).toStrictEqual({
+        sync: unevaluatedBody((zod, value) => `${zod}.safeParse(${value})`),
+        async: `async${unevaluatedBody((zod, value) => `(await ${zod}.safeParseAsync(${value}))`)}`,
+      })
+      // A check that parses nothing has no awaited form.
+      expect(
+        makeUnevaluatedPropertiesCheck(
+          { properties: { a: { type: 'string' } }, unevaluatedProperties: false },
+          recurse,
+        ),
+      ).toStrictEqual({
+        sync: `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}`,
+      })
+    })
+
     it('gates the schema-form final statement on the anyOf union succeeding', () => {
       expect(
         makeUnevaluatedPropertiesCheck(
@@ -754,7 +784,7 @@ describe('helper/zod', () => {
           undefined,
           undefined,
           { anyOf: true },
-        ),
+        )?.sync,
       ).toBe(
         `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;let mA=0;const e=new Set();for(const k of ["a"]){e.add(k)};if(z.object({c:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){mA++;for(const k of ["c"]){e.add(k)}};if(mA>0){const Schema=z.number();for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding('{...issue,path:[k,...issue.path],input:issue.input}')}}}}}}`,
       )
@@ -782,7 +812,7 @@ describe('helper/zod', () => {
         recurse,
         undefined,
         schemas,
-      )
+      )?.sync
       expect(code).toBe(
         `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["meta"]){e.add(k)};for(const k of ["d"]){e.add(k)};for(const k of ["meta"]){e.add(k)};for(const k of ["l"]){e.add(k)};for(const k of ["doc_count"]){e.add(k)};const Schema=BaseSchema;for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){if(issue.code==='invalid_type'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='too_big'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='too_small'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='invalid_format'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='not_multiple_of'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='unrecognized_keys'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='invalid_union'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='invalid_key'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='invalid_element'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='invalid_value'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='custom'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}}}}}`,
       )
@@ -806,7 +836,7 @@ describe('helper/zod', () => {
         recurse,
         undefined,
         schemas,
-      )
+      )?.sync
       expect(code).toBe(
         `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["meta"]){e.add(k)};for(const k of Object.keys(o)){if(!["meta"].includes(k)){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}`,
       )
@@ -821,7 +851,7 @@ describe('helper/zod', () => {
           },
           recurse,
           'override',
-        ),
+        )?.sync,
       ).toBe(
         `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o,message:"override"})}}}`,
       )
@@ -1394,6 +1424,25 @@ describe('helper/zod: makeUnevaluatedItemsCheck (#647)', () => {
     )
   })
 
+  const containsBody = (parsed: string) =>
+    `(ctx)=>{${guard}let n=0;const e=new Set();n=Math.max(n,1);{const Contains=S;for(const [i,item] of a.entries()){if(${parsed}.success){e.add(i)}}};for(let i=n;i<a.length;i++){if(e.has(i)){continue}ctx.issues.push({code:"custom",path:[i],input:a})}}`
+
+  it('leaves out the elements contains matches', () => {
+    expect(
+      makeUnevaluatedItemsCheck(
+        {
+          prefixItems: [{}],
+          allOf: [{ contains: { type: 'string' } }],
+          unevaluatedItems: false,
+        },
+        emitBranch,
+      ),
+    ).toStrictEqual({
+      sync: containsBody('Contains.safeParse(item)'),
+      async: `async${containsBody('(await Contains.safeParseAsync(item))')}`,
+    })
+  })
+
   it('parses the unevaluated elements with a schema, under their index', () => {
     const forwarded = makeIssueForwarding(
       '{...issue,path:[i,...issue.path],input:issue.input,message:"no more"}',
@@ -1437,6 +1486,35 @@ describe('helper/zod: makeConditionalCheck', () => {
     expect(makeConditionalCheck({ type: 'integer' }, emitBranch)).toBeUndefined()
     expect(
       makeConditionalCheck({ type: 'integer', if: { type: 'number' } }, emitBranch),
+    ).toBeUndefined()
+  })
+
+  const booleanBody = (parse: (zod: string) => string) =>
+    `(ctx)=>{const val=ctx.value;{const ifOk=${parse('z.never()')}.success;;if(!ifOk){const Schema=z.never();if(!${parse('Schema')}.success){${pushed}}}}}`
+
+  it('reads a boolean schema: false accepts nothing, true is left out', () => {
+    expect(
+      makeConditionalCheck(
+        {
+          type: 'integer',
+          if: false,
+          // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+          then: true,
+          else: false,
+        },
+        emitBranch,
+      ),
+    ).toStrictEqual({ sync: booleanBody(parsedSync), async: `async${booleanBody(parsedAwaited)}` })
+    expect(
+      makeConditionalCheck(
+        {
+          type: 'integer',
+          if: { type: 'number' },
+          // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+          then: true,
+        },
+        emitBranch,
+      ),
     ).toBeUndefined()
   })
 

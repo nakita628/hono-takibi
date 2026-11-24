@@ -571,9 +571,9 @@ export type Schema = {
   readonly contentMediaType?: string
   readonly contentSchema?: Schema
   readonly dependentSchemas?: { readonly [k: string]: Schema }
-  readonly if?: Schema
-  readonly then?: Schema
-  readonly else?: Schema
+  readonly if?: Schema | boolean
+  readonly then?: Schema | boolean
+  readonly else?: Schema | boolean
   readonly unevaluatedProperties?: boolean | Schema
   readonly unevaluatedItems?: boolean | Schema
   // JSON Schema 2020-12 Core meta keywords (pass-through to .openapi())
