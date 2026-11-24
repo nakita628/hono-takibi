@@ -1448,6 +1448,47 @@ export default app
     expect(out.imports('src/lib/rpc.ts')).toStrictEqual(["'./client'"])
   })
 
+  // The directory of the client is the same directory however it is written: a config
+  // that writes one output with ./ and the other without, and a caller that runs a job
+  // with the absolute path of a relative output, both get ./client (#611).
+  // クライアントのディレクトリは、どう書かれていても同じディレクトリである。一方の output を
+  // ./ 付きで、もう一方を ./ なしで書いた設定でも、相対パスの output を絶対パスにしてジョブを
+  // 実行する呼び出し側でも、./client になる (#611)。
+  it('imports the client by its file when the same directory is written another way', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-spelling-'))
+    const relative = path.relative(process.cwd(), tmpDir)
+    const cfg = await Effect.runPromise(
+      Effect.provide(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${relative}/src/routes.ts`,
+          template: { routeHandler: true },
+          client: { output: `./${relative}/src/lib/client.ts` },
+          rpc: { output: `${relative}/src/lib/rpc.ts` },
+          swr: { output: `${relative}/src/lib/swr.ts` },
+        }),
+        NodeFileSystem.layer,
+      ),
+    )
+    for (const job of makeJob(openAPI, cfg)) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await Effect.runPromise(
+        Effect.provide(
+          job.run(job.name === 'swr' ? path.resolve(job.output) : job.output),
+          NodeFileSystem.layer,
+        ),
+      )
+    }
+    const clientImportOf = (file: string) =>
+      fs
+        .readFileSync(path.join(tmpDir, file), 'utf8')
+        .split('\n')
+        .filter((text) => text.includes(" from '."))
+        .map((text) => text.replace(/^.* from /u, ''))
+    expect(clientImportOf('src/lib/rpc.ts')).toStrictEqual(["'./client'"])
+    expect(clientImportOf('src/lib/swr.ts')).toStrictEqual(["'./client'"])
+  })
+
   // A client that is an index.ts is imported by its directory, and needs no barrel.
   // index.ts であるクライアントは、ディレクトリで import される。バレルは不要である。
   it('imports a client that is an index.ts by its directory', async () => {
