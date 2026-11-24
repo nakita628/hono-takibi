@@ -320,7 +320,7 @@ describe('makeTypeString', () => {
     })
 
     it('should handle array without items', () => {
-      expect(makeTypeString({ type: 'array' }, 'Test')).toBe('unknown[]')
+      expect(makeTypeString({ type: 'array' }, 'Test')).toBe('any[]')
     })
 
     it('should handle tuple array', () => {
@@ -589,11 +589,12 @@ describe('makeTypeString', () => {
       expect(makeTypeString(undefined as never, 'Test')).toBe('unknown')
     })
 
-    // #379: `{}` constrains nothing, so the value is `unknown`, not an object
-    it('should type an empty schema as unknown', () => {
-      expect(makeTypeString({}, 'Test')).toBe('unknown')
+    // #632: `{}` is written `z.any()`, so the value is `any`.
+    // #379: `{}` constrains nothing, so the value is anything, not an object
+    it('should type an empty schema as any', () => {
+      expect(makeTypeString({}, 'Test')).toBe('any')
       expect(makeTypeString({ type: 'object', additionalProperties: {} }, 'Test')).toBe(
-        '{[key:string]:unknown}',
+        '{[key:string]:any}',
       )
     })
 
@@ -609,11 +610,11 @@ describe('makeTypeString', () => {
 
     it('should handle unknown type fallback', () => {
       const result = makeTypeString({ type: 'any' as 'string' }, 'Test')
-      expect(result).toBe('unknown')
+      expect(result).toBe('any')
     })
 
     it('should handle readonly array without items', () => {
-      expect(makeTypeString({ type: 'array' }, 'Test', undefined, true)).toBe('readonly unknown[]')
+      expect(makeTypeString({ type: 'array' }, 'Test', undefined, true)).toBe('readonly any[]')
     })
 
     it('should handle empty oneOf array', () => {
@@ -646,8 +647,8 @@ describe('makeTypeString array items edge cases', () => {
   it('array const collapses to JSON.stringify', () => {
     expect(makeTypeString({ const: [1, 'a'] }, 'X')).toBe('[1,"a"]')
   })
-  it('boolean items:true → unknown[]', () => {
-    expect(makeTypeString({ type: 'array', items: true }, 'X')).toBe('unknown[]')
+  it('boolean items:true → any[]', () => {
+    expect(makeTypeString({ type: 'array', items: true }, 'X')).toBe('any[]')
   })
   it('tuple items (2 entries) → positional tuple', () => {
     expect(
@@ -667,8 +668,8 @@ describe('makeTypeString array items edge cases', () => {
   it('single-entry items array → element[]', () => {
     expect(makeTypeString({ type: 'array', items: [{ type: 'string' }] }, 'X')).toBe('string[]')
   })
-  it('empty items array → unknown[]', () => {
-    expect(makeTypeString({ type: 'array', items: [] }, 'X')).toBe('unknown[]')
+  it('empty items array → any[]', () => {
+    expect(makeTypeString({ type: 'array', items: [] }, 'X')).toBe('any[]')
   })
 
   // #413: `z.file()` outputs a File
@@ -754,14 +755,18 @@ describe('makeTypeString: a nullable member of an allOf (#527)', () => {
       makeTypeString({ allOf: [{ type: 'string', nullable: true }, { type: 'string' }] }, 'Test'),
     ).toBe('((string|null)&string)')
   })
-  it('is unknown, or null, when no member validates', () => {
-    expect(makeTypeString({ allOf: [{ description: 'd' }] }, 'Test')).toBe('unknown')
-    expect(makeTypeString({ allOf: [{ nullable: true }] }, 'Test')).toBe('(unknown|null)')
+  it('is any, as z.any() is, when no member validates', () => {
+    expect(makeTypeString({ allOf: [{ description: 'd' }] }, 'Test')).toBe('any')
+    expect(makeTypeString({ allOf: [{ nullable: true }] }, 'Test')).toBe('(any|null)')
   })
 })
 
 describe('makeSchemaTypeString', () => {
-  const alias = { ref: (ref: string) => ref.split('/').at(-1) ?? '', readonly: false }
+  const alias = {
+    ref: (ref: string) => ref.split('/').at(-1) ?? '',
+    readonly: false,
+    schemas: undefined,
+  }
 
   it('writes a $ref as the writer says', () => {
     expect(
@@ -815,5 +820,158 @@ describe('makeTypeString: what both type outputs share (#608)', () => {
 
   it('writes an enum value with a newline as one line', () => {
     expect(makeTypeString({ type: 'string', enum: ['a\nb'] }, 'Test')).toBe("'a\\nb'")
+  })
+})
+
+function schemaRef(name: string) {
+  return { $ref: `#/components/schemas/${name}` } as const
+}
+
+describe('makeSchemaTypeString: a reference nothing defers (#635)', () => {
+  const writer = {
+    ref: (ref: string, direct: boolean) =>
+      `${direct ? 'Direct' : ''}${ref.split('/').at(-1) ?? ''}`,
+    readonly: false,
+    optionalUndefined: false,
+    schemas: undefined,
+  }
+  it('tells the writer that a $ref is the schema itself or a member of its combinator', () => {
+    expect(makeSchemaTypeString(schemaRef('A'), writer)).toBe('DirectA')
+    expect(makeSchemaTypeString({ allOf: [schemaRef('A'), schemaRef('B')] }, writer)).toBe(
+      '(DirectA&DirectB)',
+    )
+    expect(
+      makeSchemaTypeString({ oneOf: [schemaRef('A'), { anyOf: [schemaRef('B')] }] }, writer),
+    ).toBe('(DirectA|DirectB)')
+  })
+
+  it('tells the writer that a property, an element or an index signature defers a $ref', () => {
+    expect(
+      makeSchemaTypeString(
+        {
+          type: 'object',
+          allOf: [schemaRef('A')],
+          properties: {
+            p: schemaRef('B'),
+            list: { type: 'array', items: schemaRef('C') },
+            pair: { type: 'array', items: [schemaRef('D'), schemaRef('E')] },
+            map: { type: 'object', additionalProperties: schemaRef('F') },
+          },
+        },
+        writer,
+      ),
+    ).toBe('(DirectA&{p?:B;list?:C[];pair?:[D,E];map?:{[key:string]:F}})')
+  })
+
+  it('drops a member the writer answers with unknown from an intersection', () => {
+    const cut = { ...writer, ref: () => 'unknown' }
+    expect(
+      makeSchemaTypeString(
+        { type: 'object', allOf: [schemaRef('A')], properties: { a: { type: 'string' } } },
+        cut,
+      ),
+    ).toBe('{a?:string}')
+    expect(makeSchemaTypeString({ allOf: [schemaRef('A'), schemaRef('B')] }, cut)).toBe('unknown')
+    // A union keeps it: `unknown | string` is not `string`.
+    expect(makeSchemaTypeString({ oneOf: [schemaRef('A'), { type: 'string' }] }, cut)).toBe(
+      '(unknown|string)',
+    )
+  })
+})
+
+describe('makeTypeString: properties beside allOf (#634)', () => {
+  const P = { type: 'object', required: ['p'], properties: { p: { type: 'string' } } } as const
+  const ref = { $ref: '#/components/schemas/P' } as const
+
+  it('writes them as one more member beside a declared object type', () => {
+    expect(
+      makeTypeString(
+        { type: 'object', allOf: [ref], required: ['a'], properties: { a: { type: 'string' } } },
+        'Test',
+      ),
+    ).toBe('(z.infer<typeof PSchema>&{a:string})')
+  })
+
+  it('writes them as one more member when a member only accepts objects', () => {
+    const schema = { allOf: [ref], properties: { a: { type: 'string' } } } as const
+    expect(makeTypeString(schema, 'Test', undefined, false, { P })).toBe(
+      '(z.infer<typeof PSchema>&{a?:string})',
+    )
+    // What `P` is cannot be told without the components: the shape is then a check.
+    expect(makeTypeString(schema, 'Test')).toBe('z.infer<typeof PSchema>')
+  })
+
+  it('leaves them out where the schema writer checks them on the raw value', () => {
+    expect(
+      makeTypeString({ allOf: [{ minLength: 1 }], properties: { a: { type: 'string' } } }, 'Test'),
+    ).toBe('unknown')
+    // The intersection admits `null` and the parent does not: the shape is distributed.
+    expect(
+      makeTypeString(
+        { allOf: [{ ...ref, nullable: true }], properties: { a: { type: 'string' } } },
+        'Test',
+        undefined,
+        false,
+        { P },
+      ),
+    ).toBe('(z.infer<typeof PSchema>|null)')
+  })
+})
+
+describe('makeTypeString: what the schema writer emits as z.any() (#632)', () => {
+  it('is any for a schema with nothing that validates', () => {
+    expect(makeTypeString({ description: 'd' }, 'Test')).toBe('any')
+    expect(makeTypeString({ type: 'object', properties: { u: {} } }, 'Test')).toBe('{u?:any}')
+    expect(makeTypeString({ type: 'array', items: {} }, 'Test')).toBe('any[]')
+  })
+
+  it('is unknown for a schema checked on z.unknown()', () => {
+    expect(makeTypeString({ minLength: 1 }, 'Test')).toBe('unknown')
+    expect(makeTypeString({ required: ['x'] }, 'Test')).toBe('unknown')
+    expect(makeTypeString({ type: 'array', prefixItems: [{ type: 'string' }] }, 'Test')).toBe(
+      'unknown[]',
+    )
+  })
+
+  it('is unknown for the values of z.looseObject({})', () => {
+    expect(makeTypeString({ type: 'object' }, 'Test')).toBe('{[key:string]:unknown}')
+    expect(makeTypeString({ type: 'object', additionalProperties: true }, 'Test')).toBe(
+      '{[key:string]:unknown}',
+    )
+  })
+})
+
+describe('makeTypeString: patternProperties (#629)', () => {
+  it('does not type the values by additionalProperties beside patternProperties', () => {
+    expect(
+      makeTypeString(
+        {
+          type: 'object',
+          patternProperties: { '^x-': {} },
+          additionalProperties: { $ref: '#/components/schemas/PathItem' },
+        },
+        'Callback',
+      ),
+    ).toBe('{[key:string]:unknown}')
+    expect(
+      makeTypeString(
+        {
+          type: 'object',
+          patternProperties: { '^x-': { type: 'string' } },
+          additionalProperties: false,
+        },
+        'Test',
+      ),
+    ).toBe('{[key:string]:unknown}')
+  })
+
+  it('types the values by additionalProperties without patternProperties', () => {
+    expect(
+      makeTypeString(
+        { type: 'object', additionalProperties: { $ref: '#/components/schemas/PathItem' } },
+        'Callback',
+      ),
+    ).toBe('{[key:string]:z.infer<typeof PathItemSchema>}')
+    expect(makeTypeString({ type: 'object', additionalProperties: false }, 'Test')).toBe('{}')
   })
 })

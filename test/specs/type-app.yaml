@@ -1,0 +1,114 @@
+openapi: 3.0.3
+info:
+  title: Type App
+  version: 1.0.0
+# What the declaration file says of a route is checked against the app built from the
+# routes of the same document (#608).
+paths:
+  /beside:
+    get:
+      operationId: getBeside
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Beside'
+  /tree:
+    get:
+      operationId: getTree
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tree'
+  /report:
+    get:
+      operationId: getReport
+      responses:
+        '200':
+          description: text
+          content:
+            text/plain:
+              schema:
+                type: string
+        '201':
+          description: xml
+          content:
+            application/xml:
+              schema:
+                type: string
+  /anything:
+    get:
+      operationId: getAnything
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [u, list, m, o]
+                properties:
+                  u: {}
+                  list:
+                    type: array
+                  m:
+                    minLength: 1
+                  o:
+                    type: object
+  /callback:
+    get:
+      operationId: getCallback
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Callback'
+components:
+  schemas:
+    Base:
+      type: object
+      required: [p]
+      properties:
+        p:
+          type: string
+    # Properties beside allOf (#634).
+    Beside:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Base'
+      properties:
+        a:
+          type: string
+    # The same in a schema that refers to itself, whose Zod schema is annotated.
+    Tree:
+      allOf:
+        - $ref: '#/components/schemas/Base'
+      required: [kids]
+      properties:
+        kids:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tree'
+    # patternProperties beside a $ref additionalProperties, in a cycle (#629, Tyk).
+    Callback:
+      type: object
+      patternProperties:
+        '^x-': {}
+      additionalProperties:
+        $ref: '#/components/schemas/PathItem'
+    PathItem:
+      type: object
+      properties:
+        summary:
+          type: string
+        callbacks:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Callback'

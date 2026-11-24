@@ -943,9 +943,9 @@ export default routes
         output: {
           tuple?: [string, number] | undefined
           single?: boolean[] | undefined
-          emptyItems?: unknown[] | undefined
-          anyItems?: unknown[] | undefined
-          noItems?: unknown[] | undefined
+          emptyItems?: any[] | undefined
+          anyItems?: any[] | undefined
+          noItems?: any[] | undefined
         }
         outputFormat: 'json'
         status: 200
@@ -1036,6 +1036,10 @@ async function generateTypes(openapi: object) {
 
 function documentOf(paths: object) {
   return { openapi: '3.1.0', info: { title: 'Test', version: '1.0.0' }, paths }
+}
+
+function schemaRef(name: string) {
+  return { $ref: `#/components/schemas/${name}` }
 }
 
 function jsonResponse(schema: object) {
@@ -1165,11 +1169,7 @@ describe('type: the route map agrees with the routes it types (#608)', () => {
     '/a': {
       $post: {
         input: { form: { n?: string | undefined } }
-        output: {
-          e?: ('x' | 'y' | null) | undefined
-          s?: (string & unknown) | undefined
-          u?: unknown | undefined
-        }
+        output: { e?: ('x' | 'y' | null) | undefined; s?: string | undefined; u?: any | undefined }
         outputFormat: 'json'
         status: 200
       }
@@ -1374,6 +1374,346 @@ export default routes
         output: {}
         outputFormat: string
         status: 204
+      }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+  })
+})
+
+describe('type: a reference that nothing defers (#635)', () => {
+  it('does not write a cycle made only of allOf as aliases of each other', async () => {
+    const content = await generateTypes({
+      openapi: '3.0.3',
+      info: { title: 't', version: '1' },
+      components: {
+        schemas: {
+          A: { type: 'object', allOf: [schemaRef('B')], properties: { a: { type: 'string' } } },
+          B: { type: 'object', allOf: [schemaRef('A')], properties: { b: { type: 'number' } } },
+          Node: {
+            type: 'object',
+            allOf: [schemaRef('Node')],
+            properties: { value: { type: 'string' } },
+          },
+        },
+      },
+      paths: {
+        '/a': {
+          get: {
+            responses: {
+              '200': jsonResponse({
+                type: 'object',
+                properties: { a: schemaRef('A'), b: schemaRef('B'), node: schemaRef('Node') },
+              }),
+            },
+          },
+        },
+      },
+    })
+    expect(content).toBe(`type A = { a?: string | undefined }
+type B = { b?: number | undefined }
+type Node = { value?: string | undefined }
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  {
+    '/a': {
+      $get: {
+        input: {}
+        output: { a?: A | undefined; b?: B | undefined; node?: Node | undefined }
+        outputFormat: 'json'
+        status: 200
+      }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+  })
+
+  it('cuts a direct reference back to a schema that reaches it through a property', async () => {
+    const content = await generateTypes({
+      openapi: '3.0.3',
+      info: { title: 't', version: '1' },
+      components: {
+        schemas: {
+          X: { type: 'object', allOf: [schemaRef('Y')], properties: { p: schemaRef('Y') } },
+          Y: { allOf: [schemaRef('X')] },
+        },
+      },
+      paths: { '/a': { get: { responses: { '200': jsonResponse(schemaRef('X')) } } } },
+    })
+    expect(content).toBe(`type Y = unknown
+type X = { p?: Y | undefined }
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  { '/a': { $get: { input: {}; output: X; outputFormat: 'json'; status: 200 } } },
+  '/'
+>
+export default routes
+`)
+  })
+
+  it('keeps the name where a property, an element or an index signature defers it', async () => {
+    const content = await generateTypes({
+      openapi: '3.0.3',
+      info: { title: 't', version: '1' },
+      components: {
+        schemas: {
+          P: { type: 'object', required: ['p'], properties: { p: { type: 'string' } } },
+          Tree: {
+            allOf: [schemaRef('P')],
+            properties: {
+              kids: { type: 'array', items: schemaRef('Tree') },
+              byName: { type: 'object', additionalProperties: schemaRef('Tree') },
+            },
+          },
+        },
+      },
+      paths: { '/a': { get: { responses: { '200': jsonResponse(schemaRef('Tree')) } } } },
+    })
+    expect(content).toBe(`type P = { p: string }
+type Tree = P & { kids?: Tree[] | undefined; byName?: { [key: string]: Tree } | undefined }
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  { '/a': { $get: { input: {}; output: Tree; outputFormat: 'json'; status: 200 } } },
+  '/'
+>
+export default routes
+`)
+  })
+})
+
+describe('type: properties beside allOf (#634)', () => {
+  it('writes them as one more member, where the Zod schema does', async () => {
+    const content = await generateTypes({
+      openapi: '3.0.3',
+      info: { title: 't', version: '1' },
+      components: {
+        schemas: {
+          P: { type: 'object', required: ['p'], properties: { p: { type: 'string' } } },
+          A: { type: 'object', allOf: [schemaRef('P')], properties: { a: { type: 'string' } } },
+          // No `type`: the member that only accepts objects makes the shape a member.
+          Untyped: {
+            allOf: [schemaRef('P')],
+            required: ['b'],
+            properties: { b: { type: 'number' } },
+          },
+          // `required` alone is checked on the member, and adds no property.
+          Req: { allOf: [schemaRef('P')], required: ['p'] },
+          // No member requires an object: the shape is a check, not part of the output.
+          Loose: { allOf: [{ minLength: 1 }], properties: { c: { type: 'string' } } },
+        },
+      },
+      paths: {
+        '/a': {
+          get: {
+            responses: {
+              '200': jsonResponse({
+                type: 'object',
+                properties: {
+                  a: schemaRef('A'),
+                  untyped: schemaRef('Untyped'),
+                  req: schemaRef('Req'),
+                  loose: schemaRef('Loose'),
+                },
+              }),
+            },
+          },
+        },
+      },
+    })
+    expect(content).toBe(`type P = { p: string }
+type A = P & { a?: string | undefined }
+type Untyped = P & { b: number }
+type Req = P
+type Loose = unknown
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  {
+    '/a': {
+      $get: {
+        input: {}
+        output: {
+          a?: A | undefined
+          untyped?: Untyped | undefined
+          req?: Req | undefined
+          loose?: Loose | undefined
+        }
+        outputFormat: 'json'
+        status: 200
+      }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+  })
+})
+
+describe('type: a response that is neither JSON nor text/plain (#633)', () => {
+  it('is typed like a response without content, as its body is a bare Response', async () => {
+    const text = { schema: { type: 'string' } }
+    const content = await generateTypes(
+      documentOf({
+        '/a': {
+          get: {
+            responses: {
+              '200': { description: 'text', content: { 'text/plain; charset=utf-8': text } },
+              '201': { description: 'xml', content: { 'application/xml': text } },
+              '202': {
+                description: 'several',
+                content: {
+                  'application/xml': text,
+                  'text/csv': text,
+                  'application/json': { schema: { type: 'number' } },
+                },
+              },
+              '203': { description: 'html', content: { 'text/html': text } },
+            },
+          },
+        },
+      }),
+    )
+    expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  {
+    '/a': {
+      $get:
+        | { input: {}; output: string; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: {}; outputFormat: string; status: 201 }
+        | { input: {}; output: {}; outputFormat: string; status: 202 }
+        | { input: {}; output: number; outputFormat: 'json'; status: 202 }
+        | { input: {}; output: {}; outputFormat: string; status: 203 }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+  })
+})
+
+describe('type: a schema that allows anything (#632)', () => {
+  it('is any where the routes write z.any(), and unknown where they write z.unknown()', async () => {
+    const content = await generateTypes({
+      openapi: '3.0.3',
+      info: { title: 't', version: '1' },
+      paths: {
+        '/a': {
+          get: {
+            responses: {
+              '200': jsonResponse({
+                type: 'object',
+                properties: {
+                  u: {},
+                  d: { description: 'd' },
+                  n: { nullable: true },
+                  rec: { type: 'object', additionalProperties: {} },
+                  arr: { type: 'array' },
+                  items: { type: 'array', items: {} },
+                  // Checked on `z.unknown()`.
+                  m: { minLength: 1 },
+                  r: { required: ['x'] },
+                  // `z.looseObject({})`.
+                  o: { type: 'object' },
+                  ap: { type: 'object', additionalProperties: true },
+                },
+              }),
+            },
+          },
+        },
+      },
+    })
+    expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  {
+    '/a': {
+      $get: {
+        input: {}
+        output: {
+          u?: any | undefined
+          d?: any | undefined
+          n?: (any | null) | undefined
+          rec?: { [key: string]: any } | undefined
+          arr?: any[] | undefined
+          items?: any[] | undefined
+          m?: unknown | undefined
+          r?: unknown | undefined
+          o?: { [key: string]: unknown } | undefined
+          ap?: { [key: string]: unknown } | undefined
+        }
+        outputFormat: 'json'
+        status: 200
+      }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+  })
+})
+
+describe('type: patternProperties beside additionalProperties (#629)', () => {
+  it('does not say every value is what additionalProperties says', async () => {
+    const content = await generateTypes({
+      openapi: '3.0.3',
+      info: { title: 't', version: '1' },
+      components: {
+        schemas: {
+          Callback: {
+            type: 'object',
+            patternProperties: { '^x-': {} },
+            additionalProperties: schemaRef('PathItem'),
+          },
+          PathItem: {
+            type: 'object',
+            properties: {
+              summary: { type: 'string' },
+              callbacks: { type: 'object', additionalProperties: schemaRef('Callback') },
+            },
+          },
+        },
+      },
+      paths: {
+        '/a': {
+          get: {
+            responses: {
+              '200': jsonResponse({
+                type: 'object',
+                properties: {
+                  item: schemaRef('PathItem'),
+                  closed: {
+                    type: 'object',
+                    patternProperties: { '^x-': { type: 'string' } },
+                    additionalProperties: false,
+                  },
+                },
+              }),
+            },
+          },
+        },
+      },
+    })
+    expect(content).toBe(`type Callback = { [key: string]: unknown }
+type PathItem = {
+  summary?: string | undefined
+  callbacks?: { [key: string]: Callback } | undefined
+}
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  {
+    '/a': {
+      $get: {
+        input: {}
+        output: { item?: PathItem | undefined; closed?: { [key: string]: unknown } | undefined }
+        outputFormat: 'json'
+        status: 200
       }
     }
   },

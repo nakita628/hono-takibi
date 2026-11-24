@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "exactOptionalPropertyTypes": true
+  },
+  "include": [
+    "../../__generated__/type-app/**/*",
+    "../../types/type-app.ts",
+    "../../types/assert.ts"
+  ]
+}

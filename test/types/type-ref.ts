@@ -54,6 +54,23 @@ export function assertions() {
     Equal<ShapeOut, { kind: 'circle'; radius: number } | { kind: 'square'; side: number }>
   >(true)
 
+  // A cycle made only of `allOf` still compiles: the reference that would make an alias
+  // name itself is left out, and what each schema declares itself stays (#635).
+  // `allOf` だけでできた循環でもコンパイルできる。エイリアスが自分自身を指すことになる参照は
+  // 書かれず、各スキーマが自分で宣言したものは残る(#635)。
+  type LoopOut = InferResponseType<typeof client.loop.$get>
+  assertType<NotAny<LoopOut>>(true)
+  assertType<
+    Equal<
+      LoopOut,
+      {
+        alpha?: { a?: string | undefined } | undefined
+        beta?: { b?: number | undefined } | undefined
+        self?: { value?: string | undefined } | undefined
+      }
+    >
+  >(true)
+
   // A schema named `File` does not take the place of the global `File` a binary string is.
   // `File` という名前のスキーマが、バイナリ文字列の型であるグローバルの `File` を奪うことはない。
   type ProfileOut = InferResponseType<typeof client.upload.$post>

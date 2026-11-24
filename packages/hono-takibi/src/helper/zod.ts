@@ -584,6 +584,57 @@ function canTakeType(member: Schema, type: DeclaredType): boolean {
 // Returns the schema itself when nothing has to change — no declared type,
 // no combinator, or the type is already settled — so the caller can tell by
 // identity, and a rewritten schema comes back unchanged.
+// Whether a schema carries its own wrapping (`.nullable()`, `.default()`,
+// `.prefault()`, `.catch()`) on itself. `canAdmitNullOrUndefined` follows a
+// `$ref` to its target and never sees the wrapping on the branch itself,
+// so a `$ref` branch with its own wrapping needs this check beside it.
+export function hasOwnWrapping(branch: Schema): boolean {
+  return (
+    branch.nullable === true ||
+    normalizeTypes(branch.type).includes('null') ||
+    branch.default !== undefined ||
+    branch['x-prefault'] !== undefined ||
+    branch['x-catch'] !== undefined
+  )
+}
+
+// Whether the `properties` beside an `allOf` are emitted as one more member of the
+// intersection (`X.and(z.object({ ... }))`), which is what puts them in the inferred type.
+// They are when the intersection already rejects every non-object: a declared object
+// type, or a member that only accepts objects.
+//
+// A shape member after the whole intersection would reject the `null`
+// the intersection admits when the parent type allows it, every member
+// admits it, and the parent does not re-admit it: the shape is distributed
+// into the members instead (#471), which now carry it inside their own
+// wrapping. A declared parent type without `null` already rejects it, so
+// the member path stays correct there. A member admits it through its own
+// wrapping as well as through its target: a `$ref` member with its own
+// `.nullable()` / `.default()` is not seen by `canAdmitNullOrUndefined`,
+// which follows the `$ref`. The shape member itself is never an
+// annotation-only nullable member, so it cannot change the re-admission.
+export function isShapeMember(schema: Schema, schemas?: Schemas): boolean {
+  if (schema.allOf === undefined || schema.properties === undefined) return false
+  const types = normalizeTypes(schema.type)
+  // `type: 'null'` alone also satisfies the `every` below, but it accepts no
+  // object: require 'object' too, as `requiresObject` does.
+  const objectOnly =
+    types.includes('object') && types.every((type) => type === 'object' || type === 'null')
+  const membersRequireObject = schema.allOf.some((member) => requiresObject(member, schemas))
+  if (!(objectOnly || membersRequireObject)) return false
+  const intersectionAdmitsNullOrUndefined =
+    (schema.type === undefined || types.includes('null')) &&
+    schema.allOf.length > 0 &&
+    schema.allOf.every(
+      (member) => canAdmitNullOrUndefined(member, schemas) || hasOwnWrapping(member),
+    )
+  const parentReAdmitsNull =
+    schema.nullable === true ||
+    types.includes('null') ||
+    schema.allOf.some((s) => s.type === 'null' || (s.nullable === true && isAnnotationOnly(s)))
+  return !(intersectionAdmitsNullOrUndefined && !parentReAdmitsNull)
+}
+
 export function narrowToDeclaredType(schema: Schema, schemas?: Schemas): Schema {
   const declared = declaredTypes(schema)
   const [single, ...others] = declared

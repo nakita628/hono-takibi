@@ -20,6 +20,7 @@ export function zodType(
   typeName: string,
   cyclicGroup?: ReadonlySet<string>,
   readonly?: boolean,
+  schemas?: { readonly [k: string]: Schema },
 ) {
   const typeIsObject = Array.isArray(schema.type)
     ? schema.type.includes('object')
@@ -27,15 +28,18 @@ export function zodType(
   const isRecordLike =
     typeIsObject &&
     isPresent(schema.additionalProperties) &&
+    // Beside `patternProperties` the values are not all of one schema (#629).
+    Object.keys(schema.patternProperties ?? {}).length === 0 &&
     (!schema.properties || Object.keys(schema.properties).length === 0)
   // Use inline index signature for record-like types in cyclic groups to avoid TS2456
   // TypeScript doesn't allow Record<string,T> in cyclic type references
   if (cyclicGroup && cyclicGroup.size > 0 && isRecordLike) {
-    // `additionalProperties: true` (or `{}`) is a value of `unknown`; a record of records
-    // would say the values are objects (#379).
-    const valueSchema =
-      typeof schema.additionalProperties === 'object' ? schema.additionalProperties : {}
-    const valueType = makeTypeString(valueSchema, typeName, cyclicGroup, readonly)
+    // `additionalProperties: true` is `z.looseObject({})`, whose values are `unknown`; a
+    // record of records would say the values are objects (#379).
+    const valueType =
+      typeof schema.additionalProperties === 'object'
+        ? makeTypeString(schema.additionalProperties, typeName, cyclicGroup, readonly, schemas)
+        : 'unknown'
     const record = `{[key:string]:${valueType}}`
     // The component itself may be nullable (`nullable: true`, `type: [.., 'null']`): what
     // `.nullable()` outputs is `| null` (#379).
@@ -43,5 +47,5 @@ export function zodType(
       schema.nullable === true || (Array.isArray(schema.type) && schema.type.includes('null'))
     return `type ${typeName}Type = ${isNullable ? `${record}|null` : record}`
   }
-  return `type ${typeName}Type=${makeTypeString(schema, typeName, cyclicGroup, readonly)}`
+  return `type ${typeName}Type=${makeTypeString(schema, typeName, cyclicGroup, readonly, schemas)}`
 }
