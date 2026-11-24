@@ -2,11 +2,12 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { pathItemsCode } from '../../generator/zod-openapi-hono/openapi/components/pathItems.js'
 import type { Components } from '../../openapi/index.js'
-import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { pathItems } from './pathItems.js'
 
 let tmpDir: string
@@ -17,26 +18,34 @@ afterEach(() => {
 
 describe('pathItems', () => {
   it('returns error when pathItemsConfig is undefined', async () => {
-    const result = await runGeneratorError(pathItems({}, undefined))
+    const result = await Effect.runPromise(
+      Effect.flip(Effect.provide(pathItems({}, undefined), NodeFileSystem.layer)),
+    )
     expect(result.message).toBe('pathItems.output is required')
   })
 
   it('returns error when pathItemsConfig.output is missing', async () => {
-    const result = await runGeneratorError(pathItems({}, {} as { output: string }))
+    const result = await Effect.runPromise(
+      Effect.flip(Effect.provide(pathItems({}, {} as { output: string }), NodeFileSystem.layer)),
+    )
     expect(result.message).toBe('pathItems.output is required')
   })
 
   it('returns error when no pathItems in components', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
     const output = path.join(tmpDir, 'pathItems.ts')
-    const result = await runGeneratorError(pathItems({}, { output }))
+    const result = await Effect.runPromise(
+      Effect.flip(Effect.provide(pathItems({}, { output }), NodeFileSystem.layer)),
+    )
     expect(result.message).toBe('No pathItems found')
   })
 
   it('returns success message when pathItems is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
     const output = path.join(tmpDir, 'pathItems.ts')
-    const result = await runGenerator(pathItems({ pathItems: {} }, { output }))
+    const result = await Effect.runPromise(
+      Effect.provide(pathItems({ pathItems: {} }, { output }), NodeFileSystem.layer),
+    )
     expect(result).toBe('No pathItems found')
   })
 
@@ -44,18 +53,20 @@ describe('pathItems', () => {
     it('writes single file and returns success', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
       const output = path.join(tmpDir, 'pathItems.ts')
-      const result = await runGenerator(
-        pathItems(
-          {
-            pathItems: {
-              UserOperations: {
-                get: {
-                  responses: {
-                    '200': {
-                      description: 'OK',
-                      content: {
-                        'application/json': {
-                          schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          pathItems(
+            {
+              pathItems: {
+                UserOperations: {
+                  get: {
+                    responses: {
+                      '200': {
+                        description: 'OK',
+                        content: {
+                          'application/json': {
+                            schema: { type: 'object', properties: { id: { type: 'string' } } },
+                          },
                         },
                       },
                     },
@@ -63,8 +74,9 @@ describe('pathItems', () => {
                 },
               },
             },
-          },
-          { output },
+            { output },
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated pathItems code written to ${output}`)
@@ -76,18 +88,20 @@ describe('pathItems', () => {
     it('writes single file with readonly flag', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
       const output = path.join(tmpDir, 'pathItems.ts')
-      const result = await runGenerator(
-        pathItems(
-          {
-            pathItems: {
-              UserOperations: {
-                get: {
-                  responses: {
-                    '200': {
-                      description: 'OK',
-                      content: {
-                        'application/json': {
-                          schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          pathItems(
+            {
+              pathItems: {
+                UserOperations: {
+                  get: {
+                    responses: {
+                      '200': {
+                        description: 'OK',
+                        content: {
+                          'application/json': {
+                            schema: { type: 'object', properties: { id: { type: 'string' } } },
+                          },
                         },
                       },
                     },
@@ -95,10 +109,11 @@ describe('pathItems', () => {
                 },
               },
             },
-          },
-          { output },
-          undefined,
-          true,
+            { output },
+            undefined,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated pathItems code written to ${output}`)
@@ -110,32 +125,34 @@ describe('pathItems', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
       const output = path.join(tmpDir, 'pathItems')
-      const result = await runGenerator(
-        pathItems(
-          {
-            pathItems: {
-              UserOperations: {
-                get: {
-                  responses: {
-                    '200': {
-                      description: 'OK',
-                      content: {
-                        'application/json': {
-                          schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          pathItems(
+            {
+              pathItems: {
+                UserOperations: {
+                  get: {
+                    responses: {
+                      '200': {
+                        description: 'OK',
+                        content: {
+                          'application/json': {
+                            schema: { type: 'object', properties: { id: { type: 'string' } } },
+                          },
                         },
                       },
                     },
                   },
                 },
-              },
-              PostOperations: {
-                post: {
-                  responses: {
-                    '201': {
-                      description: 'Created',
-                      content: {
-                        'application/json': {
-                          schema: { type: 'object', properties: { title: { type: 'string' } } },
+                PostOperations: {
+                  post: {
+                    responses: {
+                      '201': {
+                        description: 'Created',
+                        content: {
+                          'application/json': {
+                            schema: { type: 'object', properties: { title: { type: 'string' } } },
+                          },
                         },
                       },
                     },
@@ -143,8 +160,9 @@ describe('pathItems', () => {
                 },
               },
             },
-          },
-          { output, split: true },
+            { output, split: true },
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated PathItem code written to ${output}/*.ts (index.ts included)`)
@@ -163,18 +181,20 @@ describe('pathItems', () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
       const output = path.join(tmpDir, 'pathItems.ts')
       const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
-      const result = await runGenerator(
-        pathItems(
-          {
-            pathItems: {
-              UserOperations: {
-                get: {
-                  responses: {
-                    '200': {
-                      description: 'OK',
-                      content: {
-                        'application/json': {
-                          schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          pathItems(
+            {
+              pathItems: {
+                UserOperations: {
+                  get: {
+                    responses: {
+                      '200': {
+                        description: 'OK',
+                        content: {
+                          'application/json': {
+                            schema: { type: 'object', properties: { id: { type: 'string' } } },
+                          },
                         },
                       },
                     },
@@ -182,8 +202,9 @@ describe('pathItems', () => {
                 },
               },
             },
-          },
-          { output, split: true },
+            { output, split: true },
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated PathItem code written to ${outDir}/*.ts (index.ts included)`)
@@ -194,18 +215,20 @@ describe('pathItems', () => {
     it('writes split files with readonly flag', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
       const output = path.join(tmpDir, 'pathItems')
-      const result = await runGenerator(
-        pathItems(
-          {
-            pathItems: {
-              UserOperations: {
-                get: {
-                  responses: {
-                    '200': {
-                      description: 'OK',
-                      content: {
-                        'application/json': {
-                          schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          pathItems(
+            {
+              pathItems: {
+                UserOperations: {
+                  get: {
+                    responses: {
+                      '200': {
+                        description: 'OK',
+                        content: {
+                          'application/json': {
+                            schema: { type: 'object', properties: { id: { type: 'string' } } },
+                          },
                         },
                       },
                     },
@@ -213,10 +236,11 @@ describe('pathItems', () => {
                 },
               },
             },
-          },
-          { output, split: true },
-          undefined,
-          true,
+            { output, split: true },
+            undefined,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated PathItem code written to ${output}/*.ts (index.ts included)`)
@@ -228,18 +252,20 @@ describe('pathItems', () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
       const output = path.join(tmpDir, 'pathItems')
       const schemasOutput = path.join(tmpDir, 'schemas.ts')
-      const result = await runGenerator(
-        pathItems(
-          {
-            pathItems: {
-              UserOperations: {
-                get: {
-                  responses: {
-                    '200': {
-                      description: 'OK',
-                      content: {
-                        'application/json': {
-                          schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          pathItems(
+            {
+              pathItems: {
+                UserOperations: {
+                  get: {
+                    responses: {
+                      '200': {
+                        description: 'OK',
+                        content: {
+                          'application/json': {
+                            schema: { type: 'object', properties: { id: { type: 'string' } } },
+                          },
                         },
                       },
                     },
@@ -247,10 +273,11 @@ describe('pathItems', () => {
                 },
               },
             },
-          },
-          { output, split: true },
-          { schemas: { output: schemasOutput } },
-          false,
+            { output, split: true },
+            { schemas: { output: schemasOutput } },
+            false,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated PathItem code written to ${output}/*.ts (index.ts included)`)
@@ -261,14 +288,17 @@ describe('pathItems', () => {
     it('returns no pathItems found when pathItems contain only $ref entries', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
       const output = path.join(tmpDir, 'pathItems.ts')
-      const result = await runGenerator(
-        pathItems(
-          {
-            pathItems: {
-              UserOperations: { $ref: '#/components/pathItems/SharedOps' },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          pathItems(
+            {
+              pathItems: {
+                UserOperations: { $ref: '#/components/pathItems/SharedOps' },
+              },
             },
-          },
-          { output },
+            { output },
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe('No pathItems found')
@@ -281,16 +311,21 @@ describe('pathItems', () => {
       const blockingFile = path.join(tmpDir, 'block')
       fs.writeFileSync(blockingFile, 'x')
       const output = path.join(blockingFile, 'pathItems.ts')
-      const result = await runGeneratorError(
-        pathItems(
-          {
-            pathItems: {
-              UserOperations: {
-                get: { responses: { '200': { description: 'OK' } } },
+      const result = await Effect.runPromise(
+        Effect.flip(
+          Effect.provide(
+            pathItems(
+              {
+                pathItems: {
+                  UserOperations: {
+                    get: { responses: { '200': { description: 'OK' } } },
+                  },
+                },
               },
-            },
-          },
-          { output },
+              { output },
+            ),
+            NodeFileSystem.layer,
+          ),
         ),
       )
       expect(result.message).toBe(`AlreadyExists: FileSystem.makeDirectory (${blockingFile})`)
@@ -301,19 +336,24 @@ describe('pathItems', () => {
       const blockingFile = path.join(tmpDir, 'block')
       fs.writeFileSync(blockingFile, 'x')
       const output = path.join(blockingFile, 'pathItems.ts')
-      const error = await runGeneratorError(
-        pathItems(
-          {
-            pathItems: {
-              UserOperations: {
-                get: { responses: { '200': { description: 'OK' } } },
+      const error = await Effect.runPromise(
+        Effect.flip(
+          Effect.provide(
+            pathItems(
+              {
+                pathItems: {
+                  UserOperations: {
+                    get: { responses: { '200': { description: 'OK' } } },
+                  },
+                  AdminOperations: {
+                    get: { responses: { '200': { description: 'OK' } } },
+                  },
+                },
               },
-              AdminOperations: {
-                get: { responses: { '200': { description: 'OK' } } },
-              },
-            },
-          },
-          { output, split: true },
+              { output, split: true },
+            ),
+            NodeFileSystem.layer,
+          ),
         ),
       )
       expect(error.message).toBe(
@@ -333,7 +373,9 @@ describe('pathItems', () => {
     it('non-split: caller emit contains same const names as generator output', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-contract-'))
       const output = path.join(tmpDir, 'pathItems.ts')
-      await runGenerator(pathItems(components, { output }))
+      await Effect.runPromise(
+        Effect.provide(pathItems(components, { output }), NodeFileSystem.layer),
+      )
       const emitted = fs.readFileSync(output, 'utf8')
       const generated = pathItemsCode(components, true)
       const emittedNames = new Set(
@@ -352,7 +394,9 @@ describe('pathItems', () => {
     it('split: union of per-file const names equals generator output const names', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-contract-'))
       const output = path.join(tmpDir, 'pathItems')
-      await runGenerator(pathItems(components, { output, split: true }))
+      await Effect.runPromise(
+        Effect.provide(pathItems(components, { output, split: true }), NodeFileSystem.layer),
+      )
       const files = fs.readdirSync(output).filter((f) => f !== 'index.ts')
       const emittedNames = new Set<string>()
       for (const f of files) {
@@ -375,7 +419,9 @@ describe('pathItems', () => {
     it('split: barrel index lists every per-file module', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-contract-'))
       const output = path.join(tmpDir, 'pathItems')
-      await runGenerator(pathItems(components, { output, split: true }))
+      await Effect.runPromise(
+        Effect.provide(pathItems(components, { output, split: true }), NodeFileSystem.layer),
+      )
       const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf8')
       expect(indexContent).toBe("export * from './adminOps'\nexport * from './userOps'\n")
     })
@@ -389,7 +435,9 @@ describe('pathItems', () => {
           RefOnly: { $ref: '#/components/pathItems/Shared' },
         },
       }
-      await runGenerator(pathItems(mixed, { output, split: true }))
+      await Effect.runPromise(
+        Effect.provide(pathItems(mixed, { output, split: true }), NodeFileSystem.layer),
+      )
       const files = fs
         .readdirSync(output)
         .filter((f) => f !== 'index.ts')

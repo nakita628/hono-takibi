@@ -2,10 +2,11 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { schemasCode } from '../../generator/zod-openapi-hono/openapi/components/schemas.js'
-import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { schemas } from './schemas.js'
 
 let tmpDir: string
@@ -18,14 +19,18 @@ describe('schemas', () => {
   it('returns error when schemas is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-schemas-'))
     const output = path.join(tmpDir, 'schemas.ts')
-    const result = await runGeneratorError(schemas(undefined, output, false, true))
+    const result = await Effect.runPromise(
+      Effect.flip(Effect.provide(schemas(undefined, output, false, true), NodeFileSystem.layer)),
+    )
     expect(result.message).toBe('No schemas found')
   })
 
   it('returns success message when schemas is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-schemas-'))
     const output = path.join(tmpDir, 'schemas.ts')
-    const result = await runGenerator(schemas({}, output, false, true))
+    const result = await Effect.runPromise(
+      Effect.provide(schemas({}, output, false, true), NodeFileSystem.layer),
+    )
     expect(result).toBe('No schemas found')
   })
 
@@ -33,21 +38,24 @@ describe('schemas', () => {
     it('writes single file and returns success', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-schemas-'))
       const output = path.join(tmpDir, 'schemas.ts')
-      const result = await runGenerator(
-        schemas(
-          {
-            User: {
-              type: 'object',
-              properties: {
-                id: { type: 'integer' },
-                name: { type: 'string' },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          schemas(
+            {
+              User: {
+                type: 'object',
+                properties: {
+                  id: { type: 'integer' },
+                  name: { type: 'string' },
+                },
+                required: ['id', 'name'],
               },
-              required: ['id', 'name'],
             },
-          },
-          output,
-          false,
-          true,
+            output,
+            false,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated schema code written to ${output}`)
@@ -61,29 +69,32 @@ describe('schemas', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-schemas-'))
       const output = path.join(tmpDir, 'schemas')
-      const result = await runGenerator(
-        schemas(
-          {
-            User: {
-              type: 'object',
-              properties: {
-                id: { type: 'integer' },
-                name: { type: 'string' },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          schemas(
+            {
+              User: {
+                type: 'object',
+                properties: {
+                  id: { type: 'integer' },
+                  name: { type: 'string' },
+                },
+                required: ['id', 'name'],
               },
-              required: ['id', 'name'],
-            },
-            Post: {
-              type: 'object',
-              properties: {
-                id: { type: 'integer' },
-                title: { type: 'string' },
+              Post: {
+                type: 'object',
+                properties: {
+                  id: { type: 'integer' },
+                  title: { type: 'string' },
+                },
+                required: ['id', 'title'],
               },
-              required: ['id', 'title'],
             },
-          },
-          output,
-          true,
-          true,
+            output,
+            true,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated schema code written to ${output}/*.ts (index.ts included)`)
@@ -102,7 +113,9 @@ describe('schemas', () => {
     it('non-split: caller emit contains same schema const names as generator output', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-schemas-contract-'))
       const output = path.join(tmpDir, 'schemas.ts')
-      await runGenerator(schemas(sampleSchemas, output, false, false))
+      await Effect.runPromise(
+        Effect.provide(schemas(sampleSchemas, output, false, false), NodeFileSystem.layer),
+      )
       const emitted = fs.readFileSync(output, 'utf8')
       const generated = schemasCode({ schemas: sampleSchemas }, true, false)
       const emittedNames = new Set(
@@ -122,7 +135,9 @@ describe('schemas', () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-schemas-contract-'))
       const output = path.join(tmpDir, 'schemas.ts')
       const outDir = path.join(tmpDir, 'schemas')
-      await runGenerator(schemas(sampleSchemas, output, true, false))
+      await Effect.runPromise(
+        Effect.provide(schemas(sampleSchemas, output, true, false), NodeFileSystem.layer),
+      )
       const files = fs.readdirSync(outDir).filter((f) => f !== 'index.ts')
       const emittedNames = new Set<string>()
       for (const f of files) {

@@ -2,9 +2,10 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
-import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { links } from './links.js'
 
 let tmpDir: string
@@ -17,14 +18,18 @@ describe('links', () => {
   it('returns error when links is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
     const output = path.join(tmpDir, 'links.ts')
-    const result = await runGeneratorError(links(undefined, output, false))
+    const result = await Effect.runPromise(
+      Effect.flip(Effect.provide(links(undefined, output, false), NodeFileSystem.layer)),
+    )
     expect(result.message).toBe('No links found')
   })
 
   it('returns success message when links is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
     const output = path.join(tmpDir, 'links.ts')
-    const result = await runGenerator(links({}, output, false))
+    const result = await Effect.runPromise(
+      Effect.provide(links({}, output, false), NodeFileSystem.layer),
+    )
     expect(result).toBe('No links found')
   })
 
@@ -32,16 +37,19 @@ describe('links', () => {
     it('writes single file and returns success', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
       const output = path.join(tmpDir, 'links.ts')
-      const result = await runGenerator(
-        links(
-          {
-            GetUserById: {
-              operationId: 'getUser',
-              parameters: { userId: '$response.body#/id' },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          links(
+            {
+              GetUserById: {
+                operationId: 'getUser',
+                parameters: { userId: '$response.body#/id' },
+              },
             },
-          },
-          output,
-          false,
+            output,
+            false,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated links code written to ${output}`)
@@ -55,17 +63,20 @@ describe('links', () => {
     it('writes single file with as const', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
       const output = path.join(tmpDir, 'links.ts')
-      const result = await runGenerator(
-        links(
-          {
-            GetUserById: {
-              operationId: 'getUser',
-              parameters: { userId: '$response.body#/id' },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          links(
+            {
+              GetUserById: {
+                operationId: 'getUser',
+                parameters: { userId: '$response.body#/id' },
+              },
             },
-          },
-          output,
-          false,
-          true,
+            output,
+            false,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated links code written to ${output}`)
@@ -79,20 +90,23 @@ describe('links', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
       const output = path.join(tmpDir, 'links')
-      await runGenerator(
-        links(
-          {
-            GetUserById: {
-              operationId: 'getUser',
-              parameters: { userId: '$response.body#/id' },
+      await Effect.runPromise(
+        Effect.provide(
+          links(
+            {
+              GetUserById: {
+                operationId: 'getUser',
+                parameters: { userId: '$response.body#/id' },
+              },
+              GetPostById: {
+                operationId: 'getPost',
+                parameters: { postId: '$response.body#/id' },
+              },
             },
-            GetPostById: {
-              operationId: 'getPost',
-              parameters: { postId: '$response.body#/id' },
-            },
-          },
-          output,
-          true,
+            output,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
@@ -103,17 +117,20 @@ describe('links', () => {
     it('writes split files with readonly', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
       const output = path.join(tmpDir, 'links')
-      await runGenerator(
-        links(
-          {
-            GetUserById: {
-              operationId: 'getUser',
-              parameters: { userId: '$response.body#/id' },
+      await Effect.runPromise(
+        Effect.provide(
+          links(
+            {
+              GetUserById: {
+                operationId: 'getUser',
+                parameters: { userId: '$response.body#/id' },
+              },
             },
-          },
-          output,
-          true,
-          true,
+            output,
+            true,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)

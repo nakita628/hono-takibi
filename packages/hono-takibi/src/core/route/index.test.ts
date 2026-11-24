@@ -2,11 +2,12 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { describe, expect, it } from 'vite-plus/test'
 
 import { routeCode } from '../../generator/zod-openapi-hono/openapi/routes/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
-import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { route } from './index.js'
 
 const openapi = {
@@ -98,17 +99,20 @@ describe('route', () => {
       fs.writeFileSync(input, JSON.stringify(openapi))
       const out = path.join(dir, 'test.ts')
 
-      const result = await runGenerator(
-        route(
-          openapi,
-          { output: out },
-          {
-            schemas: {
-              output: path.join(dir, 'schemas'),
-              split: true,
-              specifier: () => '@packages/schemas',
+      const result = await Effect.runPromise(
+        Effect.provide(
+          route(
+            openapi,
+            { output: out },
+            {
+              schemas: {
+                output: path.join(dir, 'schemas'),
+                split: true,
+                specifier: () => '@packages/schemas',
+              },
             },
-          },
+          ),
+          NodeFileSystem.layer,
         ),
       )
       const index = fs.readFileSync(out, 'utf8')
@@ -163,7 +167,9 @@ export const getZodOpenapiHonoRoute = createRoute({
   })
 
   it('returns error when routes.output is missing', async () => {
-    const result = await runGeneratorError(route(openapi))
+    const result = await Effect.runPromise(
+      Effect.flip(Effect.provide(route(openapi), NodeFileSystem.layer)),
+    )
     expect(result.message).toBe('routes.output is required')
   })
 
@@ -176,7 +182,9 @@ export const getZodOpenapiHonoRoute = createRoute({
         paths: {},
       } as OpenAPI
       const out = path.join(dir, 'empty.ts')
-      const result = await runGenerator(route(emptyOpenapi, { output: out, split: true }))
+      const result = await Effect.runPromise(
+        Effect.provide(route(emptyOpenapi, { output: out, split: true }), NodeFileSystem.layer),
+      )
       expect(result).toBe(`Generated route code written to ${out}`)
       expect(fs.existsSync(out)).toBe(true)
       expect(fs.readFileSync(out, 'utf8')).toBe('')
@@ -191,7 +199,9 @@ export const getZodOpenapiHonoRoute = createRoute({
       const blockingFile = path.join(dir, 'block')
       fs.writeFileSync(blockingFile, 'x')
       const out = path.join(blockingFile, 'foo.ts')
-      const result = await runGeneratorError(route(openapi, { output: out }))
+      const result = await Effect.runPromise(
+        Effect.flip(Effect.provide(route(openapi, { output: out }), NodeFileSystem.layer)),
+      )
       expect(result.message).toBe(`AlreadyExists: FileSystem.makeDirectory (${blockingFile})`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -205,17 +215,20 @@ export const getZodOpenapiHonoRoute = createRoute({
       fs.writeFileSync(input, JSON.stringify(openapi))
       const outDir = path.join(dir, 'test')
 
-      const result = await runGenerator(
-        route(
-          openapi,
-          { output: outDir, split: true },
-          {
-            schemas: {
-              output: path.join(dir, 'schemas'),
-              split: true,
-              specifier: () => '@packages/schemas',
+      const result = await Effect.runPromise(
+        Effect.provide(
+          route(
+            openapi,
+            { output: outDir, split: true },
+            {
+              schemas: {
+                output: path.join(dir, 'schemas'),
+                split: true,
+                specifier: () => '@packages/schemas',
+              },
             },
-          },
+          ),
+          NodeFileSystem.layer,
         ),
       )
 
@@ -293,7 +306,9 @@ export const getZodOpenapiHonoRoute = createRoute({
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-contract-'))
       try {
         const out = path.join(dir, 'routes.ts')
-        await runGenerator(route(openapi, { output: out }))
+        await Effect.runPromise(
+          Effect.provide(route(openapi, { output: out }), NodeFileSystem.layer),
+        )
         const emitted = fs.readFileSync(out, 'utf8')
         const generated = routeCode(openapi)
         const emittedNames = new Set(
@@ -316,7 +331,9 @@ export const getZodOpenapiHonoRoute = createRoute({
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-contract-'))
       try {
         const outDir = path.join(dir, 'routes')
-        await runGenerator(route(openapi, { output: outDir, split: true }))
+        await Effect.runPromise(
+          Effect.provide(route(openapi, { output: outDir, split: true }), NodeFileSystem.layer),
+        )
         const files = fs.readdirSync(outDir).filter((f) => f !== 'index.ts')
         const emittedNames = new Set<string>()
         for (const f of files) {
@@ -343,7 +360,9 @@ export const getZodOpenapiHonoRoute = createRoute({
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-contract-'))
       try {
         const outDir = path.join(dir, 'routes')
-        await runGenerator(route(openapi, { output: outDir, split: true }))
+        await Effect.runPromise(
+          Effect.provide(route(openapi, { output: outDir, split: true }), NodeFileSystem.layer),
+        )
         const indexContent = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf8')
         expect(indexContent).toBe(
           [
@@ -375,7 +394,12 @@ export const getZodOpenapiHonoRoute = createRoute({
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-multimethod-'))
       try {
         const outDir = path.join(dir, 'routes')
-        await runGenerator(route(multiMethodOpenAPI, { output: outDir, split: true }))
+        await Effect.runPromise(
+          Effect.provide(
+            route(multiMethodOpenAPI, { output: outDir, split: true }),
+            NodeFileSystem.layer,
+          ),
+        )
         const files = fs
           .readdirSync(outDir)
           .filter((f) => f !== 'index.ts')
@@ -416,7 +440,9 @@ export const getZodOpenapiHonoRoute = createRoute({
             },
           },
         } as OpenAPI
-        await runGenerator(route(openAPI, { output: out }))
+        await Effect.runPromise(
+          Effect.provide(route(openAPI, { output: out }), NodeFileSystem.layer),
+        )
         expect(fs.readFileSync(out, 'utf8'))
           .toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
@@ -475,7 +501,9 @@ export const queryUsersRoute = createRoute({
           },
         } as OpenAPI
         const out = path.join(dir, 'routes.ts')
-        const result = await runGenerator(route(richOpenapi, { output: out }))
+        const result = await Effect.runPromise(
+          Effect.provide(route(richOpenapi, { output: out }), NodeFileSystem.layer),
+        )
         expect(result).toBe(`Generated route code written to ${out}`)
         expect(fs.readFileSync(out, 'utf8')).toBe(`import { createRoute } from '@hono/zod-openapi'
 
@@ -525,7 +553,9 @@ export const postRichRoute = createRoute({
           },
         } as OpenAPI
         const out = path.join(dir, 'routes.ts')
-        const result = await runGenerator(route(refOpenapi, { output: out }))
+        const result = await Effect.runPromise(
+          Effect.provide(route(refOpenapi, { output: out }), NodeFileSystem.layer),
+        )
         expect(result).toBe(`Generated route code written to ${out}`)
         expect(fs.readFileSync(out, 'utf8'))
           .toBe(`import { createRoute, z } from '@hono/zod-openapi'
@@ -566,7 +596,9 @@ export const getUsersIdRoute = createRoute({
           },
         } as OpenAPI
         const out = path.join(dir, 'routes.ts')
-        const result = await runGenerator(route(refOpenapi, { output: out }))
+        const result = await Effect.runPromise(
+          Effect.provide(route(refOpenapi, { output: out }), NodeFileSystem.layer),
+        )
         expect(result).toBe(`Generated route code written to ${out}`)
         expect(fs.readFileSync(out, 'utf8'))
           .toBe(`import { createRoute, z } from '@hono/zod-openapi'
@@ -599,7 +631,9 @@ export const getUsersIdRoute = createRoute({
           },
         } as OpenAPI
         const out = path.join(dir, 'routes.ts')
-        const result = await runGenerator(route(refOpenapi, { output: out }))
+        const result = await Effect.runPromise(
+          Effect.provide(route(refOpenapi, { output: out }), NodeFileSystem.layer),
+        )
         expect(result).toBe(`Generated route code written to ${out}`)
         expect(fs.readFileSync(out, 'utf8')).toBe(`import { createRoute } from '@hono/zod-openapi'
 

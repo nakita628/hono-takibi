@@ -3,9 +3,10 @@ import fsp from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 
-import { runGenerator, runGeneratorError } from '../testing/index.js'
 import { mkdir, readdir, readFile, unlink, writeFile } from './index.js'
 
 // Not `process.cwd()`-relative: several suites `process.chdir` into a temp directory and
@@ -26,18 +27,24 @@ describe('file', () => {
 
   describe('mkdir', () => {
     it('returns ok when directory is created', async () => {
-      await expect(runGenerator(mkdir(TEST_DIR))).resolves.toBeUndefined()
+      await expect(
+        Effect.runPromise(Effect.provide(mkdir(TEST_DIR), NodeFileSystem.layer)),
+      ).resolves.toBeUndefined()
       expect(fs.existsSync(TEST_DIR)).toBe(true)
     })
 
     it('returns ok when directory already exists (recursive:true)', async () => {
       await fsp.mkdir(TEST_DIR, { recursive: true })
-      await expect(runGenerator(mkdir(TEST_DIR))).resolves.toBeUndefined()
+      await expect(
+        Effect.runPromise(Effect.provide(mkdir(TEST_DIR), NodeFileSystem.layer)),
+      ).resolves.toBeUndefined()
     })
 
     it('creates nested directories', async () => {
       const deepPath = path.join(TEST_DIR, 'a', 'b', 'c')
-      await expect(runGenerator(mkdir(deepPath))).resolves.toBeUndefined()
+      await expect(
+        Effect.runPromise(Effect.provide(mkdir(deepPath), NodeFileSystem.layer)),
+      ).resolves.toBeUndefined()
       expect(fs.existsSync(deepPath)).toBe(true)
     })
 
@@ -47,7 +54,9 @@ describe('file', () => {
       const dirPath = path.join(TEST_DIR, 'a-directory')
       await fsp.mkdir(dirPath, { recursive: true })
       await fsp.writeFile(path.join(dirPath, 'inside.txt'), 'kept')
-      const result = await runGeneratorError(writeFile(dirPath, 'content'))
+      const result = await Effect.runPromise(
+        Effect.flip(Effect.provide(writeFile(dirPath, 'content'), NodeFileSystem.layer)),
+      )
       expect(result._tag).toBe('PlatformError')
       const stat = await fsp.stat(dirPath)
       expect(stat.isDirectory()).toBe(true)
@@ -59,7 +68,9 @@ describe('file', () => {
       await fsp.mkdir(TEST_DIR, { recursive: true })
       await fsp.writeFile(filePath, 'dummy')
       const badPath = path.join(filePath, 'bar')
-      const result = await runGeneratorError(mkdir(badPath))
+      const result = await Effect.runPromise(
+        Effect.flip(Effect.provide(mkdir(badPath), NodeFileSystem.layer)),
+      )
       expect(typeof result.message).toBe('string')
       expect(result.message.length).toBeGreaterThan(0)
     })
@@ -73,7 +84,9 @@ describe('file', () => {
     })
 
     it('returns files for a valid directory', async () => {
-      const result = await runGenerator(readdir(TEST_DIR))
+      const result = await Effect.runPromise(
+        Effect.provide(readdir(TEST_DIR), NodeFileSystem.layer),
+      )
       const sorted = [...result].sort()
       expect(sorted).toStrictEqual(['a.txt', 'b.txt'])
     })
@@ -82,13 +95,17 @@ describe('file', () => {
     // absorbing it here is the contract rather than a swallowed error.
     it('reads a non-existent directory as empty', async () => {
       const nonExist = path.join(TEST_DIR, 'no-such-dir')
-      await expect(runGenerator(readdir(nonExist))).resolves.toStrictEqual([])
+      await expect(
+        Effect.runPromise(Effect.provide(readdir(nonExist), NodeFileSystem.layer)),
+      ).resolves.toStrictEqual([])
     })
 
     it('returns empty array for empty directory', async () => {
       const emptyDir = path.join(TEST_DIR, 'empty-dir')
       await fsp.mkdir(emptyDir, { recursive: true })
-      const result = await runGenerator(readdir(emptyDir))
+      const result = await Effect.runPromise(
+        Effect.provide(readdir(emptyDir), NodeFileSystem.layer),
+      )
       expect(result).toStrictEqual([])
     })
   })
@@ -101,19 +118,25 @@ describe('file', () => {
     it('returns file content when file exists', async () => {
       const filePath = path.join(TEST_DIR, 'read-test.txt')
       await fsp.writeFile(filePath, 'hello world')
-      const result = await runGenerator(readFile(filePath))
+      const result = await Effect.runPromise(
+        Effect.provide(readFile(filePath), NodeFileSystem.layer),
+      )
       expect(result).toBe('hello world')
     })
 
     it('returns null when file does not exist', async () => {
       const filePath = path.join(TEST_DIR, 'no-such-file.txt')
-      const result = await runGenerator(readFile(filePath))
+      const result = await Effect.runPromise(
+        Effect.provide(readFile(filePath), NodeFileSystem.layer),
+      )
       expect(result).toBeNull()
     })
 
     it('returns err for non-file path', async () => {
       // Reading a directory as a file should fail
-      const result = await runGeneratorError(readFile(TEST_DIR))
+      const result = await Effect.runPromise(
+        Effect.flip(Effect.provide(readFile(TEST_DIR), NodeFileSystem.layer)),
+      )
       expect(typeof result.message).toBe('string')
       expect(result.message.length).toBeGreaterThan(0)
     })
@@ -121,7 +144,9 @@ describe('file', () => {
     it('reads empty file correctly', async () => {
       const filePath = path.join(TEST_DIR, 'empty-read.txt')
       await fsp.writeFile(filePath, '')
-      const result = await runGenerator(readFile(filePath))
+      const result = await Effect.runPromise(
+        Effect.provide(readFile(filePath), NodeFileSystem.layer),
+      )
       expect(result).toBe('')
     })
 
@@ -129,7 +154,9 @@ describe('file', () => {
       const filePath = path.join(TEST_DIR, 'unicode-read.txt')
       const content = '日本語テスト 🎉'
       await fsp.writeFile(filePath, content)
-      const result = await runGenerator(readFile(filePath))
+      const result = await Effect.runPromise(
+        Effect.provide(readFile(filePath), NodeFileSystem.layer),
+      )
       expect(result).toStrictEqual(content)
     })
   })
@@ -143,17 +170,23 @@ describe('file', () => {
       const filePath = path.join(TEST_DIR, 'to-remove.txt')
       await fsp.writeFile(filePath, 'bye')
       expect(fs.existsSync(filePath)).toBe(true)
-      await expect(runGenerator(unlink(filePath))).resolves.toBeUndefined()
+      await expect(
+        Effect.runPromise(Effect.provide(unlink(filePath), NodeFileSystem.layer)),
+      ).resolves.toBeUndefined()
       expect(fs.existsSync(filePath)).toBe(false)
     })
 
     it('returns ok when file does not exist (ENOENT)', async () => {
       const filePath = path.join(TEST_DIR, 'no-such-file.txt')
-      await expect(runGenerator(unlink(filePath))).resolves.toBeUndefined()
+      await expect(
+        Effect.runPromise(Effect.provide(unlink(filePath), NodeFileSystem.layer)),
+      ).resolves.toBeUndefined()
     })
 
     it('returns err for invalid path (directory)', async () => {
-      const result = await runGeneratorError(unlink(TEST_DIR))
+      const result = await Effect.runPromise(
+        Effect.flip(Effect.provide(unlink(TEST_DIR), NodeFileSystem.layer)),
+      )
       expect(typeof result.message).toBe('string')
       expect(result.message.length).toBeGreaterThan(0)
     })
@@ -166,7 +199,9 @@ describe('file', () => {
 
     it('writes file successfully', async () => {
       const filePath = path.join(TEST_DIR, 'ok.txt')
-      await expect(runGenerator(writeFile(filePath, 'hello'))).resolves.toBeUndefined()
+      await expect(
+        Effect.runPromise(Effect.provide(writeFile(filePath, 'hello'), NodeFileSystem.layer)),
+      ).resolves.toBeUndefined()
       const text = await fsp.readFile(filePath, 'utf8')
       expect(text).toBe('hello')
     })
@@ -177,7 +212,11 @@ describe('file', () => {
       const statBefore = await fsp.stat(filePath)
       // Small delay to ensure mtime would differ if written
       await new Promise((resolve) => setTimeout(resolve, 50))
-      await expect(runGenerator(writeFile(filePath, 'same content'))).resolves.toBeUndefined()
+      await expect(
+        Effect.runPromise(
+          Effect.provide(writeFile(filePath, 'same content'), NodeFileSystem.layer),
+        ),
+      ).resolves.toBeUndefined()
       const statAfter = await fsp.stat(filePath)
       // mtime should NOT change since content is identical
       expect(statAfter.mtimeMs).toBe(statBefore.mtimeMs)
@@ -186,21 +225,27 @@ describe('file', () => {
     it('overwrites when file content differs', async () => {
       const filePath = path.join(TEST_DIR, 'differ.txt')
       await fsp.writeFile(filePath, 'old content')
-      await expect(runGenerator(writeFile(filePath, 'new content'))).resolves.toBeUndefined()
+      await expect(
+        Effect.runPromise(Effect.provide(writeFile(filePath, 'new content'), NodeFileSystem.layer)),
+      ).resolves.toBeUndefined()
       const text = await fsp.readFile(filePath, 'utf8')
       expect(text).toBe('new content')
     })
 
     it('creates file when it does not exist', async () => {
       const filePath = path.join(TEST_DIR, 'new-file.txt')
-      await expect(runGenerator(writeFile(filePath, 'brand new'))).resolves.toBeUndefined()
+      await expect(
+        Effect.runPromise(Effect.provide(writeFile(filePath, 'brand new'), NodeFileSystem.layer)),
+      ).resolves.toBeUndefined()
       const text = await fsp.readFile(filePath, 'utf8')
       expect(text).toBe('brand new')
     })
 
     it('handles empty string content', async () => {
       const filePath = path.join(TEST_DIR, 'empty.txt')
-      await expect(runGenerator(writeFile(filePath, ''))).resolves.toBeUndefined()
+      await expect(
+        Effect.runPromise(Effect.provide(writeFile(filePath, ''), NodeFileSystem.layer)),
+      ).resolves.toBeUndefined()
       const text = await fsp.readFile(filePath, 'utf8')
       expect(text).toBe('')
     })
@@ -208,7 +253,9 @@ describe('file', () => {
     it('handles unicode content', async () => {
       const filePath = path.join(TEST_DIR, 'unicode.txt')
       const content = '日本語テスト 🎉 émojis'
-      await expect(runGenerator(writeFile(filePath, content))).resolves.toBeUndefined()
+      await expect(
+        Effect.runPromise(Effect.provide(writeFile(filePath, content), NodeFileSystem.layer)),
+      ).resolves.toBeUndefined()
       const text = await fsp.readFile(filePath, 'utf8')
       expect(text).toBe(content)
     })
@@ -217,7 +264,9 @@ describe('file', () => {
       const filePath = path.join(TEST_DIR, 'foo.txt')
       await fsp.writeFile(filePath, 'dummy')
       const badPath = path.join(filePath, 'bar.txt')
-      const result = await runGeneratorError(writeFile(badPath, 'fail'))
+      const result = await Effect.runPromise(
+        Effect.flip(Effect.provide(writeFile(badPath, 'fail'), NodeFileSystem.layer)),
+      )
       expect(typeof result.message).toBe('string')
       expect(result.message.length).toBeGreaterThan(0)
     })

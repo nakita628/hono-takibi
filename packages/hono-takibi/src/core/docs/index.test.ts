@@ -2,10 +2,11 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
-import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { docs } from './index.js'
 
 let tmpDir: string
@@ -32,7 +33,9 @@ describe('docs', () => {
         },
       },
     } as OpenAPI
-    const result = await runGenerator(docs(openAPI, output))
+    const result = await Effect.runPromise(
+      Effect.provide(docs(openAPI, output), NodeFileSystem.layer),
+    )
     expect(result).toBe(`Generated docs written to ${output}`)
     expect(fs.existsSync(output)).toBe(true)
     const content = fs.readFileSync(output, 'utf8')
@@ -49,7 +52,9 @@ describe('docs', () => {
       info: { title: 'Test API', version: '1.0.0' },
       paths: {},
     } as OpenAPI
-    const result = await runGeneratorError(docs(openAPI, output))
+    const result = await Effect.runPromise(
+      Effect.flip(Effect.provide(docs(openAPI, output), NodeFileSystem.layer)),
+    )
     expect(result.message).toBe(`AlreadyExists: FileSystem.makeDirectory (${blockingFile})`)
   })
 })

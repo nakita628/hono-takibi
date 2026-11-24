@@ -2,9 +2,10 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
-import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { mediaTypes } from './mediaTypes.js'
 
 let tmpDir: string
@@ -17,14 +18,18 @@ describe('mediaTypes', () => {
   it('returns error when mediaTypes is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
     const output = path.join(tmpDir, 'mediaTypes.ts')
-    const result = await runGeneratorError(mediaTypes(undefined, output, false))
+    const result = await Effect.runPromise(
+      Effect.flip(Effect.provide(mediaTypes(undefined, output, false), NodeFileSystem.layer)),
+    )
     expect(result.message).toBe('No mediaTypes found')
   })
 
   it('returns success message when mediaTypes is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
     const output = path.join(tmpDir, 'mediaTypes.ts')
-    const result = await runGenerator(mediaTypes({}, output, false))
+    const result = await Effect.runPromise(
+      Effect.provide(mediaTypes({}, output, false), NodeFileSystem.layer),
+    )
     expect(result).toBe('No mediaTypes found')
   })
 
@@ -32,20 +37,23 @@ describe('mediaTypes', () => {
     it('writes single file and returns success', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
       const output = path.join(tmpDir, 'mediaTypes.ts')
-      const result = await runGenerator(
-        mediaTypes(
-          {
-            JsonMedia: {
-              schema: {
-                type: 'object',
-                properties: {
-                  id: { type: 'integer' },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          mediaTypes(
+            {
+              JsonMedia: {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'integer' },
+                  },
                 },
               },
             },
-          },
-          output,
-          false,
+            output,
+            false,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated mediaTypes code written to ${output}`)
@@ -59,21 +67,24 @@ describe('mediaTypes', () => {
     it('writes single file with readonly flag', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
       const output = path.join(tmpDir, 'mediaTypes.ts')
-      const result = await runGenerator(
-        mediaTypes(
-          {
-            JsonMedia: {
-              schema: {
-                type: 'object',
-                properties: {
-                  id: { type: 'integer' },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          mediaTypes(
+            {
+              JsonMedia: {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'integer' },
+                  },
                 },
               },
             },
-          },
-          output,
-          false,
-          true,
+            output,
+            false,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated mediaTypes code written to ${output}`)
@@ -83,13 +94,16 @@ describe('mediaTypes', () => {
     it('writes single file with $ref entry', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
       const output = path.join(tmpDir, 'mediaTypes.ts')
-      const result = await runGenerator(
-        mediaTypes(
-          {
-            AliasMedia: { $ref: '#/components/mediaTypes/JsonMedia' },
-          },
-          output,
-          false,
+      const result = await Effect.runPromise(
+        Effect.provide(
+          mediaTypes(
+            {
+              AliasMedia: { $ref: '#/components/mediaTypes/JsonMedia' },
+            },
+            output,
+            false,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated mediaTypes code written to ${output}`)
@@ -101,13 +115,16 @@ describe('mediaTypes', () => {
     it('writes single file with unknown structure fallback', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
       const output = path.join(tmpDir, 'mediaTypes.ts')
-      const result = await runGenerator(
-        mediaTypes(
-          {
-            UnknownMedia: { someUnknownKey: 'value' } as never,
-          },
-          output,
-          false,
+      const result = await Effect.runPromise(
+        Effect.provide(
+          mediaTypes(
+            {
+              UnknownMedia: { someUnknownKey: 'value' } as never,
+            },
+            output,
+            false,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated mediaTypes code written to ${output}`)
@@ -117,28 +134,31 @@ describe('mediaTypes', () => {
     it('writes single file with multiple entries', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
       const output = path.join(tmpDir, 'mediaTypes.ts')
-      const result = await runGenerator(
-        mediaTypes(
-          {
-            JsonMedia: {
-              schema: {
-                type: 'object',
-                properties: {
-                  id: { type: 'integer' },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          mediaTypes(
+            {
+              JsonMedia: {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'integer' },
+                  },
+                },
+              },
+              XmlMedia: {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                  },
                 },
               },
             },
-            XmlMedia: {
-              schema: {
-                type: 'object',
-                properties: {
-                  name: { type: 'string' },
-                },
-              },
-            },
-          },
-          output,
-          false,
+            output,
+            false,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated mediaTypes code written to ${output}`)
@@ -150,28 +170,31 @@ describe('mediaTypes', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
       const output = path.join(tmpDir, 'mediaTypes')
-      const result = await runGenerator(
-        mediaTypes(
-          {
-            JsonMedia: {
-              schema: {
-                type: 'object',
-                properties: {
-                  id: { type: 'integer' },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          mediaTypes(
+            {
+              JsonMedia: {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'integer' },
+                  },
+                },
+              },
+              XmlMedia: {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                  },
                 },
               },
             },
-            XmlMedia: {
-              schema: {
-                type: 'object',
-                properties: {
-                  name: { type: 'string' },
-                },
-              },
-            },
-          },
-          output,
-          true,
+            output,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated MediaType code written to ${output}/*.ts (index.ts included)`)
@@ -183,21 +206,24 @@ describe('mediaTypes', () => {
     it('writes split files with readonly flag', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
       const output = path.join(tmpDir, 'mediaTypes')
-      const result = await runGenerator(
-        mediaTypes(
-          {
-            JsonMedia: {
-              schema: {
-                type: 'object',
-                properties: {
-                  id: { type: 'integer' },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          mediaTypes(
+            {
+              JsonMedia: {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'integer' },
+                  },
                 },
               },
             },
-          },
-          output,
-          true,
-          true,
+            output,
+            true,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated MediaType code written to ${output}/*.ts (index.ts included)`)
@@ -208,13 +234,16 @@ describe('mediaTypes', () => {
     it('handles $ref references in split mode', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
       const output = path.join(tmpDir, 'mediaTypes')
-      const result = await runGenerator(
-        mediaTypes(
-          {
-            AliasMedia: { $ref: '#/components/mediaTypes/JsonMedia' },
-          },
-          output,
-          true,
+      const result = await Effect.runPromise(
+        Effect.provide(
+          mediaTypes(
+            {
+              AliasMedia: { $ref: '#/components/mediaTypes/JsonMedia' },
+            },
+            output,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated MediaType code written to ${output}/*.ts (index.ts included)`)
@@ -228,13 +257,16 @@ describe('mediaTypes', () => {
     it('handles unknown structure fallback in split mode', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
       const output = path.join(tmpDir, 'mediaTypes')
-      const result = await runGenerator(
-        mediaTypes(
-          {
-            UnknownMedia: { someUnknownKey: 'value' } as never,
-          },
-          output,
-          true,
+      const result = await Effect.runPromise(
+        Effect.provide(
+          mediaTypes(
+            {
+              UnknownMedia: { someUnknownKey: 'value' } as never,
+            },
+            output,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated MediaType code written to ${output}/*.ts (index.ts included)`)
@@ -246,20 +278,23 @@ describe('mediaTypes', () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
       const output = path.join(tmpDir, 'mediaTypes.ts')
       const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
-      const result = await runGenerator(
-        mediaTypes(
-          {
-            JsonMedia: {
-              schema: {
-                type: 'object',
-                properties: {
-                  id: { type: 'integer' },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          mediaTypes(
+            {
+              JsonMedia: {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'integer' },
+                  },
                 },
               },
             },
-          },
-          output,
-          true,
+            output,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated MediaType code written to ${outDir}/*.ts (index.ts included)`)
@@ -278,15 +313,18 @@ describe('mediaTypes', () => {
     it('imports referenced schema in split mode (relative path)', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
       const output = path.join(tmpDir, 'mediaTypes')
-      await runGenerator(
-        mediaTypes(
-          {
-            JsonUser: { schema: { $ref: '#/components/schemas/User' } },
-          },
-          output,
-          true,
-          false,
-          { schemas: { output: path.join(tmpDir, 'schemas'), split: true } },
+      await Effect.runPromise(
+        Effect.provide(
+          mediaTypes(
+            {
+              JsonUser: { schema: { $ref: '#/components/schemas/User' } },
+            },
+            output,
+            true,
+            false,
+            { schemas: { output: path.join(tmpDir, 'schemas'), split: true } },
+          ),
+          NodeFileSystem.layer,
         ),
       )
       const content = fs.readFileSync(path.join(output, 'jsonUser.ts'), 'utf8')
@@ -301,21 +339,24 @@ export const JsonUserMediaTypeSchema = UserSchema
     it('uses path-alias `import` field when forwarding schema reference', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
       const output = path.join(tmpDir, 'mediaTypes')
-      await runGenerator(
-        mediaTypes(
-          {
-            JsonUser: { schema: { $ref: '#/components/schemas/User' } },
-          },
-          output,
-          true,
-          false,
-          {
-            schemas: {
-              output: path.join(tmpDir, 'schemas'),
-              split: true,
-              specifier: () => '~/components/schemas',
+      await Effect.runPromise(
+        Effect.provide(
+          mediaTypes(
+            {
+              JsonUser: { schema: { $ref: '#/components/schemas/User' } },
             },
-          },
+            output,
+            true,
+            false,
+            {
+              schemas: {
+                output: path.join(tmpDir, 'schemas'),
+                split: true,
+                specifier: () => '~/components/schemas',
+              },
+            },
+          ),
+          NodeFileSystem.layer,
         ),
       )
       const content = fs.readFileSync(path.join(output, 'jsonUser.ts'), 'utf8')
@@ -329,15 +370,18 @@ export const JsonUserMediaTypeSchema = UserSchema
     it('does not emit an unused `z` import when only a $ref is present', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
       const output = path.join(tmpDir, 'mediaTypes')
-      await runGenerator(
-        mediaTypes(
-          {
-            JsonUser: { schema: { $ref: '#/components/schemas/User' } },
-          },
-          output,
-          true,
-          false,
-          { schemas: { output: path.join(tmpDir, 'schemas'), split: true } },
+      await Effect.runPromise(
+        Effect.provide(
+          mediaTypes(
+            {
+              JsonUser: { schema: { $ref: '#/components/schemas/User' } },
+            },
+            output,
+            true,
+            false,
+            { schemas: { output: path.join(tmpDir, 'schemas'), split: true } },
+          ),
+          NodeFileSystem.layer,
         ),
       )
       const content = fs.readFileSync(path.join(output, 'jsonUser.ts'), 'utf8')
@@ -352,18 +396,21 @@ export const JsonUserMediaTypeSchema = UserSchema
     it('generates sorted barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
       const output = path.join(tmpDir, 'mediaTypes')
-      const result = await runGenerator(
-        mediaTypes(
-          {
-            ZooMedia: {
-              schema: { type: 'object', properties: { zoo: { type: 'boolean' } } },
+      const result = await Effect.runPromise(
+        Effect.provide(
+          mediaTypes(
+            {
+              ZooMedia: {
+                schema: { type: 'object', properties: { zoo: { type: 'boolean' } } },
+              },
+              AlphaMedia: {
+                schema: { type: 'object', properties: { alpha: { type: 'string' } } },
+              },
             },
-            AlphaMedia: {
-              schema: { type: 'object', properties: { alpha: { type: 'string' } } },
-            },
-          },
-          output,
-          true,
+            output,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated MediaType code written to ${output}/*.ts (index.ts included)`)

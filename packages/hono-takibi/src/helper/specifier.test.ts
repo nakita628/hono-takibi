@@ -2,11 +2,11 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
 import { Effect } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { writeFile } from '../file/index.js'
-import { runGenerator } from '../testing/index.js'
 import {
   ImportStyle,
   canonicalSpecifier,
@@ -77,7 +77,7 @@ function aliasOf(dir: string) {
 
 /** `fullySpecify` run to its result. */
 function specify(code: string, file: string, alias: Parameters<typeof fullySpecify>[2]) {
-  return runGenerator(fullySpecify(code, file, alias))
+  return Effect.runPromise(Effect.provide(fullySpecify(code, file, alias), NodeFileSystem.layer))
 }
 
 describe('fullySpecify', () => {
@@ -169,7 +169,9 @@ describe('writeFile under ImportStyle', () => {
   it('writes as given by default', async () => {
     const dir = setup(['src/users.ts'])
     const file = path.join(dir, 'src/index.ts')
-    await runGenerator(writeFile(file, "export * from './users'\n"))
+    await Effect.runPromise(
+      Effect.provide(writeFile(file, "export * from './users'\n"), NodeFileSystem.layer),
+    )
     expect(fs.readFileSync(file, 'utf8')).toBe("export * from './users'\n")
   })
 
@@ -177,9 +179,12 @@ describe('writeFile under ImportStyle', () => {
     const dir = setup(['src/users.ts'])
     const file = path.join(dir, 'src/index.ts')
     const written = new Set<string>()
-    await runGenerator(
-      writeFile(file, "export * from './users'\n").pipe(
-        Effect.provideService(ImportStyle, { fullySpecified: true, written }),
+    await Effect.runPromise(
+      Effect.provide(
+        writeFile(file, "export * from './users'\n").pipe(
+          Effect.provideService(ImportStyle, { fullySpecified: true, written }),
+        ),
+        NodeFileSystem.layer,
       ),
     )
     expect(fs.readFileSync(file, 'utf8')).toBe("export * from './users.ts'\n")
@@ -192,15 +197,18 @@ describe('writeFile under ImportStyle', () => {
     const dir = setup([])
     const entry = path.join(dir, 'src/index.ts')
     const style = { fullySpecified: true, written: new Set<string>() }
-    await runGenerator(
-      Effect.gen(function* () {
-        fs.mkdirSync(path.join(dir, 'src'), { recursive: true })
-        yield* writeFile(entry, "export * from './routes'\n")
-        expect(fs.readFileSync(entry, 'utf8')).toBe("export * from './routes'\n")
-        fs.mkdirSync(path.join(dir, 'src/routes'))
-        yield* writeFile(path.join(dir, 'src/routes/index.ts'), 'export {}\n')
-        yield* respecifyWritten()
-      }).pipe(Effect.provideService(ImportStyle, style)),
+    await Effect.runPromise(
+      Effect.provide(
+        Effect.gen(function* () {
+          fs.mkdirSync(path.join(dir, 'src'), { recursive: true })
+          yield* writeFile(entry, "export * from './routes'\n")
+          expect(fs.readFileSync(entry, 'utf8')).toBe("export * from './routes'\n")
+          fs.mkdirSync(path.join(dir, 'src/routes'))
+          yield* writeFile(path.join(dir, 'src/routes/index.ts'), 'export {}\n')
+          yield* respecifyWritten()
+        }).pipe(Effect.provideService(ImportStyle, style)),
+        NodeFileSystem.layer,
+      ),
     )
     expect(fs.readFileSync(entry, 'utf8')).toBe("export * from './routes/index.ts'\n")
   })

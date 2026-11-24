@@ -158,7 +158,7 @@ export default defineConfig({
       'jsdoc/empty-tags': 'error',
       'jsdoc/check-tag-names': 'error',
       // Purpose: keep an Effect a value that is returned; only a boundary (the Vite plugin's
-      //          hooks, the test helpers) runs it.
+      //          hooks, the tests) runs it.
       // NG:      const text = await Effect.runPromise(readFile(path))
       // OK:      return readFile(path)   // the caller decides when to run it
       'custom/no-effect-run': 'error',
@@ -732,10 +732,10 @@ export default defineConfig({
       },
       {
         // The places an Effect meets something that is not one: the Vite plugin's hooks are
-        // Vite's own Promise/callback API, `generate` hands a Promise to a program that
-        // generates code itself, and the test helpers hand a result back to a test.
-        // Everywhere else an Effect is returned, not run.
-        files: ['src/vite-plugin/**', 'src/generate/**', 'src/testing/**'],
+        // Vite's own Promise/callback API, and `generate` hands a Promise to a program that
+        // generates code itself. Everywhere else an Effect is returned, not run; the rule
+        // itself skips test files, which run the Effect they assert on.
+        files: ['src/vite-plugin/**', 'src/generate/**'],
         rules: { 'custom/no-effect-run': 'off' },
       },
       {

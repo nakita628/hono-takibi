@@ -1,9 +1,10 @@
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { describe, expect, it } from 'vite-plus/test'
 import { z } from 'zod'
 
 import { fmt } from '../../../format/index.js'
 import type { Schema } from '../../../openapi/index.js'
-import { runGenerator } from '../../../testing/index.js'
 import { string } from './string.js'
 
 describe('string', () => {
@@ -522,7 +523,7 @@ describe('string', () => {
       const result = Schema.safeParse(undefined)
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('日付不正')
+        expect(result.error.issues[0]?.message).toBe('日付不正')
       }
     })
     it.concurrent('non-coerce preserves issue.input === undefined', () => {
@@ -532,7 +533,7 @@ describe('string', () => {
       const result = Schema.safeParse(undefined)
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('必須です')
+        expect(result.error.issues[0]?.message).toBe('必須です')
       }
     })
   })
@@ -787,7 +788,7 @@ describe('string', () => {
       const result = schema.safeParse(invalidB64Json)
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('M')
+        expect(result.error.issues[0]?.message).toBe('M')
       }
     })
 
@@ -1007,7 +1008,11 @@ describe('string', () => {
       [{ type: 'string', pattern: 'a\nb' }, `export const X = z.string().regex(/a\\nb/)\n`],
       [{ type: 'string', pattern: 'a\\' }, 'export const X = z.string()\n'],
     ])('fmt(string(%o)) is ok', async (input, expected) => {
-      await expect(runGenerator(fmt(`export const X = ${string(input)}`))).resolves.toBe(expected)
+      await expect(
+        Effect.runPromise(
+          Effect.provide(fmt(`export const X = ${string(input)}`), NodeFileSystem.layer),
+        ),
+      ).resolves.toBe(expected)
     })
   })
 })

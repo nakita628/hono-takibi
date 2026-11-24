@@ -2,9 +2,10 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
-import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { examples } from './examples.js'
 
 let tmpDir: string
@@ -17,14 +18,18 @@ describe('examples', () => {
   it('returns error when examples is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
     const output = path.join(tmpDir, 'examples.ts')
-    const result = await runGeneratorError(examples(undefined, output, false))
+    const result = await Effect.runPromise(
+      Effect.flip(Effect.provide(examples(undefined, output, false), NodeFileSystem.layer)),
+    )
     expect(result.message).toBe('No examples found')
   })
 
   it('returns success message when examples is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
     const output = path.join(tmpDir, 'examples.ts')
-    const result = await runGenerator(examples({}, output, false))
+    const result = await Effect.runPromise(
+      Effect.provide(examples({}, output, false), NodeFileSystem.layer),
+    )
     expect(result).toBe('No examples found')
   })
 
@@ -32,13 +37,16 @@ describe('examples', () => {
     it('writes single file and returns success', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples.ts')
-      const result = await runGenerator(
-        examples(
-          {
-            UserExample: { value: { id: 1, name: 'John' } },
-          },
-          output,
-          false,
+      const result = await Effect.runPromise(
+        Effect.provide(
+          examples(
+            {
+              UserExample: { value: { id: 1, name: 'John' } },
+            },
+            output,
+            false,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated examples code written to ${output}`)
@@ -52,14 +60,17 @@ describe('examples', () => {
     it('writes single file with readonly flag', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples.ts')
-      const result = await runGenerator(
-        examples(
-          {
-            UserExample: { value: { id: 1, name: 'John' } },
-          },
-          output,
-          false,
-          true,
+      const result = await Effect.runPromise(
+        Effect.provide(
+          examples(
+            {
+              UserExample: { value: { id: 1, name: 'John' } },
+            },
+            output,
+            false,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated examples code written to ${output}`)
@@ -71,14 +82,17 @@ describe('examples', () => {
     it('writes single file with multiple examples', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples.ts')
-      const result = await runGenerator(
-        examples(
-          {
-            UserExample: { value: { id: 1, name: 'John' } },
-            PostExample: { value: { id: 2, title: 'Hello' } },
-          },
-          output,
-          false,
+      const result = await Effect.runPromise(
+        Effect.provide(
+          examples(
+            {
+              UserExample: { value: { id: 1, name: 'John' } },
+              PostExample: { value: { id: 2, title: 'Hello' } },
+            },
+            output,
+            false,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated examples code written to ${output}`)
@@ -90,14 +104,17 @@ describe('examples', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples')
-      const result = await runGenerator(
-        examples(
-          {
-            UserExample: { value: { id: 1, name: 'John' } },
-            PostExample: { value: { id: 2, title: 'Hello' } },
-          },
-          output,
-          true,
+      const result = await Effect.runPromise(
+        Effect.provide(
+          examples(
+            {
+              UserExample: { value: { id: 1, name: 'John' } },
+              PostExample: { value: { id: 2, title: 'Hello' } },
+            },
+            output,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated Example code written to ${output}/*.ts (index.ts included)`)
@@ -109,14 +126,17 @@ describe('examples', () => {
     it('writes individual files with readonly flag', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples')
-      const result = await runGenerator(
-        examples(
-          {
-            UserExample: { value: { id: 1, name: 'John' } },
-          },
-          output,
-          true,
-          true,
+      const result = await Effect.runPromise(
+        Effect.provide(
+          examples(
+            {
+              UserExample: { value: { id: 1, name: 'John' } },
+            },
+            output,
+            true,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated Example code written to ${output}/*.ts (index.ts included)`)
@@ -131,13 +151,16 @@ describe('examples', () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples.ts')
       const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
-      const result = await runGenerator(
-        examples(
-          {
-            UserExample: { value: { id: 1, name: 'John' } },
-          },
-          output,
-          true,
+      const result = await Effect.runPromise(
+        Effect.provide(
+          examples(
+            {
+              UserExample: { value: { id: 1, name: 'John' } },
+            },
+            output,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated Example code written to ${outDir}/*.ts (index.ts included)`)
@@ -148,13 +171,16 @@ describe('examples', () => {
     it('handles $ref references in split mode', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples')
-      const result = await runGenerator(
-        examples(
-          {
-            AliasExample: { $ref: '#/components/examples/UserExample' },
-          },
-          output,
-          true,
+      const result = await Effect.runPromise(
+        Effect.provide(
+          examples(
+            {
+              AliasExample: { $ref: '#/components/examples/UserExample' },
+            },
+            output,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated Example code written to ${output}/*.ts (index.ts included)`)
@@ -168,14 +194,17 @@ describe('examples', () => {
     it('generates sorted barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples')
-      const result = await runGenerator(
-        examples(
-          {
-            ZooExample: { value: { zoo: true } },
-            AlphaExample: { value: { alpha: true } },
-          },
-          output,
-          true,
+      const result = await Effect.runPromise(
+        Effect.provide(
+          examples(
+            {
+              ZooExample: { value: { zoo: true } },
+              AlphaExample: { value: { alpha: true } },
+            },
+            output,
+            true,
+          ),
+          NodeFileSystem.layer,
         ),
       )
       expect(result).toBe(`Generated Example code written to ${output}/*.ts (index.ts included)`)

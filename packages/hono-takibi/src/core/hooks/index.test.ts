@@ -2,12 +2,13 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { describe, expect, it } from 'vite-plus/test'
 
 import { handlerGroupOf } from '../../helper/index.js'
 import type { Grouping } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
-import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { hooks } from './index.js'
 
 // A grouping that looks at the tags: the first tag, or else the handler file of the path.
@@ -53,7 +54,9 @@ describe('swr hooks', () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await runGenerator(hooks(openapiSimple, out, '../client', 'swr'))
+        const result = await Effect.runPromise(
+          Effect.provide(hooks(openapiSimple, out, '../client', 'swr'), NodeFileSystem.layer),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
 
@@ -306,10 +309,13 @@ export function usePostUsers<TError = unknown>(options?: {
           },
         } as OpenAPI
 
-        await runGenerator(
-          hooks(simpleOpenAPI, out, '../api', 'swr', {
-            clientName: 'authClient',
-          }),
+        await Effect.runPromise(
+          Effect.provide(
+            hooks(simpleOpenAPI, out, '../api', 'swr', {
+              clientName: 'authClient',
+            }),
+            NodeFileSystem.layer,
+          ),
         )
 
         const code = fs.readFileSync(out, 'utf8')
@@ -441,7 +447,9 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-noargs-'))
       try {
         const out = path.join(dir, 'index.ts')
-        await runGenerator(hooks(openapiNoArgs, out, '../client', 'swr'))
+        await Effect.runPromise(
+          Effect.provide(hooks(openapiNoArgs, out, '../client', 'swr'), NodeFileSystem.layer),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
 
@@ -595,7 +603,9 @@ export function usePostPing<TError = unknown>(options?: {
           },
         } as OpenAPI
 
-        await runGenerator(hooks(hyphenOpenAPI, out, '../client', 'swr'))
+        await Effect.runPromise(
+          Effect.provide(hooks(hyphenOpenAPI, out, '../client', 'swr'), NodeFileSystem.layer),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
 
@@ -743,7 +753,9 @@ export function useInfiniteGetHonoX<TError = unknown>(options: {
           },
         } as OpenAPI
 
-        await runGenerator(hooks(paramOpenAPI, out, '../client', 'swr'))
+        await Effect.runPromise(
+          Effect.provide(hooks(paramOpenAPI, out, '../client', 'swr'), NodeFileSystem.layer),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
 
@@ -928,7 +940,11 @@ export function useDeleteUsersId<TError = unknown>(options?: {
           // paths is undefined
         } as unknown as OpenAPI
 
-        const error = await runGeneratorError(hooks(invalidOpenAPI, out, '../client', 'swr'))
+        const error = await Effect.runPromise(
+          Effect.flip(
+            Effect.provide(hooks(invalidOpenAPI, out, '../client', 'swr'), NodeFileSystem.layer),
+          ),
+        )
         expect(error.message).toBe('Invalid OpenAPI paths')
       } finally {
         fs.rmSync(dir, { recursive: true, force: true })
@@ -956,9 +972,11 @@ export function useDeleteUsersId<TError = unknown>(options?: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-immutable-'))
       try {
         const out = path.join(dir, 'index.ts')
-        await expect(runGenerator(hooks(openapiImmutable, out, '../client', 'swr'))).resolves.toBe(
-          `Generated swr hooks written to ${out}`,
-        )
+        await expect(
+          Effect.runPromise(
+            Effect.provide(hooks(openapiImmutable, out, '../client', 'swr'), NodeFileSystem.layer),
+          ),
+        ).resolves.toBe(`Generated swr hooks written to ${out}`)
 
         const code = fs.readFileSync(out, 'utf8')
 
@@ -1085,7 +1103,9 @@ export function useInfiniteGetHono<TError = unknown>(options: {
           },
         } as OpenAPI
 
-        await runGenerator(hooks(simpleOpenAPI, out, '../client', 'swr'))
+        await Effect.runPromise(
+          Effect.provide(hooks(simpleOpenAPI, out, '../client', 'swr'), NodeFileSystem.layer),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
 
@@ -1210,7 +1230,9 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
             },
           },
         } as OpenAPI
-        await runGenerator(hooks(openAPI, out, '../client', 'swr'))
+        await Effect.runPromise(
+          Effect.provide(hooks(openAPI, out, '../client', 'swr'), NodeFileSystem.layer),
+        )
         const code = fs.readFileSync(out, 'utf8')
         // No Infinite hook, key getter, or swr/infinite import.
         expect(code).toBe(`import useSWR from 'swr'
@@ -1307,7 +1329,9 @@ export function useImmutableGetItems<TError = unknown>(options?: {
             },
           },
         } as OpenAPI
-        await runGenerator(hooks(openAPI, out, '../client', 'swr'))
+        await Effect.runPromise(
+          Effect.provide(hooks(openAPI, out, '../client', 'swr'), NodeFileSystem.layer),
+        )
         const code = fs.readFileSync(out, 'utf8')
         expect(code).toBe(`import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
@@ -1512,7 +1536,12 @@ describe('tanstack-query hooks', () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await runGenerator(hooks(openapiSimple, out, '../client', 'tanstack-query'))
+        const result = await Effect.runPromise(
+          Effect.provide(
+            hooks(openapiSimple, out, '../client', 'tanstack-query'),
+            NodeFileSystem.layer,
+          ),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
@@ -2069,10 +2098,13 @@ export function usePostUsers<TError = DefaultError, TOnMutateResult = unknown>(
           },
         } as OpenAPI
 
-        await runGenerator(
-          hooks(simpleOpenAPI, out, '../api', 'tanstack-query', {
-            clientName: 'authClient',
-          }),
+        await Effect.runPromise(
+          Effect.provide(
+            hooks(simpleOpenAPI, out, '../api', 'tanstack-query', {
+              clientName: 'authClient',
+            }),
+            NodeFileSystem.layer,
+          ),
         )
 
         const code = fs.readFileSync(out, 'utf8')
@@ -2363,7 +2395,12 @@ export function useSuspenseInfiniteUsers<
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-noargs-'))
       try {
         const out = path.join(dir, 'index.ts')
-        await runGenerator(hooks(openapiNoArgs, out, '../client', 'tanstack-query'))
+        await Effect.runPromise(
+          Effect.provide(
+            hooks(openapiNoArgs, out, '../client', 'tanstack-query'),
+            NodeFileSystem.layer,
+          ),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
@@ -2684,7 +2721,12 @@ export function usePostPing<TError = DefaultError, TOnMutateResult = unknown>(
           },
         } as OpenAPI
 
-        await runGenerator(hooks(hyphenOpenAPI, out, '../client', 'tanstack-query'))
+        await Effect.runPromise(
+          Effect.provide(
+            hooks(hyphenOpenAPI, out, '../client', 'tanstack-query'),
+            NodeFileSystem.layer,
+          ),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
@@ -2989,7 +3031,12 @@ export function useSuspenseInfiniteHonoX<
           },
         } as OpenAPI
 
-        await runGenerator(hooks(paramOpenAPI, out, '../client', 'tanstack-query'))
+        await Effect.runPromise(
+          Effect.provide(
+            hooks(paramOpenAPI, out, '../client', 'tanstack-query'),
+            NodeFileSystem.layer,
+          ),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
@@ -3360,8 +3407,13 @@ export function useDeleteUsersId<TError = DefaultError, TOnMutateResult = unknow
           // paths is undefined
         } as unknown as OpenAPI
 
-        const error = await runGeneratorError(
-          hooks(invalidOpenAPI, out, '../client', 'tanstack-query'),
+        const error = await Effect.runPromise(
+          Effect.flip(
+            Effect.provide(
+              hooks(invalidOpenAPI, out, '../client', 'tanstack-query'),
+              NodeFileSystem.layer,
+            ),
+          ),
         )
         expect(error.message).toBe('Invalid OpenAPI paths')
       } finally {
@@ -3391,9 +3443,11 @@ export function useDeleteUsersId<TError = DefaultError, TOnMutateResult = unknow
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tq-header-'))
       try {
         const out = path.join(dir, 'index.ts')
-        await expect(runGenerator(hooks(spec, out, '../client', 'tanstack-query'))).resolves.toBe(
-          `Generated tanstack-query hooks written to ${out}`,
-        )
+        await expect(
+          Effect.runPromise(
+            Effect.provide(hooks(spec, out, '../client', 'tanstack-query'), NodeFileSystem.layer),
+          ),
+        ).resolves.toBe(`Generated tanstack-query hooks written to ${out}`)
         const code = fs.readFileSync(out, 'utf8')
         expect(code).toBe(`import {
   useQuery,
@@ -3686,7 +3740,9 @@ export function useSuspenseInfiniteUsers<
             },
           },
         } as OpenAPI
-        await runGenerator(hooks(openAPI, out, '../client', 'tanstack-query'))
+        await Effect.runPromise(
+          Effect.provide(hooks(openAPI, out, '../client', 'tanstack-query'), NodeFileSystem.layer),
+        )
         const code = fs.readFileSync(out, 'utf8')
         expect(code).toBe(`import {
   useQuery,
@@ -4078,7 +4134,12 @@ describe('preact-query hooks', () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-preact-query-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await runGenerator(hooks(openapiSimple, out, '../client', 'preact-query'))
+        const result = await Effect.runPromise(
+          Effect.provide(
+            hooks(openapiSimple, out, '../client', 'preact-query'),
+            NodeFileSystem.layer,
+          ),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
@@ -4637,7 +4698,9 @@ export function usePostUsers<TError = DefaultError, TOnMutateResult = unknown>(
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-pq-header-'))
       try {
         const out = path.join(dir, 'index.ts')
-        await runGenerator(hooks(spec, out, '../client', 'preact-query'))
+        await Effect.runPromise(
+          Effect.provide(hooks(spec, out, '../client', 'preact-query'), NodeFileSystem.layer),
+        )
         const code = fs.readFileSync(out, 'utf8')
         expect(code).toBe(`import {
   useQuery,
@@ -4934,7 +4997,12 @@ describe('solid-query hooks', () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-solid-query-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await runGenerator(hooks(openapiSimple, out, '../client', 'solid-query'))
+        const result = await Effect.runPromise(
+          Effect.provide(
+            hooks(openapiSimple, out, '../client', 'solid-query'),
+            NodeFileSystem.layer,
+          ),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
@@ -5269,7 +5337,9 @@ describe('vue-query hooks', () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vue-query-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await runGenerator(hooks(openapiSimple, out, '../client', 'vue-query'))
+        const result = await Effect.runPromise(
+          Effect.provide(hooks(openapiSimple, out, '../client', 'vue-query'), NodeFileSystem.layer),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
         const expected = `import { useQuery, useInfiniteQuery, useMutation, mutationOptions } from '@tanstack/vue-query'
@@ -5644,10 +5714,13 @@ export function usePostUsers<TError = DefaultError, TOnMutateResult = unknown>(
           },
         } as OpenAPI
 
-        await runGenerator(
-          hooks(simpleOpenAPI, out, '../api', 'vue-query', {
-            clientName: 'authClient',
-          }),
+        await Effect.runPromise(
+          Effect.provide(
+            hooks(simpleOpenAPI, out, '../api', 'vue-query', {
+              clientName: 'authClient',
+            }),
+            NodeFileSystem.layer,
+          ),
         )
 
         const code = fs.readFileSync(out, 'utf8')
@@ -5836,7 +5909,9 @@ export function useInfiniteUsers<
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vue-query-noargs-'))
       try {
         const out = path.join(dir, 'index.ts')
-        await runGenerator(hooks(openapiNoArgs, out, '../client', 'vue-query'))
+        await Effect.runPromise(
+          Effect.provide(hooks(openapiNoArgs, out, '../client', 'vue-query'), NodeFileSystem.layer),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
         const expected = `import { useQuery, useInfiniteQuery, useMutation, mutationOptions } from '@tanstack/vue-query'
@@ -6058,7 +6133,9 @@ export function usePostPing<TError = DefaultError, TOnMutateResult = unknown>(
           },
         } as OpenAPI
 
-        await runGenerator(hooks(hyphenOpenAPI, out, '../client', 'vue-query'))
+        await Effect.runPromise(
+          Effect.provide(hooks(hyphenOpenAPI, out, '../client', 'vue-query'), NodeFileSystem.layer),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
         const expected = `import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
@@ -6255,7 +6332,9 @@ export function useInfiniteHonoX<
           },
         } as OpenAPI
 
-        await runGenerator(hooks(paramOpenAPI, out, '../client', 'vue-query'))
+        await Effect.runPromise(
+          Effect.provide(hooks(paramOpenAPI, out, '../client', 'vue-query'), NodeFileSystem.layer),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
         const expected = `import { useQuery, useInfiniteQuery, useMutation, mutationOptions } from '@tanstack/vue-query'
@@ -6519,7 +6598,14 @@ export function useDeleteUsersId<TError = DefaultError, TOnMutateResult = unknow
           // paths is undefined
         } as unknown as OpenAPI
 
-        const error = await runGeneratorError(hooks(invalidOpenAPI, out, '../client', 'vue-query'))
+        const error = await Effect.runPromise(
+          Effect.flip(
+            Effect.provide(
+              hooks(invalidOpenAPI, out, '../client', 'vue-query'),
+              NodeFileSystem.layer,
+            ),
+          ),
+        )
         expect(error.message).toBe('Invalid OpenAPI paths')
       } finally {
         fs.rmSync(dir, { recursive: true, force: true })
@@ -6564,7 +6650,12 @@ export function useDeleteUsersId<TError = DefaultError, TOnMutateResult = unknow
         } as OpenAPI
 
         await expect(
-          runGenerator(hooks(putPatchOpenAPI, out, '../client', 'vue-query')),
+          Effect.runPromise(
+            Effect.provide(
+              hooks(putPatchOpenAPI, out, '../client', 'vue-query'),
+              NodeFileSystem.layer,
+            ),
+          ),
         ).resolves.toBe(`Generated vue-query hooks written to ${out}`)
 
         const code = fs.readFileSync(out, 'utf8')
@@ -6718,7 +6809,9 @@ export function usePatchUsersId<TError = DefaultError, TOnMutateResult = unknown
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vq-header-'))
       try {
         const out = path.join(dir, 'index.ts')
-        await runGenerator(hooks(spec, out, '../client', 'vue-query'))
+        await Effect.runPromise(
+          Effect.provide(hooks(spec, out, '../client', 'vue-query'), NodeFileSystem.layer),
+        )
         const code = fs.readFileSync(out, 'utf8')
         expect(code).toBe(`import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 import type {
@@ -6945,7 +7038,12 @@ describe('svelte-query hooks', () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-svelte-query-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await runGenerator(hooks(openapiSimple, out, '../client', 'svelte-query'))
+        const result = await Effect.runPromise(
+          Effect.provide(
+            hooks(openapiSimple, out, '../client', 'svelte-query'),
+            NodeFileSystem.layer,
+          ),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
@@ -7499,10 +7597,13 @@ export function createDeletePetsPetId<TError = DefaultError, TOnMutateResult = u
       try {
         const out = path.join(dir, 'index.ts')
 
-        await runGenerator(
-          hooks(openapiCustomClient, out, '../api', 'svelte-query', {
-            clientName: 'authClient',
-          }),
+        await Effect.runPromise(
+          Effect.provide(
+            hooks(openapiCustomClient, out, '../api', 'svelte-query', {
+              clientName: 'authClient',
+            }),
+            NodeFileSystem.layer,
+          ),
         )
 
         const code = fs.readFileSync(out, 'utf8')
@@ -7710,7 +7811,12 @@ export function createInfiniteUsers<
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-svelte-query-noargs-'))
       try {
         const out = path.join(dir, 'index.ts')
-        await runGenerator(hooks(openapiNoArgs, out, '../client', 'svelte-query'))
+        await Effect.runPromise(
+          Effect.provide(
+            hooks(openapiNoArgs, out, '../client', 'svelte-query'),
+            NodeFileSystem.layer,
+          ),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
@@ -7953,7 +8059,12 @@ export function createPostPing<TError = DefaultError, TOnMutateResult = unknown>
           },
         } as OpenAPI
 
-        await runGenerator(hooks(hyphenOpenAPI, out, '../client', 'svelte-query'))
+        await Effect.runPromise(
+          Effect.provide(
+            hooks(hyphenOpenAPI, out, '../client', 'svelte-query'),
+            NodeFileSystem.layer,
+          ),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
@@ -8173,7 +8284,12 @@ export function createInfiniteHonoX<
           },
         } as OpenAPI
 
-        await runGenerator(hooks(paramOpenAPI, out, '../client', 'svelte-query'))
+        await Effect.runPromise(
+          Effect.provide(
+            hooks(paramOpenAPI, out, '../client', 'svelte-query'),
+            NodeFileSystem.layer,
+          ),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
@@ -8453,8 +8569,13 @@ export function createDeleteUsersId<TError = DefaultError, TOnMutateResult = unk
           // paths is undefined
         } as unknown as OpenAPI
 
-        const error = await runGeneratorError(
-          hooks(invalidOpenAPI, out, '../client', 'svelte-query'),
+        const error = await Effect.runPromise(
+          Effect.flip(
+            Effect.provide(
+              hooks(invalidOpenAPI, out, '../client', 'svelte-query'),
+              NodeFileSystem.layer,
+            ),
+          ),
         )
         expect(error.message).toBe('Invalid OpenAPI paths')
       } finally {
@@ -8484,7 +8605,9 @@ export function createDeleteUsersId<TError = DefaultError, TOnMutateResult = unk
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-sv-header-'))
       try {
         const out = path.join(dir, 'index.ts')
-        await runGenerator(hooks(spec, out, '../client', 'svelte-query'))
+        await Effect.runPromise(
+          Effect.provide(hooks(spec, out, '../client', 'svelte-query'), NodeFileSystem.layer),
+        )
         const code = fs.readFileSync(out, 'utf8')
         expect(code).toBe(`import {
   createQuery,
@@ -8699,7 +8822,12 @@ describe('angular-query hooks', () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-angular-query-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await runGenerator(hooks(openapiSimple, out, '../client', 'angular-query'))
+        const result = await Effect.runPromise(
+          Effect.provide(
+            hooks(openapiSimple, out, '../client', 'angular-query'),
+            NodeFileSystem.layer,
+          ),
+        )
 
         const code = fs.readFileSync(out, 'utf8')
         const expected = `import {
@@ -8986,16 +9114,19 @@ export function injectPostUsers<TError = DefaultError, TOnMutateResult = unknown
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-angular-query-suspense-'))
       try {
         const out = path.join(dir, 'index.ts')
-        await runGenerator(
-          hooks(
-            {
-              openapi: '3.1.0',
-              info: { title: 'Test', version: '1.0.0' },
-              paths: { '/hono': { get: { responses: { '200': { description: 'OK' } } } } },
-            } as OpenAPI,
-            out,
-            '../client',
-            'angular-query',
+        await Effect.runPromise(
+          Effect.provide(
+            hooks(
+              {
+                openapi: '3.1.0',
+                info: { title: 'Test', version: '1.0.0' },
+                paths: { '/hono': { get: { responses: { '200': { description: 'OK' } } } } },
+              } as OpenAPI,
+              out,
+              '../client',
+              'angular-query',
+            ),
+            NodeFileSystem.layer,
           ),
         )
 
@@ -9068,7 +9199,12 @@ export function injectHono<
 async function generateGrouped(document: OpenAPI, options: Parameters<typeof hooks>[4]) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hooks-groups-'))
   const out = path.join(dir, 'query.ts')
-  await runGenerator(hooks(document, out, './client', 'tanstack-query', options))
+  await Effect.runPromise(
+    Effect.provide(
+      hooks(document, out, './client', 'tanstack-query', options),
+      NodeFileSystem.layer,
+    ),
+  )
   return fs.readFileSync(out, 'utf8')
 }
 
@@ -10877,8 +11013,11 @@ describe('hooks: the root of an application under a base path', () => {
   async function generate(basePath: string | undefined) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hooks-root-'))
     const out = path.join(dir, 'query.ts')
-    await runGenerator(
-      hooks(spec, out, './client', 'tanstack-query', basePath === undefined ? {} : { basePath }),
+    await Effect.runPromise(
+      Effect.provide(
+        hooks(spec, out, './client', 'tanstack-query', basePath === undefined ? {} : { basePath }),
+        NodeFileSystem.layer,
+      ),
     )
     return fs.readFileSync(out, 'utf8')
   }
@@ -11112,7 +11251,9 @@ describe('hooks: a cookie parameter is left out of the key, as a header is', () 
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-cookie-key-'))
     try {
       const out = path.join(dir, 'index.ts')
-      await runGenerator(hooks(spec, out, '../client', library))
+      await Effect.runPromise(
+        Effect.provide(hooks(spec, out, '../client', library), NodeFileSystem.layer),
+      )
       return fs.readFileSync(out, 'utf8')
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -11909,7 +12050,9 @@ describe('hooks: a GET hook named like a library import', () => {
   const generate = async (library: Parameters<typeof hooks>[3]) => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hooks-collision-'))
     const out = path.join(dir, 'hooks.ts')
-    await runGenerator(hooks(spec, out, './client', library))
+    await Effect.runPromise(
+      Effect.provide(hooks(spec, out, './client', library), NodeFileSystem.layer),
+    )
     return fs.readFileSync(out, 'utf8')
   }
   it.concurrent.each([
@@ -15159,7 +15302,9 @@ export function injectPackagesIdId<
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-hooks-quote-'))
     try {
       const out = path.join(dir, 'index.ts')
-      await runGenerator(hooks(openapi, out, '../client', kind))
+      await Effect.runPromise(
+        Effect.provide(hooks(openapi, out, '../client', kind), NodeFileSystem.layer),
+      )
       const code = fs.readFileSync(out, 'utf8')
       // The prefix key, the query key (no args), the mutation key, and — after the args are
       // destructured or passed — the query and infinite keys write the path as a string.

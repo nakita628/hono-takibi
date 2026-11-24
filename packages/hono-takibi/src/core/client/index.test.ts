@@ -2,12 +2,13 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { describe, expect, it } from 'vite-plus/test'
 
 import { handlerGroupOf } from '../../helper/index.js'
 import type { Grouping } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
-import { runGenerator } from '../../testing/index.js'
 import { client } from './index.js'
 
 // A grouping that looks at the tags: the first tag, or else the handler file of the path.
@@ -48,7 +49,12 @@ describe('client: the base URL', () => {
   // 設定に書かれた URL は、リテラルになる。
   it('writes a URL into the file', async () => {
     const file = path.join(makeDir(), 'client.ts')
-    await runGenerator(client(spec, file, './index', 'http://localhost:3000', '/api', undefined))
+    await Effect.runPromise(
+      Effect.provide(
+        client(spec, file, './index', 'http://localhost:3000', '/api', undefined),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
 import type { api } from './index'
 
@@ -64,8 +70,11 @@ export const client = hcWithType('http://localhost:3000').api
   // 変数は1回だけ読み取られ、存在するものとして扱われる。代わりの値はない。
   it('reads a variable from process.env', async () => {
     const file = path.join(makeDir(), 'client.ts')
-    await runGenerator(
-      client(spec, file, './index', { env: 'API_URL', source: 'process.env' }, '/api', undefined),
+    await Effect.runPromise(
+      Effect.provide(
+        client(spec, file, './index', { env: 'API_URL', source: 'process.env' }, '/api', undefined),
+        NodeFileSystem.layer,
+      ),
     )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
 import type { api } from './index'
@@ -84,14 +93,17 @@ export const client = hcWithType(baseUrl).api
   // バンドラーが提供する環境からも、同様に読み取る。
   it('reads a variable from import.meta.env', async () => {
     const file = path.join(makeDir(), 'client.ts')
-    await runGenerator(
-      client(
-        spec,
-        file,
-        './index',
-        { env: 'VITE_API_URL', source: 'import.meta.env' },
-        '/',
-        undefined,
+    await Effect.runPromise(
+      Effect.provide(
+        client(
+          spec,
+          file,
+          './index',
+          { env: 'VITE_API_URL', source: 'import.meta.env' },
+          '/',
+          undefined,
+        ),
+        NodeFileSystem.layer,
       ),
     )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
@@ -111,14 +123,17 @@ export const client = hcWithType(baseUrl)
   // 値はモジュールが保証するため、代わりの値は置かれない。
   it('reads a property of an environment a module exports', async () => {
     const file = path.join(makeDir(), 'client.ts')
-    await runGenerator(
-      client(
-        spec,
-        file,
-        '@/index',
-        { env: 'API_URL', import: '@/env', name: 'env' },
-        '/api',
-        undefined,
+    await Effect.runPromise(
+      Effect.provide(
+        client(
+          spec,
+          file,
+          '@/index',
+          { env: 'API_URL', import: '@/env', name: 'env' },
+          '/api',
+          undefined,
+        ),
+        NodeFileSystem.layer,
       ),
     )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
@@ -137,14 +152,17 @@ export const client = hcWithType(env.API_URL).api
   // export の名前は、設定で指定されたものになる。
   it('imports the environment under the name it is exported by', async () => {
     const file = path.join(makeDir(), 'client.ts')
-    await runGenerator(
-      client(
-        spec,
-        file,
-        './index',
-        { env: 'API_URL', import: '../config', name: 'config' },
-        '/',
-        undefined,
+    await Effect.runPromise(
+      Effect.provide(
+        client(
+          spec,
+          file,
+          './index',
+          { env: 'API_URL', import: '../config', name: 'config' },
+          '/',
+          undefined,
+        ),
+        NodeFileSystem.layer,
       ),
     )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
@@ -165,7 +183,9 @@ describe('client: the base path', () => {
   // 型はドキュメントのパスをそのまま持つため、降りる階層がない。
   it('hands the client out as it is without a base path', async () => {
     const file = path.join(makeDir(), 'client.ts')
-    await runGenerator(client(spec, file, './index', '/', '/', undefined))
+    await Effect.runPromise(
+      Effect.provide(client(spec, file, './index', '/', '/', undefined), NodeFileSystem.layer),
+    )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
 import type { api } from './index'
 
@@ -181,7 +201,12 @@ export const client = hcWithType('/')
   // 型はベースパス /api/v1 を含み、クライアントはその下から渡される。
   it('steps into every segment of a base path', async () => {
     const file = path.join(makeDir(), 'client.ts')
-    await runGenerator(client(spec, file, './index', '/', '/api/v1', undefined))
+    await Effect.runPromise(
+      Effect.provide(
+        client(spec, file, './index', '/', '/api/v1', undefined),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
 import type { api } from './index'
 
@@ -197,7 +222,12 @@ export const client = hcWithType('/').api.v1
   // my-api は、ドットの後ろに書けない。
   it('steps into a segment that is no identifier by its name', async () => {
     const file = path.join(makeDir(), 'client.ts')
-    await runGenerator(client(spec, file, './index', '/', '/my-api', undefined))
+    await Effect.runPromise(
+      Effect.provide(
+        client(spec, file, './index', '/', '/my-api', undefined),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
 import type { api } from './index'
 
@@ -215,7 +245,12 @@ describe('client: the groups of a split application', () => {
   // __root、books、v2Public、api はグループであり、それぞれ自身のクライアントを持つ。
   it('writes a client for each group, in the order of the document', async () => {
     const file = path.join(makeDir(), 'client.ts')
-    await runGenerator(client(spec, file, './index', '/', '/api', (route) => handlerGroupOf(route)))
+    await Effect.runPromise(
+      Effect.provide(
+        client(spec, file, './index', '/', '/api', (route) => handlerGroupOf(route)),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
 import type { __root, books, v2Public, api } from './index'
 
@@ -251,7 +286,9 @@ export const apiClient = hcApiWithType('/').api
   // GET /books には Library タグが付いているため、library のルートになる。/books の残りはタグがなく、パスで決まる。
   it('groups by the first tag where the grouping looks at tags', async () => {
     const file = path.join(makeDir(), 'client.ts')
-    await runGenerator(client(spec, file, './index', '/', '/api', byTag))
+    await Effect.runPromise(
+      Effect.provide(client(spec, file, './index', '/', '/api', byTag), NodeFileSystem.layer),
+    )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
 import type { __root, library, books, v2Public, api } from './index'
 
@@ -299,8 +336,11 @@ export const apiClient = hcApiWithType('/').api
       info: { title: 'Studio', version: '1.0.0' },
       paths: { '/client': { get: { responses: ok } }, '/db': { get: { responses: ok } } },
     } as OpenAPI
-    await runGenerator(
-      client(studio, file, './index', '/', '/api', (route) => handlerGroupOf(route)),
+    await Effect.runPromise(
+      Effect.provide(
+        client(studio, file, './index', '/', '/api', (route) => handlerGroupOf(route)),
+        NodeFileSystem.layer,
+      ),
     )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
 import type { client, db } from './index'
@@ -331,7 +371,12 @@ export const dbClient = hcDbWithType('/').api
       info: { title: 'Studio', version: '1.0.0' },
       paths: { '/': { get: { responses: ok } }, '/client': { get: { responses: ok } } },
     } as OpenAPI
-    await runGenerator(client(studio, file, './index', '/', '/', (route) => handlerGroupOf(route)))
+    await Effect.runPromise(
+      Effect.provide(
+        client(studio, file, './index', '/', '/', (route) => handlerGroupOf(route)),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
 import type { __root, client } from './index'
 
@@ -361,7 +406,12 @@ export const clientClient = hcClientWithType('/')
       info: { title: 'Hc', version: '1.0.0' },
       paths: { '/hc': { get: { responses: ok } } },
     } as OpenAPI
-    await runGenerator(client(hcSpec, file, './index', '/', '/', (route) => handlerGroupOf(route)))
+    await Effect.runPromise(
+      Effect.provide(
+        client(hcSpec, file, './index', '/', '/', (route) => handlerGroupOf(route)),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
 import type { hc as hcApp } from './index'
 
@@ -391,8 +441,11 @@ export const hcClient = hcHcWithType('/')
         '/client/run': { post: { tags: ['client'], responses: ok } },
       },
     } as OpenAPI
-    await runGenerator(
-      client(studio, file, '../../server/index', '/', '/api', (route) => handlerGroupOf(route)),
+    await Effect.runPromise(
+      Effect.provide(
+        client(studio, file, '../../server/index', '/', '/api', (route) => handlerGroupOf(route)),
+        NodeFileSystem.layer,
+      ),
     )
     const code = fs.readFileSync(file, 'utf8')
     expect(code).toBe(`import { hc } from 'hono/client'
@@ -424,7 +477,12 @@ export const clientClient = hcClientWithType('/').api
   // __root のルートはないので、__rootClient もない。
   it('writes no __rootClient when no route belongs to __root', async () => {
     const file = path.join(makeDir(), 'client.ts')
-    await runGenerator(client(grouped, file, './index', '/', '/', (route) => handlerGroupOf(route)))
+    await Effect.runPromise(
+      Effect.provide(
+        client(grouped, file, './index', '/', '/', (route) => handlerGroupOf(route)),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
 import type { books, items } from './index'
 
@@ -450,7 +508,12 @@ describe('client: the barrel beside it', () => {
     const dir = makeDir()
     const file = path.join(dir, 'client.ts')
     const barrel = path.join(dir, 'index.ts')
-    await runGenerator(client(grouped, file, '../index', '/', '/', undefined, barrel))
+    await Effect.runPromise(
+      Effect.provide(
+        client(grouped, file, '../index', '/', '/', undefined, barrel),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(barrel, 'utf8')).toBe("export * from './client'\n")
   })
 
@@ -460,7 +523,12 @@ describe('client: the barrel beside it', () => {
     const dir = makeDir()
     const file = path.join(dir, 'http.ts')
     const barrel = path.join(dir, 'index.ts')
-    await runGenerator(client(grouped, file, '../index', '/', '/', undefined, barrel))
+    await Effect.runPromise(
+      Effect.provide(
+        client(grouped, file, '../index', '/', '/', undefined, barrel),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(barrel, 'utf8')).toBe("export * from './http'\n")
   })
 
@@ -470,8 +538,18 @@ describe('client: the barrel beside it', () => {
     const dir = makeDir()
     const file = path.join(dir, 'client.ts')
     const barrel = path.join(dir, 'index.ts')
-    await runGenerator(client(grouped, file, '../index', '/', '/', undefined, barrel))
-    await runGenerator(client(grouped, file, '../index', '/', '/', undefined, barrel))
+    await Effect.runPromise(
+      Effect.provide(
+        client(grouped, file, '../index', '/', '/', undefined, barrel),
+        NodeFileSystem.layer,
+      ),
+    )
+    await Effect.runPromise(
+      Effect.provide(
+        client(grouped, file, '../index', '/', '/', undefined, barrel),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(barrel, 'utf8')).toBe("export * from './client'\n")
   })
 
@@ -482,7 +560,12 @@ describe('client: the barrel beside it', () => {
     const file = path.join(dir, 'client.ts')
     const barrel = path.join(dir, 'index.ts')
     fs.writeFileSync(barrel, "export * from './mine'\n")
-    await runGenerator(client(grouped, file, '../index', '/', '/', undefined, barrel))
+    await Effect.runPromise(
+      Effect.provide(
+        client(grouped, file, '../index', '/', '/', undefined, barrel),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(barrel, 'utf8')).toBe(
       "export * from './mine'\nexport * from './client'\n",
     )
@@ -495,7 +578,12 @@ describe('client: the barrel beside it', () => {
     const file = path.join(dir, 'client.ts')
     const barrel = path.join(dir, 'index.ts')
     fs.writeFileSync(barrel, 'export * from "./client";\n')
-    await runGenerator(client(grouped, file, '../index', '/', '/', undefined, barrel))
+    await Effect.runPromise(
+      Effect.provide(
+        client(grouped, file, '../index', '/', '/', undefined, barrel),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(barrel, 'utf8')).toBe('export * from "./client";\n')
   })
 
@@ -504,7 +592,9 @@ describe('client: the barrel beside it', () => {
   it('writes no barrel when none is asked for', async () => {
     const dir = makeDir()
     const file = path.join(dir, 'client.ts')
-    await runGenerator(client(grouped, file, './index', '/', '/', undefined))
+    await Effect.runPromise(
+      Effect.provide(client(grouped, file, './index', '/', '/', undefined), NodeFileSystem.layer),
+    )
     expect(fs.readdirSync(dir)).toStrictEqual(['client.ts'])
   })
 })
@@ -516,7 +606,12 @@ describe('client: the credentials', () => {
   // クッキーはどのオリジンへのリクエストにも付く。
   it('writes credentials as the init of hc', async () => {
     const file = path.join(makeDir(), 'client.ts')
-    await runGenerator(client(spec, file, './index', '/', '/api', undefined, undefined, 'include'))
+    await Effect.runPromise(
+      Effect.provide(
+        client(spec, file, './index', '/', '/api', undefined, undefined, 'include'),
+        NodeFileSystem.layer,
+      ),
+    )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
 import type { api } from './index'
 
@@ -532,16 +627,19 @@ export const client = hcWithType('/', { init: { credentials: 'include' } }).api
   // 環境から読むベース URL と credentials は、並んで書かれる。
   it('writes credentials after a base URL read from the environment', async () => {
     const file = path.join(makeDir(), 'client.ts')
-    await runGenerator(
-      client(
-        spec,
-        file,
-        './index',
-        { env: 'VITE_API_URL', source: 'import.meta.env' },
-        '/',
-        undefined,
-        undefined,
-        'same-origin',
+    await Effect.runPromise(
+      Effect.provide(
+        client(
+          spec,
+          file,
+          './index',
+          { env: 'VITE_API_URL', source: 'import.meta.env' },
+          '/',
+          undefined,
+          undefined,
+          'same-origin',
+        ),
+        NodeFileSystem.layer,
       ),
     )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
@@ -561,16 +659,19 @@ export const client = hcWithType(baseUrl, { init: { credentials: 'same-origin' }
   // 分割されたアプリケーションのすべてのクライアントが、同じ credentials で作られる。
   it('creates the client of every group with the credentials', async () => {
     const file = path.join(makeDir(), 'client.ts')
-    await runGenerator(
-      client(
-        grouped,
-        file,
-        './index',
-        '/',
-        '/',
-        (route) => handlerGroupOf(route),
-        undefined,
-        'omit',
+    await Effect.runPromise(
+      Effect.provide(
+        client(
+          grouped,
+          file,
+          './index',
+          '/',
+          '/',
+          (route) => handlerGroupOf(route),
+          undefined,
+          'omit',
+        ),
+        NodeFileSystem.layer,
       ),
     )
     expect(fs.readFileSync(file, 'utf8')).toBe(`import { hc } from 'hono/client'
@@ -597,7 +698,12 @@ describe('client: a document without paths', () => {
   it('fails when the document has no paths', async () => {
     const file = path.join(makeDir(), 'client.ts')
     await expect(
-      runGenerator(client({ openapi: '3.1.0' } as OpenAPI, file, './index', '/', '/', undefined)),
+      Effect.runPromise(
+        Effect.provide(
+          client({ openapi: '3.1.0' } as OpenAPI, file, './index', '/', '/', undefined),
+          NodeFileSystem.layer,
+        ),
+      ),
     ).rejects.toThrow('Invalid OpenAPI paths')
   })
 })

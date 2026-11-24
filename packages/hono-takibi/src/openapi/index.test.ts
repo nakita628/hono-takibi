@@ -3,9 +3,10 @@ import os from 'node:os'
 import path from 'node:path'
 
 import SwaggerParser from '@apidevtools/swagger-parser'
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
-import { runGenerator, runGeneratorError } from '../testing/index.js'
 import { parseOpenAPI } from './index.js'
 
 describe('parseOpenAPI', () => {
@@ -16,7 +17,9 @@ describe('parseOpenAPI', () => {
     })
     const bundle = vi.spyOn(SwaggerParser, 'bundle').mockRejectedValueOnce(failure)
     try {
-      const error = await runGeneratorError(parseOpenAPI(url))
+      const error = await Effect.runPromise(
+        Effect.flip(Effect.provide(parseOpenAPI(url), NodeFileSystem.layer)),
+      )
       expect(error.message).toBe(`Error downloading ${url}: ETIMEDOUT`)
     } finally {
       bundle.mockRestore()
@@ -30,7 +33,9 @@ describe('parseOpenAPI', () => {
       .spyOn(SwaggerParser, 'bundle')
       .mockRejectedValueOnce(Object.assign(new Error(message), { ioErrorCode: 'ENOTFOUND' }))
     try {
-      const error = await runGeneratorError(parseOpenAPI(url))
+      const error = await Effect.runPromise(
+        Effect.flip(Effect.provide(parseOpenAPI(url), NodeFileSystem.layer)),
+      )
       expect(error.message).toBe(message)
     } finally {
       bundle.mockRestore()
@@ -84,7 +89,9 @@ describe('parseOpenAPI', () => {
     }
     fs.writeFileSync(input, JSON.stringify(document))
     try {
-      await expect(runGenerator(parseOpenAPI(input))).resolves.toStrictEqual(document)
+      await expect(
+        Effect.runPromise(Effect.provide(parseOpenAPI(input), NodeFileSystem.layer)),
+      ).resolves.toStrictEqual(document)
     } finally {
       fs.rmSync(directory, { recursive: true, force: true })
     }
@@ -95,7 +102,9 @@ describe('parseOpenAPI', () => {
     const input = `${directory}/broken.yaml` as const
     fs.writeFileSync(input, 'openapi: "3.0.0\ninfo: [unclosed')
     try {
-      const error = await runGeneratorError(parseOpenAPI(input))
+      const error = await Effect.runPromise(
+        Effect.flip(Effect.provide(parseOpenAPI(input), NodeFileSystem.layer)),
+      )
       expect(error._tag).toBe('OpenAPIError')
       expect(error.message.length).toBeGreaterThan(0)
     } finally {
@@ -108,7 +117,9 @@ describe('parseOpenAPI', () => {
     const input = `${directory}/broken.json` as const
     fs.writeFileSync(input, '{"openapi": "3.0.0",')
     try {
-      const error = await runGeneratorError(parseOpenAPI(input))
+      const error = await Effect.runPromise(
+        Effect.flip(Effect.provide(parseOpenAPI(input), NodeFileSystem.layer)),
+      )
       expect(error._tag).toBe('OpenAPIError')
       expect(error.message.length).toBeGreaterThan(0)
     } finally {
@@ -117,7 +128,9 @@ describe('parseOpenAPI', () => {
   })
 
   it.concurrent('should return err for a document that does not exist', async () => {
-    const result = await runGeneratorError(parseOpenAPI('not-yaml-nor-json.yaml'))
+    const result = await Effect.runPromise(
+      Effect.flip(Effect.provide(parseOpenAPI('not-yaml-nor-json.yaml'), NodeFileSystem.layer)),
+    )
     expect(typeof result.message).toBe('string')
   })
 
@@ -146,7 +159,9 @@ describe('parseOpenAPI', () => {
       ].join('\n'),
     )
     try {
-      const error = await runGeneratorError(parseOpenAPI(input))
+      const error = await Effect.runPromise(
+        Effect.flip(Effect.provide(parseOpenAPI(input), NodeFileSystem.layer)),
+      )
       expect(error.message).toBe(`${input} is not a valid Openapi API definition`)
     } finally {
       fs.rmSync(directory, { recursive: true, force: true })
@@ -158,7 +173,9 @@ describe('parseOpenAPI', () => {
     const input = `${directory}/openapi.yaml` as const
     fs.writeFileSync(input, 'openapi: 3.1.0\ninfo: { title: Nothing, version: 1.0.0 }\n')
     try {
-      const error = await runGeneratorError(parseOpenAPI(input))
+      const error = await Effect.runPromise(
+        Effect.flip(Effect.provide(parseOpenAPI(input), NodeFileSystem.layer)),
+      )
       expect(error.message).toBe(`${input} is not a valid Openapi API definition`)
     } finally {
       fs.rmSync(directory, { recursive: true, force: true })
@@ -173,7 +190,9 @@ describe('parseOpenAPI', () => {
       'openapi: 3.0.3\ninfo: { title: Shared schemas, version: 1.0.0 }\ncomponents:\n  schemas:\n    Money: { type: object }\n',
     )
     try {
-      const error = await runGeneratorError(parseOpenAPI(input))
+      const error = await Effect.runPromise(
+        Effect.flip(Effect.provide(parseOpenAPI(input), NodeFileSystem.layer)),
+      )
       expect(error.message).toBe(`${input} is not a valid Openapi API definition`)
     } finally {
       fs.rmSync(directory, { recursive: true, force: true })
@@ -406,7 +425,9 @@ model Error {
 @get op read(@path id: string): Widget | Error;
 `
     fs.writeFileSync(TSP_TEST_FILE, tmpTsp)
-    const openapi = await runGenerator(parseOpenAPI(TSP_TEST_FILE))
+    const openapi = await Effect.runPromise(
+      Effect.provide(parseOpenAPI(TSP_TEST_FILE), NodeFileSystem.layer),
+    )
     // TypeSpec builds the document from its own ObjectBuilder class; compare it as plain data.
     expect(structuredClone(openapi)).toStrictEqual(WIDGET_OPENAPI)
   })
@@ -457,7 +478,9 @@ model Error {
 `
     fs.mkdirSync(TSP_TEST_SUBDIR, { recursive: true })
     fs.writeFileSync(`${TSP_TEST_SUBDIR}/tmp-spec.tsp`, tmpTsp)
-    const openapi = await runGenerator(parseOpenAPI(`${TSP_TEST_SUBDIR}/tmp-spec.tsp`))
+    const openapi = await Effect.runPromise(
+      Effect.provide(parseOpenAPI(`${TSP_TEST_SUBDIR}/tmp-spec.tsp`), NodeFileSystem.layer),
+    )
     // TypeSpec builds the document from its own ObjectBuilder class; compare it as plain data.
     expect(structuredClone(openapi)).toStrictEqual(WIDGET_OPENAPI)
   })
@@ -465,7 +488,9 @@ model Error {
   it('typeSpecToOpenAPI Error', { timeout: 10_000 }, async () => {
     const tmpTsp = `import "@typespec`
     fs.writeFileSync(TSP_TEST_FILE, tmpTsp)
-    const error = await runGeneratorError(parseOpenAPI(TSP_TEST_FILE))
+    const error = await Effect.runPromise(
+      Effect.flip(Effect.provide(parseOpenAPI(TSP_TEST_FILE), NodeFileSystem.layer)),
+    )
     expect(error.message).toBe(
       "TypeSpec compile failed:\nUnterminated string literal.\n';' expected.\nCouldn't resolve import \"@typespec\"",
     )
