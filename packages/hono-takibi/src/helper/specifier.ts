@@ -2,7 +2,7 @@ import path from 'node:path'
 
 import { Context, Effect, FileSystem } from 'effect'
 
-import { parseSource } from '../helper/syntax.js'
+import { parseSource } from './syntax.js'
 
 /** The alias a `#` `pathAlias` stands for: its prefix and the directory it maps. */
 type Alias = { readonly prefix: string; readonly directory: string }

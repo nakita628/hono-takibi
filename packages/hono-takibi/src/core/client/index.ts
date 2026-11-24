@@ -8,9 +8,9 @@ import { readFile } from '../../file/index.js'
 import { isHttpMethod, isOpenAPIPaths, isOperation, isValidIdent } from '../../guard/index.js'
 import { freeName, makeGroupClientName, operationTags } from '../../helper/index.js'
 import type { Grouping } from '../../helper/index.js'
+import { ImportStyle } from '../../helper/specifier.js'
 import { mergeBarrelFile } from '../../merge/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
-import { ImportStyle } from '../../specifier/index.js'
 
 // `books` to `Books`, and `__root` to `__Root`: the letter is what is capitalized.
 function capitalizeFirst(name: string) {

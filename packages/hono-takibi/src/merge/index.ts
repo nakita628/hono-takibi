@@ -6,6 +6,7 @@ import type {
   VariableDeclaration,
 } from 'oxc-parser'
 
+import { canonicalSpecifier } from '../helper/specifier.js'
 // Imported from the module itself, not the helper index, which `helper/handler.ts` would
 // close into a cycle with this one.
 import {
@@ -16,7 +17,6 @@ import {
   parseSource,
   textOf,
 } from '../helper/syntax.js'
-import { canonicalSpecifier } from '../specifier/index.js'
 import { escapeRegexLiteral } from '../utils/index.js'
 
 /**
