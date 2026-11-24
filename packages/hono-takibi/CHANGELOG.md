@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.35.8](https://github.com/nakita628/hono-takibi/compare/v0.35.7...v0.35.8) (2026-11-24)
+
+
+### Bug Fixes
+
+* **template:** with split, read the group of a route from the handler file it lives in ([#628](https://github.com/nakita628/hono-takibi/issues/628)) ([dc8fd0d](https://github.com/nakita628/hono-takibi/commit/dc8fd0dd8a253d3b8bf3a8ee5a3dbe8c8972b4f9))
+* **type:** write the type output with the writer the Zod output is typed with ([#630](https://github.com/nakita628/hono-takibi/issues/630)) ([111cfc0](https://github.com/nakita628/hono-takibi/commit/111cfc04a536f86c17143787aeed604b72a87662))
+
 ## [0.35.7](https://github.com/nakita628/hono-takibi/compare/v0.35.6...v0.35.7) (2026-11-24)
 
 
