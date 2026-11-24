@@ -880,6 +880,25 @@ describe('schemaToFaker', () => {
     })
   })
 
+  describe('an object the schema it is typed with reads the same way (#606)', () => {
+    it.concurrent('reads properties without a type as an object', () => {
+      expect(schemaToFaker({ properties: { id: { type: 'integer' } }, required: ['id'] })).toBe(
+        '{ id: faker.number.int({ min: 1, max: 99999 }) }',
+      )
+    })
+
+    it.concurrent('composes allOf beside type: object and properties', () => {
+      expect(
+        schemaToFaker({
+          type: 'object',
+          allOf: [{ $ref: '#/components/schemas/Base' }],
+          properties: { extra: { type: 'boolean' } },
+          required: ['extra'],
+        }),
+      ).toBe('{ ...mockBase(), extra: faker.datatype.boolean() }')
+    })
+  })
+
   describe('pattern with a length', () => {
     it.concurrent('bounds a repeated character class by minLength and maxLength', () => {
       expect(

@@ -1,5 +1,11 @@
 import { COMPONENT_REF_PREFIX } from '../constants/index.js'
-import { hasNumericConstraint, isPresent, isSchemaArray, isSchemaObject } from '../guard/index.js'
+import {
+  hasNumericConstraint,
+  isPresent,
+  isSchemaArray,
+  isSchemaObject,
+  isUntypedObject,
+} from '../guard/index.js'
 import type { Schema, Type } from '../openapi/index.js'
 import {
   ensureSuffix,
@@ -737,6 +743,11 @@ function schemaValue(
     const refName = schema.$ref.split('/').pop() || 'unknown'
     return `${mockFunctionName(refName)}()`
   }
+  // `properties` with no `type` is an object, as the Zod output reads it (#606). A union
+  // beside them is left to the union branch below.
+  if (isUntypedObject(schema) && !schema.oneOf && !schema.anyOf) {
+    return schemaValue({ ...schema, type: 'object' }, propertyName, options)
+  }
   // OpenAPI 3.1 / JSON Schema type array: mock the member the zod schema is
   // built from (`TYPE_PRIORITY`, `properties` meaning an object), and let a
   // `'null'` member yield `null` too — the same `.nullable()` zod applies.
@@ -823,14 +834,21 @@ function schemaValue(
       .filter((entry) => entry !== undefined)
       .join(', ')
   }
-  if (schema.type === 'object' && schema.properties) {
+  // Beside `allOf` the properties are one member more of the composition below (#606).
+  const composed = schema.allOf !== undefined && schema.allOf.length > 0
+  if (schema.type === 'object' && schema.properties && !composed) {
     const required = [...(schema.required ?? []), ...conditionalRequired(schema)]
     const optional = Object.keys(schema.properties).filter((k) => !required.includes(k))
     const missing = Math.max(0, (schema.minProperties ?? 0) - required.length)
     const props = renderProps(schema.properties, [...required, ...optional.slice(0, missing)])
     return props === '' ? '{}' : `{ ${props} }`
   }
-  if (schema.type === 'object' && !schema.properties && isPresent(schema.additionalProperties)) {
+  if (
+    schema.type === 'object' &&
+    !schema.properties &&
+    isPresent(schema.additionalProperties) &&
+    !composed
+  ) {
     // A map (`z.record(z.string(), X)`) gets a few entries so consumers see its
     // shape. `additionalProperties: true` says nothing about the values, and
     // `propertyNames`/`patternProperties` constrain keys a random key would
@@ -850,7 +868,7 @@ function schemaValue(
       ? `(depth < ${MAX_RECURSION_DEPTH} ? ${map} : {})`
       : map
   }
-  if (schema.allOf && schema.allOf.length > 0) {
+  if (schema.allOf && composed) {
     // A scalar refinement (`allOf` of only scalar/enum members, no own
     // properties) is not an object composition — spreading its primitive value
     // would corrupt it (`{ ...'follow' }` → `{0:'f',...}`). A single member (the

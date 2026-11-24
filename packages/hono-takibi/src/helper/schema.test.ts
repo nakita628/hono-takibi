@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import { analyzeCircularSchemas } from './ast.js'
 import {
-  findSchemaRefs,
   makeSchemaCode,
   makeSchemaInfo,
   makeSchemaInfos,
@@ -10,31 +9,6 @@ import {
   makeTypeDefinition,
   makeTypeDefinitions,
 } from './schema.js'
-
-describe('findSchemaRefs', () => {
-  it.concurrent('should find schema references in code', () => {
-    const code = 'z.object({ user: UserSchema, post: PostSchema })'
-    const refs = findSchemaRefs(code, 'Test')
-    expect(refs).toStrictEqual(['User', 'Post'])
-  })
-
-  it.concurrent('should exclude self-reference', () => {
-    const code = 'z.object({ parent: ParentSchema, child: ChildSchema })'
-    const refs = findSchemaRefs(code, 'Parent')
-    expect(refs).toStrictEqual(['Child'])
-  })
-
-  it.concurrent('should handle empty code', () => {
-    const refs = findSchemaRefs('', 'Test')
-    expect(refs).toStrictEqual([])
-  })
-
-  it.concurrent('should handle code with no schema refs', () => {
-    const code = 'z.object({ name: z.string() })'
-    const refs = findSchemaRefs(code, 'Test')
-    expect(refs).toStrictEqual([])
-  })
-})
 
 describe('makeSchemaInfo', () => {
   const schemas = {
@@ -367,6 +341,39 @@ export type Event=z.infer<typeof EventSchema>`
         "import{z}from'@hono/zod-openapi'\n\n\nexport const ContainerSchema=z.object({items:z.array(z.string()).readonly().exactOptional()}).readonly().openapi({\"required\":[]}).openapi('Container')\n\nexport type Container=z.infer<typeof ContainerSchema>",
       )
     })
+  })
+})
+
+describe('makeSplitSchemaFile component names (#605)', () => {
+  const schemas = {
+    'user-profile': { type: 'object', properties: { id: { type: 'string' } } },
+    Root: {
+      type: 'object',
+      description: 'see RootSchema',
+      properties: { p: { $ref: '#/components/schemas/user-profile' } },
+    },
+  } as const
+
+  it.concurrent('imports a component whose name is not an identifier from its own file', () => {
+    const analysis = analyzeCircularSchemas(schemas, Object.keys(schemas))
+    const result = makeSplitSchemaFile('Root', schemas.Root, schemas, analysis, false)
+
+    expect(result).toBe(
+      'import{z}from\'@hono/zod-openapi\'\nimport{UserProfileSchema}from\'./user-profile\'\n\n\nexport const RootSchema=z.object({p:UserProfileSchema.exactOptional()}).openapi({"description":"see RootSchema","required":[]}).openapi(\'Root\')',
+    )
+  })
+
+  it.concurrent('does not import a component a description only mentions', () => {
+    const mentioned = {
+      User: { type: 'object', properties: { id: { type: 'string' } } },
+      Note: { type: 'string', description: 'not a UserSchema' },
+    } as const
+    const analysis = analyzeCircularSchemas(mentioned, Object.keys(mentioned))
+    const result = makeSplitSchemaFile('Note', mentioned.Note, mentioned, analysis, false)
+
+    expect(result).toBe(
+      'import{z}from\'@hono/zod-openapi\'\n\n\nexport const NoteSchema=z.string().openapi({"description":"not a UserSchema"}).openapi(\'Note\')',
+    )
   })
 })
 

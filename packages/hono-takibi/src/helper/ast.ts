@@ -236,6 +236,13 @@ export function analyzeCircularSchemas(
     deepSchemas: findDeepSchemas(schemas, schemaNames),
     discriminatedBranches: findDiscriminatedBranches(schemas, schemaNames, document),
     varNameToName,
+    selfReferencing: new Set(
+      schemaNames.filter((n) =>
+        (
+          initializerIdentifiers.get(toIdentifierPascalCase(ensureSuffix(n, 'Schema'))) ?? []
+        ).includes(toIdentifierPascalCase(ensureSuffix(n, 'Schema'))),
+      ),
+    ),
   } as const
 }
 

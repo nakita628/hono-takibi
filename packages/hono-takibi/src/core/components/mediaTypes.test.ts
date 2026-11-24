@@ -421,4 +421,27 @@ export const JsonUserMediaTypeSchema = UserSchema
       expect(lines[1]).toBe("export * from './zooMedia'")
     })
   })
+
+  describe('single file (#607)', () => {
+    it('imports the schema a media type names and declares an alias after its target', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
+      const output = path.join(tmpDir, 'mediaTypes.ts')
+      await Effect.runPromise(
+        Effect.provide(
+          mediaTypes(
+            {
+              AliasMedia: { $ref: '#/components/mediaTypes/JsonTag' },
+              JsonTag: { schema: { $ref: '#/components/schemas/Tag' } },
+            },
+            output,
+            false,
+          ),
+          NodeFileSystem.layer,
+        ),
+      )
+      expect(fs.readFileSync(output, 'utf8')).toBe(
+        "import { TagSchema } from './schemas'\n\nexport const JsonTagMediaTypeSchema = TagSchema\n\nexport const AliasMediaMediaTypeSchema = JsonTagMediaTypeSchema\n",
+      )
+    })
+  })
 })

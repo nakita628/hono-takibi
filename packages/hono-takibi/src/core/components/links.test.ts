@@ -136,4 +136,29 @@ describe('links', () => {
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
     })
   })
+
+  describe('$ref link (#607)', () => {
+    const aliased = {
+      AliasLink: { $ref: '#/components/links/RealLink' },
+      RealLink: { operationId: 'getUser' },
+    } as const
+
+    it('is the constant of its target in the single file', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
+      const output = path.join(tmpDir, 'links.ts')
+      await Effect.runPromise(Effect.provide(links(aliased, output, false), NodeFileSystem.layer))
+      expect(fs.readFileSync(output, 'utf8')).toBe(
+        "export const RealLinkLink = { operationId: 'getUser' }\n\nexport const AliasLinkLink = RealLinkLink\n",
+      )
+    })
+
+    it('is the constant of its target in the split output', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
+      const output = path.join(tmpDir, 'links')
+      await Effect.runPromise(Effect.provide(links(aliased, output, true), NodeFileSystem.layer))
+      expect(fs.readFileSync(path.join(output, 'aliasLink.ts'), 'utf8')).toBe(
+        "import { RealLinkLink } from './realLink'\n\nexport const AliasLinkLink = RealLinkLink\n",
+      )
+    })
+  })
 })

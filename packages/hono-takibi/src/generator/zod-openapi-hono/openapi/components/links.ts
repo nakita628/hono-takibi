@@ -1,4 +1,5 @@
-import { makeConst, makeLinkOrReference } from '../../../../helper/index.js'
+import { isRefObject } from '../../../../guard/index.js'
+import { ast, makeConst, makeLinkOrReference, makeRef } from '../../../../helper/index.js'
 import type { Components } from '../../../../openapi/index.js'
 
 /**
@@ -21,9 +22,15 @@ export function linksCode(components: Components, exportLinks: boolean, readonly
   const { links } = components
   if (!links) return ''
   const asConst = readonly ? ' as const' : ''
-  return Object.entries(links)
-    .map(
-      ([k, link]) => `${makeConst(exportLinks, k, 'Link')}${makeLinkOrReference(link)}${asConst}`,
-    )
-    .join('\n\n')
+  // A `$ref` link is its target's constant, as an example and a media type are (#607); the
+  // sort puts the target first.
+  return ast(
+    Object.entries(links)
+      .map(([k, link]) =>
+        isRefObject(link)
+          ? `${makeConst(exportLinks, k, 'Link')}${makeRef(link.$ref)}`
+          : `${makeConst(exportLinks, k, 'Link')}${makeLinkOrReference(link)}${asConst}`,
+      )
+      .join('\n\n'),
+  )
 }

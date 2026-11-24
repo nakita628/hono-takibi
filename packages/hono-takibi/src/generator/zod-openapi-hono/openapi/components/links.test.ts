@@ -63,13 +63,16 @@ describe('linksCode', () => {
     )
   })
 
-  it.concurrent('should resolve $ref to PascalCase Link import name', () => {
+  it.concurrent('writes a $ref link as the constant of its target, after it (#607)', () => {
     const components: Components = {
       links: {
         GetUserById: { $ref: '#/components/links/UserDetail' },
+        UserDetail: { operationId: 'getUser' },
       },
     }
-    expect(linksCode(components, true)).toBe(`export const GetUserByIdLink={$ref:UserDetailLink}`)
+    expect(linksCode(components, true)).toBe(
+      `export const UserDetailLink={operationId:"getUser"}\n\nexport const GetUserByIdLink=UserDetailLink`,
+    )
   })
 
   it.concurrent('should preserve all OpenAPI Link fields', () => {

@@ -7,12 +7,7 @@ import { GenerateError } from '../../error/index.js'
 import { isCallbacks } from '../../guard/index.js'
 import { makeCallback, makeConst, makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
-import {
-  ensureSuffix,
-  makeBarrel,
-  toIdentifierPascalCase,
-  uncapitalize,
-} from '../../utils/index.js'
+import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
 export function callbacks(
   // oxlint-disable-next-line no-shadow -- the parameter is the section this function emits
@@ -33,42 +28,38 @@ export function callbacks(
     const keys = Object.keys(callbacks)
     if (keys.length === 0) return 'No callbacks found'
     const asConst = readonly ? ' as const' : ''
+    // What both outputs write: a `$ref` has nothing of its own, and neither has a callback
+    // with no expression. The barrel of the split output lists these and no other (#607).
+    const entries = Object.entries(callbacks).flatMap(([k, callbackOrRef]) => {
+      if (!isCallbacks(callbackOrRef)) return []
+      const callbackCode = makeCallback(callbackOrRef)
+      return callbackCode
+        ? [{ key: k, code: `${makeConst(true, k, 'Callback')}{${callbackCode}}${asConst}` }]
+        : []
+    })
     if (split) {
       const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
       yield* Effect.all(
         [
-          ...keys.map((k) => {
-            const callbackOrRef = callbacks[k]
-            // A `$ref` in this slot has nothing of its own to write.
-            if (!isCallbacks(callbackOrRef)) return Effect.void
-            const name = toIdentifierPascalCase(ensureSuffix(k, 'Callback'))
-            const callbackCode = makeCallback(callbackOrRef)
-            const body = callbackCode
-              ? `export const ${name} = {${callbackCode}}${asConst}\n`
-              : `export const ${name} = {}${asConst}\n`
-            const filePath = path.join(outDir, `${uncapitalize(k)}.ts`)
+          ...entries.map(({ key, code }) => {
+            const filePath = path.join(outDir, `${uncapitalize(key)}.ts`)
             return emit(
-              makeImports(body, filePath, components, split),
+              makeImports(`${code}\n`, filePath, components, split),
               path.dirname(filePath),
               filePath,
             )
           }),
-          emit(makeBarrel(callbacks), outDir, path.join(outDir, 'index.ts')),
+          emit(
+            makeBarrel(Object.fromEntries(entries.map((entry) => [entry.key, null]))),
+            outDir,
+            path.join(outDir, 'index.ts'),
+          ),
         ],
         { concurrency: 'unbounded' },
       )
       return `Generated Callback code written to ${outDir}/*.ts (index.ts included)`
     }
-    const code = Object.entries(callbacks)
-      .map(([k, callbackOrRef]) => {
-        if (!isCallbacks(callbackOrRef)) return undefined
-        const callbackCode = makeCallback(callbackOrRef)
-        return callbackCode
-          ? `${makeConst(true, k, 'Callback')}{${callbackCode}}${asConst}`
-          : undefined
-      })
-      .filter((v) => v !== undefined)
-      .join('\n\n')
+    const code = entries.map((entry) => entry.code).join('\n\n')
     yield* emit(makeImports(code, output, components, split), path.dirname(output), output)
     return `Generated callbacks code written to ${output}`
   })

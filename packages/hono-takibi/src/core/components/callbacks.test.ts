@@ -260,4 +260,31 @@ describe('callbacks', () => {
       expect(emittedNames).toStrictEqual(generatedNames)
     })
   })
+
+  describe('split barrel (#607)', () => {
+    it('lists the files that are written: not a $ref, not a callback with no expression', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
+      const output = path.join(tmpDir, 'callbacks')
+      await Effect.runPromise(
+        Effect.provide(
+          callbacks(
+            {
+              RealCb: {
+                '{$request.body#/url}': { post: { responses: { '200': { description: 'OK' } } } },
+              },
+              AliasCb: { $ref: '#/components/callbacks/RealCb' },
+              EmptyCb: {},
+            },
+            output,
+            true,
+          ),
+          NodeFileSystem.layer,
+        ),
+      )
+      expect(fs.readdirSync(output).toSorted()).toStrictEqual(['index.ts', 'realCb.ts'])
+      expect(fs.readFileSync(path.join(output, 'index.ts'), 'utf8')).toBe(
+        "export * from './realCb'\n",
+      )
+    })
+  })
 })

@@ -16,6 +16,8 @@ import {
   getCallbackRoute,
   getReportRoute,
   getTreeRoute,
+  postInputRoute,
+  postPatchRoute,
 } from '../__generated__/type-app/routes'
 import type routes from '../__generated__/type-app/type'
 import { assertType } from './assert'
@@ -35,6 +37,8 @@ const app = new OpenAPIHono()
   .openapi(getReportRoute, handler)
   .openapi(getAnythingRoute, handler)
   .openapi(getCallbackRoute, handler)
+  .openapi(postInputRoute, handler)
+  .openapi(postPatchRoute, handler)
 
 type App = SchemaOf<typeof app>
 type Typed = SchemaOf<typeof routes>
@@ -108,4 +112,26 @@ export function assertions() {
   assertType<IsUnknown<CallbackOut[string]>>(true)
   assertType<IsUnknown<CallbackZod[string]>>(true)
   assertType<IsAssignable<CallbackZod, CallbackOut>>(true)
+
+  // #631: what a route takes in is what its schemas read. A parameter that is not a string
+  // is read from text by a schema that takes `unknown`, a boolean by `z.stringbool()`, which
+  // takes a string, and an optional property may be left out but is not `undefined`.
+  // #631: ルートが受け取るものは、そのスキーマが読むものである。文字列でないパラメータは
+  // `unknown` を受け取るスキーマがテキストから読み、boolean は文字列を受け取る
+  // `z.stringbool()` が読む。オプショナルなプロパティは省略できるが、`undefined` ではない。
+  type InputTyped = Typed['/input']['$post']['input']
+  type InputApp = App['/input']['$post']['input']
+  assertType<IsUnknown<InputTyped['query']['q']>>(true)
+  assertType<Equal<InputTyped['query'], InputApp['query']>>(true)
+  assertType<Equal<InputTyped['form'], { n?: string }>>(true)
+  assertType<Equal<InputTyped['form'], InputApp['form']>>(true)
+
+  // The same component is `| undefined` where it is handed out and not where it is taken in.
+  // 同じコンポーネントでも、返すときは `| undefined` が付き、受け取るときは付かない。
+  type PatchTyped = Typed['/patch']['$post']
+  type PatchApp = App['/patch']['$post']
+  assertType<Equal<PatchTyped['input']['json'], { id: string; note?: string }>>(true)
+  assertType<Equal<PatchTyped['input']['json'], PatchApp['input']['json']>>(true)
+  assertType<Equal<PatchTyped['output'], { id: string; note?: string | undefined }>>(true)
+  assertType<Equal<PatchTyped['output'], PatchApp['output']>>(true)
 }

@@ -70,8 +70,66 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Callback'
+  # What a route takes in is what its schemas read (#631).
+  /input:
+    post:
+      operationId: postInput
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: id
+          in: query
+          schema:
+            type: integer
+        - name: flag
+          in: query
+          schema:
+            type: boolean
+        - name: name
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                n:
+                  type: string
+      responses:
+        '204':
+          description: none
+  /patch:
+    post:
+      operationId: postPatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patch'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patch'
 components:
   schemas:
+    # Taken in and handed out by the same route (#631).
+    Patch:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
+        note:
+          type: string
     Base:
       type: object
       required: [p]
