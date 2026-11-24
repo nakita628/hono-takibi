@@ -1,35 +1,44 @@
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
 import { Effect } from 'effect'
 import type { FormatConfig } from 'oxfmt'
 import { describe, expect, it } from 'vite-plus/test'
 
-import { runGenerator, runGeneratorError } from '../testing/index.js'
 import { fmt, FormatOptions } from './index.js'
 
 describe('fmt', () => {
   it.concurrent('returns formatted code as ok result', async () => {
     const input = "const takibi = 'hono-takibi';"
-    const result = await runGenerator(fmt(input))
+    const result = await Effect.runPromise(Effect.provide(fmt(input), NodeFileSystem.layer))
     const expected = `const takibi = 'hono-takibi'
 `
     expect(result).toStrictEqual(expected)
   })
 
   it.concurrent('returns error result for invalid code', async () => {
-    const result = await runGeneratorError(fmt('const = ;'))
+    const result = await Effect.runPromise(
+      Effect.flip(Effect.provide(fmt('const = ;'), NodeFileSystem.layer)),
+    )
     expect(result.message).toBe('Unexpected token')
   })
 })
 
 /** Formats with an explicit option set, the way a config file's `format` block does. */
 const fmtWith = (options: FormatConfig, input: string) =>
-  runGenerator(fmt(input).pipe(Effect.provideService(FormatOptions, options)))
+  Effect.runPromise(
+    Effect.provide(
+      fmt(input).pipe(Effect.provideService(FormatOptions, options)),
+      NodeFileSystem.layer,
+    ),
+  )
 
 // Every option is forwarded to oxfmt through one service, so one option and the empty
 // object are enough to prove the plumbing; the options themselves are oxfmt's to test.
 describe('FormatOptions', () => {
   it('uses default options without setFormatOptions', async () => {
     // default: printWidth: 100, singleQuote: true, semi: false
-    const result = await runGenerator(fmt("const x = 'hello';"))
+    const result = await Effect.runPromise(
+      Effect.provide(fmt("const x = 'hello';"), NodeFileSystem.layer),
+    )
     expect(result).toBe("const x = 'hello'\n")
   })
 

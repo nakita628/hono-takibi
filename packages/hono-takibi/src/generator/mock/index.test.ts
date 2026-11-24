@@ -1,8 +1,9 @@
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { describe, expect, it } from 'vite-plus/test'
 
 import { fmt } from '../../format/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
-import { runGenerator } from '../../testing/index.js'
 import { makeMock } from './index.js'
 
 // The Prism-compatible `Prefer` helpers are emitted verbatim into every mock; they
@@ -17,7 +18,9 @@ function withoutPreferHelpers(code: string) {
 }
 
 async function format(spec: OpenAPI, basePath: string) {
-  const result = await runGenerator(fmt(makeMock(spec, basePath)))
+  const result = await Effect.runPromise(
+    Effect.provide(fmt(makeMock(spec, basePath)), NodeFileSystem.layer),
+  )
   return withoutPreferHelpers(result)
 }
 
@@ -2351,7 +2354,9 @@ export default app
 
   describe('locale', () => {
     it('imports the localized faker entry when locale is set', async () => {
-      const result = await runGenerator(fmt(makeMock(minimalOpenAPI, '/', { locale: 'ja' })))
+      const result = await Effect.runPromise(
+        Effect.provide(fmt(makeMock(minimalOpenAPI, '/', { locale: 'ja' })), NodeFileSystem.layer),
+      )
       expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker/locale/ja'
@@ -2399,7 +2404,9 @@ export default app
 
   describe('delay', () => {
     it('emits a delay middleware when delay is a number', async () => {
-      const result = await runGenerator(fmt(makeMock(minimalOpenAPI, '/', { delay: 1000 })))
+      const result = await Effect.runPromise(
+        Effect.provide(fmt(makeMock(minimalOpenAPI, '/', { delay: 1000 })), NodeFileSystem.layer),
+      )
       expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -2450,8 +2457,11 @@ export default app
     })
 
     it('emits a random-range delay middleware when delay is { min, max }', async () => {
-      const result = await runGenerator(
-        fmt(makeMock(minimalOpenAPI, '/', { delay: { min: 100, max: 500 } })),
+      const result = await Effect.runPromise(
+        Effect.provide(
+          fmt(makeMock(minimalOpenAPI, '/', { delay: { min: 100, max: 500 } })),
+          NodeFileSystem.layer,
+        ),
       )
       expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
@@ -2503,8 +2513,12 @@ export default app
     })
 
     it('omits the delay middleware when delay is false', async () => {
-      const withFalse = await runGenerator(fmt(makeMock(minimalOpenAPI, '/', { delay: false })))
-      const without = await runGenerator(fmt(makeMock(minimalOpenAPI, '/')))
+      const withFalse = await Effect.runPromise(
+        Effect.provide(fmt(makeMock(minimalOpenAPI, '/', { delay: false })), NodeFileSystem.layer),
+      )
+      const without = await Effect.runPromise(
+        Effect.provide(fmt(makeMock(minimalOpenAPI, '/')), NodeFileSystem.layer),
+      )
       expect(withFalse).toBe(without)
     })
   })
@@ -2534,7 +2548,9 @@ export default app
     } as OpenAPI
 
     it('returns the spec example verbatim by default', async () => {
-      const result = await runGenerator(fmt(makeMock(exampleOpenAPI, '/')))
+      const result = await Effect.runPromise(
+        Effect.provide(fmt(makeMock(exampleOpenAPI, '/')), NodeFileSystem.layer),
+      )
       expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -2579,7 +2595,12 @@ export default app
     })
 
     it('fakes the response instead of the example when useExamples is false', async () => {
-      const result = await runGenerator(fmt(makeMock(exampleOpenAPI, '/', { useExamples: false })))
+      const result = await Effect.runPromise(
+        Effect.provide(
+          fmt(makeMock(exampleOpenAPI, '/', { useExamples: false })),
+          NodeFileSystem.layer,
+        ),
+      )
       expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -2653,7 +2674,9 @@ export default app
           },
         },
       } as OpenAPI
-      const result = await runGenerator(fmt(makeMock(spec, '/')))
+      const result = await Effect.runPromise(
+        Effect.provide(fmt(makeMock(spec, '/')), NodeFileSystem.layer),
+      )
       expect(withoutPreferHelpers(result))
         .toBe(String.raw`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -2744,7 +2767,9 @@ export default app
           },
         },
       } as OpenAPI
-      const result = await runGenerator(fmt(makeMock(spec, '/')))
+      const result = await Effect.runPromise(
+        Effect.provide(fmt(makeMock(spec, '/')), NodeFileSystem.layer),
+      )
       expect(withoutPreferHelpers(result))
         .toBe(String.raw`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -2853,7 +2878,9 @@ export default app
           },
         },
       } as OpenAPI
-      const result = await runGenerator(fmt(makeMock(spec, '/')))
+      const result = await Effect.runPromise(
+        Effect.provide(fmt(makeMock(spec, '/')), NodeFileSystem.layer),
+      )
       expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -2920,7 +2947,9 @@ export default app
 
   describe('seed', () => {
     it('re-seeds faker and pins its reference date at the start of every handler', async () => {
-      const result = await runGenerator(fmt(makeMock(minimalOpenAPI, '/', { seed: 42 })))
+      const result = await Effect.runPromise(
+        Effect.provide(fmt(makeMock(minimalOpenAPI, '/', { seed: 42 })), NodeFileSystem.layer),
+      )
       expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -2968,7 +2997,9 @@ export default app
     })
 
     it('passes an array seed through', async () => {
-      const result = await runGenerator(fmt(makeMock(minimalOpenAPI, '/', { seed: [1, 2] })))
+      const result = await Effect.runPromise(
+        Effect.provide(fmt(makeMock(minimalOpenAPI, '/', { seed: [1, 2] })), NodeFileSystem.layer),
+      )
       expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -3090,7 +3121,9 @@ export default app`)
     } as OpenAPI
 
     it('sanitizes a hyphenated schema name, quotes keys and escapes auth / param names', async () => {
-      const result = await runGenerator(fmt(makeMock(edgeOpenAPI, '/')))
+      const result = await Effect.runPromise(
+        Effect.provide(fmt(makeMock(edgeOpenAPI, '/')), NodeFileSystem.layer),
+      )
       expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -3164,7 +3197,12 @@ export default app
     })
 
     it("uses a property's scalar example when useExamples is 'all'", async () => {
-      const result = await runGenerator(fmt(makeMock(edgeOpenAPI, '/', { useExamples: 'all' })))
+      const result = await Effect.runPromise(
+        Effect.provide(
+          fmt(makeMock(edgeOpenAPI, '/', { useExamples: 'all' })),
+          NodeFileSystem.layer,
+        ),
+      )
       expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -3237,7 +3275,9 @@ export default app
 
   describe('Prefer (Prism-compatible response selection)', () => {
     it('emits the resolvePrefer / preferResponse / preferProblem helpers once', async () => {
-      const result = await runGenerator(fmt(makeMock(minimalOpenAPI, '/')))
+      const result = await Effect.runPromise(
+        Effect.provide(fmt(makeMock(minimalOpenAPI, '/')), NodeFileSystem.layer),
+      )
       const helpers = result.match(
         /\/\/ Reads Prism's[\s\S]*?\nfunction preferProblem\([\s\S]*?\n\}\n/gu,
       )

@@ -421,8 +421,8 @@ describe('honoTakibiVite', () => {
     await reloaded
 
     expect(onSpy).toHaveBeenCalledOnce()
-    expect(onSpy.mock.calls[0][0]).toBe('all')
-    expect(typeof onSpy.mock.calls[0][1]).toBe('function')
+    expect(onSpy.mock.calls[0]?.[0]).toBe('all')
+    expect(typeof onSpy.mock.calls[0]?.[1]).toBe('function')
   })
 
   it('sends full-reload via ws after generation', async () => {

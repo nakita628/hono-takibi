@@ -2,10 +2,11 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
+import { Effect } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
-import { runGenerator } from '../../testing/index.js'
 import { mock } from './index.js'
 
 let tmpDir: string
@@ -48,7 +49,9 @@ describe('mock', () => {
         },
       },
     } as OpenAPI
-    const result = await runGenerator(mock(openAPI, output, '/'))
+    const result = await Effect.runPromise(
+      Effect.provide(mock(openAPI, output, '/'), NodeFileSystem.layer),
+    )
     expect(result).toBe(`Generated mock server written to ${output}`)
     expect(fs.existsSync(output)).toBe(true)
   })
@@ -83,7 +86,9 @@ describe('mock', () => {
         },
       },
     } as OpenAPI
-    const result = await runGenerator(mock(openAPI, output, '/', { readonly: true }))
+    const result = await Effect.runPromise(
+      Effect.provide(mock(openAPI, output, '/', { readonly: true }), NodeFileSystem.layer),
+    )
     expect(result).toBe(`Generated mock server written to ${output}`)
     expect(fs.existsSync(output)).toBe(true)
   })

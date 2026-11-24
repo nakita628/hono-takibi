@@ -438,7 +438,7 @@ describe('hono-takibi invariants', () => {
 
     const staticImports = Array.from(header.matchAll(/from '([^']+)'/gu), ([, from]) => from)
     const lazyImports = new Set(
-      Array.from(source.matchAll(/import\('([^']+)'\)/gu), ([, from]) => from),
+      Array.from(source.matchAll(/import\('([^']+)'\)/gu), ([, from = '']) => from),
     )
 
     // The parser, the generators and the shared pipeline are reached only through `import()`.

@@ -16,7 +16,7 @@
 //                              `has*` or `can*`
 //   custom/no-effect-run       `Effect.runPromise` and friends appear only where the program
 //                              meets a world that is not an Effect — the Vite plugin's hooks and
-//                              the test helpers. Everywhere else an Effect is a value that is
+//                              the tests. Everywhere else an Effect is a value that is
 //                              returned, so it stays composable and its requirements stay visible
 //   custom/effect-promise-import `Effect.promise` only wraps a dynamic `import()`. Anywhere else
 //                              it turns a rejection into a defect, which walks past `catch`,
@@ -398,7 +398,7 @@ export default {
       },
     },
     // Purpose: keep an Effect a value that is returned; only a boundary (the Vite plugin's
-    //          hooks, the test helpers) runs it.
+    //          hooks, the tests) runs it.
     // NG:      const text = await Effect.runPromise(readFile(path))
     // OK:      return readFile(path)   // the caller decides when to run it
     'no-effect-run': {
@@ -411,7 +411,7 @@ export default {
             if (name === null || !EFFECT_RUNNERS.has(name)) return
             context.report({
               node,
-              message: `\`Effect.${name}\` ends the program here. Return the Effect instead and let the caller run it — the only places that may run one are where an Effect meets something that is not one (the Vite plugin's hooks, the test helpers), and those are exempted by path.`,
+              message: `\`Effect.${name}\` ends the program here. Return the Effect instead and let the caller run it — the only places that may run one are where an Effect meets something that is not one (the Vite plugin's hooks, the tests), and those are exempted by path.`,
             })
           },
         }

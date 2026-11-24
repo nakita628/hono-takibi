@@ -8453,9 +8453,9 @@ describe('zodToOpenAPI', () => {
       const valid = Schema.safeParse(['a', true, 'x'])
       expect(valid.success).toBe(false)
       if (!valid.success) {
-        expect(valid.error.issues[0].path).toStrictEqual([2])
-        expect(valid.error.issues[0].code).toBe('invalid_type')
-        expect(valid.error.issues[0].message).toBe(
+        expect(valid.error.issues[0]?.path).toStrictEqual([2])
+        expect(valid.error.issues[0]?.code).toBe('invalid_type')
+        expect(valid.error.issues[0]?.message).toBe(
           'Invalid input: expected number, received string',
         )
       }
@@ -8540,22 +8540,22 @@ describe('zodToOpenAPI', () => {
       const valid = ContainsSchema.safeParse([])
       expect(valid.success).toBe(false)
       if (!valid.success) {
-        expect(valid.error.issues[0].path).toStrictEqual([])
-        expect(valid.error.issues[0].message).toBe('Expected at least 2 matching items, got 0')
+        expect(valid.error.issues[0]?.path).toStrictEqual([])
+        expect(valid.error.issues[0]?.message).toBe('Expected at least 2 matching items, got 0')
       }
     })
     it.concurrent('runtime: 1 match → "got 1" dynamic message', () => {
       const valid = ContainsSchema.safeParse([1, 'x'])
       expect(valid.success).toBe(false)
       if (!valid.success) {
-        expect(valid.error.issues[0].message).toBe('Expected at least 2 matching items, got 1')
+        expect(valid.error.issues[0]?.message).toBe('Expected at least 2 matching items, got 1')
       }
     })
     it.concurrent('runtime: 4 matches → "got 4" max violation', () => {
       const valid = ContainsSchema.safeParse([1, 2, 3, 4])
       expect(valid.success).toBe(false)
       if (!valid.success) {
-        expect(valid.error.issues[0].message).toBe('Expected at most 3 matching items, got 4')
+        expect(valid.error.issues[0]?.message).toBe('Expected at most 3 matching items, got 4')
       }
     })
     it.concurrent('runtime: matches counted ignoring non-integer items', () => {
@@ -8779,7 +8779,12 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: invalid JSON inside b64 → no uncaught throw, path:["style"]', () => {
       const b64 = Buffer.from('not-json').toString('base64')
       let threw = false
-      let result: { success: boolean; path?: PropertyKey[]; code?: string; message?: string } = {
+      let result: {
+        success: boolean
+        path?: PropertyKey[] | undefined
+        code?: string | undefined
+        message?: string | undefined
+      } = {
         success: true,
       }
       try {
@@ -8788,9 +8793,9 @@ describe('zodToOpenAPI', () => {
           ? { success: true }
           : {
               success: false,
-              path: valid.error.issues[0].path,
-              code: valid.error.issues[0].code,
-              message: valid.error.issues[0].message,
+              path: valid.error.issues[0]?.path,
+              code: valid.error.issues[0]?.code,
+              message: valid.error.issues[0]?.message,
             }
       } catch {
         threw = true
@@ -8852,8 +8857,8 @@ describe('zodToOpenAPI', () => {
       const valid = UniqueItemsSchema.safeParse(['a', 'b', 'a'])
       expect(valid.success).toBe(false)
       if (!valid.success) {
-        expect(valid.error.issues[0].path).toStrictEqual([2])
-        expect(valid.error.issues[0].message).toBe('Duplicate of index 0')
+        expect(valid.error.issues[0]?.path).toStrictEqual([2])
+        expect(valid.error.issues[0]?.message).toBe('Duplicate of index 0')
       }
     })
     it.concurrent('runtime: multiple duplicates each get their own issue', () => {
@@ -8895,8 +8900,8 @@ describe('zodToOpenAPI', () => {
       expect(valid.success).toBe(false)
       if (!valid.success) {
         expect(valid.error.issues).toHaveLength(1)
-        expect(valid.error.issues[0].path).toStrictEqual(['BadKey'])
-        expect(valid.error.issues[0].message).toBe(
+        expect(valid.error.issues[0]?.path).toStrictEqual(['BadKey'])
+        expect(valid.error.issues[0]?.message).toBe(
           "Property name 'BadKey' does not match pattern ^[a-z]+$",
         )
       }
@@ -8934,8 +8939,8 @@ describe('zodToOpenAPI', () => {
       const valid = MinMaxPropsSchema.safeParse({ a: 'x' })
       expect(valid.success).toBe(false)
       if (!valid.success) {
-        expect(valid.error.issues[0].path).toStrictEqual([])
-        expect(valid.error.issues[0].message).toBe('最低3つのプロパティが必要です')
+        expect(valid.error.issues[0]?.path).toStrictEqual([])
+        expect(valid.error.issues[0]?.message).toBe('最低3つのプロパティが必要です')
       }
     })
     it.concurrent('runtime: 11 properties → max violation, custom message reflected', () => {
@@ -8954,7 +8959,7 @@ describe('zodToOpenAPI', () => {
       })
       expect(valid.success).toBe(false)
       if (!valid.success) {
-        expect(valid.error.issues[0].message).toBe('最大10つまでです')
+        expect(valid.error.issues[0]?.message).toBe('最大10つまでです')
       }
     })
     it.concurrent('runtime: 5 properties (within bounds) PASSES', () => {
@@ -10078,14 +10083,14 @@ describe('zodToOpenAPI', () => {
       const valid = RequiredMessageSchema.safeParse({})
       expect(valid.success).toBe(false)
       if (!valid.success) {
-        expect(valid.error.issues[0].message).toBe('Email is required')
+        expect(valid.error.issues[0]?.message).toBe('Email is required')
       }
     })
     it.concurrent('runtime: wrong type email → error message', () => {
       const valid = RequiredMessageSchema.safeParse({ email: 123 })
       expect(valid.success).toBe(false)
       if (!valid.success) {
-        expect(valid.error.issues[0].message).toBe('Email format invalid')
+        expect(valid.error.issues[0]?.message).toBe('Email format invalid')
       }
     })
   })
@@ -11550,8 +11555,8 @@ describe('zodToOpenAPI', () => {
       expect(valid.success).toBe(false)
       if (!valid.success) {
         expect(valid.error.issues).toHaveLength(1)
-        expect(valid.error.issues[0].code).toBe('invalid_format')
-        expect(valid.error.issues[0].message).toBe('Invalid ISO datetime')
+        expect(valid.error.issues[0]?.code).toBe('invalid_format')
+        expect(valid.error.issues[0]?.message).toBe('Invalid ISO datetime')
       }
     })
   })
@@ -11571,7 +11576,7 @@ describe('zodToOpenAPI', () => {
       expect(valid.success).toBe(false)
       if (!valid.success) {
         expect(valid.error.issues).toHaveLength(1)
-        expect(valid.error.issues[0].code).toBe('invalid_format')
+        expect(valid.error.issues[0]?.code).toBe('invalid_format')
       }
     })
   })
