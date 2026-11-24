@@ -2,12 +2,12 @@ import {
   COMPONENT_NAMES,
   COMPONENT_REF_PREFIX,
   COMPONENT_SUFFIXES,
-  FORM_MEDIA_TYPES,
   HTTP_METHODS,
 } from '../constants/index.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import {
+  isFormMediaType,
   isInheritedName,
   isMedia,
   isOperation,
@@ -355,10 +355,7 @@ export function makeContent(
             : `${key}:${makeRef(mediaOrRef.$ref)}`
         }
         if (isMedia(mediaOrRef)) {
-          const mediaType = contentType.toLowerCase()
-          const isForm =
-            request !== undefined &&
-            FORM_MEDIA_TYPES.some((formType) => mediaType.startsWith(formType))
+          const isForm = request !== undefined && isFormMediaType(contentType)
           return `${key}:${makeMedia(mediaOrRef, readonly, isForm ? request : undefined, schemas ?? request?.schemas)}`
         }
         return undefined

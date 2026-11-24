@@ -19,6 +19,8 @@ import {
   isInlineMedia,
   isInputPath,
   isMedia,
+  isFormMediaType,
+  isJsonMediaType,
   isMediaWithSchema,
   isOffsetTime,
   isOpenAPIPaths,
@@ -1006,5 +1008,35 @@ describe('isAnnotationOnly', () => {
 
   it.concurrent('is false for an empty schema', () => {
     expect(isAnnotationOnly({})).toBe(false)
+  })
+})
+
+describe('isFormMediaType', () => {
+  it.concurrent.each([
+    ['application/x-www-form-urlencoded', true],
+    ['multipart/form-data', true],
+    ['multipart/form-data; boundary=x', true],
+    ['Multipart/Form-Data', true],
+    ['application/json', false],
+    ['text/plain', false],
+    ['multipart/mixed', false],
+  ])('isFormMediaType(%s) -> %s', (mediaType, expected) => {
+    expect(isFormMediaType(mediaType)).toBe(expected)
+  })
+})
+
+describe('isJsonMediaType', () => {
+  it.concurrent.each([
+    ['application/json', true],
+    ['application/json; charset=utf-8', true],
+    ['application/problem+json', true],
+    ['application/vnd.api+json', true],
+    ['application/x-json', false],
+    ['application/x-www-form-urlencoded', false],
+    ['application/xml', false],
+    ['text/plain', false],
+    ['text/json', false],
+  ])('isJsonMediaType(%s) -> %s', (mediaType, expected) => {
+    expect(isJsonMediaType(mediaType)).toBe(expected)
   })
 })

@@ -1,6 +1,7 @@
-import { FORM_MEDIA_TYPES, JSON_MEDIA_TYPE } from '../constants/index.js'
+import { JSON_MEDIA_TYPE } from '../constants/index.js'
 import type { HTTP_METHODS } from '../constants/index.js'
 import {
+  isFormMediaType,
   isOperationLike,
   isParameterObject,
   isRecord,
@@ -108,17 +109,14 @@ function refRequestBodyName(refLike: unknown) {
 
 function pickAllBodyInfoFromContent(content: unknown) {
   if (!isRecord(content)) return undefined
-  const formContentTypes = new Set<string>(FORM_MEDIA_TYPES)
-  const isFormContentType = (ct: string): boolean =>
-    formContentTypes.has((ct.split(';')[0] ?? '').trim())
   const validEntries = Object.entries(content).filter(
     ([, mediaObj]) => isRecord(mediaObj) && isSchemaProperty(mediaObj) && isRecord(mediaObj.schema),
   )
   const formInfos = validEntries
-    .filter(([contentType]) => isFormContentType(contentType))
+    .filter(([contentType]) => isFormMediaType(contentType))
     .map(([contentType]) => ({ contentType }))
   const jsonInfos = validEntries
-    .filter(([contentType]) => !isFormContentType(contentType))
+    .filter(([contentType]) => !isFormMediaType(contentType))
     .map(([contentType]) => ({ contentType }))
   if (formInfos.length === 0 && jsonInfos.length === 0) return undefined
   return { form: formInfos, json: jsonInfos } as const

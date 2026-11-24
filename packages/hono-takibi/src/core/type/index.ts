@@ -2,21 +2,20 @@ import path from 'node:path'
 
 import { Effect } from 'effect'
 
-import { JSON_MEDIA_TYPE } from '../../constants/index.js'
 import { emit } from '../../emit/index.js'
 import {
-  isBinaryFile,
+  isFormMediaType,
   isHttpMethod,
+  isJsonMediaType,
   isMediaWithSchema,
   isOpenAPIPaths,
   isOperation,
   isParameter,
   isParameterArray,
-  isPresent,
   isRequestBody,
-  isSchemaArray,
   isStringRef,
 } from '../../guard/index.js'
+import { makeSchemaTypeString } from '../../helper/type.js'
 import type {
   Components,
   OpenAPI,
@@ -116,15 +115,21 @@ function aliasOf(schemaName: string, schema: Schema, aliases: Aliases) {
     : base
   aliases.taken.add(name)
   aliases.names.set(schemaName, name)
-  // The body is written as if the schema were inlined at its first use, with its own
-  // `$ref` on the path: an `allOf` that comes back to it merges no properties twice.
-  const body = makeSchemaTypeString(
-    schema,
-    aliases,
-    new Set([`#/components/schemas/${schemaName}`]),
-  )
-  aliases.bodies.set(name, body)
+  aliases.bodies.set(name, makeTypeOf(schema, aliases))
   return name
+}
+
+/**
+ * The type of a schema in the route map, from the writer the Zod output is typed with
+ * (#608): a `$ref` is the name of its alias, and an optional property may be `undefined`,
+ * as it is in what Hono's `JSONParsed` makes of a response.
+ */
+function makeTypeOf(schema: Schema, aliases: Aliases) {
+  return makeSchemaTypeString(schema, {
+    ref: (ref) => makeRefTypeString(ref, aliases),
+    readonly: false,
+    optionalUndefined: true,
+  })
 }
 
 function makeHonoSchemaType(openAPI: OpenAPI, aliases: Aliases) {
@@ -178,10 +183,13 @@ function makeInputType(
   const operationLevelResolved = (operation.parameters ?? [])
     .map((p) => makeResolvedParameter(p, components))
     .filter((p): p is Parameter => p !== undefined)
-  const operationParamNames = new Set(operationLevelResolved.map((p) => p.name))
+  // A parameter is its name and its location (OpenAPI §4.8.10.1): an operation's header
+  // `id` does not replace the path's path `id`.
   const resolvedParams = [
     ...operationLevelResolved,
-    ...pathLevelResolved.filter((p) => !operationParamNames.has(p.name)),
+    ...pathLevelResolved.filter(
+      (p) => !operationLevelResolved.some((own) => own.name === p.name && own.in === p.in),
+    ),
   ]
   const pathParams = makePathParams(openApiPath)
   const paramPart =
@@ -217,14 +225,14 @@ function makePathParams(openApiPath: string): readonly string[] {
 function makeParamPart(params: readonly Parameter[], aliases: Aliases) {
   const props = params.map((p) => {
     const safeKey = makeSafeKey(p.name)
-    return `${safeKey}:${makeSchemaTypeString(makeParameterSchema(p), aliases, new Set())}`
+    return `${safeKey}:${makeTypeOf(makeParameterSchema(p), aliases)}`
   })
   return props.length > 0 ? `{param:{${props.join(';')}}}` : undefined
 }
 
 function makeQueryPart(params: readonly Parameter[], aliases: Aliases) {
   const props = params.map((p) => {
-    const typeStr = makeSchemaTypeString(makeParameterSchema(p), aliases, new Set())
+    const typeStr = makeTypeOf(makeParameterSchema(p), aliases)
     const safeKey = makeSafeKey(p.name)
     return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}|undefined`
   })
@@ -233,7 +241,7 @@ function makeQueryPart(params: readonly Parameter[], aliases: Aliases) {
 
 function makeHeaderPart(params: readonly Parameter[], aliases: Aliases) {
   const props = params.map((p) => {
-    const typeStr = makeSchemaTypeString(makeParameterSchema(p), aliases, new Set())
+    const typeStr = makeTypeOf(makeParameterSchema(p), aliases)
     const safeKey = makeSafeKey(p.name)
     return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}|undefined`
   })
@@ -242,7 +250,7 @@ function makeHeaderPart(params: readonly Parameter[], aliases: Aliases) {
 
 function makeCookiePart(params: readonly Parameter[], aliases: Aliases) {
   const props = params.map((p) => {
-    const typeStr = makeSchemaTypeString(makeParameterSchema(p), aliases, new Set())
+    const typeStr = makeTypeOf(makeParameterSchema(p), aliases)
     const safeKey = makeSafeKey(p.name)
     return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}|undefined`
   })
@@ -257,23 +265,20 @@ function makeBodyParts(requestBody: Operation['requestBody'], aliases: Aliases):
   const mediaEntries = Object.entries(resolved.content).filter(
     (entry): entry is [string, { schema: Schema }] => isMediaWithSchema(entry[1]),
   )
+  // A body that is neither JSON nor a form (`text/plain`, `application/xml`) is not
+  // validated by @hono/zod-openapi, and is no part of the route's input.
   const jsonTypes = [
     ...new Set(
       mediaEntries
-        .filter(
-          ([mediaType]) =>
-            mediaType.includes('json') ||
-            mediaType.startsWith('application/') ||
-            mediaType.startsWith('text/'),
-        )
-        .map(([, media]) => makeSchemaTypeString(media.schema, aliases, new Set())),
+        .filter(([mediaType]) => isJsonMediaType(mediaType))
+        .map(([, media]) => makeTypeOf(media.schema, aliases)),
     ),
   ]
   const formTypes = [
     ...new Set(
       mediaEntries
-        .filter(([mediaType]) => mediaType.includes('form'))
-        .map(([, media]) => makeSchemaTypeString(media.schema, aliases, new Set())),
+        .filter(([mediaType]) => isFormMediaType(mediaType))
+        .map(([, media]) => makeTypeOf(media.schema, aliases)),
     ),
   ]
   const classified = { jsonTypes, formTypes }
@@ -308,15 +313,11 @@ function makeOutputTypes(
       return [`{input:${inputType};output:{};outputFormat:string;status:${status}}`]
     }
     return mediaEntries.map(([mediaType, media]) => {
-      const outputType = makeSchemaTypeString(media.schema, aliases, new Set())
+      const outputType = makeTypeOf(media.schema, aliases)
       const outputFormat = isJsonMediaType(mediaType) ? "'json'" : "'text'"
       return `{input:${inputType};output:${outputType};outputFormat:${outputFormat};status:${status}}`
     })
   })
-}
-
-function isJsonMediaType(mediaType: string) {
-  return mediaType === JSON_MEDIA_TYPE || mediaType.endsWith('+json')
 }
 
 function makeResolvedParameter(parameter: unknown, components: Components | undefined) {
@@ -354,14 +355,6 @@ function makeResolvedResponse(response: Responses, components: Components | unde
   return response
 }
 
-function makeResolvedSchema(schema: Schema, components: Components | undefined) {
-  if (schema.$ref && components) {
-    const refName = schema.$ref.split('/').at(-1)
-    return refName && components.schemas?.[refName] ? components.schemas[refName] : schema
-  }
-  return schema
-}
-
 function makeParameterSchema(parameter: Parameter) {
   if (parameter.content) {
     const firstKey = Object.keys(parameter.content)[0]
@@ -370,99 +363,6 @@ function makeParameterSchema(parameter: Parameter) {
     }
   }
   return parameter.schema ?? {}
-}
-
-function makeSchemaTypeString(schema: Schema, aliases: Aliases, visited: Set<string>): string {
-  if (!isPresent(schema)) return 'unknown'
-  if (schema.$ref) return makeRefTypeString(schema.$ref, aliases)
-  if (schema.oneOf && schema.oneOf.length > 0) {
-    return schema.oneOf.map((s) => makeSchemaTypeString(s, aliases, visited)).join('|')
-  }
-  if (schema.anyOf && schema.anyOf.length > 0) {
-    return schema.anyOf.map((s) => makeSchemaTypeString(s, aliases, visited)).join('|')
-  }
-  if (schema.allOf && schema.allOf.length > 0) {
-    return makeAllOfTypeString(schema.allOf, aliases, visited)
-  }
-  // An int64 is a bigint in the generated schema, and so are the literals of its enum.
-  const isBigintLiteral = (value: unknown): value is number =>
-    typeof value === 'number' &&
-    Number.isInteger(value) &&
-    (Array.isArray(schema.type) ? schema.type.includes('integer') : schema.type === 'integer') &&
-    (schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint')
-  if (schema.enum && schema.enum.length > 0) {
-    return schema.enum
-      .map((v) =>
-        typeof v === 'string'
-          ? `'${v.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`
-          : isBigintLiteral(v)
-            ? `${v}n`
-            : typeof v === 'object' && v !== null
-              ? JSON.stringify(v)
-              : String(v),
-      )
-      .join('|')
-  }
-  if (schema.const !== undefined) {
-    if (typeof schema.const === 'string') {
-      return `'${schema.const.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`
-    }
-    if (isBigintLiteral(schema.const)) return `${schema.const}n`
-    if (typeof schema.const === 'number' || typeof schema.const === 'boolean') {
-      return String(schema.const)
-    }
-    return JSON.stringify(schema.const)
-  }
-  const types = makeNormalizedTypes(schema)
-  const isNullable = schema.nullable === true || types.includes('null')
-  const nonNullTypes = types.filter((typeName) => typeName !== 'null')
-  const baseType = makeBaseTypeString(schema, nonNullTypes, aliases, visited)
-  return isNullable ? `(${baseType}|null)` : baseType
-}
-
-function makeNormalizedTypes(schema: Schema): readonly string[] {
-  return schema.type === undefined
-    ? ['object']
-    : Array.isArray(schema.type)
-      ? schema.type
-      : [schema.type]
-}
-
-function makeBaseTypeString(
-  schema: Schema,
-  types: readonly string[],
-  aliases: Aliases,
-  visited: Set<string>,
-) {
-  return types.length > 1
-    ? types.map((typeName) => makeSingleTypeString(schema, typeName, aliases, visited)).join('|')
-    : makeSingleTypeString(schema, types[0] ?? 'object', aliases, visited)
-}
-
-const PRIMITIVE_TYPE_MAP: { readonly [k: string]: string } = {
-  boolean: 'boolean',
-  null: 'null',
-}
-
-function makeSingleTypeString(
-  schema: Schema,
-  // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
-  type: string,
-  aliases: Aliases,
-  visited: Set<string>,
-) {
-  if (type === 'string') return isBinaryFile(schema) ? 'File' : 'string'
-  if (type === 'number') return 'number'
-  // `z.int64()` / `z.uint64()` / `z.bigint()` output a bigint; `type: number` with the same
-  // format is `z.number()` (#412).
-  if (type === 'integer') {
-    const isBigintFormat =
-      schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint'
-    return isBigintFormat ? 'bigint' : 'number'
-  }
-  if (type === 'array') return makeArrayTypeString(schema, aliases, visited)
-  if (type === 'object') return makeObjectTypeString(schema, aliases, visited)
-  return PRIMITIVE_TYPE_MAP[type] ?? 'unknown'
 }
 
 /**
@@ -481,99 +381,4 @@ function makeRefTypeString(ref: string, aliases: Aliases) {
     return schema ? aliasOf(refName, schema, aliases) : 'unknown'
   }
   return 'unknown'
-}
-
-function makeAllOfTypeString(allOf: readonly Schema[], aliases: Aliases, visited: Set<string>) {
-  const mergedProps = allOf.reduce((acc, subSchema) => {
-    const newProps = makePropertyMap(subSchema, aliases, visited)
-    const result = new Map(acc)
-    for (const [key, value] of newProps) {
-      const existing = result.get(key)
-      // Preserve required: true from either source (allOf merges required arrays)
-      result.set(key, {
-        type: value.type,
-        required: value.required || (existing?.required ?? false),
-      })
-    }
-    return result
-  }, new Map<string, { type: string; required: boolean }>())
-  if (mergedProps.size === 0) return '{}'
-  // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
-  const propertyStrings = [...mergedProps.entries()].map(([key, { type, required }]) => {
-    const safeKey = makeSafeKey(key)
-    return required ? `${safeKey}:${type}` : `${safeKey}?:${type}|undefined`
-  })
-  return `{${propertyStrings.join(';')}}`
-}
-
-function makePropertyMap(
-  schema: Schema,
-  aliases: Aliases,
-  visited: Set<string>,
-): ReadonlyMap<string, { readonly type: string; readonly required: boolean }> {
-  // Break cycles: when allOf members reference back to an ancestor schema (e.g.
-  // A.allOf -> B, B.allOf -> A), we'd otherwise recurse forever and overflow.
-  if (schema.$ref && visited.has(schema.$ref)) {
-    return new Map()
-  }
-  const nextVisited = schema.$ref ? new Set([...visited, schema.$ref]) : visited
-  const resolved = makeResolvedSchema(schema, aliases.components)
-  const fromAllOf = new Map<string, { type: string; required: boolean }>(
-    resolved.allOf && resolved.allOf.length > 0
-      ? resolved.allOf.flatMap((subSchema) => [
-          ...makePropertyMap(subSchema, aliases, nextVisited).entries(),
-        ])
-      : [],
-  )
-
-  if (!resolved.properties) return fromAllOf
-
-  const requiredSet = new Set(Array.isArray(resolved.required) ? resolved.required : [])
-  const currentProps = new Map(
-    Object.entries(resolved.properties).map(([key, propSchema]) => {
-      const propType = makeSchemaTypeString(propSchema, aliases, nextVisited)
-      const existing = fromAllOf.get(key)
-      const isRequired = requiredSet.has(key) || (existing?.required ?? false)
-      return [key, { type: propType, required: isRequired }] as const
-    }),
-  )
-  return new Map([...fromAllOf, ...currentProps])
-}
-
-function makeArrayTypeString(schema: Schema, aliases: Aliases, visited: Set<string>) {
-  // Boolean `items` (JSON Schema 2020-12 §10.3.1.2) are `unknown[]` either way: `true`
-  // constrains nothing, and `false` is emitted as `z.array(z.any()).length(0)`, which infers
-  // an array and would not fit an empty tuple.
-  if (!isPresent(schema.items) || schema.items === true) return 'unknown[]'
-  const items = schema.items
-  if (isSchemaArray(items)) {
-    return items.length > 1
-      ? `[${items.map((item) => makeSchemaTypeString(item, aliases, visited)).join(',')}]`
-      : items[0]
-        ? makeWrappedArrayType(makeSchemaTypeString(items[0], aliases, visited))
-        : 'unknown[]'
-  }
-  return makeWrappedArrayType(makeSchemaTypeString(items, aliases, visited))
-}
-
-function makeWrappedArrayType(typeStr: string) {
-  return typeStr.includes('|') ? `(${typeStr})[]` : `${typeStr}[]`
-}
-
-function makeObjectTypeString(schema: Schema, aliases: Aliases, visited: Set<string>) {
-  const { properties, additionalProperties, required } = schema
-  if (!properties || Object.keys(properties).length === 0) {
-    if (additionalProperties === false) return '{}'
-    if (typeof additionalProperties === 'object') {
-      return `{[x:string]:${makeSchemaTypeString(additionalProperties, aliases, visited)}}`
-    }
-    return '{[x:string]:unknown}'
-  }
-  const requiredSet = new Set(Array.isArray(required) ? required : [])
-  const propertyStrings = Object.entries(properties).map(([key, propSchema]) => {
-    const propType = makeSchemaTypeString(propSchema, aliases, visited)
-    const safeKey = makeSafeKey(key)
-    return requiredSet.has(key) ? `${safeKey}:${propType}` : `${safeKey}?:${propType}|undefined`
-  })
-  return `{${propertyStrings.join(';')}}`
 }

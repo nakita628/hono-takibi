@@ -4,17 +4,55 @@ import {
   isPresent,
   isSchemaArray,
   isUntypedObject,
-  isValidIdent,
 } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
-import { decodePercent, makeStringLiteral, toIdentifierPascalCase } from '../utils/index.js'
+import {
+  decodePercent,
+  makeSafeKey,
+  makeStringLiteral,
+  toIdentifierPascalCase,
+} from '../utils/index.js'
 
+/**
+ * What differs between the places a schema is written as a TypeScript type: the rest of
+ * the writer is the same for all of them, so that they cannot disagree (#608).
+ */
+export type TypeWriter = {
+  /** How a `$ref` is written: the name of an alias, or `z.infer<typeof XSchema>`. */
+  readonly ref: (ref: string) => string
+  /** `readonly` on every property, index signature, array and tuple. */
+  readonly readonly: boolean
+  /**
+   * `| undefined` on an optional property. Hono's `JSONParsed` adds it to what a route
+   * outputs; `z.infer` of an `.exactOptional()` property does not have it.
+   */
+  readonly optionalUndefined: boolean
+}
+
+/**
+ * The type of a schema beside the Zod schema written for it: a `$ref` is what the schema
+ * constant of its component infers, or the type being declared when it names itself.
+ */
 export function makeTypeString(
   schema: Schema,
   selfTypeName: string,
-  cyclicGroup?: ReadonlySet<string>,
+  _cyclicGroup?: ReadonlySet<string>,
   readonly?: boolean,
 ) {
+  return makeSchemaTypeString(schema, {
+    ref: (ref) => {
+      const refName = toIdentifierPascalCase(decodePercent(ref.split('/').at(-1) ?? ''))
+      return refName === selfTypeName ? `${refName}Type` : `z.infer<typeof ${refName}Schema>`
+    },
+    readonly: readonly === true,
+    optionalUndefined: false,
+  })
+}
+
+/**
+ * The TypeScript type of what the Zod schema written for `schema` outputs.
+ */
+export function makeSchemaTypeString(schema: Schema, writer: TypeWriter): string {
   if (!isPresent(schema)) return 'unknown'
   // `{}` and `true` constrain nothing: the value is `unknown`, not an object (#379).
   if (Object.keys(schema).length === 0) return 'unknown'
@@ -29,26 +67,20 @@ export function makeTypeString(
     (schema.enum?.includes(null) ?? false) ||
     (intersectedMembers(schema)?.some(isNullMember) ?? false)
   const nonNullTypes = types.filter((typeName) => typeName !== 'null')
-  const baseType = makeNonNullTypeString(schema, nonNullTypes, selfTypeName, cyclicGroup, readonly)
+  const baseType = makeNonNullTypeString(schema, nonNullTypes, writer)
   if (!isNullable || baseType === 'null') return baseType
   return `(${baseType}|null)`
 }
 
-function makeNonNullTypeString(
-  schema: Schema,
-  types: readonly string[],
-  selfTypeName: string,
-  cyclicGroup?: ReadonlySet<string>,
-  readonly?: boolean,
-) {
+function makeNonNullTypeString(schema: Schema, types: readonly string[], writer: TypeWriter) {
   if (schema.$ref) {
-    return makeRefTypeString(schema.$ref, selfTypeName)
+    return writer.ref(schema.$ref)
   }
   if (schema.oneOf && schema.oneOf.length > 0) {
-    return makeUnionTypeString(schema.oneOf, selfTypeName, cyclicGroup, '|', readonly)
+    return makeUnionTypeString(schema.oneOf, '|', writer)
   }
   if (schema.anyOf && schema.anyOf.length > 0) {
-    return makeUnionTypeString(schema.anyOf, selfTypeName, cyclicGroup, '|', readonly)
+    return makeUnionTypeString(schema.anyOf, '|', writer)
   }
   const members = intersectedMembers(schema)
   if (members !== undefined) {
@@ -57,12 +89,16 @@ function makeNonNullTypeString(
     // `X & null` is `never`. `makeTypeString` has already read the `null` off it (#527).
     return makeUnionTypeString(
       members.filter((member) => !(isNullMember(member) || isAnnotationOnly(member))),
-      selfTypeName,
-      cyclicGroup,
       '&',
-      readonly,
+      writer,
     )
   }
+  // An int64 is a bigint in the generated schema, and so are the literals of its enum.
+  const isBigintLiteral = (value: unknown): value is number =>
+    typeof value === 'number' &&
+    Number.isInteger(value) &&
+    (Array.isArray(schema.type) ? schema.type.includes('integer') : schema.type === 'integer') &&
+    isBigintFormat(schema)
   if (schema.enum && schema.enum.length > 0) {
     const values = schema.enum.filter((v) => v !== null)
     if (values.length === 0) return 'null'
@@ -70,9 +106,11 @@ function makeNonNullTypeString(
       .map((v) =>
         typeof v === 'string'
           ? makeStringLiteral(v)
-          : typeof v === 'object'
-            ? JSON.stringify(v)
-            : String(v),
+          : isBigintLiteral(v)
+            ? `${v}n`
+            : typeof v === 'object'
+              ? JSON.stringify(v)
+              : String(v),
       )
       .join('|')
   }
@@ -80,12 +118,13 @@ function makeNonNullTypeString(
     if (typeof schema.const === 'string') {
       return makeStringLiteral(schema.const)
     }
+    if (isBigintLiteral(schema.const)) return `${schema.const}n`
     if (typeof schema.const === 'number' || typeof schema.const === 'boolean') {
       return String(schema.const)
     }
     return JSON.stringify(schema.const)
   }
-  return makeBaseTypeString(schema, types, selfTypeName, cyclicGroup, readonly)
+  return makeBaseTypeString(schema, types, writer)
 }
 
 // The members of the `allOf` this schema is typed by: none when a `$ref`, a `oneOf` or an
@@ -104,25 +143,12 @@ function isNullMember(member: Schema) {
   return member.type === 'null' || (member.nullable === true && isAnnotationOnly(member))
 }
 
-function makeRefTypeString(ref: string, selfTypeName: string) {
-  const rawRef = ref.split('/').at(-1) ?? ''
-  const refName = toIdentifierPascalCase(decodePercent(rawRef))
-  if (refName === selfTypeName) {
-    return `${refName}Type`
-  }
-  return `z.infer<typeof ${refName}Schema>`
-}
-
 function makeUnionTypeString(
   schemas: readonly Schema[],
-  selfTypeName: string,
-  cyclicGroup: ReadonlySet<string> | undefined,
   separator: '|' | '&',
-  readonly?: boolean,
+  writer: TypeWriter,
 ): string {
-  const types = schemas
-    .filter(Boolean)
-    .map((s) => makeTypeString(s, selfTypeName, cyclicGroup, readonly))
+  const types = schemas.filter(Boolean).map((s) => makeSchemaTypeString(s, writer))
   const [only] = types
   return only === undefined ? 'unknown' : types.length === 1 ? only : `(${types.join(separator)})`
 }
@@ -134,41 +160,25 @@ function normalizeType(schema: Schema): readonly string[] {
   return Array.isArray(schema.type) ? schema.type : [schema.type]
 }
 
-function makeBaseTypeString(
-  schema: Schema,
-  types: readonly string[],
-  selfTypeName: string,
-  cyclicGroup?: ReadonlySet<string>,
-  readonly?: boolean,
-) {
+function makeBaseTypeString(schema: Schema, types: readonly string[], writer: TypeWriter) {
   if (types.length > 1) {
-    return types
-      .map((typeName) =>
-        makeSingleTypeString(schema, typeName, selfTypeName, cyclicGroup, readonly),
-      )
-      .join('|')
+    return types.map((typeName) => makeSingleTypeString(schema, typeName, writer)).join('|')
   }
   const [type] = types
   // No type but `null`: what `z.null()` outputs. No type at all: anything.
   if (type === undefined) return schema.type === 'null' ? 'null' : 'unknown'
-  return makeSingleTypeString(schema, type, selfTypeName, cyclicGroup, readonly)
+  return makeSingleTypeString(schema, type, writer)
 }
 
-function makeSingleTypeString(
-  schema: Schema,
-  type: string,
-  selfTypeName: string,
-  cyclicGroup?: ReadonlySet<string>,
-  readonly?: boolean,
-) {
+function makeSingleTypeString(schema: Schema, type: string, writer: TypeWriter) {
   // `z.file()` outputs a File (#413).
   if (type === 'string') return isBinaryFile(schema) ? 'File' : 'string'
   if (type === 'number') return 'number'
   if (type === 'integer') return isBigintFormat(schema) ? 'bigint' : 'number'
   if (type === 'boolean') return 'boolean'
   if (type === 'null') return 'null'
-  if (type === 'array') return makeArrayTypeString(schema, selfTypeName, cyclicGroup, readonly)
-  if (type === 'object') return makeObjectTypeString(schema, selfTypeName, cyclicGroup, readonly)
+  if (type === 'array') return makeArrayTypeString(schema, writer)
+  if (type === 'object') return makeObjectTypeString(schema, writer)
   return 'unknown'
 }
 
@@ -184,13 +194,8 @@ function wrapForArrayElement(type: string) {
     : type
 }
 
-function makeArrayTypeString(
-  schema: Schema,
-  selfTypeName: string,
-  cyclicGroup?: ReadonlySet<string>,
-  readonly?: boolean,
-): string {
-  const prefix = readonly ? 'readonly ' : ''
+function makeArrayTypeString(schema: Schema, writer: TypeWriter): string {
+  const prefix = writer.readonly ? 'readonly ' : ''
   // Boolean `items` (JSON Schema 2020-12 §10.3.1.2) are `unknown[]` either way: `true`
   // constrains nothing, and `false` is emitted as `z.array(z.any()).length(0)`, which infers
   // an array and would not fit an empty tuple.
@@ -201,44 +206,39 @@ function makeArrayTypeString(
     if (items.length > 1) {
       const tupleTypes = items
         .filter(Boolean)
-        .map((item) => makeTypeString(item, selfTypeName, cyclicGroup, readonly))
+        .map((item) => makeSchemaTypeString(item, writer))
         .join(',')
-      return readonly ? `readonly [${tupleTypes}]` : `[${tupleTypes}]`
+      return `${prefix}[${tupleTypes}]`
     }
     if (firstItem !== undefined) {
-      const innerType = makeTypeString(firstItem, selfTypeName, cyclicGroup, readonly)
+      const innerType = makeSchemaTypeString(firstItem, writer)
       return `${prefix}${wrapForArrayElement(innerType)}[]`
     }
     return `${prefix}unknown[]`
   }
-  const innerType = makeTypeString(items, selfTypeName, cyclicGroup, readonly)
+  const innerType = makeSchemaTypeString(items, writer)
   return `${prefix}${wrapForArrayElement(innerType)}[]`
 }
 
-function makeObjectTypeString(
-  schema: Schema,
-  selfTypeName: string,
-  cyclicGroup?: ReadonlySet<string>,
-  readonly?: boolean,
-): string {
+function makeObjectTypeString(schema: Schema, writer: TypeWriter): string {
   const { properties, additionalProperties, required } = schema
-  const readonlyPrefix = readonly ? 'readonly ' : ''
+  const readonlyPrefix = writer.readonly ? 'readonly ' : ''
   if (!properties || Object.keys(properties).length === 0) {
-    if (additionalProperties === true) {
-      return `{${readonlyPrefix}[key:string]:unknown}`
-    }
+    // `z.strictObject({})` has no key at all.
+    if (additionalProperties === false) return '{}'
     if (typeof additionalProperties === 'object') {
-      const valueType = makeTypeString(additionalProperties, selfTypeName, cyclicGroup, readonly)
+      const valueType = makeSchemaTypeString(additionalProperties, writer)
       return `{${readonlyPrefix}[key:string]:${valueType}}`
     }
     return `{${readonlyPrefix}[key:string]:unknown}`
   }
   const requiredSet = new Set(Array.isArray(required) ? required : [])
+  const optional = writer.optionalUndefined ? '|undefined' : ''
   const propertyStrings = Object.entries(properties).map(([key, propSchema]) => {
-    const propType = makeTypeString(propSchema, selfTypeName, cyclicGroup, readonly)
-    const isRequired = requiredSet.has(key)
-    const safeKey = isValidIdent(key) ? key : makeStringLiteral(key)
-    return `${readonlyPrefix}${safeKey}${isRequired ? '' : '?'}:${propType}`
+    const propType = makeSchemaTypeString(propSchema, writer)
+    return requiredSet.has(key)
+      ? `${readonlyPrefix}${makeSafeKey(key)}:${propType}`
+      : `${readonlyPrefix}${makeSafeKey(key)}?:${propType}${optional}`
   })
   return `{${propertyStrings.join(';')}}`
 }
