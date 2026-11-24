@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.12](https://github.com/nakita628/hono-takibi/compare/v0.35.11...v0.35.12) (2026-11-24)
+
+
+### Bug Fixes
+
+* **zod:** keep the keywords beside a combinator, call arrow-function messages, compare objects by value ([#643](https://github.com/nakita628/hono-takibi/issues/643)) ([c2fbdc0](https://github.com/nakita628/hono-takibi/commit/c2fbdc03a0d3673276dba81adbb711241e152c2d))
+
 ## [0.35.11](https://github.com/nakita628/hono-takibi/compare/v0.35.10...v0.35.11) (2026-11-24)
 
 
