@@ -81,6 +81,9 @@ function collectRefs(schema: Schema, refs = new Set<string>()) {
       collectRefs(s, refs)
     }
   }
+  // What `schemaToFaker` draws a value from besides the above (#606).
+  if (schema.contains) collectRefs(schema.contains, refs)
+  if (schema.contentSchema) collectRefs(schema.contentSchema, refs)
   return refs
 }
 

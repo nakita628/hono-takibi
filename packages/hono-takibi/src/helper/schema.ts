@@ -6,6 +6,7 @@ import {
   toIdentifierPascalCase,
   uncapitalize,
 } from '../utils/index.js'
+import { identifierNames, parseModule } from './syntax.js'
 
 export function makeSchemaInfo(
   schemaName: string,
@@ -19,15 +20,16 @@ export function makeSchemaInfo(
     readonly deepSchemas: ReadonlySet<string>
     readonly discriminatedBranches: ReadonlySet<string>
     readonly varNameToName: ReadonlyMap<string, string>
+    readonly selfReferencing: ReadonlySet<string>
   },
 ) {
   const zSchema = analysis.zSchemaMap.get(schemaName) ?? ''
   const safeSchemaName = toIdentifierPascalCase(schemaName)
   const variableName = toIdentifierPascalCase(ensureSuffix(schemaName, 'Schema'))
   const isCircular = analysis.cyclicSchemas.has(schemaName)
-  // The identifier as a whole: `ConnectionSchema` is not referenced by `SampleConnectionSchema`.
-  const isSelfReferencing = new RegExp(String.raw`\b${variableName}\b`, 'u').test(zSchema)
-  const needsLazy = isCircular || isSelfReferencing
+  // An identifier of the emitted code, as the parser read it: the name inside a description
+  // is not a reference (#605).
+  const needsLazy = isCircular || analysis.selfReferencing.has(schemaName)
   // A deeply nested component is typed by name too, so that what refers to it stays cheap to
   // infer (#407).
   const needsTypeDef =
@@ -58,6 +60,7 @@ export function makeSchemaInfos(
     readonly deepSchemas: ReadonlySet<string>
     readonly discriminatedBranches: ReadonlySet<string>
     readonly varNameToName: ReadonlyMap<string, string>
+    readonly selfReferencing: ReadonlySet<string>
   },
 ) {
   return schemaNames.map((name) => makeSchemaInfo(name, schemas[name] ?? {}, analysis))
@@ -148,16 +151,6 @@ export function makeTypeDefinitions(
   return [...initialTypeDefs, ...additionalTypeDefs] as const
 }
 
-export function findSchemaRefs(code: string, selfName: string) {
-  const re = /\b([A-Za-z_$][A-Za-z0-9_$]*)Schema\b/gu
-  const found = new Set<string>()
-  for (const m of code.matchAll(re)) {
-    const base = m[1] ?? ''
-    if (base && base !== selfName) found.add(base)
-  }
-  return [...found] as const
-}
-
 export function makeSplitSchemaFile(
   schemaName: string,
   schema: Schema,
@@ -171,6 +164,7 @@ export function makeSplitSchemaFile(
     readonly deepSchemas: ReadonlySet<string>
     readonly discriminatedBranches: ReadonlySet<string>
     readonly varNameToName: ReadonlyMap<string, string>
+    readonly selfReferencing: ReadonlySet<string>
   },
   exportType: boolean,
   readonly?: boolean,
@@ -185,15 +179,16 @@ export function makeSplitSchemaFile(
     ...(readonly !== undefined ? { readonly } : {}),
   })
   const content = `${typeDefinition}${schemaCode}`
-  const deps = findSchemaRefs(content, schemaName).filter((dependency) => dependency in schemas)
-  const depImports =
-    deps.length > 0
-      ? deps
-          .map((dependency) =>
-            renderNamedImport([`${dependency}Schema`], `./${uncapitalize(dependency)}`),
-          )
-          .join('\n')
-      : ''
+  // The components the file names, read as identifiers and looked up by the name each was
+  // declared under: `UserProfileSchema` is the component `user-profile`, in `./user-profile`
+  // (#605).
+  const deps = [...new Set(identifierNames(parseModule(content)))].flatMap((identifier) => {
+    const dependency = analysis.varNameToName.get(identifier)
+    return dependency === undefined || dependency === schemaName
+      ? []
+      : [renderNamedImport([identifier], `./${uncapitalize(dependency)}`)]
+  })
+  const depImports = deps.join('\n')
   const importZ = renderNamedImport(['z'], '@hono/zod-openapi')
   return [importZ, depImports, '\n', content].filter(Boolean).join('\n')
 }

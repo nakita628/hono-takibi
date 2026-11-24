@@ -235,6 +235,7 @@ export const debug = { workerEnv, appEnv, BookService, ReviewService }
     expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf8')).toBe(
       `import { OpenAPIHono } from '@hono/zod-openapi'
 import { env as workerEnv } from 'cloudflare:workers'
+
 import { getBooksBookIdReviewsRouteHandler, getBooksRouteHandler } from '@/api/handlers'
 import { getBooksBookIdReviewsRoute, getBooksRoute } from '@/api/routes'
 import { env as appEnv } from '@/data/env'

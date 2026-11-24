@@ -1077,10 +1077,11 @@ export const getUsersIdRoute = defineOpenAPIRoute({
   addRoute: true,
 })
 `)
-      // App imports from the derived routes dir (mergeImports sorts the names on regeneration).
+      // App imports from the derived routes dir. An import the merge changes nothing of is
+      // left as the first generation wrote it (#610).
       expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf8'))
         .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
-import { getHealthRoute, getUsersIdRoute } from './routes'
+import { getUsersIdRoute, getHealthRoute } from './routes'
 
 const app = new OpenAPIHono()
 
@@ -2963,8 +2964,8 @@ export async function getUsersId(
     await generateAgain(openAPI, tmpDir, true)
     const read = await generateAgain(openAPI, tmpDir, false)
     expect(read('src/index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
-import { getHealthRoute, getUsersIdRoute } from './routes'
-import { getHealthRouteHandler, getUsersIdRouteHandler } from './handlers'
+import { getUsersIdRoute, getHealthRoute } from './routes'
+import { getUsersIdRouteHandler, getHealthRouteHandler } from './handlers'
 
 const app = new OpenAPIHono()
 
@@ -3007,8 +3008,8 @@ export async function getHealth(options?: ClientRequestOptions) {
     await generateAgain(openAPI, tmpDir, false)
     const read = await generateAgain(openAPI, tmpDir, true)
     expect(read('src/index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
-import { getHealthRoute, getUsersIdRoute } from './routes'
-import { getHealthRouteHandler, getUsersIdRouteHandler } from './handlers'
+import { getUsersIdRoute, getHealthRoute } from './routes'
+import { getUsersIdRouteHandler, getHealthRouteHandler } from './handlers'
 
 const app = new OpenAPIHono()
 

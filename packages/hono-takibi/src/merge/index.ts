@@ -295,20 +295,20 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string) {
 
   const body = applyRangeOps(existingCode, bodyStart, allOps).replaceAll(/\n{3,}/gu, '\n\n')
 
+  // A handler the file declares in another form, `export async function xRouteHandler`, is
+  // there already (#610).
+  const declared = collectDeclaredNames(existingFile)
   const newHandlerStatements = [...generatedHandlers.entries()]
-    .filter(([name]) => !existingHandlers.has(name))
+    .filter(([name]) => !existingHandlers.has(name) && !declared.has(name))
     .map(([, stmt]) => stmt.text)
 
-  const mergedImports = mergeImports(existingFile, generatedFile)
+  const mergedBody = `${body}\n${newHandlerStatements.join('\n')}`
+  const mergedImports = mergeImports(existingFile, generatedFile, mergedBody)
 
-  const supportStatements = missingSupportStatements(
-    existingFile,
-    generatedFile,
-    `${body}\n${newHandlerStatements.join('\n')}`,
-  )
+  const supportStatements = missingSupportStatements(existingFile, generatedFile, mergedBody)
 
   return joinSections([
-    mergedImports.join('\n'),
+    mergedImports,
     supportStatements.join('\n\n'),
     body.trim(),
     newHandlerStatements.join('\n\n'),
@@ -335,7 +335,9 @@ export function mergeDefineFile(existingCode: string, generatedCode: string) {
   const generatedRoutes = collectExportedConsts(generatedFile, 'Route')
   const bodyStart = getBodyStart(existingFile)
   const deleteOps = [...existingRoutes.entries()]
-    .filter(([name]) => !generatedRoutes.has(name))
+    // Only a route the generator wrote is its to remove: `export const legacyRoute = '/legacy'`
+    // is the user's, as a `*Handler` export of theirs is in a handler file (#610).
+    .filter(([name, stmt]) => !generatedRoutes.has(name) && isDefinedRoute(stmt))
     .map(([, stmt]): readonly [number, number, string] => [stmt.fullStart, stmt.end, ''])
     .filter(([start]) => start >= bodyStart)
     .toSorted(([a], [b]) => a - b)
@@ -345,8 +347,18 @@ export function mergeDefineFile(existingCode: string, generatedCode: string) {
     .map(([, stmt]) => stmt.text)
   // Define files import no codegen route symbols (routes are local exports), so user
   // imports named `*Route`/`*Handler` must never be dropped.
-  const mergedImports = mergeImports(existingFile, generatedFile, false)
-  return joinSections([mergedImports.join('\n'), body.trim(), newRouteStatements.join('\n\n')])
+  const mergedImports = mergeImports(existingFile, generatedFile, body, false)
+  return joinSections([mergedImports, body.trim(), newRouteStatements.join('\n\n')])
+}
+
+/** Whether a statement is `const xRoute = defineOpenAPIRoute(…)`, as the generator writes it. */
+function isDefinedRoute(stmt: VariableStatement) {
+  const init = stmt.declaration.declarations[0]?.init
+  return (
+    init?.type === 'CallExpression' &&
+    init.callee.type === 'Identifier' &&
+    init.callee.name === 'defineOpenAPIRoute'
+  )
 }
 
 /** The binding of the app entry a merge tells the generator's statements by. */
@@ -432,8 +444,8 @@ export function mergeAppFile(
     generatedOwnedText,
   })
   const body = existingBody.trim() || generatedCode.slice(getBodyStart(generatedFile)).trim()
-  const mergedImports = mergeImports(existingFile, generatedFile)
-  return joinSections([mergedImports.join('\n'), body])
+  const mergedImports = mergeImports(existingFile, generatedFile, body)
+  return joinSections([mergedImports, body])
 }
 
 /**
@@ -547,26 +559,77 @@ function isAutoName(name: string) {
 }
 
 /**
- * Merges import declarations from two source files.
+ * Merges import declarations from two source files, into the import block of the existing
+ * one: everything from the start of the file to its last import.
  *
  * For each module specifier, named imports are unioned with the following exception:
  * named imports ending in `Route` or `Handler` from the existing file are only kept
- * if they also appear in the generated file (to remove imports for deleted routes).
+ * if they also appear in the generated file (to remove imports for deleted routes), or if
+ * they are the user's own: from a module the generator imports no such name from, and still
+ * used in the merged body (#610).
  *
  * Type-only imports are preserved as type-only when they appear as type-only in both sources,
  * or when they only appear in one source as type-only.
+ *
+ * The block is edited where it stands (#610). An import the merge changes nothing of is
+ * left as it is written, and one it does change is written again in its place, with the
+ * attributes it had (`with { type: 'json' }`). What is between the imports and above them
+ * — comments, a licence header, a `'use client'` directive — is not touched. Imports of
+ * modules the file did not import are added after the last one.
  */
-function mergeImports(existingFile: Source, generatedFile: Source, dropStaleAutoNames = true) {
+function mergeImports(
+  existingFile: Source,
+  generatedFile: Source,
+  mergedBody: string,
+  dropStaleAutoNames = true,
+) {
   const existingImports = parseImportDeclarations(existingFile)
   const generatedImports = parseImportDeclarations(generatedFile)
   const generatedIndex = makeGeneratedImportIndex(generatedImports)
   const filteredExisting = filterExistingImports(
     existingImports,
     generatedIndex,
+    collectIdentifiers(mergedBody),
     dropStaleAutoNames,
   )
-  const importMap = mergeImportEntries([...filteredExisting, ...generatedImports])
-  return [...importMap.values()].flatMap((info) => formatImportLine(info.spelling, info))
+  const written = mergeImportEntries(existingImports)
+  const added: string[] = []
+  const ops: (readonly [number, number, string])[] = []
+  const head = existingFile.code.slice(0, getBodyStart(existingFile))
+  for (const [key, info] of mergeImportEntries([...filteredExisting, ...generatedImports])) {
+    const lines = formatImportLine(info.spelling, info)
+    const declarations = existingImports.filter(
+      (entry) => canonicalSpecifier(entry.moduleSpecifier) === key,
+    )
+    const [first, ...rest] = declarations
+    if (first === undefined) {
+      added.push(...lines)
+      continue
+    }
+    const before = written.get(key)
+    if (
+      before !== undefined &&
+      formatImportLine(before.spelling, before).join('\n') === lines.join('\n')
+    ) {
+      continue
+    }
+    const attributes = declarations.find((entry) => entry.attributes !== '')?.attributes ?? ''
+    // A declaration that is taken out goes with the line break after it.
+    const removed = (entry: { readonly start: number; readonly end: number }) =>
+      [entry.start, head[entry.end] === '\n' ? entry.end + 1 : entry.end, ''] as const
+    ops.push(
+      lines.length === 0
+        ? removed(first)
+        : [first.start, first.end, lines.map((line) => `${line}${attributes}`).join('\n')],
+      ...rest.map(removed),
+    )
+  }
+  const kept = applyRangeOps(
+    head,
+    0,
+    ops.toSorted(([a], [b]) => a - b),
+  )
+  return [kept.replaceAll(/\n{3,}/gu, '\n\n').trim(), ...added].filter(Boolean).join('\n')
 }
 
 function parseImportDeclarations(source: Source) {
@@ -593,6 +656,10 @@ function parseImportDeclarations(source: Source) {
         ]
       })
       return {
+        start: declaration.start,
+        end: declaration.end,
+        // What follows the specifier, as it is written: ` with { type: 'json' }`.
+        attributes: source.code.slice(declaration.source.end, declaration.end).replace(/;$/u, ''),
         moduleSpecifier: declaration.source.value,
         isTypeOnlyImport: declaration.importKind === 'type',
         defaultImport: defaultImport?.local.name,
@@ -627,12 +694,16 @@ function makeGeneratedImportIndex(
       }
     }
   }
-  return { autoNameModules, defaultImportModules }
+  // The modules the generator imports a route or a handler from.
+  const autoModules = new Set([...autoNameModules.values()].map(canonicalSpecifier))
+  return { autoNameModules, defaultImportModules, autoModules }
 }
 
 /**
  * Filters existing imports against the generated index:
- * - Removes auto-names not present in generated (route/handler deleted)
+ * - Removes auto-names not present in generated (route/handler deleted), unless the name is
+ *   the user's: its module is not one the generator imports routes or handlers from, and
+ *   the merged body still uses it (`import { errorHandler } from '../lib/errors'`, #610)
  * - Removes auto-names whose canonical module differs (path-alias changed)
  * - Clears default imports whose canonical module differs (default re-pathed)
  */
@@ -652,7 +723,10 @@ function filterExistingImports(
   index: {
     readonly autoNameModules: ReadonlyMap<string, string>
     readonly defaultImportModules: ReadonlyMap<string, string>
+    readonly autoModules: ReadonlySet<string>
   },
+  // The identifiers of the merged body.
+  used: ReadonlySet<string>,
   // When false, auto-named imports (`*Route`/`*Handler`) are never dropped. Used by
   // define mode, whose files import no codegen route symbols (routes are local exports),
   // so every `*Route`-named import there is the user's own and must be preserved.
@@ -669,7 +743,11 @@ function filterExistingImports(
       namedImports: entry.namedImports.filter((named) => {
         if (!isAutoName(named.name) || !dropStaleAutoNames) return true
         const canonical = index.autoNameModules.get(named.name)
-        return isSameModule(canonical, entry.moduleSpecifier)
+        if (canonical !== undefined) return isSameModule(canonical, entry.moduleSpecifier)
+        return (
+          !index.autoModules.has(canonicalSpecifier(entry.moduleSpecifier)) &&
+          used.has(named.alias ?? named.name)
+        )
       }),
     }
   })

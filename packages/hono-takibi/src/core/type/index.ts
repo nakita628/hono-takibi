@@ -1,6 +1,7 @@
 import path from 'node:path'
 
 import { Effect } from 'effect'
+import type { Node } from 'oxc-parser'
 
 import { emit } from '../../emit/index.js'
 import {
@@ -15,6 +16,8 @@ import {
   isRequestBody,
   isStringRef,
 } from '../../guard/index.js'
+import { makeParameterSchema as makeZodParameterSchema } from '../../helper/openapi.js'
+import { parseModule, textOf } from '../../helper/syntax.js'
 import { makeSchemaTypeString } from '../../helper/type.js'
 import type {
   Components,
@@ -72,6 +75,8 @@ const HONO_STATUS_CODES: ReadonlySet<number> = new Set([
 type Aliases = {
   readonly components: Components | undefined
   readonly names: Map<string, string>
+  /** The aliases of what a route takes in, which differ from what it hands out (#631). */
+  readonly inputNames: Map<string, string>
   readonly bodies: Map<string, string>
   readonly taken: Set<string>
 }
@@ -83,6 +88,7 @@ export function type(openAPI: OpenAPI, output: `${string}.ts`, readonly?: boolea
   const aliases: Aliases = {
     components: openAPI.components,
     names: new Map(),
+    inputNames: new Map(),
     bodies: new Map(),
     taken: new Set(RESERVED_TYPE_NAMES),
   }
@@ -102,10 +108,11 @@ export function type(openAPI: OpenAPI, output: `${string}.ts`, readonly?: boolea
  * yet. The name is claimed before the body is written, so that a schema reaching
  * itself finds its own name.
  */
-function aliasOf(schemaName: string, schema: Schema, aliases: Aliases) {
-  const known = aliases.names.get(schemaName)
+function aliasOf(schemaName: string, schema: Schema, aliases: Aliases, input: boolean) {
+  const names = input ? aliases.inputNames : aliases.names
+  const known = names.get(schemaName)
   if (known !== undefined) return known
-  const base = toIdentifierPascalCase(schemaName)
+  const base = `${toIdentifierPascalCase(schemaName)}${input ? 'Input' : ''}`
   const name = aliases.taken.has(base)
     ? (() => {
         let index = 2
@@ -114,8 +121,8 @@ function aliasOf(schemaName: string, schema: Schema, aliases: Aliases) {
       })()
     : base
   aliases.taken.add(name)
-  aliases.names.set(schemaName, name)
-  aliases.bodies.set(name, makeTypeOf(schema, aliases, schemaName))
+  names.set(schemaName, name)
+  aliases.bodies.set(name, makeTypeOf(schema, aliases, input, schemaName))
   return name
 }
 
@@ -161,8 +168,11 @@ function reachesDirectly(
  * The type of a schema in the route map, from the writer the Zod output is typed with
  * (#608): a `$ref` is the name of its alias, and an optional property may be `undefined`,
  * as it is in what Hono's `JSONParsed` makes of a response.
+ *
+ * What a route takes in (`input`) is what the schema reads, where an optional property is
+ * `.exactOptional()`: it may be left out, and is not `undefined` (#631).
  */
-function makeTypeOf(schema: Schema, aliases: Aliases, self?: string) {
+function makeTypeOf(schema: Schema, aliases: Aliases, input: boolean, self?: string) {
   const schemas = aliases.components?.schemas
   return makeSchemaTypeString(schema, {
     // A direct reference that leads back to the alias being written cannot be written as
@@ -174,10 +184,10 @@ function makeTypeOf(schema: Schema, aliases: Aliases, self?: string) {
       schemas !== undefined &&
       reachesDirectly(ref.split('/').at(-1) ?? '', self, schemas)
         ? 'unknown'
-        : makeRefTypeString(ref, aliases),
+        : makeRefTypeString(ref, aliases, input),
     schemas,
     readonly: false,
-    optionalUndefined: true,
+    optionalUndefined: !input,
   })
 }
 
@@ -274,34 +284,34 @@ function makePathParams(openApiPath: string): readonly string[] {
 function makeParamPart(params: readonly Parameter[], aliases: Aliases) {
   const props = params.map((p) => {
     const safeKey = makeSafeKey(p.name)
-    return `${safeKey}:${makeTypeOf(makeParameterSchema(p), aliases)}`
+    return `${safeKey}:${makeParameterType(p, aliases)}`
   })
   return props.length > 0 ? `{param:{${props.join(';')}}}` : undefined
 }
 
 function makeQueryPart(params: readonly Parameter[], aliases: Aliases) {
   const props = params.map((p) => {
-    const typeStr = makeTypeOf(makeParameterSchema(p), aliases)
+    const typeStr = makeParameterType(p, aliases)
     const safeKey = makeSafeKey(p.name)
-    return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}|undefined`
+    return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}`
   })
   return props.length > 0 ? `{query:{${props.join(';')}}}` : undefined
 }
 
 function makeHeaderPart(params: readonly Parameter[], aliases: Aliases) {
   const props = params.map((p) => {
-    const typeStr = makeTypeOf(makeParameterSchema(p), aliases)
+    const typeStr = makeParameterType(p, aliases)
     const safeKey = makeSafeKey(p.name)
-    return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}|undefined`
+    return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}`
   })
   return props.length > 0 ? `{header:{${props.join(';')}}}` : undefined
 }
 
 function makeCookiePart(params: readonly Parameter[], aliases: Aliases) {
   const props = params.map((p) => {
-    const typeStr = makeTypeOf(makeParameterSchema(p), aliases)
+    const typeStr = makeParameterType(p, aliases)
     const safeKey = makeSafeKey(p.name)
-    return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}|undefined`
+    return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}`
   })
   return props.length > 0 ? `{cookie:{${props.join(';')}}}` : undefined
 }
@@ -320,14 +330,14 @@ function makeBodyParts(requestBody: Operation['requestBody'], aliases: Aliases):
     ...new Set(
       mediaEntries
         .filter(([mediaType]) => isJsonMediaType(mediaType))
-        .map(([, media]) => makeTypeOf(media.schema, aliases)),
+        .map(([, media]) => makeTypeOf(media.schema, aliases, true)),
     ),
   ]
   const formTypes = [
     ...new Set(
       mediaEntries
         .filter(([mediaType]) => isFormMediaType(mediaType))
-        .map(([, media]) => makeTypeOf(media.schema, aliases)),
+        .map(([, media]) => makeTypeOf(media.schema, aliases, true)),
     ),
   ]
   const classified = { jsonTypes, formTypes }
@@ -373,7 +383,7 @@ function makeOutputTypes(
           : undefined
       return outputFormat === undefined
         ? `{input:${inputType};output:{};outputFormat:string;status:${status}}`
-        : `{input:${inputType};output:${makeTypeOf(media.schema, aliases)};outputFormat:${outputFormat};status:${status}}`
+        : `{input:${inputType};output:${makeTypeOf(media.schema, aliases, false)};outputFormat:${outputFormat};status:${status}}`
     })
     // Two media types that are not typed say the same of one status: once is enough.
     return outputs.filter((output, index) => outputs.indexOf(output) === index)
@@ -426,10 +436,42 @@ function makeParameterSchema(parameter: Parameter) {
 }
 
 /**
+ * What the schema written for a parameter takes in (#631). A parameter arrives as text,
+ * and the schema of one that is not a string reads the text first: `z.preprocess` and
+ * `z.coerce` take `unknown`, and `z.stringbool()` a string. Which one a parameter gets is
+ * read off the schema the routes are written with, so that the two cannot disagree.
+ */
+function makeParameterType(parameter: Parameter, aliases: Aliases) {
+  const source = `const schema=${makeZodParameterSchema(parameter, undefined, aliases.components?.schemas)}`
+  const [statement] = parseModule(source).body
+  const declared =
+    statement?.type === 'VariableDeclaration' ? statement.declarations[0]?.init : undefined
+  return (
+    readerInput(source, declared ?? undefined) ??
+    makeTypeOf(makeParameterSchema(parameter), aliases, true)
+  )
+}
+
+/**
+ * The input of the call a chain of methods starts from (`z.preprocess(…).exactOptional()`),
+ * when that call reads its value from text; `undefined` when it does not.
+ */
+function readerInput(source: string, expression: Node | undefined): string | undefined {
+  if (expression?.type !== 'CallExpression') return undefined
+  const { callee } = expression
+  // The readings of a parameter of several kinds, tried in turn: `((schema)=>z.union(…))(…)`.
+  if (callee.type !== 'MemberExpression') return 'unknown'
+  const called = textOf(source, callee)
+  if (called === 'z.preprocess' || called.startsWith('z.coerce.')) return 'unknown'
+  if (called === 'z.stringbool') return 'string'
+  return readerInput(source, callee.object)
+}
+
+/**
  * A `$ref` into `components.schemas` is the name of the alias that stands for the
  * schema; any other reference, or one to a schema that is not there, is `unknown`.
  */
-function makeRefTypeString(ref: string, aliases: Aliases) {
+function makeRefTypeString(ref: string, aliases: Aliases, input: boolean) {
   const { components } = aliases
   if (!components) return 'unknown'
   const parts = ref.split('/')
@@ -438,7 +480,7 @@ function makeRefTypeString(ref: string, aliases: Aliases) {
   if (!refName) return 'unknown'
   if (componentType === 'schemas' && components.schemas) {
     const schema = components.schemas[refName]
-    return schema ? aliasOf(refName, schema, aliases) : 'unknown'
+    return schema ? aliasOf(refName, schema, aliases, input) : 'unknown'
   }
   return 'unknown'
 }

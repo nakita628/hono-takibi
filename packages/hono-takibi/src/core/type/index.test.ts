@@ -45,7 +45,7 @@ describe('type', () => {
       expect(fs.existsSync(out)).toBe(true)
       const content = fs.readFileSync(out, 'utf8')
       expect(content).toBe(
-        "type Test = { test: string }\ndeclare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  { '/test': { $post: { input: { json: Test }; output: {}; outputFormat: string; status: 200 } } },\n  '/'\n>\nexport default routes\n",
+        "type TestInput = { test: string }\ndeclare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/test': {\n      $post: { input: { json: TestInput }; output: {}; outputFormat: string; status: 200 }\n    }\n  },\n  '/'\n>\nexport default routes\n",
       )
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -112,7 +112,7 @@ describe('type', () => {
         Effect.runPromise(Effect.provide(type(openapi, out), NodeFileSystem.layer)),
       ).resolves.toBe(`Generated type code written to ${out}`)
       expect(fs.readFileSync(out, 'utf8')).toBe(
-        "type Node = { value: string; children?: Node[] | undefined }\ntype File2 = { data: File }\ndeclare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  { '/tree': { $get: { input: {}; output: Node; outputFormat: 'json'; status: 200 } } } & {\n    '/upload': {\n      $post: { input: { form: File2 }; output: Node; outputFormat: 'json'; status: 200 }\n    }\n  },\n  '/'\n>\nexport default routes\n",
+        "type Node = { value: string; children?: Node[] | undefined }\ntype FileInput = { data: File }\ndeclare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  { '/tree': { $get: { input: {}; output: Node; outputFormat: 'json'; status: 200 } } } & {\n    '/upload': {\n      $post: { input: { form: FileInput }; output: Node; outputFormat: 'json'; status: 200 }\n    }\n  },\n  '/'\n>\nexport default routes\n",
       )
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -223,7 +223,7 @@ export default routes
       ).resolves.toBe(`Generated type code written to ${out}`)
       const content = fs.readFileSync(out, 'utf8')
       expect(content).toBe(
-        "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/search': {\n      $get: {\n        input: { query: { q: string; limit?: number | undefined } }\n        output: {}\n        outputFormat: string\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
+        "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/search': {\n      $get: {\n        input: { query: { q: string; limit?: unknown } }\n        output: {}\n        outputFormat: string\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
       )
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -254,7 +254,7 @@ export default routes
       ).resolves.toBe(`Generated type code written to ${out}`)
       const content = fs.readFileSync(out, 'utf8')
       expect(content).toBe(
-        "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/test': {\n      $get: {\n        input: { cookie: { session_id?: string | undefined; user_id: string } }\n        output: {}\n        outputFormat: string\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
+        "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/test': {\n      $get: {\n        input: { cookie: { session_id?: string; user_id: string } }\n        output: {}\n        outputFormat: string\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
       )
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -498,7 +498,7 @@ export default routes
         ).resolves.toBe(`Generated type code written to ${out}`)
         const content = fs.readFileSync(out, 'utf8')
         expect(content).toBe(
-          "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/users/:userId': {\n      $get: {\n        input: { param: { userId: string } } & { query: { page?: number | undefined } } & {\n          header: { 'X-Request-ID': string }\n        } & { cookie: { session?: string | undefined } }\n        output: { id: string; name: string }\n        outputFormat: 'json'\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
+          "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/users/:userId': {\n      $get: {\n        input: { param: { userId: string } } & { query: { page?: unknown } } & {\n          header: { 'X-Request-ID': string }\n        } & { cookie: { session?: string } }\n        output: { id: string; name: string }\n        outputFormat: 'json'\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
         )
       } finally {
         fs.rmSync(dir, { recursive: true, force: true })
@@ -578,7 +578,7 @@ export default routes
       ).resolves.toBe(`Generated type code written to ${out}`)
       const content = fs.readFileSync(out, 'utf8')
       expect(content).toBe(
-        "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/items': {\n      $get: {\n        input: { query: { limit?: number | undefined } }\n        output: {}\n        outputFormat: string\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
+        "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/items': {\n      $get: { input: { query: { limit?: unknown } }; output: {}; outputFormat: string; status: 200 }\n    }\n  },\n  '/'\n>\nexport default routes\n",
       )
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -620,7 +620,7 @@ export default routes
       ).resolves.toBe(`Generated type code written to ${out}`)
       const content = fs.readFileSync(out, 'utf8')
       expect(content).toBe(
-        "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/upload': {\n      $post: {\n        input: { form: { file?: File | undefined; name?: string | undefined } }\n        output: {}\n        outputFormat: string\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
+        "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/upload': {\n      $post: {\n        input: { form: { file?: File; name?: string } }\n        output: {}\n        outputFormat: string\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
       )
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -783,31 +783,31 @@ export default routes
     '/x': {
       $post:
         | {
-            input: { query: { id?: number | undefined } } & { json: { name?: string | undefined } }
+            input: { query: { id?: unknown } } & { json: { name?: string } }
             output: string
             outputFormat: 'text'
             status: 200
           }
         | {
-            input: { query: { id?: number | undefined } } & { json: { name?: string | undefined } }
+            input: { query: { id?: unknown } } & { json: { name?: string } }
             output: {}
             outputFormat: string
             status: 204
           }
         | {
-            input: { query: { id?: number | undefined } } & { json: { name?: string | undefined } }
+            input: { query: { id?: unknown } } & { json: { name?: string } }
             output: { err?: string | undefined }
             outputFormat: 'json'
             status: 500
           }
         | {
-            input: { query: { id?: number | undefined } } & { json: { name?: string | undefined } }
+            input: { query: { id?: unknown } } & { json: { name?: string } }
             output: { ok?: boolean | undefined }
             outputFormat: 'json'
             status: 200
           }
         | {
-            input: { query: { id?: number | undefined } } & { json: { name?: string | undefined } }
+            input: { query: { id?: unknown } } & { json: { name?: string } }
             output: { code?: number | undefined }
             outputFormat: 'json'
             status: 400
@@ -1168,7 +1168,7 @@ describe('type: the route map agrees with the routes it types (#608)', () => {
   {
     '/a': {
       $post: {
-        input: { form: { n?: string | undefined } }
+        input: { form: { n?: string } }
         output: { e?: ('x' | 'y' | null) | undefined; s?: string | undefined; u?: any | undefined }
         outputFormat: 'json'
         status: 200
@@ -1368,7 +1368,7 @@ export default routes
   {
     '/a/:id': {
       $get: {
-        input: { param: { id: string } } & { query: { q: number; id?: number | undefined } } & {
+        input: { param: { id: string } } & { query: { q: unknown; id?: unknown } } & {
           header: { id: string }
         }
         output: {}
@@ -1805,5 +1805,86 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
 >
 export default routes
 `)
+  })
+})
+
+describe('type: what a route takes in is what its schemas read (#631)', () => {
+  it('types a parameter read from text as its schema takes it, and leaves | undefined off an optional input', async () => {
+    const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
+    const output = nodePath.join(dir, 'type.ts')
+    const openapi = {
+      openapi: '3.0.3',
+      info: { title: 't', version: '1' },
+      paths: {
+        '/a/{pid}': {
+          post: {
+            parameters: [
+              { name: 'pid', in: 'path', required: true, schema: { type: 'integer' } },
+              { name: 'q', in: 'query', required: true, schema: { type: 'number' } },
+              { name: 'id', in: 'query', schema: { type: 'integer' } },
+              { name: 'flag', in: 'query', schema: { type: 'boolean' } },
+              { name: 'tags', in: 'query', schema: { type: 'array', items: { type: 'string' } } },
+              { name: 'name', in: 'query', schema: { $ref: '#/components/schemas/Name' } },
+              { name: 'x-n', in: 'header', schema: { type: 'integer' } },
+              { name: 'sid', in: 'cookie', schema: { type: 'string' } },
+            ],
+            requestBody: {
+              content: {
+                'application/x-www-form-urlencoded': {
+                  schema: { type: 'object', properties: { n: { type: 'string' } } },
+                },
+                'application/json': { schema: { $ref: '#/components/schemas/Patch' } },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'OK',
+                content: { 'application/json': { schema: { $ref: '#/components/schemas/Patch' } } },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Name: { type: 'string' },
+          Patch: {
+            type: 'object',
+            required: ['id'],
+            properties: { id: { type: 'string' }, note: { type: 'string' } },
+          },
+        },
+      },
+    } as const
+    try {
+      await Effect.runPromise(
+        Effect.provide(type(openapi as OpenAPI, `${dir}/type.ts`), NodeFileSystem.layer),
+      )
+      expect(fs.readFileSync(output, 'utf8')).toBe(`type NameInput = string
+type PatchInput = { id: string; note?: string }
+type Patch = { id: string; note?: string | undefined }
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  {
+    '/a/:pid': {
+      $post: {
+        input: { param: { pid: unknown } } & {
+          query: { q: unknown; id?: unknown; flag?: string; tags?: unknown; name?: NameInput }
+        } & { header: { 'x-n'?: unknown } } & { cookie: { sid?: string } } & {
+          json: PatchInput
+        } & { form: { n?: string } }
+        output: Patch
+        outputFormat: 'json'
+        status: 200
+      }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
   })
 })

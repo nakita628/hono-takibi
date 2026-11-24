@@ -215,4 +215,31 @@ describe('examples', () => {
       expect(lines[1]).toBe("export * from './zooExample'")
     })
   })
+
+  describe('$ref example (#607)', () => {
+    const aliased = {
+      Alias: { $ref: '#/components/examples/Real' },
+      Real: { value: { id: 1 } },
+    } as const
+
+    it('is the constant of its target in the single file', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
+      const output = path.join(tmpDir, 'examples.ts')
+      await Effect.runPromise(
+        Effect.provide(examples(aliased, output, false), NodeFileSystem.layer),
+      )
+      expect(fs.readFileSync(output, 'utf8')).toBe(
+        'export const RealExample = { value: { id: 1 } }\n\nexport const AliasExample = RealExample\n',
+      )
+    })
+
+    it('is the constant of its target in the split output', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
+      const output = path.join(tmpDir, 'examples')
+      await Effect.runPromise(Effect.provide(examples(aliased, output, true), NodeFileSystem.layer))
+      expect(fs.readFileSync(path.join(output, 'alias.ts'), 'utf8')).toBe(
+        "import { RealExample } from './real'\n\nexport const AliasExample = RealExample\n",
+      )
+    })
+  })
 })

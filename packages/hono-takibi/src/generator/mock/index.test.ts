@@ -3506,4 +3506,180 @@ export default app
 `)
     })
   })
+
+  describe('a factory against the schema it is typed with (#606)', () => {
+    const spec = {
+      openapi: '3.1.0',
+      info: { title: 't', version: '1' },
+      paths: {
+        '/implicit': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/Implicit' } },
+                },
+              },
+            },
+          },
+        },
+        '/derived': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/Derived' } },
+                },
+              },
+            },
+          },
+        },
+        '/bag': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/Bag' } },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Base: {
+            type: 'object',
+            properties: { baseId: { type: 'string' } },
+            required: ['baseId'],
+          },
+          Tag: { type: 'object', properties: { name: { type: 'string' } } },
+          Implicit: { properties: { id: { type: 'integer' } }, required: ['id'] },
+          Derived: {
+            type: 'object',
+            allOf: [{ $ref: '#/components/schemas/Base' }],
+            properties: { extra: { type: 'string' } },
+            required: ['extra'],
+          },
+          Bag: {
+            type: 'array',
+            items: { type: 'object' },
+            contains: { $ref: '#/components/schemas/Tag' },
+          },
+        },
+      },
+    } as OpenAPI
+
+    it('reads properties without type as an object, composes allOf beside properties and declares the factory under contains', async () => {
+      const result = await format(spec, '/')
+      expect(result)
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
+
+const BaseSchema = z
+  .object({ baseId: z.string() })
+  .openapi({ required: ['baseId'] })
+  .openapi('Base')
+
+const TagSchema = z
+  .object({ name: z.string().exactOptional() })
+  .openapi({ required: [] })
+  .openapi('Tag')
+
+const ImplicitSchema = z
+  .object({ id: z.int() })
+  .openapi({ required: ['id'] })
+  .openapi('Implicit')
+
+const DerivedSchema = BaseSchema.and(
+  z.object({ extra: z.string() }).openapi({ required: ['extra'] }),
+)
+  .openapi({ required: ['extra'] })
+  .openapi('Derived')
+
+const BagSchema = z
+  .array(z.looseObject({}))
+  .superRefine((arr, ctx) => {
+    const Schema = TagSchema
+    const matched = arr.filter((i) => Schema.safeParse(i).success).length
+    if (matched < 1) {
+      ctx.addIssue({ code: 'custom' })
+    }
+  })
+  .openapi('Bag')
+
+export const getImplicitRoute = createRoute({
+  method: 'get',
+  path: '/implicit',
+  responses: {
+    200: { description: 'OK', content: { 'application/json': { schema: ImplicitSchema } } },
+  },
+})
+
+export const getDerivedRoute = createRoute({
+  method: 'get',
+  path: '/derived',
+  responses: {
+    200: { description: 'OK', content: { 'application/json': { schema: DerivedSchema } } },
+  },
+})
+
+export const getBagRoute = createRoute({
+  method: 'get',
+  path: '/bag',
+  responses: { 200: { description: 'OK', content: { 'application/json': { schema: BagSchema } } } },
+})
+
+function mockImplicit(): z.infer<typeof ImplicitSchema> {
+  return { id: faker.number.int({ min: 1, max: 99999 }) }
+}
+
+function mockBase(): z.infer<typeof BaseSchema> {
+  return { baseId: faker.string.alpha({ length: { min: 5, max: 20 } }) }
+}
+
+function mockDerived(): z.infer<typeof DerivedSchema> {
+  return { ...mockBase(), extra: faker.string.alpha({ length: { min: 5, max: 20 } }) }
+}
+
+function mockTag(): z.infer<typeof TagSchema> {
+  return { ...(faker.datatype.boolean() ? { name: faker.person.fullName() } : {}) }
+}
+
+function mockBag(): z.infer<typeof BagSchema> {
+  return [...Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => ({})), mockTag()]
+}
+
+${PREFER_HELPERS}
+const getImplicitRouteHandler: RouteHandler<typeof getImplicitRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
+  return c.json(mockImplicit(), 200)
+}
+
+const getDerivedRouteHandler: RouteHandler<typeof getDerivedRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
+  return c.json(mockDerived(), 200)
+}
+
+const getBagRouteHandler: RouteHandler<typeof getBagRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
+  return c.json(mockBag(), 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app
+  .openapi(getImplicitRoute, getImplicitRouteHandler)
+  .openapi(getDerivedRoute, getDerivedRouteHandler)
+  .openapi(getBagRoute, getBagRouteHandler)
+
+export default app
+`)
+    })
+  })
 })

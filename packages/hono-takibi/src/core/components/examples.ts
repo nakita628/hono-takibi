@@ -4,8 +4,9 @@ import { Effect } from 'effect'
 
 import { emit } from '../../emit/index.js'
 import { GenerateError } from '../../error/index.js'
+import { examplesCode } from '../../generator/zod-openapi-hono/openapi/components/examples.js'
 import { isRecord } from '../../guard/index.js'
-import { makeExportConst, makeRef } from '../../helper/index.js'
+import { makeRef } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import {
   ensureSuffix,
@@ -54,7 +55,8 @@ export function examples(
       )
       return `Generated Example code written to ${outDir}/*.ts (index.ts included)`
     }
-    const code = makeExportConst(examples, 'Example', readonly)
+    // The generator of the single-file output: a `$ref` example is its target's constant (#607).
+    const code = examplesCode({ examples }, true, readonly)
     yield* emit(code, path.dirname(output), output)
     return `Generated examples code written to ${output}`
   })

@@ -1844,8 +1844,8 @@ export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) 
 
       expect(mergeHandlerFile(existing, generated))
         .toBe(`import type { RouteHandler } from '@hono/zod-openapi'
-import { getUserRoute } from '../routes'
 import type * as Routes from '../routes'
+import { getUserRoute } from '../routes'
 
 export const getUserRouteHandler: RouteHandler<typeof Routes.getUserRoute> = async (c) => {
   return c.json({ path: getUserRoute.path }, 200)
@@ -2253,7 +2253,7 @@ export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) 
 `
 
       const result = mergeHandlerFile(existing, generated)
-      expect(result).toBe(`import { OpenAPIHono, type RouteHandler } from '@hono/zod-openapi'
+      expect(result).toBe(`import { type RouteHandler, OpenAPIHono } from '@hono/zod-openapi'
 import type { getUserRoute } from '../index'
 
 export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {}
@@ -3733,6 +3733,139 @@ export const getUsersIdRoute = defineOpenAPIRoute({
     return authRoute(c)
   },
 })
+`)
+    })
+  })
+
+  describe('what the user wrote in the import block is kept (#610)', () => {
+    const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersRoute, putUsersRoute } from '../routes'
+
+const app = new OpenAPIHono()
+
+export const usersHandler = app
+  .openapi(getUsersRoute, (c) => {})
+  .openapi(putUsersRoute, (c) => {})
+`
+
+    it('keeps an import named *Handler from a module of the user, import attributes, comments, a header and a directive', () => {
+      const existing = `// Copyright (c) the user
+'use client'
+
+// eslint-disable-next-line some/rule
+import { OpenAPIHono } from '@hono/zod-openapi'
+// the error helper
+import { errorHandler } from '../lib/errors'
+import meta from '../meta.json' with { type: 'json' }
+import { getUsersRoute } from '../routes'
+
+const app = new OpenAPIHono()
+
+export const usersHandler = app.openapi(getUsersRoute, (c) => {
+  if (!meta) return errorHandler(c)
+  return c.json('x', 200)
+})
+`
+      expect(mergeHandlerFile(existing, generated)).toBe(`// Copyright (c) the user
+'use client'
+
+// eslint-disable-next-line some/rule
+import { OpenAPIHono } from '@hono/zod-openapi'
+// the error helper
+import { errorHandler } from '../lib/errors'
+import meta from '../meta.json' with { type: 'json' }
+import { getUsersRoute, putUsersRoute } from '../routes'
+
+const app = new OpenAPIHono()
+
+export const usersHandler = app
+.openapi(getUsersRoute, (c) => {
+  if (!meta) return errorHandler(c)
+  return c.json('x', 200)
+})
+.openapi(putUsersRoute, (c) => {})
+`)
+    })
+
+    it('writes an import it changes with the attributes it had', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersRoute } from '../routes' with { kind: 'routes' }
+
+const app = new OpenAPIHono()
+
+export const usersHandler = app.openapi(getUsersRoute, (c) => c.json('x', 200))
+`
+      expect(mergeHandlerFile(existing, generated))
+        .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersRoute, putUsersRoute } from '../routes' with { kind: 'routes' }
+
+const app = new OpenAPIHono()
+
+export const usersHandler = app
+.openapi(getUsersRoute, (c) => c.json('x', 200))
+.openapi(putUsersRoute, (c) => {})
+`)
+    })
+
+    it('still drops the import of a route that is gone, and a *Handler import nothing uses', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { errorHandler } from '../lib/errors'
+import { deleteUsersRoute, getUsersRoute, putUsersRoute } from '../routes'
+
+const app = new OpenAPIHono()
+
+export const usersHandler = app
+  .openapi(getUsersRoute, (c) => c.json('x', 200))
+  .openapi(putUsersRoute, (c) => c.json('y', 200))
+  .openapi(deleteUsersRoute, (c) => c.body(null, 204))
+`
+      expect(mergeHandlerFile(existing, generated))
+        .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersRoute, putUsersRoute } from '../routes'
+
+const app = new OpenAPIHono()
+
+export const usersHandler = app
+.openapi(getUsersRoute, (c) => c.json('x', 200))
+.openapi(putUsersRoute, (c) => c.json('y', 200))
+`)
+    })
+
+    it('does not add a handler the file declares as a function', () => {
+      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUsersRoute } from '../routes'
+
+export async function getUsersRouteHandler(c: Parameters<RouteHandler<typeof getUsersRoute>>[0]) {
+  return c.json('x', 200)
+}
+`
+      const stub = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUsersRoute } from '../routes'
+
+export const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c) => {}
+`
+      expect(mergeHandlerFile(existing, stub)).toBe(existing)
+    })
+
+    it('keeps an export named *Route that is not a defined route', () => {
+      const existing = `import { defineOpenAPIRoute } from '@hono/zod-openapi'
+
+export const legacyRoute = '/legacy'
+
+export const getUsersRoute = defineOpenAPIRoute({ route: usersRoute, handler: (c) => c.json('x', 200) })
+
+export const getGoneRoute = defineOpenAPIRoute({ route: goneRoute, handler: (c) => c.json('y', 200) })
+`
+      const defined = `import { defineOpenAPIRoute } from '@hono/zod-openapi'
+
+export const getUsersRoute = defineOpenAPIRoute({ route: usersRoute, handler: (c) => {} })
+`
+      expect(mergeDefineFile(existing, defined))
+        .toBe(`import { defineOpenAPIRoute } from '@hono/zod-openapi'
+
+export const legacyRoute = '/legacy'
+
+export const getUsersRoute = defineOpenAPIRoute({ route: usersRoute, handler: (c) => c.json('x', 200) })
 `)
     })
   })

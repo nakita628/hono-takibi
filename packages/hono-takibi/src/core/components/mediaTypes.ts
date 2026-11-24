@@ -6,12 +6,11 @@ import { emit } from '../../emit/index.js'
 import { GenerateError } from '../../error/index.js'
 import { zodToOpenAPI } from '../../generator/zod-to-openapi/index.js'
 import { isRecord } from '../../guard/index.js'
-import { makeImports } from '../../helper/index.js'
+import { ast, makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import {
   ensureSuffix,
   makeBarrel,
-  renderNamedImport,
   toIdentifierPascalCase,
   uncapitalize,
   zodToOpenAPISchema,
@@ -35,7 +34,6 @@ export function mediaTypes(
     if (!mediaTypes) return yield* new GenerateError({ message: 'No mediaTypes found' })
     const keys = Object.keys(mediaTypes)
     if (keys.length === 0) return 'No mediaTypes found'
-    const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
     // `readonly` reaches the schema, where it is put on the objects and arrays alone.
     const options = readonly === true ? { readonly: true } : undefined
     if (split) {
@@ -98,7 +96,9 @@ export function mediaTypes(
         return `export const ${name} = z.unknown()`
       })
       .join('\n\n')
-    const code = `${importCode}\n\n${definitions}\n`
+    // Sorted, so that an alias comes after its target, and with the imports of what the
+    // schemas name, as each file of the split output has them (#607).
+    const code = makeImports(ast(definitions), output, components, split)
     yield* emit(code, path.dirname(output), output)
     return `Generated mediaTypes code written to ${output}`
   })
