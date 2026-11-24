@@ -593,6 +593,49 @@ export function error(message: string) {
 }
 
 /**
+ * The `message` of an issue written by hand, as source: the text, or what an arrow function
+ * answers for the issue. `issue` is the source of the issue the function is handed, as the
+ * `error` parameter of a Zod schema hands it one.
+ *
+ * @example
+ * ```ts
+ * issueMessage('dep failed', 'issue')
+ * // → '"dep failed"'
+ * issueMessage('(issue) => `bad ${issue.code}`', 'issue')
+ * // → '((issue) => `bad ${issue.code}`)(issue)'
+ * ```
+ */
+export function issueMessage(message: string, issue: string) {
+  return ARROW_FUNCTION_PATTERN.test(message) ? `(${message})(${issue})` : JSON.stringify(message)
+}
+
+/**
+ * The replacer the emitted code hands `JSON.stringify` to compare a value with an object or
+ * an array of the document: keys in one order, since JSON Schema equality does not see the
+ * order they were written in, and a bigint as the number it was read from, which
+ * `JSON.stringify` would otherwise throw on.
+ */
+export const CANONICAL_JSON_REPLACER =
+  "(_,v)=>typeof v==='bigint'?Number(v):typeof v==='object'&&v!==null&&!Array.isArray(v)?Object.fromEntries(Object.entries(v).sort(([a],[b])=>a<b?-1:a>b?1:0)):v"
+
+/**
+ * A value of the document as the JSON `CANONICAL_JSON_REPLACER` writes for an equal value.
+ *
+ * @example
+ * ```ts
+ * canonicalJson({ b: 2, a: 1 })
+ * // → '{"a":1,"b":2}'
+ * ```
+ */
+export function canonicalJson(value: unknown) {
+  return JSON.stringify(value, (_key, v: unknown) =>
+    typeof v === 'object' && v !== null && !Array.isArray(v)
+      ? Object.fromEntries(Object.entries(v).toSorted(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
+      : v,
+  )
+}
+
+/**
  * Builds the base `{error:...}` argument for a Zod v4 schema constructor when
  * either or both of `x-error-message` (type / generic) and `x-required-message`
  * (input is undefined) are present.
@@ -604,9 +647,9 @@ export function baseError(typeMessage: string | undefined, requiredMessage: stri
   if (requiredMessage === undefined && typeMessage === undefined) return '' as const
   if (requiredMessage === undefined && typeMessage !== undefined) return error(typeMessage)
   if (requiredMessage !== undefined && typeMessage === undefined) {
-    return `{error:(issue)=>issue.input===undefined?${JSON.stringify(requiredMessage)}:undefined}` as const
+    return `{error:(issue)=>issue.input===undefined?${issueMessage(requiredMessage, 'issue')}:undefined}`
   }
-  return `{error:(issue)=>issue.input===undefined?${JSON.stringify(requiredMessage)}:${JSON.stringify(typeMessage)}}` as const
+  return `{error:(issue)=>issue.input===undefined?${issueMessage(requiredMessage ?? '', 'issue')}:${issueMessage(typeMessage ?? '', 'issue')}}`
 }
 
 export function statusCodeToNumber(statusCode: string) {

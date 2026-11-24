@@ -1,4 +1,3 @@
-import { ARROW_FUNCTION_PATTERN } from '../constants/index.js'
 import {
   ANNOTATION_KEYWORDS,
   hasNoUserChain,
@@ -8,17 +7,17 @@ import {
   isUntypedObject,
 } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
-import { error, normalizeTypes } from '../utils/index.js'
+import { error, issueMessage, normalizeTypes } from '../utils/index.js'
 import { discriminatedBranches } from './discriminator.js'
 import { resolveSchemaRef } from './wire.js'
 
 type Schemas = { readonly [k: string]: Schema }
 
-// Returns the slot value JSON-encoded for splicing into generated code, or
-// undefined when the slot is absent / non-string (callers omit `message`).
+// The message a slot holds as it is written, or undefined when the slot is absent /
+// non-string (callers omit `message`). `issueMessage` is what writes it into the code.
 function pickMessage(schema: Schema, slot: keyof Schema) {
   const value = schema[slot]
-  return typeof value === 'string' ? JSON.stringify(value) : undefined
+  return typeof value === 'string' ? value : undefined
 }
 
 const MESSAGE_SLOTS = {
@@ -71,25 +70,38 @@ function messageFor(schema: Schema, key: keyof typeof MESSAGE_SLOTS) {
   return pickMessage(schema, MESSAGE_SLOTS.error)
 }
 
-// `messageExpr` / `pathExpr` are raw code fragments (already-encoded literals).
-function issueObj(messageExpr: string | undefined, pathExpr?: string) {
-  const parts = ["code:'custom'"]
-  if (pathExpr !== undefined) {
-    parts.push(`path:${pathExpr}`)
-  }
-  if (messageExpr !== undefined) {
-    parts.push(`message:${messageExpr}`)
-  }
-  return `{${parts.join(',')}}`
+// The `custom` issue a check on `val` reports, with the message of its keyword.
+function issueObj(message: string | undefined) {
+  return message === undefined
+    ? "{code:'custom'}"
+    : `{code:'custom',message:${issueMessage(message, "{code:'custom',path:[],input:val}")}}`
 }
 
-// `report` writes an issue into the surrounding check: `ctx.addIssue(...)` for a
-// refine (which sees the parsed value), `ctx.issues.push(...)` for `.check()`
-// (which sees the raw input — a refine would see a stripped object instead).
+// How a check writes into what surrounds it: `ctx.addIssue(...)` in a refine (which sees
+// the parsed value), `ctx.issues.push(...)` in a check on the raw input (a refine would see
+// a stripped object instead). `issue` reports a `custom` issue of the check's own;
+// `forward` hands on `issue`, an issue of a subschema, with the `message` field given.
+type Report = {
+  readonly issue: (issue: string) => string
+  readonly forward: (messageField: string) => string
+}
+
+const REFINE_REPORT: Report = {
+  issue: (issue) => `ctx.addIssue(${issue})`,
+  forward: (messageField) => `ctx.addIssue({...issue,path:issue.path${messageField}})`,
+}
+
+// The pushed issue carries `input`: a raw issue without it does not type-check
+// (`$ZodRawIssue` requires it), and a forwarded one is narrowed by its code (#405).
+const RAW_REPORT: Report = {
+  issue: (issue) => `ctx.issues.push({...${issue},input:val})`,
+  forward: (messageField) => makeIssueForwarding(`{...issue,input:issue.input${messageField}}`),
+}
+
 function makeObjectChecks(
   schema: Schema,
   recurse: (s: Schema) => string,
-  report: (issue: string) => string = (issue) => `ctx.addIssue(${issue})`,
+  report: Report = REFINE_REPORT,
 ): readonly string[] {
   const ownKeys = Object.keys(schema.properties ?? {})
   const patterns = Object.keys(schema.patternProperties ?? {})
@@ -111,32 +123,32 @@ function makeObjectChecks(
     ? schema.required.map(
         (key) =>
           // JSON Schema 2020-12 §6.5.3: "own property" — `in` would include inherited.
-          `if(!Object.hasOwn(val,${JSON.stringify(key)})){${report(issueObj(requiredMessage))}}`,
+          `if(!Object.hasOwn(val,${JSON.stringify(key)})){${report.issue(issueObj(requiredMessage))}}`,
       )
     : []
   const minPropertiesCheck =
     typeof schema.minProperties === 'number'
-      ? `if(Object.keys(val).length<${schema.minProperties}){${report(issueObj(messageFor(schema, 'minProperties')))}}`
+      ? `if(Object.keys(val).length<${schema.minProperties}){${report.issue(issueObj(messageFor(schema, 'minProperties')))}}`
       : undefined
   const maxPropertiesCheck =
     typeof schema.maxProperties === 'number'
-      ? `if(Object.keys(val).length>${schema.maxProperties}){${report(issueObj(messageFor(schema, 'maxProperties')))}}`
+      ? `if(Object.keys(val).length>${schema.maxProperties}){${report.issue(issueObj(messageFor(schema, 'maxProperties')))}}`
       : undefined
   const propertiesMessage = messageFor(schema, 'properties')
   const propertyChecks = schema.properties
     ? Object.entries(schema.properties).map(
         ([key, sub]) =>
-          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};if(!Schema.safeParse(Reflect.get(val,${JSON.stringify(key)})).success){${report(issueObj(propertiesMessage))}}}`,
+          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};if(!Schema.safeParse(Reflect.get(val,${JSON.stringify(key)})).success){${report.issue(issueObj(propertiesMessage))}}}`,
       )
     : []
   const additionalPropertiesMessage = messageFor(schema, 'additionalProperties')
   const additionalPropertiesCheck = (() => {
     if (schema.additionalProperties === false) {
-      return forUndeclaredKeys(report(issueObj(additionalPropertiesMessage)))
+      return forUndeclaredKeys(report.issue(issueObj(additionalPropertiesMessage)))
     }
     if (isSchemaObject(schema.additionalProperties)) {
       const subZod = recurse(schema.additionalProperties)
-      return `{const Schema=${subZod};${forUndeclaredKeys(`if(!Schema.safeParse(Reflect.get(val,k)).success){${report(issueObj(additionalPropertiesMessage))}}`)}}`
+      return `{const Schema=${subZod};${forUndeclaredKeys(`if(!Schema.safeParse(Reflect.get(val,k)).success){${report.issue(issueObj(additionalPropertiesMessage))}}`)}}`
     }
     return undefined
   })()
@@ -144,11 +156,11 @@ function makeObjectChecks(
   const patternPropertiesChecks = schema.patternProperties
     ? Object.entries(schema.patternProperties).map(
         ([pattern, sub]) =>
-          `{const Schema=${recurse(sub)};for(const k of Object.keys(val)){if(new RegExp(${JSON.stringify(pattern)}).test(k)){if(!Schema.safeParse(Reflect.get(val,k)).success){${report(issueObj(patternPropertiesMessage))}}}}}`,
+          `{const Schema=${recurse(sub)};for(const k of Object.keys(val)){if(new RegExp(${JSON.stringify(pattern)}).test(k)){if(!Schema.safeParse(Reflect.get(val,k)).success){${report.issue(issueObj(patternPropertiesMessage))}}}}}`,
       )
     : []
   const propertyNamesCheck = schema.propertyNames?.pattern
-    ? `for(const k of Object.keys(val)){if(!new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k)){${report(issueObj(messageFor(schema, 'propertyNames')))}}}`
+    ? `for(const k of Object.keys(val)){if(!new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k)){${report.issue(issueObj(messageFor(schema, 'propertyNames')))}}}`
     : undefined
   const dependentRequiredMessage = messageFor(schema, 'dependentRequired')
   const dependentRequiredChecks = schema.dependentRequired
@@ -158,7 +170,7 @@ function makeObjectChecks(
             .map((dependency) => `Object.hasOwn(val,${JSON.stringify(dependency)})`)
             .join('&&')
           return depsCheck
-            ? `if(Object.hasOwn(val,${JSON.stringify(key)})){if(!(${depsCheck})){${report(issueObj(dependentRequiredMessage))}}}`
+            ? `if(Object.hasOwn(val,${JSON.stringify(key)})){if(!(${depsCheck})){${report.issue(issueObj(dependentRequiredMessage))}}}`
             : undefined
         })
         .filter((s): s is string => s !== undefined)
@@ -167,11 +179,13 @@ function makeObjectChecks(
   // sub-schema issues propagate, message overrides via x-dependentSchemas-message.
   const dependentSchemasMessage = messageFor(schema, 'dependentSchemas')
   const dependentSchemasMessageField =
-    dependentSchemasMessage !== undefined ? `,message:${dependentSchemasMessage}` : ''
+    dependentSchemasMessage !== undefined
+      ? `,message:${issueMessage(dependentSchemasMessage, 'issue')}`
+      : ''
   const dependentSchemasChecks = schema.dependentSchemas
     ? Object.entries(schema.dependentSchemas).map(
         ([key, sub]) =>
-          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){${report(`{...issue,path:issue.path${dependentSchemasMessageField}}`)}}}}`,
+          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){${report.forward(dependentSchemasMessageField)}}}}`,
       )
     : []
   // `additionalProperties` as a schema or `true` evaluates every key it applies to
@@ -182,7 +196,7 @@ function makeObjectChecks(
     schema.unevaluatedProperties === false &&
     schema.additionalProperties !== true &&
     !isSchemaObject(schema.additionalProperties)
-      ? forUndeclaredKeys(report(issueObj(messageFor(schema, 'unevaluatedProperties'))))
+      ? forUndeclaredKeys(report.issue(issueObj(messageFor(schema, 'unevaluatedProperties'))))
       : undefined
 
   return [
@@ -208,25 +222,29 @@ export function isRestEvaluated(schema: Schema) {
   return schema.items !== undefined && !Array.isArray(schema.items)
 }
 
-function makeArrayChecks(schema: Schema, recurse: (s: Schema) => string): readonly string[] {
+function makeArrayChecks(
+  schema: Schema,
+  recurse: (s: Schema) => string,
+  report: Report = REFINE_REPORT,
+): readonly string[] {
   const minItemsCheck =
     typeof schema.minItems === 'number'
-      ? `if(val.length<${schema.minItems}){ctx.addIssue(${issueObj(messageFor(schema, 'minItems'))})}`
+      ? `if(val.length<${schema.minItems}){${report.issue(issueObj(messageFor(schema, 'minItems')))}}`
       : undefined
   const maxItemsCheck =
     typeof schema.maxItems === 'number'
-      ? `if(val.length>${schema.maxItems}){ctx.addIssue(${issueObj(messageFor(schema, 'maxItems'))})}`
+      ? `if(val.length>${schema.maxItems}){${report.issue(issueObj(messageFor(schema, 'maxItems')))}}`
       : undefined
   const uniqueCheck =
     schema.uniqueItems === true
-      ? `{const seen=new Set();for(const item of val){const key=JSON.stringify(item);if(seen.has(key)){ctx.addIssue(${issueObj(messageFor(schema, 'uniqueItems'))});break}seen.add(key)}}`
+      ? `{const seen=new Set();for(const item of val){const key=JSON.stringify(item);if(seen.has(key)){${report.issue(issueObj(messageFor(schema, 'uniqueItems')))};break}seen.add(key)}}`
       : undefined
   const prefixCount = Array.isArray(schema.prefixItems) ? schema.prefixItems.length : 0
   const prefixItemsMessage = messageFor(schema, 'prefixItems')
   const prefixChecks = schema.prefixItems
     ? schema.prefixItems.map(
         (sub, index) =>
-          `if(val.length>${index}){const Schema=${recurse(sub)};if(!Schema.safeParse(val[${index}]).success){ctx.addIssue(${issueObj(prefixItemsMessage)})}}`,
+          `if(val.length>${index}){const Schema=${recurse(sub)};if(!Schema.safeParse(val[${index}]).success){${report.issue(issueObj(prefixItemsMessage))}}}`,
       )
     : []
   // items:false → trailing items forbidden; items:true → unconstrained.
@@ -234,16 +252,18 @@ function makeArrayChecks(schema: Schema, recurse: (s: Schema) => string): readon
   const itemsCheck = (() => {
     const items = schema.items
     if (items === false) {
-      return `if(val.length>${prefixCount}){ctx.addIssue(${issueObj(itemsMessage)})}`
+      return `if(val.length>${prefixCount}){${report.issue(issueObj(itemsMessage))}}`
     }
     if (items === undefined || items === true || !isSingleSchema(items)) {
       return undefined
     }
-    return `{const Schema=${recurse(items)};for(let i=${prefixCount};i<val.length;i++){if(!Schema.safeParse(val[i]).success){ctx.addIssue(${issueObj(itemsMessage)})}}}`
+    return `{const Schema=${recurse(items)};for(let i=${prefixCount};i<val.length;i++){if(!Schema.safeParse(val[i]).success){${report.issue(issueObj(itemsMessage))}}}}`
   })()
+  // Precedence, as in the typed array: x-minContains-message / x-maxContains-message >
+  // x-contains-message > x-error-message.
   const containsMessage = messageFor(schema, 'contains')
-  const minContainsMessage = messageFor(schema, 'minContains')
-  const maxContainsMessage = messageFor(schema, 'maxContains')
+  const minContainsMessage = pickMessage(schema, 'x-minContains-message') ?? containsMessage
+  const maxContainsMessage = pickMessage(schema, 'x-maxContains-message') ?? containsMessage
   const containsCheck = schema.contains
     ? (() => {
         const subZod = recurse(schema.contains)
@@ -251,16 +271,16 @@ function makeArrayChecks(schema: Schema, recurse: (s: Schema) => string): readon
         const maxC = schema.maxContains
         const lowerBoundMessage =
           schema.minContains !== undefined ? minContainsMessage : containsMessage
-        const minCheck = `if(m<${minC}){ctx.addIssue(${issueObj(lowerBoundMessage)})}`
+        const minCheck = `if(m<${minC}){${report.issue(issueObj(lowerBoundMessage))}}`
         const maxCheck =
-          maxC !== undefined ? `;if(m>${maxC}){ctx.addIssue(${issueObj(maxContainsMessage)})}` : ''
+          maxC !== undefined ? `;if(m>${maxC}){${report.issue(issueObj(maxContainsMessage))}}` : ''
         return `{const m=val.filter((i)=>${subZod}.safeParse(i).success).length;${minCheck}${maxCheck}}`
       })()
     : undefined
   // `items` evaluates every element after the prefix, so none is left unevaluated.
   const unevaluatedItemsCheck =
     schema.unevaluatedItems === false && !isRestEvaluated(schema)
-      ? `if(val.length>${prefixCount}){ctx.addIssue(${issueObj(messageFor(schema, 'unevaluatedItems'))})}`
+      ? `if(val.length>${prefixCount}){${report.issue(issueObj(messageFor(schema, 'unevaluatedItems')))}}`
       : undefined
 
   return [
@@ -274,22 +294,22 @@ function makeArrayChecks(schema: Schema, recurse: (s: Schema) => string): readon
   ].filter((s): s is string => s !== undefined)
 }
 
-function makeStringChecks(schema: Schema): readonly string[] {
+function makeStringChecks(schema: Schema, report: Report = REFINE_REPORT): readonly string[] {
   const minCheck =
     typeof schema.minLength === 'number'
-      ? `if([...val].length<${schema.minLength}){ctx.addIssue(${issueObj(messageFor(schema, 'minLength'))})}`
+      ? `if([...val].length<${schema.minLength}){${report.issue(issueObj(messageFor(schema, 'minLength')))}}`
       : undefined
   const maxCheck =
     typeof schema.maxLength === 'number'
-      ? `if([...val].length>${schema.maxLength}){ctx.addIssue(${issueObj(messageFor(schema, 'maxLength'))})}`
+      ? `if([...val].length>${schema.maxLength}){${report.issue(issueObj(messageFor(schema, 'maxLength')))}}`
       : undefined
   const patternCheck = schema.pattern
-    ? `if(!new RegExp(${JSON.stringify(schema.pattern)}).test(val)){ctx.addIssue(${issueObj(messageFor(schema, 'pattern'))})}`
+    ? `if(!new RegExp(${JSON.stringify(schema.pattern)}).test(val)){${report.issue(issueObj(messageFor(schema, 'pattern')))}}`
     : undefined
   return [minCheck, maxCheck, patternCheck].filter((s): s is string => s !== undefined)
 }
 
-function makeNumberChecks(schema: Schema): readonly string[] {
+function makeNumberChecks(schema: Schema, report: Report = REFINE_REPORT): readonly string[] {
   // Draft 4: exclusiveMinimum:true folds into minimum (<=); number adds a separate check.
   const minimumIsExclusive = schema.exclusiveMinimum === true && typeof schema.minimum === 'number'
   const minimumMessage = messageFor(schema, 'minimum')
@@ -297,12 +317,12 @@ function makeNumberChecks(schema: Schema): readonly string[] {
   const minCheck =
     typeof schema.minimum === 'number'
       ? minimumIsExclusive
-        ? `if(val<=${schema.minimum}){ctx.addIssue(${issueObj(exclusiveMinimumMessage)})}`
-        : `if(val<${schema.minimum}){ctx.addIssue(${issueObj(minimumMessage)})}`
+        ? `if(val<=${schema.minimum}){${report.issue(issueObj(exclusiveMinimumMessage))}}`
+        : `if(val<${schema.minimum}){${report.issue(issueObj(minimumMessage))}}`
       : undefined
   const exclusiveMinimumCheck =
     typeof schema.exclusiveMinimum === 'number'
-      ? `if(val<=${schema.exclusiveMinimum}){ctx.addIssue(${issueObj(exclusiveMinimumMessage)})}`
+      ? `if(val<=${schema.exclusiveMinimum}){${report.issue(issueObj(exclusiveMinimumMessage))}}`
       : undefined
   const maximumIsExclusive = schema.exclusiveMaximum === true && typeof schema.maximum === 'number'
   const maximumMessage = messageFor(schema, 'maximum')
@@ -310,39 +330,72 @@ function makeNumberChecks(schema: Schema): readonly string[] {
   const maxCheck =
     typeof schema.maximum === 'number'
       ? maximumIsExclusive
-        ? `if(val>=${schema.maximum}){ctx.addIssue(${issueObj(exclusiveMaximumMessage)})}`
-        : `if(val>${schema.maximum}){ctx.addIssue(${issueObj(maximumMessage)})}`
+        ? `if(val>=${schema.maximum}){${report.issue(issueObj(exclusiveMaximumMessage))}}`
+        : `if(val>${schema.maximum}){${report.issue(issueObj(maximumMessage))}}`
       : undefined
   const exclusiveMaximumCheck =
     typeof schema.exclusiveMaximum === 'number'
-      ? `if(val>=${schema.exclusiveMaximum}){ctx.addIssue(${issueObj(exclusiveMaximumMessage)})}`
+      ? `if(val>=${schema.exclusiveMaximum}){${report.issue(issueObj(exclusiveMaximumMessage))}}`
       : undefined
   const multipleOfCheck =
     typeof schema.multipleOf === 'number'
-      ? `{const mod=Math.abs(val/${schema.multipleOf}-Math.round(val/${schema.multipleOf}));if(mod>1e-10){ctx.addIssue(${issueObj(messageFor(schema, 'multipleOf'))})}}`
+      ? `{const mod=Math.abs(val/${schema.multipleOf}-Math.round(val/${schema.multipleOf}));if(mod>1e-10){${report.issue(issueObj(messageFor(schema, 'multipleOf')))}}}`
       : undefined
   return [minCheck, exclusiveMinimumCheck, maxCheck, exclusiveMaximumCheck, multipleOfCheck].filter(
     (s): s is string => s !== undefined,
   )
 }
 
-function makeGenericChecks(schema: Schema, recurse: (s: Schema) => string): readonly string[] {
+// `if` / `then` / `else` as one statement on `val`. Precedence: x-then-message /
+// x-else-message > x-if-message > x-error-message.
+function makeConditionalStmt(
+  schema: Schema,
+  recurse: (s: Schema) => string,
+  report: Report,
+): string | undefined {
+  const ifSchema = schema.if
+  const ifMessage = messageFor(schema, 'if')
+  const thenMessage = messageFor(schema, 'then') ?? ifMessage
+  const elseMessage = messageFor(schema, 'else') ?? ifMessage
+  return ifSchema
+    ? (() => {
+        const ifZod = recurse(ifSchema)
+        const thenSchema = schema.then
+        const elseSchema = schema.else
+        const thenPart = thenSchema
+          ? `if(ifOk){const Schema=${recurse(thenSchema)};if(!Schema.safeParse(val).success){${report.issue(issueObj(thenMessage))}}}`
+          : ''
+        const elsePart = elseSchema
+          ? `if(!ifOk){const Schema=${recurse(elseSchema)};if(!Schema.safeParse(val).success){${report.issue(issueObj(elseMessage))}}}`
+          : ''
+        return thenPart || elsePart
+          ? `{const ifOk=${ifZod}.safeParse(val).success;${thenPart};${elsePart}}`
+          : undefined
+      })()
+    : undefined
+}
+
+function makeGenericChecks(
+  schema: Schema,
+  recurse: (s: Schema) => string,
+  report: Report = REFINE_REPORT,
+): readonly string[] {
   // deepEqual via JSON.stringify
   const enumCheck = Array.isArray(schema.enum)
-    ? `if(!${JSON.stringify(schema.enum)}.some((e)=>JSON.stringify(e)===JSON.stringify(val))){ctx.addIssue(${issueObj(messageFor(schema, 'enum'))})}`
+    ? `if(!${JSON.stringify(schema.enum)}.some((e)=>JSON.stringify(e)===JSON.stringify(val))){${report.issue(issueObj(messageFor(schema, 'enum')))}}`
     : undefined
   const constCheck =
     schema.const !== undefined
-      ? `if(JSON.stringify(${JSON.stringify(schema.const)})!==JSON.stringify(val)){ctx.addIssue(${issueObj(messageFor(schema, 'const'))})}`
+      ? `if(JSON.stringify(${JSON.stringify(schema.const)})!==JSON.stringify(val)){${report.issue(issueObj(messageFor(schema, 'const')))}}`
       : undefined
   // JSON Schema 2020-12 §10.2.1.1: allOf applicator; message overrides via x-allOf-message.
   const allOfMessage = messageFor(schema, 'allOf')
   const allOfMessageField =
-    allOfMessage !== undefined ? `,message:${JSON.stringify(allOfMessage)}` : ''
+    allOfMessage !== undefined ? `,message:${issueMessage(allOfMessage, 'issue')}` : ''
   const allOfChecks = Array.isArray(schema.allOf)
     ? schema.allOf.map(
         (sub: Schema) =>
-          `{const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${allOfMessageField}})}}}`,
+          `{const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){${report.forward(allOfMessageField)}}}}`,
       )
     : []
   // Precedence: x-implication-message > x-anyOf-message > x-error-message.
@@ -352,50 +405,36 @@ function makeGenericChecks(schema: Schema, recurse: (s: Schema) => string): read
     pickMessage(schema, 'x-error-message')
   const anyOfCheck =
     Array.isArray(schema.anyOf) && schema.anyOf.length > 0
-      ? `if(!(${schema.anyOf.map((sub: Schema) => `${recurse(sub)}.safeParse(val).success`).join('||')})){ctx.addIssue(${issueObj(anyOfMessage)})}`
+      ? `if(!(${schema.anyOf.map((sub: Schema) => `${recurse(sub)}.safeParse(val).success`).join('||')})){${report.issue(issueObj(anyOfMessage))}}`
       : undefined
   const oneOfMessage = messageFor(schema, 'oneOf')
   const oneOfCheck =
     Array.isArray(schema.oneOf) && schema.oneOf.length > 0
-      ? `if((${schema.oneOf.map((sub: Schema) => `(${recurse(sub)}.safeParse(val).success?1:0)`).join('+')})!==1){ctx.addIssue(${issueObj(oneOfMessage)})}`
+      ? `if((${schema.oneOf.map((sub: Schema) => `(${recurse(sub)}.safeParse(val).success?1:0)`).join('+')})!==1){${report.issue(issueObj(oneOfMessage))}}`
       : undefined
   const notCheck = schema.not
-    ? `if(${recurse(schema.not)}.safeParse(val).success){ctx.addIssue(${issueObj(messageFor(schema, 'not'))})}`
+    ? `if(${recurse(schema.not)}.safeParse(val).success){${report.issue(issueObj(messageFor(schema, 'not')))}}`
     : undefined
-  const ifSchema = schema.if
-  const ifMessage = messageFor(schema, 'if')
-  const thenMessage = messageFor(schema, 'then') ?? ifMessage
-  const elseMessage = messageFor(schema, 'else') ?? ifMessage
-  const ifCheck = ifSchema
-    ? (() => {
-        const ifZod = recurse(ifSchema)
-        const thenSchema = schema.then
-        const elseSchema = schema.else
-        const thenPart = thenSchema
-          ? `if(ifOk){const Schema=${recurse(thenSchema)};if(!Schema.safeParse(val).success){ctx.addIssue(${issueObj(thenMessage)})}}`
-          : ''
-        const elsePart = elseSchema
-          ? `if(!ifOk){const Schema=${recurse(elseSchema)};if(!Schema.safeParse(val).success){ctx.addIssue(${issueObj(elseMessage)})}}`
-          : ''
-        return thenPart || elsePart
-          ? `{const ifOk=${ifZod}.safeParse(val).success;${thenPart};${elsePart}}`
-          : undefined
-      })()
-    : undefined
+  const ifCheck = makeConditionalStmt(schema, recurse, report)
 
   return [enumCheck, constCheck, ...allOfChecks, anyOfCheck, oneOfCheck, notCheck, ifCheck].filter(
     (s): s is string => s !== undefined,
   )
 }
 
-export function emitTypelessRefine(schema: Schema, recurse: (s: Schema) => string) {
-  const objectChecks = makeObjectChecks(schema, recurse)
-  const arrayChecks = makeArrayChecks(schema, recurse)
-  const stringChecks = makeStringChecks(schema)
-  const numberChecks = makeNumberChecks(schema)
-  const genericChecks = makeGenericChecks(schema, recurse)
-
-  const blocks = [
+// The keywords of a schema as statements on `val`, each kind guarded by the type of value
+// it applies to: a keyword says nothing of a value of another type (JSON Schema 2020-12).
+function typelessBlocks(
+  schema: Schema,
+  recurse: (s: Schema) => string,
+  report: Report,
+): readonly string[] {
+  const objectChecks = makeObjectChecks(schema, recurse, report)
+  const arrayChecks = makeArrayChecks(schema, recurse, report)
+  const stringChecks = makeStringChecks(schema, report)
+  const numberChecks = makeNumberChecks(schema, report)
+  const genericChecks = makeGenericChecks(schema, recurse, report)
+  return [
     objectChecks.length > 0
       ? `if(typeof val==='object'&&val!==null&&!Array.isArray(val)){${objectChecks.join(';')}}`
       : undefined,
@@ -404,11 +443,55 @@ export function emitTypelessRefine(schema: Schema, recurse: (s: Schema) => strin
     numberChecks.length > 0 ? `if(typeof val==='number'){${numberChecks.join(';')}}` : undefined,
     genericChecks.length > 0 ? genericChecks.join(';') : undefined,
   ].filter((s): s is string => s !== undefined)
+}
 
+export function emitTypelessRefine(schema: Schema, recurse: (s: Schema) => string) {
+  const blocks = typelessBlocks(schema, recurse, REFINE_REPORT)
   if (blocks.length === 0) {
     return 'z.any()'
   }
   return `z.unknown().superRefine((val,ctx)=>{${blocks.join(';')}})`
+}
+
+/**
+ * The validation keywords written beside a combinator (`maxLength` beside `anyOf`, `minimum`
+ * beside `oneOf`, `if` beside `allOf`), as a check on the raw input (#598). JSON Schema ANDs
+ * sibling keywords, and the combinator paths emit the combinator alone. What those paths
+ * handle themselves is left out: the combinators, the sibling shape (`properties` /
+ * `required`), `additionalProperties` and the `unevaluated*` keywords, whose meaning depends
+ * on what the members evaluate. `undefined` when no keyword is left.
+ */
+export function makeSiblingKeywordCheck(
+  schema: Schema,
+  recurse: (s: Schema) => string,
+): string | undefined {
+  const {
+    allOf: _allOf,
+    anyOf: _anyOf,
+    oneOf: _oneOf,
+    not: _not,
+    properties: _properties,
+    required: _required,
+    additionalProperties: _additionalProperties,
+    unevaluatedProperties: _unevaluatedProperties,
+    unevaluatedItems: _unevaluatedItems,
+    ...keywords
+  } = schema
+  const blocks = typelessBlocks(keywords, recurse, RAW_REPORT)
+  return blocks.length === 0 ? undefined : `(ctx)=>{const val=ctx.value;${blocks.join(';')}}`
+}
+
+/**
+ * `if` / `then` / `else` on a schema whose type is not an object, as a check on the raw
+ * input (#598): the string, number, integer, boolean and array emitters do not read them.
+ * `undefined` when there is no `if`, or neither `then` nor `else`.
+ */
+export function makeConditionalCheck(
+  schema: Schema,
+  recurse: (s: Schema) => string,
+): string | undefined {
+  const check = makeConditionalStmt(schema, recurse, RAW_REPORT)
+  return check === undefined ? undefined : `(ctx)=>{const val=ctx.value;${check}}`
 }
 
 // Whether a schema accepts only object values (plus `null`, which the outer
@@ -474,6 +557,17 @@ function isValueOfType(value: unknown, type: DeclaredType): boolean {
     default:
       return false
   }
+}
+
+/**
+ * Whether a `const` is a value the declared `type` rules out: `type: string` beside
+ * `const: 0` accepts nothing (#604). No declared type rules nothing out, `null` is the outer
+ * handling's, and `date` is not a JSON type.
+ */
+export function isConstOutsideType(schema: Schema): boolean {
+  const declared = declaredTypes(schema)
+  if (schema.const === null || declared.length === 0 || declared.includes('date')) return false
+  return !declared.some((type) => isValueOfType(schema.const, type))
 }
 
 // Whether a schema accepts only values of the declared types (plus `null`,
@@ -956,7 +1050,7 @@ function undeclaredKeysStmt(schema: Schema) {
       : []),
   ]
   const message = pickMessage(schema, 'x-additionalProperties-message')
-  const report = `ctx.issues.push({code:"custom",path:[k],input:o${message === undefined ? '' : `,message:${message}`}})`
+  const report = `ctx.issues.push({code:"custom",path:[k],input:o${message === undefined ? '' : `,message:${issueMessage(message, "{code:'custom',path:[k],input:o}")}`}})`
   return `for(const k of Object.keys(o)){${undeclared.length === 0 ? report : `if(${undeclared.join('&&')}){${report}}`}}`
 }
 
@@ -1090,9 +1184,7 @@ function reportSibling(message: string | undefined) {
   const field =
     message === undefined
       ? ''
-      : ARROW_FUNCTION_PATTERN.test(message)
-        ? `,message:(${message})({code:'custom',path:[],input:val})`
-        : `,message:${JSON.stringify(message)}`
+      : `,message:${issueMessage(message, "{code:'custom',path:[],input:val}")}`
   return `ctx.issues.push({code:"custom",input:val${field}})`
 }
 
@@ -1163,11 +1255,7 @@ export function emitObjectShapeCheck(
   schema: Schema,
   recurse: (s: Schema) => string,
 ): string | undefined {
-  const checks = makeObjectChecks(
-    schema,
-    recurse,
-    (issue) => `ctx.issues.push({...${issue},input:val})`,
-  )
+  const checks = makeObjectChecks(schema, recurse, RAW_REPORT)
   if (checks.length === 0) return undefined
   return `(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){${checks.join(';')}}}`
 }
@@ -1370,11 +1458,10 @@ function makeUnevaluatedEvaluationStmts(
 // default). The literal uses double-quoted `"custom"` to match the quoting convention of
 // the statements here; emitTypelessRefine uses single quotes (see `issueObj`).
 function makeUnevaluatedMessageField(schema: Schema, messageOverride: string | undefined) {
-  const slotMessage = messageFor(schema, 'unevaluatedProperties')
-  const overrideMessage =
-    messageOverride !== undefined ? JSON.stringify(messageOverride) : undefined
-  const finalMessage = slotMessage ?? overrideMessage
-  return finalMessage !== undefined ? `,message:${finalMessage}` : ''
+  const finalMessage = messageFor(schema, 'unevaluatedProperties') ?? messageOverride
+  return finalMessage !== undefined
+    ? `,message:${issueMessage(finalMessage, "{code:'custom',path:[k],input:o}")}`
+    : ''
 }
 
 export function makeUnevaluatedProperties(

@@ -1,7 +1,6 @@
-import { ARROW_FUNCTION_PATTERN } from '../../../constants/index.js'
 import { makeUnevaluatedProperties } from '../../../helper/zod.js'
 import type { Schema } from '../../../openapi/index.js'
-import { error, makeSafeKey } from '../../../utils/index.js'
+import { error, issueMessage, makeSafeKey } from '../../../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
 import { zodToOpenAPI } from '../index.js'
 
@@ -26,7 +25,7 @@ export function object(
   // The pattern message slot, if set, OVERRIDES the inner issue's message
   // (otherwise we keep Zod's native message verbatim — code/expected stay).
   const patternPropertiesMessageOverride = patternPropertiesMessage
-    ? `,message:${JSON.stringify(patternPropertiesMessage)}`
+    ? `,message:${issueMessage(patternPropertiesMessage, 'issue')}`
     : ''
   // `x-if-message` overrides the inner issue message emitted by the
   // if/then/else superRefine. Inner `path`/`code`/`expected` are preserved;
@@ -37,9 +36,9 @@ export function object(
   const elseMessageSlot = schema['x-else-message']
   const thenMessage = thenMessageSlot ?? ifMessage
   const elseMessage = elseMessageSlot ?? ifMessage
-  const ifMessageOverride = ifMessage ? `,message:${JSON.stringify(ifMessage)}` : ''
-  const thenOverride = thenMessage ? `,message:${JSON.stringify(thenMessage)}` : ''
-  const elseOverride = elseMessage ? `,message:${JSON.stringify(elseMessage)}` : ''
+  const ifMessageOverride = ifMessage ? `,message:${issueMessage(ifMessage, 'issue')}` : ''
+  const thenOverride = thenMessage ? `,message:${issueMessage(thenMessage, 'issue')}` : ''
+  const elseOverride = elseMessage ? `,message:${issueMessage(elseMessage, 'issue')}` : ''
   // `x-properties-message` overrides the inner issue
   // message for per-property validation failures emitted via the object's
   // `{error}` handler. The handler is only attached when at least one of the
@@ -113,13 +112,14 @@ export function object(
       schema.properties !== undefined && Object.keys(schema.properties).length > 0
     const errorMessageEffective = hasProperties ? errorMessage : undefined
     if (!hasStrictAdditional && !propertiesMessage && !errorMessageEffective) return ''
-    const unrecExpr = hasStrictAdditional
-      ? JSON.stringify(additionalPropertiesMessage)
-      : 'undefined'
+    const unrecExpr =
+      hasStrictAdditional && additionalPropertiesMessage
+        ? issueMessage(additionalPropertiesMessage, 'issue')
+        : 'undefined'
     const otherExpr = propertiesMessage
-      ? JSON.stringify(propertiesMessage)
+      ? issueMessage(propertiesMessage, 'issue')
       : errorMessageEffective
-        ? JSON.stringify(errorMessageEffective)
+        ? issueMessage(errorMessageEffective, 'issue')
         : 'undefined'
     return `,{error:(issue)=>issue.code==='unrecognized_keys'?${unrecExpr}:${otherExpr}}`
   })()
@@ -156,7 +156,7 @@ export function object(
       ? `.refine((val)=>Object.keys(val).length<=${schema.maxProperties}${maxErrorArg})`
       : ''
   const propertyNamesMessageField = propertyNamesMessage
-    ? `,message:${JSON.stringify(propertyNamesMessage)}`
+    ? `,message:${issueMessage(propertyNamesMessage, "{code:'custom',path:[k],input:o}")}`
     : ''
   const propertyNames = schema.propertyNames?.pattern
     ? (() => {
@@ -204,7 +204,7 @@ export function object(
       ? (() => {
           const messageField =
             additionalPropertiesMessage !== undefined
-              ? `,message:${JSON.stringify(additionalPropertiesMessage)}`
+              ? `,message:${issueMessage(additionalPropertiesMessage, "{code:'unrecognized_keys',keys,path:[],input:o}")}`
               : ''
           return `.superRefine((o,ctx)=>{const keys=Object.keys(o).filter((k)=>${isAdditionalKey});if(keys.length>0){ctx.addIssue({code:"unrecognized_keys",keys,input:o${messageField}})}})`
         })()
@@ -227,9 +227,10 @@ export function object(
             .map((dependency) => {
               const fallback = dependentRequiredMessage ?? errorMessage
               const msg = fallback ?? `requires "${dependency}" when "${key}" present`
-              const msgExpr = ARROW_FUNCTION_PATTERN.test(msg)
-                ? `(${msg})({code:'custom',path:[${JSON.stringify(dependency)}],input:o})`
-                : JSON.stringify(msg)
+              const msgExpr = issueMessage(
+                msg,
+                `{code:'custom',path:[${JSON.stringify(dependency)}],input:o}`,
+              )
               return `if(!Object.hasOwn(o,${JSON.stringify(dependency)})){ctx.addIssue({code:'custom',message:${msgExpr},path:[${JSON.stringify(dependency)}]})}`
             })
             .join(';')
@@ -243,7 +244,7 @@ export function object(
   const dependentSchemasMessage = schema['x-dependentSchemas-message'] ?? schema['x-error-message']
   const dependentSchemasMessageField =
     dependentSchemasMessage !== undefined
-      ? `,message:${JSON.stringify(dependentSchemasMessage)}`
+      ? `,message:${issueMessage(dependentSchemasMessage, 'issue')}`
       : ''
   const dependentSchemas = schema.dependentSchemas
     ? Object.entries(schema.dependentSchemas)

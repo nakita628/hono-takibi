@@ -1,7 +1,13 @@
 import { OCTET_STREAM_MEDIA_TYPE } from '../../../constants/index.js'
 import { fileMimeTypes, isBinaryFile, isOffsetTime } from '../../../guard/index.js'
 import type { Schema } from '../../../openapi/index.js'
-import { baseError, error, escapeRegexLiteral, regexLiteral } from '../../../utils/index.js'
+import {
+  baseError,
+  error,
+  escapeRegexLiteral,
+  issueMessage,
+  regexLiteral,
+} from '../../../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
 import { zodToOpenAPI } from '../index.js'
 
@@ -204,7 +210,7 @@ export function string(
     // issue rather than an uncaught throw at safeParse time.
     const jsonParseStep = (textExpr: string) => {
       const issueExpr = errorMessage
-        ? `{code:"custom",message:${JSON.stringify(errorMessage)},params:{cause:err instanceof Error?err.message:String(err)}}`
+        ? `{code:"custom",message:${issueMessage(errorMessage, '{code:"custom",path:[],input:val}')},params:{cause:err instanceof Error?err.message:String(err)}}`
         : '{code:"custom",params:{cause:err instanceof Error?err.message:String(err)}}'
       return `.transform((val,ctx)=>{try{return JSON.parse(${textExpr})}catch(err){ctx.addIssue(${issueExpr});return z.NEVER}})`
     }

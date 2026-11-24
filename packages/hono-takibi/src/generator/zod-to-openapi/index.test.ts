@@ -16896,3 +16896,281 @@ describe('a statement that copies too much out of the components (#510)', () => 
     )
   })
 })
+
+// What the emitted source accepts: it is evaluated against `zod`, where `.openapi()`, which
+// `@hono/zod-openapi` adds to describe a schema, hands the schema back, with the type
+// annotation `withRawCheck` writes and the type argument of `z.custom` taken out, and
+// `NameSchema` in scope.
+type Evaluated = {
+  readonly safeParse: (value: unknown) => {
+    readonly success: boolean
+    readonly error?: { readonly issues: readonly { readonly message: string }[] }
+  }
+}
+
+const evaluated = (code: string): Evaluated =>
+  // oxlint-disable-next-line typescript/no-implied-eval, no-new-func -- the emitted source is what is under test
+  new Function(
+    'z',
+    'NameSchema',
+    `z.ZodType.prototype.openapi??=function(){return this};return ${code.replaceAll('(val: z.input<typeof Schema>,ctx)', '(val,ctx)').replaceAll(/z\.custom<[^>]*>/gu, 'z.custom')}`,
+  )(z, z.string())
+
+const messagesOf = (code: string, value: unknown): readonly string[] =>
+  (evaluated(code).safeParse(value).error?.issues ?? []).map((issue) => issue.message)
+
+// A check on the raw input, as `makeSiblingKeywordCheck` writes it.
+const check = (statements: string) => `(ctx)=>{const val=ctx.value;${statements}}`
+
+describe('validation keywords beside a combinator (#598)', () => {
+  const schemas = { Name: { type: 'string' } } as const
+  const maxLength5 = check(
+    "if(typeof val==='string'){if([...val].length>5){ctx.issues.push({...{code:'custom'},input:val})}}",
+  )
+
+  it.concurrent('checks maxLength beside allOf of a reference, and states it', () => {
+    const code = zodToOpenAPI(
+      { allOf: [{ $ref: '#/components/schemas/Name' }], maxLength: 5 },
+      undefined,
+      { schemas },
+    )
+    expect(code).toBe(`${withCheck('NameSchema', maxLength5)}.openapi({"maxLength":5})`)
+    expect(evaluated(code).safeParse('short').success).toBe(true)
+    expect(evaluated(code).safeParse('too long').success).toBe(false)
+  })
+
+  it.concurrent('checks maxLength beside anyOf on the string branch alone', () => {
+    const code = zodToOpenAPI({ maxLength: 5, anyOf: [{ type: 'string' }, { type: 'integer' }] })
+    expect(code).toBe(
+      `${withCheck('z.union([z.string(),z.int()])', maxLength5)}.openapi({"maxLength":5})`,
+    )
+    expect(evaluated(code).safeParse('short').success).toBe(true)
+    expect(evaluated(code).safeParse('too long').success).toBe(false)
+    expect(evaluated(code).safeParse(1_234_567).success).toBe(true)
+  })
+
+  it.concurrent('checks minimum beside oneOf', () => {
+    const code = zodToOpenAPI({ minimum: 3, oneOf: [{ type: 'integer' }, { type: 'string' }] })
+    expect(code).toBe(
+      `${withCheck('z.xor([z.int(),z.string()])', check("if(typeof val==='number'){if(val<3){ctx.issues.push({...{code:'custom'},input:val})}}"))}.openapi({"minimum":3})`,
+    )
+    expect(evaluated(code).safeParse(3).success).toBe(true)
+    expect(evaluated(code).safeParse(2).success).toBe(false)
+    expect(evaluated(code).safeParse('a').success).toBe(true)
+  })
+
+  it.concurrent('keeps the keyword of a typed schema whose allOf takes the type', () => {
+    const code = zodToOpenAPI({ type: 'string', maxLength: 5, allOf: [{ pattern: '^a' }] })
+    expect(code).toBe(`${withCheck('z.string().regex(/^a/)', maxLength5)}.openapi({"maxLength":5})`)
+    expect(evaluated(code).safeParse('abc').success).toBe(true)
+    expect(evaluated(code).safeParse('abcdef').success).toBe(false)
+    expect(evaluated(code).safeParse('bcd').success).toBe(false)
+  })
+
+  it.concurrent('reports the keyword with its own message', () => {
+    const code = zodToOpenAPI({
+      maxLength: 5,
+      'x-maxLength-message': 'at most 5',
+      anyOf: [{ type: 'string' }, { type: 'integer' }],
+    })
+    expect(messagesOf(code, 'too long')).toStrictEqual(['at most 5'])
+  })
+
+  it.concurrent('checks the keywords beside a not that has no type', () => {
+    const code = zodToOpenAPI({ not: { const: 'a' }, maxLength: 5 })
+    expect(code).toBe(
+      `${withCheck('z.any().refine((val) => val !== "a")', maxLength5)}.openapi({"maxLength":5}).openapi({"not":{"const":"a"}})`,
+    )
+    expect(evaluated(code).safeParse('b').success).toBe(true)
+    expect(evaluated(code).safeParse('a').success).toBe(false)
+    expect(evaluated(code).safeParse('too long').success).toBe(false)
+  })
+
+  it.concurrent('leaves a combinator with no keyword beside it as it was', () => {
+    expect(zodToOpenAPI({ anyOf: [{ type: 'string' }, { type: 'integer' }] })).toBe(
+      'z.union([z.string(),z.int()])',
+    )
+  })
+
+  it.concurrent('checks if / then on a string', () => {
+    const code = zodToOpenAPI({
+      type: 'string',
+      if: { maxLength: 3 },
+      // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+      then: { pattern: '^a' },
+    })
+    expect(code).toBe(
+      withCheck(
+        'z.string()',
+        check(
+          `{const ifOk=z.unknown().superRefine((val,ctx)=>{if(typeof val==='string'){if([...val].length>3){ctx.addIssue({code:'custom'})}}}).safeParse(val).success;if(ifOk){const Schema=z.unknown().superRefine((val,ctx)=>{if(typeof val==='string'){if(!new RegExp("^a").test(val)){ctx.addIssue({code:'custom'})}}});if(!Schema.safeParse(val).success){ctx.issues.push({...{code:'custom'},input:val})}};}`,
+        ),
+      ),
+    )
+    expect(evaluated(code).safeParse('ab').success).toBe(true)
+    expect(evaluated(code).safeParse('bb').success).toBe(false)
+    expect(evaluated(code).safeParse('bbbb').success).toBe(true)
+  })
+
+  it.concurrent('checks if / then / else on an integer and an array', () => {
+    const integer = zodToOpenAPI({
+      type: 'integer',
+      if: { minimum: 10 },
+      // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+      then: { multipleOf: 10 },
+      else: { multipleOf: 2 },
+    })
+    expect(evaluated(integer).safeParse(20).success).toBe(true)
+    expect(evaluated(integer).safeParse(15).success).toBe(false)
+    expect(evaluated(integer).safeParse(4).success).toBe(true)
+    expect(evaluated(integer).safeParse(3).success).toBe(false)
+    const array = zodToOpenAPI({
+      type: 'array',
+      items: { type: 'string' },
+      if: { minItems: 2 },
+      // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+      then: { maxItems: 3 },
+      'x-if-message': '(issue) => `bad ${issue.code}`',
+    })
+    expect(evaluated(array).safeParse(['a']).success).toBe(true)
+    expect(messagesOf(array, ['a', 'b', 'c', 'd'])).toStrictEqual(['bad custom'])
+  })
+})
+
+describe('an x-*-message written as an arrow function (#601)', () => {
+  it.concurrent('is called where the message is the `message` of an issue', () => {
+    const code = zodToOpenAPI({
+      type: 'object',
+      patternProperties: { '^a': { type: 'string' } },
+      additionalProperties: false,
+      'x-patternProperties-message': '(issue) => `bad ${issue.code}`',
+    })
+    expect(code).toBe(
+      'z.looseObject({}).superRefine((o,ctx)=>{const keys=Object.keys(o).filter((k)=>!["^a"].some((p)=>new RegExp(p).test(k)));if(keys.length>0){ctx.addIssue({code:"unrecognized_keys",keys,input:o})}}).superRefine((o,ctx)=>{const regex=new RegExp("^a");const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:((issue) => `bad ${issue.code}`)(issue)})}}}}).openapi({...{patternProperties:{"^a":{"type":"string"}}},additionalProperties:false})',
+    )
+    expect(messagesOf(code, { a1: 1 })).toStrictEqual(['bad invalid_type'])
+  })
+
+  it.concurrent('is called in a check of a schema with no type', () => {
+    const code = zodToOpenAPI({
+      maxLength: 2,
+      'x-maxLength-message': '(issue) => `bad ${issue.code}`',
+    })
+    expect(code).toBe(
+      "z.unknown().superRefine((val,ctx)=>{if(typeof val==='string'){if([...val].length>2){ctx.addIssue({code:'custom',message:((issue) => `bad ${issue.code}`)({code:'custom',path:[],input:val})})}}})",
+    )
+    expect(messagesOf(code, 'abc')).toStrictEqual(['bad custom'])
+  })
+
+  it.concurrent('writes the text of x-dependentSchemas-message once', () => {
+    const code = zodToOpenAPI({
+      dependentSchemas: { a: { required: ['b'] } },
+      'x-dependentSchemas-message': 'dep failed',
+    })
+    expect(messagesOf(code, { a: 1 })).toStrictEqual(['dep failed'])
+  })
+
+  it.concurrent('is called for uniqueItems and contains of an array', () => {
+    const code = zodToOpenAPI({
+      type: 'array',
+      items: { type: 'integer' },
+      uniqueItems: true,
+      contains: { const: 1 },
+      'x-uniqueItems-message': '(issue) => `dup at ${issue.path}`',
+      'x-contains-message': '(issue) => `no 1 in ${issue.input.length}`',
+    })
+    expect(messagesOf(code, [1, 1])).toStrictEqual(['dup at 1'])
+    expect(messagesOf(code, [2, 3])).toStrictEqual(['no 1 in 2'])
+  })
+})
+
+describe('an object as a value of enum, and of the const / enum of a not (#604)', () => {
+  // The replacer the comparison hands `JSON.stringify`: keys in one order, a bigint as a number.
+  const canonical =
+    "(_,v)=>typeof v==='bigint'?Number(v):typeof v==='object'&&v!==null&&!Array.isArray(v)?Object.fromEntries(Object.entries(v).sort(([a],[b])=>a<b?-1:a>b?1:0)):v"
+
+  it.concurrent('compares an object whatever the order of its keys', () => {
+    const member = zodToOpenAPI({ type: 'object', enum: [{ b: 2, a: 1 }] } as unknown as Schema)
+    expect(member).toBe(
+      String.raw`z.custom<{"b":2,"a":1}>((val)=>JSON.stringify(val,${canonical})==="{\"a\":1,\"b\":2}")`,
+    )
+    expect(evaluated(member).safeParse({ a: 1, b: 2 }).success).toBe(true)
+    expect(evaluated(member).safeParse({ b: 2, a: 1 }).success).toBe(true)
+    expect(evaluated(member).safeParse({ a: 1, b: 3 }).success).toBe(false)
+    const excluded = zodToOpenAPI({ not: { const: { b: 2, a: 1 } } })
+    expect(evaluated(excluded).safeParse({ a: 1, b: 2 }).success).toBe(false)
+    expect(evaluated(excluded).safeParse({ b: 2, a: 1 }).success).toBe(false)
+    expect(evaluated(excluded).safeParse({ a: 1 }).success).toBe(true)
+  })
+
+  it.concurrent('compares an object that holds a bigint', () => {
+    const code = zodToOpenAPI({
+      type: 'object',
+      properties: { id: { type: 'integer', format: 'int64' } },
+      not: { const: { id: 1 } },
+    })
+    expect(evaluated(code).safeParse({ id: 1 }).success).toBe(false)
+    expect(evaluated(code).safeParse({ id: 5 }).success).toBe(true)
+  })
+
+  it.concurrent('keeps the bigint comparison of a const with an annotation beside it', () => {
+    expect(
+      zodToOpenAPI({ type: 'integer', format: 'int64', not: { const: 0, description: 'zero' } }),
+    ).toBe(
+      `z.preprocess(${JSON_BIGINT},z.int64()).openapi({type:"integer",format:"int64"}).refine((val) => val !== 0n).openapi({type:"integer",format:"int64","not":{"const":0,"description":"zero"}})`,
+    )
+  })
+
+  it.concurrent('validates an enum of objects on a typed schema', () => {
+    const code = zodToOpenAPI({ type: 'object', enum: [{ a: 1 }] } as unknown as Schema)
+    expect(code).toBe(
+      String.raw`z.custom<{"a":1}>((val)=>JSON.stringify(val,${canonical})==="{\"a\":1}")`,
+    )
+    expect(evaluated(code).safeParse({ a: 1 }).success).toBe(true)
+    expect(evaluated(code).safeParse({ a: 2 }).success).toBe(false)
+    expect(evaluated(code).safeParse('a').success).toBe(false)
+  })
+
+  it.concurrent('excludes the object a not names by const', () => {
+    const code = zodToOpenAPI({ not: { const: { a: 1 } } })
+    expect(code).toBe(
+      String.raw`z.any().refine((val) => JSON.stringify(val,${canonical}) !== "{\"a\":1}").openapi({"not":{"const":{"a":1}}})`,
+    )
+    expect(evaluated(code).safeParse({ a: 1 }).success).toBe(false)
+    expect(evaluated(code).safeParse({ a: 2 }).success).toBe(true)
+  })
+
+  it.concurrent('excludes the objects and arrays a not names by enum', () => {
+    const code = zodToOpenAPI({ not: { enum: [{ a: 1 }, [1], 'x'] } } as unknown as Schema)
+    expect(code).toBe(
+      String.raw`z.any().refine((val) => !["{\"a\":1}","[1]","\"x\""].includes(JSON.stringify(val,${canonical}))).openapi({"not":{"enum":[{"a":1},[1],"x"]}})`,
+    )
+    expect(evaluated(code).safeParse({ a: 1 }).success).toBe(false)
+    expect(evaluated(code).safeParse([1]).success).toBe(false)
+    expect(evaluated(code).safeParse('x').success).toBe(false)
+    expect(evaluated(code).safeParse([2]).success).toBe(true)
+  })
+
+  it.concurrent('keeps the comparison by value for primitives', () => {
+    expect(zodToOpenAPI({ not: { const: 0 } })).toBe(
+      'z.any().refine((val) => val !== 0).openapi({"not":{"const":0}})',
+    )
+    expect(zodToOpenAPI({ not: { enum: [0, 'a'] } })).toBe(
+      'z.any().refine((val) => ![0,"a"].includes(val)).openapi({"not":{"enum":[0,"a"]}})',
+    )
+  })
+
+  it.concurrent('excludes nothing for a const its own type rules out', () => {
+    const code = zodToOpenAPI({ not: { const: 0, type: 'string' } })
+    expect(code).toBe(
+      'z.any().refine((val) => !z.never().safeParse(val).success).openapi({"not":{"const":0,"type":"string"}})',
+    )
+    expect(evaluated(code).safeParse(0).success).toBe(true)
+  })
+
+  it.concurrent('accepts nothing for a const the declared type rules out', () => {
+    expect(zodToOpenAPI({ type: 'string', const: 0 })).toBe('z.never()')
+    expect(zodToOpenAPI({ type: 'integer', const: 1 })).toBe('z.literal(1)')
+    expect(zodToOpenAPI({ type: 'number', const: 1 })).toBe('z.literal(1)')
+  })
+})
