@@ -971,9 +971,9 @@ export async function getUsersUserIdMessagesMessageId(
         `node ${path.resolve(import.meta.dirname, '../dist/cli.js')} tmp-cli-test/nonexistent.json -o tmp-cli-test/output.ts`,
         { encoding: 'utf8' },
       )
-      // `<input>` is validated before any generator runs, so a missing document
-      // is a parse-time error rather than a downstream ENOENT.
-    }).toThrow(/Path does not exist/u)
+      // `<input>` may be a URL, so it is not checked on disk up front: a missing
+      // document is reported when it is opened, as it is for a config's input.
+    }).toThrow(/Error opening file .*nonexistent\.json: ENOENT/u)
   })
 
   it('error on missing output option', () => {

@@ -2,9 +2,10 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import SwaggerParser from '@apidevtools/swagger-parser'
 import { NodeServices } from '@effect/platform-node'
 import { Console, Effect, Exit, Fiber, Stdio } from 'effect'
-import { afterEach, describe, expect, it } from 'vite-plus/test'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { honoTakibi } from './index.js'
 
@@ -481,8 +482,25 @@ describe('hono-takibi argument validation', () => {
 
     expect(result.ok).toBe(false)
     expect(result.stderr).toBe(
-      `\nERROR\n  Invalid value for argument <input>: "${dir}/this-file-does-not-exist.yaml". Expected: Path does not exist: ${dir}/this-file-does-not-exist.yaml`,
+      `\nERROR\n  Error opening file ${input}: ENOENT: no such file or directory, open '${input}'`,
     )
+  })
+
+  // #614: a URL reaches the parser as it is — the same input a config file accepts.
+  it('reads an input given as a URL', async () => {
+    const dir = useTmpDir('cli-url-input-')
+    const output = path.join(dir, 'out.ts')
+    const url = 'https://example.com/openapi.json'
+    const bundle = vi.spyOn(SwaggerParser, 'bundle').mockResolvedValueOnce(minimalOpenapi)
+    try {
+      const result = await runCli([url, '-o', output])
+
+      expect(result.ok).toBe(true)
+      expect(result.stdout).toBe(`🔥 Generated code written to ${output}`)
+      expect(bundle.mock.calls).toStrictEqual([[url]])
+    } finally {
+      bundle.mockRestore()
+    }
   })
 
   it('rejects an output whose extension is not .ts', async () => {

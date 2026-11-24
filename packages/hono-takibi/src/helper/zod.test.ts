@@ -94,6 +94,21 @@ describe('helper/zod', () => {
       )
     })
 
+    // #601: the message is encoded once — `messageFor` already returns the literal.
+    it('writes x-dependentSchemas-message as one string literal', () => {
+      expect(
+        emitTypelessRefine(
+          {
+            dependentSchemas: { a: { required: ['b'] } },
+            'x-dependentSchemas-message': 'dep failed',
+          },
+          recurse,
+        ),
+      ).toBe(
+        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){const Schema=z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"b")){ctx.addIssue({code:'custom'})}}}).openapi({"required":["b"]});const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path,message:"dep failed"})}}}}})`,
+      )
+    })
+
     it('emits contains + minContains + maxContains (typeless)', () => {
       expect(
         emitTypelessRefine(
