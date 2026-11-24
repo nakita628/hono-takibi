@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.7](https://github.com/nakita628/hono-takibi/compare/v0.35.6...v0.35.7) (2026-11-24)
+
+
+### Bug Fixes
+
+* **shared:** compare resolved directories when a file is beside the client ([#626](https://github.com/nakita628/hono-takibi/issues/626)) ([7074048](https://github.com/nakita628/hono-takibi/commit/70740486f75cf483a5bd5288a2a5507e15b7784b))
+
 ## [0.35.6](https://github.com/nakita628/hono-takibi/compare/v0.35.5...v0.35.6) (2026-11-24)
 
 
