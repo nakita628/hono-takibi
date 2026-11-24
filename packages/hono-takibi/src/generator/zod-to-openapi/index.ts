@@ -44,6 +44,8 @@ import {
   makeUnevaluatedPropertiesCheck,
   canAcceptObject,
   canAdmitNullOrUndefined,
+  hasOwnWrapping,
+  isShapeMember,
   requiresObject,
 } from '../../helper/zod.js'
 import type { RawCheck } from '../../helper/zod.js'
@@ -105,20 +107,6 @@ function withRawStatements(
   declarations: readonly string[] = [],
 ): string {
   return `(()=>{${declarations.join('')}const Schema=${zod};return z.preprocess((val: z.input<typeof Schema>,ctx)=>{${statements};return val},Schema)})()`
-}
-
-// Whether a schema carries its own wrapping (`.nullable()`, `.default()`,
-// `.prefault()`, `.catch()`) on itself. `canAdmitNullOrUndefined` follows a
-// `$ref` to its target and never sees the wrapping on the branch itself,
-// so a `$ref` branch with its own wrapping needs this check beside it.
-function hasOwnWrapping(branch: Schema): boolean {
-  return (
-    branch.nullable === true ||
-    normalizeTypes(branch.type).includes('null') ||
-    branch.default !== undefined ||
-    branch['x-prefault'] !== undefined ||
-    branch['x-catch'] !== undefined
-  )
 }
 
 /**
@@ -688,14 +676,6 @@ export function zodToOpenAPI(
     const hasShape =
       (schema.properties !== undefined && Object.keys(schema.properties).length > 0) ||
       (Array.isArray(schema.required) && schema.required.length > 0)
-    // `type: 'null'` alone also satisfies the `every` below, but it accepts no
-    // object: require 'object' too, as `requiresObject` does.
-    const objectOnly =
-      normalizeTypes(schema.type).includes('object') &&
-      normalizeTypes(schema.type).every((type) => type === 'object' || type === 'null')
-    const membersRequireObject = schema.allOf.some((member) =>
-      requiresObject(member, childOptions?.schemas),
-    )
     const shapeSchema: Schema | undefined = hasShape
       ? {
           type: 'object',
@@ -703,33 +683,9 @@ export function zodToOpenAPI(
           ...(schema.required ? { required: schema.required } : {}),
         }
       : undefined
-    // A shape member after the whole intersection would reject the `null`
-    // the intersection admits when the parent type allows it, every member
-    // admits it, and the parent does not re-admit it (see `nullable` below):
-    // the shape is distributed into the members instead (#471), which now
-    // carry it inside their own wrapping. A declared parent type without
-    // `null` already rejects it, so the member path stays correct there. A
-    // member admits it through its own wrapping as well as through its
-    // target: a `$ref` member with its own `.nullable()` / `.default()` is
-    // not seen by `canAdmitNullOrUndefined`, which follows the `$ref`. The
-    // parent re-admission is the same check `nullable` makes, read off
-    // `schema.allOf` — the shape member itself is never an annotation-only
-    // nullable member, so it cannot change the result.
-    const intersectionAdmitsNullOrUndefined =
-      (schema.type === undefined || normalizeTypes(schema.type).includes('null')) &&
-      schema.allOf.length > 0 &&
-      schema.allOf.every(
-        (member) =>
-          canAdmitNullOrUndefined(member, childOptions?.schemas) || hasOwnWrapping(member),
-      )
-    const parentReAdmitsNull =
-      schema.nullable === true ||
-      normalizeTypes(schema.type).includes('null') ||
-      schema.allOf.some((s) => s.type === 'null' || (s.nullable === true && isAnnotationOnly(s)))
-    const shapeMember =
-      (objectOnly || membersRequireObject) &&
-      schema.properties !== undefined &&
-      !(intersectionAdmitsNullOrUndefined && !parentReAdmitsNull)
+    // Whether the shape is a member of the intersection: see `isShapeMember`, which the
+    // type writer asks too, so that the type has the properties the output has (#634).
+    const shapeMember = isShapeMember(schema, childOptions?.schemas)
     const shapeRefine =
       shapeSchema === undefined || shapeMember
         ? undefined

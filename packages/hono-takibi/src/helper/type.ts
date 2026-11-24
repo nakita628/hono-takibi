@@ -1,4 +1,5 @@
 import {
+  hasTypelessConstraint,
   isAnnotationOnly,
   isBinaryFile,
   isPresent,
@@ -12,14 +13,22 @@ import {
   makeStringLiteral,
   toIdentifierPascalCase,
 } from '../utils/index.js'
+import { isShapeMember, narrowToDeclaredType } from './zod.js'
 
 /**
  * What differs between the places a schema is written as a TypeScript type: the rest of
  * the writer is the same for all of them, so that they cannot disagree (#608).
  */
 export type TypeWriter = {
-  /** How a `$ref` is written: the name of an alias, or `z.infer<typeof XSchema>`. */
-  readonly ref: (ref: string) => string
+  /**
+   * How a `$ref` is written: the name of an alias, or `z.infer<typeof XSchema>`.
+   * `direct` says that nothing defers the reference: it is the schema itself or a member
+   * of its `allOf` / `anyOf` / `oneOf`, not a property, an element or an index signature.
+   * TypeScript lets an alias reach itself only through one of those (#635).
+   */
+  readonly ref: (ref: string, direct: boolean) => string
+  /** The component schemas, to follow a `$ref` the way the schema writer does. */
+  readonly schemas: { readonly [k: string]: Schema } | undefined
   /** `readonly` on every property, index signature, array and tuple. */
   readonly readonly: boolean
   /**
@@ -38,8 +47,10 @@ export function makeTypeString(
   selfTypeName: string,
   _cyclicGroup?: ReadonlySet<string>,
   readonly?: boolean,
+  schemas?: { readonly [k: string]: Schema },
 ) {
   return makeSchemaTypeString(schema, {
+    schemas,
     ref: (ref) => {
       const refName = toIdentifierPascalCase(decodePercent(ref.split('/').at(-1) ?? ''))
       return refName === selfTypeName ? `${refName}Type` : `z.infer<typeof ${refName}Schema>`
@@ -52,10 +63,11 @@ export function makeTypeString(
 /**
  * The TypeScript type of what the Zod schema written for `schema` outputs.
  */
-export function makeSchemaTypeString(schema: Schema, writer: TypeWriter): string {
+export function makeSchemaTypeString(schema: Schema, writer: TypeWriter, direct = true): string {
   if (!isPresent(schema)) return 'unknown'
-  // `{}` and `true` constrain nothing: the value is `unknown`, not an object (#379).
-  if (Object.keys(schema).length === 0) return 'unknown'
+  // `{}` and `true` constrain nothing: the value is anything, not an object (#379). They
+  // are written `z.any()`, which outputs `any` (#632).
+  if (Object.keys(schema).length === 0) return 'any'
   const types = normalizeType(schema)
   // `| null` is decided here, once, for every shape: a reference, a union or an enum that
   // is `nullable` (3.0), lists `null` among its types (3.1), or defaults to `null` (which
@@ -67,30 +79,43 @@ export function makeSchemaTypeString(schema: Schema, writer: TypeWriter): string
     (schema.enum?.includes(null) ?? false) ||
     (intersectedMembers(schema)?.some(isNullMember) ?? false)
   const nonNullTypes = types.filter((typeName) => typeName !== 'null')
-  const baseType = makeNonNullTypeString(schema, nonNullTypes, writer)
+  const baseType = makeNonNullTypeString(schema, nonNullTypes, writer, direct)
   if (!isNullable || baseType === 'null') return baseType
   return `(${baseType}|null)`
 }
 
-function makeNonNullTypeString(schema: Schema, types: readonly string[], writer: TypeWriter) {
+function makeNonNullTypeString(
+  schema: Schema,
+  types: readonly string[],
+  writer: TypeWriter,
+  direct: boolean,
+) {
   if (schema.$ref) {
-    return writer.ref(schema.$ref)
+    return writer.ref(schema.$ref, direct)
   }
   if (schema.oneOf && schema.oneOf.length > 0) {
-    return makeUnionTypeString(schema.oneOf, '|', writer)
+    return makeUnionTypeString(schema.oneOf, '|', writer, direct)
   }
   if (schema.anyOf && schema.anyOf.length > 0) {
-    return makeUnionTypeString(schema.anyOf, '|', writer)
+    return makeUnionTypeString(schema.anyOf, '|', writer, direct)
   }
-  const members = intersectedMembers(schema)
-  if (members !== undefined) {
+  if (intersectedMembers(schema) !== undefined) {
+    // A declared `type` beside the `allOf` is written into its members first, as the
+    // schema writer does (#468): `type: string` beside a member that only annotates is a
+    // string, not anything.
+    const narrowed = narrowToDeclaredType(schema, writer.schemas)
+    const members = (narrowed.allOf ?? []).filter(Boolean)
     // A member that only allows `null`, or only annotates, says something of the whole
     // value and is no part of the intersection: `X & (unknown | null)` is `X`, and
     // `X & null` is `never`. `makeTypeString` has already read the `null` off it (#527).
     return makeUnionTypeString(
-      members.filter((member) => !(isNullMember(member) || isAnnotationOnly(member))),
+      [
+        ...members.filter((member) => !(isNullMember(member) || isAnnotationOnly(member))),
+        ...shapeMembers(narrowed, writer),
+      ],
       '&',
       writer,
+      direct,
     )
   }
   // An int64 is a bigint in the generated schema, and so are the literals of its enum.
@@ -136,6 +161,20 @@ function intersectedMembers(schema: Schema): readonly Schema[] | undefined {
   return schema.allOf && schema.allOf.length > 0 ? schema.allOf.filter(Boolean) : undefined
 }
 
+// The `properties` beside an `allOf`, as one more member of the intersection, where the
+// schema writer makes them one: `X.and(z.object({ ... }))` outputs them (#634). Where it
+// checks them on the raw value instead, the output does not have them.
+function shapeMembers(schema: Schema, writer: TypeWriter): readonly Schema[] {
+  if (!isShapeMember(schema, writer.schemas)) return []
+  return [
+    {
+      type: 'object',
+      ...(schema.properties ? { properties: schema.properties } : {}),
+      ...(schema.required ? { required: schema.required } : {}),
+    },
+  ]
+}
+
 // An `allOf` member that makes the whole value nullable, as the schema writer reads it
 // (`.nullable()` on the intersection): `{ type: 'null' }`, or `nullable: true` with
 // nothing beside it that validates (Box).
@@ -147,10 +186,15 @@ function makeUnionTypeString(
   schemas: readonly Schema[],
   separator: '|' | '&',
   writer: TypeWriter,
+  direct: boolean,
 ): string {
-  const types = schemas.filter(Boolean).map((s) => makeSchemaTypeString(s, writer))
+  const written = schemas.filter(Boolean).map((s) => makeSchemaTypeString(s, writer, direct))
+  // `X & unknown` is `X`: a member that says nothing is not written beside one that does.
+  const said = separator === '&' ? written.filter((type) => type !== 'unknown') : written
+  const types = said.length === 0 ? written.slice(0, 1) : said
   const [only] = types
-  return only === undefined ? 'unknown' : types.length === 1 ? only : `(${types.join(separator)})`
+  // No member left: `z.any()`.
+  return only === undefined ? 'any' : types.length === 1 ? only : `(${types.join(separator)})`
 }
 
 // A schema with no `type` is an object when it declares properties (#385); otherwise the
@@ -165,8 +209,13 @@ function makeBaseTypeString(schema: Schema, types: readonly string[], writer: Ty
     return types.map((typeName) => makeSingleTypeString(schema, typeName, writer)).join('|')
   }
   const [type] = types
-  // No type but `null`: what `z.null()` outputs. No type at all: anything.
-  if (type === undefined) return schema.type === 'null' ? 'null' : 'unknown'
+  // No type but `null`: what `z.null()` outputs. No type at all: `z.unknown()` with the
+  // checks of its keywords, or `z.any()` when there is nothing to check (#632).
+  if (type === undefined) {
+    if (schema.type === 'null') return 'null'
+    // `not` is a refinement of `z.any()`, whatever stands beside it.
+    return schema.not === undefined && hasTypelessConstraint(schema) ? 'unknown' : 'any'
+  }
   return makeSingleTypeString(schema, type, writer)
 }
 
@@ -179,7 +228,7 @@ function makeSingleTypeString(schema: Schema, type: string, writer: TypeWriter) 
   if (type === 'null') return 'null'
   if (type === 'array') return makeArrayTypeString(schema, writer)
   if (type === 'object') return makeObjectTypeString(schema, writer)
-  return 'unknown'
+  return 'any'
 }
 
 // `z.int64()` / `z.uint64()` / `z.bigint()` output a bigint (see `z/integer.ts`), unless the
@@ -196,27 +245,29 @@ function wrapForArrayElement(type: string) {
 
 function makeArrayTypeString(schema: Schema, writer: TypeWriter): string {
   const prefix = writer.readonly ? 'readonly ' : ''
-  // Boolean `items` (JSON Schema 2020-12 §10.3.1.2) are `unknown[]` either way: `true`
-  // constrains nothing, and `false` is emitted as `z.array(z.any()).length(0)`, which infers
-  // an array and would not fit an empty tuple.
-  if (!isPresent(schema.items) || schema.items === true) return `${prefix}unknown[]`
+  // A tuple of `prefixItems` is checked element by element on `z.array(z.unknown())`.
+  if (Array.isArray(schema.prefixItems)) return `${prefix}unknown[]`
+  // No `items`, and boolean `items` (JSON Schema 2020-12 §10.3.1.2), are `any[]` either
+  // way: `true` constrains nothing, and `false` is emitted as `z.array(z.any()).length(0)`,
+  // which infers an array and would not fit an empty tuple (#632).
+  if (!isPresent(schema.items) || schema.items === true) return `${prefix}any[]`
   const items = schema.items
   if (isSchemaArray(items)) {
     const firstItem = items[0]
     if (items.length > 1) {
       const tupleTypes = items
         .filter(Boolean)
-        .map((item) => makeSchemaTypeString(item, writer))
+        .map((item) => makeSchemaTypeString(item, writer, false))
         .join(',')
       return `${prefix}[${tupleTypes}]`
     }
     if (firstItem !== undefined) {
-      const innerType = makeSchemaTypeString(firstItem, writer)
+      const innerType = makeSchemaTypeString(firstItem, writer, false)
       return `${prefix}${wrapForArrayElement(innerType)}[]`
     }
-    return `${prefix}unknown[]`
+    return `${prefix}any[]`
   }
-  const innerType = makeSchemaTypeString(items, writer)
+  const innerType = makeSchemaTypeString(items, writer, false)
   return `${prefix}${wrapForArrayElement(innerType)}[]`
 }
 
@@ -224,10 +275,16 @@ function makeObjectTypeString(schema: Schema, writer: TypeWriter): string {
   const { properties, additionalProperties, required } = schema
   const readonlyPrefix = writer.readonly ? 'readonly ' : ''
   if (!properties || Object.keys(properties).length === 0) {
+    // Beside `patternProperties` the base is `z.looseObject({})`, whatever
+    // `additionalProperties` says: a key a pattern matches is held to the pattern's schema,
+    // not to that of `additionalProperties`, so a value is not known to be either (#629).
+    if (Object.keys(schema.patternProperties ?? {}).length > 0) {
+      return `{${readonlyPrefix}[key:string]:unknown}`
+    }
     // `z.strictObject({})` has no key at all.
     if (additionalProperties === false) return '{}'
     if (typeof additionalProperties === 'object') {
-      const valueType = makeSchemaTypeString(additionalProperties, writer)
+      const valueType = makeSchemaTypeString(additionalProperties, writer, false)
       return `{${readonlyPrefix}[key:string]:${valueType}}`
     }
     return `{${readonlyPrefix}[key:string]:unknown}`
@@ -235,7 +292,7 @@ function makeObjectTypeString(schema: Schema, writer: TypeWriter): string {
   const requiredSet = new Set(Array.isArray(required) ? required : [])
   const optional = writer.optionalUndefined ? '|undefined' : ''
   const propertyStrings = Object.entries(properties).map(([key, propSchema]) => {
-    const propType = makeSchemaTypeString(propSchema, writer)
+    const propType = makeSchemaTypeString(propSchema, writer, false)
     return requiredSet.has(key)
       ? `${readonlyPrefix}${makeSafeKey(key)}:${propType}`
       : `${readonlyPrefix}${makeSafeKey(key)}?:${propType}${optional}`

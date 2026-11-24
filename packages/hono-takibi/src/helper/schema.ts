@@ -106,8 +106,9 @@ export function makeTypeDefinition(
   },
   cyclicGroupPascal: ReadonlySet<string>,
   readonly?: boolean,
+  schemas?: { readonly [k: string]: Schema },
 ) {
-  return zodType(info.schema, info.safeSchemaName, cyclicGroupPascal, readonly)
+  return zodType(info.schema, info.safeSchemaName, cyclicGroupPascal, readonly, schemas)
 }
 
 export function makeTypeDefinitions(
@@ -126,7 +127,7 @@ export function makeTypeDefinitions(
 ) {
   const initialTypeDefs = infos
     .filter((info) => info.needsTypeDef)
-    .map((info) => makeTypeDefinition(info, cyclicGroupPascal, readonly))
+    .map((info) => makeTypeDefinition(info, cyclicGroupPascal, readonly, schemas))
   const generatedTypeNames = new Set(
     infos.filter((info) => info.needsTypeDef).map((info) => `${info.safeSchemaName}Type`),
   )
@@ -142,7 +143,7 @@ export function makeTypeDefinitions(
     .flatMap((refType) => {
       const schemaName = refType.replace(/Type$/u, '')
       const schema = schemas[schemaName]
-      return schema ? [zodType(schema, schemaName, cyclicGroupPascal, readonly)] : []
+      return schema ? [zodType(schema, schemaName, cyclicGroupPascal, readonly, schemas)] : []
     })
   return [...initialTypeDefs, ...additionalTypeDefs] as const
 }
@@ -176,7 +177,7 @@ export function makeSplitSchemaFile(
 ) {
   const info = makeSchemaInfo(schemaName, schema, analysis)
   const typeDefinition = info.needsTypeDef
-    ? `${makeTypeDefinition(info, analysis.cyclicGroupPascal, readonly)}\n\n`
+    ? `${makeTypeDefinition(info, analysis.cyclicGroupPascal, readonly, schemas)}\n\n`
     : ''
   const schemaCode = makeSchemaCode(info, {
     exportKeyword: 'export ',

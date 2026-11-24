@@ -115,8 +115,46 @@ function aliasOf(schemaName: string, schema: Schema, aliases: Aliases) {
     : base
   aliases.taken.add(name)
   aliases.names.set(schemaName, name)
-  aliases.bodies.set(name, makeTypeOf(schema, aliases))
+  aliases.bodies.set(name, makeTypeOf(schema, aliases, schemaName))
   return name
+}
+
+/**
+ * The component schemas `schema` refers to with nothing in between that defers the
+ * reference: itself, or a member of the combinator it is typed by. Of `oneOf`, `anyOf`
+ * and `allOf` the type writer writes the first that is there, so only that one counts.
+ */
+function directRefNames(schema: Schema): readonly string[] {
+  if (schema.$ref) {
+    const parts = schema.$ref.split('/')
+    const name = parts.at(-1)
+    return parts[2] === 'schemas' && name !== undefined ? [name] : []
+  }
+  const members = [schema.oneOf, schema.anyOf, schema.allOf].find(
+    (candidates) => candidates !== undefined && candidates.length > 0,
+  )
+  return (members ?? []).flatMap(directRefNames)
+}
+
+/**
+ * Whether the alias of `from` reaches the alias of `target` through direct references
+ * alone. TypeScript resolves such a chain at once, so one that comes back to where it
+ * started is an alias that circularly references itself (TS2456, #635).
+ */
+function reachesDirectly(
+  from: string,
+  target: string,
+  schemas: { readonly [k: string]: Schema },
+  // One set for the whole search: a schema that did not reach the target once never will,
+  // so it is not walked again along another path.
+  visited = new Set<string>(),
+): boolean {
+  if (from === target) return true
+  if (visited.has(from)) return false
+  visited.add(from)
+  const schema = schemas[from]
+  if (schema === undefined) return false
+  return directRefNames(schema).some((name) => reachesDirectly(name, target, schemas, visited))
 }
 
 /**
@@ -124,9 +162,20 @@ function aliasOf(schemaName: string, schema: Schema, aliases: Aliases) {
  * (#608): a `$ref` is the name of its alias, and an optional property may be `undefined`,
  * as it is in what Hono's `JSONParsed` makes of a response.
  */
-function makeTypeOf(schema: Schema, aliases: Aliases) {
+function makeTypeOf(schema: Schema, aliases: Aliases, self?: string) {
+  const schemas = aliases.components?.schemas
   return makeSchemaTypeString(schema, {
-    ref: (ref) => makeRefTypeString(ref, aliases),
+    // A direct reference that leads back to the alias being written cannot be written as
+    // a name. It says nothing the alias does not already say of itself, so it is
+    // `unknown`, which an intersection drops (`X & unknown` is `X`).
+    ref: (ref, direct) =>
+      direct &&
+      self !== undefined &&
+      schemas !== undefined &&
+      reachesDirectly(ref.split('/').at(-1) ?? '', self, schemas)
+        ? 'unknown'
+        : makeRefTypeString(ref, aliases),
+    schemas,
     readonly: false,
     optionalUndefined: true,
   })
@@ -312,11 +361,22 @@ function makeOutputTypes(
     if (mediaEntries.length === 0) {
       return [`{input:${inputType};output:{};outputFormat:string;status:${status}}`]
     }
-    return mediaEntries.map(([mediaType, media]) => {
-      const outputType = makeTypeOf(media.schema, aliases)
-      const outputFormat = isJsonMediaType(mediaType) ? "'json'" : "'text'"
-      return `{input:${inputType};output:${outputType};outputFormat:${outputFormat};status:${status}}`
+    const outputs = mediaEntries.map(([mediaType, media]) => {
+      // @hono/zod-openapi types the body of a JSON media type and of `text/plain…` alone.
+      // Any other one (`application/xml`) is a bare `Response` there, and here a response
+      // whose body is not typed, like one without content: the status is known, and the
+      // body is read as text (#633).
+      const outputFormat = isJsonMediaType(mediaType)
+        ? "'json'"
+        : mediaType.startsWith('text/plain')
+          ? "'text'"
+          : undefined
+      return outputFormat === undefined
+        ? `{input:${inputType};output:{};outputFormat:string;status:${status}}`
+        : `{input:${inputType};output:${makeTypeOf(media.schema, aliases)};outputFormat:${outputFormat};status:${status}}`
     })
+    // Two media types that are not typed say the same of one status: once is enough.
+    return outputs.filter((output, index) => outputs.indexOf(output) === index)
   })
 }
 

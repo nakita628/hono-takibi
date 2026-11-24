@@ -84,6 +84,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Derived'
+  /loop:
+    get:
+      operationId: getLoop
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  alpha:
+                    $ref: '#/components/schemas/Alpha'
+                  beta:
+                    $ref: '#/components/schemas/Beta'
+                  self:
+                    $ref: '#/components/schemas/Self'
   /upload:
     post:
       operationId: upload
@@ -102,6 +119,29 @@ paths:
                 $ref: '#/components/schemas/user-profile'
 components:
   schemas:
+    # A cycle made only of allOf: nothing defers the reference, so an alias cannot name
+    # the other (#635).
+    Alpha:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Beta'
+      properties:
+        a:
+          type: string
+    Beta:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Alpha'
+      properties:
+        b:
+          type: number
+    Self:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Self'
+      properties:
+        value:
+          type: string
     Address:
       type: object
       required:

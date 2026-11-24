@@ -10,6 +10,7 @@ import {
   makeStrictOperandCheck,
   makeUnevaluatedProperties,
   makeUnevaluatedPropertiesCheck,
+  isShapeMember,
   makeIssueForwarding,
   narrowToDeclaredType,
 } from './zod.js'
@@ -1214,5 +1215,40 @@ describe('helper/zod: makeSiblingCombinatorCheck (#469)', () => {
           `if(${parse('S')}.success){ctx.issues.push({code:"custom",input:val,message:((iss) => iss.code)({code:'custom',path:[],input:val})})}`,
       ),
     )
+  })
+})
+
+describe('helper/zod: isShapeMember (#634)', () => {
+  const P: Schema = { type: 'object', required: ['p'], properties: { p: { type: 'string' } } }
+  const ref: Schema = { $ref: '#/components/schemas/P' }
+  const properties: Schema['properties'] = { a: { type: 'string' } }
+
+  it('is true beside a declared object type', () => {
+    expect(isShapeMember({ type: 'object', allOf: [ref], properties })).toBe(true)
+    expect(isShapeMember({ type: 'object', allOf: [{ minLength: 1 }], properties })).toBe(true)
+  })
+
+  it('is true when a member only accepts objects', () => {
+    expect(isShapeMember({ allOf: [{ type: 'object' }], properties })).toBe(true)
+    expect(isShapeMember({ allOf: [ref], properties }, { P })).toBe(true)
+  })
+
+  it('is false when nothing rejects a non-object', () => {
+    expect(isShapeMember({ allOf: [{ minLength: 1 }], properties })).toBe(false)
+    // The target of the `$ref` is not known.
+    expect(isShapeMember({ allOf: [ref], properties })).toBe(false)
+  })
+
+  it('is false without properties, and without allOf', () => {
+    expect(isShapeMember({ type: 'object', allOf: [ref], required: ['p'] }, { P })).toBe(false)
+    expect(isShapeMember({ type: 'object', properties })).toBe(false)
+  })
+
+  it('is false when the intersection admits a null the shape would reject (#471)', () => {
+    expect(isShapeMember({ allOf: [{ ...ref, nullable: true }], properties }, { P })).toBe(false)
+    // The parent admits it again, around the whole intersection.
+    expect(
+      isShapeMember({ nullable: true, allOf: [{ ...ref, nullable: true }], properties }, { P }),
+    ).toBe(true)
   })
 })

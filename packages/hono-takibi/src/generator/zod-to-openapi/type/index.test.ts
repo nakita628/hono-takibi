@@ -361,3 +361,36 @@ describe('zodType', () => {
     })
   })
 })
+
+describe('zodType: the annotation of a circular schema', () => {
+  // #629: the base is `z.looseObject({})`, whose values are `unknown`.
+  it('does not write a record of additionalProperties beside patternProperties', () => {
+    expect(
+      zodType(
+        {
+          type: 'object',
+          patternProperties: { '^x-': {} },
+          additionalProperties: { $ref: '#/components/schemas/PathItem' },
+        },
+        'Callback',
+        new Set(['Callback', 'PathItem']),
+      ),
+    ).toBe('type CallbackType={[key:string]:unknown}')
+  })
+
+  // #634: `PSchema.and(z.object({ kids: ... }))` outputs `kids`.
+  it('writes the properties beside allOf', () => {
+    expect(
+      zodType(
+        {
+          allOf: [{ $ref: '#/components/schemas/P' }],
+          properties: { kids: { type: 'array', items: { $ref: '#/components/schemas/Tree' } } },
+        },
+        'Tree',
+        new Set(['Tree']),
+        false,
+        { P: { type: 'object', required: ['p'], properties: { p: { type: 'string' } } } },
+      ),
+    ).toBe('type TreeType=(z.infer<typeof PSchema>&{kids?:TreeType[]})')
+  })
+})
