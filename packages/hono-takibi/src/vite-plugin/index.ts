@@ -1,6 +1,7 @@
 // oxlint-disable no-console -- the plugin reports generation progress to the Vite terminal
 import crypto from 'node:crypto'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
 import { Effect, FileSystem, Option, Result } from 'effect'
@@ -36,8 +37,57 @@ type ViteDevServer = {
   ssrLoadModule: (moduleId: string) => Promise<unknown>
 }
 
-async function readConfigurationWithHotReload(server: ViteDevServer) {
-  const absoluteConfigPath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
+const DEFAULT_CONFIG_FILE = 'hono-takibi.config.ts'
+
+/**
+ * The config with every `output` at any depth resolved from `root`.
+ *
+ * Found by key rather than listed, so an output kind added to the schema is resolved
+ * without being named here.
+ */
+function resolveOutputs(
+  root: string,
+  node: { readonly [key: string]: unknown },
+): { readonly [key: string]: unknown } {
+  return Object.fromEntries(
+    Object.entries(node).map(([key, value]) => {
+      if (key === 'output' && typeof value === 'string') return [key, path.resolve(root, value)]
+      return [key, isRecord(value) ? resolveOutputs(root, value) : value]
+    }),
+  )
+}
+
+/**
+ * Checks the default export of a loaded config module, with its paths resolved from `root`.
+ *
+ * The generators resolve a relative path from the working directory, which is not Vite's
+ * root under `vite --root app` or a monorepo run from the top. Absolute paths mean the
+ * same file wherever the process runs, so nothing after this reads the working directory.
+ * An `http(s)` input is not a path and stays as written.
+ */
+async function parseConfigModule(root: string, loadedModule: unknown) {
+  const defaultExport = isRecord(loadedModule) ? Reflect.get(loadedModule, 'default') : undefined
+  if (!(typeof defaultExport === 'object' && defaultExport !== null)) {
+    return Result.fail('Config must export default object')
+  }
+  const input = isRecord(defaultExport) ? defaultExport.input : undefined
+  const fromRoot = isRecord(defaultExport)
+    ? {
+        ...resolveOutputs(root, defaultExport),
+        ...(typeof input === 'string' && !/^https?:\/\//u.test(input)
+          ? { input: path.resolve(root, input) }
+          : {}),
+      }
+    : defaultExport
+  const result = await Effect.runPromise(Effect.result(parseConfig(fromRoot)))
+  return Result.mapError(result, (error) => error.message)
+}
+
+async function readConfigurationWithHotReload(
+  server: ViteDevServer,
+  root: string,
+  absoluteConfigPath: string,
+) {
   try {
     const resolved = await server.pluginContainer.resolveId(absoluteConfigPath)
     const moduleId = resolved?.id
@@ -48,12 +98,7 @@ async function readConfigurationWithHotReload(server: ViteDevServer) {
       server.moduleGraph.invalidateAll()
     }
     const loadedModule = await server.ssrLoadModule(`${absoluteConfigPath}?t=${String(Date.now())}`)
-    const defaultExport = isRecord(loadedModule) ? Reflect.get(loadedModule, 'default') : undefined
-    if (!(typeof defaultExport === 'object' && defaultExport !== null)) {
-      return Result.fail('Config must export default object')
-    }
-    const result = await Effect.runPromise(Effect.result(parseConfig(defaultExport)))
-    return Result.mapError(result, (error) => error.message)
+    return await parseConfigModule(root, loadedModule)
   } catch (error) {
     return Result.fail(error instanceof Error ? error.message : String(error))
   }
@@ -250,24 +295,21 @@ function runAllGenerationTasks(config: Config) {
       return { logs: [`❌ config: ${packagesResult.failure.message}`], changed: false }
     }
     const jobs = makeJob(openAPIResult.success, config, packagesResult.success)
-    const targets = jobs.map((job) => ({ job, absOutput: path.resolve(process.cwd(), job.output) }))
-    const outputPaths = targets.map(({ absOutput }) => absOutput)
+    const outputPaths = jobs.map((job) => job.output)
     const beforeSnapshot = yield* snapshotOutputs(outputPaths)
     // The same clean the CLI runs, so one config cannot leave two different directories
     // behind depending on which entry point produced it.
-    yield* cleanSplitOutputs(
-      targets.filter(({ job }) => job.split).map(({ absOutput }) => absOutput),
-    )
+    yield* cleanSplitOutputs(jobs.filter((job) => job.split).map((job) => job.output))
     // `Effect.result` per job is what keeps a failure from cancelling its siblings — a
     // dev server keeps running — so the array that comes back is one log line per job.
     const logs = yield* withImportStyle(
       config,
       Effect.all(
-        targets.map(({ job, absOutput }) =>
-          Effect.result(job.run(absOutput)).pipe(
+        jobs.map((job) =>
+          Effect.result(job.run(job.output)).pipe(
             Effect.map((result) =>
               Result.isSuccess(result)
-                ? `✅ ${job.name}${job.split ? '(split)' : ''} -> ${absOutput}`
+                ? `✅ ${job.name}${job.split ? '(split)' : ''} -> ${job.output}`
                 : `❌ ${job.name}: ${result.failure.message}`,
             ),
           ),
@@ -283,18 +325,17 @@ function runAllGenerationTasks(config: Config) {
 /**
  * Adds glob patterns to the Vite file watcher.
  *
- * Watches the input file and related files (.yaml, .yml, .json, .tsp) in the
- * same directory for changes.
+ * Watches the input file and every file with an input extension under its directory.
+ * The globs are written with `/` on every platform: chokidar reads `\` as an escape, so
+ * a Windows path joined with `path.join` matches nothing.
  */
 function addInputGlobsToWatcher(server: ViteDevServer, absoluteInputPath: string) {
   const inputDirectory = path.dirname(absoluteInputPath)
-  const watchPatterns: string[] = [
+  const globDirectory = inputDirectory.split(path.sep).join('/')
+  server.watcher.add([
     absoluteInputPath,
-    path.join(inputDirectory, '**/*.yaml'),
-    path.join(inputDirectory, '**/*.json'),
-    path.join(inputDirectory, '**/*.tsp'),
-  ]
-  server.watcher.add(watchPatterns)
+    ...INPUT_EXTENSIONS.map((extension) => `${globDirectory}/**/*${extension}`),
+  ])
   return inputDirectory
 }
 
@@ -368,6 +409,7 @@ function extractOutputPaths(config: Config): readonly string[] {
     config.routes?.output,
     config.webhooks?.output,
     config.type?.output,
+    config.client?.output,
     config.rpc?.output,
     config.swr?.output,
     config['tanstack-query']?.output,
@@ -378,12 +420,13 @@ function extractOutputPaths(config: Config): readonly string[] {
     config['angular-query']?.output,
     config.mock?.output,
     config.docs?.output,
-  ]
-    .filter((outputPath) => outputPath !== undefined)
-    .map((outputPath) => path.resolve(process.cwd(), outputPath))
+  ].filter((outputPath) => outputPath !== undefined)
 }
 
-export function honoTakibiVite(): any {
+/**
+ * @param options.config - The config file, from Vite's root. Default: `hono-takibi.config.ts`.
+ */
+export function honoTakibiVite(options: { readonly config?: string } = {}): any {
   const pluginState: {
     current: Config | null
     inputDirectory: string | null
@@ -397,7 +440,10 @@ export function honoTakibiVite(): any {
     lastInputHash: null,
     runQueue: Promise.resolve(),
   }
-  const absoluteConfigFilePath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
+  // Vite's root once `configResolved` has run; the working directory until then, which
+  // is what Vite's root defaults to.
+  const vite: { root: string; command: string } = { root: process.cwd(), command: 'serve' }
+  const configFilePath = () => path.resolve(vite.root, options.config ?? DEFAULT_CONFIG_FILE)
   let pendingConfigurationServer: ViteDevServer | null = null
   const runGeneration = async () => {
     if (!pluginState.current) return false
@@ -465,7 +511,11 @@ export function honoTakibiVite(): any {
   }
   const handleConfigurationChange = async (server: ViteDevServer) => {
     console.log('config changed')
-    const nextConfiguration = await readConfigurationWithHotReload(server)
+    const nextConfiguration = await readConfigurationWithHotReload(
+      server,
+      vite.root,
+      configFilePath(),
+    )
     if (Result.isFailure(nextConfiguration)) {
       console.error(`❌ config: ${nextConfiguration.failure}`)
       return
@@ -481,10 +531,7 @@ export function honoTakibiVite(): any {
       }
     }
     pluginState.current = nextConfiguration.success
-    const inputDirectory = addInputGlobsToWatcher(
-      server,
-      path.resolve(process.cwd(), pluginState.current.input),
-    )
+    const inputDirectory = addInputGlobsToWatcher(server, pluginState.current.input)
     // The list belongs to the document the previous config named; a document somewhere
     // else starts from nothing until it has been read.
     if (inputDirectory !== pluginState.inputDirectory) pluginState.outside = []
@@ -516,16 +563,39 @@ export function honoTakibiVite(): any {
     name: 'hono-takibi-vite',
     handleHotUpdate(context: { file: string; server: ViteDevServer }) {
       const absoluteFilePath = path.resolve(context.file)
-      if (absoluteFilePath === path.resolve(process.cwd(), 'hono-takibi.config.ts')) {
+      if (absoluteFilePath === configFilePath()) {
         queueConfigurationChange(context.server)
         return []
       }
       return undefined
     },
+    configResolved(resolved: { readonly root: string; readonly command: string }) {
+      vite.root = path.resolve(resolved.root)
+      vite.command = resolved.command
+    },
+    /**
+     * Generates once for `vite build`, where there is no dev server to do it.
+     *
+     * Vite calls this hook for the dev server as well, and there `configureServer`
+     * generates. A build that could not generate fails: what it would bundle is stale.
+     */
     async buildStart() {
-      // Dev-only: handled by configureServer
+      if (vite.command !== 'build') return
+      const loadedModule: unknown = await import(pathToFileURL(configFilePath()).href)
+      const configuration = await parseConfigModule(vite.root, loadedModule)
+      if (Result.isFailure(configuration)) throw new Error(`config: ${configuration.failure}`)
+      console.log('🔥 hono-takibi')
+      const { logs } = await Effect.runPromise(
+        runAllGenerationTasks(configuration.success).pipe(Effect.provide(NodeFileSystem.layer)),
+      )
+      for (const logMessage of logs) {
+        console.log(logMessage)
+      }
+      const failures = logs.filter((logMessage) => logMessage.startsWith('❌'))
+      if (failures.length > 0) throw new Error(failures.join('\n'))
     },
     configureServer(server: ViteDevServer) {
+      const absoluteConfigFilePath = configFilePath()
       // 200ms debounce: editors emit multiple fs events on save, and batch file changes
       // (e.g. git checkout) would otherwise trigger redundant regeneration cycles.
       const debouncedRunGeneration = debounce(200, () => {
@@ -550,16 +620,17 @@ export function honoTakibiVite(): any {
         }
       })
       ;(async () => {
-        const initialConfiguration = await readConfigurationWithHotReload(server)
+        const initialConfiguration = await readConfigurationWithHotReload(
+          server,
+          vite.root,
+          absoluteConfigFilePath,
+        )
         if (Result.isFailure(initialConfiguration)) {
           console.error(`❌ config: ${initialConfiguration.failure}`)
           return
         }
         pluginState.current = initialConfiguration.success
-        const inputDirectory = addInputGlobsToWatcher(
-          server,
-          path.resolve(process.cwd(), pluginState.current.input),
-        )
+        const inputDirectory = addInputGlobsToWatcher(server, pluginState.current.input)
         pluginState.inputDirectory = inputDirectory
         pluginState.lastInputHash = await Effect.runPromise(
           hashWatchedInputs(inputDirectory, pluginState.outside).pipe(

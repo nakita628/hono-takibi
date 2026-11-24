@@ -1,41 +1,30 @@
 // The Vite plugin (cases/vite-plugin, with the TypeSpec input specs/vite-plugin.tsp).
 //
-// A dev server started with `honoTakibiVite()` reads hono-takibi.config.ts from its
-// working directory and generates on startup. The test deletes the generated output,
-// starts a server, and waits for the output to come back.
+// A dev server started with `honoTakibiVite()` reads hono-takibi.config.ts from Vite's
+// root and generates on startup. The test deletes the generated output, starts a server,
+// and waits for the output to come back.
 //
-// The plugin finds its config through `process.cwd()`, so the test has to change
-// directory. That is why the vitest pool is 'forks' in vite.config.ts: each test file runs
-// in a process of its own, and the change cannot leak into another file.
+// The root is the case directory and the working directory is not: the config, its input
+// and its output are all found from the root, as under `vite --root`.
 //
 // Vite プラグインの検証(cases/vite-plugin。入力は TypeSpec の specs/vite-plugin.tsp)。
 //
-// `honoTakibiVite()` を指定して起動した開発サーバーは、作業ディレクトリから
+// `honoTakibiVite()` を指定して起動した開発サーバーは、Vite の root から
 // hono-takibi.config.ts を読み込み、起動時にコード生成を行う。このテストでは、生成済みの
 // 出力を削除してからサーバーを起動し、出力が再び生成されるのを待つ。
 //
-// プラグインは `process.cwd()` を基準に設定ファイルを探すため、テスト内でディレクトリを
-// 移動する必要がある。vite.config.ts で vitest の pool を 'forks' にしているのは、
-// このためである。各テストファイルが専用のプロセスで実行されるので、ディレクトリの変更が
-// 他のファイルに漏れることはない。
+// root はケースのディレクトリで、作業ディレクトリとは異なる。設定ファイル、入力、出力は
+// すべて root を基準に解決される(`vite --root` と同じ状況)。
 import { existsSync, readFileSync, rmSync } from 'node:fs'
 import path from 'node:path'
 
 import { honoTakibiVite } from 'hono-takibi/vite-plugin'
 import { createServer } from 'vite'
-import { afterAll, expect, it, vi } from 'vite-plus/test'
+import { expect, it, vi } from 'vite-plus/test'
 
 const testRoot = path.resolve(import.meta.dirname, '..')
 const caseDir = path.join(testRoot, 'cases', 'vite-plugin')
 const routesFile = path.join(testRoot, '__generated__', 'vite-plugin', 'routes.ts')
-const originalCwd = process.cwd()
-
-// Back to the directory the run started in, whatever the test did.
-// テストの結果にかかわらず、実行開始時のディレクトリに戻す。
-afterAll(() => {
-  process.chdir(originalCwd)
-})
-
 // The output directory is removed first, so the file that appears can only have been written by
 // the plugin. The generated file has to hold the route of the TypeSpec input, not merely exist.
 //
@@ -304,7 +293,6 @@ export const getHealthRoute = createRoute({
 `
 
 it('the vite plugin generates from the .tsp input when the dev server starts', async () => {
-  process.chdir(caseDir)
   rmSync(path.dirname(routesFile), { recursive: true, force: true })
   expect(existsSync(routesFile)).toBe(false)
 
