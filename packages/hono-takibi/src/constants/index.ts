@@ -38,8 +38,8 @@ export const INPUT_EXTENSIONS = ['.yaml', '.yml', '.json', '.tsp'] as const
 export const IDENTIFIER_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/u
 
 /**
- * A message option written as an arrow function, `(issue) => ...`, rather than as text.
- * Such a message is spliced into the generated code as an expression instead of a string.
+ * How a message option written as an arrow function starts, `(issue) => ...`. Text can start
+ * the same way, so this only rules a message out: `isArrowFunction` parses what it lets by.
  */
 export const ARROW_FUNCTION_PATTERN = /^\s*\(.*?\)\s*=>/u
 

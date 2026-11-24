@@ -1,3 +1,5 @@
+import { parseSync } from 'oxc-parser'
+
 import { ARROW_FUNCTION_PATTERN, IDENTIFIER_PATTERN } from '../constants/index.js'
 import type { HTTP_METHODS } from '../constants/index.js'
 /**
@@ -576,6 +578,32 @@ export function makeBarrel(value: { readonly [k: string]: unknown }) {
 }
 
 /**
+ * Whether a message option is an arrow function, `(issue) => ...`, rather than text. Such a
+ * message is spliced into the generated code as an expression, so it has to parse as one:
+ * text that only starts like a function, `(see docs) => too short`, stays text (#644).
+ *
+ * @example
+ * ```ts
+ * isArrowFunction('(issue) => `bad ${issue.code}`') // → true
+ * isArrowFunction('(see docs) => too short') // → false
+ * ```
+ */
+export function isArrowFunction(message: string) {
+  if (!ARROW_FUNCTION_PATTERN.test(message)) return false
+  // oxlint-disable-next-line node/no-sync -- parses a string in memory; nothing is read or awaited
+  const { program, errors } = parseSync('message.ts', `(${message})`, { lang: 'ts' })
+  const [statement, ...others] = program.body
+  if (errors.length > 0 || statement?.type !== 'ExpressionStatement' || others.length > 0) {
+    return false
+  }
+  const expression =
+    statement.expression.type === 'ParenthesizedExpression'
+      ? statement.expression.expression
+      : statement.expression
+  return expression.type === 'ArrowFunctionExpression'
+}
+
+/**
  * Formats an error message argument using the Zod v4 unified `error` parameter.
  *
  *
@@ -586,7 +614,7 @@ export function makeBarrel(value: { readonly [k: string]: unknown }) {
  * ```
  */
 export function error(message: string) {
-  if (ARROW_FUNCTION_PATTERN.test(message)) {
+  if (isArrowFunction(message)) {
     return `{error:${message}}` as const
   }
   return `{error:${JSON.stringify(message)}}` as const
@@ -606,7 +634,7 @@ export function error(message: string) {
  * ```
  */
 export function issueMessage(message: string, issue: string) {
-  return ARROW_FUNCTION_PATTERN.test(message) ? `(${message})(${issue})` : JSON.stringify(message)
+  return isArrowFunction(message) ? `(${message})(${issue})` : JSON.stringify(message)
 }
 
 /**

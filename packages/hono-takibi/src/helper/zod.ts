@@ -98,10 +98,31 @@ const RAW_REPORT: Report = {
   forward: (messageField) => makeIssueForwarding(`{...issue,input:issue.input${messageField}}`),
 }
 
+// A check on the raw input, as the source of a callback that takes the payload (`ctx`).
+// `async` is the same check for a parse that is asynchronous: a check that parses a schema
+// of the document (`safeParse`) throws when that schema has an asynchronous refinement, so
+// it is run again with `safeParseAsync` (see `withRawCheck` in the schema emitter). A check
+// that parses nothing has no asynchronous form.
+export type RawCheck = { readonly sync: string; readonly async?: string }
+
+// How a schema is parsed inside a check: synchronously, or awaited.
+type Parse = (zod: string, value: string) => string
+const parseSync: Parse = (zod, value) => `${zod}.safeParse(${value})`
+const parseAsync: Parse = (zod, value) => `(await ${zod}.safeParseAsync(${value}))`
+
+// A check written for both parses: with an asynchronous form when it parses a schema, which
+// is when the two differ.
+function bothParses(build: (parse: Parse) => string): RawCheck {
+  const sync = build(parseSync)
+  const awaited = build(parseAsync)
+  return sync === awaited ? { sync } : { sync, async: `async${awaited}` }
+}
+
 function makeObjectChecks(
   schema: Schema,
   recurse: (s: Schema) => string,
   report: Report = REFINE_REPORT,
+  parse: Parse = parseSync,
 ): readonly string[] {
   const ownKeys = Object.keys(schema.properties ?? {})
   const patterns = Object.keys(schema.patternProperties ?? {})
@@ -138,7 +159,7 @@ function makeObjectChecks(
   const propertyChecks = schema.properties
     ? Object.entries(schema.properties).map(
         ([key, sub]) =>
-          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};if(!Schema.safeParse(Reflect.get(val,${JSON.stringify(key)})).success){${report.issue(issueObj(propertiesMessage))}}}`,
+          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};if(!${parse('Schema', `Reflect.get(val,${JSON.stringify(key)})`)}.success){${report.issue(issueObj(propertiesMessage))}}}`,
       )
     : []
   const additionalPropertiesMessage = messageFor(schema, 'additionalProperties')
@@ -148,7 +169,7 @@ function makeObjectChecks(
     }
     if (isSchemaObject(schema.additionalProperties)) {
       const subZod = recurse(schema.additionalProperties)
-      return `{const Schema=${subZod};${forUndeclaredKeys(`if(!Schema.safeParse(Reflect.get(val,k)).success){${report.issue(issueObj(additionalPropertiesMessage))}}`)}}`
+      return `{const Schema=${subZod};${forUndeclaredKeys(`if(!${parse('Schema', 'Reflect.get(val,k)')}.success){${report.issue(issueObj(additionalPropertiesMessage))}}`)}}`
     }
     return undefined
   })()
@@ -156,7 +177,7 @@ function makeObjectChecks(
   const patternPropertiesChecks = schema.patternProperties
     ? Object.entries(schema.patternProperties).map(
         ([pattern, sub]) =>
-          `{const Schema=${recurse(sub)};for(const k of Object.keys(val)){if(new RegExp(${JSON.stringify(pattern)}).test(k)){if(!Schema.safeParse(Reflect.get(val,k)).success){${report.issue(issueObj(patternPropertiesMessage))}}}}}`,
+          `{const Schema=${recurse(sub)};for(const k of Object.keys(val)){if(new RegExp(${JSON.stringify(pattern)}).test(k)){if(!${parse('Schema', 'Reflect.get(val,k)')}.success){${report.issue(issueObj(patternPropertiesMessage))}}}}}`,
       )
     : []
   const propertyNamesCheck = schema.propertyNames?.pattern
@@ -185,7 +206,7 @@ function makeObjectChecks(
   const dependentSchemasChecks = schema.dependentSchemas
     ? Object.entries(schema.dependentSchemas).map(
         ([key, sub]) =>
-          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){${report.forward(dependentSchemasMessageField)}}}}`,
+          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};const result=${parse('Schema', 'val')};if(!result.success){for(const issue of result.error.issues){${report.forward(dependentSchemasMessageField)}}}}`,
       )
     : []
   // `additionalProperties` as a schema or `true` evaluates every key it applies to
@@ -226,6 +247,7 @@ function makeArrayChecks(
   schema: Schema,
   recurse: (s: Schema) => string,
   report: Report = REFINE_REPORT,
+  parse: Parse = parseSync,
 ): readonly string[] {
   const minItemsCheck =
     typeof schema.minItems === 'number'
@@ -244,7 +266,7 @@ function makeArrayChecks(
   const prefixChecks = schema.prefixItems
     ? schema.prefixItems.map(
         (sub, index) =>
-          `if(val.length>${index}){const Schema=${recurse(sub)};if(!Schema.safeParse(val[${index}]).success){${report.issue(issueObj(prefixItemsMessage))}}}`,
+          `if(val.length>${index}){const Schema=${recurse(sub)};if(!${parse('Schema', `val[${index}]`)}.success){${report.issue(issueObj(prefixItemsMessage))}}}`,
       )
     : []
   // items:false → trailing items forbidden; items:true → unconstrained.
@@ -257,7 +279,7 @@ function makeArrayChecks(
     if (items === undefined || items === true || !isSingleSchema(items)) {
       return undefined
     }
-    return `{const Schema=${recurse(items)};for(let i=${prefixCount};i<val.length;i++){if(!Schema.safeParse(val[i]).success){${report.issue(issueObj(itemsMessage))}}}}`
+    return `{const Schema=${recurse(items)};for(let i=${prefixCount};i<val.length;i++){if(!${parse('Schema', 'val[i]')}.success){${report.issue(issueObj(itemsMessage))}}}}`
   })()
   // Precedence, as in the typed array: x-minContains-message / x-maxContains-message >
   // x-contains-message > x-error-message.
@@ -274,7 +296,12 @@ function makeArrayChecks(
         const minCheck = `if(m<${minC}){${report.issue(issueObj(lowerBoundMessage))}}`
         const maxCheck =
           maxC !== undefined ? `;if(m>${maxC}){${report.issue(issueObj(maxContainsMessage))}}` : ''
-        return `{const m=val.filter((i)=>${subZod}.safeParse(i).success).length;${minCheck}${maxCheck}}`
+        // A callback of `filter` cannot await, so the awaited form counts in a loop.
+        const count =
+          parse === parseSync
+            ? `const m=val.filter((i)=>${subZod}.safeParse(i).success).length`
+            : `const Schema=${subZod};let m=0;for(const i of val){if(${parse('Schema', 'i')}.success){m++}}`
+        return `{${count};${minCheck}${maxCheck}}`
       })()
     : undefined
   // `items` evaluates every element after the prefix, so none is left unevaluated.
@@ -352,6 +379,7 @@ function makeConditionalStmt(
   schema: Schema,
   recurse: (s: Schema) => string,
   report: Report,
+  parse: Parse = parseSync,
 ): string | undefined {
   const ifSchema = schema.if
   const ifMessage = messageFor(schema, 'if')
@@ -363,13 +391,13 @@ function makeConditionalStmt(
         const thenSchema = schema.then
         const elseSchema = schema.else
         const thenPart = thenSchema
-          ? `if(ifOk){const Schema=${recurse(thenSchema)};if(!Schema.safeParse(val).success){${report.issue(issueObj(thenMessage))}}}`
+          ? `if(ifOk){const Schema=${recurse(thenSchema)};if(!${parse('Schema', 'val')}.success){${report.issue(issueObj(thenMessage))}}}`
           : ''
         const elsePart = elseSchema
-          ? `if(!ifOk){const Schema=${recurse(elseSchema)};if(!Schema.safeParse(val).success){${report.issue(issueObj(elseMessage))}}}`
+          ? `if(!ifOk){const Schema=${recurse(elseSchema)};if(!${parse('Schema', 'val')}.success){${report.issue(issueObj(elseMessage))}}}`
           : ''
         return thenPart || elsePart
-          ? `{const ifOk=${ifZod}.safeParse(val).success;${thenPart};${elsePart}}`
+          ? `{const ifOk=${parse(ifZod, 'val')}.success;${thenPart};${elsePart}}`
           : undefined
       })()
     : undefined
@@ -379,6 +407,7 @@ function makeGenericChecks(
   schema: Schema,
   recurse: (s: Schema) => string,
   report: Report = REFINE_REPORT,
+  parse: Parse = parseSync,
 ): readonly string[] {
   // deepEqual via JSON.stringify
   const enumCheck = Array.isArray(schema.enum)
@@ -395,7 +424,7 @@ function makeGenericChecks(
   const allOfChecks = Array.isArray(schema.allOf)
     ? schema.allOf.map(
         (sub: Schema) =>
-          `{const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){${report.forward(allOfMessageField)}}}}`,
+          `{const Schema=${recurse(sub)};const result=${parse('Schema', 'val')};if(!result.success){for(const issue of result.error.issues){${report.forward(allOfMessageField)}}}}`,
       )
     : []
   // Precedence: x-implication-message > x-anyOf-message > x-error-message.
@@ -405,17 +434,17 @@ function makeGenericChecks(
     pickMessage(schema, 'x-error-message')
   const anyOfCheck =
     Array.isArray(schema.anyOf) && schema.anyOf.length > 0
-      ? `if(!(${schema.anyOf.map((sub: Schema) => `${recurse(sub)}.safeParse(val).success`).join('||')})){${report.issue(issueObj(anyOfMessage))}}`
+      ? `if(!(${schema.anyOf.map((sub: Schema) => `${parse(recurse(sub), 'val')}.success`).join('||')})){${report.issue(issueObj(anyOfMessage))}}`
       : undefined
   const oneOfMessage = messageFor(schema, 'oneOf')
   const oneOfCheck =
     Array.isArray(schema.oneOf) && schema.oneOf.length > 0
-      ? `if((${schema.oneOf.map((sub: Schema) => `(${recurse(sub)}.safeParse(val).success?1:0)`).join('+')})!==1){${report.issue(issueObj(oneOfMessage))}}`
+      ? `if((${schema.oneOf.map((sub: Schema) => `(${parse(recurse(sub), 'val')}.success?1:0)`).join('+')})!==1){${report.issue(issueObj(oneOfMessage))}}`
       : undefined
   const notCheck = schema.not
-    ? `if(${recurse(schema.not)}.safeParse(val).success){${report.issue(issueObj(messageFor(schema, 'not')))}}`
+    ? `if(${parse(recurse(schema.not), 'val')}.success){${report.issue(issueObj(messageFor(schema, 'not')))}}`
     : undefined
-  const ifCheck = makeConditionalStmt(schema, recurse, report)
+  const ifCheck = makeConditionalStmt(schema, recurse, report, parse)
 
   return [enumCheck, constCheck, ...allOfChecks, anyOfCheck, oneOfCheck, notCheck, ifCheck].filter(
     (s): s is string => s !== undefined,
@@ -428,12 +457,13 @@ function typelessBlocks(
   schema: Schema,
   recurse: (s: Schema) => string,
   report: Report,
+  parse: Parse = parseSync,
 ): readonly string[] {
-  const objectChecks = makeObjectChecks(schema, recurse, report)
-  const arrayChecks = makeArrayChecks(schema, recurse, report)
+  const objectChecks = makeObjectChecks(schema, recurse, report, parse)
+  const arrayChecks = makeArrayChecks(schema, recurse, report, parse)
   const stringChecks = makeStringChecks(schema, report)
   const numberChecks = makeNumberChecks(schema, report)
-  const genericChecks = makeGenericChecks(schema, recurse, report)
+  const genericChecks = makeGenericChecks(schema, recurse, report, parse)
   return [
     objectChecks.length > 0
       ? `if(typeof val==='object'&&val!==null&&!Array.isArray(val)){${objectChecks.join(';')}}`
@@ -460,38 +490,62 @@ export function emitTypelessRefine(schema: Schema, recurse: (s: Schema) => strin
  * handle themselves is left out: the combinators, the sibling shape (`properties` /
  * `required`), `additionalProperties` and the `unevaluated*` keywords, whose meaning depends
  * on what the members evaluate. `undefined` when no keyword is left.
+ *
+ * Beside a `not` alone (`isNotAlone`) only the `not` is left out: it is emitted as a refine
+ * on `z.any()`, which reads no shape and has no member that evaluates anything (#647).
  */
 export function makeSiblingKeywordCheck(
   schema: Schema,
   recurse: (s: Schema) => string,
-): string | undefined {
-  const {
-    allOf: _allOf,
-    anyOf: _anyOf,
-    oneOf: _oneOf,
-    not: _not,
-    properties: _properties,
-    required: _required,
-    additionalProperties: _additionalProperties,
-    unevaluatedProperties: _unevaluatedProperties,
-    unevaluatedItems: _unevaluatedItems,
-    ...keywords
-  } = schema
-  const blocks = typelessBlocks(keywords, recurse, RAW_REPORT)
-  return blocks.length === 0 ? undefined : `(ctx)=>{const val=ctx.value;${blocks.join(';')}}`
+  isNotAlone = false,
+): RawCheck | undefined {
+  const keywords = (() => {
+    const { allOf: _allOf, anyOf: _anyOf, oneOf: _oneOf, not: _not, ...beside } = schema
+    if (isNotAlone) return beside
+    const {
+      properties: _properties,
+      required: _required,
+      additionalProperties: _additionalProperties,
+      unevaluatedProperties: _unevaluatedProperties,
+      unevaluatedItems: _unevaluatedItems,
+      ...rest
+    } = beside
+    return rest
+  })()
+  if (typelessBlocks(keywords, recurse, RAW_REPORT).length === 0) return undefined
+  return bothParses(
+    (parse) =>
+      `(ctx)=>{const val=ctx.value;${typelessBlocks(keywords, recurse, RAW_REPORT, parse).join(';')}}`,
+  )
 }
 
 /**
- * `if` / `then` / `else` on a schema whose type is not an object, as a check on the raw
- * input (#598): the string, number, integer, boolean and array emitters do not read them.
- * `undefined` when there is no `if`, or neither `then` nor `else`.
+ * `if` / `then` / `else` on a schema whose type is not an object (#598): the string, number,
+ * integer, boolean and array emitters do not read them. `undefined` when there is no `if`,
+ * or neither `then` nor `else`.
+ *
+ * A check on the raw input (`(ctx)=>`), or with `onOutput` a refinement of what the schema
+ * hands out (`(val,ctx)=>`): where the emitter converts its input itself (`x-coerce`), the
+ * raw input is the text, which no number keyword applies to (#646). A bigint is compared as
+ * the number it was read from.
  */
 export function makeConditionalCheck(
   schema: Schema,
   recurse: (s: Schema) => string,
-): string | undefined {
-  const check = makeConditionalStmt(schema, recurse, RAW_REPORT)
-  return check === undefined ? undefined : `(ctx)=>{const val=ctx.value;${check}}`
+  onOutput = false,
+): RawCheck | undefined {
+  if (makeConditionalStmt(schema, recurse, RAW_REPORT) === undefined) return undefined
+  const isBigint =
+    schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint'
+  return bothParses((parse) => {
+    if (!onOutput) {
+      return `(ctx)=>{const val=ctx.value;${makeConditionalStmt(schema, recurse, RAW_REPORT, parse)}}`
+    }
+    const stmt = makeConditionalStmt(schema, recurse, REFINE_REPORT, parse)
+    return isBigint
+      ? `(output,ctx)=>{const val=typeof output==='bigint'?Number(output):output;${stmt}}`
+      : `(val,ctx)=>{${stmt}}`
+  })
 }
 
 // Whether a schema accepts only object values (plus `null`, which the outer
@@ -1026,18 +1080,6 @@ function leaksUnrecognizedKeys(
   return emitsStrictObject(schema)
 }
 
-// A check on the raw input, as the source of a callback that takes the payload (`ctx`).
-// `async` is the same check for a parse that is asynchronous: a check that parses a schema
-// of the document (`safeParse`) throws when that schema has an asynchronous refinement, so
-// it is run again with `safeParseAsync` (see `withRawCheck` in the schema emitter). A check
-// that parses nothing has no asynchronous form.
-export type RawCheck = { readonly sync: string; readonly async?: string }
-
-// How a schema is parsed inside a check: synchronously, or awaited.
-type Parse = (zod: string, value: string) => string
-const parseSync: Parse = (zod, value) => `${zod}.safeParse(${value})`
-const parseAsync: Parse = (zod, value) => `(await ${zod}.safeParseAsync(${value}))`
-
 // The statement that reports each key of `o` the listed keys and patterns do not declare:
 // a `custom` issue under the key, like the `unevaluatedProperties` check.
 function undeclaredKeysStmt(schema: Schema) {
@@ -1165,17 +1207,137 @@ export function makeStrictOperandCheck(
   }
 }
 
-// `additionalProperties: false` written beside a combinator, as a check on the raw input.
+// `additionalProperties` written beside a combinator, as a check on the raw input.
 // The keyword applies to the keys its own schema neither declares in `properties` nor
 // matches with `patternProperties` (JSON Schema 2020-12 §10.3.2.3): it does not see what
 // the members of an `allOf` or the branches of a union declare, so a key only they declare
-// fails it. The combinator paths emit the combinator and the sibling shape, neither of
-// which is strict, so the keys are checked around them.
-export function makeParentStrictCheck(schema: Schema): RawCheck | undefined {
-  if (schema.additionalProperties !== false) return undefined
-  return {
-    sync: `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;${undeclaredKeysStmt(schema)}}`,
+// fails `false`, and has to be a value of a schema (#647). The combinator paths emit the
+// combinator and the sibling shape, neither of which reads the keyword, so the keys are
+// checked around them. The issues of a schema are reported under the key, with
+// `x-additionalProperties-message` as their message when it is given.
+export function makeParentStrictCheck(
+  schema: Schema,
+  recurse: (s: Schema) => string,
+): RawCheck | undefined {
+  const additional = schema.additionalProperties
+  const guard = `const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;`
+  if (additional === false) return { sync: `(ctx)=>{${guard}${undeclaredKeysStmt(schema)}}` }
+  if (!isSchemaObject(additional)) return undefined
+  const ownKeys = Object.keys(schema.properties ?? {})
+  const patterns = Object.keys(schema.patternProperties ?? {})
+  const declared = [
+    ...(ownKeys.length > 0 ? [`${JSON.stringify(ownKeys)}.includes(k)`] : []),
+    ...(patterns.length > 0
+      ? [`${JSON.stringify(patterns)}.some((p)=>new RegExp(p).test(k))`]
+      : []),
+  ]
+  const skip = declared.length === 0 ? '' : `if(${declared.join('||')}){continue}`
+  const message = pickMessage(schema, 'x-additionalProperties-message')
+  const messageField = message === undefined ? '' : `,message:${issueMessage(message, 'issue')}`
+  const forwarding = makeIssueForwarding(
+    `{...issue,path:[k,...issue.path],input:issue.input${messageField}}`,
+  )
+  return bothParses(
+    (parse) =>
+      `(ctx)=>{${guard}const Schema=${recurse(additional)};for(const k of Object.keys(o)){${skip}const result=${parse('Schema', 'Reflect.get(o,k)')};if(!result.success){for(const issue of result.error.issues){${forwarding}}}}}`,
+  )
+}
+
+// The statements that raise `n`, the number of leading elements of the array `a` a schema
+// evaluates: those `prefixItems` names, and every one beside `items` or an
+// `unevaluatedItems` of its own; what each member of an `allOf` evaluates, each branch of
+// an `anyOf` / `oneOf` that matches, and the `if` / `then` / `else` the condition selects
+// (JSON Schema 2020-12 §11.2). A reference evaluates what the component it names does.
+// The matches of the top-level branches are counted into `mA` and `mO`.
+function evaluatedItemsStmts(
+  schema: Schema,
+  recurse: (s: Schema) => string,
+  schemas: Schemas | undefined,
+  parse: Parse,
+  isTop: boolean,
+  reading: ReadonlySet<string> = new Set(),
+): readonly string[] {
+  if (schema.$ref !== undefined) {
+    const target = reading.has(schema.$ref) ? undefined : resolveSchemaRef(schema.$ref, schemas)
+    return target === undefined
+      ? []
+      : evaluatedItemsStmts(
+          target,
+          recurse,
+          schemas,
+          parse,
+          false,
+          new Set([...reading, schema.$ref]),
+        )
   }
+  const nested = (sub: Schema) => evaluatedItemsStmts(sub, recurse, schemas, parse, false, reading)
+  const own =
+    isRestEvaluated(schema) || (!isTop && schema.unevaluatedItems !== undefined)
+      ? ['n=Infinity']
+      : Array.isArray(schema.prefixItems) && schema.prefixItems.length > 0
+        ? [`n=Math.max(n,${schema.prefixItems.length})`]
+        : []
+  const branches = (list: readonly Schema[] | undefined, counter: string) =>
+    (list ?? []).flatMap((branch) => {
+      const body = nested(branch)
+      const stmts = isTop ? [`${counter}++`, ...body] : body
+      return stmts.length === 0
+        ? []
+        : [`if(${parse(recurse(branch), 'a')}.success){${stmts.join(';')}}`]
+    })
+  const conditional = (() => {
+    if (schema.if === undefined) return []
+    const whenOk = [...nested(schema.if), ...(schema.then === undefined ? [] : nested(schema.then))]
+    const whenNot = schema.else === undefined ? [] : nested(schema.else)
+    return whenOk.length === 0 && whenNot.length === 0
+      ? []
+      : [
+          `if(${parse(recurse(schema.if), 'a')}.success){${whenOk.join(';')}}${whenNot.length === 0 ? '' : `else{${whenNot.join(';')}}`}`,
+        ]
+  })()
+  return [
+    ...own,
+    ...(schema.allOf ?? []).flatMap(nested),
+    ...branches(schema.anyOf, 'mA'),
+    ...branches(schema.oneOf, 'mO'),
+    ...conditional,
+  ]
+}
+
+/**
+ * `unevaluatedItems` written beside a combinator, as a check on the raw input (#647): it
+ * applies to the elements neither the schema itself nor a member that holds evaluates, and
+ * the combinator paths emit the combinator alone. `false` reports each such element, a
+ * schema is what each of them has to be a value of. Like the `unevaluatedProperties` check,
+ * it reports only when the unions beside it have a match (`mA`, `mO`): what no branch
+ * accepts is their failure. `undefined` when the keyword is absent, `true`, or has nothing
+ * left to apply to beside `items`.
+ */
+export function makeUnevaluatedItemsCheck(
+  schema: Schema,
+  recurse: (s: Schema) => string,
+  schemas?: Schemas,
+): RawCheck | undefined {
+  const unevaluated = schema.unevaluatedItems
+  if (unevaluated === undefined || unevaluated === true || isRestEvaluated(schema)) {
+    return undefined
+  }
+  const message = messageFor(schema, 'unevaluatedItems')
+  const hasAnyOf = (schema.anyOf ?? []).length > 0
+  const hasOneOf = (schema.oneOf ?? []).length > 0
+  const gate = [...(hasAnyOf ? ['mA>0'] : []), ...(hasOneOf ? ['mO===1'] : [])].join('&&')
+  return bothParses((parse) => {
+    const report =
+      unevaluated === false
+        ? `for(let i=n;i<a.length;i++){ctx.issues.push({code:"custom",path:[i],input:a${message === undefined ? '' : `,message:${issueMessage(message, "{code:'custom',path:[i],input:a}")}`}})}`
+        : `const Schema=${recurse(unevaluated)};for(let i=n;i<a.length;i++){const result=${parse('Schema', 'a[i]')};if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding(`{...issue,path:[i,...issue.path],input:issue.input${message === undefined ? '' : `,message:${issueMessage(message, 'issue')}`}}`)}}}}`
+    const stmts = [
+      `let n=0${hasAnyOf ? ',mA=0' : ''}${hasOneOf ? ',mO=0' : ''}`,
+      ...evaluatedItemsStmts(schema, recurse, schemas, parse, true),
+      gate === '' ? report : `if(${gate}){${report}}`,
+    ]
+    return `(ctx)=>{const a=ctx.value;if(!Array.isArray(a))return;${stmts.join(';')}}`
+  })
 }
 
 // The statement that reports the failure of a combinator checked on the raw input: one
@@ -1254,10 +1416,12 @@ export function makeSiblingCombinatorCheck(
 export function emitObjectShapeCheck(
   schema: Schema,
   recurse: (s: Schema) => string,
-): string | undefined {
-  const checks = makeObjectChecks(schema, recurse, RAW_REPORT)
-  if (checks.length === 0) return undefined
-  return `(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){${checks.join(';')}}}`
+): RawCheck | undefined {
+  if (makeObjectChecks(schema, recurse, RAW_REPORT).length === 0) return undefined
+  return bothParses(
+    (parse) =>
+      `(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){${makeObjectChecks(schema, recurse, RAW_REPORT, parse).join(';')}}}`,
+  )
 }
 
 export function emitObjectShapeRefine(
