@@ -8,7 +8,7 @@ next: false
 
 # Vite Plugin
 
-Runs `hono-takibi.config.ts` from the Vite dev server. Saving the spec or the config regenerates the code.
+Runs `hono-takibi.config.ts` from Vite. The dev server generates on startup and again when the spec or the config is saved; `vite build` generates once before it bundles, and fails if the generation does.
 
 ```ts
 // vite.config.ts
@@ -20,7 +20,17 @@ export default defineConfig({
 })
 ```
 
-The config file must be at the project root. See [Configuration](/docs/guides/config) for its contents.
+The config file is read from Vite's [`root`](https://vite.dev/config/shared-options#root), and the paths in it are resolved from there too. See [Configuration](/docs/guides/config) for its contents.
+
+## Options
+
+| Option   | Default                 | Description                               |
+| -------- | ----------------------- | ----------------------------------------- |
+| `config` | `hono-takibi.config.ts` | The config file, as a path from the root. |
+
+```ts
+honoTakibiVite({ config: 'config/hono-takibi.config.ts' })
+```
 
 ## Demo
 

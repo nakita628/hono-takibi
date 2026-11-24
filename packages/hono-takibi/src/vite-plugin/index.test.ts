@@ -1227,4 +1227,194 @@ describe('honoTakibiVite', () => {
 
     expect(sendSpy).not.toHaveBeenCalledWith({ type: 'full-reload' })
   })
+
+  // --- what the plugin tracks, watches, and where it resolves from (#616) ---
+
+  it('removes the client file once the config no longer names it', async () => {
+    const clientFile = path.join(process.cwd(), 'out/lib/client.ts')
+    const withoutClient = {
+      input: 'openapi.yaml',
+      output: path.join(process.cwd(), 'out/single.ts'),
+      template: {},
+    }
+    const { server, reloaded } = createMockViteDevServer({
+      ...withoutClient,
+      client: { output: clientFile },
+    })
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+    // The mocked client generator writes nothing, so the file it would have left is put there.
+    await fsp.mkdir(path.dirname(clientFile), { recursive: true })
+    await fsp.writeFile(clientFile, '// client', 'utf8')
+
+    server.ssrLoadModule = (_moduleId: string) => Promise.resolve({ default: withoutClient })
+    plugin.handleHotUpdate({ file: 'hono-takibi.config.ts', server })
+
+    await waitFor(() => {
+      expect(fs.existsSync(clientFile)).toBe(false)
+    })
+  })
+
+  it('watches every input extension under the input directory', async () => {
+    const root = process.cwd()
+    const addSpy = vi.fn<(paths: string | readonly string[]) => void>()
+    const { server, reloaded } = createMockViteDevServer({
+      input: 'spec/openapi.yaml',
+      output: './out/single.ts',
+    })
+    server.watcher.add = addSpy
+
+    honoTakibiVite().configureServer(server)
+    await reloaded
+
+    expect(addSpy.mock.calls).toStrictEqual([
+      [path.join(root, 'hono-takibi.config.ts')],
+      [
+        [
+          path.join(root, 'spec/openapi.yaml'),
+          `${root}/spec/**/*.yaml`,
+          `${root}/spec/**/*.yml`,
+          `${root}/spec/**/*.json`,
+          `${root}/spec/**/*.tsp`,
+        ],
+      ],
+    ])
+  })
+
+  // `vite --root app`, or a monorepo run from the top: the working directory is not the root.
+  it('resolves the config, the input and the outputs from the root Vite resolved', async () => {
+    const workingDirectory = process.cwd()
+    const root = path.join(workingDirectory, 'app')
+    const addSpy = vi.fn<(paths: string | readonly string[]) => void>()
+    const { server, reloaded } = createMockViteDevServer({
+      input: 'openapi.yaml',
+      output: './src/routes.ts',
+    })
+    server.watcher.add = addSpy
+
+    const plugin = honoTakibiVite()
+    plugin.configResolved({ root, command: 'serve' })
+    plugin.configureServer(server)
+    await reloaded
+
+    expect(addSpy.mock.calls).toStrictEqual([
+      [path.join(root, 'hono-takibi.config.ts')],
+      [
+        [
+          path.join(root, 'openapi.yaml'),
+          `${root}/**/*.yaml`,
+          `${root}/**/*.yml`,
+          `${root}/**/*.json`,
+          `${root}/**/*.tsp`,
+        ],
+      ],
+    ])
+    expect(fs.existsSync(path.join(root, 'src/routes.ts'))).toBe(true)
+    expect(fs.existsSync(path.join(workingDirectory, 'src/routes.ts'))).toBe(false)
+  })
+
+  it('reads the config file the option names', async () => {
+    const configFile = path.join(process.cwd(), 'config/takibi.config.ts')
+    const resolveSpy = vi.fn<(moduleId: string) => Promise<{ id: string } | null>>(
+      (moduleId: string) => Promise.resolve({ id: moduleId }),
+    )
+    const { server, reloaded } = createMockViteDevServer({
+      input: 'openapi.yaml',
+      output: './out/single.ts',
+    })
+    server.pluginContainer.resolveId = resolveSpy
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    const plugin = honoTakibiVite({ config: 'config/takibi.config.ts' })
+    plugin.configureServer(server)
+    await reloaded
+
+    expect(resolveSpy.mock.calls).toStrictEqual([[configFile]])
+    expect(
+      plugin.handleHotUpdate({ file: path.join(process.cwd(), 'hono-takibi.config.ts'), server }),
+    ).toBeUndefined()
+    expect(plugin.handleHotUpdate({ file: configFile, server })).toStrictEqual([])
+    await waitFor(() => {
+      expect(logSpy).toHaveBeenCalledWith('config changed')
+    })
+    logSpy.mockRestore()
+  })
+
+  // --- vite build ---
+
+  it('generates at buildStart for vite build', async () => {
+    await fsp.writeFile(
+      'hono-takibi.config.ts',
+      "export default { input: 'openapi.yaml', output: './out/single.ts' }\n",
+      'utf8',
+    )
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const root = process.cwd()
+
+    const plugin = honoTakibiVite()
+    plugin.configResolved({ root, command: 'build' })
+    await plugin.buildStart()
+
+    expect(logSpy.mock.calls).toStrictEqual([
+      ['🔥 hono-takibi'],
+      [`✅ zod-openapi -> ${path.join(root, 'out/single.ts')}`],
+    ])
+    expect(fs.existsSync(path.join(root, 'out/single.ts'))).toBe(true)
+    logSpy.mockRestore()
+  })
+
+  // Vite calls `buildStart` for the dev server too, where `configureServer` generates.
+  it('does not generate at buildStart for the dev server', async () => {
+    await fsp.writeFile(
+      'hono-takibi.config.ts',
+      "export default { input: 'openapi.yaml', output: './out/single.ts' }\n",
+      'utf8',
+    )
+    const root = process.cwd()
+
+    const plugin = honoTakibiVite()
+    plugin.configResolved({ root, command: 'serve' })
+    await plugin.buildStart()
+
+    expect(fs.existsSync(path.join(root, 'out/single.ts'))).toBe(false)
+  })
+
+  it('fails the build when the config is invalid', async () => {
+    await fsp.writeFile(
+      'hono-takibi.config.ts',
+      "export default { input: 'openapi.txt' }\n",
+      'utf8',
+    )
+
+    const plugin = honoTakibiVite()
+    plugin.configResolved({ root: process.cwd(), command: 'build' })
+
+    await expect(plugin.buildStart()).rejects.toStrictEqual(
+      new Error(
+        'config: Invalid config: input: must be .yaml | .yml | .json | .tsp, or an http(s) URL',
+      ),
+    )
+  })
+
+  it('fails the build when a generator fails', async () => {
+    const core = await import('../core/index.js')
+    vi.mocked(core.takibi).mockReturnValueOnce(
+      Effect.fail(new FormatError({ message: 'takibi internal failure' })),
+    )
+    await fsp.writeFile(
+      'hono-takibi.config.ts',
+      "export default { input: 'openapi.yaml', output: './out/single.ts' }\n",
+      'utf8',
+    )
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    const plugin = honoTakibiVite()
+    plugin.configResolved({ root: process.cwd(), command: 'build' })
+
+    await expect(plugin.buildStart()).rejects.toStrictEqual(
+      new Error('❌ zod-openapi: takibi internal failure'),
+    )
+    logSpy.mockRestore()
+  })
 })
