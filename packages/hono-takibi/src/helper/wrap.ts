@@ -1087,9 +1087,12 @@ export function wrap(
         ? pf
         : catchDocument === undefined && hasNoUserChain(schema)
           ? // The probe parses the schema: where that may be asynchronous, `safeParse`
-            // throws, and the callback answers with a promise instead (see `makeRefinement`).
+            // throws, and the probe is made again, awaited. It is then a check that
+            // replaces the value, on a transform that hands its input on: a callback of
+            // `z.preprocess` that answers with a promise under a synchronous parse leaves
+            // one behind that rejects unhandled (see `withRawCheck`).
             parsesAsync(schema, options?.schemas)
-            ? `(()=>{const Schema=${pf};return z.preprocess((val: z.input<typeof Schema>)=>{try{return Schema.safeParse(val).success?val:${formatLiteral(schema['x-catch'])}}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return Schema.safeParseAsync(val).then((result)=>result.success?val:${formatLiteral(schema['x-catch'])})}},Schema)})()`
+            ? `(()=>{const Schema=${pf};return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{try{if(!Schema.safeParse(ctx.value).success){ctx.value=${formatLiteral(schema['x-catch'])}}return undefined}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return Schema.safeParseAsync(ctx.value).then((result)=>{if(!result.success){ctx.value=${formatLiteral(schema['x-catch'])}}})}}).pipe(Schema)})()`
             : `(()=>{const Schema=${pf};return z.preprocess((val: z.input<typeof Schema>)=>Schema.safeParse(val).success?val:${formatLiteral(schema['x-catch'])},Schema)})()`
           : `${pf}.catch(${formatLiteral(schema['x-catch'])})`
     const fr = schema['x-readonly'] === true ? `${caught}.readonly()` : caught

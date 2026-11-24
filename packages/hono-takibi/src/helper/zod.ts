@@ -645,10 +645,15 @@ export function makeSiblingKeywordCheck(
     } = beside
     return rest
   })()
-  if (typelessBlocks(keywords, recurse, RAW_REPORT).length === 0) return undefined
+  // The synchronous statements are built once: for the test, and for the check.
+  const blocks = typelessBlocks(keywords, recurse, RAW_REPORT)
+  if (blocks.length === 0) return undefined
   return bothParses(
     (parse) =>
-      `(ctx)=>{const val=ctx.value;${typelessBlocks(keywords, recurse, RAW_REPORT, parse).join(';')}}`,
+      `(ctx)=>{const val=ctx.value;${(parse === parseSync
+        ? blocks
+        : typelessBlocks(keywords, recurse, RAW_REPORT, parse)
+      ).join(';')}}`,
   )
 }
 
@@ -667,12 +672,19 @@ export function makeConditionalCheck(
   recurse: (s: Schema) => string,
   onOutput = false,
 ): RawCheck | undefined {
-  if (makeConditionalStmt(schema, recurse, RAW_REPORT) === undefined) return undefined
+  // Without an `if`, or with neither a `then` nor an `else` that constrains anything
+  // (`true` does not), there is nothing to check.
+  const isUnconstrained =
+    (schema.then === undefined || schema.then === true) &&
+    (schema.else === undefined || schema.else === true)
+  if (schema.if === undefined || isUnconstrained) return undefined
   const isBigint =
     schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint'
   return bothParses((parse) => {
     if (!onOutput) {
-      return `(ctx)=>{const val=ctx.value;${makeConditionalStmt(schema, recurse, RAW_REPORT, parse)}}`
+      // An int64 read from text reaches the check as a bigint, like what the schema hands out.
+      const raw = isBigint ? "typeof ctx.value==='bigint'?Number(ctx.value):ctx.value" : 'ctx.value'
+      return `(ctx)=>{const val=${raw};${makeConditionalStmt(schema, recurse, RAW_REPORT, parse)}}`
     }
     const stmt = makeConditionalStmt(schema, recurse, REFINE_REPORT, parse)
     return isBigint
@@ -1565,10 +1577,15 @@ export function emitObjectShapeCheck(
   schema: Schema,
   recurse: (s: Schema) => string,
 ): RawCheck | undefined {
-  if (makeObjectChecks(schema, recurse, RAW_REPORT).length === 0) return undefined
+  const checks = makeObjectChecks(schema, recurse, RAW_REPORT)
+  if (checks.length === 0) return undefined
   return bothParses(
     (parse) =>
-      `(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){${makeObjectChecks(schema, recurse, RAW_REPORT, parse).join(';')}}}`,
+      `(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){${(parse ===
+      parseSync
+        ? checks
+        : makeObjectChecks(schema, recurse, RAW_REPORT, parse)
+      ).join(';')}}}`,
   )
 }
 

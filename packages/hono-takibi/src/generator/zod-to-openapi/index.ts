@@ -98,8 +98,13 @@ import { _enum, integer, number, object, string } from './z/index.js'
 // (`RawCheck.async`): `safeParse` throws when that schema has an asynchronous
 // refinement, which a `safeParseAsync` of the whole schema would otherwise have
 // handled. The check is then run again, awaited — what it had reported so far is
-// taken back first — and the callback answers with a promise, which only an
-// asynchronous parse reaches.
+// taken back first — and answers with a promise, which only an asynchronous parse
+// reaches. Such a check is a check on a transform that hands its input on, piped into
+// the schema, not a `z.preprocess`: a callback of `z.preprocess` that answers with a
+// promise under a synchronous parse — the sync attempt of a check around this schema —
+// leaves a promise behind that Zod pipes into the schema and that then rejects
+// unhandled; a check that answers with one fails that parse and nothing more. The
+// document renders either by the schema, and `z.input` is the same.
 // `declarations` are statements put before `Schema`: an operand the check parses
 // is declared once and named in both, instead of being built again on every parse.
 function withRawCheck(
@@ -112,7 +117,7 @@ function withRawCheck(
   if (raw.async === undefined) {
     return withRawStatements(zod, `(${raw.sync})(ctx)`, declarations)
   }
-  return `(()=>{${declarations.join('')}const Schema=${zod};return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{(${raw.sync})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (${raw.async})(ctx).then(()=>val)}return val},Schema)})()`
+  return `(()=>{${declarations.join('')}const Schema=${zod};return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return (${raw.sync})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (${raw.async})(ctx)}}).pipe(Schema)})()`
 }
 
 // A check of what the schema hands out, as a refinement after it: `(val,ctx)=>`. Like a
@@ -1003,7 +1008,7 @@ export function zodToOpenAPI(
     // the check — a stripping object branch has already removed the unevaluated
     // keys before any refine on the union could see them — so the check runs on
     // the raw input, in a `z.preprocess` (see `withRawCheck`).
-    // `makeUnevaluatedPropertiesCheck` returns '' when the keyword is absent
+    // `makeUnevaluatedPropertiesCheck` returns `undefined` when the keyword is absent
     // or `true`, so schemas without it emit exactly what they did.
     const unevalCheck = makeUnevaluatedPropertiesCheck(
       schema,

@@ -23,7 +23,7 @@ const withCheck = (union: string, check: string) =>
 // the callback answers with a promise. `declarations` come before `Schema`: an
 // operand the check parses is declared once and named in both.
 const withAsyncCheck = (schema: string, sync: string, async: string, declarations = '') =>
-  `(()=>{${declarations}const Schema=${schema};return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{(${sync})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (${async})(ctx).then(()=>val)}return val},Schema)})()`
+  `(()=>{${declarations}const Schema=${schema};return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return (${sync})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (${async})(ctx)}}).pipe(Schema)})()`
 
 // The awaited form of a check that parses the object `o` it is handed, as the emitter
 // writes it: each `<schema>.safeParse(o)` awaited, and so the parse of a value by
@@ -108,7 +108,7 @@ const caught = (schema: string, fallback: string) =>
 // The same where the schema may have an asynchronous refinement: `safeParse` then throws,
 // and the probe is made again, awaited.
 const caughtAsync = (schema: string, fallback: string) =>
-  `(()=>{const Schema=${schema};return z.preprocess((val: z.input<typeof Schema>)=>{try{return Schema.safeParse(val).success?val:${fallback}}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return Schema.safeParseAsync(val).then((result)=>result.success?val:${fallback})}},Schema)})()`
+  `(()=>{const Schema=${schema};return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{try{if(!Schema.safeParse(ctx.value).success){ctx.value=${fallback}}return undefined}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return Schema.safeParseAsync(ctx.value).then((result)=>{if(!result.success){ctx.value=${fallback}}})}}).pipe(Schema)})()`
 
 // The same, by hand, for the runtime checks.
 const catching = <T extends z.ZodType>(Schema: T, fallback: z.input<T>) =>
@@ -16120,8 +16120,8 @@ describe('a raw-input check is a preprocess, not a check-pipe (#479)', () => {
       ),
       `(()=>{const Schema=z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}),z.object({b:z.string().exactOptional()}).openapi({"required":[]})]).and(z.looseObject({}).openapi({"required":["a"]}));return z.preprocess((val: z.input<typeof Schema>,ctx)=>{((ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"a")){ctx.issues.push({...{code:'custom'},input:val})}}})(ctx);return val},Schema)})().openapi({"required":["a"]})`,
       `(()=>{const Schema=z.xor([z.object({a:z.string().exactOptional()}).openapi({"required":[]}),z.object({b:z.string().exactOptional()}).openapi({"required":[]})]).and(z.looseObject({}).openapi({"required":["a"]}));return z.preprocess((val: z.input<typeof Schema>,ctx)=>{((ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"a")){ctx.issues.push({...{code:'custom'},input:val})}}})(ctx);return val},Schema)})().openapi({"required":["a"]})`,
-      `(()=>{const Schema=z.union([z.string(),(val) => val.openapi({"required":[]})]);return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.issues.push({...{code:'custom'},input:val})}}}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!(await Schema.safeParseAsync(Reflect.get(val,"link"))).success){ctx.issues.push({...{code:'custom'},input:val})}}}})(ctx).then(()=>val)}return val},Schema)})()`,
-      `(()=>{const Schema=z.xor([z.string(),(val) => val.openapi({"required":[]})]);return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.issues.push({...{code:'custom'},input:val})}}}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!(await Schema.safeParseAsync(Reflect.get(val,"link"))).success){ctx.issues.push({...{code:'custom'},input:val})}}}})(ctx).then(()=>val)}return val},Schema)})()`,
+      `(()=>{const Schema=z.union([z.string(),(val) => val.openapi({"required":[]})]);return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.issues.push({...{code:'custom'},input:val})}}}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!(await Schema.safeParseAsync(Reflect.get(val,"link"))).success){ctx.issues.push({...{code:'custom'},input:val})}}}})(ctx)}}).pipe(Schema)})()`,
+      `(()=>{const Schema=z.xor([z.string(),(val) => val.openapi({"required":[]})]);return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.issues.push({...{code:'custom'},input:val})}}}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!(await Schema.safeParseAsync(Reflect.get(val,"link"))).success){ctx.issues.push({...{code:'custom'},input:val})}}}})(ctx)}}).pipe(Schema)})()`,
     ])
   })
 
@@ -16595,7 +16595,7 @@ describe('several combinators at the same level (#469)', () => {
         not: { required: ['z'] },
       }),
     ).toBe(
-      `(()=>{const Schema=z.discriminatedUnion('kind',[z.object({kind:z.literal("cat")}).openapi({"required":["kind"]}),z.object({kind:z.literal("dog")}).openapi({"required":["kind"]})]);return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"z")){ctx.addIssue({code:'custom'})}}}).openapi({"required":["z"]}).safeParse(val).success){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((await z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"z")){ctx.addIssue({code:'custom'})}}}).openapi({"required":["z"]}).safeParseAsync(val)).success){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})().openapi({"discriminator":{"propertyName":"kind"},"not":{"required":["z"]}})`,
+      `(()=>{const Schema=z.discriminatedUnion('kind',[z.object({kind:z.literal("cat")}).openapi({"required":["kind"]}),z.object({kind:z.literal("dog")}).openapi({"required":["kind"]})]);return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"z")){ctx.addIssue({code:'custom'})}}}).openapi({"required":["z"]}).safeParse(val).success){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((await z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"z")){ctx.addIssue({code:'custom'})}}}).openapi({"required":["z"]}).safeParseAsync(val)).success){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})().openapi({"discriminator":{"propertyName":"kind"},"not":{"required":["z"]}})`,
     )
     // `nullable` is the outer handling's, after the check.
     expect(zodToOpenAPI({ anyOf: [str], not: { const: 'x' }, nullable: true })).toBe(
@@ -16849,14 +16849,14 @@ describe('a sibling list that repeats a reference of the emitted allOf (#510)', 
       schemas,
     })
     expect(code).toBe(
-      '(()=>{const Schema=L0Schema;return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(((L0Schema.openapi({"title":"Plan"}).safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await L0Schema.openapi({"title":"Plan"}).safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})()',
+      '(()=>{const Schema=L0Schema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(((L0Schema.openapi({"title":"Plan"}).safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await L0Schema.openapi({"title":"Plan"}).safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})()',
     )
   })
 
   it.concurrent('does not state an anyOf that has the reference', () => {
     const code = zodToOpenAPI({ allOf: [L0], anyOf: [L0, Other] }, undefined, { schemas })
     expect(code).toBe(
-      '(()=>{const Schema=L0Schema;return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(!(L0Schema.safeParse(val).success||OtherSchema.safeParse(val).success)){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if(!((await L0Schema.safeParseAsync(val)).success||(await OtherSchema.safeParseAsync(val)).success)){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})()',
+      '(()=>{const Schema=L0Schema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(!(L0Schema.safeParse(val).success||OtherSchema.safeParse(val).success)){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if(!((await L0Schema.safeParseAsync(val)).success||(await OtherSchema.safeParseAsync(val)).success)){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})()',
     )
   })
 
@@ -16871,10 +16871,10 @@ describe('a sibling list that repeats a reference of the emitted allOf (#510)', 
         { schemas },
       ),
     ).toBe(
-      '(()=>{const Schema=L0Schema;return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(((L0Schema.safeParse(val).success?1:0)+(OtherSchema.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await L0Schema.safeParseAsync(val)).success?1:0)+((await OtherSchema.safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})().openapi({oneOf:[{"type":"object","properties":{"a":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}},"b":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}}}},{"type":"object","properties":{"c":{"type":"string"}}}]})',
+      '(()=>{const Schema=L0Schema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(((L0Schema.safeParse(val).success?1:0)+(OtherSchema.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await L0Schema.safeParseAsync(val)).success?1:0)+((await OtherSchema.safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})().openapi({oneOf:[{"type":"object","properties":{"a":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}},"b":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}}}},{"type":"object","properties":{"c":{"type":"string"}}}]})',
     )
     expect(zodToOpenAPI({ allOf: [L0], oneOf: [Other] }, undefined, { schemas })).toBe(
-      '(()=>{const Schema=L0Schema;return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(((OtherSchema.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await OtherSchema.safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})().openapi({oneOf:[{"type":"object","properties":{"c":{"type":"string"}}}]})',
+      '(()=>{const Schema=L0Schema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(((OtherSchema.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await OtherSchema.safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})().openapi({oneOf:[{"type":"object","properties":{"c":{"type":"string"}}}]})',
     )
   })
 })
@@ -16910,7 +16910,7 @@ describe('a statement that copies too much out of the components (#510)', () => 
       schemas: chain(2),
     })
     expect(code).toBe(
-      '(()=>{const Schema=L0Schema;return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(((M0Schema.safeParse(val).success?1:0)+(OtherSchema.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await M0Schema.safeParseAsync(val)).success?1:0)+((await OtherSchema.safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})().openapi({oneOf:[{"type":"object","properties":{"a":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}},"b":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}}}},{"type":"object","properties":{"c":{"type":"string"}}}]})',
+      '(()=>{const Schema=L0Schema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(((M0Schema.safeParse(val).success?1:0)+(OtherSchema.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await M0Schema.safeParseAsync(val)).success?1:0)+((await OtherSchema.safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})().openapi({oneOf:[{"type":"object","properties":{"a":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}},"b":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}}}},{"type":"object","properties":{"c":{"type":"string"}}}]})',
     )
   })
 
@@ -16919,7 +16919,7 @@ describe('a statement that copies too much out of the components (#510)', () => 
       schemas: chain(40),
     })
     expect(code).toBe(
-      '(()=>{const Schema=L0Schema;return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(((M0Schema.safeParse(val).success?1:0)+(OtherSchema.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await M0Schema.safeParseAsync(val)).success?1:0)+((await OtherSchema.safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})()',
+      '(()=>{const Schema=L0Schema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(((M0Schema.safeParse(val).success?1:0)+(OtherSchema.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await M0Schema.safeParseAsync(val)).success?1:0)+((await OtherSchema.safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})()',
     )
     expect(code.length).toBeLessThan(2000)
   })
@@ -16929,7 +16929,7 @@ describe('a statement that copies too much out of the components (#510)', () => 
       schemas: chain(40),
     })
     expect(code).toBe(
-      '(()=>{const Schema=L0Schema;return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(!(M0Schema.safeParse(val).success||OtherSchema.safeParse(val).success)){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if(!((await M0Schema.safeParseAsync(val)).success||(await OtherSchema.safeParseAsync(val)).success)){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})()',
+      '(()=>{const Schema=L0Schema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(!(M0Schema.safeParse(val).success||OtherSchema.safeParse(val).success)){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if(!((await M0Schema.safeParseAsync(val)).success||(await OtherSchema.safeParseAsync(val)).success)){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})()',
     )
     expect(code.length).toBeLessThan(2000)
   })
@@ -16980,7 +16980,7 @@ describe('a statement that copies too much out of the components (#510)', () => 
       ',',
     )
     expect(zodToOpenAPI({ allOf: [L0], oneOf: [wide] }, undefined, { schemas: chain(1) })).toBe(
-      `(()=>{const Schema=L0Schema;return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(((z.object({${props}}).openapi({"required":[]}).safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await z.object({${props}}).openapi({"required":[]}).safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})().openapi({oneOf:[{"type":"object","properties":${JSON.stringify(wide.properties)}}]})`,
+      `(()=>{const Schema=L0Schema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(((z.object({${props}}).openapi({"required":[]}).safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await z.object({${props}}).openapi({"required":[]}).safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})().openapi({oneOf:[{"type":"object","properties":${JSON.stringify(wide.properties)}}]})`,
     )
   })
 })
@@ -17007,7 +17007,11 @@ const evaluated = (code: string, scope: { readonly [name: string]: unknown } = {
     'z',
     'NameSchema',
     ...Object.keys(scope),
-    `z.ZodType.prototype.openapi??=function(){return this};return ${code.replaceAll('(val: z.input<typeof Schema>,ctx)', '(val,ctx)').replaceAll(/z\.custom<[^>]*>/gu, 'z.custom')}`,
+    `z.ZodType.prototype.openapi??=function(){return this};return ${code
+      .replaceAll('(val: z.input<typeof Schema>,ctx)', '(val,ctx)')
+      .replaceAll('(val: z.input<typeof Schema>)', '(val)')
+      .replaceAll('(ctx: z.core.ParsePayload)', '(ctx)')
+      .replaceAll(/z\.custom<[^>]*>/gu, 'z.custom')}`,
   )(z, z.string(), ...Object.values(scope))
 
 const messagesOf = (code: string, value: unknown): readonly string[] =>
@@ -18034,5 +18038,51 @@ describe('refinements that parse an asynchronous schema', () => {
       true,
       'fallback',
     ])
+  })
+})
+
+// What an asynchronous parse answers, and the rejections nothing handled meanwhile.
+const parsedQuietly = async (code: string, value: unknown) => {
+  const unhandled: unknown[] = []
+  const listener = (reason: unknown) => {
+    unhandled.push(reason)
+  }
+  process.on('unhandledRejection', listener)
+  const result = await evaluated(code).safeParseAsync(value)
+  await new Promise((resolve) => {
+    setTimeout(resolve, 20)
+  })
+  process.off('unhandledRejection', listener)
+  return [result.success, unhandled.length]
+}
+
+// A check that parses a schema tries it synchronously first. A schema wrapped in a check of
+// its own must then fail that attempt and nothing more: a `z.preprocess` whose callback
+// answers with a promise leaves one behind that Zod pipes into the schema, and that
+// rejects unhandled once the asynchronous parse has long answered.
+describe('a schema with an awaited check, tried synchronously by a check around it', () => {
+  const asyncString = { type: 'string', 'x-refine': '.refine(async (v) => v.length > 0)' } as const
+  it('a tuple element with a conditional beside a union', async () => {
+    const code = zodToOpenAPI({
+      type: 'array',
+      prefixItems: [
+        {
+          anyOf: [asyncString],
+          if: asyncString,
+          // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+          then: { maxLength: 4 },
+        },
+      ],
+    })
+    await expect(parsedQuietly(code, ['ab'])).resolves.toStrictEqual([true, 0])
+    await expect(parsedQuietly(code, ['abcde'])).resolves.toStrictEqual([false, 0])
+  })
+
+  it('an element with x-catch and no type to state', async () => {
+    const code = zodToOpenAPI({
+      type: 'array',
+      contains: { anyOf: [asyncString, { type: 'number' }], 'x-catch': 'fallback' },
+    })
+    await expect(parsedQuietly(code, ['ab'])).resolves.toStrictEqual([true, 0])
   })
 })

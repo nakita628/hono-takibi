@@ -1528,6 +1528,12 @@ describe('helper/zod: makeConditionalCheck', () => {
       sync: `(ctx)=>{const val=ctx.value;${conditionalStmt(parsedSync, pushed)}}`,
       async: `async(ctx)=>{const val=ctx.value;${conditionalStmt(parsedAwaited, pushed)}}`,
     })
+    // A bigint read from text is compared as the number it was read from.
+    const asNumber = "const val=typeof ctx.value==='bigint'?Number(ctx.value):ctx.value;"
+    expect(makeConditionalCheck({ ...conditional, format: 'int64' }, emitBranch)).toStrictEqual({
+      sync: `(ctx)=>{${asNumber}${conditionalStmt(parsedSync, pushed)}}`,
+      async: `async(ctx)=>{${asNumber}${conditionalStmt(parsedAwaited, pushed)}}`,
+    })
   })
 
   it('is a refinement of the output where the emitter converts its input (#646)', () => {

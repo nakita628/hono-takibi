@@ -590,17 +590,17 @@ export function makeBarrel(value: { readonly [k: string]: unknown }) {
  */
 export function isArrowFunction(message: string) {
   if (!ARROW_FUNCTION_PATTERN.test(message)) return false
+  // The parentheses are left out of the tree, however many the message has of its own.
   // oxlint-disable-next-line node/no-sync -- parses a string in memory; nothing is read or awaited
-  const { program, errors } = parseSync('message.ts', `(${message})`, { lang: 'ts' })
+  const { program, errors } = parseSync('message.ts', `(${message})`, {
+    lang: 'ts',
+    preserveParens: false,
+  })
   const [statement, ...others] = program.body
   if (errors.length > 0 || statement?.type !== 'ExpressionStatement' || others.length > 0) {
     return false
   }
-  const expression =
-    statement.expression.type === 'ParenthesizedExpression'
-      ? statement.expression.expression
-      : statement.expression
-  return expression.type === 'ArrowFunctionExpression'
+  return statement.expression.type === 'ArrowFunctionExpression'
 }
 
 /**

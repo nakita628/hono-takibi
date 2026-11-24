@@ -525,6 +525,7 @@ export * from './user'
       ['(issue, fallback = "bad") => fallback', true],
       ['(issue: { code: string }) => issue.code', true],
       ['(issue) => { return issue.code }', true],
+      ['((issue) => issue.code)', true],
       // Text: a parenthesised phrase and `=>`, which is no parameter list and no body.
       ['(see docs) => too short', false],
       ['(note) => see the docs', false],

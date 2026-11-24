@@ -1879,7 +1879,7 @@ describe('wrap: x-catch, x-prefault and nested literals (#490, #491, #492)', () 
     // What a reference names may be asynchronous when it cannot be read: `safeParse` then
     // throws, and the probe is made again, awaited.
     expect(wrap('ASchema', { $ref: '#/components/schemas/A', 'x-catch': {} })).toBe(
-      `(()=>{const Schema=ASchema;return z.preprocess((val: z.input<typeof Schema>)=>{try{return Schema.safeParse(val).success?val:{}}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return Schema.safeParseAsync(val).then((result)=>result.success?val:{})}},Schema)})()`,
+      `(()=>{const Schema=ASchema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{try{if(!Schema.safeParse(ctx.value).success){ctx.value={}}return undefined}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return Schema.safeParseAsync(ctx.value).then((result)=>{if(!result.success){ctx.value={}}})}}).pipe(Schema)})()`,
     )
     expect(
       wrap('ASchema', { $ref: '#/components/schemas/A', 'x-catch': {} }, undefined, {
