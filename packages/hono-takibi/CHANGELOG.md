@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.10](https://github.com/nakita628/hono-takibi/compare/v0.35.9...v0.35.10) (2026-11-24)
+
+
+### Bug Fixes
+
+* **type:** write what the Zod schema outputs for allOf, any, patternProperties and untyped media types ([#639](https://github.com/nakita628/hono-takibi/issues/639)) ([354ea1e](https://github.com/nakita628/hono-takibi/commit/354ea1e0e578a65173e6556dc1814931af0d76f9))
+
 ## [0.35.9](https://github.com/nakita628/hono-takibi/compare/v0.35.8...v0.35.9) (2026-11-24)
 
 
