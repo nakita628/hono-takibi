@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.6](https://github.com/nakita628/hono-takibi/compare/v0.35.5...v0.35.6) (2026-11-24)
+
+
+### Bug Fixes
+
+* **vite-plugin:** resolve from Vite's root, track the client output, watch .yml, generate on build ([#624](https://github.com/nakita628/hono-takibi/issues/624)) ([1a202f1](https://github.com/nakita628/hono-takibi/commit/1a202f157c05a92916768af558f09739556a9077))
+
 ## [0.35.5](https://github.com/nakita628/hono-takibi/compare/v0.35.4...v0.35.5) (2026-11-23)
 
 
