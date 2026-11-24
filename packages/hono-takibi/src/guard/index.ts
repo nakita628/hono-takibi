@@ -1,5 +1,6 @@
 import {
   COMPONENT_REF_PREFIX,
+  FORM_MEDIA_TYPES,
   HTTP_METHODS,
   IDENTIFIER_PATTERN,
   INPUT_EXTENSIONS,
@@ -233,6 +234,26 @@ export function isSchemaObject(v: Schema | readonly Schema[] | boolean | undefin
 
 export function isMediaWithSchema(v: unknown): v is { readonly schema: Schema } {
   return typeof v === 'object' && v !== null && 'schema' in v
+}
+
+/**
+ * A form body, whatever parameters follow the media type (`; boundary=...`): what the
+ * routes of `@hono/zod-openapi` validate as `form`.
+ */
+export function isFormMediaType(mediaType: string) {
+  const base = (mediaType.split(';')[0] ?? '').trim().toLowerCase()
+  return FORM_MEDIA_TYPES.some((formType) => formType === base)
+}
+
+/**
+ * A JSON body as @hono/zod-openapi's `IsJson` reads the media type: `application/json`
+ * or `application/<something>+json`, whatever follows.
+ */
+export function isJsonMediaType(mediaType: string) {
+  if (!mediaType.startsWith('application/')) return false
+  const subtype = mediaType.slice('application/'.length)
+  const index = subtype.indexOf('json')
+  return index === 0 || (index > 0 && subtype[index - 1] === '+')
 }
 
 export function isMedia(v: unknown): v is Media {

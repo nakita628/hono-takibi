@@ -155,7 +155,7 @@ describe('type', () => {
     '/users': {
       $get: { input: {}; output: {}; outputFormat: string; status: 200 }
       $query: {
-        input: { json: { [x: string]: unknown } }
+        input: { json: { [key: string]: unknown } }
         output: {}
         outputFormat: string
         status: 200
@@ -872,8 +872,8 @@ export default routes
       $get: {
         input: {}
         output: {
-          oneOfField?: string | number | undefined
-          anyOfField?: boolean | number | undefined
+          oneOfField?: (string | number) | undefined
+          anyOfField?: (boolean | number) | undefined
           constString?: 'fixed' | undefined
           constNumber?: 42 | undefined
           constBool?: true | undefined
@@ -1005,8 +1005,8 @@ export default routes
         input: {}
         output: {
           closed?: {} | undefined
-          record?: { [x: string]: string } | undefined
-          open?: { [x: string]: unknown } | undefined
+          record?: { [key: string]: string } | undefined
+          open?: { [key: string]: unknown } | undefined
         }
         outputFormat: 'json'
         status: 200
@@ -1128,4 +1128,258 @@ describe('type: what a route map can be written with', () => {
       )
     },
   )
+})
+
+describe('type: the route map agrees with the routes it types (#608)', () => {
+  it('types a form body as form only, and schemas as the Zod output does', async () => {
+    const content = await generateTypes({
+      openapi: '3.0.3',
+      info: { title: 't', version: '1' },
+      paths: {
+        '/a': {
+          post: {
+            requestBody: {
+              content: {
+                'application/x-www-form-urlencoded': {
+                  schema: { type: 'object', properties: { n: { type: 'string' } } },
+                },
+              },
+            },
+            responses: {
+              '200': jsonResponse({
+                type: 'object',
+                properties: {
+                  e: { type: 'string', enum: ['x', 'y'], nullable: true },
+                  s: { allOf: [{ type: 'string' }, { minLength: 1 }] },
+                  u: {},
+                },
+              }),
+            },
+          },
+        },
+      },
+    })
+    expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  {
+    '/a': {
+      $post: {
+        input: { form: { n?: string | undefined } }
+        output: {
+          e?: ('x' | 'y' | null) | undefined
+          s?: (string & unknown) | undefined
+          u?: unknown | undefined
+        }
+        outputFormat: 'json'
+        status: 200
+      }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+  })
+
+  it('writes an enum value and a const with a newline as one line', async () => {
+    const content = await generateTypes(
+      documentOf({
+        '/a': {
+          get: {
+            responses: {
+              '200': jsonResponse({
+                type: 'object',
+                required: ['e', 'c'],
+                properties: {
+                  e: { type: 'string', enum: ['a\nb', "c'd", 'e\\f'] },
+                  c: { const: 'a\nb' },
+                },
+              }),
+            },
+          },
+        },
+      }),
+    )
+    expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  {
+    '/a': {
+      $get: {
+        input: {}
+        output: { e: 'a\\nb' | "c'd" | 'e\\\\f'; c: 'a\\nb' }
+        outputFormat: 'json'
+        status: 200
+      }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+  })
+
+  it('adds null to a nullable $ref, oneOf, anyOf and allOf, and to a null default', async () => {
+    const content = await generateTypes({
+      openapi: '3.0.3',
+      info: { title: 't', version: '1' },
+      components: {
+        schemas: {
+          P: { type: 'object', required: ['p'], properties: { p: { type: 'string' } } },
+        },
+      },
+      paths: {
+        '/a': {
+          get: {
+            responses: {
+              '200': jsonResponse({
+                type: 'object',
+                required: ['r', 'o', 'an', 'al', 'd'],
+                properties: {
+                  r: { $ref: '#/components/schemas/P', nullable: true },
+                  o: { oneOf: [{ type: 'string' }, { type: 'number' }], nullable: true },
+                  an: { anyOf: [{ type: 'string' }, { type: 'number' }], nullable: true },
+                  al: {
+                    allOf: [
+                      { $ref: '#/components/schemas/P' },
+                      { type: 'object', properties: { z: { type: 'string' } } },
+                    ],
+                    nullable: true,
+                  },
+                  d: { type: 'string', default: null },
+                },
+              }),
+            },
+          },
+        },
+      },
+    })
+    expect(content).toBe(`type P = { p: string }
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  {
+    '/a': {
+      $get: {
+        input: {}
+        output: {
+          r: P | null
+          o: (string | number) | null
+          an: (string | number) | null
+          al: (P & { z?: string | undefined }) | null
+          d: string | null
+        }
+        outputFormat: 'json'
+        status: 200
+      }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+  })
+
+  it('leaves a body that is neither JSON nor a form out of the input', async () => {
+    const content = await generateTypes(
+      documentOf({
+        '/text': {
+          post: {
+            requestBody: { content: { 'text/plain': { schema: { type: 'string' } } } },
+            responses: { '204': { description: 'none' } },
+          },
+        },
+        '/xml': {
+          post: {
+            requestBody: {
+              content: {
+                'application/xml': {
+                  schema: { type: 'object', properties: { n: { type: 'string' } } },
+                },
+              },
+            },
+            responses: { '204': { description: 'none' } },
+          },
+        },
+        '/json': {
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.api+json; charset=utf-8': { schema: { type: 'string' } },
+              },
+            },
+            responses: { '204': { description: 'none' } },
+          },
+        },
+        '/form': {
+          post: {
+            requestBody: {
+              content: {
+                'multipart/form-data; boundary=x': {
+                  schema: {
+                    type: 'object',
+                    required: ['f'],
+                    properties: { f: { type: 'string', format: 'binary' } },
+                  },
+                },
+              },
+            },
+            responses: { '204': { description: 'none' } },
+          },
+        },
+      }),
+    )
+    expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  { '/text': { $post: { input: {}; output: {}; outputFormat: string; status: 204 } } } & {
+    '/xml': { $post: { input: {}; output: {}; outputFormat: string; status: 204 } }
+  } & {
+    '/json': { $post: { input: { json: string }; output: {}; outputFormat: string; status: 204 } }
+  } & {
+    '/form': {
+      $post: { input: { form: { f: File } }; output: {}; outputFormat: string; status: 204 }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+  })
+
+  it('keeps a path-level parameter whose name an operation uses in another location', async () => {
+    const content = await generateTypes(
+      documentOf({
+        '/a/{id}': {
+          parameters: [
+            { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+            { name: 'id', in: 'query', schema: { type: 'integer' } },
+            { name: 'q', in: 'query', schema: { type: 'string' } },
+          ],
+          get: {
+            parameters: [
+              { name: 'id', in: 'header', required: true, schema: { type: 'string' } },
+              { name: 'q', in: 'query', required: true, schema: { type: 'number' } },
+            ],
+            responses: { '204': { description: 'none' } },
+          },
+        },
+      }),
+    )
+    expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  {
+    '/a/:id': {
+      $get: {
+        input: { param: { id: string } } & { query: { q: number; id?: number | undefined } } & {
+          header: { id: string }
+        }
+        output: {}
+        outputFormat: string
+        status: 204
+      }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+  })
 })

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { makeTypeString } from './type.js'
+import { makeSchemaTypeString, makeTypeString } from './type.js'
 
 describe('makeTypeString', () => {
   describe('primitive types', () => {
@@ -757,5 +757,63 @@ describe('makeTypeString: a nullable member of an allOf (#527)', () => {
   it('is unknown, or null, when no member validates', () => {
     expect(makeTypeString({ allOf: [{ description: 'd' }] }, 'Test')).toBe('unknown')
     expect(makeTypeString({ allOf: [{ nullable: true }] }, 'Test')).toBe('(unknown|null)')
+  })
+})
+
+describe('makeSchemaTypeString', () => {
+  const alias = { ref: (ref: string) => ref.split('/').at(-1) ?? '', readonly: false }
+
+  it('writes a $ref as the writer says', () => {
+    expect(
+      makeSchemaTypeString(
+        { type: 'array', items: { $ref: '#/components/schemas/User', nullable: true } },
+        { ...alias, optionalUndefined: false },
+      ),
+    ).toBe('(User|null)[]')
+  })
+
+  it('adds | undefined to an optional property when asked to', () => {
+    const schema = {
+      type: 'object',
+      required: ['a'],
+      properties: { a: { type: 'string' }, b: { type: 'number' } },
+    } as const
+    expect(makeSchemaTypeString(schema, { ...alias, optionalUndefined: true })).toBe(
+      '{a:string;b?:number|undefined}',
+    )
+    expect(makeSchemaTypeString(schema, { ...alias, optionalUndefined: false })).toBe(
+      '{a:string;b?:number}',
+    )
+  })
+
+  it('writes readonly on properties, arrays and tuples', () => {
+    expect(
+      makeSchemaTypeString(
+        {
+          type: 'object',
+          required: ['a', 'b'],
+          properties: {
+            a: { type: 'array', items: { type: 'string' } },
+            b: { type: 'array', items: [{ type: 'string' }, { type: 'number' }] },
+          },
+        },
+        { ...alias, readonly: true, optionalUndefined: false },
+      ),
+    ).toBe('{readonly a:readonly string[];readonly b:readonly [string,number]}')
+  })
+})
+
+describe('makeTypeString: what both type outputs share (#608)', () => {
+  it('writes an object that allows no property as {}', () => {
+    expect(makeTypeString({ type: 'object', additionalProperties: false }, 'Test')).toBe('{}')
+  })
+
+  it('writes the enum and the const of an int64 as bigint literals', () => {
+    expect(makeTypeString({ type: 'integer', format: 'int64', enum: [1, 2] }, 'Test')).toBe('1n|2n')
+    expect(makeTypeString({ type: 'integer', format: 'int64', const: 1 }, 'Test')).toBe('1n')
+  })
+
+  it('writes an enum value with a newline as one line', () => {
+    expect(makeTypeString({ type: 'string', enum: ['a\nb'] }, 'Test')).toBe("'a\\nb'")
   })
 })
