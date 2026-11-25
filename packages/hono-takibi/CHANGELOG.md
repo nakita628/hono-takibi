@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.13](https://github.com/nakita628/hono-takibi/compare/v0.35.12...v0.35.13) (2026-11-25)
+
+
+### Bug Fixes
+
+* **zod:** parse arrow-function messages, await raw-input checks, keep the keywords still dropped beside a combinator, read boolean then / else ([#649](https://github.com/nakita628/hono-takibi/issues/649)) ([e8b9821](https://github.com/nakita628/hono-takibi/commit/e8b98214bea3d18bee6e8623c7a1708f1d022756))
+
 ## [0.35.12](https://github.com/nakita628/hono-takibi/compare/v0.35.11...v0.35.12) (2026-11-24)
 
 
