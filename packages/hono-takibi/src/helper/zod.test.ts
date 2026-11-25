@@ -5,7 +5,15 @@ import type { Schema } from '../openapi/index.js'
 import {
   isAskedOperand,
   emitTypelessRefine,
+  countMatches,
+  makeConditionalCheck,
+  makeNotPredicate,
+  makeRefinement,
+  mayBeAsync,
+  parsesAsync,
   makeParentStrictCheck,
+  makeSiblingKeywordCheck,
+  makeUnevaluatedItemsCheck,
   makeSiblingCombinatorCheck,
   makeStrictOperandCheck,
   makeUnevaluatedProperties,
@@ -21,6 +29,9 @@ const recurse = zodToOpenAPI
 // zod-to-openapi/index.test.ts pins the *combinations* along the typeless path, this file covers
 // the branches of helper/zod.ts alone with minimal reproductions. Runtime behaviour that depends
 // on Zod lives in zod-to-openapi/index.test.ts, so this file only asserts the emitted string.
+
+const unevaluatedBody = (parse: (zod: string, value: string) => string) =>
+  `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;let mA=0;const e=new Set();if(${parse('S', 'o')}.success){mA++;};const ifOk=${parse('z.any()', 'o')}.success;if(ifOk){for(const k of ["a"]){e.add(k)}};if(mA>0){const Schema=S;for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=${parse('Schema', 'val')};if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding('{...issue,path:[k,...issue.path],input:issue.input}')}}}}}}`
 
 describe('helper/zod', () => {
   describe('emitTypelessRefine', () => {
@@ -666,13 +677,13 @@ describe('helper/zod', () => {
   })
 
   describe('makeUnevaluatedPropertiesCheck (typeless wrapper)', () => {
-    it('returns empty string when unevaluatedProperties is undefined', () => {
+    it('returns undefined when unevaluatedProperties is undefined', () => {
       expect(
-        makeUnevaluatedPropertiesCheck({ properties: { a: { type: 'string' } } }, recurse),
-      ).toBe('')
+        makeUnevaluatedPropertiesCheck({ properties: { a: { type: 'string' } } }, recurse)?.sync,
+      ).toBeUndefined()
     })
 
-    it('returns empty string when unevaluatedProperties is true', () => {
+    it('returns undefined when unevaluatedProperties is true', () => {
       expect(
         makeUnevaluatedPropertiesCheck(
           {
@@ -680,8 +691,8 @@ describe('helper/zod', () => {
             unevaluatedProperties: true,
           },
           recurse,
-        ),
-      ).toBe('')
+        )?.sync,
+      ).toBeUndefined()
     })
 
     it('emits ctx.value-based check for unevaluatedProperties: false with own properties', () => {
@@ -692,7 +703,7 @@ describe('helper/zod', () => {
             unevaluatedProperties: false,
           },
           recurse,
-        ),
+        )?.sync,
       ).toBe(
         `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}`,
       )
@@ -706,7 +717,7 @@ describe('helper/zod', () => {
             unevaluatedProperties: { type: 'number' },
           },
           recurse,
-        ),
+        )?.sync,
       ).toBe(
         `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};const Schema=z.number();for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding('{...issue,path:[k,...issue.path],input:issue.input}')}}}}}`,
       )
@@ -730,7 +741,7 @@ describe('helper/zod', () => {
             'x-unevaluatedProperties-message': 'unevaluated',
           },
           recurse,
-        ),
+        )?.sync,
       ).toBe(
         `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;let mA=0;let mO=0;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){for(const p of ["^x_"]){if(new RegExp(p).test(k)){e.add(k)}}};for(const k of ["b"]){e.add(k)};if(z.object({c:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){mA++;for(const k of ["c"]){e.add(k)}};if(z.object({d:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){mO++;for(const k of ["d"]){e.add(k)}};const ifOk=z.object({x:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success;if(ifOk){for(const k of ["x"]){e.add(k)}};if(ifOk){for(const k of ["y"]){e.add(k)}};if(!ifOk){for(const k of ["z"]){e.add(k)}};if("e" in o){for(const k of ["f"]){e.add(k)}};if(mA>0&&mO===1){for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o,message:"unevaluated"})}}}}`,
       )
@@ -739,6 +750,33 @@ describe('helper/zod', () => {
     // #480: with a schema-form `unevaluatedProperties`, the per-key validation
     // is gated on the union succeeding too — here the `anyOf` guard only,
     // because the caller passes `{ anyOf: true }`.
+    it('comes with an awaited form when it parses a branch, a condition or a schema (#645)', () => {
+      expect(
+        makeUnevaluatedPropertiesCheck(
+          {
+            anyOf: [{ type: 'string' }],
+            if: true,
+            // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+            then: { properties: { a: {} } },
+            unevaluatedProperties: { type: 'string' },
+          },
+          (schema) => (schema.type === 'string' ? 'S' : 'N'),
+        ),
+      ).toStrictEqual({
+        sync: unevaluatedBody((zod, value) => `${zod}.safeParse(${value})`),
+        async: `async${unevaluatedBody((zod, value) => `(await ${zod}.safeParseAsync(${value}))`)}`,
+      })
+      // A check that parses nothing has no awaited form.
+      expect(
+        makeUnevaluatedPropertiesCheck(
+          { properties: { a: { type: 'string' } }, unevaluatedProperties: false },
+          recurse,
+        ),
+      ).toStrictEqual({
+        sync: `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}`,
+      })
+    })
+
     it('gates the schema-form final statement on the anyOf union succeeding', () => {
       expect(
         makeUnevaluatedPropertiesCheck(
@@ -751,7 +789,7 @@ describe('helper/zod', () => {
           undefined,
           undefined,
           { anyOf: true },
-        ),
+        )?.sync,
       ).toBe(
         `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;let mA=0;const e=new Set();for(const k of ["a"]){e.add(k)};if(z.object({c:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){mA++;for(const k of ["c"]){e.add(k)}};if(mA>0){const Schema=z.number();for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding('{...issue,path:[k,...issue.path],input:issue.input}')}}}}}}`,
       )
@@ -779,7 +817,7 @@ describe('helper/zod', () => {
         recurse,
         undefined,
         schemas,
-      )
+      )?.sync
       expect(code).toBe(
         `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["meta"]){e.add(k)};for(const k of ["d"]){e.add(k)};for(const k of ["meta"]){e.add(k)};for(const k of ["l"]){e.add(k)};for(const k of ["doc_count"]){e.add(k)};const Schema=BaseSchema;for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){if(issue.code==='invalid_type'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='too_big'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='too_small'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='invalid_format'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='not_multiple_of'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='unrecognized_keys'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='invalid_union'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='invalid_key'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='invalid_element'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='invalid_value'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}else if(issue.code==='custom'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}}}}}`,
       )
@@ -803,7 +841,7 @@ describe('helper/zod', () => {
         recurse,
         undefined,
         schemas,
-      )
+      )?.sync
       expect(code).toBe(
         `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["meta"]){e.add(k)};for(const k of Object.keys(o)){if(!["meta"].includes(k)){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}`,
       )
@@ -818,7 +856,7 @@ describe('helper/zod', () => {
           },
           recurse,
           'override',
-        ),
+        )?.sync,
       ).toBe(
         `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o,message:"override"})}}}`,
       )
@@ -1139,40 +1177,88 @@ describe('helper/zod: makeStrictOperandCheck (#470)', () => {
   })
 })
 
+// What a branch is emitted as, for the checks below.
+const emitBranch = (schema: Schema) => (schema.type === 'string' ? 'S' : 'N')
+
+const forwardedUnderKey = (message = '') =>
+  [
+    'invalid_type',
+    'too_big',
+    'too_small',
+    'invalid_format',
+    'not_multiple_of',
+    'unrecognized_keys',
+    'invalid_union',
+    'invalid_key',
+    'invalid_element',
+    'invalid_value',
+    'custom',
+  ]
+    .map(
+      (code, index) =>
+        `${index === 0 ? '' : 'else '}if(issue.code==='${code}'){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input${message}})}`,
+    )
+    .join('')
+
+const additionalBody = (skip: string, parsed: string, message = '') =>
+  `(ctx)=>{${strictGuard}const Schema=S;for(const k of Object.keys(o)){${skip}const result=${parsed};if(!result.success){for(const issue of result.error.issues){${forwardedUnderKey(message)}}}}}`
+
 describe('helper/zod: makeParentStrictCheck', () => {
   const str = { type: 'string' } as const
 
-  it('returns undefined unless additionalProperties is false', () => {
-    expect(makeParentStrictCheck({ properties: { a: str } })).toBeUndefined()
-    expect(makeParentStrictCheck({ additionalProperties: true })).toBeUndefined()
-    expect(makeParentStrictCheck({ additionalProperties: str })).toBeUndefined()
+  it('returns undefined unless additionalProperties is false or a schema', () => {
+    expect(makeParentStrictCheck({ properties: { a: str } }, emitBranch)).toBeUndefined()
+    expect(makeParentStrictCheck({ additionalProperties: true }, emitBranch)).toBeUndefined()
+  })
+
+  it('parses the keys the schema does not declare with a schema-valued one (#647)', () => {
+    expect(makeParentStrictCheck({ additionalProperties: str }, emitBranch)).toStrictEqual({
+      sync: additionalBody('', 'Schema.safeParse(Reflect.get(o,k))'),
+      async: `async${additionalBody('', '(await Schema.safeParseAsync(Reflect.get(o,k)))')}`,
+    })
+    const skip = `if(["a"].includes(k)||["^x-"].some((p)=>new RegExp(p).test(k))){continue}`
+    expect(
+      makeParentStrictCheck(
+        {
+          properties: { a: str },
+          patternProperties: { '^x-': str },
+          additionalProperties: str,
+          'x-additionalProperties-message': 'text only',
+        },
+        emitBranch,
+      ),
+    ).toStrictEqual({
+      sync: additionalBody(skip, 'Schema.safeParse(Reflect.get(o,k))', ',message:"text only"'),
+      async: `async${additionalBody(skip, '(await Schema.safeParseAsync(Reflect.get(o,k)))', ',message:"text only"')}`,
+    })
   })
 
   it('reports the keys the schema itself neither declares nor matches with a pattern', () => {
     expect(
-      makeParentStrictCheck({ properties: { a: str }, additionalProperties: false }),
+      makeParentStrictCheck({ properties: { a: str }, additionalProperties: false }, emitBranch),
     ).toStrictEqual(told(undeclaredKeys('["a"]')))
     expect(
-      makeParentStrictCheck({
-        properties: { a: str },
-        patternProperties: { '^x-': str },
-        additionalProperties: false,
-        'x-additionalProperties-message': 'no extras',
-      }),
+      makeParentStrictCheck(
+        {
+          properties: { a: str },
+          patternProperties: { '^x-': str },
+          additionalProperties: false,
+          'x-additionalProperties-message': 'no extras',
+        },
+        emitBranch,
+      ),
     ).toStrictEqual(
       told(
         `for(const k of Object.keys(o)){if(!["a"].includes(k)&&!["^x-"].some((p)=>new RegExp(p).test(k))){ctx.issues.push({code:"custom",path:[k],input:o,message:"no extras"})}}`,
       ),
     )
     // No property of its own: every key is undeclared.
-    expect(makeParentStrictCheck({ additionalProperties: false })).toStrictEqual(
+    expect(makeParentStrictCheck({ additionalProperties: false }, emitBranch)).toStrictEqual(
       told(`for(const k of Object.keys(o)){ctx.issues.push({code:"custom",path:[k],input:o})}`),
     )
   })
 })
 
-// What a branch is emitted as, for the checks below.
-const emitBranch = (schema: Schema) => (schema.type === 'string' ? 'S' : 'N')
 // The check of sibling combinators, with each schema parsed synchronously and awaited.
 const siblingCheck = (statements: (parse: (zod: string) => string) => string) => ({
   sync: `(ctx)=>{const val=ctx.value;${statements((zod) => `${zod}.safeParse(val)`)}}`,
@@ -1252,6 +1338,280 @@ describe('helper/zod: makeSiblingCombinatorCheck (#469)', () => {
   })
 })
 
+describe('helper/zod: makeUnevaluatedItemsCheck (#647)', () => {
+  const guard = 'const a=ctx.value;if(!Array.isArray(a))return;'
+  const reportRest =
+    'for(let i=n;i<a.length;i++){ctx.issues.push({code:"custom",path:[i],input:a})}'
+
+  it('returns undefined when nothing is left to it', () => {
+    expect(makeUnevaluatedItemsCheck({ allOf: [{ type: 'array' }] }, emitBranch)).toBeUndefined()
+    expect(
+      makeUnevaluatedItemsCheck({ allOf: [{ type: 'array' }], unevaluatedItems: true }, emitBranch),
+    ).toBeUndefined()
+    // `items` evaluates every element.
+    expect(
+      makeUnevaluatedItemsCheck(
+        { allOf: [{ type: 'array' }], items: { type: 'string' }, unevaluatedItems: false },
+        emitBranch,
+      ),
+    ).toBeUndefined()
+  })
+
+  it('counts what the members of an allOf and a referenced component evaluate', () => {
+    expect(
+      makeUnevaluatedItemsCheck(
+        {
+          prefixItems: [{ type: 'string' }],
+          allOf: [{ $ref: '#/components/schemas/Pair' }, { minItems: 1 }],
+          unevaluatedItems: false,
+        },
+        emitBranch,
+        { Pair: { prefixItems: [{ type: 'string' }, { type: 'number' }] } },
+      ),
+    ).toStrictEqual({
+      sync: `(ctx)=>{${guard}let n=0;n=Math.max(n,1);n=Math.max(n,2);${reportRest}}`,
+    })
+    // A member with `items`, or an `unevaluatedItems` of its own, evaluates every element.
+    expect(
+      makeUnevaluatedItemsCheck(
+        { allOf: [{ items: { type: 'string' } }], unevaluatedItems: false },
+        emitBranch,
+      ),
+    ).toStrictEqual({ sync: `(ctx)=>{${guard}let n=0;n=Infinity;${reportRest}}` })
+    expect(
+      makeUnevaluatedItemsCheck(
+        { allOf: [{ unevaluatedItems: { type: 'string' } }], unevaluatedItems: false },
+        emitBranch,
+      ),
+    ).toStrictEqual({ sync: `(ctx)=>{${guard}let n=0;n=Infinity;${reportRest}}` })
+  })
+
+  it('counts the branches that match, and reports only when the union has a match', () => {
+    const body = (parse: (zod: string) => string) =>
+      `(ctx)=>{${guard}let n=0,mA=0;if(${parse('N')}.success){mA++;n=Math.max(n,1)};if(${parse('S')}.success){mA++};if(mA>0){${reportRest}}}`
+    expect(
+      makeUnevaluatedItemsCheck(
+        {
+          anyOf: [{ prefixItems: [{ type: 'string' }] }, { type: 'string' }],
+          unevaluatedItems: false,
+        },
+        emitBranch,
+      ),
+    ).toStrictEqual({
+      sync: body((zod) => `${zod}.safeParse(a)`),
+      async: `async${body((zod) => `(await ${zod}.safeParseAsync(a))`)}`,
+    })
+    expect(
+      makeUnevaluatedItemsCheck(
+        { oneOf: [{ prefixItems: [{ type: 'string' }] }], unevaluatedItems: false },
+        emitBranch,
+      )?.sync,
+    ).toBe(
+      `(ctx)=>{${guard}let n=0,mO=0;if(N.safeParse(a).success){mO++;n=Math.max(n,1)};if(mO===1){${reportRest}}}`,
+    )
+  })
+
+  it('counts what if / then / else select, and a nested branch only when it evaluates', () => {
+    expect(
+      makeUnevaluatedItemsCheck(
+        {
+          allOf: [{ anyOf: [{ type: 'string' }, { prefixItems: [{ type: 'string' }] }] }],
+          if: { type: 'string' },
+          // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+          then: { prefixItems: [{}, {}] },
+          else: { items: true },
+          unevaluatedItems: false,
+        },
+        emitBranch,
+      )?.sync,
+    ).toBe(
+      `(ctx)=>{${guard}let n=0;if(N.safeParse(a).success){n=Math.max(n,1)};if(S.safeParse(a).success){n=Math.max(n,2)}else{n=Infinity};${reportRest}}`,
+    )
+  })
+
+  const containsBody = (parsed: string) =>
+    `(ctx)=>{${guard}let n=0;const e=new Set();n=Math.max(n,1);{const Contains=S;for(const [i,item] of a.entries()){if(${parsed}.success){e.add(i)}}};for(let i=n;i<a.length;i++){if(e.has(i)){continue}ctx.issues.push({code:"custom",path:[i],input:a})}}`
+
+  it('leaves out the elements contains matches', () => {
+    expect(
+      makeUnevaluatedItemsCheck(
+        {
+          prefixItems: [{}],
+          allOf: [{ contains: { type: 'string' } }],
+          unevaluatedItems: false,
+        },
+        emitBranch,
+      ),
+    ).toStrictEqual({
+      sync: containsBody('Contains.safeParse(item)'),
+      async: `async${containsBody('(await Contains.safeParseAsync(item))')}`,
+    })
+  })
+
+  it('parses the unevaluated elements with a schema, under their index', () => {
+    const forwarded = makeIssueForwarding(
+      '{...issue,path:[i,...issue.path],input:issue.input,message:"no more"}',
+    )
+    const body = (parsed: string) =>
+      `(ctx)=>{${guard}let n=0;n=Math.max(n,1);const Schema=S;for(let i=n;i<a.length;i++){const result=${parsed};if(!result.success){for(const issue of result.error.issues){${forwarded}}}}}`
+    expect(
+      makeUnevaluatedItemsCheck(
+        {
+          allOf: [{ prefixItems: [{ type: 'number' }] }],
+          unevaluatedItems: { type: 'string' },
+          'x-unevaluatedItems-message': 'no more',
+        },
+        emitBranch,
+      ),
+    ).toStrictEqual({
+      sync: body('Schema.safeParse(a[i])'),
+      async: `async${body('(await Schema.safeParseAsync(a[i]))')}`,
+    })
+  })
+})
+
+const conditionalStmt = (parse: (zod: string) => string, report: string) =>
+  `{const ifOk=${parse('N')}.success;if(ifOk){const Schema=S;if(!${parse('Schema')}.success){${report}}};}`
+
+const parsedSync = (zod: string) => `${zod}.safeParse(val)`
+
+const parsedAwaited = (zod: string) => `(await ${zod}.safeParseAsync(val))`
+
+describe('helper/zod: makeConditionalCheck', () => {
+  const conditional = {
+    type: 'integer',
+    if: { type: 'number' },
+    // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+    then: { type: 'string' },
+  } as const
+  const pushed = "ctx.issues.push({...{code:'custom'},input:val})"
+  const added = "ctx.addIssue({code:'custom'})"
+
+  it('returns undefined without if, or without then and else', () => {
+    expect(makeConditionalCheck({ type: 'integer' }, emitBranch)).toBeUndefined()
+    expect(
+      makeConditionalCheck({ type: 'integer', if: { type: 'number' } }, emitBranch),
+    ).toBeUndefined()
+  })
+
+  const booleanBody = (parse: (zod: string) => string) =>
+    `(ctx)=>{const val=ctx.value;{const ifOk=${parse('z.never()')}.success;;if(!ifOk){const Schema=z.never();if(!${parse('Schema')}.success){${pushed}}}}}`
+
+  it('reads a boolean schema: false accepts nothing, true is left out', () => {
+    expect(
+      makeConditionalCheck(
+        {
+          type: 'integer',
+          if: false,
+          // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+          then: true,
+          else: false,
+        },
+        emitBranch,
+      ),
+    ).toStrictEqual({ sync: booleanBody(parsedSync), async: `async${booleanBody(parsedAwaited)}` })
+    expect(
+      makeConditionalCheck(
+        {
+          type: 'integer',
+          if: { type: 'number' },
+          // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+          then: true,
+        },
+        emitBranch,
+      ),
+    ).toBeUndefined()
+  })
+
+  it('is a check on the raw input, with an awaited form (#645)', () => {
+    expect(makeConditionalCheck(conditional, emitBranch)).toStrictEqual({
+      sync: `(ctx)=>{const val=ctx.value;${conditionalStmt(parsedSync, pushed)}}`,
+      async: `async(ctx)=>{const val=ctx.value;${conditionalStmt(parsedAwaited, pushed)}}`,
+    })
+    // A bigint read from text is compared as the number it was read from.
+    const asNumber = "const val=typeof ctx.value==='bigint'?Number(ctx.value):ctx.value;"
+    expect(makeConditionalCheck({ ...conditional, format: 'int64' }, emitBranch)).toStrictEqual({
+      sync: `(ctx)=>{${asNumber}${conditionalStmt(parsedSync, pushed)}}`,
+      async: `async(ctx)=>{${asNumber}${conditionalStmt(parsedAwaited, pushed)}}`,
+    })
+  })
+
+  it('is a refinement of the output where the emitter converts its input (#646)', () => {
+    expect(makeConditionalCheck(conditional, emitBranch, true)).toStrictEqual({
+      sync: `(val,ctx)=>{${conditionalStmt(parsedSync, added)}}`,
+      async: `async(val,ctx)=>{${conditionalStmt(parsedAwaited, added)}}`,
+    })
+    // A bigint is compared as the number it was read from.
+    const asNumber = "const val=typeof output==='bigint'?Number(output):output;"
+    expect(
+      makeConditionalCheck({ ...conditional, format: 'int64' }, emitBranch, true),
+    ).toStrictEqual({
+      sync: `(output,ctx)=>{${asNumber}${conditionalStmt(parsedSync, added)}}`,
+      async: `async(output,ctx)=>{${asNumber}${conditionalStmt(parsedAwaited, added)}}`,
+    })
+  })
+})
+
+describe('helper/zod: makeSiblingKeywordCheck', () => {
+  const pushed = "ctx.issues.push({...{code:'custom'},input:val})"
+  const required = `if(!Object.hasOwn(val,"b")){${pushed}}`
+  const objectGuard = "typeof val==='object'&&val!==null&&!Array.isArray(val)"
+
+  it('leaves the shape and the unevaluated keywords to the combinator paths', () => {
+    expect(
+      makeSiblingKeywordCheck(
+        {
+          anyOf: [{ type: 'string' }],
+          properties: { b: { type: 'string' } },
+          required: ['b'],
+          additionalProperties: false,
+          unevaluatedProperties: false,
+          unevaluatedItems: false,
+        },
+        emitBranch,
+      ),
+    ).toBeUndefined()
+    expect(
+      makeSiblingKeywordCheck({ anyOf: [{ type: 'string' }], maxLength: 2 }, emitBranch),
+    ).toStrictEqual({
+      sync: `(ctx)=>{const val=ctx.value;if(typeof val==='string'){if([...val].length>2){${pushed}}}}`,
+    })
+  })
+
+  it('keeps them beside a not alone, which is emitted on z.any() (#647)', () => {
+    expect(
+      makeSiblingKeywordCheck(
+        { not: { type: 'number' }, required: ['b'], unevaluatedItems: false },
+        emitBranch,
+        true,
+      ),
+    ).toStrictEqual({
+      sync: `(ctx)=>{const val=ctx.value;if(${objectGuard}){${required}};if(Array.isArray(val)){if(val.length>0){${pushed}}}}`,
+    })
+  })
+
+  const awaitedBody = (parsed: string, count: string) =>
+    `(ctx)=>{const val=ctx.value;if(Array.isArray(val)){{const Schema=S;for(let i=0;i<val.length;i++){if(!${parsed}.success){${pushed}}}};{${count};if(m<1){${pushed}}}}}`
+
+  it('comes with an awaited form when it parses a schema (#645)', () => {
+    expect(
+      makeSiblingKeywordCheck(
+        { anyOf: [{ type: 'array' }], items: { type: 'string' }, contains: { type: 'number' } },
+        emitBranch,
+      ),
+    ).toStrictEqual({
+      sync: awaitedBody(
+        'Schema.safeParse(val[i])',
+        'const m=val.filter((i)=>N.safeParse(i).success).length',
+      ),
+      async: `async${awaitedBody(
+        '(await Schema.safeParseAsync(val[i]))',
+        'const Schema=N;let m=0;for(const i of val){if((await Schema.safeParseAsync(i)).success){m++}}',
+      )}`,
+    })
+  })
+})
+
 describe('helper/zod: isShapeMember (#634)', () => {
   const P: Schema = { type: 'object', required: ['p'], properties: { p: { type: 'string' } } }
   const ref: Schema = { $ref: '#/components/schemas/P' }
@@ -1284,5 +1644,101 @@ describe('helper/zod: isShapeMember (#634)', () => {
     expect(
       isShapeMember({ nullable: true, allOf: [{ ...ref, nullable: true }], properties }, { P }),
     ).toBe(true)
+  })
+})
+
+describe('helper/zod: mayBeAsync', () => {
+  const schemas: { readonly [k: string]: Schema } = {
+    Plain: { type: 'string' },
+    Checked: { type: 'string', 'x-refine': '.refine(async (v) => v.length > 0)' },
+    Holder: { type: 'object', properties: { c: { $ref: '#/components/schemas/Checked' } } },
+    Loop: { type: 'object', properties: { next: { $ref: '#/components/schemas/Loop' } } },
+  }
+
+  it.each([
+    [{ type: 'string' }, false],
+    [{ type: 'string', 'x-refine': '.refine((v) => v.length > 0)' }, true],
+    [{ type: 'string', 'x-superRefine': '.superRefine(() => {})' }, true],
+    [{ type: 'string', 'x-transform': '(v) => v' }, true],
+    [{ type: 'string', 'x-preprocess': '(v) => v' }, true],
+    [{ type: 'string', 'x-pipe': 'z.string()' }, true],
+    [{ type: 'string', 'x-codec': 'z.codec(z.string(), z.string(), {})' }, true],
+    // A schema inside it.
+    [{ type: 'array', items: { type: 'string', 'x-transform': '(v) => v' } }, true],
+    [{ anyOf: [{ type: 'string' }, { not: { 'x-refine': '.refine(() => true)' } }] }, true],
+    // A component it names, at any depth.
+    [{ $ref: '#/components/schemas/Plain' }, false],
+    [{ $ref: '#/components/schemas/Checked' }, true],
+    [{ type: 'array', items: { $ref: '#/components/schemas/Holder' } }, true],
+    // A reference that comes back to itself adds nothing; one that cannot be read may.
+    [{ $ref: '#/components/schemas/Loop' }, false],
+    [{ $ref: '#/components/schemas/Missing' }, true],
+  ] as const)('mayBeAsync(%o) -> %s', (schema, expected) => {
+    expect(mayBeAsync(schema, schemas)).toBe(expected)
+  })
+
+  it('takes a list, a boolean schema and an absent one', () => {
+    expect(
+      mayBeAsync([{ type: 'string' }, { $ref: '#/components/schemas/Checked' }], schemas),
+    ).toBe(true)
+    expect(mayBeAsync([undefined, true, false, { type: 'string' }], schemas)).toBe(false)
+    // Without the components no reference can be read.
+    expect(mayBeAsync({ $ref: '#/components/schemas/Plain' })).toBe(true)
+  })
+
+  it('parsesAsync leaves out the code the schema itself carries', () => {
+    expect(parsesAsync({ type: 'string', 'x-refine': '.refine(() => true)' }, schemas)).toBe(false)
+    expect(
+      parsesAsync(
+        { 'x-refine': '.refine(() => true)', not: { $ref: '#/components/schemas/Checked' } },
+        schemas,
+      ),
+    ).toBe(true)
+    expect(parsesAsync({ $ref: '#/components/schemas/Checked' }, schemas)).toBe(true)
+  })
+})
+
+const parsedItem = (parse: (zod: string, value: string) => string) =>
+  `if(!${parse('S', 'val')}.success){ctx.addIssue({code:"custom"})}`
+const parsesNothing = () => 'if(val.length>3){ctx.addIssue({code:"custom"})}'
+
+describe('helper/zod: makeRefinement', () => {
+  it('is the refinement alone when nothing it parses may be asynchronous', () => {
+    expect(makeRefinement('val,ctx', parsedItem, false)).toBe(
+      '(val,ctx)=>{if(!S.safeParse(val).success){ctx.addIssue({code:"custom"})}}',
+    )
+  })
+
+  it('runs again, awaited, when what it parses may be asynchronous', () => {
+    expect(makeRefinement('val,ctx', parsedItem, true)).toBe(
+      '(val,ctx)=>{const reported=ctx.issues.length;try{return ((val,ctx)=>{if(!S.safeParse(val).success){ctx.addIssue({code:"custom"})}})(val,ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(val,ctx)=>{if(!(await S.safeParseAsync(val)).success){ctx.addIssue({code:"custom"})}})(val,ctx)}}',
+    )
+  })
+
+  it('has nothing to await when it parses nothing', () => {
+    expect(makeRefinement('val,ctx', parsesNothing, true)).toBe(
+      '(val,ctx)=>{if(val.length>3){ctx.addIssue({code:"custom"})}}',
+    )
+  })
+
+  it('counts matches with filter, or with every element awaited at once', () => {
+    expect(
+      makeRefinement(
+        'arr,ctx',
+        (parse) => `const matched=${countMatches(parse, 'S', 'arr')}`,
+        true,
+      ),
+    ).toBe(
+      '(arr,ctx)=>{const reported=ctx.issues.length;try{return ((arr,ctx)=>{const matched=arr.filter((i)=>S.safeParse(i).success).length})(arr,ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(arr,ctx)=>{const matched=(await Promise.all(arr.map((i)=>S.safeParseAsync(i)))).filter((result)=>result.success).length})(arr,ctx)}}',
+    )
+  })
+})
+
+describe('helper/zod: makeNotPredicate', () => {
+  it('is a predicate that answers with a promise when the schema is asynchronous', () => {
+    expect(makeNotPredicate('S', false)).toBe('(val) => !S.safeParse(val).success')
+    expect(makeNotPredicate('S', true)).toBe(
+      '(val) => {try{return !S.safeParse(val).success}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return S.safeParseAsync(val).then((result)=>!result.success)}}',
+    )
   })
 })

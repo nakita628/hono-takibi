@@ -1876,9 +1876,16 @@ describe('wrap: x-catch, x-prefault and nested literals (#490, #491, #492)', () 
 
   it.concurrent('x-catch with no type to state is a preprocess', () => {
     expect(wrap('z.any()', { 'x-catch': 'x' })).toBe(caught('z.any()', '"x"'))
+    // What a reference names may be asynchronous when it cannot be read: `safeParse` then
+    // throws, and the probe is made again, awaited.
     expect(wrap('ASchema', { $ref: '#/components/schemas/A', 'x-catch': {} })).toBe(
-      caught('ASchema', '{}'),
+      `(()=>{const Schema=ASchema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{try{if(!Schema.safeParse(ctx.value).success){ctx.value={}}return undefined}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return Schema.safeParseAsync(ctx.value).then((result)=>{if(!result.success){ctx.value={}}})}}).pipe(Schema)})()`,
     )
+    expect(
+      wrap('ASchema', { $ref: '#/components/schemas/A', 'x-catch': {} }, undefined, {
+        schemas: { A: { type: 'object' } },
+      }),
+    ).toBe('ASchema.catch({}).openapi({"type":"object"})')
     // A user chain replaces the generated one, the catch with it.
     expect(wrap('z.string()', { type: 'string', 'x-catch': 'x', 'x-transform': 'T' })).toBe('T')
   })

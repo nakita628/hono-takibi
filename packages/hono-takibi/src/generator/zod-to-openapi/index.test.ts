@@ -23,12 +23,79 @@ const withCheck = (union: string, check: string) =>
 // the callback answers with a promise. `declarations` come before `Schema`: an
 // operand the check parses is declared once and named in both.
 const withAsyncCheck = (schema: string, sync: string, async: string, declarations = '') =>
-  `(()=>{${declarations}const Schema=${schema};return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{(${sync})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (${async})(ctx).then(()=>val)}return val},Schema)})()`
+  `(()=>{${declarations}const Schema=${schema};return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return (${sync})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (${async})(ctx)}}).pipe(Schema)})()`
 
-// The same wrapper around statements that read `ctx` and `Schema` themselves:
-// the message and the `unevaluatedProperties` of an `allOf`.
-const withStatements = (schema: string, statements: string) =>
-  `(()=>{const Schema=${schema};return z.preprocess((val: z.input<typeof Schema>,ctx)=>{${statements};return val},Schema)})()`
+// The awaited form of a check that parses the object `o` it is handed, as the emitter
+// writes it: each `<schema>.safeParse(o)` awaited, and so the parse of a value by
+// `Schema` and of the whole input (`ctx.value`). The schema is what stands before the
+// call, back to the bracket or the operator it follows.
+const awaitedCheck = (check: string): string => {
+  const call = '.safeParse(o)'
+  const closers = ')]}'
+  const openers = '([{'
+  let out = check
+  for (let at = out.lastIndexOf(call); at !== -1; at = out.lastIndexOf(call, at - 1)) {
+    let start = at
+    let depth = 0
+    while (start > 0) {
+      const ch = out.charAt(start - 1)
+      if (closers.includes(ch)) depth += 1
+      else if (openers.includes(ch)) {
+        if (depth === 0) break
+        depth -= 1
+      } else if (depth === 0 && !/[\w$.]/u.test(ch)) break
+      start -= 1
+    }
+    out = `${out.slice(0, start)}(await ${out.slice(start, at)}.safeParseAsync(o))${out.slice(at + call.length)}`
+  }
+  return `async${out
+    .replaceAll(
+      'const result=Schema.safeParse(val)',
+      'const result=(await Schema.safeParseAsync(val))',
+    )
+    .replaceAll('Schema.safeParse(ctx.value)', '(await Schema.safeParseAsync(ctx.value))')}`
+}
+
+// A check that parses a schema, wrapped with its awaited form.
+const withAwaitedCheck = (schema: string, check: string) =>
+  withAsyncCheck(schema, check, awaitedCheck(check))
+
+// The statements that parse an `allOf` and report its issues again, each narrowed by its
+// code, with the message when there is one.
+const forwarding479 = (message: string) =>
+  (
+    [
+      'invalid_type',
+      'too_big',
+      'too_small',
+      'invalid_format',
+      'not_multiple_of',
+      'unrecognized_keys',
+      'invalid_union',
+      'invalid_key',
+      'invalid_element',
+      'invalid_value',
+      'custom',
+    ] as const
+  )
+    .map(
+      (code, index) =>
+        `${index === 0 ? '' : 'else '}if(issue.code==='${code}'){ctx.issues.push({...issue,input:issue.input${message}})}`,
+    )
+    .join('')
+const gate479 = (message: string) =>
+  `const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){${forwarding479(message)}}}`
+
+// The check of an `allOf` with a message or `unevaluatedProperties`: the intersection is
+// parsed to report its issues again (`forward`), then the unevaluated keys are checked.
+const withAllOfCheck = (schema: string, forward: string, unevaluated?: string) =>
+  unevaluated === undefined
+    ? withAwaitedCheck(schema, `(ctx)=>{${forward}}`)
+    : withAsyncCheck(
+        schema,
+        `(ctx)=>{((ctx)=>{${forward}})(ctx);(${unevaluated})(ctx)}`,
+        `async(ctx)=>{await (${awaitedCheck(`(ctx)=>{${forward}}`)})(ctx);await (${unevaluated})(ctx)}`,
+      )
 
 // What `x-catch` emits where the schema states no `type` the document could
 // be told (#492): a `z.preprocess` that replaces a value the schema does not
@@ -37,6 +104,11 @@ const withStatements = (schema: string, statements: string) =>
 // `.openapi()`.
 const caught = (schema: string, fallback: string) =>
   `(()=>{const Schema=${schema};return z.preprocess((val: z.input<typeof Schema>)=>Schema.safeParse(val).success?val:${fallback},Schema)})()`
+
+// The same where the schema may have an asynchronous refinement: `safeParse` then throws,
+// and the probe is made again, awaited.
+const caughtAsync = (schema: string, fallback: string) =>
+  `(()=>{const Schema=${schema};return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{try{if(!Schema.safeParse(ctx.value).success){ctx.value=${fallback}}return undefined}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return Schema.safeParseAsync(ctx.value).then((result)=>{if(!result.success){ctx.value=${fallback}}})}}).pipe(Schema)})()`
 
 // The same, by hand, for the runtime checks.
 const catching = <T extends z.ZodType>(Schema: T, fallback: z.input<T>) =>
@@ -217,10 +289,14 @@ describe('zodToOpenAPI', () => {
 
     it.concurrent('codegen: [$ref, number] preserves the identifier as a Prefix entry', () => {
       expect(
-        zodToOpenAPI({
-          type: 'array',
-          prefixItems: [{ $ref: '#/components/schemas/Name' }, { type: 'number' }],
-        }),
+        zodToOpenAPI(
+          {
+            type: 'array',
+            prefixItems: [{ $ref: '#/components/schemas/Name' }, { type: 'number' }],
+          },
+          undefined,
+          { schemas: { Name: { type: 'string' } } },
+        ),
       ).toBe(
         'z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[NameSchema,z.number()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]})}}}})',
       )
@@ -1608,11 +1684,11 @@ describe('zodToOpenAPI', () => {
       describe('not.$ref', () => {
         it.concurrent('not.$ref: excludes ForbiddenSchema', () => {
           expect(
-            zodToOpenAPI({
-              not: { $ref: '#/components/schemas/Forbidden' },
+            zodToOpenAPI({ not: { $ref: '#/components/schemas/Forbidden' } }, undefined, {
+              schemas: { Forbidden: { type: 'string' } },
             }),
           ).toBe(
-            'z.any().refine((val) => !ForbiddenSchema.safeParse(val).success).openapi({"not":{"$ref":"#/components/schemas/Forbidden"}})',
+            'z.any().refine((val) => !ForbiddenSchema.safeParse(val).success).openapi({"not":{"type":"string"}})',
           )
           const ForbiddenSchema = z.string()
           const runtime = z.any().refine((val) => !ForbiddenSchema.safeParse(val).success)
@@ -1779,12 +1855,16 @@ describe('zodToOpenAPI', () => {
         })
         it.concurrent('x-not-message: not.$ref carries custom error', () => {
           expect(
-            zodToOpenAPI({
-              not: { $ref: '#/components/schemas/Forbidden' },
-              'x-not-message': '禁止スキーマ不可',
-            }),
+            zodToOpenAPI(
+              {
+                not: { $ref: '#/components/schemas/Forbidden' },
+                'x-not-message': '禁止スキーマ不可',
+              },
+              undefined,
+              { schemas: { Forbidden: { type: 'string' } } },
+            ),
           ).toBe(
-            'z.any().refine((val) => !ForbiddenSchema.safeParse(val).success,{error:"禁止スキーマ不可"}).openapi({"not":{"$ref":"#/components/schemas/Forbidden"}})',
+            'z.any().refine((val) => !ForbiddenSchema.safeParse(val).success,{error:"禁止スキーマ不可"}).openapi({"not":{"type":"string"}})',
           )
           const ForbiddenSchema = z.string()
           const runtime = z.any().refine((val) => !ForbiddenSchema.safeParse(val).success, {
@@ -13348,7 +13428,11 @@ describe('zodToOpenAPI', () => {
           unevaluatedProperties: false,
         }),
       ).toBe(
-        `(()=>{const Schema=z.object({id:z.string()}).openapi({"required":["id"]}).and(z.object({name:z.string()}).openapi({"required":["name"]}));return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){if(issue.code==='invalid_type'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='too_big'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='too_small'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_format'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='not_multiple_of'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='unrecognized_keys'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_union'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_key'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_element'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_value'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='custom'){ctx.issues.push({...issue,input:issue.input})}}};((ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["id"]){e.add(k)};for(const k of ["name"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}})(ctx);return val},Schema)})()`,
+        withAllOfCheck(
+          'z.object({id:z.string()}).openapi({"required":["id"]}).and(z.object({name:z.string()}).openapi({"required":["name"]}))',
+          gate479(''),
+          `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["id"]){e.add(k)};for(const k of ["name"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}`,
+        ),
       )
     })
   })
@@ -13374,7 +13458,7 @@ describe('zodToOpenAPI', () => {
       '(ctx)=>{const o=ctx.value;if(typeof o!==\'object\'||o===null||Array.isArray(o))return;let mA=0;const e=new Set();if(z.object({a:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){mA++;for(const k of ["a"]){e.add(k)}};if(z.string().safeParse(o).success){mA++;};if(mA>0){for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}}'
     it.concurrent('codegen: anyOf + unevaluatedProperties=false → preprocess wraps z.union', () => {
       expect(zodToOpenAPI({ type: 'object', anyOf: [branch], unevaluatedProperties: false })).toBe(
-        withCheck(
+        withAwaitedCheck(
           'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]})])',
           branchCheck,
         ),
@@ -13382,7 +13466,7 @@ describe('zodToOpenAPI', () => {
     })
     it.concurrent('codegen: oneOf + unevaluatedProperties=false → preprocess wraps z.xor', () => {
       expect(zodToOpenAPI({ type: 'object', oneOf: [branch], unevaluatedProperties: false })).toBe(
-        withCheck(
+        withAwaitedCheck(
           'z.xor([z.object({a:z.string().exactOptional()}).openapi({"required":[]})])',
           branchCheckOneOf,
         ),
@@ -13390,7 +13474,7 @@ describe('zodToOpenAPI', () => {
     })
     it.concurrent('codegen: anyOf without type + unevaluatedProperties=false → same check', () => {
       expect(zodToOpenAPI({ anyOf: [branch], unevaluatedProperties: false })).toBe(
-        withCheck(
+        withAwaitedCheck(
           'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]})])',
           branchCheck,
         ),
@@ -13410,7 +13494,7 @@ describe('zodToOpenAPI', () => {
           unevaluatedProperties: false,
         }),
       ).toBe(
-        withCheck(
+        withAwaitedCheck(
           'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]})]).and(z.object({b:z.number().exactOptional()}).openapi({"required":[]}))',
           '(ctx)=>{const o=ctx.value;if(typeof o!==\'object\'||o===null||Array.isArray(o))return;let mA=0;const e=new Set();for(const k of ["b"]){e.add(k)};if(z.object({a:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){mA++;for(const k of ["a"]){e.add(k)}};if(mA>0){for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}}',
         ),
@@ -13428,7 +13512,7 @@ describe('zodToOpenAPI', () => {
           { schemas: { A: branch } },
         ),
       ).toBe(
-        withCheck(
+        withAwaitedCheck(
           'z.union([ASchema])',
           '(ctx)=>{const o=ctx.value;if(typeof o!==\'object\'||o===null||Array.isArray(o))return;let mA=0;const e=new Set();if(ASchema.safeParse(o).success){mA++;for(const k of ["a"]){e.add(k)}};if(mA>0){for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}}',
         ),
@@ -13442,7 +13526,7 @@ describe('zodToOpenAPI', () => {
           unevaluatedProperties: false,
         }),
       ).toBe(
-        withCheck(
+        withAwaitedCheck(
           'z.union([z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}),z.object({d:z.boolean().exactOptional()}).openapi({"required":[]})])])',
           '(ctx)=>{const o=ctx.value;if(typeof o!==\'object\'||o===null||Array.isArray(o))return;let mA=0;const e=new Set();if(z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}),z.object({d:z.boolean().exactOptional()}).openapi({"required":[]})]).safeParse(o).success){mA++;if(z.object({a:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){for(const k of ["a"]){e.add(k)}};if(z.object({d:z.boolean().exactOptional()}).openapi({"required":[]}).safeParse(o).success){for(const k of ["d"]){e.add(k)}}};if(mA>0){for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}}',
         ),
@@ -13463,7 +13547,7 @@ describe('zodToOpenAPI', () => {
           unevaluatedProperties: false,
         }),
       ).toBe(
-        withCheck(
+        withAwaitedCheck(
           'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({b:z.number().exactOptional()}).openapi({"required":[]}))])',
           '(ctx)=>{const o=ctx.value;if(typeof o!==\'object\'||o===null||Array.isArray(o))return;let mA=0;const e=new Set();if(z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({b:z.number().exactOptional()}).openapi({"required":[]})).safeParse(o).success){mA++;for(const k of ["a"]){e.add(k)};for(const k of ["b"]){e.add(k)}};if(mA>0){for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}}',
         ),
@@ -13476,7 +13560,7 @@ describe('zodToOpenAPI', () => {
           properties: { b: { type: 'number' } },
         }),
       ).toBe(
-        `z.union([${withCheck(
+        `z.union([${withAwaitedCheck(
           'z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({b:z.number().exactOptional()}).openapi({"required":[]})),z.string()])',
           branchCheckWithString,
         )}])`,
@@ -13497,7 +13581,7 @@ describe('zodToOpenAPI', () => {
           properties: { b: { type: 'number' } },
         }),
       ).toBe(
-        `z.xor([${withCheck(
+        `z.xor([${withAwaitedCheck(
           'z.xor([z.object({a:z.string()}).openapi({"required":["a"]}),z.object({d:z.boolean()}).openapi({"required":["d"]})])',
           '(ctx)=>{const o=ctx.value;if(typeof o!==\'object\'||o===null||Array.isArray(o))return;let mO=0;const e=new Set();if(z.object({a:z.string()}).openapi({"required":["a"]}).safeParse(o).success){mO++;for(const k of ["a"]){e.add(k)}};if(z.object({d:z.boolean()}).openapi({"required":["d"]}).safeParse(o).success){mO++;for(const k of ["d"]){e.add(k)}};if(mO===1){for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}}',
         )}]).and(z.object({b:z.number().exactOptional()}).openapi({"required":[]}))`,
@@ -13792,7 +13876,7 @@ describe('zodToOpenAPI', () => {
       }
       const code = zodToOpenAPI(node, undefined, { schemas: { Node: node } })
       expect(code).toBe(
-        withCheck(
+        withAwaitedCheck(
           'z.union([z.object({name:z.string().exactOptional(),children:z.array(NodeSchema).exactOptional()}).openapi({"required":[]})])',
           '(ctx)=>{const o=ctx.value;if(typeof o!==\'object\'||o===null||Array.isArray(o))return;let mA=0;const e=new Set();if(z.object({name:z.string().exactOptional(),children:z.array(NodeSchema).exactOptional()}).openapi({"required":[]}).safeParse(o).success){mA++;for(const k of ["name","children"]){e.add(k)}};if(mA>0){for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}}',
         ),
@@ -13801,7 +13885,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('codegen: anyOf + empty branch → the match still counts, keys still unevaluated (#480)', () => {
       // The empty branch takes the declared `type: object` (#468).
       expect(zodToOpenAPI({ type: 'object', anyOf: [{}], unevaluatedProperties: false })).toBe(
-        withCheck(
+        withAwaitedCheck(
           'z.union([z.looseObject({})])',
           '(ctx)=>{const o=ctx.value;if(typeof o!==\'object\'||o===null||Array.isArray(o))return;let mA=0;const e=new Set();if(z.looseObject({}).safeParse(o).success){mA++;};if(mA>0){for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}}',
         ),
@@ -13951,8 +14035,12 @@ describe('zodToOpenAPI: keywords beside not', () => {
   // The same when what is excluded is a component.
   // 除外対象がコンポーネントである場合も同様である。
   it.concurrent('validates the type beside not with a reference', () => {
-    expect(zodToOpenAPI({ type: 'integer', not: { $ref: '#/components/schemas/Count' } })).toBe(
-      'z.int().refine((val) => !CountSchema.safeParse(val).success).openapi({"not":{"$ref":"#/components/schemas/Count"}})',
+    expect(
+      zodToOpenAPI({ type: 'integer', not: { $ref: '#/components/schemas/Count' } }, undefined, {
+        schemas: { Count: { type: 'integer' } },
+      }),
+    ).toBe(
+      'z.int().refine((val) => !CountSchema.safeParse(val).success).openapi({"not":{"type":"integer"}})',
     )
   })
 
@@ -14229,6 +14317,8 @@ const checked = <T extends z.ZodType>(
 describe('properties beside combinators', () => {
   const shape = `(val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.addIssue({code:'custom'})}}}}`
   const shapeCheck = `(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.issues.push({...{code:'custom'},input:val})}}}}`
+  // The same check awaited, for a property schema with an asynchronous refinement (#645).
+  const shapeCheckAsync = `async(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!(await Schema.safeParseAsync(Reflect.get(val,"link"))).success){ctx.issues.push({...{code:'custom'},input:val})}}}}`
   const requiredCheck = `(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"link")){ctx.issues.push({...{code:'custom'},input:val})}}}`
   const requiredShapeCheck = `(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"link")){ctx.issues.push({...{code:'custom'},input:val})};if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.issues.push({...{code:'custom'},input:val})}}}}`
   const requiredRefine = `(val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"link")){ctx.addIssue({code:'custom'})}}}`
@@ -14608,7 +14698,7 @@ describe('properties beside combinators', () => {
           },
         },
       ),
-    ).toBe(withCheck('z.union([MultiSchema,z.string()])', shapeCheck))
+    ).toBe(withAsyncCheck('z.union([MultiSchema,z.string()])', shapeCheck, shapeCheckAsync))
     expect(
       zodToOpenAPI(
         {
@@ -14618,7 +14708,13 @@ describe('properties beside combinators', () => {
         undefined,
         undefined,
       ),
-    ).toBe(withCheck('z.union([z.union([z.looseObject({}),z.string()]),z.number()])', shapeCheck))
+    ).toBe(
+      withAsyncCheck(
+        'z.union([z.union([z.looseObject({}),z.string()]),z.number()])',
+        shapeCheck,
+        shapeCheckAsync,
+      ),
+    )
   })
 
   it.concurrent('codegen: an untyped parent with properties + anyOf stays spec-correct, not #385-object', () => {
@@ -14743,7 +14839,7 @@ describe('properties beside combinators', () => {
           },
         },
       ),
-    ).toBe(withCheck('z.union([NullObjSchema,z.string()])', shapeCheck))
+    ).toBe(withAsyncCheck('z.union([NullObjSchema,z.string()])', shapeCheck, shapeCheckAsync))
     // A `$ref` branch with its OWN wrapping distributes: the wrapping is on
     // the branch, not the target — `canAdmitNullOrUndefined` follows the
     // `$ref` and never sees it, so the branch's own wrapping is checked
@@ -14792,9 +14888,10 @@ describe('properties beside combinators', () => {
         properties: { link: { type: 'string' } },
       }),
     ).toBe(
-      withCheck(
+      withAsyncCheck(
         'z.union([z.object({a:z.string().exactOptional()}).catch({"a":"c"}).openapi({"type":"object","properties":{"a":{"type":"string"}},"required":[]}),z.string()])',
         shapeCheck,
+        shapeCheckAsync,
       ),
     )
     expect(
@@ -14807,9 +14904,10 @@ describe('properties beside combinators', () => {
         required: ['link'],
       }),
     ).toBe(
-      `${withCheck(
+      `${withAsyncCheck(
         'z.union([z.object({a:z.string().exactOptional()}).catch({"a":"c"}).openapi({"type":"object","properties":{"a":{"type":"string"}},"required":[]}),z.string()])',
         requiredShapeCheck,
+        `async${requiredShapeCheck.replace('Schema.safeParse(Reflect.get(val,"link"))', '(await Schema.safeParseAsync(Reflect.get(val,"link")))')}`,
       )}.openapi({"required":["link"]})`,
     )
     // A shape with `required` but no `properties` is a refine on the
@@ -14896,7 +14994,13 @@ describe('properties beside combinators', () => {
         ],
         properties: { link: { type: 'string' } },
       }),
-    ).toBe(withCheck('z.union([(val) => val.openapi({"required":[]}),z.string()])', shapeCheck))
+    ).toBe(
+      withAsyncCheck(
+        'z.union([(val) => val.openapi({"required":[]}),z.string()])',
+        shapeCheck,
+        shapeCheckAsync,
+      ),
+    )
     expect(
       zodToOpenAPI({
         anyOf: [
@@ -14911,9 +15015,10 @@ describe('properties beside combinators', () => {
         properties: { link: { type: 'string' } },
       }),
     ).toBe(
-      withCheck(
+      withAsyncCheck(
         `z.union([z.object({a:z.string().exactOptional()}).nullable().refine((val) => typeof val === 'object').openapi({"required":[]}),z.string()])`,
         shapeCheck,
+        shapeCheckAsync,
       ),
     )
   })
@@ -15801,9 +15906,10 @@ describe('x-catch states its schema for the document (#492)', () => {
     expect(zodToOpenAPI({ anyOf: [{ type: 'string' }, { type: 'number' }], 'x-catch': 'x' })).toBe(
       caught('z.union([z.string(),z.number()])', '"x"'),
     )
-    // A reference that cannot be read has no type either.
+    // A reference that cannot be read has no type either. What it names may be
+    // asynchronous, so the probe answers with a promise when `safeParse` throws.
     expect(zodToOpenAPI({ $ref: '#/components/schemas/A', 'x-catch': {} })).toBe(
-      caught('ASchema', '{}'),
+      caughtAsync('ASchema', '{}'),
     )
   })
 
@@ -15979,32 +16085,6 @@ describe('an int64 inside an object / array default is a bigint (#491)', () => {
   })
 })
 
-// The statements that parse an `allOf` and report its issues again, each narrowed by its
-// code, with the message when there is one.
-const forwarding479 = (message: string) =>
-  (
-    [
-      'invalid_type',
-      'too_big',
-      'too_small',
-      'invalid_format',
-      'not_multiple_of',
-      'unrecognized_keys',
-      'invalid_union',
-      'invalid_key',
-      'invalid_element',
-      'invalid_value',
-      'custom',
-    ] as const
-  )
-    .map(
-      (code, index) =>
-        `${index === 0 ? '' : 'else '}if(issue.code==='${code}'){ctx.issues.push({...issue,input:issue.input${message}})}`,
-    )
-    .join('')
-const gate479 = (message: string) =>
-  `const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){${forwarding479(message)}}}`
-
 // #479: a check on the raw input used to be `z.unknown().check(...).pipe(Schema)`,
 // which `@hono/zod-openapi` renders by its input side — `{}` — and which types
 // `z.input` as `unknown`. It is a `z.preprocess` now (see `withCheck` above),
@@ -16031,27 +16111,32 @@ describe('a raw-input check is a preprocess, not a check-pipe (#479)', () => {
       }),
     ]
     expect(emitted).toStrictEqual([
-      `(()=>{const Schema=z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({b:z.string().exactOptional()}).openapi({"required":[]}));return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){if(issue.code==='invalid_type'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='too_big'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='too_small'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='invalid_format'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='not_multiple_of'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='unrecognized_keys'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='invalid_union'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='invalid_key'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='invalid_element'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='invalid_value'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='custom'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}}};return val},Schema)})()`,
-      `(()=>{const Schema=z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({b:z.string().exactOptional()}).openapi({"required":[]}));return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){if(issue.code==='invalid_type'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='too_big'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='too_small'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='invalid_format'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='not_multiple_of'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='unrecognized_keys'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='invalid_union'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='invalid_key'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='invalid_element'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='invalid_value'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='custom'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}}};return val},Schema)})()`,
-      `(()=>{const Schema=z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({b:z.string().exactOptional()}).openapi({"required":[]}));return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){if(issue.code==='invalid_type'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='too_big'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='too_small'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_format'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='not_multiple_of'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='unrecognized_keys'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_union'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_key'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_element'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_value'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='custom'){ctx.issues.push({...issue,input:issue.input})}}};((ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of ["b"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}})(ctx);return val},Schema)})()`,
+      withAllOfCheck(`${a}.and(${b})`, gate479(',message:"bad"')),
+      withAllOfCheck(`${a}.and(${b})`, gate479(',message:"bad"')),
+      withAllOfCheck(
+        `${a}.and(${b})`,
+        gate479(''),
+        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of ["b"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}`,
+      ),
       `(()=>{const Schema=z.union([z.object({a:z.string().exactOptional()}).openapi({"required":[]}),z.object({b:z.string().exactOptional()}).openapi({"required":[]})]).and(z.looseObject({}).openapi({"required":["a"]}));return z.preprocess((val: z.input<typeof Schema>,ctx)=>{((ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"a")){ctx.issues.push({...{code:'custom'},input:val})}}})(ctx);return val},Schema)})().openapi({"required":["a"]})`,
       `(()=>{const Schema=z.xor([z.object({a:z.string().exactOptional()}).openapi({"required":[]}),z.object({b:z.string().exactOptional()}).openapi({"required":[]})]).and(z.looseObject({}).openapi({"required":["a"]}));return z.preprocess((val: z.input<typeof Schema>,ctx)=>{((ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"a")){ctx.issues.push({...{code:'custom'},input:val})}}})(ctx);return val},Schema)})().openapi({"required":["a"]})`,
-      `(()=>{const Schema=z.union([z.string(),(val) => val.openapi({"required":[]})]);return z.preprocess((val: z.input<typeof Schema>,ctx)=>{((ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.issues.push({...{code:'custom'},input:val})}}}})(ctx);return val},Schema)})()`,
-      `(()=>{const Schema=z.xor([z.string(),(val) => val.openapi({"required":[]})]);return z.preprocess((val: z.input<typeof Schema>,ctx)=>{((ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.issues.push({...{code:'custom'},input:val})}}}})(ctx);return val},Schema)})()`,
+      `(()=>{const Schema=z.union([z.string(),(val) => val.openapi({"required":[]})]);return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.issues.push({...{code:'custom'},input:val})}}}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!(await Schema.safeParseAsync(Reflect.get(val,"link"))).success){ctx.issues.push({...{code:'custom'},input:val})}}}})(ctx)}}).pipe(Schema)})()`,
+      `(()=>{const Schema=z.xor([z.string(),(val) => val.openapi({"required":[]})]);return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"link")).success){ctx.issues.push({...{code:'custom'},input:val})}}}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"link")){const Schema=z.string();if(!(await Schema.safeParseAsync(Reflect.get(val,"link"))).success){ctx.issues.push({...{code:'custom'},input:val})}}}})(ctx)}}).pipe(Schema)})()`,
     ])
   })
 
   it.concurrent('codegen: the message and unevaluatedProperties of an allOf', () => {
     expect(zodToOpenAPI({ allOf: [A, B], 'x-error-message': 'bad' })).toBe(
-      withStatements(`${a}.and(${b})`, gate479(',message:"bad"')),
+      withAllOfCheck(`${a}.and(${b})`, gate479(',message:"bad"')),
     )
     expect(zodToOpenAPI({ allOf: [A, B], 'x-allOf-message': 'bad' })).toBe(
-      withStatements(`${a}.and(${b})`, gate479(',message:"bad"')),
+      withAllOfCheck(`${a}.and(${b})`, gate479(',message:"bad"')),
     )
     expect(zodToOpenAPI({ allOf: [A, B], unevaluatedProperties: false })).toBe(
-      withStatements(
+      withAllOfCheck(
         `${a}.and(${b})`,
-        `${gate479('')};((ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of ["b"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}})(ctx)`,
+        gate479(''),
+        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of ["b"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}`,
       ),
     )
   })
@@ -16282,7 +16367,10 @@ describe('additionalProperties: false in an intersection member (#470)', () => {
     // The strict check is the outermost preprocess: it runs first, and the pipe
     // stops when it reports, so a key the member rejects is reported once.
     expect(code).toBe(
-      `(()=>{const Schema=(()=>{const Schema=z.strictObject({id:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({link:z.string().exactOptional()}).openapi({"required":[]}));return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){if(issue.code==='invalid_type'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='too_big'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='too_small'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='invalid_format'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='not_multiple_of'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='unrecognized_keys'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='invalid_union'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='invalid_key'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='invalid_element'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='invalid_value'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}else if(issue.code==='custom'){ctx.issues.push({...issue,input:issue.input,message:"bad"})}}};return val},Schema)})();return z.preprocess((val: z.input<typeof Schema>,ctx)=>{((ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;for(const k of Object.keys(o)){if(!["id"].includes(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}})(ctx);return val},Schema)})()`,
+      withCheck(
+        withAllOfCheck(`${strictZ}.and(${linkZ})`, gate479(',message:"bad"')),
+        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;for(const k of Object.keys(o)){if(!["id"].includes(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}`,
+      ),
     )
   })
 
@@ -16507,7 +16595,7 @@ describe('several combinators at the same level (#469)', () => {
         not: { required: ['z'] },
       }),
     ).toBe(
-      `(()=>{const Schema=z.discriminatedUnion('kind',[z.object({kind:z.literal("cat")}).openapi({"required":["kind"]}),z.object({kind:z.literal("dog")}).openapi({"required":["kind"]})]);return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"z")){ctx.addIssue({code:'custom'})}}}).openapi({"required":["z"]}).safeParse(val).success){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((await z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"z")){ctx.addIssue({code:'custom'})}}}).openapi({"required":["z"]}).safeParseAsync(val)).success){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})().openapi({"discriminator":{"propertyName":"kind"},"not":{"required":["z"]}})`,
+      `(()=>{const Schema=z.discriminatedUnion('kind',[z.object({kind:z.literal("cat")}).openapi({"required":["kind"]}),z.object({kind:z.literal("dog")}).openapi({"required":["kind"]})]);return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"z")){ctx.addIssue({code:'custom'})}}}).openapi({"required":["z"]}).safeParse(val).success){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((await z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"z")){ctx.addIssue({code:'custom'})}}}).openapi({"required":["z"]}).safeParseAsync(val)).success){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})().openapi({"discriminator":{"propertyName":"kind"},"not":{"required":["z"]}})`,
     )
     // `nullable` is the outer handling's, after the check.
     expect(zodToOpenAPI({ anyOf: [str], not: { const: 'x' }, nullable: true })).toBe(
@@ -16761,14 +16849,14 @@ describe('a sibling list that repeats a reference of the emitted allOf (#510)', 
       schemas,
     })
     expect(code).toBe(
-      '(()=>{const Schema=L0Schema;return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(((L0Schema.openapi({"title":"Plan"}).safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await L0Schema.openapi({"title":"Plan"}).safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})()',
+      '(()=>{const Schema=L0Schema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(((L0Schema.openapi({"title":"Plan"}).safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await L0Schema.openapi({"title":"Plan"}).safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})()',
     )
   })
 
   it.concurrent('does not state an anyOf that has the reference', () => {
     const code = zodToOpenAPI({ allOf: [L0], anyOf: [L0, Other] }, undefined, { schemas })
     expect(code).toBe(
-      '(()=>{const Schema=L0Schema;return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(!(L0Schema.safeParse(val).success||OtherSchema.safeParse(val).success)){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if(!((await L0Schema.safeParseAsync(val)).success||(await OtherSchema.safeParseAsync(val)).success)){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})()',
+      '(()=>{const Schema=L0Schema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(!(L0Schema.safeParse(val).success||OtherSchema.safeParse(val).success)){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if(!((await L0Schema.safeParseAsync(val)).success||(await OtherSchema.safeParseAsync(val)).success)){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})()',
     )
   })
 
@@ -16783,10 +16871,10 @@ describe('a sibling list that repeats a reference of the emitted allOf (#510)', 
         { schemas },
       ),
     ).toBe(
-      '(()=>{const Schema=L0Schema;return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(((L0Schema.safeParse(val).success?1:0)+(OtherSchema.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await L0Schema.safeParseAsync(val)).success?1:0)+((await OtherSchema.safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})().openapi({oneOf:[{"type":"object","properties":{"a":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}},"b":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}}}},{"type":"object","properties":{"c":{"type":"string"}}}]})',
+      '(()=>{const Schema=L0Schema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(((L0Schema.safeParse(val).success?1:0)+(OtherSchema.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await L0Schema.safeParseAsync(val)).success?1:0)+((await OtherSchema.safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})().openapi({oneOf:[{"type":"object","properties":{"a":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}},"b":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}}}},{"type":"object","properties":{"c":{"type":"string"}}}]})',
     )
     expect(zodToOpenAPI({ allOf: [L0], oneOf: [Other] }, undefined, { schemas })).toBe(
-      '(()=>{const Schema=L0Schema;return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(((OtherSchema.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await OtherSchema.safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})().openapi({oneOf:[{"type":"object","properties":{"c":{"type":"string"}}}]})',
+      '(()=>{const Schema=L0Schema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(((OtherSchema.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await OtherSchema.safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})().openapi({oneOf:[{"type":"object","properties":{"c":{"type":"string"}}}]})',
     )
   })
 })
@@ -16822,7 +16910,7 @@ describe('a statement that copies too much out of the components (#510)', () => 
       schemas: chain(2),
     })
     expect(code).toBe(
-      '(()=>{const Schema=L0Schema;return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(((M0Schema.safeParse(val).success?1:0)+(OtherSchema.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await M0Schema.safeParseAsync(val)).success?1:0)+((await OtherSchema.safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})().openapi({oneOf:[{"type":"object","properties":{"a":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}},"b":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}}}},{"type":"object","properties":{"c":{"type":"string"}}}]})',
+      '(()=>{const Schema=L0Schema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(((M0Schema.safeParse(val).success?1:0)+(OtherSchema.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await M0Schema.safeParseAsync(val)).success?1:0)+((await OtherSchema.safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})().openapi({oneOf:[{"type":"object","properties":{"a":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}},"b":{"type":"object","properties":{"a":{"type":"string"},"b":{"type":"string"}}}}},{"type":"object","properties":{"c":{"type":"string"}}}]})',
     )
   })
 
@@ -16831,7 +16919,7 @@ describe('a statement that copies too much out of the components (#510)', () => 
       schemas: chain(40),
     })
     expect(code).toBe(
-      '(()=>{const Schema=L0Schema;return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(((M0Schema.safeParse(val).success?1:0)+(OtherSchema.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await M0Schema.safeParseAsync(val)).success?1:0)+((await OtherSchema.safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})()',
+      '(()=>{const Schema=L0Schema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(((M0Schema.safeParse(val).success?1:0)+(OtherSchema.safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await M0Schema.safeParseAsync(val)).success?1:0)+((await OtherSchema.safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})()',
     )
     expect(code.length).toBeLessThan(2000)
   })
@@ -16841,7 +16929,7 @@ describe('a statement that copies too much out of the components (#510)', () => 
       schemas: chain(40),
     })
     expect(code).toBe(
-      '(()=>{const Schema=L0Schema;return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(!(M0Schema.safeParse(val).success||OtherSchema.safeParse(val).success)){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if(!((await M0Schema.safeParseAsync(val)).success||(await OtherSchema.safeParseAsync(val)).success)){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})()',
+      '(()=>{const Schema=L0Schema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(!(M0Schema.safeParse(val).success||OtherSchema.safeParse(val).success)){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if(!((await M0Schema.safeParseAsync(val)).success||(await OtherSchema.safeParseAsync(val)).success)){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})()',
     )
     expect(code.length).toBeLessThan(2000)
   })
@@ -16892,7 +16980,7 @@ describe('a statement that copies too much out of the components (#510)', () => 
       ',',
     )
     expect(zodToOpenAPI({ allOf: [L0], oneOf: [wide] }, undefined, { schemas: chain(1) })).toBe(
-      `(()=>{const Schema=L0Schema;return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{((ctx)=>{const val=ctx.value;if(((z.object({${props}}).openapi({"required":[]}).safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await z.object({${props}}).openapi({"required":[]}).safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx).then(()=>val)}return val},Schema)})().openapi({oneOf:[{"type":"object","properties":${JSON.stringify(wide.properties)}}]})`,
+      `(()=>{const Schema=L0Schema;return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return ((ctx)=>{const val=ctx.value;if(((z.object({${props}}).openapi({"required":[]}).safeParse(val).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(ctx)=>{const val=ctx.value;if((((await z.object({${props}}).openapi({"required":[]}).safeParseAsync(val)).success?1:0))!==1){ctx.issues.push({code:"custom",input:val})}})(ctx)}}).pipe(Schema)})().openapi({oneOf:[{"type":"object","properties":${JSON.stringify(wide.properties)}}]})`,
     )
   })
 })
@@ -16900,21 +16988,31 @@ describe('a statement that copies too much out of the components (#510)', () => 
 // What the emitted source accepts: it is evaluated against `zod`, where `.openapi()`, which
 // `@hono/zod-openapi` adds to describe a schema, hands the schema back, with the type
 // annotation `withRawCheck` writes and the type argument of `z.custom` taken out, and
-// `NameSchema` in scope.
-type Evaluated = {
-  readonly safeParse: (value: unknown) => {
-    readonly success: boolean
-    readonly error?: { readonly issues: readonly { readonly message: string }[] }
+// `NameSchema` in scope, and whatever other components `scope` names.
+type Parsed = {
+  readonly success: boolean
+  readonly data?: unknown
+  readonly error?: {
+    readonly issues: readonly { readonly message: string; readonly path: readonly PropertyKey[] }[]
   }
 }
+type Evaluated = {
+  readonly safeParse: (value: unknown) => Parsed
+  readonly safeParseAsync: (value: unknown) => Promise<Parsed>
+}
 
-const evaluated = (code: string): Evaluated =>
+const evaluated = (code: string, scope: { readonly [name: string]: unknown } = {}): Evaluated =>
   // oxlint-disable-next-line typescript/no-implied-eval, no-new-func -- the emitted source is what is under test
   new Function(
     'z',
     'NameSchema',
-    `z.ZodType.prototype.openapi??=function(){return this};return ${code.replaceAll('(val: z.input<typeof Schema>,ctx)', '(val,ctx)').replaceAll(/z\.custom<[^>]*>/gu, 'z.custom')}`,
-  )(z, z.string())
+    ...Object.keys(scope),
+    `z.ZodType.prototype.openapi??=function(){return this};return ${code
+      .replaceAll('(val: z.input<typeof Schema>,ctx)', '(val,ctx)')
+      .replaceAll('(val: z.input<typeof Schema>)', '(val)')
+      .replaceAll('(ctx: z.core.ParsePayload)', '(ctx)')
+      .replaceAll(/z\.custom<[^>]*>/gu, 'z.custom')}`,
+  )(z, z.string(), ...Object.values(scope))
 
 const messagesOf = (code: string, value: unknown): readonly string[] =>
   (evaluated(code).safeParse(value).error?.issues ?? []).map((issue) => issue.message)
@@ -17000,11 +17098,14 @@ describe('validation keywords beside a combinator (#598)', () => {
       then: { pattern: '^a' },
     })
     expect(code).toBe(
-      withCheck(
+      withAsyncCheck(
         'z.string()',
         check(
           `{const ifOk=z.unknown().superRefine((val,ctx)=>{if(typeof val==='string'){if([...val].length>3){ctx.addIssue({code:'custom'})}}}).safeParse(val).success;if(ifOk){const Schema=z.unknown().superRefine((val,ctx)=>{if(typeof val==='string'){if(!new RegExp("^a").test(val)){ctx.addIssue({code:'custom'})}}});if(!Schema.safeParse(val).success){ctx.issues.push({...{code:'custom'},input:val})}};}`,
         ),
+        `async${check(
+          `{const ifOk=(await z.unknown().superRefine((val,ctx)=>{if(typeof val==='string'){if([...val].length>3){ctx.addIssue({code:'custom'})}}}).safeParseAsync(val)).success;if(ifOk){const Schema=z.unknown().superRefine((val,ctx)=>{if(typeof val==='string'){if(!new RegExp("^a").test(val)){ctx.addIssue({code:'custom'})}}});if(!(await Schema.safeParseAsync(val)).success){ctx.issues.push({...{code:'custom'},input:val})}};}`,
+        )}`,
       ),
     )
     expect(evaluated(code).safeParse('ab').success).toBe(true)
@@ -17172,5 +17273,816 @@ describe('an object as a value of enum, and of the const / enum of a not (#604)'
     expect(zodToOpenAPI({ type: 'string', const: 0 })).toBe('z.never()')
     expect(zodToOpenAPI({ type: 'integer', const: 1 })).toBe('z.literal(1)')
     expect(zodToOpenAPI({ type: 'number', const: 1 })).toBe('z.literal(1)')
+  })
+})
+
+describe('a text message that starts like an arrow function (#644)', () => {
+  it.concurrent('is written as text on a keyword of the schema', () => {
+    const code = zodToOpenAPI({
+      type: 'string',
+      minLength: 2,
+      'x-minLength-message': '(see docs) => too short',
+    })
+    expect(code).toBe('z.string().min(2,{error:"(see docs) => too short"})')
+    expect(messagesOf(code, 'a')).toStrictEqual(['(see docs) => too short'])
+  })
+
+  it.concurrent('is written as text on an issue raised by hand', () => {
+    const code = zodToOpenAPI({
+      type: 'array',
+      items: { type: 'string' },
+      uniqueItems: true,
+      'x-uniqueItems-message': '(see docs) => no duplicates',
+    })
+    expect(code).toBe(
+      'z.array(z.string()).superRefine((items,ctx)=>{const seen=new Map();for(const [i,val] of items.entries()){const key=JSON.stringify(val);if(seen.has(key))ctx.addIssue({code:"custom",path:[i],message:"(see docs) => no duplicates"});else seen.set(key,i)}})',
+    )
+    expect(messagesOf(code, ['a', 'a'])).toStrictEqual(['(see docs) => no duplicates'])
+  })
+
+  it.concurrent('still calls a message that is an arrow function', () => {
+    const code = zodToOpenAPI({
+      type: 'string',
+      minLength: 2,
+      'x-minLength-message': '(issue) => `too short: ${issue.code}`',
+    })
+    expect(code).toBe('z.string().min(2,{error:(issue) => `too short: ${issue.code}`})')
+    expect(messagesOf(code, 'a')).toStrictEqual(['too short: too_small'])
+  })
+})
+
+// Whether an asynchronous parse of the emitted schema accepts a value.
+const passesAsync = async (schema: Evaluated, value: unknown) => {
+  const result = await schema.safeParseAsync(value)
+  return result.success
+}
+
+describe('a raw-input check that parses a schema with an asynchronous refinement (#645)', () => {
+  const schemas = {
+    Checked: { type: 'string', 'x-refine': 'async (v) => v.length > 0' },
+    A: { type: 'object', properties: { x: { type: 'string' } } },
+  } as const
+  const scope = {
+    CheckedSchema: z.string().refine((value) => Promise.resolve(value.length > 0)),
+    ASchema: z.object({ x: z.string().optional() }),
+  }
+  const checkedRef = { $ref: '#/components/schemas/Checked' } as const
+
+  it.concurrent('if / then / else on a string', async () => {
+    const code = zodToOpenAPI(
+      {
+        type: 'string',
+        if: { maxLength: 3 },
+        // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+        then: checkedRef,
+      },
+      undefined,
+      { schemas },
+    )
+    const ifZod = `z.unknown().superRefine((val,ctx)=>{if(typeof val==='string'){if([...val].length>3){ctx.addIssue({code:'custom'})}}})`
+    expect(code).toBe(
+      withAsyncCheck(
+        'z.string()',
+        check(
+          `{const ifOk=${ifZod}.safeParse(val).success;if(ifOk){const Schema=CheckedSchema;if(!Schema.safeParse(val).success){ctx.issues.push({...{code:'custom'},input:val})}};}`,
+        ),
+        `async${check(
+          `{const ifOk=(await ${ifZod}.safeParseAsync(val)).success;if(ifOk){const Schema=CheckedSchema;if(!(await Schema.safeParseAsync(val)).success){ctx.issues.push({...{code:'custom'},input:val})}};}`,
+        )}`,
+      ),
+    )
+    await expect(passesAsync(evaluated(code, scope), 'ab')).resolves.toBe(true)
+    await expect(passesAsync(evaluated(code, scope), '')).resolves.toBe(false)
+    await expect(passesAsync(evaluated(code, scope), 'abcdef')).resolves.toBe(true)
+  })
+
+  it.concurrent('items and contains beside a combinator', async () => {
+    const code = zodToOpenAPI(
+      { anyOf: [{ type: 'array' }, { type: 'string' }], items: checkedRef, contains: checkedRef },
+      undefined,
+      { schemas },
+    )
+    const parsed = evaluated(code, scope)
+    await expect(passesAsync(parsed, ['a'])).resolves.toBe(true)
+    await expect(passesAsync(parsed, ['a', ''])).resolves.toBe(false)
+    await expect(passesAsync(parsed, [1])).resolves.toBe(false)
+    await expect(passesAsync(parsed, 'text')).resolves.toBe(true)
+  })
+
+  it.concurrent('the sibling properties a union cannot take', async () => {
+    const code = zodToOpenAPI(
+      {
+        anyOf: [{ type: ['object', 'string'] }, { type: 'number' }],
+        properties: { y: checkedRef },
+      },
+      undefined,
+      { schemas },
+    )
+    const parsed = evaluated(code, scope)
+    await expect(passesAsync(parsed, { y: 'a' })).resolves.toBe(true)
+    await expect(passesAsync(parsed, { y: '' })).resolves.toBe(false)
+    await expect(passesAsync(parsed, 1)).resolves.toBe(true)
+  })
+})
+
+const parsedSync = (zod: string) => `${zod}.safeParse(val)`
+
+const parsedAwaited = (zod: string) => `(await ${zod}.safeParseAsync(val))`
+
+// The refinement that is run again, awaited, as `withOutputCheck` writes it.
+const refinedAgain = (
+  zod: string,
+  params: string,
+  body: (parse: (zod: string) => string) => string,
+) =>
+  `${zod}.superRefine((val,ctx)=>{try{return ((${params})=>{${body(parsedSync)}})(val,ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return (async(${params})=>{${body(parsedAwaited)}})(val,ctx)}})`
+
+describe('if / then / else on a scalar the emitter converts, and beside a structured const (#646)', () => {
+  const tenOrMore = `z.unknown().superRefine((val,ctx)=>{if(typeof val==='number'){if(val<10){ctx.addIssue({code:'custom'})}}})`
+  const multipleOfTen = `z.unknown().superRefine((val,ctx)=>{if(typeof val==='number'){{const mod=Math.abs(val/10-Math.round(val/10));if(mod>1e-10){ctx.addIssue({code:'custom'})}}}})`
+  const conditional = (parse: (zod: string) => string) =>
+    `{const ifOk=${parse(tenOrMore)}.success;if(ifOk){const Schema=${multipleOfTen};if(!${parse('Schema')}.success){ctx.addIssue({code:'custom'})}};}`
+
+  it.concurrent('checks the number an x-coerce integer hands out, not the text', () => {
+    const code = zodToOpenAPI({
+      type: 'integer',
+      'x-coerce': true,
+      if: { minimum: 10 },
+      // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+      then: { multipleOf: 10 },
+    })
+    expect(code).toBe(refinedAgain('z.coerce.number().int()', 'val,ctx', conditional))
+    expect(evaluated(code).safeParse('15').success).toBe(false)
+    expect(evaluated(code).safeParse(15).success).toBe(false)
+    expect(evaluated(code).safeParse('20').success).toBe(true)
+    expect(evaluated(code).safeParse('5').success).toBe(true)
+  })
+
+  it.concurrent('compares a coerced bigint as a number', () => {
+    const code = zodToOpenAPI({
+      type: 'integer',
+      format: 'int64',
+      'x-coerce': true,
+      if: { minimum: 10 },
+      // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+      then: { multipleOf: 10 },
+    })
+    expect(code).toBe(
+      `${refinedAgain(
+        'z.coerce.bigint().pipe(z.int64())',
+        'output,ctx',
+        (parse) => `const val=typeof output==='bigint'?Number(output):output;${conditional(parse)}`,
+      )}.openapi({type:"integer",format:"int64"})`,
+    )
+    expect(evaluated(code).safeParse('15').success).toBe(false)
+    expect(evaluated(code).safeParse('20').success).toBe(true)
+    expect(evaluated(code).safeParse('5').success).toBe(true)
+  })
+
+  it.concurrent('checks the boolean x-stringbool hands out', () => {
+    const code = zodToOpenAPI({
+      type: 'boolean',
+      'x-stringbool': true,
+      if: { const: true },
+      // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+      then: { const: false },
+    })
+    expect(evaluated(code).safeParse('false').success).toBe(true)
+    expect(evaluated(code).safeParse('true').success).toBe(false)
+  })
+
+  it.concurrent('emits the conditional once beside an array const', () => {
+    const code = zodToOpenAPI({
+      type: 'array',
+      const: [1],
+      if: { minItems: 1 },
+      // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+      then: { maxItems: 1 },
+    })
+    expect(code).toBe(
+      `z.unknown().superRefine((val,ctx)=>{if(JSON.stringify([1])!==JSON.stringify(val)){ctx.addIssue({code:'custom'})};{const ifOk=z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){if(val.length<1){ctx.addIssue({code:'custom'})}}}).safeParse(val).success;if(ifOk){const Schema=z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){if(val.length>1){ctx.addIssue({code:'custom'})}}});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom'})}};}})`,
+    )
+    expect(evaluated(code).safeParse([1]).success).toBe(true)
+    expect(evaluated(code).safeParse([2]).success).toBe(false)
+  })
+})
+
+// The issues of a subschema, handed on under the key or the index `at` names.
+const forwardedUnder = (at: string) =>
+  [
+    'invalid_type',
+    'too_big',
+    'too_small',
+    'invalid_format',
+    'not_multiple_of',
+    'unrecognized_keys',
+    'invalid_union',
+    'invalid_key',
+    'invalid_element',
+    'invalid_value',
+    'custom',
+  ]
+    .map(
+      (issueCode, index) =>
+        `${index === 0 ? '' : 'else '}if(issue.code==='${issueCode}'){ctx.issues.push({...issue,path:[${at},...issue.path],input:issue.input})}`,
+    )
+    .join('')
+
+const shapeBesideNot = (parsed: string) =>
+  check(
+    `if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"b")){ctx.issues.push({...{code:'custom'},input:val})};if(Object.hasOwn(val,"b")){const Schema=z.string();if(!${parsed}.success){ctx.issues.push({...{code:'custom'},input:val})}}}`,
+  )
+
+const additionalCheck = (parsed: string) =>
+  `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const Schema=z.string();for(const k of Object.keys(o)){const result=${parsed};if(!result.success){for(const issue of result.error.issues){${forwardedUnder('k')}}}}}`
+
+const unevaluatedCheck = (parsed: string) =>
+  `(ctx)=>{const a=ctx.value;if(!Array.isArray(a))return;let n=0;n=Math.max(n,1);const Schema=z.number();for(let i=n;i<a.length;i++){const result=${parsed};if(!result.success){for(const issue of result.error.issues){${forwardedUnder('i')}}}}}`
+
+describe('keywords beside a combinator that were still dropped (#647)', () => {
+  const schemas = {
+    A: { type: 'object', properties: { x: { type: 'string' } } },
+  } as const
+  const scope = { ASchema: z.object({ x: z.string().optional() }) }
+
+  it.concurrent('checks properties and required beside a not that has no type', () => {
+    const code = zodToOpenAPI({
+      not: { const: 'a' },
+      properties: { b: { type: 'string' } },
+      required: ['b'],
+    })
+    expect(code).toBe(
+      `${withAsyncCheck(
+        'z.any().refine((val) => val !== "a")',
+        shapeBesideNot('Schema.safeParse(Reflect.get(val,"b"))'),
+        `async${shapeBesideNot('(await Schema.safeParseAsync(Reflect.get(val,"b")))')}`,
+      )}.openapi({"required":["b"],"not":{"const":"a"}})`,
+    )
+    expect(evaluated(code).safeParse({ b: 'x' }).success).toBe(true)
+    expect(evaluated(code).safeParse({ b: 123 }).success).toBe(false)
+    expect(evaluated(code).safeParse({ c: 1 }).success).toBe(false)
+    expect(evaluated(code).safeParse('a').success).toBe(false)
+    expect(evaluated(code).safeParse('z').success).toBe(true)
+  })
+
+  it.concurrent('checks a schema-valued additionalProperties beside allOf, and states it', () => {
+    const code = zodToOpenAPI(
+      { allOf: [{ $ref: '#/components/schemas/A' }], additionalProperties: { type: 'string' } },
+      undefined,
+      { schemas },
+    )
+    expect(code).toBe(
+      `${withAsyncCheck(
+        'ASchema',
+        additionalCheck('Schema.safeParse(Reflect.get(o,k))'),
+        `async${additionalCheck('(await Schema.safeParseAsync(Reflect.get(o,k)))')}`,
+      )}.openapi({additionalProperties:{"type":"string"}})`,
+    )
+    expect(evaluated(code, scope).safeParse({ x: 'a', extra: 's' }).success).toBe(true)
+    expect(
+      evaluated(code, scope)
+        .safeParse({ x: 'a', extra: 123 })
+        .error?.issues.map((issue) => issue.path),
+    ).toStrictEqual([['extra']])
+  })
+
+  it.concurrent('leaves the keys the schema itself declares to its own properties', () => {
+    const code = zodToOpenAPI(
+      {
+        allOf: [{ $ref: '#/components/schemas/A' }],
+        properties: { n: { type: 'number' } },
+        additionalProperties: { type: 'string' },
+      },
+      undefined,
+      { schemas },
+    )
+    // `x` is declared by the member alone, so the keyword applies to it.
+    expect(evaluated(code, scope).safeParse({ x: 'a', n: 1 }).success).toBe(true)
+    expect(evaluated(code, scope).safeParse({ n: 1, extra: 2 }).success).toBe(false)
+    expect(evaluated(code, scope).safeParse({ n: 'one' }).success).toBe(false)
+  })
+
+  it.concurrent('checks unevaluatedItems against what the matching branch evaluates', () => {
+    const code = zodToOpenAPI({
+      anyOf: [
+        { prefixItems: [{ type: 'string' }] },
+        { prefixItems: [{ type: 'number' }, { type: 'number' }] },
+      ],
+      unevaluatedItems: false,
+    })
+    expect(evaluated(code).safeParse(['a']).success).toBe(true)
+    expect(evaluated(code).safeParse(['a', 1]).success).toBe(false)
+    expect(evaluated(code).safeParse([1, 2]).success).toBe(true)
+    expect(evaluated(code).safeParse([1, 2, 3]).success).toBe(false)
+    expect(evaluated(code).safeParse('text').success).toBe(true)
+  })
+
+  it.concurrent('checks a schema-valued unevaluatedItems beside allOf', () => {
+    const code = zodToOpenAPI({
+      type: 'array',
+      allOf: [{ prefixItems: [{ type: 'string' }] }],
+      unevaluatedItems: { type: 'number' },
+    })
+    expect(code).toBe(
+      withAsyncCheck(
+        `z.array(z.any()).and(z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){if(val.length>0){const Schema=z.string();if(!Schema.safeParse(val[0]).success){ctx.addIssue({code:'custom'})}}}}))`,
+        unevaluatedCheck('Schema.safeParse(a[i])'),
+        `async${unevaluatedCheck('(await Schema.safeParseAsync(a[i]))')}`,
+      ),
+    )
+    expect(evaluated(code).safeParse(['a', 1, 2]).success).toBe(true)
+    expect(
+      evaluated(code)
+        .safeParse(['a', 1, 'b'])
+        .error?.issues.map((issue) => issue.path),
+    ).toStrictEqual([[2]])
+  })
+
+  it.concurrent('keeps the keywords of a nested anyOf a shape is distributed into', () => {
+    const code = zodToOpenAPI({
+      properties: { a: { type: 'string' } },
+      anyOf: [{ maxLength: 2, anyOf: [{ type: 'object' }, { type: 'string' }] }],
+    })
+    expect(code).toBe(
+      `z.union([${withCheck(
+        'z.union([z.looseObject({}).and(z.object({a:z.string().exactOptional()}).openapi({"required":[]})),z.string()])',
+        check(
+          "if(typeof val==='string'){if([...val].length>2){ctx.issues.push({...{code:'custom'},input:val})}}",
+        ),
+      )}.openapi({"maxLength":2})])`,
+    )
+    expect(evaluated(code).safeParse('ab').success).toBe(true)
+    expect(evaluated(code).safeParse('abcdef').success).toBe(false)
+    expect(evaluated(code).safeParse({ a: 'x' }).success).toBe(true)
+    expect(evaluated(code).safeParse({ a: 1 }).success).toBe(false)
+  })
+
+  it.concurrent('keeps the not beside a nested oneOf a shape is distributed into', () => {
+    const code = zodToOpenAPI({
+      properties: { a: { type: 'string' } },
+      anyOf: [{ not: { const: 'zz' }, oneOf: [{ type: 'object' }, { type: 'string' }] }],
+    })
+    expect(code).toBe(
+      `z.union([${withAsyncCheck(
+        'z.xor([z.looseObject({}).and(z.object({a:z.string().exactOptional()}).openapi({"required":[]})),z.string()])',
+        check(
+          'if(z.literal("zz").safeParse(val).success){ctx.issues.push({code:"custom",input:val})}',
+        ),
+        `async${check('if((await z.literal("zz").safeParseAsync(val)).success){ctx.issues.push({code:"custom",input:val})}')}`,
+      )}.openapi({"not":{"const":"zz"}})])`,
+    )
+    expect(evaluated(code).safeParse('ab').success).toBe(true)
+    expect(evaluated(code).safeParse('zz').success).toBe(false)
+    expect(evaluated(code).safeParse({ a: 1 }).success).toBe(false)
+  })
+
+  it.concurrent('keeps the shape of a nested union that has one of its own', () => {
+    const code = zodToOpenAPI({
+      properties: { a: { type: 'string' } },
+      anyOf: [
+        { properties: { b: { type: 'string' } }, anyOf: [{ type: 'object' }, { type: 'string' }] },
+      ],
+    })
+    expect(evaluated(code).safeParse({ a: 'x', b: 'y' }).success).toBe(true)
+    expect(evaluated(code).safeParse({ b: 1 }).success).toBe(false)
+    expect(evaluated(code).safeParse({ a: 1 }).success).toBe(false)
+    expect(evaluated(code).safeParse('text').success).toBe(true)
+  })
+})
+
+describe('a boolean schema as then / else / if', () => {
+  it.concurrent('then: false fails every value the if holds for', () => {
+    const code = zodToOpenAPI({
+      type: 'string',
+      if: { maxLength: 3 },
+      // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+      then: false,
+    })
+    const ifZod = `z.unknown().superRefine((val,ctx)=>{if(typeof val==='string'){if([...val].length>3){ctx.addIssue({code:'custom'})}}})`
+    expect(code).toBe(
+      withAsyncCheck(
+        'z.string()',
+        check(
+          `{const ifOk=${ifZod}.safeParse(val).success;if(ifOk){const Schema=z.never();if(!Schema.safeParse(val).success){ctx.issues.push({...{code:'custom'},input:val})}};}`,
+        ),
+        `async${check(
+          `{const ifOk=(await ${ifZod}.safeParseAsync(val)).success;if(ifOk){const Schema=z.never();if(!(await Schema.safeParseAsync(val)).success){ctx.issues.push({...{code:'custom'},input:val})}};}`,
+        )}`,
+      ),
+    )
+    expect(evaluated(code).safeParse('ab').success).toBe(false)
+    expect(evaluated(code).safeParse('abcd').success).toBe(true)
+  })
+
+  it.concurrent('else: false on an object fails every object the if does not hold for', () => {
+    const code = zodToOpenAPI({
+      type: 'object',
+      properties: { a: { type: 'string' } },
+      if: { required: ['a'] },
+      else: false,
+    })
+    expect(code).toBe(
+      `z.object({a:z.string().exactOptional()}).superRefine((o,ctx)=>{const If=z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"a")){ctx.addIssue({code:'custom'})}}}).openapi({"required":["a"]});const ifOk=If.safeParse(o).success;const Branch=ifOk?undefined:z.never();if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}).openapi({"required":[]})`,
+    )
+    expect(evaluated(code).safeParse({ a: 'x' }).success).toBe(true)
+    expect(evaluated(code).safeParse({}).success).toBe(false)
+  })
+
+  it.concurrent('then: false on a schema with no type', () => {
+    const code = zodToOpenAPI({
+      if: { type: 'string' },
+      // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+      then: false,
+    })
+    expect(code).toBe(
+      `z.unknown().superRefine((val,ctx)=>{{const ifOk=z.string().safeParse(val).success;if(ifOk){const Schema=z.never();if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom'})}};}})`,
+    )
+    expect(evaluated(code).safeParse('x').success).toBe(false)
+    expect(evaluated(code).safeParse(1).success).toBe(true)
+  })
+
+  it.concurrent('if: true selects then, and then: true constrains nothing', () => {
+    const always = zodToOpenAPI({
+      type: 'integer',
+      if: true,
+      // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+      then: { minimum: 3 },
+      else: false,
+    })
+    expect(evaluated(always).safeParse(5).success).toBe(true)
+    expect(evaluated(always).safeParse(1).success).toBe(false)
+    expect(
+      zodToOpenAPI({
+        type: 'string',
+        if: { maxLength: 3 },
+        // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+        then: true,
+      }),
+    ).toBe('z.string()')
+  })
+})
+
+describe('an element contains matches is evaluated for unevaluatedItems', () => {
+  const containsString = `.superRefine((arr,ctx)=>{const Schema=z.string();const matched=arr.filter((i)=>Schema.safeParse(i).success).length;if(matched<1){ctx.addIssue({code:"custom"})}})`
+
+  it.concurrent('on an array, with unevaluatedItems: false', () => {
+    const code = zodToOpenAPI({
+      type: 'array',
+      contains: { type: 'string' },
+      unevaluatedItems: false,
+    })
+    expect(code).toBe(
+      `z.array(z.any())${containsString}.superRefine((arr,ctx)=>{const Contains=z.string();for(let i=0;i<arr.length;i++){if(Contains.safeParse(arr[i]).success){continue}ctx.addIssue({code:"custom",path:[i]})}})`,
+    )
+    expect(evaluated(code).safeParse(['a', 'b']).success).toBe(true)
+    expect(evaluated(code).safeParse(['a', 1]).success).toBe(false)
+  })
+
+  it.concurrent('on an array, with a schema-valued unevaluatedItems', () => {
+    const code = zodToOpenAPI({
+      type: 'array',
+      contains: { type: 'string' },
+      unevaluatedItems: { type: 'boolean' },
+    })
+    expect(code).toBe(
+      `z.array(z.any())${containsString}.superRefine((arr,ctx)=>{const Contains=z.string();const Schema=z.boolean();for(const [idx,val] of arr.slice(0).entries()){if(Contains.safeParse(val).success){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[0+idx,...issue.path]})}}}})`,
+    )
+    expect(evaluated(code).safeParse(['a', true]).success).toBe(true)
+    expect(evaluated(code).safeParse(['a', 2]).success).toBe(false)
+  })
+
+  it.concurrent('on a tuple, after the prefix', () => {
+    const prefix = `const Prefix=[z.number()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]})}}}`
+    const capped = zodToOpenAPI({
+      type: 'array',
+      prefixItems: [{ type: 'number' }],
+      contains: { type: 'string' },
+      unevaluatedItems: false,
+    })
+    expect(capped).toBe(
+      `z.array(z.unknown()).superRefine((arr,ctx)=>{${prefix};const Contains=z.string();for(let i=Prefix.length;i<arr.length;i++){if(Contains.safeParse(arr[i]).success){continue}ctx.addIssue({code:"custom",path:[i]})}})${containsString}`,
+    )
+    expect(evaluated(capped).safeParse([1, 'a']).success).toBe(true)
+    expect(evaluated(capped).safeParse([1, 'a', 2]).success).toBe(false)
+    const rest = zodToOpenAPI({
+      type: 'array',
+      prefixItems: [{ type: 'number' }],
+      contains: { type: 'string' },
+      unevaluatedItems: { type: 'boolean' },
+    })
+    expect(rest).toBe(
+      `z.array(z.unknown()).superRefine((arr,ctx)=>{${prefix};const Contains=z.string();const Rest=z.boolean();for(const [i,val] of arr.slice(Prefix.length).entries()){if(Contains.safeParse(val).success){continue}const result=Rest.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]})}}}})${containsString}`,
+    )
+    expect(evaluated(rest).safeParse([1, 'a', true]).success).toBe(true)
+    expect(evaluated(rest).safeParse([1, 'a', 2]).success).toBe(false)
+  })
+
+  it.concurrent('beside a combinator, and on a schema with no type', () => {
+    const beside = zodToOpenAPI({
+      anyOf: [{ type: 'array' }, { type: 'string' }],
+      contains: { type: 'string' },
+      unevaluatedItems: false,
+    })
+    expect(evaluated(beside).safeParse(['a']).success).toBe(true)
+    expect(evaluated(beside).safeParse(['a', 1]).success).toBe(false)
+    expect(evaluated(beside).safeParse('text').success).toBe(true)
+    const typeless = zodToOpenAPI({
+      minLength: 1,
+      contains: { type: 'string' },
+      unevaluatedItems: false,
+    })
+    expect(typeless).toBe(
+      `z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){{const m=val.filter((i)=>z.string().safeParse(i).success).length;if(m<1){ctx.addIssue({code:'custom'})}};{const Contains=z.string();for(let i=0;i<val.length;i++){if(!Contains.safeParse(val[i]).success){ctx.addIssue({code:'custom'});break}}}};if(typeof val==='string'){if([...val].length<1){ctx.addIssue({code:'custom'})}}})`,
+    )
+    expect(evaluated(typeless).safeParse(['a']).success).toBe(true)
+    expect(evaluated(typeless).safeParse(['a', 1]).success).toBe(false)
+  })
+})
+
+describe('unevaluatedProperties and the allOf message under an asynchronous refinement (#645)', () => {
+  const schemas = {
+    Checked: { type: 'string', 'x-refine': 'async (v) => v.length > 0' },
+    O: { type: 'object', properties: { c: { $ref: '#/components/schemas/Checked' } } },
+  } as const
+  const CheckedSchema = z.string().refine((value) => Promise.resolve(value.length > 0))
+  const scope = { CheckedSchema, OSchema: z.object({ c: CheckedSchema.optional() }) }
+
+  it.concurrent('unevaluatedProperties beside anyOf', async () => {
+    const code = zodToOpenAPI(
+      { anyOf: [{ $ref: '#/components/schemas/O' }], unevaluatedProperties: false },
+      undefined,
+      { schemas },
+    )
+    expect(code).toBe(
+      withAwaitedCheck(
+        'z.union([OSchema])',
+        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;let mA=0;const e=new Set();if(OSchema.safeParse(o).success){mA++;for(const k of ["c"]){e.add(k)}};if(mA>0){for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}}`,
+      ),
+    )
+    await expect(passesAsync(evaluated(code, scope), { c: 'a' })).resolves.toBe(true)
+    await expect(passesAsync(evaluated(code, scope), { c: 'a', d: 1 })).resolves.toBe(false)
+    await expect(passesAsync(evaluated(code, scope), { c: '' })).resolves.toBe(false)
+  })
+
+  it.concurrent('the message and unevaluatedProperties of an allOf', async () => {
+    const code = zodToOpenAPI(
+      {
+        allOf: [
+          { $ref: '#/components/schemas/O' },
+          { type: 'object', properties: { k: { type: 'string' } } },
+        ],
+        'x-allOf-message': 'bad',
+        unevaluatedProperties: false,
+      },
+      undefined,
+      { schemas },
+    )
+    expect(code).toBe(
+      withAllOfCheck(
+        'OSchema.and(z.object({k:z.string().exactOptional()}).openapi({"required":[]}))',
+        gate479(',message:"bad"'),
+        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["c"]){e.add(k)};for(const k of ["k"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}`,
+      ),
+    )
+    const parsed = evaluated(code, scope)
+    await expect(passesAsync(parsed, { c: 'a', k: 'x' })).resolves.toBe(true)
+    await expect(passesAsync(parsed, { c: 'a', z: 1 })).resolves.toBe(false)
+    const failed = await parsed.safeParseAsync({ c: '' })
+    expect(failed.error?.issues.map((issue) => issue.message)).toStrictEqual(['bad'])
+  })
+})
+
+// A refinement of what a schema hands out parses the subschemas of its keywords. Where one
+// of them may be asynchronous, `safeParse` throws under `safeParseAsync`, so the refinement
+// is run again, awaited (see `makeRefinement`). A document without code of the user is
+// emitted as it was.
+const refinedTwice = (params: string, sync: string, awaited: string) =>
+  `(${params})=>{const reported=ctx.issues.length;try{return ((${params})=>{${sync}})(${params})}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (async(${params})=>{${awaited}})(${params})}}`
+
+const tuplePrefix = (parsed: string) =>
+  `const Prefix=[CheckedSchema];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=${parsed};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]})}}}`
+
+const tupleRest = (parsed: string) =>
+  `;const Rest=CheckedSchema;for(const [i,val] of arr.slice(Prefix.length).entries()){const result=${parsed};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]})}}}`
+
+describe('refinements that parse an asynchronous schema', () => {
+  const schemas = {
+    Checked: { type: 'string', 'x-refine': '.refine(async (v) => v.length > 0)' },
+    Plain: { type: 'string' },
+  } as const
+  const asyncRef = { $ref: '#/components/schemas/Checked' } as const
+  // `CheckedSchema` as the document has it, and a synchronous one of the same meaning.
+  const scope = {
+    CheckedSchema: z.string().refine((value) => Promise.resolve(value.length > 0)),
+    PlainSchema: z.string(),
+  }
+  const syncScope = { ...scope, CheckedSchema: z.string().min(1) }
+  const emit = (schema: Schema) => zodToOpenAPI(schema, undefined, { schemas })
+  // What the emitted schema answers for a value under an asynchronous parse, and under a
+  // synchronous one of the same schema with nothing asynchronous in it.
+  const answers = async (code: string, value: unknown) => [
+    await passesAsync(evaluated(code, scope), value),
+    evaluated(code, syncScope).safeParse(value).success,
+  ]
+
+  it.concurrent('leaves a refinement of synchronous schemas as it was', () => {
+    expect(emit({ type: 'array', contains: { $ref: '#/components/schemas/Plain' } })).toBe(
+      'z.array(z.any()).superRefine((arr,ctx)=>{const Schema=PlainSchema;const matched=arr.filter((i)=>Schema.safeParse(i).success).length;if(matched<1){ctx.addIssue({code:"custom"})}})',
+    )
+    expect(emit({ not: { $ref: '#/components/schemas/Plain' } })).toBe(
+      'z.any().refine((val) => !PlainSchema.safeParse(val).success).openapi({"not":{"type":"string"}})',
+    )
+  })
+
+  it.concurrent('not', async () => {
+    const code = emit({ not: asyncRef })
+    expect(code).toBe(
+      'z.any().refine((val) => {try{return !CheckedSchema.safeParse(val).success}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return CheckedSchema.safeParseAsync(val).then((result)=>!result.success)}}).openapi({"not":{"type":"string"}})',
+    )
+    await expect(answers(code, 1)).resolves.toStrictEqual([true, true])
+    await expect(answers(code, 'a')).resolves.toStrictEqual([false, false])
+  })
+
+  it.concurrent('contains, minContains and maxContains', async () => {
+    const code = emit({ type: 'array', contains: asyncRef })
+    expect(code).toBe(
+      `z.array(z.any()).superRefine(${refinedTwice(
+        'arr,ctx',
+        'const Schema=CheckedSchema;const matched=arr.filter((i)=>Schema.safeParse(i).success).length;if(matched<1){ctx.addIssue({code:"custom"})}',
+        'const Schema=CheckedSchema;const matched=(await Promise.all(arr.map((i)=>Schema.safeParseAsync(i)))).filter((result)=>result.success).length;if(matched<1){ctx.addIssue({code:"custom"})}',
+      )})`,
+    )
+    await expect(answers(code, ['a'])).resolves.toStrictEqual([true, true])
+    await expect(answers(code, [''])).resolves.toStrictEqual([false, false])
+    const counted = emit({ type: 'array', contains: asyncRef, minContains: 2, maxContains: 3 })
+    await expect(answers(counted, ['a', 'b'])).resolves.toStrictEqual([true, true])
+    await expect(answers(counted, ['a', ''])).resolves.toStrictEqual([false, false])
+  })
+
+  it.concurrent('unevaluatedItems, with and without contains', async () => {
+    const rest = emit({ type: 'array', unevaluatedItems: asyncRef })
+    await expect(answers(rest, ['a'])).resolves.toStrictEqual([true, true])
+    await expect(answers(rest, [''])).resolves.toStrictEqual([false, false])
+    const contained = emit({ type: 'array', contains: asyncRef, unevaluatedItems: false })
+    await expect(answers(contained, ['a'])).resolves.toStrictEqual([true, true])
+    await expect(answers(contained, ['a', ''])).resolves.toStrictEqual([false, false])
+  })
+
+  it.concurrent('a tuple and what follows it', async () => {
+    const code = emit({ type: 'array', prefixItems: [asyncRef], items: asyncRef })
+    expect(code).toBe(
+      `z.array(z.unknown()).superRefine(${refinedTwice(
+        'arr,ctx',
+        `${tuplePrefix('Schema.safeParse(arr[i])')}${tupleRest('Rest.safeParse(val)')}`,
+        `${tuplePrefix('(await Schema.safeParseAsync(arr[i]))')}${tupleRest('(await Rest.safeParseAsync(val))')}`,
+      )})`,
+    )
+    await expect(answers(code, ['a', 'b'])).resolves.toStrictEqual([true, true])
+    await expect(answers(code, ['a', ''])).resolves.toStrictEqual([false, false])
+    await expect(answers(code, [''])).resolves.toStrictEqual([false, false])
+  })
+
+  it.concurrent('patternProperties and a schema-valued additionalProperties', async () => {
+    const pattern = emit({ type: 'object', patternProperties: { '^x': asyncRef } })
+    expect(pattern).toBe(
+      `z.looseObject({}).superRefine(${refinedTwice(
+        'o,ctx',
+        'const regex=new RegExp("^x");const Schema=CheckedSchema;for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}',
+        'const regex=new RegExp("^x");const Schema=CheckedSchema;for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=(await Schema.safeParseAsync(val));if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}',
+      )}).openapi({...{patternProperties:{"^x":{"type":"string","x-refine":".refine(async (v) => v.length > 0)"}}}})`,
+    )
+    await expect(answers(pattern, { x1: 'a' })).resolves.toStrictEqual([true, true])
+    await expect(answers(pattern, { x1: '' })).resolves.toStrictEqual([false, false])
+    const additional = emit({
+      type: 'object',
+      patternProperties: { '^x': { type: 'number' } },
+      additionalProperties: asyncRef,
+    })
+    await expect(answers(additional, { a: 'a', x1: 1 })).resolves.toStrictEqual([true, true])
+    await expect(answers(additional, { a: '' })).resolves.toStrictEqual([false, false])
+  })
+
+  it.concurrent('dependentSchemas, if / then / else and unevaluatedProperties of an object', async () => {
+    const dependent = emit({
+      type: 'object',
+      properties: { a: {}, b: { type: 'string' } },
+      dependentSchemas: { a: { properties: { b: asyncRef } } },
+    })
+    await expect(answers(dependent, { a: 1, b: 'x' })).resolves.toStrictEqual([true, true])
+    await expect(answers(dependent, { a: 1, b: '' })).resolves.toStrictEqual([false, false])
+    await expect(answers(dependent, { b: '' })).resolves.toStrictEqual([true, true])
+    const conditional = emit({
+      type: 'object',
+      properties: { a: {}, b: { type: 'string' } },
+      if: { required: ['a'] },
+      // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+      then: { properties: { b: asyncRef } },
+      else: { required: ['b'] },
+      'x-then-message': 'b is empty',
+    })
+    await expect(answers(conditional, { a: 1, b: 'x' })).resolves.toStrictEqual([true, true])
+    await expect(answers(conditional, { a: 1, b: '' })).resolves.toStrictEqual([false, false])
+    await expect(answers(conditional, {})).resolves.toStrictEqual([false, false])
+    const unevaluated = emit({
+      type: 'object',
+      properties: { a: {} },
+      unevaluatedProperties: asyncRef,
+    })
+    await expect(answers(unevaluated, { a: 1, b: 'x' })).resolves.toStrictEqual([true, true])
+    await expect(answers(unevaluated, { a: 1, b: '' })).resolves.toStrictEqual([false, false])
+  })
+
+  it.concurrent('a schema with no type', async () => {
+    const code = emit({ minLength: 1, items: asyncRef })
+    expect(code).toBe(
+      `z.unknown().superRefine(${refinedTwice(
+        'val,ctx',
+        "if(Array.isArray(val)){{const Schema=CheckedSchema;for(let i=0;i<val.length;i++){if(!Schema.safeParse(val[i]).success){ctx.addIssue({code:'custom'})}}}};if(typeof val==='string'){if([...val].length<1){ctx.addIssue({code:'custom'})}}",
+        "if(Array.isArray(val)){{const Schema=CheckedSchema;for(let i=0;i<val.length;i++){if(!(await Schema.safeParseAsync(val[i])).success){ctx.addIssue({code:'custom'})}}}};if(typeof val==='string'){if([...val].length<1){ctx.addIssue({code:'custom'})}}",
+      )})`,
+    )
+    await expect(answers(code, ['a'])).resolves.toStrictEqual([true, true])
+    await expect(answers(code, [''])).resolves.toStrictEqual([false, false])
+    const conditional = emit({
+      if: { type: 'string' },
+      // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+      then: asyncRef,
+    })
+    await expect(answers(conditional, 'a')).resolves.toStrictEqual([true, true])
+    await expect(answers(conditional, '')).resolves.toStrictEqual([false, false])
+    const properties = emit({ minLength: 0, properties: { b: asyncRef } })
+    await expect(answers(properties, { b: 'x' })).resolves.toStrictEqual([true, true])
+    await expect(answers(properties, { b: '' })).resolves.toStrictEqual([false, false])
+  })
+
+  it.concurrent('a refinement inside a schema a raw-input check parses', async () => {
+    const code = emit({
+      type: 'string',
+      if: { maxLength: 3 },
+      // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+      then: { allOf: [{ not: { allOf: [asyncRef, { minLength: 3 }] } }, { minLength: 1 }] },
+    })
+    await expect(answers(code, 'ab')).resolves.toStrictEqual([true, true])
+    await expect(answers(code, 'abc')).resolves.toStrictEqual([false, false])
+  })
+
+  it.concurrent('the probe of x-catch', async () => {
+    const code = emit({ anyOf: [asyncRef, { type: 'number' }], 'x-catch': 'fallback' })
+    expect(code).toBe(caughtAsync('z.union([CheckedSchema,z.number()])', '"fallback"'))
+    const caughtSchema = evaluated(code.replaceAll('(val: z.input<typeof Schema>)', '(val)'), scope)
+    const kept = await caughtSchema.safeParseAsync('a')
+    const replaced = await caughtSchema.safeParseAsync('')
+    expect([kept.success, kept.data, replaced.success, replaced.data]).toStrictEqual([
+      true,
+      'a',
+      true,
+      'fallback',
+    ])
+  })
+})
+
+// What an asynchronous parse answers, and the rejections nothing handled meanwhile.
+const parsedQuietly = async (code: string, value: unknown) => {
+  const unhandled: unknown[] = []
+  const listener = (reason: unknown) => {
+    unhandled.push(reason)
+  }
+  process.on('unhandledRejection', listener)
+  const result = await evaluated(code).safeParseAsync(value)
+  await new Promise((resolve) => {
+    setTimeout(resolve, 20)
+  })
+  process.off('unhandledRejection', listener)
+  return [result.success, unhandled.length]
+}
+
+// A check that parses a schema tries it synchronously first. A schema wrapped in a check of
+// its own must then fail that attempt and nothing more: a `z.preprocess` whose callback
+// answers with a promise leaves one behind that Zod pipes into the schema, and that
+// rejects unhandled once the asynchronous parse has long answered.
+describe('a schema with an awaited check, tried synchronously by a check around it', () => {
+  const asyncString = { type: 'string', 'x-refine': '.refine(async (v) => v.length > 0)' } as const
+  it('a tuple element with a conditional beside a union', async () => {
+    const code = zodToOpenAPI({
+      type: 'array',
+      prefixItems: [
+        {
+          anyOf: [asyncString],
+          if: asyncString,
+          // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+          then: { maxLength: 4 },
+        },
+      ],
+    })
+    await expect(parsedQuietly(code, ['ab'])).resolves.toStrictEqual([true, 0])
+    await expect(parsedQuietly(code, ['abcde'])).resolves.toStrictEqual([false, 0])
+  })
+
+  it('an element with x-catch and no type to state', async () => {
+    const code = zodToOpenAPI({
+      type: 'array',
+      contains: { anyOf: [asyncString, { type: 'number' }], 'x-catch': 'fallback' },
+    })
+    await expect(parsedQuietly(code, ['ab'])).resolves.toStrictEqual([true, 0])
   })
 })

@@ -37,13 +37,17 @@ function declaration(name: string) {
   return generatedSrc.slice(start, generatedSrc.indexOf('\n\n', start))
 }
 
-// The whole branch of the `x-allOf-message` wrapper of Merged for one issue code.
+// The whole branch of the `x-allOf-message` wrapper of Merged for one issue code. The
+// wrapper holds its branches twice, for the synchronous attempt and for the awaited one;
+// this is the first, and `MERGED` below shows both.
 // Merged の `x-allOf-message` ラッパーのうち、1 つの issue code に対する分岐全体。
+// ラッパーは分岐を、同期の試行用と await する試行用の 2 回持つ。これは最初のもので、
+// 下の `MERGED` に両方がある。
 function branch(code: string) {
   const source = declaration('MergedSchema')
   const start = source.indexOf(`if (issue.code === '${code}') {`)
   if (start === -1) throw new Error(`no branch on ${code}`)
-  const end = '\n        }'
+  const end = '\n              }'
   return source.slice(start, source.indexOf(end, start) + end.length)
 }
 
@@ -126,37 +130,165 @@ const MERGED = `const MergedSchema = (() => {
         .object({ age: z.int().min(0, { error: 'age must be >= 0' }) })
         .openapi({ required: ['age'] }),
     )
-  return z.preprocess((val: z.input<typeof Schema>, ctx) => {
-    const result = Schema.safeParse(ctx.value)
-    if (!result.success) {
-      for (const issue of result.error.issues) {
-        if (issue.code === 'invalid_type') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        } else if (issue.code === 'too_big') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        } else if (issue.code === 'too_small') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        } else if (issue.code === 'invalid_format') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        } else if (issue.code === 'not_multiple_of') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        } else if (issue.code === 'unrecognized_keys') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        } else if (issue.code === 'invalid_union') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        } else if (issue.code === 'invalid_key') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        } else if (issue.code === 'invalid_element') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        } else if (issue.code === 'invalid_value') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        } else if (issue.code === 'custom') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        }
+  return z
+    .transform((val: z.input<typeof Schema>) => val)
+    .check((ctx: z.core.ParsePayload) => {
+      const reported = ctx.issues.length
+      try {
+        return ((ctx) => {
+          const result = Schema.safeParse(ctx.value)
+          if (!result.success) {
+            for (const issue of result.error.issues) {
+              if (issue.code === 'invalid_type') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'too_big') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'too_small') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'invalid_format') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'not_multiple_of') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'unrecognized_keys') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'invalid_union') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'invalid_key') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'invalid_element') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'invalid_value') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'custom') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              }
+            }
+          }
+        })(ctx)
+      } catch (error) {
+        if (!(error instanceof z.core.$ZodAsyncError)) throw error
+        ctx.issues.length = reported
+        return (async (ctx) => {
+          const result = await Schema.safeParseAsync(ctx.value)
+          if (!result.success) {
+            for (const issue of result.error.issues) {
+              if (issue.code === 'invalid_type') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'too_big') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'too_small') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'invalid_format') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'not_multiple_of') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'unrecognized_keys') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'invalid_union') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'invalid_key') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'invalid_element') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'invalid_value') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              } else if (issue.code === 'custom') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              }
+            }
+          }
+        })(ctx)
       }
-    }
-    return val
-  }, Schema)
+    })
+    .pipe(Schema)
 })().openapi('Merged')`
 
 const MERGED_ARROW = `const MergedArrowSchema = (() => {
@@ -164,81 +296,165 @@ const MERGED_ARROW = `const MergedArrowSchema = (() => {
     .object({ name: z.string().min(3) })
     .openapi({ required: ['name'] })
     .and(z.object({ age: z.int().min(0) }).openapi({ required: ['age'] }))
-  return z.preprocess((val: z.input<typeof Schema>, ctx) => {
-    const result = Schema.safeParse(ctx.value)
-    if (!result.success) {
-      for (const issue of result.error.issues) {
-        if (issue.code === 'invalid_type') {
-          ctx.issues.push({
-            ...issue,
-            input: issue.input,
-            message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
-          })
-        } else if (issue.code === 'too_big') {
-          ctx.issues.push({
-            ...issue,
-            input: issue.input,
-            message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
-          })
-        } else if (issue.code === 'too_small') {
-          ctx.issues.push({
-            ...issue,
-            input: issue.input,
-            message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
-          })
-        } else if (issue.code === 'invalid_format') {
-          ctx.issues.push({
-            ...issue,
-            input: issue.input,
-            message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
-          })
-        } else if (issue.code === 'not_multiple_of') {
-          ctx.issues.push({
-            ...issue,
-            input: issue.input,
-            message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
-          })
-        } else if (issue.code === 'unrecognized_keys') {
-          ctx.issues.push({
-            ...issue,
-            input: issue.input,
-            message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
-          })
-        } else if (issue.code === 'invalid_union') {
-          ctx.issues.push({
-            ...issue,
-            input: issue.input,
-            message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
-          })
-        } else if (issue.code === 'invalid_key') {
-          ctx.issues.push({
-            ...issue,
-            input: issue.input,
-            message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
-          })
-        } else if (issue.code === 'invalid_element') {
-          ctx.issues.push({
-            ...issue,
-            input: issue.input,
-            message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
-          })
-        } else if (issue.code === 'invalid_value') {
-          ctx.issues.push({
-            ...issue,
-            input: issue.input,
-            message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
-          })
-        } else if (issue.code === 'custom') {
-          ctx.issues.push({
-            ...issue,
-            input: issue.input,
-            message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
-          })
-        }
+  return z
+    .transform((val: z.input<typeof Schema>) => val)
+    .check((ctx: z.core.ParsePayload) => {
+      const reported = ctx.issues.length
+      try {
+        return ((ctx) => {
+          const result = Schema.safeParse(ctx.value)
+          if (!result.success) {
+            for (const issue of result.error.issues) {
+              if (issue.code === 'invalid_type') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'too_big') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'too_small') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'invalid_format') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'not_multiple_of') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'unrecognized_keys') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'invalid_union') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'invalid_key') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'invalid_element') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'invalid_value') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'custom') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              }
+            }
+          }
+        })(ctx)
+      } catch (error) {
+        if (!(error instanceof z.core.$ZodAsyncError)) throw error
+        ctx.issues.length = reported
+        return (async (ctx) => {
+          const result = await Schema.safeParseAsync(ctx.value)
+          if (!result.success) {
+            for (const issue of result.error.issues) {
+              if (issue.code === 'invalid_type') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'too_big') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'too_small') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'invalid_format') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'not_multiple_of') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'unrecognized_keys') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'invalid_union') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'invalid_key') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'invalid_element') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'invalid_value') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              } else if (issue.code === 'custom') {
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: ((issue) => 'merged failed at ' + issue.path.join('.'))(issue),
+                })
+              }
+            }
+          }
+        })(ctx)
       }
-    }
-    return val
-  }, Schema)
+    })
+    .pipe(Schema)
 })().openapi('MergedArrow')`
 
 const MISC = `const MiscSchema = z
@@ -339,17 +555,22 @@ describe('messages written as an arrow function', () => {
 })
 
 // An intersection has no issue of its own to carry a message. So `x-allOf-message` is
-// emitted as a wrapper: the intersection is parsed inside the callback of a
-// `z.preprocess`, every issue it reports is added again with the configured message, and
-// the value is handed on to the intersection, which the pipe reaches only when nothing was
-// reported. A `z.preprocess` is what the OpenAPI document renders by the schema inside it;
-// a check piped into the intersection would be rendered as `{}` (#479).
+// emitted as a wrapper: a transform that hands its input on, with a check that parses the
+// intersection and adds every issue it reports again with the configured message, piped
+// into the intersection, which the pipe reaches only when nothing was reported. The check
+// parses a schema, so it tries synchronously first and, when that schema turns out to have
+// an asynchronous refinement, takes back what it reported and runs again, awaited (#645).
+// The OpenAPI document renders a pipe whose input side is a transform by the schema it is
+// piped into; a check on `z.unknown()` piped into the intersection would be rendered as
+// `{}` (#479).
 // 交差型には、メッセージを持たせるための固有の issue がない。そのため `x-allOf-message` は
-// ラッパーとして出力される。`z.preprocess` のコールバックの中で交差型をパースし、報告された
-// 各 issue を、設定されたメッセージで追加し直す。値はそのまま交差型に引き渡されるが、
-// 何も報告されなかった場合にのみパイプは交差型に到達する。`z.preprocess` は、OpenAPI
-// ドキュメント上で内側のスキーマとして描画される。交差型へパイプする check は `{}` として
-// 描画されてしまう (#479)。
+// ラッパーとして出力される。入力をそのまま渡す transform に check を付け、その中で交差型を
+// パースし、報告された各 issue を設定されたメッセージで追加し直す。それを交差型へパイプし、
+// 何も報告されなかった場合にのみパイプは交差型に到達する。check はスキーマをパースするので、
+// まず同期で試し、そのスキーマが非同期のリファインメントを持つと分かったら、報告した分を
+// 取り消して await でやり直す (#645)。OpenAPI ドキュメントは、入力側が transform のパイプを
+// パイプ先のスキーマとして描画する。`z.unknown()` に付けた check を交差型へパイプすると
+// `{}` として描画されてしまう (#479)。
 describe('x-allOf-message', () => {
   // The wrapper is an immediately invoked function, so that the inner schema is declared
   // once and shared by the callback and the pipe.
@@ -375,88 +596,132 @@ describe('x-allOf-message', () => {
   // 分岐が必要である。
   it('branches on invalid_type', () => {
     expect(branch('invalid_type')).toBe(`if (issue.code === 'invalid_type') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        }`)
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              }`)
   })
 
   // The code of a value above a maximum.
   // 最大値を超える値に対する code。
   it('branches on too_big', () => {
     expect(branch('too_big')).toBe(`if (issue.code === 'too_big') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        }`)
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              }`)
   })
 
   // The code of a value below a minimum.
   // 最小値を下回る値に対する code。
   it('branches on too_small', () => {
     expect(branch('too_small')).toBe(`if (issue.code === 'too_small') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        }`)
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              }`)
   })
 
   // The code of a string that fails its format or its pattern.
   // フォーマットまたはパターンに一致しない文字列に対する code。
   it('branches on invalid_format', () => {
     expect(branch('invalid_format')).toBe(`if (issue.code === 'invalid_format') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        }`)
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              }`)
   })
 
   // The code of a number that fails multipleOf.
   // multipleOf を満たさない数値に対する code。
   it('branches on not_multiple_of', () => {
     expect(branch('not_multiple_of')).toBe(`if (issue.code === 'not_multiple_of') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        }`)
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              }`)
   })
 
   // The code of an unknown key in a strict object.
   // 厳格なオブジェクトにおける未知のキーに対する code。
   it('branches on unrecognized_keys', () => {
     expect(branch('unrecognized_keys')).toBe(`if (issue.code === 'unrecognized_keys') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        }`)
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              }`)
   })
 
   // The code of a value that matches no branch of a union.
   // ユニオンのどの分岐にも一致しない値に対する code。
   it('branches on invalid_union', () => {
     expect(branch('invalid_union')).toBe(`if (issue.code === 'invalid_union') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        }`)
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              }`)
   })
 
   // The code of an invalid key of a record or a map.
   // レコードまたはマップにおける不正なキーに対する code。
   it('branches on invalid_key', () => {
     expect(branch('invalid_key')).toBe(`if (issue.code === 'invalid_key') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        }`)
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              }`)
   })
 
   // The code of an invalid element of a set or a map.
   // セットまたはマップにおける不正な要素に対する code。
   it('branches on invalid_element', () => {
     expect(branch('invalid_element')).toBe(`if (issue.code === 'invalid_element') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        }`)
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              }`)
   })
 
   // The code of a value outside an enum or a literal.
   // enum またはリテラルに含まれない値に対する code。
   it('branches on invalid_value', () => {
     expect(branch('invalid_value')).toBe(`if (issue.code === 'invalid_value') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        }`)
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              }`)
   })
 
   // The code of an issue a refinement adds.
   // refine によって追加された issue に対する code。
   it('branches on custom', () => {
     expect(branch('custom')).toBe(`if (issue.code === 'custom') {
-          ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
-        }`)
+                ctx.issues.push({
+                  ...issue,
+                  input: issue.input,
+                  message: 'merged validation failed',
+                })
+              }`)
   })
 
   // When the extension holds an arrow function, the function is emitted inline and called

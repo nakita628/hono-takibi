@@ -39,11 +39,16 @@ import {
   isAskedOperand,
   isConstOutsideType,
   makeConditionalCheck,
+  countMatches,
   makeIssueForwarding,
+  makeNotPredicate,
+  makeRefinement,
+  mayBeAsync,
   makeSiblingKeywordCheck,
   makeParentStrictCheck,
   makeSiblingCombinatorCheck,
   makeStrictOperandCheck,
+  makeUnevaluatedItemsCheck,
   makeUnevaluatedPropertiesCheck,
   canAcceptObject,
   canAdmitNullOrUndefined,
@@ -51,7 +56,7 @@ import {
   isShapeMember,
   requiresObject,
 } from '../../helper/zod.js'
-import type { RawCheck } from '../../helper/zod.js'
+import type { Parse, RawCheck } from '../../helper/zod.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
 import {
   CANONICAL_JSON_REPLACER,
@@ -93,8 +98,13 @@ import { _enum, integer, number, object, string } from './z/index.js'
 // (`RawCheck.async`): `safeParse` throws when that schema has an asynchronous
 // refinement, which a `safeParseAsync` of the whole schema would otherwise have
 // handled. The check is then run again, awaited — what it had reported so far is
-// taken back first — and the callback answers with a promise, which only an
-// asynchronous parse reaches.
+// taken back first — and answers with a promise, which only an asynchronous parse
+// reaches. Such a check is a check on a transform that hands its input on, piped into
+// the schema, not a `z.preprocess`: a callback of `z.preprocess` that answers with a
+// promise under a synchronous parse — the sync attempt of a check around this schema —
+// leaves a promise behind that Zod pipes into the schema and that then rejects
+// unhandled; a check that answers with one fails that parse and nothing more. The
+// document renders either by the schema, and `z.input` is the same.
 // `declarations` are statements put before `Schema`: an operand the check parses
 // is declared once and named in both, instead of being built again on every parse.
 function withRawCheck(
@@ -107,11 +117,20 @@ function withRawCheck(
   if (raw.async === undefined) {
     return withRawStatements(zod, `(${raw.sync})(ctx)`, declarations)
   }
-  return `(()=>{${declarations.join('')}const Schema=${zod};return z.preprocess((val: z.input<typeof Schema>,ctx)=>{const reported=ctx.issues.length;try{(${raw.sync})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (${raw.async})(ctx).then(()=>val)}return val},Schema)})()`
+  return `(()=>{${declarations.join('')}const Schema=${zod};return z.transform((val: z.input<typeof Schema>)=>val).check((ctx: z.core.ParsePayload)=>{const reported=ctx.issues.length;try{return (${raw.sync})(ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;ctx.issues.length=reported;return (${raw.async})(ctx)}}).pipe(Schema)})()`
 }
 
-// The same wrapper around statements that read `ctx` and `Schema` themselves:
-// the `allOf` message, which parses the intersection to report its issues again.
+// A check of what the schema hands out, as a refinement after it: `(val,ctx)=>`. Like a
+// check on the raw input, one that parses a schema of the document is run again, awaited,
+// when that schema turns out to have an asynchronous refinement. It reports nothing before
+// its last parse, so there is nothing to take back.
+function withOutputCheck(zod: string, check: RawCheck | undefined): string {
+  if (check === undefined) return zod
+  if (check.async === undefined) return `${zod}.superRefine(${check.sync})`
+  return `${zod}.superRefine((val,ctx)=>{try{return (${check.sync})(val,ctx)}catch(error){if(!(error instanceof z.core.$ZodAsyncError))throw error;return (${check.async})(val,ctx)}})`
+}
+
+// The same wrapper around the statements of the callback, which read `ctx` and `Schema`.
 function withRawStatements(
   zod: string,
   statements: string,
@@ -264,124 +283,166 @@ export function zodToOpenAPI(
     schema['x-coerce'] !== true
   // The file's `anyOf` of media types is not a combinator (see the `anyOf` path).
   const isMimeAnyOf = isBinaryFile(schema) && hasMimeAlternatives(schema)
-  // The combinators beside the one the paths below emit (#469). Sibling
-  // keywords are ANDed (JSON Schema 2020-12), so every one of them has to
-  // hold, but each path emits one combinator: `allOf` first, then `anyOf`, then
-  // `oneOf`, and `not` only when none of them is there. The others are checked
-  // on the raw input, around what the path emits (see
-  // `makeSiblingCombinatorCheck`), and the `anyOf` / `oneOf` among them are
-  // stated in the document beside the emitted one, as the source has them.
-  // Nothing is written beside a `$ref`: the component is emitted as it is.
-  const hasAnyOf = schema.anyOf !== undefined && !isMimeAnyOf
-  // The combinator the paths below emit; none beside a `$ref`, which is emitted alone.
-  const emittedCombinator =
-    schema.$ref !== undefined
-      ? undefined
-      : schema.allOf !== undefined
-        ? 'allOf'
-        : hasAnyOf
-          ? 'anyOf'
-          : schema.oneOf !== undefined
-            ? 'oneOf'
-            : undefined
-  const siblings: readonly ('anyOf' | 'oneOf' | 'not')[] =
-    emittedCombinator === undefined
-      ? []
-      : [
-          ...(emittedCombinator === 'allOf' && hasAnyOf && (schema.anyOf ?? []).length > 0
-            ? (['anyOf'] as const)
-            : []),
-          ...(emittedCombinator !== 'oneOf' && schema.oneOf !== undefined && schema.oneOf.length > 0
-            ? (['oneOf'] as const)
-            : []),
-          ...(schema.not === undefined ? [] : (['not'] as const)),
-        ]
-  // `additionalProperties: false` beside a combinator applies to the keys the schema
-  // itself declares, not to those of the members or the branches (JSON Schema
-  // 2020-12): no path below emits it — the sibling shape is a plain object — so
-  // the keys are checked on the raw input, and the keyword is stated in the
-  // document (see `makeParentStrictCheck`).
-  const parentStrict = emittedCombinator === undefined ? undefined : makeParentStrictCheck(schema)
-  // The validation keywords beside a combinator (`maxLength` beside `anyOf`, #598): no
-  // path below reads them — each emits the combinator alone — so they are checked on the
-  // raw input, and stated in the document (see `makeSiblingKeywordCheck`). A `not` with no
-  // declared type is emitted on `z.any()`, which reads none of them either. Beside a
-  // declared type that is not an object, `if` / `then` / `else` is the one keyword the
-  // typed emitters do not read (see `makeConditionalCheck`); a `not` or several types hand
-  // the keywords on to the schemas they emit, which check it themselves.
-  const declared = normalizeTypes(schema.type).filter((type) => type !== 'null')
-  const besideCombinator =
-    emittedCombinator !== undefined ||
-    (schema.$ref === undefined && schema.not !== undefined && declared.length === 0)
-  const keywordCheck =
-    schema.$ref !== undefined
-      ? undefined
-      : besideCombinator
-        ? makeSiblingKeywordCheck(schema, (s) => zodToOpenAPI(s, undefined, childOptions))
-        : schema.not === undefined && declared.length === 1 && declared[0] !== 'object'
-          ? makeConditionalCheck(schema, (s) => zodToOpenAPI(s, undefined, childOptions))
-          : undefined
-  const isWrapped = siblings.length > 0 || parentStrict !== undefined || keywordCheck !== undefined
-  const withSiblings = (zod: string) => {
-    if (!isWrapped) return zod
-    const checked = withRawCheck(
-      withRawCheck(
-        withRawCheck(
-          zod,
-          makeSiblingCombinatorCheck(schema, siblings, (s) =>
-            zodToOpenAPI(s, undefined, childOptions),
-          ),
-        ),
-        parentStrict,
-      ),
-      keywordCheck,
-    )
-    // The keywords the check holds, as the document states them: `wrap` leaves them out of
-    // `.openapi()` as said by the schema, and here nothing in the schema says them.
-    const statedKeywords = (() => {
-      if (!besideCombinator || keywordCheck === undefined) return []
-      const literal = schemaList(
-        [
-          Object.fromEntries(
-            Object.entries(schema).filter(([key]) => STATED_SIBLING_KEYWORDS.has(key)),
-          ),
-        ],
-        childOptions?.schemas,
-      )
-      // `[{...}]`: the fields of the one schema in the list.
-      const fields = literal?.slice(2, -2) ?? ''
-      return fields === '' ? [] : [fields]
-    })()
-    // A sibling list that only repeats a reference the emitted combinator has says nothing
-    // the emitted schema does not: `oneOf: [{ $ref: X }]` beside `allOf: [{ $ref: X }]`
-    // (NestJS Swagger). It is not stated: every reference in a stated list is written out
-    // as the component it names, a copy for each reference at each level, which doubles
-    // the literal with every level (#510). Nor is a list that copies too much out of the
-    // components (`schemaList`). Either is still checked on the raw input.
-    const emittedRefs = new Set(
-      (emittedCombinator === undefined ? [] : (schema[emittedCombinator] ?? [])).flatMap((sub) =>
-        isAnnotatedRef(sub) ? [sub.$ref] : [],
-      ),
-    )
-    const repeatsEmitted = (key: 'anyOf' | 'oneOf' | 'not', list: readonly Schema[]) =>
-      emittedCombinator === 'allOf' &&
-      (key === 'oneOf' ? list.length === 1 : true) &&
-      list.some((sub) => isAnnotatedRef(sub) && emittedRefs.has(sub.$ref))
-    const stated = [
-      ...siblings.flatMap((key) => {
-        const list = key === 'not' ? undefined : schema[key]
-        if (list === undefined || repeatsEmitted(key, list)) return []
-        const literal = schemaList(list, childOptions?.schemas)
-        return literal === undefined ? [] : [`${key}:${literal}`]
-      }),
-      ...(parentStrict === undefined ? [] : ['additionalProperties:false']),
-      ...statedKeywords,
-    ]
-    return stated.length === 0 ? checked : `${checked}.openapi({${stated.join(',')}})`
+  // A keyword that is a schema, as the document states it: the one schema of a list.
+  const statedSchema = (key: string, value: Schema | boolean | undefined) => {
+    if (typeof value === 'boolean') return [`${key}:${value}`]
+    const literal = value === undefined ? undefined : schemaList([value], childOptions?.schemas)
+    return literal === undefined ? [] : [`${key}:${literal.slice(1, -1)}`]
   }
+  // What is written beside the combinator a schema is emitted as, as checks around the
+  // emission. It is asked of the schema itself (`done`), and of a branch `distribute`
+  // rebuilds, whose own path does not run (#647).
+  const besideOf = (target: Schema) => {
+    // The combinators beside the one the paths below emit (#469). Sibling
+    // keywords are ANDed (JSON Schema 2020-12), so every one of them has to
+    // hold, but each path emits one combinator: `allOf` first, then `anyOf`, then
+    // `oneOf`, and `not` only when none of them is there. The others are checked
+    // on the raw input, around what the path emits (see
+    // `makeSiblingCombinatorCheck`), and the `anyOf` / `oneOf` among them are
+    // stated in the document beside the emitted one, as the source has them.
+    // Nothing is written beside a `$ref`: the component is emitted as it is.
+    const hasAnyOf =
+      target.anyOf !== undefined && !(isBinaryFile(target) && hasMimeAlternatives(target))
+    // The combinator the paths below emit; none beside a `$ref`, which is emitted alone.
+    const emittedCombinator =
+      target.$ref !== undefined
+        ? undefined
+        : target.allOf !== undefined
+          ? 'allOf'
+          : hasAnyOf
+            ? 'anyOf'
+            : target.oneOf !== undefined
+              ? 'oneOf'
+              : undefined
+    const siblings: readonly ('anyOf' | 'oneOf' | 'not')[] =
+      emittedCombinator === undefined
+        ? []
+        : [
+            ...(emittedCombinator === 'allOf' && hasAnyOf && (target.anyOf ?? []).length > 0
+              ? (['anyOf'] as const)
+              : []),
+            ...(emittedCombinator !== 'oneOf' &&
+            target.oneOf !== undefined &&
+            target.oneOf.length > 0
+              ? (['oneOf'] as const)
+              : []),
+            ...(target.not === undefined ? [] : (['not'] as const)),
+          ]
+    const recurse = (s: Schema) => zodToOpenAPI(s, undefined, childOptions)
+    // `additionalProperties` beside a combinator applies to the keys the schema
+    // itself declares, not to those of the members or the branches (JSON Schema
+    // 2020-12): no path below emits it — the sibling shape is a plain object — so
+    // the keys are checked on the raw input, and the keyword is stated in the
+    // document (see `makeParentStrictCheck`). `unevaluatedItems` applies to what the members
+    // leave unevaluated, and is checked the same way (see `makeUnevaluatedItemsCheck`); the
+    // document cannot state it, a Schema Object of `@hono/zod-openapi` has no such field.
+    const parentStrict =
+      emittedCombinator === undefined ? undefined : makeParentStrictCheck(target, recurse)
+    const unevaluatedItems =
+      emittedCombinator === undefined
+        ? undefined
+        : makeUnevaluatedItemsCheck(target, recurse, childOptions?.schemas)
+    // The validation keywords beside a combinator (`maxLength` beside `anyOf`, #598): no
+    // path below reads them — each emits the combinator alone — so they are checked on the
+    // raw input, and stated in the document (see `makeSiblingKeywordCheck`). A `not` with no
+    // declared type is emitted on `z.any()`, which reads none of them either, the shape
+    // (`properties` / `required`) included. Beside a declared type that is not an object,
+    // `if` / `then` / `else` is the one keyword the typed emitters do not read (see
+    // `makeConditionalCheck`); a `not` or several types hand the keywords on to the schemas
+    // they emit, which check it themselves, and so does an object or an array `const`,
+    // emitted as a refine of every keyword (#646).
+    const declared = normalizeTypes(target.type).filter((type) => type !== 'null')
+    const isNotAlone =
+      emittedCombinator === undefined &&
+      target.$ref === undefined &&
+      target.not !== undefined &&
+      declared.length === 0
+    const besideCombinator = emittedCombinator !== undefined || isNotAlone
+    const isConditional =
+      !besideCombinator &&
+      target.$ref === undefined &&
+      target.not === undefined &&
+      declared.length === 1 &&
+      declared[0] !== 'object' &&
+      !isStructured(target.const)
+    // Where the emitter converts its input itself, the conditional is asked of what the
+    // schema hands out: the raw input is the text, which no number keyword applies to.
+    const isConverted =
+      target['x-coerce'] === true ||
+      target['x-stringbool'] !== undefined ||
+      childOptions?.coerce === true
+    const keywordCheck = besideCombinator
+      ? makeSiblingKeywordCheck(target, recurse, isNotAlone)
+      : isConditional && !isConverted
+        ? makeConditionalCheck(target, recurse)
+        : undefined
+    const outputCheck =
+      isConditional && isConverted ? makeConditionalCheck(target, recurse, true) : undefined
+    const isWrapped =
+      siblings.length > 0 ||
+      parentStrict !== undefined ||
+      unevaluatedItems !== undefined ||
+      keywordCheck !== undefined ||
+      outputCheck !== undefined
+    const around = (zod: string) => {
+      if (!isWrapped) return zod
+      const checked = [
+        makeSiblingCombinatorCheck(target, siblings, recurse),
+        parentStrict,
+        unevaluatedItems,
+        keywordCheck,
+      ].reduce((acc, check) => withRawCheck(acc, check), withOutputCheck(zod, outputCheck))
+      // The keywords the check holds, as the document states them: `wrap` leaves them out of
+      // `.openapi()` as said by the schema, and here nothing in the schema says them.
+      const statedKeywords = (() => {
+        if (!besideCombinator || keywordCheck === undefined) return []
+        const literal = schemaList(
+          [
+            Object.fromEntries(
+              Object.entries(target).filter(([key]) => STATED_SIBLING_KEYWORDS.has(key)),
+            ),
+          ],
+          childOptions?.schemas,
+        )
+        // `[{...}]`: the fields of the one schema in the list.
+        const fields = literal?.slice(2, -2) ?? ''
+        return fields === '' ? [] : [fields]
+      })()
+      // A sibling list that only repeats a reference the emitted combinator has says nothing
+      // the emitted schema does not: `oneOf: [{ $ref: X }]` beside `allOf: [{ $ref: X }]`
+      // (NestJS Swagger). It is not stated: every reference in a stated list is written out
+      // as the component it names, a copy for each reference at each level, which doubles
+      // the literal with every level (#510). Nor is a list that copies too much out of the
+      // components (`schemaList`). Either is still checked on the raw input.
+      const emittedRefs = new Set(
+        (emittedCombinator === undefined ? [] : (target[emittedCombinator] ?? [])).flatMap((sub) =>
+          isAnnotatedRef(sub) ? [sub.$ref] : [],
+        ),
+      )
+      const repeatsEmitted = (key: 'anyOf' | 'oneOf' | 'not', list: readonly Schema[]) =>
+        emittedCombinator === 'allOf' &&
+        (key === 'oneOf' ? list.length === 1 : true) &&
+        list.some((sub) => isAnnotatedRef(sub) && emittedRefs.has(sub.$ref))
+      const stated = [
+        ...siblings.flatMap((key) => {
+          const list = key === 'not' ? undefined : target[key]
+          if (list === undefined || repeatsEmitted(key, list)) return []
+          const literal = schemaList(list, childOptions?.schemas)
+          return literal === undefined ? [] : [`${key}:${literal}`]
+        }),
+        ...(parentStrict === undefined
+          ? []
+          : statedSchema('additionalProperties', target.additionalProperties)),
+        ...statedKeywords,
+      ]
+      return stated.length === 0 ? checked : `${checked}.openapi({${stated.join(',')}})`
+    }
+    return { isWrapped, around }
+  }
+  const ownBeside = besideOf(schema)
   const done = (emittedZod: string, emitted: Schema, isNamed = false) => {
-    const zod = withSiblings(emittedZod)
-    const named = isNamed && !isWrapped
+    const zod = ownBeside.around(emittedZod)
+    const named = isNamed && !ownBeside.isWrapped
     const component = named && !isTriedSeveralWays
     const isFormArray = effective?.form === true && normalizeTypes(emitted.type).includes('array')
     // Text tried as several readings is tried as `null` among them, the last of all. That is
@@ -612,6 +673,16 @@ export function zodToOpenAPI(
       return shapeHasProperties ? andZ : `${andZ}.superRefine(${shapeRefine})`
     }
     if (!canAcceptObject(branch, childOptions?.schemas)) return child(branch)
+    // A union with a shape of its own beside it is not rebuilt below: that would emit its
+    // branches with the shape handed down here and leave its own out (#647).
+    const hasOwnShape =
+      Object.keys(branch.properties ?? {}).length > 0 || (branch.required ?? []).length > 0
+    if (hasOwnShape && branch.allOf === undefined && branch.$ref === undefined) {
+      const isUnion =
+        (branch.anyOf !== undefined && !(isBinaryFile(branch) && hasMimeAlternatives(branch))) ||
+        branch.oneOf !== undefined
+      if (isUnion) return null
+    }
     if (branch.allOf !== undefined) {
       // An intersection hands out the merge of its members' outputs: a key
       // survives when any member preserves it. When the intersection cannot
@@ -638,7 +709,8 @@ export function zodToOpenAPI(
       // same way: rebuilding the union bypasses the branch's anyOf path,
       // which is where the check is applied, so without this wrap the check
       // would be silently dropped whenever a shape is distributed into a
-      // nested combinator branch.
+      // nested combinator branch. So are the combinators and the keywords
+      // beside the branch's union (`besideOf`, #647).
       const branchUnevalCheck = makeUnevaluatedPropertiesCheck(
         branch,
         (s) => zodToOpenAPI(s, undefined, childOptions),
@@ -647,9 +719,11 @@ export function zodToOpenAPI(
         { anyOf: true },
       )
       return wrap(
-        withRawCheck(
-          `z.union([${parts.join(',')}]${message ? `,${error(message)}` : ''})`,
-          branchUnevalCheck,
+        besideOf(branch).around(
+          withRawCheck(
+            `z.union([${parts.join(',')}]${message ? `,${error(message)}` : ''})`,
+            branchUnevalCheck,
+          ),
         ),
         branch,
         undefined,
@@ -676,9 +750,11 @@ export function zodToOpenAPI(
         { oneOf: true },
       )
       return wrap(
-        withRawCheck(
-          `z.xor([${parts.join(',')}]${message ? `,${error(message)}` : ''})`,
-          branchUnevalCheck,
+        besideOf(branch).around(
+          withRawCheck(
+            `z.xor([${parts.join(',')}]${message ? `,${error(message)}` : ''})`,
+            branchUnevalCheck,
+          ),
         ),
         branch,
         undefined,
@@ -766,7 +842,7 @@ export function zodToOpenAPI(
     const shapeRefine =
       shapeSchema === undefined || shapeMember
         ? undefined
-        : emitObjectShapeRefine(shapeSchema, child)
+        : emitObjectShapeRefine(shapeSchema, child, childOptions?.schemas)
     // The refine form is only safe on `z.any()`, which passes the value through
     // unchanged; on a combinator result the shape must be a check on the raw
     // input, piped into the result (see `emitObjectShapeCheck`).
@@ -879,18 +955,30 @@ export function zodToOpenAPI(
       {},
     )
     if (allOfMessage || unevalCheck) {
-      const safeParseBranches = (() => {
-        const msgExpr = allOfMessage ? issueMessage(allOfMessage, 'issue') : undefined
-        const pushArg = msgExpr
-          ? `{...issue,input:issue.input,message:${msgExpr}}`
-          : '{...issue,input:issue.input}'
-        return `const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding(pushArg)}}}`
-      })()
-      const unevalCall = unevalCheck ? `;(${unevalCheck})(ctx)` : ''
+      const msgExpr = allOfMessage ? issueMessage(allOfMessage, 'issue') : undefined
+      const pushArg = msgExpr
+        ? `{...issue,input:issue.input,message:${msgExpr}}`
+        : '{...issue,input:issue.input}'
+      const forwarding = `if(!result.success){for(const issue of result.error.issues){${makeIssueForwarding(pushArg)}}}`
+      // The intersection is parsed to report its issues again, so the check comes with an
+      // awaited form, like every check that parses a schema of the document (#645).
+      // `Schema` is the intersection, as `withRawCheck` declares it. The
+      // `unevaluatedProperties` check runs after it, in the same callback.
+      const forwardCheck = {
+        sync: `(ctx)=>{const result=Schema.safeParse(ctx.value);${forwarding}}`,
+        async: `async(ctx)=>{const result=(await Schema.safeParseAsync(ctx.value));${forwarding}}`,
+      }
+      const messageCheck: RawCheck =
+        unevalCheck === undefined
+          ? forwardCheck
+          : {
+              sync: `(ctx)=>{(${forwardCheck.sync})(ctx);(${unevalCheck.sync})(ctx)}`,
+              async: `async(ctx)=>{await (${forwardCheck.async})(ctx);await (${unevalCheck.async ?? unevalCheck.sync})(ctx)}`,
+            }
       // A `z.preprocess`, not a check piped into the intersection: the
       // document renders it by the intersection, and `z.input` stays its
       // input type (#479, see `withRawCheck`).
-      const wrapped = withRawStatements(shaped, `${safeParseBranches}${unevalCall}`)
+      const wrapped = withRawCheck(shaped, messageCheck)
       return done(withRawCheck(wrapped, strictCheck, declarations), emitted)
     }
     // One reference and nothing to intersect it with: what is emitted is the component.
@@ -920,7 +1008,7 @@ export function zodToOpenAPI(
     // the check — a stripping object branch has already removed the unevaluated
     // keys before any refine on the union could see them — so the check runs on
     // the raw input, in a `z.preprocess` (see `withRawCheck`).
-    // `makeUnevaluatedPropertiesCheck` returns '' when the keyword is absent
+    // `makeUnevaluatedPropertiesCheck` returns `undefined` when the keyword is absent
     // or `true`, so schemas without it emit exactly what they did.
     const unevalCheck = makeUnevaluatedPropertiesCheck(
       schema,
@@ -994,7 +1082,7 @@ export function zodToOpenAPI(
         return done(withRawCheck(andZ, unevalCheck), schema)
       }
       const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
-      const shapeRefine = emitObjectShapeRefine(shapeSchema, child)
+      const shapeRefine = emitObjectShapeRefine(shapeSchema, child, childOptions?.schemas)
       const distributed = schema.anyOf.map((branch) =>
         distribute(branch, shapeZ, shapeRefine, schema.properties !== undefined, shapeSchema),
       )
@@ -1110,7 +1198,7 @@ export function zodToOpenAPI(
         return done(withRawCheck(andZ, unevalCheck), schema)
       }
       const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
-      const shapeRefine = emitObjectShapeRefine(shapeSchema, child)
+      const shapeRefine = emitObjectShapeRefine(shapeSchema, child, childOptions?.schemas)
       const distributed = schema.oneOf.map((branch) =>
         distribute(branch, shapeZ, shapeRefine, schema.properties !== undefined, shapeSchema),
       )
@@ -1169,7 +1257,7 @@ export function zodToOpenAPI(
     if (typeof schema.not === 'object' && schema.not.$ref !== undefined) {
       const refName = makeRef(schema.not.$ref)
       return done(
-        `${notBase}.refine((val) => !${refName}.safeParse(val).success${notErrorArg})`,
+        `${notBase}.refine(${makeNotPredicate(refName, mayBeAsync(schema.not, childOptions?.schemas))}${notErrorArg})`,
         schema,
       )
     }
@@ -1251,7 +1339,7 @@ export function zodToOpenAPI(
       // Complex sub-schema: full safeParse-based check
       const zod = zodToOpenAPI(not, undefined, childOptions)
       return done(
-        `${notBase}.refine((val) => !${zod}.safeParse(val).success${notErrorArg})`,
+        `${notBase}.refine(${makeNotPredicate(zod, mayBeAsync(not, childOptions?.schemas))}${notErrorArg})`,
         schema,
       )
     }
@@ -1271,7 +1359,11 @@ export function zodToOpenAPI(
       typeof value === 'boolean'
     if (!isPrimitive) {
       return done(
-        emitTypelessRefine(schema, (s) => zodToOpenAPI(s, undefined, childOptions)),
+        emitTypelessRefine(
+          schema,
+          (s) => zodToOpenAPI(s, undefined, childOptions),
+          childOptions?.schemas,
+        ),
         schema,
       )
     }
@@ -1292,7 +1384,11 @@ export function zodToOpenAPI(
     )
     if (hasNonPrimitive) {
       return done(
-        emitTypelessRefine(schema, (s) => zodToOpenAPI(s, undefined, childOptions)),
+        emitTypelessRefine(
+          schema,
+          (s) => zodToOpenAPI(s, undefined, childOptions),
+          childOptions?.schemas,
+        ),
         schema,
       )
     }
@@ -1311,7 +1407,11 @@ export function zodToOpenAPI(
   // checks a value of its own kind.
   if (schema.properties !== undefined && schema.type === undefined && !isUntypedObject(schema)) {
     return done(
-      emitTypelessRefine(schema, (s) => zodToOpenAPI(s, undefined, childOptions)),
+      emitTypelessRefine(
+        schema,
+        (s) => zodToOpenAPI(s, undefined, childOptions),
+        childOptions?.schemas,
+      ),
       schema,
     )
   }
@@ -1400,6 +1500,14 @@ export function zodToOpenAPI(
     const readonlyMod = readonly ? '.readonly()' : ''
     const arrayErrorMessage = schema['x-error-message']
     const arrayErrorArg = arrayErrorMessage ? `,${error(arrayErrorMessage)}` : ''
+    // The refinements of an array parse its subschemas: with one that may be asynchronous
+    // they come with an awaited form (see `makeRefinement`).
+    const isArrayAsync = mayBeAsync(
+      [schema.contains, schema.prefixItems, schema.items, schema.unevaluatedItems],
+      childOptions?.schemas,
+    )
+    const arrayRefinement = (build: (parse: Parse) => string) =>
+      makeRefinement('arr,ctx', build, isArrayAsync)
     const containsChain = (() => {
       if (!schema.contains) return ''
       const containsZod = referenced(schema.contains)
@@ -1408,7 +1516,7 @@ export function zodToOpenAPI(
         const messagePart = fallback
           ? `,message:${issueMessage(fallback, "{code:'custom',path:[],input:arr}")}`
           : ''
-        return `.superRefine((arr,ctx)=>{const Schema=${containsZod};const matched=arr.filter((i)=>Schema.safeParse(i).success).length;if(matched<1){ctx.addIssue({code:"custom"${messagePart}})}})`
+        return `.superRefine(${arrayRefinement((parse) => `const Schema=${containsZod};const matched=${countMatches(parse, 'Schema', 'arr')};if(matched<1){ctx.addIssue({code:"custom"${messagePart}})}`)})`
       }
       // minContains defaults to 1; explicit 0 skips the lower-bound check.
       const effectiveMin = schema.minContains ?? 1
@@ -1434,7 +1542,7 @@ export function zodToOpenAPI(
           : undefined
       const stmts = [minStmt, maxStmt].filter((v): v is string => v !== undefined)
       if (stmts.length === 0) return ''
-      return `.superRefine((arr,ctx)=>{const Schema=${containsZod};const matched=arr.filter((i)=>Schema.safeParse(i).success).length;${stmts.join(';')}})`
+      return `.superRefine(${arrayRefinement((parse) => `const Schema=${containsZod};const matched=${countMatches(parse, 'Schema', 'arr')};${stmts.join(';')}`)})`
     })()
     const prefixItemsMessage = schema['x-prefixItems-message'] ?? arrayErrorMessage
     const prefixItemsMessageOverride = prefixItemsMessage
@@ -1448,6 +1556,14 @@ export function zodToOpenAPI(
     const unevaluatedItemsMessageOverride = unevaluatedItemsMessage
       ? `,message:${issueMessage(unevaluatedItemsMessage, 'issue')}`
       : ''
+    // An element `contains` matches is evaluated (JSON Schema 2020-12 §11.2), so
+    // `unevaluatedItems` does not apply to such an element: `Contains` is declared, and
+    // the element skipped.
+    const containsDeclaration = schema.contains
+      ? `const Contains=${referenced(schema.contains)};`
+      : ''
+    const skipContained = (parse: Parse, value: string) =>
+      schema.contains ? `if(${parse('Contains', value)}.success){continue}` : ''
     const unevaluatedItemsChain = (() => {
       const ui = schema.unevaluatedItems
       if (ui === undefined || ui === true) return ''
@@ -1459,10 +1575,10 @@ export function zodToOpenAPI(
         const messagePart = slot
           ? `,message:${issueMessage(slot, "{code:'custom',path:[i],input:arr}")}`
           : ''
-        return `.superRefine((arr,ctx)=>{for(let i=${prefixCount};i<arr.length;i++){ctx.addIssue({code:"custom",path:[i]${messagePart}})}})`
+        return `.superRefine(${arrayRefinement((parse) => `${containsDeclaration}for(let i=${prefixCount};i<arr.length;i++){${skipContained(parse, 'arr[i]')}ctx.addIssue({code:"custom",path:[i]${messagePart}})}`)})`
       }
       const subZod = zodToOpenAPI(ui, undefined, childOptions)
-      return `.superRefine((arr,ctx)=>{const Schema=${subZod};for(const [idx,val] of arr.slice(${prefixCount}).entries()){const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[${prefixCount}+idx,...issue.path]${unevaluatedItemsMessageOverride}})}}}})`
+      return `.superRefine(${arrayRefinement((parse) => `${containsDeclaration}const Schema=${subZod};for(const [idx,val] of arr.slice(${prefixCount}).entries()){${skipContained(parse, 'val')}const result=${parse('Schema', 'val')};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[${prefixCount}+idx,...issue.path]${unevaluatedItemsMessageOverride}})}}}`)})`
     })()
     const lengthMessage = schema['x-length-message'] ?? arrayErrorMessage
     const sizeErrorArg = lengthMessage ? `,${error(lengthMessage)}` : ''
@@ -1550,21 +1666,24 @@ export function zodToOpenAPI(
         : itemsMessageOverride
       const capFromUneval = ui === false
       const capSlotMessage = capFromUneval ? unevaluatedItemsMessage : itemsMessage
-      const prefixCheck = `const Prefix=[${prefixCodes.join(',')}];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]${prefixItemsMessageOverride}})}}}`
-      const restCheck = restCode
-        ? `;const Rest=${restCode};for(const [i,val] of arr.slice(Prefix.length).entries()){const result=Rest.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]${restMessageOverride}})}}}`
-        : ''
+      const prefixCheck = (parse: Parse) =>
+        `const Prefix=[${prefixCodes.join(',')}];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=${parse('Schema', 'arr[i]')};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]${prefixItemsMessageOverride}})}}}`
+      const restCheck = (parse: Parse) =>
+        restCode
+          ? `;${restFromUneval ? containsDeclaration : ''}const Rest=${restCode};for(const [i,val] of arr.slice(Prefix.length).entries()){${restFromUneval ? skipContained(parse, 'val') : ''}const result=${parse('Rest', 'val')};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]${restMessageOverride}})}}}`
+          : ''
       const capSlot = capSlotMessage ?? arrayErrorMessage
       const capMessagePart = capSlot
         ? `,message:${issueMessage(capSlot, "{code:'custom',path:[i],input:arr}")}`
         : ''
-      const capCheck = lengthCapped
-        ? `;for(let i=Prefix.length;i<arr.length;i++){ctx.addIssue({code:"custom",path:[i]${capMessagePart}})}`
-        : ''
+      const capCheck = (parse: Parse) =>
+        lengthCapped
+          ? `;${capFromUneval ? containsDeclaration : ''}for(let i=Prefix.length;i<arr.length;i++){${capFromUneval ? skipContained(parse, 'arr[i]') : ''}ctx.addIssue({code:"custom",path:[i]${capMessagePart}})}`
+          : ''
       const arrayCtor = arrayErrorArg
         ? `z.array(z.unknown()${arrayErrorArg})`
         : 'z.array(z.unknown())'
-      const z = `${arrayCtor}.superRefine((arr,ctx)=>{${prefixCheck}${restCheck}${capCheck}})`
+      const z = `${arrayCtor}.superRefine(${arrayRefinement((parse) => `${prefixCheck(parse)}${restCheck(parse)}${capCheck(parse)}`)})`
       const tuple = `${z}${lengthChain}${uniqueChain}${containsChain}${readonlyMod}`
       return done(prefixWire === undefined ? tuple : `z.preprocess(${prefixWire},${tuple})`, schema)
     }
@@ -1618,7 +1737,11 @@ export function zodToOpenAPI(
   }
   if (types.length === 0 && hasTypelessConstraint(schema)) {
     return done(
-      emitTypelessRefine(schema, (s) => zodToOpenAPI(s, undefined, childOptions)),
+      emitTypelessRefine(
+        schema,
+        (s) => zodToOpenAPI(s, undefined, childOptions),
+        childOptions?.schemas,
+      ),
       schema,
     )
   }

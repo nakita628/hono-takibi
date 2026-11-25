@@ -1,4 +1,5 @@
-import { makeUnevaluatedProperties } from '../../../helper/zod.js'
+import { makeRefinement, makeUnevaluatedProperties, mayBeAsync } from '../../../helper/zod.js'
+import type { Parse } from '../../../helper/zod.js'
 import type { Schema } from '../../../openapi/index.js'
 import { error, issueMessage, makeSafeKey } from '../../../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
@@ -13,6 +14,21 @@ export function object(
     return zodToOpenAPI(schema, undefined, options)
   }
   const errorMessage = schema['x-error-message']
+  // The refinements below parse the subschemas of these keywords: with one that may be
+  // asynchronous they come with an awaited form (see `makeRefinement`).
+  const isObjectAsync = mayBeAsync(
+    [
+      schema.patternProperties,
+      schema.additionalProperties,
+      schema.dependentSchemas,
+      schema.if,
+      schema.then,
+      schema.else,
+    ],
+    options?.schemas,
+  )
+  const objectRefinement = (build: (parse: Parse) => string) =>
+    makeRefinement('o,ctx', build, isObjectAsync)
   // minProperties / maxProperties / patternProperties each have a dedicated
   // message slot, falling back to x-error-message when unset.
   const minPropertiesMessage = schema['x-minProperties-message'] ?? errorMessage
@@ -176,7 +192,7 @@ export function object(
     ? Object.entries(schema.patternProperties)
         .map(([pattern, propSchema]) => {
           const zodSchema = zodToOpenAPI(propSchema, undefined, options)
-          return `.superRefine((o,ctx)=>{const regex=new RegExp(${JSON.stringify(pattern)});const Schema=${zodSchema};for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]${patternPropertiesMessageOverride}})}}}})`
+          return `.superRefine(${objectRefinement((parse) => `const regex=new RegExp(${JSON.stringify(pattern)});const Schema=${zodSchema};for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=${parse('Schema', 'val')};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]${patternPropertiesMessageOverride}})}}}`)})`
         })
         .join('')
     : ''
@@ -215,7 +231,7 @@ export function object(
   // ahead of its path: what a catchall reports for the same key.
   const additionalKeys =
     additionalSchema !== undefined && hasPatternProperties
-      ? `.superRefine((o,ctx)=>{const Schema=${additionalSchema};for(const [k,val] of Object.entries(o)){if(${isAdditionalKey}){const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}})`
+      ? `.superRefine(${objectRefinement((parse) => `const Schema=${additionalSchema};for(const [k,val] of Object.entries(o)){if(${isAdditionalKey}){const result=${parse('Schema', 'val')};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}}`)})`
       : ''
   // Emits an issue per missing dependent key with path:[d] so the JSON pointer
   // locates it; x-dependentRequired-message (or x-error-message) overrides the
@@ -250,23 +266,29 @@ export function object(
     ? Object.entries(schema.dependentSchemas)
         .map(([key, subSchema]) => {
           const subZod = zodToOpenAPI(subSchema, undefined, options)
-          return `.superRefine((o,ctx)=>{if(!Object.hasOwn(o,${JSON.stringify(key)})){return}const Schema=${subZod};const result=Schema.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${dependentSchemasMessageField}})}}})`
+          return `.superRefine(${objectRefinement((parse) => `if(!Object.hasOwn(o,${JSON.stringify(key)})){return}const Schema=${subZod};const result=${parse('Schema', 'o')};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${dependentSchemasMessageField}})}}`)})`
         })
         .join('')
     : ''
   // if-then-else emits a superRefine whose inner issues propagate with original
   // path/code. When neither then nor else is set, no refine is emitted (no-op).
   const ifThenElse = (() => {
-    if (!schema.if) return ''
-    if (!schema.then && !schema.else) return ''
+    // A boolean schema is a schema: `then: false` fails every object the `if` holds for.
+    // `true` constrains nothing, like an absent one.
+    const thenSchema = schema.then === true ? undefined : schema.then
+    const elseSchema = schema.else === true ? undefined : schema.else
+    if (schema.if === undefined) return ''
+    if (thenSchema === undefined && elseSchema === undefined) return ''
     const ifZod = zodToOpenAPI(schema.if, undefined, options)
-    const thenZod = schema.then ? zodToOpenAPI(schema.then, undefined, options) : 'undefined'
-    const elseZod = schema.else ? zodToOpenAPI(schema.else, undefined, options) : 'undefined'
+    const thenZod =
+      thenSchema === undefined ? 'undefined' : zodToOpenAPI(thenSchema, undefined, options)
+    const elseZod =
+      elseSchema === undefined ? 'undefined' : zodToOpenAPI(elseSchema, undefined, options)
     const useSplitBranch = thenMessageSlot !== undefined || elseMessageSlot !== undefined
     if (!useSplitBranch) {
-      return `.superRefine((o,ctx)=>{const If=${ifZod};const ifOk=If.safeParse(o).success;const Branch=ifOk?${thenZod}:${elseZod};if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${ifMessageOverride}})}}})`
+      return `.superRefine(${objectRefinement((parse) => `const If=${ifZod};const ifOk=${parse('If', 'o')}.success;const Branch=ifOk?${thenZod}:${elseZod};if(!Branch){return}const result=${parse('Branch', 'o')};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${ifMessageOverride}})}}`)})`
     }
-    return `.superRefine((o,ctx)=>{const If=${ifZod};const ifOk=If.safeParse(o).success;if(ifOk){const Branch=${thenZod};if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${thenOverride}})}}}else{const Branch=${elseZod};if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${elseOverride}})}}}})`
+    return `.superRefine(${objectRefinement((parse) => `const If=${ifZod};const ifOk=${parse('If', 'o')}.success;if(ifOk){const Branch=${thenZod};if(!Branch){return}const result=${parse('Branch', 'o')};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${thenOverride}})}}}else{const Branch=${elseZod};if(!Branch){return}const result=${parse('Branch', 'o')};if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${elseOverride}})}}}`)})`
   })()
   // Delegated to makeUnevaluatedProperties (see helper/zod.ts).
   // JSON Schema 2020-12 §11.2: anyOf/oneOf/if-then-else contribute evaluated

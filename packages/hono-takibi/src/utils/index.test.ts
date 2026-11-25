@@ -7,6 +7,7 @@ import {
   cyclicNodes,
   ensureSuffix,
   error,
+  isArrowFunction,
   escapeHtml,
   escapeRegexLiteral,
   issueMessage,
@@ -509,8 +510,33 @@ export * from './user'
         '{error:(iss) => iss.input === undefined ? "Field is required." : "Invalid input."}',
       ],
       ['()=>"error"', '{error:()=>"error"}'],
+      // Text that only starts like an arrow function (#644)
+      ['(see docs) => too short', '{error:"(see docs) => too short"}'],
     ])(`error('%s') -> '%s'`, (input, expected) => {
       expect(error(input)).toBe(expected)
+    })
+  })
+  describe('isArrowFunction (#644)', () => {
+    it.concurrent.each([
+      ['()=>"error"', true],
+      ['(issue) => `bad ${issue.code}`', true],
+      ['  (iss) => iss.input === undefined ? "required" : "invalid"', true],
+      ['({ code }) => code', true],
+      ['(issue, fallback = "bad") => fallback', true],
+      ['(issue: { code: string }) => issue.code', true],
+      ['(issue) => { return issue.code }', true],
+      ['((issue) => issue.code)', true],
+      // Text: a parenthesised phrase and `=>`, which is no parameter list and no body.
+      ['(see docs) => too short', false],
+      ['(note) => see the docs', false],
+      ['(a, b) =>', false],
+      // More than the one function.
+      ['(issue) => "a"; process.exit(1)', false],
+      ['(issue) => "a") + ((other) => "b"', false],
+      ['Must be a string', false],
+      ['issue => issue.code', false],
+    ])('isArrowFunction(%o) -> %s', (message, expected) => {
+      expect(isArrowFunction(message)).toBe(expected)
     })
   })
   describe('canonicalJson', () => {
@@ -529,6 +555,8 @@ export * from './user'
       ['Contains "quotes"', 'issue', '"Contains \\"quotes\\""'],
       ['(issue) => `bad ${issue.code}`', 'issue', '((issue) => `bad ${issue.code}`)(issue)'],
       ['()=>"error"', "{code:'custom',input:val}", '(()=>"error")({code:\'custom\',input:val})'],
+      // Text that only starts like an arrow function (#644)
+      ['(see docs) => no duplicates', 'issue', '"(see docs) => no duplicates"'],
     ])(`issueMessage('%s', '%s') -> '%s'`, (message, issue, expected) => {
       expect(issueMessage(message, issue)).toBe(expected)
     })

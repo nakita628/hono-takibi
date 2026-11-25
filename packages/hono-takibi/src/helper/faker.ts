@@ -690,8 +690,13 @@ function exclusiveVariants(
   return exclusive.length > 0 ? exclusive : variants
 }
 
+// The keys a subschema requires; a boolean schema requires none.
+function requiredOf(sub: Schema | boolean | undefined) {
+  return typeof sub === 'object' ? (sub.required ?? []) : []
+}
+
 function conditionalRequired(schema: Schema) {
-  return [...(schema.then?.required ?? []), ...(schema.else?.required ?? [])]
+  return [...requiredOf(schema.then), ...requiredOf(schema.else)]
 }
 
 export function schemaToFaker(
