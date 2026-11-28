@@ -73,7 +73,7 @@
     "@effect/platform-node": "4.1.5",
     "@typespec/compiler": "catalog:",
     "@typespec/openapi3": "catalog:",
-    "effect": "4.1.4",
+    "effect": "4.1.5",
     "oxc-parser": "catalog:",
     "oxfmt": "^0.78.0"
   },
