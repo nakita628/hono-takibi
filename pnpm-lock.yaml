@@ -361,7 +361,7 @@ importers:
         specifier: 'catalog:'
         version: 0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/http@1.18.0(@typespec/compiler@1.18.0(@types/node@26.6.6))(@typespec/streams@0.88.0(@typespec/compiler@1.18.0(@types/node@26.6.6))))
       hono:
-        specifier: ^4.13.17
+        specifier: ^4.13.18
         version: 4.13.18
       typescript:
         specifier: ^7.0.2
