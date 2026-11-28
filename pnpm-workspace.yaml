@@ -29,7 +29,7 @@ catalog:
   # oxc-transform strips the types off the playground's generated mock before the browser runs
   # it; its browser build imports this binding the same way oxc-parser does.
   oxc-transform: ^0.158.0
-  '@oxc-transform/binding-wasm32-wasip1': ^0.158.0
+  '@oxc-transform/binding-wasm32-wasip1': ^0.159.0
   wrangler: ^4.158.0
   # What the playground's Mock view runs the generated server against; hono-takibi's own
   # devDependencies name the same releases, which are the ones the generator targets.
