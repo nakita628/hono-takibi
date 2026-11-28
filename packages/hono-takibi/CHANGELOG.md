@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.35.14](https://github.com/nakita628/hono-takibi/compare/v0.35.13...v0.35.14) (2026-11-28)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @effect/platform-node to v4.1.5 ([#659](https://github.com/nakita628/hono-takibi/issues/659)) ([cfb21d0](https://github.com/nakita628/hono-takibi/commit/cfb21d0d33510d34d21c95f48a378e127bcbb82b))
+* **deps:** update dependency effect to v4.1.5 ([#660](https://github.com/nakita628/hono-takibi/issues/660)) ([dd363b9](https://github.com/nakita628/hono-takibi/commit/dd363b99cae477c17a33212d5f87f18c27cd38e1))
+
 ## [0.35.13](https://github.com/nakita628/hono-takibi/compare/v0.35.12...v0.35.13) (2026-11-25)
 
 
