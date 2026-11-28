@@ -15,7 +15,7 @@
     "test": "vp run --filter ./packages/hono-takibi --filter ./test test"
   },
   "devDependencies": {
-    "knip": "^6.45.1",
+    "knip": "^6.47.0",
     "vite-plus": "1.5.0"
   },
   "packageManager": "pnpm@12.21.0"
